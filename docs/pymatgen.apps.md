@@ -15,621 +15,434 @@ applications.
 * [pymatgen.apps.battery package](pymatgen.apps.battery.md)
 
 
-    * [Subpackages](pymatgen.apps.battery.md#subpackages)
 
 
-        * [pymatgen.apps.battery.tests package](pymatgen.apps.battery.tests.md)
+        * [pymatgen.apps.battery.analyzer module](pymatgen.apps.battery.analyzer.md)
 
 
+            * [`BatteryAnalyzer`](pymatgen.apps.battery.analyzer.md#pymatgen.apps.battery.analyzer.BatteryAnalyzer)
 
 
-            * [pymatgen.apps.battery.tests.test_analyzer module](pymatgen.apps.battery.tests.md#module-pymatgen.apps.battery.tests.test_analyzer)
+                * [`BatteryAnalyzer.get_max_capgrav()`](pymatgen.apps.battery.analyzer.md#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capgrav)
 
 
-                * [`BatteryAnalyzerTest`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_analyzer.BatteryAnalyzerTest)
+                * [`BatteryAnalyzer.get_max_capvol()`](pymatgen.apps.battery.analyzer.md#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capvol)
 
 
-                    * [`BatteryAnalyzerTest.load_from_cif()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_analyzer.BatteryAnalyzerTest.load_from_cif)
+                * [`BatteryAnalyzer.get_removals_int_oxid()`](pymatgen.apps.battery.analyzer.md#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_removals_int_oxid)
 
 
-                    * [`BatteryAnalyzerTest.load_from_internal()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_analyzer.BatteryAnalyzerTest.load_from_internal)
+                * [`BatteryAnalyzer.max_ion_insertion`](pymatgen.apps.battery.analyzer.md#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_insertion)
 
 
-                    * [`BatteryAnalyzerTest.setUp()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_analyzer.BatteryAnalyzerTest.setUp)
+                * [`BatteryAnalyzer.max_ion_removal`](pymatgen.apps.battery.analyzer.md#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_removal)
 
 
-                    * [`BatteryAnalyzerTest.test_capacitygrav_calculations()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_analyzer.BatteryAnalyzerTest.test_capacitygrav_calculations)
+            * [`is_redox_active_intercalation()`](pymatgen.apps.battery.analyzer.md#pymatgen.apps.battery.analyzer.is_redox_active_intercalation)
 
 
-                    * [`BatteryAnalyzerTest.test_capacityvol_calculations()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_analyzer.BatteryAnalyzerTest.test_capacityvol_calculations)
+        * [pymatgen.apps.battery.battery_abc module](pymatgen.apps.battery.battery_abc.md)
 
 
-                    * [`BatteryAnalyzerTest.test_ion_removal()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_analyzer.BatteryAnalyzerTest.test_ion_removal)
+            * [`AbstractElectrode`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode)
 
 
-                    * [`BatteryAnalyzerTest.test_oxide_check()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_analyzer.BatteryAnalyzerTest.test_oxide_check)
+                * [`AbstractElectrode.voltage_pairs`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.voltage_pairs)
 
 
-            * [pymatgen.apps.battery.tests.test_conversion_battery module](pymatgen.apps.battery.tests.md#module-pymatgen.apps.battery.tests.test_conversion_battery)
+                * [`AbstractElectrode.working_ion`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.working_ion)
 
 
-                * [`ConversionElectrodeTest`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_conversion_battery.ConversionElectrodeTest)
+                * [`AbstractElectrode.working_ion_entry`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.working_ion_entry)
 
 
-                    * [`ConversionElectrodeTest.setUp()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_conversion_battery.ConversionElectrodeTest.setUp)
+                * [`AbstractElectrode.framework_formula`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.framework_formula)
 
 
-                    * [`ConversionElectrodeTest.test_composite()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_conversion_battery.ConversionElectrodeTest.test_composite)
+                * [`AbstractElectrode.framework`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.framework)
 
 
-                    * [`ConversionElectrodeTest.test_init()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_conversion_battery.ConversionElectrodeTest.test_init)
+                * [`AbstractElectrode.framework_formula`](pymatgen.apps.battery.battery_abc.md#id0)
 
 
-                    * [`ConversionElectrodeTest.test_summary()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_conversion_battery.ConversionElectrodeTest.test_summary)
+                * [`AbstractElectrode.get_average_voltage()`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_average_voltage)
 
 
-            * [pymatgen.apps.battery.tests.test_insertion_battery module](pymatgen.apps.battery.tests.md#module-pymatgen.apps.battery.tests.test_insertion_battery)
+                * [`AbstractElectrode.get_capacity_grav()`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_capacity_grav)
 
 
-                * [`InsertionElectrodeTest`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_insertion_battery.InsertionElectrodeTest)
+                * [`AbstractElectrode.get_capacity_vol()`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_capacity_vol)
 
 
-                    * [`InsertionElectrodeTest.setUp()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_insertion_battery.InsertionElectrodeTest.setUp)
+                * [`AbstractElectrode.get_energy_density()`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_energy_density)
 
 
-                    * [`InsertionElectrodeTest.test_capacities()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_insertion_battery.InsertionElectrodeTest.test_capacities)
+                * [`AbstractElectrode.get_specific_energy()`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_specific_energy)
 
 
-                    * [`InsertionElectrodeTest.test_entries()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_insertion_battery.InsertionElectrodeTest.test_entries)
+                * [`AbstractElectrode.get_sub_electrodes()`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_sub_electrodes)
 
 
-                    * [`InsertionElectrodeTest.test_get_all_entries()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_insertion_battery.InsertionElectrodeTest.test_get_all_entries)
+                * [`AbstractElectrode.get_summary_dict()`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_summary_dict)
 
 
-                    * [`InsertionElectrodeTest.test_get_instability()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_insertion_battery.InsertionElectrodeTest.test_get_instability)
+                * [`AbstractElectrode.max_delta_volume`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.max_delta_volume)
 
 
-                    * [`InsertionElectrodeTest.test_get_muO2()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_insertion_battery.InsertionElectrodeTest.test_get_muO2)
+                * [`AbstractElectrode.max_voltage`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.max_voltage)
 
 
-                    * [`InsertionElectrodeTest.test_get_summary_dict()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_insertion_battery.InsertionElectrodeTest.test_get_summary_dict)
+                * [`AbstractElectrode.max_voltage_step`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.max_voltage_step)
 
 
-                    * [`InsertionElectrodeTest.test_init_no_structure()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_insertion_battery.InsertionElectrodeTest.test_init_no_structure)
+                * [`AbstractElectrode.min_voltage`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.min_voltage)
 
 
-                    * [`InsertionElectrodeTest.test_to_from_dict()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_insertion_battery.InsertionElectrodeTest.test_to_from_dict)
+                * [`AbstractElectrode.normalization_mass`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.normalization_mass)
 
 
-                    * [`InsertionElectrodeTest.test_voltage()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_insertion_battery.InsertionElectrodeTest.test_voltage)
+                * [`AbstractElectrode.normalization_volume`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.normalization_volume)
 
 
-                    * [`InsertionElectrodeTest.test_voltage_pair()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_insertion_battery.InsertionElectrodeTest.test_voltage_pair)
+                * [`AbstractElectrode.num_steps`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.num_steps)
 
 
-            * [pymatgen.apps.battery.tests.test_plotter module](pymatgen.apps.battery.tests.md#module-pymatgen.apps.battery.tests.test_plotter)
+                * [`AbstractElectrode.voltage_pairs`](pymatgen.apps.battery.battery_abc.md#id1)
 
 
-                * [`VoltageProfilePlotterTest`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_plotter.VoltageProfilePlotterTest)
+                * [`AbstractElectrode.working_ion`](pymatgen.apps.battery.battery_abc.md#id2)
 
 
-                    * [`VoltageProfilePlotterTest.setUp()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_plotter.VoltageProfilePlotterTest.setUp)
+                * [`AbstractElectrode.working_ion_entry`](pymatgen.apps.battery.battery_abc.md#id3)
 
 
-                    * [`VoltageProfilePlotterTest.testName()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_plotter.VoltageProfilePlotterTest.testName)
+                * [`AbstractElectrode.x_charge`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.x_charge)
 
 
-                    * [`VoltageProfilePlotterTest.testPlotly()`](pymatgen.apps.battery.tests.md#pymatgen.apps.battery.tests.test_plotter.VoltageProfilePlotterTest.testPlotly)
+                * [`AbstractElectrode.x_discharge`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.x_discharge)
 
 
+            * [`AbstractVoltagePair`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair)
 
 
-    * [pymatgen.apps.battery.analyzer module](pymatgen.apps.battery.md#module-pymatgen.apps.battery.analyzer)
+                * [`AbstractVoltagePair.voltage`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.voltage)
 
 
-        * [`BatteryAnalyzer`](pymatgen.apps.battery.md#pymatgen.apps.battery.analyzer.BatteryAnalyzer)
+                * [`AbstractVoltagePair.mAh`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.mAh)
 
 
-            * [`BatteryAnalyzer.get_max_capgrav()`](pymatgen.apps.battery.md#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capgrav)
+                * [`AbstractVoltagePair.mass_charge`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.mass_charge)
 
 
-            * [`BatteryAnalyzer.get_max_capvol()`](pymatgen.apps.battery.md#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_max_capvol)
+                * [`AbstractVoltagePair.mass_discharge`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.mass_discharge)
 
 
-            * [`BatteryAnalyzer.get_removals_int_oxid()`](pymatgen.apps.battery.md#pymatgen.apps.battery.analyzer.BatteryAnalyzer.get_removals_int_oxid)
+                * [`AbstractVoltagePair.vol_charge`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.vol_charge)
 
 
-            * [`BatteryAnalyzer.max_ion_insertion`](pymatgen.apps.battery.md#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_insertion)
+                * [`AbstractVoltagePair.vol_discharge`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.vol_discharge)
 
 
-            * [`BatteryAnalyzer.max_ion_removal`](pymatgen.apps.battery.md#pymatgen.apps.battery.analyzer.BatteryAnalyzer.max_ion_removal)
+                * [`AbstractVoltagePair.frac_charge`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.frac_charge)
 
 
-        * [`is_redox_active_intercalation()`](pymatgen.apps.battery.md#pymatgen.apps.battery.analyzer.is_redox_active_intercalation)
+                * [`AbstractVoltagePair.frac_discharge`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.frac_discharge)
 
 
-    * [pymatgen.apps.battery.battery_abc module](pymatgen.apps.battery.md#module-pymatgen.apps.battery.battery_abc)
+                * [`AbstractVoltagePair.working_ion_entry`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.working_ion_entry)
 
 
-        * [`AbstractElectrode`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode)
+                * [`AbstractVoltagePair.framework_formula`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.framework_formula)
 
 
-            * [`AbstractElectrode.voltage_pairs`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.voltage_pairs)
+                * [`AbstractVoltagePair.frac_charge`](pymatgen.apps.battery.battery_abc.md#id4)
 
 
-            * [`AbstractElectrode.working_ion`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.working_ion)
+                * [`AbstractVoltagePair.frac_discharge`](pymatgen.apps.battery.battery_abc.md#id5)
 
 
-            * [`AbstractElectrode.working_ion_entry`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.working_ion_entry)
+                * [`AbstractVoltagePair.framework`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.framework)
 
 
-            * [`AbstractElectrode.framework_formula`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.framework_formula)
+                * [`AbstractVoltagePair.framework_formula`](pymatgen.apps.battery.battery_abc.md#id6)
 
 
-            * [`AbstractElectrode.framework`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.framework)
+                * [`AbstractVoltagePair.mAh`](pymatgen.apps.battery.battery_abc.md#id7)
 
 
-            * [`AbstractElectrode.framework_formula`](pymatgen.apps.battery.md#id0)
+                * [`AbstractVoltagePair.mass_charge`](pymatgen.apps.battery.battery_abc.md#id8)
 
 
-            * [`AbstractElectrode.get_average_voltage()`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_average_voltage)
+                * [`AbstractVoltagePair.mass_discharge`](pymatgen.apps.battery.battery_abc.md#id9)
 
 
-            * [`AbstractElectrode.get_capacity_grav()`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_capacity_grav)
+                * [`AbstractVoltagePair.vol_charge`](pymatgen.apps.battery.battery_abc.md#id10)
 
 
-            * [`AbstractElectrode.get_capacity_vol()`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_capacity_vol)
+                * [`AbstractVoltagePair.vol_discharge`](pymatgen.apps.battery.battery_abc.md#id11)
 
 
-            * [`AbstractElectrode.get_energy_density()`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_energy_density)
+                * [`AbstractVoltagePair.voltage`](pymatgen.apps.battery.battery_abc.md#id12)
 
 
-            * [`AbstractElectrode.get_specific_energy()`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_specific_energy)
+                * [`AbstractVoltagePair.working_ion`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.working_ion)
 
 
-            * [`AbstractElectrode.get_sub_electrodes()`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_sub_electrodes)
+                * [`AbstractVoltagePair.working_ion_entry`](pymatgen.apps.battery.battery_abc.md#id13)
 
 
-            * [`AbstractElectrode.get_summary_dict()`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_summary_dict)
+                * [`AbstractVoltagePair.x_charge`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.x_charge)
 
 
-            * [`AbstractElectrode.max_delta_volume`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.max_delta_volume)
+                * [`AbstractVoltagePair.x_discharge`](pymatgen.apps.battery.battery_abc.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.x_discharge)
 
 
-            * [`AbstractElectrode.max_voltage`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.max_voltage)
+        * [pymatgen.apps.battery.conversion_battery module](pymatgen.apps.battery.conversion_battery.md)
 
 
-            * [`AbstractElectrode.max_voltage_step`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.max_voltage_step)
+            * [`ConversionElectrode`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode)
 
 
-            * [`AbstractElectrode.min_voltage`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.min_voltage)
+                * [`ConversionElectrode.from_composition_and_entries()`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries)
 
 
-            * [`AbstractElectrode.normalization_mass`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.normalization_mass)
+                * [`ConversionElectrode.from_composition_and_pd()`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd)
 
 
-            * [`AbstractElectrode.normalization_volume`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.normalization_volume)
+                * [`ConversionElectrode.get_sub_electrodes()`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.get_sub_electrodes)
 
 
-            * [`AbstractElectrode.num_steps`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.num_steps)
+                * [`ConversionElectrode.get_summary_dict()`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.get_summary_dict)
 
 
-            * [`AbstractElectrode.voltage_pairs`](pymatgen.apps.battery.md#id1)
+                * [`ConversionElectrode.initial_comp`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.initial_comp)
 
 
-            * [`AbstractElectrode.working_ion`](pymatgen.apps.battery.md#id2)
+                * [`ConversionElectrode.initial_comp_formula`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.initial_comp_formula)
 
 
-            * [`AbstractElectrode.working_ion_entry`](pymatgen.apps.battery.md#id3)
+                * [`ConversionElectrode.is_super_electrode()`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.is_super_electrode)
 
 
-            * [`AbstractElectrode.x_charge`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.x_charge)
+            * [`ConversionVoltagePair`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair)
 
 
-            * [`AbstractElectrode.x_discharge`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractElectrode.x_discharge)
+                * [`ConversionVoltagePair.rxn`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.rxn)
 
 
-        * [`AbstractVoltagePair`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair)
+                * [`ConversionVoltagePair.voltage`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.voltage)
 
 
-            * [`AbstractVoltagePair.voltage`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.voltage)
+                * [`ConversionVoltagePair.mAh`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mAh)
 
 
-            * [`AbstractVoltagePair.mAh`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.mAh)
+                * [`ConversionVoltagePair.vol_charge`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.vol_charge)
 
 
-            * [`AbstractVoltagePair.mass_charge`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.mass_charge)
+                * [`ConversionVoltagePair.vol_discharge`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.vol_discharge)
 
 
-            * [`AbstractVoltagePair.mass_discharge`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.mass_discharge)
+                * [`ConversionVoltagePair.mass_charge`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mass_charge)
 
 
-            * [`AbstractVoltagePair.vol_charge`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.vol_charge)
+                * [`ConversionVoltagePair.mass_discharge`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mass_discharge)
 
 
-            * [`AbstractVoltagePair.vol_discharge`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.vol_discharge)
+                * [`ConversionVoltagePair.frac_charge`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.frac_charge)
 
 
-            * [`AbstractVoltagePair.frac_charge`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.frac_charge)
+                * [`ConversionVoltagePair.frac_discharge`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.frac_discharge)
 
 
-            * [`AbstractVoltagePair.frac_discharge`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.frac_discharge)
+                * [`ConversionVoltagePair.entries_charge`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.entries_charge)
 
 
-            * [`AbstractVoltagePair.working_ion_entry`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.working_ion_entry)
+                * [`ConversionVoltagePair.entries_discharge`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.entries_discharge)
 
 
-            * [`AbstractVoltagePair.framework_formula`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.framework_formula)
+                * [`ConversionVoltagePair.working_ion_entry`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.working_ion_entry)
 
 
-            * [`AbstractVoltagePair.frac_charge`](pymatgen.apps.battery.md#id4)
+                * [`ConversionVoltagePair.entries_charge`](pymatgen.apps.battery.conversion_battery.md#id0)
 
 
-            * [`AbstractVoltagePair.frac_discharge`](pymatgen.apps.battery.md#id5)
+                * [`ConversionVoltagePair.entries_discharge`](pymatgen.apps.battery.conversion_battery.md#id1)
 
 
-            * [`AbstractVoltagePair.framework`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.framework)
+                * [`ConversionVoltagePair.from_steps()`](pymatgen.apps.battery.conversion_battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.from_steps)
 
 
-            * [`AbstractVoltagePair.framework_formula`](pymatgen.apps.battery.md#id6)
+                * [`ConversionVoltagePair.rxn`](pymatgen.apps.battery.conversion_battery.md#id2)
 
 
-            * [`AbstractVoltagePair.mAh`](pymatgen.apps.battery.md#id7)
+        * [pymatgen.apps.battery.insertion_battery module](pymatgen.apps.battery.insertion_battery.md)
 
 
-            * [`AbstractVoltagePair.mass_charge`](pymatgen.apps.battery.md#id8)
+            * [`InsertionElectrode`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode)
 
 
-            * [`AbstractVoltagePair.mass_discharge`](pymatgen.apps.battery.md#id9)
+                * [`InsertionElectrode.as_dict_legacy()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict_legacy)
 
 
-            * [`AbstractVoltagePair.vol_charge`](pymatgen.apps.battery.md#id10)
+                * [`InsertionElectrode.from_dict_legacy()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_dict_legacy)
 
 
-            * [`AbstractVoltagePair.vol_discharge`](pymatgen.apps.battery.md#id11)
+                * [`InsertionElectrode.from_entries()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_entries)
 
 
-            * [`AbstractVoltagePair.voltage`](pymatgen.apps.battery.md#id12)
+                * [`InsertionElectrode.fully_charged_entry`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_charged_entry)
 
 
-            * [`AbstractVoltagePair.working_ion`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.working_ion)
+                * [`InsertionElectrode.fully_discharged_entry`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_discharged_entry)
 
 
-            * [`AbstractVoltagePair.working_ion_entry`](pymatgen.apps.battery.md#id13)
+                * [`InsertionElectrode.get_all_entries()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_all_entries)
 
 
-            * [`AbstractVoltagePair.x_charge`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.x_charge)
+                * [`InsertionElectrode.get_max_instability()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_instability)
 
 
-            * [`AbstractVoltagePair.x_discharge`](pymatgen.apps.battery.md#pymatgen.apps.battery.battery_abc.AbstractVoltagePair.x_discharge)
+                * [`InsertionElectrode.get_max_muO2()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_muO2)
 
 
-    * [pymatgen.apps.battery.conversion_battery module](pymatgen.apps.battery.md#module-pymatgen.apps.battery.conversion_battery)
+                * [`InsertionElectrode.get_min_instability()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_instability)
 
 
-        * [`ConversionElectrode`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode)
+                * [`InsertionElectrode.get_min_muO2()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_muO2)
 
 
-            * [`ConversionElectrode.from_composition_and_entries()`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_entries)
+                * [`InsertionElectrode.get_stable_entries()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_stable_entries)
 
 
-            * [`ConversionElectrode.from_composition_and_pd()`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_composition_and_pd)
+                * [`InsertionElectrode.get_sub_electrodes()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_sub_electrodes)
 
 
-            * [`ConversionElectrode.get_sub_electrodes()`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.get_sub_electrodes)
+                * [`InsertionElectrode.get_summary_dict()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_summary_dict)
 
 
-            * [`ConversionElectrode.get_summary_dict()`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.get_summary_dict)
+                * [`InsertionElectrode.get_unstable_entries()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_unstable_entries)
 
 
-            * [`ConversionElectrode.initial_comp`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.initial_comp)
+                * [`InsertionElectrode.stable_entries`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.stable_entries)
 
 
-            * [`ConversionElectrode.initial_comp_formula`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.initial_comp_formula)
+                * [`InsertionElectrode.unstable_entries`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.unstable_entries)
 
 
-            * [`ConversionElectrode.is_super_electrode()`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionElectrode.is_super_electrode)
+            * [`InsertionVoltagePair`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair)
 
 
-        * [`ConversionVoltagePair`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair)
+                * [`InsertionVoltagePair.entry_charge`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.entry_charge)
 
 
-            * [`ConversionVoltagePair.rxn`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.rxn)
+                * [`InsertionVoltagePair.entry_discharge`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.entry_discharge)
 
 
-            * [`ConversionVoltagePair.voltage`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.voltage)
+                * [`InsertionVoltagePair.from_entries()`](pymatgen.apps.battery.insertion_battery.md#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.from_entries)
 
 
-            * [`ConversionVoltagePair.mAh`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mAh)
+        * [pymatgen.apps.battery.plotter module](pymatgen.apps.battery.plotter.md)
 
 
-            * [`ConversionVoltagePair.vol_charge`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.vol_charge)
+            * [`VoltageProfilePlotter`](pymatgen.apps.battery.plotter.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter)
 
 
-            * [`ConversionVoltagePair.vol_discharge`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.vol_discharge)
+                * [`VoltageProfilePlotter.add_electrode()`](pymatgen.apps.battery.plotter.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter.add_electrode)
 
 
-            * [`ConversionVoltagePair.mass_charge`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mass_charge)
+                * [`VoltageProfilePlotter.get_plot()`](pymatgen.apps.battery.plotter.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot)
 
 
-            * [`ConversionVoltagePair.mass_discharge`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.mass_discharge)
+                * [`VoltageProfilePlotter.get_plot_data()`](pymatgen.apps.battery.plotter.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot_data)
 
 
-            * [`ConversionVoltagePair.frac_charge`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.frac_charge)
+                * [`VoltageProfilePlotter.get_plotly_figure()`](pymatgen.apps.battery.plotter.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plotly_figure)
 
 
-            * [`ConversionVoltagePair.frac_discharge`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.frac_discharge)
+                * [`VoltageProfilePlotter.save()`](pymatgen.apps.battery.plotter.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter.save)
 
 
-            * [`ConversionVoltagePair.entries_charge`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.entries_charge)
-
-
-            * [`ConversionVoltagePair.entries_discharge`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.entries_discharge)
-
-
-            * [`ConversionVoltagePair.working_ion_entry`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.working_ion_entry)
-
-
-            * [`ConversionVoltagePair.entries_charge`](pymatgen.apps.battery.md#id14)
-
-
-            * [`ConversionVoltagePair.entries_discharge`](pymatgen.apps.battery.md#id15)
-
-
-            * [`ConversionVoltagePair.from_steps()`](pymatgen.apps.battery.md#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.from_steps)
-
-
-            * [`ConversionVoltagePair.rxn`](pymatgen.apps.battery.md#id16)
-
-
-    * [pymatgen.apps.battery.insertion_battery module](pymatgen.apps.battery.md#module-pymatgen.apps.battery.insertion_battery)
-
-
-        * [`InsertionElectrode`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode)
-
-
-            * [`InsertionElectrode.as_dict_legacy()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict_legacy)
-
-
-            * [`InsertionElectrode.from_dict_legacy()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_dict_legacy)
-
-
-            * [`InsertionElectrode.from_entries()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_entries)
-
-
-            * [`InsertionElectrode.fully_charged_entry`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_charged_entry)
-
-
-            * [`InsertionElectrode.fully_discharged_entry`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_discharged_entry)
-
-
-            * [`InsertionElectrode.get_all_entries()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_all_entries)
-
-
-            * [`InsertionElectrode.get_max_instability()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_instability)
-
-
-            * [`InsertionElectrode.get_max_muO2()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_muO2)
-
-
-            * [`InsertionElectrode.get_min_instability()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_instability)
-
-
-            * [`InsertionElectrode.get_min_muO2()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_muO2)
-
-
-            * [`InsertionElectrode.get_stable_entries()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_stable_entries)
-
-
-            * [`InsertionElectrode.get_sub_electrodes()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_sub_electrodes)
-
-
-            * [`InsertionElectrode.get_summary_dict()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_summary_dict)
-
-
-            * [`InsertionElectrode.get_unstable_entries()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_unstable_entries)
-
-
-            * [`InsertionElectrode.stable_entries`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.stable_entries)
-
-
-            * [`InsertionElectrode.unstable_entries`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionElectrode.unstable_entries)
-
-
-        * [`InsertionVoltagePair`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair)
-
-
-            * [`InsertionVoltagePair.entry_charge`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.entry_charge)
-
-
-            * [`InsertionVoltagePair.entry_discharge`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.entry_discharge)
-
-
-            * [`InsertionVoltagePair.from_entries()`](pymatgen.apps.battery.md#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.from_entries)
-
-
-    * [pymatgen.apps.battery.plotter module](pymatgen.apps.battery.md#module-pymatgen.apps.battery.plotter)
-
-
-        * [`VoltageProfilePlotter`](pymatgen.apps.battery.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter)
-
-
-            * [`VoltageProfilePlotter.add_electrode()`](pymatgen.apps.battery.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter.add_electrode)
-
-
-            * [`VoltageProfilePlotter.get_plot()`](pymatgen.apps.battery.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot)
-
-
-            * [`VoltageProfilePlotter.get_plot_data()`](pymatgen.apps.battery.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plot_data)
-
-
-            * [`VoltageProfilePlotter.get_plotly_figure()`](pymatgen.apps.battery.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter.get_plotly_figure)
-
-
-            * [`VoltageProfilePlotter.save()`](pymatgen.apps.battery.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter.save)
-
-
-            * [`VoltageProfilePlotter.show()`](pymatgen.apps.battery.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter.show)
+                * [`VoltageProfilePlotter.show()`](pymatgen.apps.battery.plotter.md#pymatgen.apps.battery.plotter.VoltageProfilePlotter.show)
 
 
 * [pymatgen.apps.borg package](pymatgen.apps.borg.md)
 
 
-    * [Subpackages](pymatgen.apps.borg.md#subpackages)
 
 
-        * [pymatgen.apps.borg.tests package](pymatgen.apps.borg.tests.md)
+        * [pymatgen.apps.borg.hive module](pymatgen.apps.borg.hive.md)
 
 
+            * [`AbstractDrone`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.AbstractDrone)
 
 
-            * [pymatgen.apps.borg.tests.test_hive module](pymatgen.apps.borg.tests.md#module-pymatgen.apps.borg.tests.test_hive)
+                * [`AbstractDrone.assimilate()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.AbstractDrone.assimilate)
 
 
-                * [`GaussianToComputedEntryDroneTest`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.GaussianToComputedEntryDroneTest)
+                * [`AbstractDrone.get_valid_paths()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.AbstractDrone.get_valid_paths)
 
 
-                    * [`GaussianToComputedEntryDroneTest.setUp()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.GaussianToComputedEntryDroneTest.setUp)
+            * [`GaussianToComputedEntryDrone`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone)
 
 
-                    * [`GaussianToComputedEntryDroneTest.tearDown()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.GaussianToComputedEntryDroneTest.tearDown)
+                * [`GaussianToComputedEntryDrone.as_dict()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.as_dict)
 
 
-                    * [`GaussianToComputedEntryDroneTest.test_assimilate()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.GaussianToComputedEntryDroneTest.test_assimilate)
+                * [`GaussianToComputedEntryDrone.assimilate()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.assimilate)
 
 
-                    * [`GaussianToComputedEntryDroneTest.test_get_valid_paths()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.GaussianToComputedEntryDroneTest.test_get_valid_paths)
+                * [`GaussianToComputedEntryDrone.from_dict()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.from_dict)
 
 
-                    * [`GaussianToComputedEntryDroneTest.test_to_from_dict()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.GaussianToComputedEntryDroneTest.test_to_from_dict)
+                * [`GaussianToComputedEntryDrone.get_valid_paths()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.get_valid_paths)
 
 
-                * [`SimpleVaspToComputedEntryDroneTest`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.SimpleVaspToComputedEntryDroneTest)
+            * [`SimpleVaspToComputedEntryDrone`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone)
 
 
-                    * [`SimpleVaspToComputedEntryDroneTest.setUp()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.SimpleVaspToComputedEntryDroneTest.setUp)
+                * [`SimpleVaspToComputedEntryDrone.as_dict()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.as_dict)
 
 
-                    * [`SimpleVaspToComputedEntryDroneTest.tearDown()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.SimpleVaspToComputedEntryDroneTest.tearDown)
+                * [`SimpleVaspToComputedEntryDrone.assimilate()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.assimilate)
 
 
-                    * [`SimpleVaspToComputedEntryDroneTest.test_get_valid_paths()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.SimpleVaspToComputedEntryDroneTest.test_get_valid_paths)
+                * [`SimpleVaspToComputedEntryDrone.from_dict()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.from_dict)
 
 
-                    * [`SimpleVaspToComputedEntryDroneTest.test_to_from_dict()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.SimpleVaspToComputedEntryDroneTest.test_to_from_dict)
+            * [`VaspToComputedEntryDrone`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.VaspToComputedEntryDrone)
 
 
-                * [`VaspToComputedEntryDroneTest`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.VaspToComputedEntryDroneTest)
+                * [`VaspToComputedEntryDrone.as_dict()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.as_dict)
 
 
-                    * [`VaspToComputedEntryDroneTest.setUp()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.VaspToComputedEntryDroneTest.setUp)
+                * [`VaspToComputedEntryDrone.assimilate()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.assimilate)
 
 
-                    * [`VaspToComputedEntryDroneTest.tearDown()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.VaspToComputedEntryDroneTest.tearDown)
+                * [`VaspToComputedEntryDrone.from_dict()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.from_dict)
 
 
-                    * [`VaspToComputedEntryDroneTest.test_assimilate()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.VaspToComputedEntryDroneTest.test_assimilate)
+                * [`VaspToComputedEntryDrone.get_valid_paths()`](pymatgen.apps.borg.hive.md#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.get_valid_paths)
 
 
-                    * [`VaspToComputedEntryDroneTest.test_get_valid_paths()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.VaspToComputedEntryDroneTest.test_get_valid_paths)
+        * [pymatgen.apps.borg.queen module](pymatgen.apps.borg.queen.md)
 
 
-                    * [`VaspToComputedEntryDroneTest.test_to_from_dict()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_hive.VaspToComputedEntryDroneTest.test_to_from_dict)
+            * [`BorgQueen`](pymatgen.apps.borg.queen.md#pymatgen.apps.borg.queen.BorgQueen)
 
 
-            * [pymatgen.apps.borg.tests.test_queen module](pymatgen.apps.borg.tests.md#module-pymatgen.apps.borg.tests.test_queen)
+                * [`BorgQueen.get_data()`](pymatgen.apps.borg.queen.md#pymatgen.apps.borg.queen.BorgQueen.get_data)
 
 
-                * [`BorgQueenTest`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_queen.BorgQueenTest)
+                * [`BorgQueen.load_data()`](pymatgen.apps.borg.queen.md#pymatgen.apps.borg.queen.BorgQueen.load_data)
 
 
-                    * [`BorgQueenTest.setUp()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_queen.BorgQueenTest.setUp)
+                * [`BorgQueen.parallel_assimilate()`](pymatgen.apps.borg.queen.md#pymatgen.apps.borg.queen.BorgQueen.parallel_assimilate)
 
 
-                    * [`BorgQueenTest.tearDown()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_queen.BorgQueenTest.tearDown)
+                * [`BorgQueen.save_data()`](pymatgen.apps.borg.queen.md#pymatgen.apps.borg.queen.BorgQueen.save_data)
 
 
-                    * [`BorgQueenTest.test_get_data()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_queen.BorgQueenTest.test_get_data)
+                * [`BorgQueen.serial_assimilate()`](pymatgen.apps.borg.queen.md#pymatgen.apps.borg.queen.BorgQueen.serial_assimilate)
 
 
-                    * [`BorgQueenTest.test_load_data()`](pymatgen.apps.borg.tests.md#pymatgen.apps.borg.tests.test_queen.BorgQueenTest.test_load_data)
-
-
-
-
-    * [pymatgen.apps.borg.hive module](pymatgen.apps.borg.md#module-pymatgen.apps.borg.hive)
-
-
-        * [`AbstractDrone`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.AbstractDrone)
-
-
-            * [`AbstractDrone.assimilate()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.AbstractDrone.assimilate)
-
-
-            * [`AbstractDrone.get_valid_paths()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.AbstractDrone.get_valid_paths)
-
-
-        * [`GaussianToComputedEntryDrone`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone)
-
-
-            * [`GaussianToComputedEntryDrone.as_dict()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.as_dict)
-
-
-            * [`GaussianToComputedEntryDrone.assimilate()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.assimilate)
-
-
-            * [`GaussianToComputedEntryDrone.from_dict()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.from_dict)
-
-
-            * [`GaussianToComputedEntryDrone.get_valid_paths()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.get_valid_paths)
-
-
-        * [`SimpleVaspToComputedEntryDrone`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone)
-
-
-            * [`SimpleVaspToComputedEntryDrone.as_dict()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.as_dict)
-
-
-            * [`SimpleVaspToComputedEntryDrone.assimilate()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.assimilate)
-
-
-            * [`SimpleVaspToComputedEntryDrone.from_dict()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.from_dict)
-
-
-        * [`VaspToComputedEntryDrone`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.VaspToComputedEntryDrone)
-
-
-            * [`VaspToComputedEntryDrone.as_dict()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.as_dict)
-
-
-            * [`VaspToComputedEntryDrone.assimilate()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.assimilate)
-
-
-            * [`VaspToComputedEntryDrone.from_dict()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.from_dict)
-
-
-            * [`VaspToComputedEntryDrone.get_valid_paths()`](pymatgen.apps.borg.md#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.get_valid_paths)
-
-
-    * [pymatgen.apps.borg.queen module](pymatgen.apps.borg.md#module-pymatgen.apps.borg.queen)
-
-
-        * [`BorgQueen`](pymatgen.apps.borg.md#pymatgen.apps.borg.queen.BorgQueen)
-
-
-            * [`BorgQueen.get_data()`](pymatgen.apps.borg.md#pymatgen.apps.borg.queen.BorgQueen.get_data)
-
-
-            * [`BorgQueen.load_data()`](pymatgen.apps.borg.md#pymatgen.apps.borg.queen.BorgQueen.load_data)
-
-
-            * [`BorgQueen.parallel_assimilate()`](pymatgen.apps.borg.md#pymatgen.apps.borg.queen.BorgQueen.parallel_assimilate)
-
-
-            * [`BorgQueen.save_data()`](pymatgen.apps.borg.md#pymatgen.apps.borg.queen.BorgQueen.save_data)
-
-
-            * [`BorgQueen.serial_assimilate()`](pymatgen.apps.borg.md#pymatgen.apps.borg.queen.BorgQueen.serial_assimilate)
-
-
-        * [`order_assimilation()`](pymatgen.apps.borg.md#pymatgen.apps.borg.queen.order_assimilation)
+            * [`order_assimilation()`](pymatgen.apps.borg.queen.md#pymatgen.apps.borg.queen.order_assimilation)

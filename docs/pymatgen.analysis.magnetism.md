@@ -8,995 +8,174 @@ nav_exclude: true
 
 Package for analysis of magnetic structures.
 
-## Subpackages
 
 
-* [pymatgen.analysis.magnetism.tests namespace](pymatgen.analysis.magnetism.tests.md)
+* [pymatgen.analysis.magnetism.analyzer module](pymatgen.analysis.magnetism.analyzer.md)
 
 
+    * [`CollinearMagneticStructureAnalyzer`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer)
 
 
-    * [pymatgen.analysis.magnetism.tests.test_analyzer module](pymatgen.analysis.magnetism.tests.md#module-pymatgen.analysis.magnetism.tests.test_analyzer)
+        * [`CollinearMagneticStructureAnalyzer.get_exchange_group_info()`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_exchange_group_info)
 
 
-        * [`CollinearMagneticStructureAnalyzerTest`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.CollinearMagneticStructureAnalyzerTest)
+        * [`CollinearMagneticStructureAnalyzer.get_ferromagnetic_structure()`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_ferromagnetic_structure)
 
 
-            * [`CollinearMagneticStructureAnalyzerTest.setUp()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.CollinearMagneticStructureAnalyzerTest.setUp)
+        * [`CollinearMagneticStructureAnalyzer.get_nonmagnetic_structure()`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_nonmagnetic_structure)
 
 
-            * [`CollinearMagneticStructureAnalyzerTest.tearDown()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.CollinearMagneticStructureAnalyzerTest.tearDown)
+        * [`CollinearMagneticStructureAnalyzer.get_structure_with_only_magnetic_atoms()`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_structure_with_only_magnetic_atoms)
 
 
-            * [`CollinearMagneticStructureAnalyzerTest.test_get_ferromagnetic_structure()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.CollinearMagneticStructureAnalyzerTest.test_get_ferromagnetic_structure)
+        * [`CollinearMagneticStructureAnalyzer.get_structure_with_spin()`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_structure_with_spin)
 
 
-            * [`CollinearMagneticStructureAnalyzerTest.test_get_representations()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.CollinearMagneticStructureAnalyzerTest.test_get_representations)
+        * [`CollinearMagneticStructureAnalyzer.is_magnetic`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.is_magnetic)
 
 
-            * [`CollinearMagneticStructureAnalyzerTest.test_magnetic_properties()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.CollinearMagneticStructureAnalyzerTest.test_magnetic_properties)
+        * [`CollinearMagneticStructureAnalyzer.magmoms`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.magmoms)
 
 
-            * [`CollinearMagneticStructureAnalyzerTest.test_matches()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.CollinearMagneticStructureAnalyzerTest.test_matches)
+        * [`CollinearMagneticStructureAnalyzer.magnetic_species_and_magmoms`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.magnetic_species_and_magmoms)
 
 
-            * [`CollinearMagneticStructureAnalyzerTest.test_missing_spin()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.CollinearMagneticStructureAnalyzerTest.test_missing_spin)
+        * [`CollinearMagneticStructureAnalyzer.matches_ordering()`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.matches_ordering)
 
 
-            * [`CollinearMagneticStructureAnalyzerTest.test_modes()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.CollinearMagneticStructureAnalyzerTest.test_modes)
+        * [`CollinearMagneticStructureAnalyzer.number_of_magnetic_sites`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.number_of_magnetic_sites)
 
 
-            * [`CollinearMagneticStructureAnalyzerTest.test_net_positive()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.CollinearMagneticStructureAnalyzerTest.test_net_positive)
+        * [`CollinearMagneticStructureAnalyzer.number_of_unique_magnetic_sites()`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.number_of_unique_magnetic_sites)
 
 
-            * [`CollinearMagneticStructureAnalyzerTest.test_round_magmoms()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.CollinearMagneticStructureAnalyzerTest.test_round_magmoms)
+        * [`CollinearMagneticStructureAnalyzer.ordering`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.ordering)
 
 
-            * [`CollinearMagneticStructureAnalyzerTest.test_str()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.CollinearMagneticStructureAnalyzerTest.test_str)
+        * [`CollinearMagneticStructureAnalyzer.types_of_magnetic_specie`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.types_of_magnetic_specie)
 
 
-        * [`MagneticDeformationTest`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.MagneticDeformationTest)
+        * [`CollinearMagneticStructureAnalyzer.types_of_magnetic_species`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.types_of_magnetic_species)
 
 
-            * [`MagneticDeformationTest.test_magnetic_deformation()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.MagneticDeformationTest.test_magnetic_deformation)
+    * [`MagneticDeformation`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.MagneticDeformation)
 
 
-        * [`MagneticStructureEnumeratorTest`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.MagneticStructureEnumeratorTest)
+        * [`MagneticDeformation.deformation`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.MagneticDeformation.deformation)
 
 
-            * [`MagneticStructureEnumeratorTest.test_ordering_enumeration()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_analyzer.MagneticStructureEnumeratorTest.test_ordering_enumeration)
+        * [`MagneticDeformation.type`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.MagneticDeformation.type)
 
 
-    * [pymatgen.analysis.magnetism.tests.test_heisenberg module](pymatgen.analysis.magnetism.tests.md#module-pymatgen.analysis.magnetism.tests.test_heisenberg)
+    * [`MagneticStructureEnumerator`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator)
 
 
-        * [`HeisenbergMapperTest`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_heisenberg.HeisenbergMapperTest)
+        * [`MagneticStructureEnumerator.available_strategies`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator.available_strategies)
 
 
-            * [`HeisenbergMapperTest.setUp()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_heisenberg.HeisenbergMapperTest.setUp)
+    * [`Ordering`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.Ordering)
 
 
-            * [`HeisenbergMapperTest.setUpClass()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_heisenberg.HeisenbergMapperTest.setUpClass)
+        * [`Ordering.AFM`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.Ordering.AFM)
 
 
-            * [`HeisenbergMapperTest.tearDown()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_heisenberg.HeisenbergMapperTest.tearDown)
+        * [`Ordering.FM`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.Ordering.FM)
 
 
-            * [`HeisenbergMapperTest.test_exchange_params()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_heisenberg.HeisenbergMapperTest.test_exchange_params)
+        * [`Ordering.FiM`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.Ordering.FiM)
 
 
-            * [`HeisenbergMapperTest.test_get_igraph()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_heisenberg.HeisenbergMapperTest.test_get_igraph)
+        * [`Ordering.NM`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.Ordering.NM)
 
 
-            * [`HeisenbergMapperTest.test_graphs()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_heisenberg.HeisenbergMapperTest.test_graphs)
+        * [`Ordering.Unknown`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.Ordering.Unknown)
 
 
-            * [`HeisenbergMapperTest.test_heisenberg_model()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_heisenberg.HeisenbergMapperTest.test_heisenberg_model)
+    * [`OverwriteMagmomMode`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode)
 
 
-            * [`HeisenbergMapperTest.test_mean_field()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_heisenberg.HeisenbergMapperTest.test_mean_field)
+        * [`OverwriteMagmomMode.none`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.none)
 
 
-            * [`HeisenbergMapperTest.test_nn_interactions()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_heisenberg.HeisenbergMapperTest.test_nn_interactions)
+        * [`OverwriteMagmomMode.normalize`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.normalize)
 
 
-            * [`HeisenbergMapperTest.test_sites()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_heisenberg.HeisenbergMapperTest.test_sites)
+        * [`OverwriteMagmomMode.replace_all`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.replace_all)
 
 
-    * [pymatgen.analysis.magnetism.tests.test_jahnteller module](pymatgen.analysis.magnetism.tests.md#module-pymatgen.analysis.magnetism.tests.test_jahnteller)
+        * [`OverwriteMagmomMode.respect_sign`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.respect_sign)
 
 
-        * [`JahnTellerTest`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_jahnteller.JahnTellerTest)
+        * [`OverwriteMagmomMode.respect_zero`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.respect_zero)
 
 
-            * [`JahnTellerTest.setUp()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_jahnteller.JahnTellerTest.setUp)
+    * [`magnetic_deformation()`](pymatgen.analysis.magnetism.analyzer.md#pymatgen.analysis.magnetism.analyzer.magnetic_deformation)
 
 
-            * [`JahnTellerTest.test_jahn_teller_species_analysis()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_jahnteller.JahnTellerTest.test_jahn_teller_species_analysis)
+* [pymatgen.analysis.magnetism.heisenberg module](pymatgen.analysis.magnetism.heisenberg.md)
 
 
-            * [`JahnTellerTest.test_jahn_teller_structure_analysis()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_jahnteller.JahnTellerTest.test_jahn_teller_structure_analysis)
+    * [`HeisenbergMapper`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper)
 
 
-            * [`JahnTellerTest.test_mu_so()`](pymatgen.analysis.magnetism.tests.md#pymatgen.analysis.magnetism.tests.test_jahnteller.JahnTellerTest.test_mu_so)
+        * [`HeisenbergMapper.estimate_exchange()`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.estimate_exchange)
 
 
+        * [`HeisenbergMapper.get_exchange()`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_exchange)
 
-## pymatgen.analysis.magnetism.analyzer module
 
-This module provides some useful functions for dealing with magnetic Structures
-(e.g. Structures with associated magmom tags).
+        * [`HeisenbergMapper.get_heisenberg_model()`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_heisenberg_model)
 
 
-### _class_ pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), overwrite_magmom_mode: OverwriteMagmomMode | str = 'none', round_magmoms: bool = False, detect_valences: bool = False, make_primitive: bool = True, default_magmoms: dict | None = None, set_net_positive: bool = True, threshold: float = 0, threshold_nonmag: float = 0.1)
-Bases: `object`
+        * [`HeisenbergMapper.get_interaction_graph()`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_interaction_graph)
 
-A class which provides a few helpful methods to analyze
-collinear magnetic structures.
 
-If magnetic moments are not defined, moments will be
-taken either from default_magmoms.yaml (similar to the
-default magmoms in MPRelaxSet, with a few extra definitions)
-or from a specie:magmom dict provided by the default_magmoms
-kwarg.
+        * [`HeisenbergMapper.get_low_energy_orderings()`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_low_energy_orderings)
 
-Input magmoms can be replaced using the ‘overwrite_magmom_mode’
-kwarg. This can be:
-\* “none” to do nothing,
-\* “respect_sign” which will overwrite existing magmoms with
 
-> those from default_magmoms but will keep sites with positive magmoms
-> positive, negative magmoms negative and zero magmoms zero,
+        * [`HeisenbergMapper.get_mft_temperature()`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_mft_temperature)
 
 
-* “respect_zeros”, which will give a ferromagnetic structure
-(all positive magmoms from default_magmoms) but still keep sites with
-zero magmoms as zero,
+    * [`HeisenbergModel`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel)
 
 
-* “replace_all” which will try to guess initial magmoms for
-all sites in the structure irrespective of input structure
-(this is most suitable for an initial DFT calculation),
+        * [`HeisenbergModel.as_dict()`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.as_dict)
 
 
-* “replace_all_if_undefined” is the same as “replace_all” but only if
-no magmoms are defined in input structure, otherwise it will respect
-existing magmoms.
+        * [`HeisenbergModel.from_dict()`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.from_dict)
 
 
-* “normalize” will normalize magmoms to unity, but will respect sign
-(used for comparing orderings), magmoms < theshhold will be set to zero
+    * [`HeisenbergScreener`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener)
 
 
-* **Parameters**
+        * [`HeisenbergScreener.screened_structures`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_structures)
 
 
-    * **structure** – input Structure object
+        * [`HeisenbergScreener.screened_energies`](pymatgen.analysis.magnetism.heisenberg.md#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_energies)
 
 
-    * **overwrite_magmom_mode** – “respect_sign”, “respect_zeros”, “replace_all”,
-    “replace_all_if_undefined”, “normalize” (default “none”)
+* [pymatgen.analysis.magnetism.jahnteller module](pymatgen.analysis.magnetism.jahnteller.md)
 
 
-    * **round_magmoms** – will round input magmoms to
-    specified number of decimal places if integer is supplied, if set
-    to a float will try and group magmoms together using a kernel density
-    estimator of provided width, and extracting peaks of the estimator
-    detect_valences: if True, will attempt to assign valences
-    to input structure
+    * [`JahnTellerAnalyzer`](pymatgen.analysis.magnetism.jahnteller.md#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer)
 
 
-    * **make_primitive** – if True, will transform to primitive
-    magnetic cell
+        * [`JahnTellerAnalyzer.get_analysis()`](pymatgen.analysis.magnetism.jahnteller.md#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis)
 
 
-    * **default_magmoms** – (optional) dict specifying default magmoms
+        * [`JahnTellerAnalyzer.get_analysis_and_structure()`](pymatgen.analysis.magnetism.jahnteller.md#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis_and_structure)
 
 
-    * **set_net_positive** – if True, will change sign of magnetic
-    moments such that the net magnetization is positive. Argument will be
-    ignored if mode “respect_sign” is used.
+        * [`JahnTellerAnalyzer.get_magnitude_of_effect_from_species()`](pymatgen.analysis.magnetism.jahnteller.md#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_species)
 
 
-    * **threshold** – number (in Bohr magnetons) below which magmoms
-    will be rounded to zero
+        * [`JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config()`](pymatgen.analysis.magnetism.jahnteller.md#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config)
 
 
-    * **threshold_nonmag** – number (in Bohr magneton)
-    below which nonmagnetic ions (with no magmom specified
-    in default_magmoms) will be rounded to zero
+        * [`JahnTellerAnalyzer.is_jahn_teller_active()`](pymatgen.analysis.magnetism.jahnteller.md#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.is_jahn_teller_active)
 
 
+        * [`JahnTellerAnalyzer.mu_so()`](pymatgen.analysis.magnetism.jahnteller.md#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.mu_so)
 
-#### get_exchange_group_info(symprec: float = 0.01, angle_tolerance: float = 5)
-Returns the information on the symmetry of the Hamiltonian
-describing the exchange energy of the system, taking into
-account relative direction of magnetic moments but not their
-absolute direction.
 
-This is not strictly accurate (e.g. some/many atoms will
-have zero magnetic moments), but defining symmetry this
-way is a useful way of keeping track of distinct magnetic
-orderings within pymatgen.
-
-
-* **Parameters**
-
-
-    * **symprec** – same as SpacegroupAnalyzer (Default value = 1e-2)
-
-
-    * **angle_tolerance** – same as SpacegroupAnalyzer (Default value = 5)
-
-
-
-* **Returns**
-
-    spacegroup_symbol, international_number
-
-
-
-#### get_ferromagnetic_structure(make_primitive: bool = True)
-Returns a Structure with all magnetic moments positive
-or zero.
-
-
-* **Parameters**
-
-    **make_primitive** – Whether to make structure primitive after
-    making all magnetic moments positive (Default value = True)
-
-
-
-* **Returns**
-
-    Structure
-
-
-
-#### get_nonmagnetic_structure(make_primitive: bool = True)
-Returns a Structure without magnetic moments defined.
-
-
-* **Parameters**
-
-    **make_primitive** – Whether to make structure primitive after
-    removing magnetic information (Default value = True)
-
-
-
-* **Returns**
-
-    Structure
-
-
-
-#### get_structure_with_only_magnetic_atoms(make_primitive: bool = True)
-Returns a Structure with only magnetic atoms present.
-
-
-* **Parameters**
-
-    **make_primitive** – Whether to make structure primitive after
-    removing non-magnetic atoms (Default value = True)
-
-
-Returns: Structure
-
-
-#### get_structure_with_spin()
-Returns a Structure with species decorated with spin values instead
-of using magmom site properties.
-
-
-#### _property_ is_magnetic(_: boo_ )
-Convenience property, returns True if any non-zero magmoms present.
-
-
-#### _property_ magmoms(_: ndarra_ )
-Convenience property, returns magmoms as a numpy array.
-
-
-#### _property_ magnetic_species_and_magmoms(_: dict[str, Any_ )
-Returns a dict of magnetic species and the magnitude of
-their associated magmoms. Will return a list if there are
-multiple magmoms per species.
-
-Returns: dict of magnetic species and magmoms
-
-
-#### matches_ordering(other: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-Compares the magnetic orderings of one structure with another.
-
-
-* **Parameters**
-
-    **other** – Structure to compare
-
-
-Returns: True or False
-
-
-#### _property_ number_of_magnetic_sites(_: in_ )
-Number of magnetic sites present in structure.
-
-
-#### number_of_unique_magnetic_sites(symprec: float = 0.001, angle_tolerance: float = 5)
-
-* **Parameters**
-
-
-    * **symprec** – same as in SpacegroupAnalyzer (Default value = 1e-3)
-
-
-    * **angle_tolerance** – same as in SpacegroupAnalyzer (Default value = 5).
-
-
-Returns: Number of symmetrically-distinct magnetic sites present
-in structure.
-
-
-#### _property_ ordering(_: Orderin_ )
-Applies heuristics to return a magnetic ordering for a collinear
-magnetic structure. Result is not guaranteed for correctness.
-
-Returns: Ordering Enum (‘FiM’ is used as the abbreviation for
-ferrimagnetic)
-
-
-#### _property_ types_of_magnetic_specie(_: tuple[[Element](pymatgen.core.md#pymatgen.core.periodic_table.Element) | [Species](pymatgen.core.md#pymatgen.core.periodic_table.Species) | [DummySpecies](pymatgen.core.md#pymatgen.core.periodic_table.DummySpecies), ..._ )
-Specie->Species rename. Used to maintain backwards compatibility.
-
-
-#### _property_ types_of_magnetic_species(_: tuple[[Element](pymatgen.core.md#pymatgen.core.periodic_table.Element) | [Species](pymatgen.core.md#pymatgen.core.periodic_table.Species) | [DummySpecies](pymatgen.core.md#pymatgen.core.periodic_table.DummySpecies), ..._ )
-Equivalent to Structure.types_of_specie but only returns
-magnetic species.
-
-Returns: types of Species as a list
-
-
-### _class_ pymatgen.analysis.magnetism.analyzer.MagneticDeformation(type, deformation)
-Bases: `tuple`
-
-Create new instance of MagneticDeformation(type, deformation)
-
-
-#### deformation()
-Alias for field number 1
-
-
-#### type()
-Alias for field number 0
-
-
-### _class_ pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), default_magmoms: dict[str, float] | None = None, strategies: list[str] | tuple[str, ...] = ('ferromagnetic', 'antiferromagnetic'), automatic: bool = True, truncate_by_symmetry: bool = True, transformation_kwargs: dict | None = None)
-Bases: `object`
-
-Combines MagneticStructureAnalyzer and MagOrderingTransformation to
-automatically generate a set of transformations for a given structure
-and produce a list of plausible magnetic orderings.
-
-This class will try generated different collinear
-magnetic orderings for a given input structure.
-
-If the input structure has magnetic moments defined, it
-is possible to use these as a hint as to which elements are
-magnetic, otherwise magnetic elements will be guessed
-(this can be changed using default_magmoms kwarg).
-
-
-* **Parameters**
-
-
-    * **structure** – input structure
-
-
-    * **default_magmoms** – (optional, defaults provided) dict of
-    magnetic elements to their initial magnetic moments in µB, generally
-    these are chosen to be high-spin since they can relax to a low-spin
-    configuration during a DFT electronic configuration
-
-
-    * **strategies** – different ordering strategies to use, choose from:
-    ferromagnetic, antiferromagnetic, antiferromagnetic_by_motif,
-    ferrimagnetic_by_motif and ferrimagnetic_by_species (here, “motif”,
-    means to use a different ordering parameter for symmetry inequivalent
-    sites)
-
-
-    * **automatic** – if True, will automatically choose sensible strategies
-
-
-    * **truncate_by_symmetry** – if True, will remove very unsymmetrical
-    orderings that are likely physically implausible
-
-
-    * **transformation_kwargs** – keyword arguments to pass to
-    MagOrderingTransformation, to change automatic cell size limits, etc.
-
-
-
-#### available_strategies(_ = ('ferromagnetic', 'antiferromagnetic', 'ferrimagnetic_by_motif', 'ferrimagnetic_by_species', 'antiferromagnetic_by_motif', 'nonmagnetic'_ )
-
-### _class_ pymatgen.analysis.magnetism.analyzer.Ordering(value)
-Bases: `Enum`
-
-Enumeration defining possible magnetic orderings.
-
-
-#### AFM(_ = 'AFM_ )
-
-#### FM(_ = 'FM_ )
-
-#### FiM(_ = 'FiM_ )
-
-#### NM(_ = 'NM_ )
-
-#### Unknown(_ = 'Unknown_ )
-
-### _class_ pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode(value)
-Bases: `Enum`
-
-Enumeration defining different modes for analyzer.
-
-
-#### none(_ = 'none_ )
-
-#### normalize(_ = 'normalize_ )
-
-#### replace_all(_ = 'replace_all_ )
-
-#### respect_sign(_ = 'respect_sign_ )
-
-#### respect_zero(_ = 'respect_zeros_ )
-
-### pymatgen.analysis.magnetism.analyzer.magnetic_deformation(structure_A: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), structure_B: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-Calculates ‘magnetic deformation proxy’,
-a measure of deformation (norm of finite strain)
-between ‘non-magnetic’ (non-spin-polarized) and
-ferromagnetic structures.
-
-Adapted from Bocarsly et al. 2017,
-doi: 10.1021/acs.chemmater.6b04729
-
-
-* **Parameters**
-
-
-    * **structure_A** – Structure
-
-
-    * **structure_B** – Structure
-
-
-Returns: Magnetic deformation
-
-## pymatgen.analysis.magnetism.heisenberg module
-
-This module implements a simple algorithm for extracting nearest neighbor
-exchange parameters by mapping low energy magnetic orderings to a Heisenberg
-model.
-
-
-### _class_ pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper(ordered_structures, energies, cutoff=0, tol: float = 0.02)
-Bases: `object`
-
-Class to compute exchange parameters from low energy magnetic orderings.
-
-Exchange parameters are computed by mapping to a classical Heisenberg
-model. Strategy is the scheme for generating neighbors. Currently only
-MinimumDistanceNN is implemented.
-n+1 unique orderings are required to compute n exchange
-parameters.
-
-First run a MagneticOrderingsWF to obtain low energy collinear magnetic
-orderings and find the magnetic ground state. Then enumerate magnetic
-states with the ground state as the input structure, find the subset
-of supercells that map to the ground state, and do static calculations
-for these orderings.
-
-
-* **Parameters**
-
-
-    * **ordered_structures** (*list*) – Structure objects with magmoms.
-
-
-    * **energies** (*list*) – Total energies of each relaxed magnetic structure.
-
-
-    * **cutoff** (*float*) – Cutoff in Angstrom for nearest neighbor search.
-    Defaults to 0 (only NN, no NNN, etc.)
-
-
-    * **tol** (*float*) – Tolerance (in Angstrom) on nearest neighbor distances
-    being equal.
-
-
-    * **strategy** (*object*) – Class from pymatgen.analysis.local_env for constructing graphs.
-
-
-    * **sgraphs** (*list*) – StructureGraph objects.
-
-
-    * **unique_site_ids** (*dict*) – Maps each site to its unique numerical identifier.
-
-
-    * **wyckoff_ids** (*dict*) – Maps unique numerical identifier to wyckoff position.
-
-
-    * **nn_interactions** (*dict*) – {i: j} pairs of NN interactions between unique sites.
-
-
-    * **dists** (*dict*) – NN, NNN, and NNNN interaction distances
-
-
-    * **ex_mat** (*DataFrame*) – Invertible Heisenberg Hamiltonian for each graph.
-
-
-    * **ex_params** (*dict*) – Exchange parameter values (meV/atom)
-
-
-
-#### estimate_exchange(fm_struct=None, afm_struct=None, fm_e=None, afm_e=None)
-Estimate <J> for a structure based on low energy FM and AFM orderings.
-
-
-* **Parameters**
-
-
-    * **fm_struct** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – fm structure with ‘magmom’ site property
-
-
-    * **afm_struct** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – afm structure with ‘magmom’ site property
-
-
-    * **fm_e** (*float*) – fm energy/atom
-
-
-    * **afm_e** (*float*) – afm energy/atom
-
-
-
-* **Returns**
-
-    Average exchange parameter (meV/atom)
-
-
-
-* **Return type**
-
-    j_avg (float)
-
-
-
-#### get_exchange()
-Take Heisenberg Hamiltonian and corresponding energy for each row and
-solve for the exchange parameters.
-
-
-* **Returns**
-
-    Exchange parameter values (meV/atom).
-
-
-
-* **Return type**
-
-    ex_params (dict)
-
-
-
-#### get_heisenberg_model()
-Save results of mapping to a HeisenbergModel object.
-
-
-* **Returns**
-
-    MSONable object.
-
-
-
-* **Return type**
-
-    HeisenbergModel
-
-
-
-#### get_interaction_graph(filename=None)
-Get a StructureGraph with edges and weights that correspond to exchange
-interactions and J_ij values, respectively.
-
-
-* **Parameters**
-
-    **filename** (*str*) – if not None, save interaction graph to filename.
-
-
-
-* **Returns**
-
-    Exchange interaction graph.
-
-
-
-* **Return type**
-
-    igraph ([StructureGraph](pymatgen.analysis.md#pymatgen.analysis.graphs.StructureGraph))
-
-
-
-#### get_low_energy_orderings()
-Find lowest energy FM and AFM orderings to compute E_AFM - E_FM.
-
-
-* **Returns**
-
-    fm structure with ‘magmom’ site property
-    afm_struct (Structure): afm structure with ‘magmom’ site property
-    fm_e (float): fm energy
-    afm_e (float): afm energy
-
-
-
-* **Return type**
-
-    fm_struct ([Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-
-
-
-#### get_mft_temperature(j_avg)
-Crude mean field estimate of critical temperature based on <J> for
-one sublattice, or solving the coupled equations for a multisublattice
-material.
-
-
-* **Parameters**
-
-    **j_avg** (*float*) – j_avg (float): Average exchange parameter (meV/atom)
-
-
-
-* **Returns**
-
-    Critical temperature (K)
-
-
-
-* **Return type**
-
-    mft_t (float)
-
-
-
-### _class_ pymatgen.analysis.magnetism.heisenberg.HeisenbergModel(formula=None, structures=None, energies=None, cutoff=None, tol=None, sgraphs=None, unique_site_ids=None, wyckoff_ids=None, nn_interactions=None, dists=None, ex_mat=None, ex_params=None, javg=None, igraph=None)
-Bases: `MSONable`
-
-Store a Heisenberg model fit to low-energy magnetic orderings.
-Intended to be generated by HeisenbergMapper.get_heisenberg_model().
-
-
-* **Parameters**
-
-
-    * **formula** (*str*) – Reduced formula of compound.
-
-
-    * **structures** (*list*) – Structure objects with magmoms.
-
-
-    * **energies** (*list*) – Energies of each relaxed magnetic structure.
-
-
-    * **cutoff** (*float*) – Cutoff in Angstrom for nearest neighbor search.
-
-
-    * **tol** (*float*) – Tolerance (in Angstrom) on nearest neighbor distances being equal.
-
-
-    * **sgraphs** (*list*) – StructureGraph objects.
-
-
-    * **unique_site_ids** (*dict*) – Maps each site to its unique numerical
-    identifier.
-
-
-    * **wyckoff_ids** (*dict*) – Maps unique numerical identifier to wyckoff
-    position.
-
-
-    * **nn_interactions** (*dict*) – {i: j} pairs of NN interactions
-    between unique sites.
-
-
-    * **dists** (*dict*) – NN, NNN, and NNNN interaction distances
-
-
-    * **ex_mat** (*DataFrame*) – Invertible Heisenberg Hamiltonian for each
-    graph.
-
-
-    * **ex_params** (*dict*) – Exchange parameter values (meV/atom).
-
-
-    * **javg** (*float*) – <J> exchange param (meV/atom).
-
-
-    * **igraph** ([*StructureGraph*](pymatgen.analysis.md#pymatgen.analysis.graphs.StructureGraph)) – Exchange interaction graph.
-
-
-
-#### as_dict()
-Because some dicts have tuple keys, some sanitization is required for json compatibility.
-
-
-#### _classmethod_ from_dict(d)
-Create a HeisenbergModel from a dict.
-
-
-### _class_ pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener(structures, energies, screen=False)
-Bases: `object`
-
-Class to clean and screen magnetic orderings.
-
-This class pre-processes magnetic orderings and energies for
-HeisenbergMapper. It prioritizes low-energy orderings with large and
-localized magnetic moments.
-
-
-* **Parameters**
-
-
-    * **structures** (*list*) – Structure objects with magnetic moments.
-
-
-    * **energies** (*list*) – Energies/atom of magnetic orderings.
-
-
-    * **screen** (*bool*) – Try to screen out high energy and low-spin configurations.
-
-
-
-#### screened_structures()
-Sorted structures.
-
-
-* **Type**
-
-    list
-
-
-
-#### screened_energies()
-Sorted energies.
-
-
-* **Type**
-
-    list
-
-
-## pymatgen.analysis.magnetism.jahnteller module
-
-JahnTeller distortion analysis.
-
-
-### _class_ pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer()
-Bases: `object`
-
-Will attempt to classify if structure *may* be Jahn-Teller active.
-Class currently uses datafile of hard-coded common Jahn-Teller
-active ions.
-If structure is annotated with magnetic moments, will estimate
-if structure may be high-spin or low-spin.
-Class aims for more false-positives than false-negatives.
-
-Init for JahnTellerAnalyzer.
-
-
-#### get_analysis(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), calculate_valences: bool = True, guesstimate_spin: bool = False, op_threshold: float = 0.1)
-Convenience method, uses get_analysis_and_structure method.
-
-Obtain an analysis of a given structure and if it may be Jahn-Teller
-active or not. This is a heuristic, and may give false positives and
-false negatives (false positives are preferred).
-
-
-* **Parameters**
-
-
-    * **structure** – input structure
-
-
-    * **calculate_valences** – whether to attempt to calculate valences or not, structure
-    should have oxidation states to perform analysis (Default value = True)
-
-
-    * **guesstimate_spin** – whether to guesstimate spin state from magnetic moments
-    or not, use with caution (Default value = False)
-
-
-    * **op_threshold** – threshold for order parameter above which to consider site
-    to match an octahedral or tetrahedral motif, since Jahn-Teller structures
-    can often be
-    quite distorted, this threshold is smaller than one might expect
-
-
-
-* **Returns**
-
-    analysis of structure, with key ‘strength’ which may be ‘none’, ‘strong’,
-    ‘weak’, or ‘unknown’ (Default value = 0.1)
-
-
-
-#### get_analysis_and_structure(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), calculate_valences: bool = True, guesstimate_spin: bool = False, op_threshold: float = 0.1)
-Obtain an analysis of a given structure and if it may be Jahn-Teller
-active or not. This is a heuristic, and may give false positives and
-false negatives (false positives are preferred).
-
-
-* **Parameters**
-
-
-    * **structure** – input structure
-
-
-    * **calculate_valences** – whether to attempt to calculate valences or not, structure
-    should have oxidation states to perform analysis (Default value = True)
-
-
-    * **guesstimate_spin** – whether to guesstimate spin state from magnetic moments
-    or not, use with caution (Default value = False)
-
-
-    * **op_threshold** – threshold for order parameter above which to consider site
-    to match an octahedral or tetrahedral motif, since Jahn-Teller structures
-    can often be
-    quite distorted, this threshold is smaller than one might expect
-
-
-
-* **Returns**
-
-    analysis of structure, with key ‘strength’ which may be ‘none’, ‘strong’,
-    ‘weak’, or ‘unknown’ (Default value = 0.1) and decorated structure
-
-
-
-#### get_magnitude_of_effect_from_species(species: str | [Species](pymatgen.core.md#pymatgen.core.periodic_table.Species), spin_state: str, motif: str)
-Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
-
-
-* **Parameters**
-
-
-    * **species** – e.g. Fe2+
-
-
-    * **spin_state** – “high” or “low”
-
-
-    * **motif** – “oct” or “tet”
-
-
-Returns: “none”, “weak” or “strong
-
-
-#### _static_ get_magnitude_of_effect_from_spin_config(motif: str, spin_config: dict[str, float])
-Roughly, the magnitude of Jahn-Teller distortion will be:
-\* in octahedral environments, strong if e_g orbitals
-unevenly occupied but weak if t_2g orbitals unevenly
-occupied
-\* in tetrahedral environments always weaker.
-
-
-* **Parameters**
-
-
-    * **motif** – “oct” or “tet”
-
-
-    * **spin_config** – dict of ‘e’ (e_g) and ‘t’ (t2_g)
-    with number of electrons in each state
-
-
-Returns:  “none”, “weak” or “strong”
-
-
-#### is_jahn_teller_active(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), calculate_valences: bool = True, guesstimate_spin: bool = False, op_threshold: float = 0.1)
-Convenience method, uses get_analysis_and_structure method.
-Check if a given structure and if it may be Jahn-Teller
-active or not. This is a heuristic, and may give false positives and
-false negatives (false positives are preferred).
-
-
-* **Parameters**
-
-
-    * **structure** – input structure
-
-
-    * **calculate_valences** – whether to attempt to calculate valences or not, structure
-    should have oxidation states to perform analysis (Default value = True)
-
-
-    * **guesstimate_spin** – whether to guesstimate spin state from magnetic moments
-    or not, use with caution (Default value = False)
-
-
-    * **op_threshold** – threshold for order parameter above which to consider site
-    to match an octahedral or tetrahedral motif, since Jahn-Teller structures
-    can often be
-    quite distorted, this threshold is smaller than one might expect
-
-
-
-* **Returns**
-
-    boolean, True if might be Jahn-Teller active, False if not
-
-
-
-#### _static_ mu_so(species: str | [Species](pymatgen.core.md#pymatgen.core.periodic_table.Species), motif: Literal['oct', 'tet'], spin_state: Literal['high', 'low'])
-Calculates the spin-only magnetic moment for a
-given species. Only supports transition metals.
-
-
-* **Parameters**
-
-
-    * **species** – Species
-
-
-    * **motif** (*"oct"** | **"tet"*) – Tetrahedron or octahedron crystal site coordination
-
-
-    * **spin_state** (*"low"** | **"high"*) – Whether the species is in a high or low spin state
-
-
-
-* **Returns**
-
-    Spin-only magnetic moment in Bohr magnetons or None if
-
-        species crystal field not defined
-
-
-
-
-* **Return type**
-
-    float
-
-
-
-#### tag_structure(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), calculate_valences: bool = True, guesstimate_spin: bool = False, op_threshold: float = 0.1)
-Convenience method, uses get_analysis_and_structure method.
-Add a “possible_jt_active” site property on Structure.
-
-
-* **Parameters**
-
-
-    * **structure** – input structure
-
-
-    * **calculate_valences** – whether to attempt to calculate valences or not, structure
-    should have oxidation states to perform analysis (Default value = True)
-
-
-    * **guesstimate_spin** – whether to guesstimate spin state from magnetic moments
-    or not, use with caution (Default value = False)
-
-
-    * **op_threshold** – threshold for order parameter above which to consider site
-    to match an octahedral or tetrahedral motif, since Jahn-Teller structures
-    can often be
-    quite distorted, this threshold is smaller than one might expect
-
-
-
-* **Returns**
-
-    Decorated Structure, will be in primitive setting.
+        * [`JahnTellerAnalyzer.tag_structure()`](pymatgen.analysis.magnetism.jahnteller.md#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.tag_structure)

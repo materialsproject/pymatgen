@@ -6,594 +6,126 @@ nav_exclude: true
 
 # pymatgen.ext namespace
 
-## Subpackages
 
 
-* [pymatgen.ext.tests namespace](pymatgen.ext.tests.md)
+* [pymatgen.ext.cod module](pymatgen.ext.cod.md)
 
 
+    * [`COD`](pymatgen.ext.cod.md#pymatgen.ext.cod.COD)
 
 
-    * [pymatgen.ext.tests.test_cod module](pymatgen.ext.tests.md#module-pymatgen.ext.tests.test_cod)
+        * [`COD.get_cod_ids()`](pymatgen.ext.cod.md#pymatgen.ext.cod.COD.get_cod_ids)
 
 
-        * [`CODTest`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_cod.CODTest)
+        * [`COD.get_structure_by_formula()`](pymatgen.ext.cod.md#pymatgen.ext.cod.COD.get_structure_by_formula)
 
 
-            * [`CODTest.setUp()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_cod.CODTest.setUp)
+        * [`COD.get_structure_by_id()`](pymatgen.ext.cod.md#pymatgen.ext.cod.COD.get_structure_by_id)
 
 
-            * [`CODTest.tearDown()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_cod.CODTest.tearDown)
+        * [`COD.query()`](pymatgen.ext.cod.md#pymatgen.ext.cod.COD.query)
 
 
-            * [`CODTest.test_get_cod_ids()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_cod.CODTest.test_get_cod_ids)
+* [pymatgen.ext.matproj module](pymatgen.ext.matproj.md)
 
 
-            * [`CODTest.test_get_structure_by_formula()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_cod.CODTest.test_get_structure_by_formula)
+    * [`MPRestError`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.MPRestError)
 
 
-            * [`CODTest.test_get_structure_by_id()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_cod.CODTest.test_get_structure_by_id)
+    * [`MPRester`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.MPRester)
 
 
-    * [pymatgen.ext.tests.test_matproj module](pymatgen.ext.tests.md#module-pymatgen.ext.tests.test_matproj)
+    * [`TaskType`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType)
 
 
-        * [`MPResterOldTest`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest)
+        * [`TaskType.GGAU_DEF`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.GGAU_DEF)
 
 
-            * [`MPResterOldTest.pytestmark`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.pytestmark)
+        * [`TaskType.GGAU_LINE`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.GGAU_LINE)
 
 
-            * [`MPResterOldTest.setUp()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.setUp)
+        * [`TaskType.GGAU_OPT`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.GGAU_OPT)
 
 
-            * [`MPResterOldTest.tearDown()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.tearDown)
+        * [`TaskType.GGAU_STATIC`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.GGAU_STATIC)
 
 
-            * [`MPResterOldTest.test_api_key_is_none()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_api_key_is_none)
+        * [`TaskType.GGAU_STATIC_DIEL`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.GGAU_STATIC_DIEL)
 
 
-            * [`MPResterOldTest.test_database_version()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_database_version)
+        * [`TaskType.GGAU_UNIFORM`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.GGAU_UNIFORM)
 
 
-            * [`MPResterOldTest.test_download_info()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_download_info)
+        * [`TaskType.GGA_DEF`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.GGA_DEF)
 
 
-            * [`MPResterOldTest.test_find_structure()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_find_structure)
+        * [`TaskType.GGA_LINE`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.GGA_LINE)
 
 
-            * [`MPResterOldTest.test_get_all_materials_ids_doc()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_all_materials_ids_doc)
+        * [`TaskType.GGA_OPT`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.GGA_OPT)
 
 
-            * [`MPResterOldTest.test_get_bandstructure_by_material_id()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_bandstructure_by_material_id)
+        * [`TaskType.GGA_STATIC`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.GGA_STATIC)
 
 
-            * [`MPResterOldTest.test_get_cohesive_energy()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_cohesive_energy)
+        * [`TaskType.GGA_STATIC_DIEL`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.GGA_STATIC_DIEL)
 
 
-            * [`MPResterOldTest.test_get_data()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_data)
+        * [`TaskType.GGA_UNIFORM`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.GGA_UNIFORM)
 
 
-            * [`MPResterOldTest.test_get_dos_by_id()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_dos_by_id)
+        * [`TaskType.LDA_STATIC_DIEL`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.LDA_STATIC_DIEL)
 
 
-            * [`MPResterOldTest.test_get_entries()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_entries)
+        * [`TaskType.SCAN_OPT`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.TaskType.SCAN_OPT)
 
 
-            * [`MPResterOldTest.test_get_entries_in_chemsys()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_entries_in_chemsys)
+    * [`get_chunks()`](pymatgen.ext.matproj.md#pymatgen.ext.matproj.get_chunks)
 
 
-            * [`MPResterOldTest.test_get_entry_by_material_id()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_entry_by_material_id)
+* [pymatgen.ext.optimade module](pymatgen.ext.optimade.md)
 
 
-            * [`MPResterOldTest.test_get_exp_entry()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_exp_entry)
+    * [`OptimadeRester`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.OptimadeRester)
 
 
-            * [`MPResterOldTest.test_get_exp_thermo_data()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_exp_thermo_data)
+        * [`OptimadeRester.aliases`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.OptimadeRester.aliases)
 
 
-            * [`MPResterOldTest.test_get_gb_data()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_gb_data)
+        * [`OptimadeRester.describe()`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.OptimadeRester.describe)
 
 
-            * [`MPResterOldTest.test_get_interface_reactions()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_interface_reactions)
+        * [`OptimadeRester.get_snls()`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.OptimadeRester.get_snls)
 
 
-            * [`MPResterOldTest.test_get_materials_id_from_task_id()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_materials_id_from_task_id)
+        * [`OptimadeRester.get_snls_with_filter()`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.OptimadeRester.get_snls_with_filter)
 
 
-            * [`MPResterOldTest.test_get_materials_id_references()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_materials_id_references)
+        * [`OptimadeRester.get_structures()`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.OptimadeRester.get_structures)
 
 
-            * [`MPResterOldTest.test_get_phonon_data_by_material_id()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_phonon_data_by_material_id)
+        * [`OptimadeRester.get_structures_with_filter()`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.OptimadeRester.get_structures_with_filter)
 
 
-            * [`MPResterOldTest.test_get_pourbaix_entries()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_pourbaix_entries)
+        * [`OptimadeRester.mandatory_response_fields`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.OptimadeRester.mandatory_response_fields)
 
 
-            * [`MPResterOldTest.test_get_reaction()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_reaction)
+        * [`OptimadeRester.refresh_aliases()`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.OptimadeRester.refresh_aliases)
 
 
-            * [`MPResterOldTest.test_get_stability()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_stability)
+    * [`Provider`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.Provider)
 
 
-            * [`MPResterOldTest.test_get_structure_by_material_id()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_structure_by_material_id)
+        * [`Provider.base_url`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.Provider.base_url)
 
 
-            * [`MPResterOldTest.test_get_structures()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_structures)
+        * [`Provider.description`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.Provider.description)
 
 
-            * [`MPResterOldTest.test_get_substrates()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_substrates)
+        * [`Provider.homepage`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.Provider.homepage)
 
 
-            * [`MPResterOldTest.test_get_surface_data()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_surface_data)
+        * [`Provider.name`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.Provider.name)
 
 
-            * [`MPResterOldTest.test_get_wulff_shape()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_wulff_shape)
-
-
-            * [`MPResterOldTest.test_get_xas_data()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_get_xas_data)
-
-
-            * [`MPResterOldTest.test_include_user_agent()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_include_user_agent)
-
-
-            * [`MPResterOldTest.test_parse_criteria()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_parse_criteria)
-
-
-            * [`MPResterOldTest.test_pourbaix_heavy()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_pourbaix_heavy)
-
-
-            * [`MPResterOldTest.test_pourbaix_mpr_pipeline()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_pourbaix_mpr_pipeline)
-
-
-            * [`MPResterOldTest.test_query()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_query)
-
-
-            * [`MPResterOldTest.test_query_chunk_size()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_matproj.MPResterOldTest.test_query_chunk_size)
-
-
-    * [pymatgen.ext.tests.test_optimade module](pymatgen.ext.tests.md#module-pymatgen.ext.tests.test_optimade)
-
-
-        * [`OptimadeTest`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_optimade.OptimadeTest)
-
-
-            * [`OptimadeTest.test_build_filter()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_optimade.OptimadeTest.test_build_filter)
-
-
-            * [`OptimadeTest.test_get_snls_mp()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_optimade.OptimadeTest.test_get_snls_mp)
-
-
-            * [`OptimadeTest.test_get_structures_mp()`](pymatgen.ext.tests.md#pymatgen.ext.tests.test_optimade.OptimadeTest.test_get_structures_mp)
-
-
-
-## pymatgen.ext.cod module
-
-This module provides classes to interface with the Crystallography Open
-Database. If you use data from the COD, please cite the following works (as
-stipulated by the COD developers).
-
-> Merkys, A., Vaitkus, A., Butkus, J., Okulič-Kazarinas, M., Kairys, V. &
-> Gražulis, S. (2016) “COD::CIF::Parser: an error-correcting CIF parser for
-> the Perl language”. Journal of Applied Crystallography 49.
-
-> Gražulis, S., Merkys, A., Vaitkus, A. & Okulič-Kazarinas, M. (2015)
-> “Computing stoichiometric molecular composition from crystal structures”.
-> Journal of Applied Crystallography 48, 85-91.
-
-> Gražulis, S., Daškevič, A., Merkys, A., Chateigner, D., Lutterotti, L.,
-> Quirós, M., Serebryanaya, N. R., Moeck, P., Downs, R. T. & LeBail, A.
-> (2012) “Crystallography Open Database (COD): an open-access collection of
-> crystal structures and platform for world-wide collaboration”. Nucleic
-> Acids Research 40, D420-D427.
-
-> Grazulis, S., Chateigner, D., Downs, R. T., Yokochi, A. T., Quiros, M.,
-> Lutterotti, L., Manakova, E., Butkus, J., Moeck, P. & Le Bail, A. (2009)
-> “Crystallography Open Database - an open-access collection of crystal
-> structures”. J. Appl. Cryst. 42, 726-729.
-
-> Downs, R. T. & Hall-Wallace, M. (2003) “The American Mineralogist Crystal
-> Structure Database”. American Mineralogist 88, 247-250.
-
-
-### _class_ pymatgen.ext.cod.COD()
-Bases: `object`
-
-An interface to the Crystallography Open Database.
-
-Blank __init__. No args required.
-
-
-#### get_cod_ids(formula)
-Queries the COD for all cod ids associated with a formula. Requires
-mysql executable to be in the path.
-
-
-* **Parameters**
-
-    **formula** (*str*) – Formula.
-
-
-
-* **Returns**
-
-    List of cod ids.
-
-
-
-#### get_structure_by_formula(formula: str, \*\*kwargs)
-Queries the COD for structures by formula. Requires mysql executable to
-be in the path.
-
-
-* **Parameters**
-
-
-    * **formula** (*str*) – Chemical formula.
-
-
-    * **kwargs** – All kwargs supported by
-    `pymatgen.core.structure.Structure.from_str()`.
-
-
-
-* **Returns**
-
-    Structure, “cod_id”: int, “sg”: “P n m a”}]
-
-
-
-* **Return type**
-
-    A list of dict of the format [{“structure”
-
-
-
-#### get_structure_by_id(cod_id, \*\*kwargs)
-Queries the COD for a structure by id.
-
-
-* **Parameters**
-
-
-    * **cod_id** (*int*) – COD id.
-
-
-    * **kwargs** – All kwargs supported by
-    `pymatgen.core.structure.Structure.from_str()`.
-
-
-
-* **Returns**
-
-    A Structure.
-
-
-
-#### query(sql: str)
-Perform a query.
-
-
-* **Parameters**
-
-    **sql** – SQL string
-
-
-
-* **Returns**
-
-    Response from SQL query.
-
-
-## pymatgen.ext.matproj module
-
-This module provides classes to interface with the Materials Project REST
-API v2 to enable the creation of data structures and pymatgen objects using
-Materials Project data.
-
-To make use of the Materials API, you need to be a registered user of the
-Materials Project, and obtain an API key by going to your dashboard at
-[https://materialsproject.org/dashboard](https://materialsproject.org/dashboard).
-
-
-### _exception_ pymatgen.ext.matproj.MPRestError()
-Bases: `Exception`
-
-Exception class for legacy MPRestAdaptor. Raised when query is malformed.
-
-
-### _class_ pymatgen.ext.matproj.MPRester(\*args, \*\*kwargs)
-Bases: `object`
-
-A class to conveniently interface with the new and legacy Materials Project REST interface.
-
-The recommended way to use MPRester is as a context manager to ensure
-that sessions are properly closed after usage:
-
-> with MPRester(“API_KEY”) as mpr:
-
->     docs = mpr.call_some_method()
-
-MPRester uses the “requests” package, which provides HTTP connection
-pooling. All connections are made via https for security.
-
-For more advanced uses of the Materials API, please consult the API
-documentation at [https://materialsproject.org/api](https://materialsproject.org/api) and [https://docs.materialsproject.org](https://docs.materialsproject.org).
-
-This class handles the transition between old and new MP API, making it easy to switch between them
-by passing a new (length 32) or old (15 <= length <= 17) API key. See [https://docs.materialsproject.org](https://docs.materialsproject.org)
-for which API to use.
-
-
-* **Parameters**
-
-
-    * **\*args** – Pass through to either legacy or new MPRester.
-
-
-    * **\*\*kwargs** – Pass through to either legacy or new MPRester.
-
-
-
-### _class_ pymatgen.ext.matproj.TaskType(value)
-Bases: `Enum`
-
-task types available in legacy MP data.
-
-
-#### GGAU_DEF(_ = 'GGA+U Deformation_ )
-
-#### GGAU_LINE(_ = 'GGA+U NSCF Line_ )
-
-#### GGAU_OPT(_ = 'GGA+U Structure Optimization_ )
-
-#### GGAU_STATIC(_ = 'GGA+U Static_ )
-
-#### GGAU_STATIC_DIEL(_ = 'GGA+U Static Dielectric_ )
-
-#### GGAU_UNIFORM(_ = 'GGA+U NSCF Uniform_ )
-
-#### GGA_DEF(_ = 'GGA Deformation_ )
-
-#### GGA_LINE(_ = 'GGA NSCF Line_ )
-
-#### GGA_OPT(_ = 'GGA Structure Optimization_ )
-
-#### GGA_STATIC(_ = 'GGA Static_ )
-
-#### GGA_STATIC_DIEL(_ = 'GGA Static Dielectric_ )
-
-#### GGA_UNIFORM(_ = 'GGA NSCF Uniform_ )
-
-#### LDA_STATIC_DIEL(_ = 'LDA Static Dielectric_ )
-
-#### SCAN_OPT(_ = 'SCAN Structure Optimization_ )
-
-### pymatgen.ext.matproj.get_chunks(sequence: Sequence[Any], size=1)
-
-* **Parameters**
-
-
-    * **sequence** (*Sequence**[**Any**]*) – Any sequence.
-
-
-    * **size** (*int*) – Chunk length. Defaults to 1.
-
-
-
-* **Returns**
-
-    input sequence in chunks of length size.
-
-
-
-* **Return type**
-
-    list[Sequence[Any]]
-
-
-## pymatgen.ext.optimade module
-
-Optimade support.
-
-
-### _class_ pymatgen.ext.optimade.OptimadeRester(aliases_or_resource_urls: str | list[str] | None = None, refresh_aliases: bool = False, timeout: int = 5)
-Bases: `object`
-
-Class to call OPTIMADE-compliant APIs, see [https://optimade.org](https://optimade.org) and [1].
-
-This class is ready to use but considered in-development and subject to change.
-
-[1] Andersen, C.W., *et al*.
-
-    OPTIMADE, an API for exchanging materials data.
-    Sci Data 8, 217 (2021). [https://doi.org/10.1038/s41597-021-00974-z](https://doi.org/10.1038/s41597-021-00974-z)
-
-OPTIMADE is an effort to provide a standardized interface to retrieve information
-from many different materials science databases.
-
-This is a client to retrieve structures from OPTIMADE v1 compliant endpoints. It
-does not yet support all features of the OPTIMADE v1 specification but is intended
-as a way to quickly search an endpoint in a way familiar to users of pymatgen without
-needing to know the full OPTIMADE specification.
-
-For advanced usage, please see the OPTIMADE documentation at optimade.org and
-consider calling the APIs directly.
-
-For convenience, known OPTIMADE endpoints have been given aliases in pymatgen to save
-typing the full URL.
-
-To get an up-to-date list aliases, generated from the current list of OPTIMADE providers
-at optimade.org, call the refresh_aliases() method or pass refresh_aliases=True when
-creating instances of this class.
-
-
-* **Parameters**
-
-
-    * **aliases_or_resource_urls** – the alias or structure resource URL or a list of
-
-
-    * **URLs** (*aliases** or **resource*) –
-
-
-    * **not** (*if providing the resource URL directly it should*) –
-
-
-    * **index** (*be an*) –
-
-
-    * **"v1/structures"** (*this interface can only currently access the*) –
-
-
-    * **URL** (*information from the specified resource*) –
-
-
-    * **refresh_aliases** – if True, use an up-to-date list of providers/aliases from the live
-
-
-    * **https** (*list** of **OPTIMADE providers hosted at*) – //providers.optimade.org.
-
-
-    * **timeout** – number of seconds before an attempted request is abandoned, a good
-
-
-    * **providers** (*timeout is useful when querying many*) –
-
-
-    * **offline** (*some** of **which may be*) –
-
-
-
-#### aliases(_ = {'aflow': 'http://aflow.org/API/optimade/', 'cod': 'https://www.crystallography.net/cod/optimade', 'jarvis': 'https://jarvis.nist.gov/optimade/jarvisdft', 'mcloud.2dtopo': 'https://aiida.materialscloud.org/2dtopo/optimade', 'mcloud.curated-cofs': 'https://aiida.materialscloud.org/curated-cofs/optimade', 'mcloud.mc2d': 'https://aiida.materialscloud.org/mc2d/optimade', 'mcloud.mc3d': 'https://aiida.materialscloud.org/mc3d/optimade', 'mcloud.optimade-sample': 'https://aiida.materialscloud.org/optimade-sample/optimade', 'mcloud.pyrene-mofs': 'https://aiida.materialscloud.org/pyrene-mofs/optimade', 'mcloud.scdm': 'https://aiida.materialscloud.org/autowannier/optimade', 'mcloud.stoceriaitf': 'https://aiida.materialscloud.org/stoceriaitf/optimade', 'mcloud.tc-applicability': 'https://aiida.materialscloud.org/tc-applicability/optimade', 'mcloud.tin-antimony-sulfoiodide': 'https://aiida.materialscloud.org/tin-antimony-sulfoiodide/optimade', 'mp': 'https://optimade.materialsproject.org', 'mpds': 'https://api.mpds.io', 'nmd': 'https://nomad-lab.eu/prod/rae/optimade/', 'odbx': 'https://optimade.odbx.science', 'odbx.odbx_misc': 'https://optimade-misc.odbx.science', 'omdb.omdb_production': 'http://optimade.openmaterialsdb.se', 'oqmd': 'http://oqmd.org/optimade/', 'tcod': 'https://www.crystallography.net/tcod/optimade', 'twodmatpedia': 'http://optimade.2dmatpedia.org'_ )
-
-#### describe()
-Provides human-readable information about the resources being searched by the OptimadeRester.
-
-
-#### get_snls(elements: list[str] | str | None = None, nelements: int | None = None, nsites: int | None = None, chemical_formula_anonymous: str | None = None, chemical_formula_hill: str | None = None, additional_response_fields: str | list[str] | set[str] | None = None)
-Retrieve StructureNL from OPTIMADE providers.
-
-A StructureNL is an object provided by pymatgen which combines Structure with
-associated metadata, such as the URL is was downloaded from and any additional namespaced
-data.
-
-Not all functionality of OPTIMADE is currently exposed in this convenience method. To
-use a custom filter, call get_structures_with_filter().
-
-
-* **Parameters**
-
-
-    * **elements** – List of elements
-
-
-    * **nelements** – Number of elements, e.g. 4 or [2, 5] for the range >=2 and <=5
-
-
-    * **nsites** – Number of sites, e.g. 4 or [2, 5] for the range >=2 and <=5
-
-
-    * **chemical_formula_anonymous** – Anonymous chemical formula
-
-
-    * **chemical_formula_hill** – Chemical formula following Hill convention
-
-
-    * **additional_response_fields** – Any additional fields desired from the OPTIMADE API,
-
-
-    * **dictionary.** (*these will be stored under the '_optimade' key in each StructureNL.data*) –
-
-
-Returns: Dict of (Dict of StructureNLs keyed by that database’s id system) keyed by provider
-
-
-#### get_snls_with_filter(optimade_filter: str, additional_response_fields: str | list[str] | set[str] | None = None)
-Get structures satisfying a given OPTIMADE filter.
-
-
-* **Parameters**
-
-
-    * **optimade_filter** – An OPTIMADE-compliant filter
-
-
-    * **additional_response_fields** – Any additional fields desired from the OPTIMADE API,
-
-
-Returns: Dict of Structures keyed by that database’s id system
-
-
-#### get_structures(elements: list[str] | str | None = None, nelements: int | None = None, nsites: int | None = None, chemical_formula_anonymous: str | None = None, chemical_formula_hill: str | None = None)
-Retrieve Structures from OPTIMADE providers.
-
-Not all functionality of OPTIMADE is currently exposed in this convenience method. To
-use a custom filter, call get_structures_with_filter().
-
-
-* **Parameters**
-
-
-    * **elements** – List of elements
-
-
-    * **nelements** – Number of elements, e.g. 4 or [2, 5] for the range >=2 and <=5
-
-
-    * **nsites** – Number of sites, e.g. 4 or [2, 5] for the range >=2 and <=5
-
-
-    * **chemical_formula_anonymous** – Anonymous chemical formula
-
-
-    * **chemical_formula_hill** – Chemical formula following Hill convention
-
-
-Returns: Dict of (Dict Structures keyed by that database’s id system) keyed by provider
-
-
-#### get_structures_with_filter(optimade_filter: str)
-Get structures satisfying a given OPTIMADE filter.
-
-
-* **Parameters**
-
-    **optimade_filter** – An OPTIMADE-compliant filter
-
-
-Returns: Dict of Structures keyed by that database’s id system
-
-
-#### mandatory_response_fields(_ = ('lattice_vectors', 'cartesian_site_positions', 'species', 'species_at_sites'_ )
-
-#### refresh_aliases(providers_url='https://providers.optimade.org/providers.json')
-Updates available OPTIMADE structure resources based on the current list of OPTIMADE
-providers.
-
-
-### _class_ pymatgen.ext.optimade.Provider(name, base_url, description, homepage, prefix)
-Bases: `tuple`
-
-Create new instance of Provider(name, base_url, description, homepage, prefix)
-
-
-#### base_url()
-Alias for field number 1
-
-
-#### description()
-Alias for field number 2
-
-
-#### homepage()
-Alias for field number 3
-
-
-#### name()
-Alias for field number 0
-
-
-#### prefix()
-Alias for field number 4
+        * [`Provider.prefix`](pymatgen.ext.optimade.md#pymatgen.ext.optimade.Provider.prefix)

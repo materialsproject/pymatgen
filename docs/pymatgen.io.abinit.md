@@ -8,3696 +8,1029 @@ nav_exclude: true
 
 This package implements basic input and output capabilities for Abinit.
 
-## Subpackages
 
 
-* [pymatgen.io.abinit.tests package](pymatgen.io.abinit.tests.md)
+* [pymatgen.io.abinit.abiobjects module](pymatgen.io.abinit.abiobjects.md)
 
 
+    * [`AbivarAble`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.AbivarAble)
 
 
-    * [pymatgen.io.abinit.tests.test_abiobjects module](pymatgen.io.abinit.tests.md#module-pymatgen.io.abinit.tests.test_abiobjects)
+        * [`AbivarAble.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.AbivarAble.to_abivars)
 
 
-        * [`ElectronsAlgorithmTest`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.ElectronsAlgorithmTest)
+    * [`Constraints`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Constraints)
 
 
-            * [`ElectronsAlgorithmTest.test_base()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.ElectronsAlgorithmTest.test_base)
+        * [`Constraints.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Constraints.to_abivars)
 
 
-        * [`ElectronsTest`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.ElectronsTest)
+    * [`Electrons`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Electrons)
 
 
-            * [`ElectronsTest.test_base()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.ElectronsTest.test_base)
+        * [`Electrons.as_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Electrons.as_dict)
 
 
-        * [`KSamplingTest`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.KSamplingTest)
+        * [`Electrons.from_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Electrons.from_dict)
 
 
-            * [`KSamplingTest.test_base()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.KSamplingTest.test_base)
+        * [`Electrons.nspden`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Electrons.nspden)
 
 
-        * [`LatticeFromAbivarsTest`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.LatticeFromAbivarsTest)
+        * [`Electrons.nspinor`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Electrons.nspinor)
 
 
-            * [`LatticeFromAbivarsTest.test_rprim_acell()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.LatticeFromAbivarsTest.test_rprim_acell)
+        * [`Electrons.nsppol`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Electrons.nsppol)
 
 
-            * [`LatticeFromAbivarsTest.test_znucl_typat()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.LatticeFromAbivarsTest.test_znucl_typat)
+        * [`Electrons.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Electrons.to_abivars)
 
 
-        * [`PPModelTest`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.PPModelTest)
+    * [`ElectronsAlgorithm`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm)
 
 
-            * [`PPModelTest.test_base()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.PPModelTest.test_base)
+        * [`ElectronsAlgorithm.as_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict)
 
 
-        * [`RelaxationTest`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.RelaxationTest)
+        * [`ElectronsAlgorithm.from_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.from_dict)
 
 
-            * [`RelaxationTest.test_base()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.RelaxationTest.test_base)
+        * [`ElectronsAlgorithm.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.to_abivars)
 
 
-        * [`SmearingTest`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.SmearingTest)
+    * [`ExcHamiltonian`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.ExcHamiltonian)
 
 
-            * [`SmearingTest.test_base()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.SmearingTest.test_base)
+        * [`ExcHamiltonian.inclvkb`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.ExcHamiltonian.inclvkb)
 
 
-        * [`SpinModeTest`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.SpinModeTest)
+        * [`ExcHamiltonian.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.ExcHamiltonian.to_abivars)
 
 
-            * [`SpinModeTest.test_base()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_abiobjects.SpinModeTest.test_base)
+        * [`ExcHamiltonian.use_cg`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_cg)
 
 
-    * [pymatgen.io.abinit.tests.test_inputs module](pymatgen.io.abinit.tests.md#module-pymatgen.io.abinit.tests.test_inputs)
+        * [`ExcHamiltonian.use_direct_diago`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_direct_diago)
 
 
-        * [`AbinitInputTestCase`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.AbinitInputTestCase)
+        * [`ExcHamiltonian.use_haydock`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.ExcHamiltonian.use_haydock)
 
 
-            * [`AbinitInputTestCase.test_api()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.AbinitInputTestCase.test_api)
+    * [`HilbertTransform`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.HilbertTransform)
 
 
-            * [`AbinitInputTestCase.test_helper_functions()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.AbinitInputTestCase.test_helper_functions)
+        * [`HilbertTransform.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.HilbertTransform.to_abivars)
 
 
-            * [`AbinitInputTestCase.test_input_errors()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.AbinitInputTestCase.test_input_errors)
+    * [`KSampling`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSampling)
 
 
-        * [`FactoryTest`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.FactoryTest)
+        * [`KSampling.as_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSampling.as_dict)
 
 
-            * [`FactoryTest.setUp()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.FactoryTest.setUp)
+        * [`KSampling.automatic_density()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSampling.automatic_density)
 
 
-            * [`FactoryTest.test_ebands_input()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.FactoryTest.test_ebands_input)
+        * [`KSampling.explicit_path()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSampling.explicit_path)
 
 
-            * [`FactoryTest.test_gs_input()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.FactoryTest.test_gs_input)
+        * [`KSampling.from_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSampling.from_dict)
 
 
-            * [`FactoryTest.test_ion_ioncell_relax_input()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.FactoryTest.test_ion_ioncell_relax_input)
+        * [`KSampling.gamma_centered()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSampling.gamma_centered)
 
 
-        * [`ShiftModeTest`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.ShiftModeTest)
+        * [`KSampling.gamma_only()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSampling.gamma_only)
 
 
-            * [`ShiftModeTest.test_shiftmode()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.ShiftModeTest.test_shiftmode)
+        * [`KSampling.is_homogeneous`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSampling.is_homogeneous)
 
 
-        * [`TestMultiDataset`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.TestMultiDataset)
+        * [`KSampling.monkhorst()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSampling.monkhorst)
 
 
-            * [`TestMultiDataset.test_api()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.TestMultiDataset.test_api)
+        * [`KSampling.monkhorst_automatic()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSampling.monkhorst_automatic)
 
 
-        * [`abiref_file()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.abiref_file)
+        * [`KSampling.path_from_structure()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSampling.path_from_structure)
 
 
-        * [`abiref_files()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_inputs.abiref_files)
+        * [`KSampling.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSampling.to_abivars)
 
 
-    * [pymatgen.io.abinit.tests.test_netcdf module](pymatgen.io.abinit.tests.md#module-pymatgen.io.abinit.tests.test_netcdf)
+    * [`KSamplingModes`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSamplingModes)
 
 
-        * [`ETSF_Reader_TestCase`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_netcdf.ETSF_Reader_TestCase)
+        * [`KSamplingModes.automatic`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSamplingModes.automatic)
 
 
-            * [`ETSF_Reader_TestCase.setUp()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_netcdf.ETSF_Reader_TestCase.setUp)
+        * [`KSamplingModes.monkhorst`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSamplingModes.monkhorst)
 
 
-            * [`ETSF_Reader_TestCase.test_read_Si2()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_netcdf.ETSF_Reader_TestCase.test_read_Si2)
+        * [`KSamplingModes.path`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.KSamplingModes.path)
 
 
-        * [`TestAbinitHeader`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_netcdf.TestAbinitHeader)
+    * [`ModelDielectricFunction`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.ModelDielectricFunction)
 
 
-            * [`TestAbinitHeader.test_api()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_netcdf.TestAbinitHeader.test_api)
+        * [`ModelDielectricFunction.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.ModelDielectricFunction.to_abivars)
 
 
-        * [`ref_file()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_netcdf.ref_file)
+    * [`PPModel`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.PPModel)
 
 
-    * [pymatgen.io.abinit.tests.test_pseudos module](pymatgen.io.abinit.tests.md#module-pymatgen.io.abinit.tests.test_pseudos)
+        * [`PPModel.as_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.PPModel.as_dict)
 
 
-        * [`PseudoTableTest`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_pseudos.PseudoTableTest)
+        * [`PPModel.as_ppmodel()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.PPModel.as_ppmodel)
 
 
-            * [`PseudoTableTest.test_methods()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_pseudos.PseudoTableTest.test_methods)
+        * [`PPModel.from_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.PPModel.from_dict)
 
 
-        * [`PseudoTestCase`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_pseudos.PseudoTestCase)
+        * [`PPModel.get_noppmodel()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.PPModel.get_noppmodel)
 
 
-            * [`PseudoTestCase.setUp()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_pseudos.PseudoTestCase.setUp)
+        * [`PPModel.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.PPModel.to_abivars)
 
 
-            * [`PseudoTestCase.test_nc_pseudos()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_pseudos.PseudoTestCase.test_nc_pseudos)
+    * [`PPModelModes`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.PPModelModes)
 
 
-            * [`PseudoTestCase.test_oncvpsp_pseudo_fr()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_pseudos.PseudoTestCase.test_oncvpsp_pseudo_fr)
+        * [`PPModelModes.farid`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.PPModelModes.farid)
 
 
-            * [`PseudoTestCase.test_oncvpsp_pseudo_sr()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_pseudos.PseudoTestCase.test_oncvpsp_pseudo_sr)
+        * [`PPModelModes.godby`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.PPModelModes.godby)
 
 
-            * [`PseudoTestCase.test_pawxml_pseudos()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_pseudos.PseudoTestCase.test_pawxml_pseudos)
+        * [`PPModelModes.hybersten`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.PPModelModes.hybersten)
 
 
-        * [`ref_file()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_pseudos.ref_file)
+        * [`PPModelModes.linden`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.PPModelModes.linden)
 
 
-        * [`ref_files()`](pymatgen.io.abinit.tests.md#pymatgen.io.abinit.tests.test_pseudos.ref_files)
+        * [`PPModelModes.noppmodel`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.PPModelModes.noppmodel)
 
 
+    * [`RelaxationMethod`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.RelaxationMethod)
 
-## pymatgen.io.abinit.abiobjects module
 
-Low-level objects providing an abstraction for the objects involved in the calculation.
+        * [`RelaxationMethod.IONMOV_DEFAULT`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.RelaxationMethod.IONMOV_DEFAULT)
 
 
-### _class_ pymatgen.io.abinit.abiobjects.AbivarAble()
-Bases: `object`
+        * [`RelaxationMethod.OPTCELL_DEFAULT`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.RelaxationMethod.OPTCELL_DEFAULT)
 
-An AbivarAble object provides a method to_abivars
-that returns a dictionary with the abinit variables.
 
+        * [`RelaxationMethod.as_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.RelaxationMethod.as_dict)
 
-#### _abstract_ to_abivars()
-Returns a dictionary with the abinit variables.
 
+        * [`RelaxationMethod.atoms_and_cell()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_and_cell)
 
-### _class_ pymatgen.io.abinit.abiobjects.Constraints()
-Bases: `AbivarAble`
 
-This object defines the constraints for structural relaxation.
+        * [`RelaxationMethod.atoms_only()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.RelaxationMethod.atoms_only)
 
 
-#### to_abivars()
-Dictionary with Abinit variables.
+        * [`RelaxationMethod.from_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.RelaxationMethod.from_dict)
 
 
-### _class_ pymatgen.io.abinit.abiobjects.Electrons(spin_mode='polarized', smearing='fermi_dirac:0.1 eV', algorithm=None, nband=None, fband=None, charge=0.0, comment=None)
-Bases: `AbivarAble`, `MSONable`
+        * [`RelaxationMethod.move_atoms`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.RelaxationMethod.move_atoms)
 
-The electronic degrees of freedom.
 
-Constructor for Electrons object.
+        * [`RelaxationMethod.move_cell`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.RelaxationMethod.move_cell)
 
 
-* **Parameters**
+        * [`RelaxationMethod.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.RelaxationMethod.to_abivars)
 
 
-    * **comment** – String comment for Electrons
+    * [`Screening`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Screening)
 
 
-    * **charge** – Total charge of the system. Default is 0.
+        * [`Screening.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Screening.to_abivars)
 
 
+        * [`Screening.use_hilbert`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Screening.use_hilbert)
 
-#### as_dict()
-Json friendly dict representation.
 
+    * [`SelfEnergy`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.SelfEnergy)
 
-#### _classmethod_ from_dict(d)
-Build object from dictionary.
 
+        * [`SelfEnergy.gwcalctyp`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.SelfEnergy.gwcalctyp)
 
-#### _property_ nspden()
-Number of independent density components.
 
+        * [`SelfEnergy.symsigma`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.SelfEnergy.symsigma)
 
-#### _property_ nspinor()
-Number of independent spinor components.
 
+        * [`SelfEnergy.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.SelfEnergy.to_abivars)
 
-#### _property_ nsppol()
-Number of independent spin polarizations.
 
+        * [`SelfEnergy.use_ppmodel`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.SelfEnergy.use_ppmodel)
 
-#### to_abivars()
-Return dictionary with Abinit variables.
 
+    * [`Smearing`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Smearing)
 
-### _class_ pymatgen.io.abinit.abiobjects.ElectronsAlgorithm(\*args, \*\*kwargs)
-Bases: `dict`, `AbivarAble`, `MSONable`
 
-Variables controlling the SCF/NSCF algorithm.
+        * [`Smearing.as_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Smearing.as_dict)
 
-Initialize object.
 
+        * [`Smearing.as_smearing()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Smearing.as_smearing)
 
-#### as_dict()
-Convert object to dict.
 
+        * [`Smearing.from_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Smearing.from_dict)
 
-#### _classmethod_ from_dict(d)
-Build object from dict.
 
+        * [`Smearing.mode`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Smearing.mode)
 
-#### to_abivars()
-Dictionary with Abinit input variables.
 
+        * [`Smearing.nosmearing()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Smearing.nosmearing)
 
-### _class_ pymatgen.io.abinit.abiobjects.ExcHamiltonian(bs_loband, nband, mbpt_sciss, coulomb_mode, ecuteps, spin_mode='polarized', mdf_epsinf=None, exc_type='TDA', algo='haydock', with_lf=True, bs_freq_mesh=None, zcut=None, \*\*kwargs)
-Bases: `AbivarAble`
 
-This object contains the parameters for the solution of the Bethe-Salpeter equation.
+        * [`Smearing.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.Smearing.to_abivars)
 
 
-* **Parameters**
+    * [`SpinMode`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.SpinMode)
 
 
-    * **bs_loband** – Lowest band index (Fortran convention) used in the e-h  basis set.
-    Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband
+        * [`SpinMode.as_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.SpinMode.as_dict)
 
 
-    * **nband** – Max band index used in the e-h  basis set.
+        * [`SpinMode.as_spinmode()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.SpinMode.as_spinmode)
 
 
-    * **mbpt_sciss** – Scissors energy in Hartree.
+        * [`SpinMode.from_dict()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.SpinMode.from_dict)
 
 
-    * **coulomb_mode** – Treatment of the Coulomb term.
+        * [`SpinMode.to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.SpinMode.to_abivars)
 
 
-    * **ecuteps** – Cutoff energy for W in Hartree.
+    * [`contract()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.contract)
 
 
-    * **mdf_epsinf** – Macroscopic dielectric function $\\epsilon_\\inf$ used in
-    the model dielectric function.
+    * [`lattice_from_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.lattice_from_abivars)
 
 
-    * **exc_type** – Approximation used for the BSE Hamiltonian
+    * [`species_by_znucl()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.species_by_znucl)
 
 
-    * **with_lf** – True if local field effects are included <==> exchange term is included
+    * [`structure_from_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.structure_from_abivars)
 
 
-    * **bs_freq_mesh** – Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.
+    * [`structure_to_abivars()`](pymatgen.io.abinit.abiobjects.md#pymatgen.io.abinit.abiobjects.structure_to_abivars)
 
 
-    * **zcut** – Broadening parameter in Ha.
+* [pymatgen.io.abinit.abitimer module](pymatgen.io.abinit.abitimer.md)
 
 
-    * **\*\*kwargs** – Extra keywords.
+    * [`AbinitTimer`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer)
 
 
+        * [`AbinitTimer.cpuwall_histogram()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram)
 
-#### _property_ inclvkb()
-Treatment of the dipole matrix element (NC pseudos, default is 2).
 
+        * [`AbinitTimer.get_dataframe()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.get_dataframe)
 
-#### to_abivars()
-Returns a dictionary with the abinit variables.
 
+        * [`AbinitTimer.get_section()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.get_section)
 
-#### _property_ use_cg()
-True if we are using the conjugate gradient method.
 
+        * [`AbinitTimer.get_values()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.get_values)
 
-#### _property_ use_direct_diago()
-True if we are performing the direct diagonalization of the BSE Hamiltonian.
 
+        * [`AbinitTimer.names_and_values()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.names_and_values)
 
-#### _property_ use_haydock()
-True if we are using the Haydock iterative technique.
 
+        * [`AbinitTimer.ncpus`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.ncpus)
 
-### _class_ pymatgen.io.abinit.abiobjects.HilbertTransform(nomegasf, domegasf=None, spmeth=1, nfreqre=None, freqremax=None, nfreqim=None, freqremin=None)
-Bases: `AbivarAble`
 
-Parameters for the Hilbert-transform method (Screening code)
-i.e. the parameters defining the frequency mesh used for the spectral function
-and the frequency mesh used for the polarizability.
+        * [`AbinitTimer.order_sections()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.order_sections)
 
 
-* **Parameters**
+        * [`AbinitTimer.pie()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.pie)
 
 
-    * **nomegasf** – Number of points for sampling the spectral function along the real axis.
+        * [`AbinitTimer.scatter_hist()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist)
 
 
-    * **domegasf** – Step in Ha for the linear mesh used for the spectral function.
+        * [`AbinitTimer.sum_sections()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.sum_sections)
 
 
-    * **spmeth** – Algorithm for the representation of the delta function.
+        * [`AbinitTimer.to_csv()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.to_csv)
 
 
-    * **nfreqre** – Number of points along the real axis (linear mesh).
+        * [`AbinitTimer.to_table()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.to_table)
 
 
-    * **freqremax** – Maximum frequency for W along the real axis (in hartree).
+        * [`AbinitTimer.totable()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimer.totable)
 
 
-    * **nfreqim** – Number of point along the imaginary axis (Gauss-Legendre mesh).
+    * [`AbinitTimerParseError`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParseError)
 
 
-    * **freqremin** – Minimum frequency for W along the real axis (in hartree).
+    * [`AbinitTimerParser`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser)
 
 
+        * [`AbinitTimerParser.BEGIN_TAG`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.BEGIN_TAG)
 
-#### to_abivars()
-Returns a dictionary with the abinit variables.
 
+        * [`AbinitTimerParser.END_TAG`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.END_TAG)
 
-### _class_ pymatgen.io.abinit.abiobjects.KSampling(mode=KSamplingModes.monkhorst, num_kpts=0, kpts=((1, 1, 1),), kpt_shifts=(0.5, 0.5, 0.5), kpts_weights=None, use_symmetries=True, use_time_reversal=True, chksymbreak=None, comment=None)
-Bases: `AbivarAble`, `MSONable`
 
-Input variables defining the K-point sampling.
+        * [`AbinitTimerParser.Error`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.Error)
 
-Highly flexible constructor for KSampling objects. The flexibility comes
-at the cost of usability and in general, it is recommended that you use
-the default constructor only if you know exactly what you are doing and
-requires the flexibility. For most usage cases, the object be constructed
-far more easily using the convenience static constructors:
 
->
-> 1. gamma_only
+        * [`AbinitTimerParser.filenames`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.filenames)
 
 
-> 2. gamma_centered
+        * [`AbinitTimerParser.get_sections()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.get_sections)
 
 
-> 3. monkhorst
+        * [`AbinitTimerParser.parse()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.parse)
 
 
-> 4. monkhorst_automatic
+        * [`AbinitTimerParser.pefficiency()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.pefficiency)
 
 
-> 5. path
+        * [`AbinitTimerParser.plot_all()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_all)
 
-and it is recommended that you use those.
 
+        * [`AbinitTimerParser.plot_efficiency()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_efficiency)
 
-* **Parameters**
 
+        * [`AbinitTimerParser.plot_pie()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_pie)
 
-    * **mode** – Mode for generating k-poits. Use one of the KSamplingModes enum types.
 
+        * [`AbinitTimerParser.plot_stacked_hist()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_stacked_hist)
 
-    * **num_kpts** – Number of kpoints if mode is “automatic”
-    Number of division for the sampling of the smallest segment if mode is “path”.
-    Not used for the other modes
 
+        * [`AbinitTimerParser.section_names()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.section_names)
 
-    * **kpts** – Number of divisions. Even when only a single specification is
-    required, e.g. in the automatic scheme, the kpts should still
-    be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
 
+        * [`AbinitTimerParser.summarize()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.summarize)
 
-    * **kpt_shifts** – Shifts for Kpoints.
 
+        * [`AbinitTimerParser.timers()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.timers)
 
-    * **use_symmetries** – False if spatial symmetries should not be used
-    to reduce the number of independent k-points.
 
+        * [`AbinitTimerParser.walk()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerParser.walk)
 
-    * **use_time_reversal** – False if time-reversal symmetry should not be used
-    to reduce the number of independent k-points.
 
+    * [`AbinitTimerSection`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerSection)
 
-    * **kpts_weights** – Optional weights for kpoints. For explicit kpoints.
 
+        * [`AbinitTimerSection.FIELDS`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerSection.FIELDS)
 
-    * **chksymbreak** – Abinit input variable: check whether the BZ sampling preserves the symmetry of the crystal.
 
+        * [`AbinitTimerSection.NUMERIC_FIELDS`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerSection.NUMERIC_FIELDS)
 
-    * **comment** – String comment for Kpoints
 
+        * [`AbinitTimerSection.STR_FIELDS`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerSection.STR_FIELDS)
 
-**NOTE**: The default behavior of the constructor is monkhorst.
 
+        * [`AbinitTimerSection.fake()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerSection.fake)
 
-#### as_dict()
-Convert object to dict.
 
+        * [`AbinitTimerSection.to_csvline()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_csvline)
 
-#### _classmethod_ automatic_density(structure, kppa, chksymbreak=None, use_symmetries=True, use_time_reversal=True, shifts=(0.5, 0.5, 0.5))
-Returns an automatic Kpoint object based on a structure and a kpoint
-density. Uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.
 
-Algorithm:
+        * [`AbinitTimerSection.to_dict()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_dict)
 
-    Uses a simple approach scaling the number of divisions along each
-    reciprocal lattice vector proportional to its length.
 
+        * [`AbinitTimerSection.to_tuple()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.AbinitTimerSection.to_tuple)
 
-* **Parameters**
 
+    * [`ParallelEfficiency`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.ParallelEfficiency)
 
-    * **structure** – Input structure
 
+        * [`ParallelEfficiency.bad_sections()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.ParallelEfficiency.bad_sections)
 
-    * **kppa** – Grid density
 
+        * [`ParallelEfficiency.good_sections()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.ParallelEfficiency.good_sections)
 
 
-#### _classmethod_ explicit_path(ndivsm, kpath_bounds)
-See _path for the meaning of the variables.
+        * [`ParallelEfficiency.totable()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.ParallelEfficiency.totable)
 
 
-#### _classmethod_ from_dict(d)
-Build object from dict.
+    * [`alternate()`](pymatgen.io.abinit.abitimer.md#pymatgen.io.abinit.abitimer.alternate)
 
 
-#### _classmethod_ gamma_centered(kpts=(1, 1, 1), use_symmetries=True, use_time_reversal=True)
-Convenient static constructor for an automatic Gamma centered Kpoint grid.
+* [pymatgen.io.abinit.inputs module](pymatgen.io.abinit.inputs.md)
 
 
-* **Parameters**
+    * [`AbstractInput`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.AbstractInput)
 
 
-    * **kpts** – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+        * [`AbstractInput.deepcopy()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.AbstractInput.deepcopy)
 
 
-    * **use_symmetries** – False if spatial symmetries should not be used
-    to reduce the number of independent k-points.
+        * [`AbstractInput.pop_vars()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.AbstractInput.pop_vars)
 
 
-    * **use_time_reversal** – False if time-reversal symmetry should not be used
-    to reduce the number of independent k-points.
+        * [`AbstractInput.remove_vars()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.AbstractInput.remove_vars)
 
 
+        * [`AbstractInput.set_vars()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.AbstractInput.set_vars)
 
-* **Returns**
 
-    `KSampling` object.
+        * [`AbstractInput.set_vars_ifnotin()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.AbstractInput.set_vars_ifnotin)
 
 
+        * [`AbstractInput.to_str()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.AbstractInput.to_str)
 
-#### _classmethod_ gamma_only()
-Gamma-only sampling.
 
+        * [`AbstractInput.vars`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.AbstractInput.vars)
 
-#### _property_ is_homogeneous(_: boo_ )
-Homogeneous sampling.
 
+        * [`AbstractInput.write()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.AbstractInput.write)
 
-#### _classmethod_ monkhorst(ngkpt, shiftk=(0.5, 0.5, 0.5), chksymbreak=None, use_symmetries=True, use_time_reversal=True, comment=None)
-Convenient static constructor for a Monkhorst-Pack mesh.
 
+    * [`BasicAbinitInput`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput)
 
-* **Parameters**
 
+        * [`BasicAbinitInput.Error`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.Error)
 
-    * **ngkpt** – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
 
+        * [`BasicAbinitInput.add_abiobjects()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.add_abiobjects)
 
-    * **shiftk** – Shift to be applied to the kpoints.
 
+        * [`BasicAbinitInput.as_dict()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.as_dict)
 
-    * **use_symmetries** – Use spatial symmetries to reduce the number of k-points.
 
+        * [`BasicAbinitInput.comment`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.comment)
 
-    * **use_time_reversal** – Use time-reversal symmetry to reduce the number of k-points.
 
+        * [`BasicAbinitInput.from_dict()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.from_dict)
 
 
-* **Returns**
+        * [`BasicAbinitInput.isnc`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.isnc)
 
-    `KSampling` object.
 
+        * [`BasicAbinitInput.ispaw`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.ispaw)
 
 
-#### _classmethod_ monkhorst_automatic(structure, ngkpt, use_symmetries=True, use_time_reversal=True, chksymbreak=None, comment=None)
-Convenient static constructor for an automatic Monkhorst-Pack mesh.
+        * [`BasicAbinitInput.new_with_vars()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.new_with_vars)
 
 
-* **Parameters**
+        * [`BasicAbinitInput.pop_irdvars()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.pop_irdvars)
 
 
-    * **structure** – `Structure` object.
+        * [`BasicAbinitInput.pop_tolerances()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.pop_tolerances)
 
 
-    * **ngkpt** – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+        * [`BasicAbinitInput.pseudos`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.pseudos)
 
 
-    * **use_symmetries** – Use spatial symmetries to reduce the number of k-points.
+        * [`BasicAbinitInput.set_comment()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.set_comment)
 
 
-    * **use_time_reversal** – Use time-reversal symmetry to reduce the number of k-points.
+        * [`BasicAbinitInput.set_gamma_sampling()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.set_gamma_sampling)
 
 
+        * [`BasicAbinitInput.set_kmesh()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.set_kmesh)
 
-* **Returns**
 
-    `KSampling` object.
+        * [`BasicAbinitInput.set_kpath()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.set_kpath)
 
 
+        * [`BasicAbinitInput.set_spin_mode()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.set_spin_mode)
 
-#### _classmethod_ path_from_structure(ndivsm, structure)
-See _path for the meaning of the variables.
 
+        * [`BasicAbinitInput.set_structure()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.set_structure)
 
-#### to_abivars()
-Dictionary with Abinit variables.
 
+        * [`BasicAbinitInput.structure`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.structure)
 
-### _class_ pymatgen.io.abinit.abiobjects.KSamplingModes(value)
-Bases: `Enum`
 
-Enum if the different samplings of the BZ.
+        * [`BasicAbinitInput.to_str()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.to_str)
 
 
-#### automatic(_ = _ )
+        * [`BasicAbinitInput.to_string()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.to_string)
 
-#### monkhorst(_ = _ )
 
-#### path(_ = _ )
+        * [`BasicAbinitInput.vars`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInput.vars)
 
-### _class_ pymatgen.io.abinit.abiobjects.ModelDielectricFunction(mdf_epsinf)
-Bases: `AbivarAble`
 
-Model dielectric function used for BSE calculation.
+    * [`BasicAbinitInputError`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicAbinitInputError)
 
 
-* **Parameters**
+    * [`BasicMultiDataset`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset)
 
-    **mdf_epsinf** – Value of epsilon_infinity.
 
+        * [`BasicMultiDataset.Error`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.Error)
 
 
-#### to_abivars()
-Return dictionary with abinit variables.
+        * [`BasicMultiDataset.addnew_from()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.addnew_from)
 
 
-### _class_ pymatgen.io.abinit.abiobjects.PPModel(mode='godby', plasmon_freq=None)
-Bases: `AbivarAble`, `MSONable`
+        * [`BasicMultiDataset.append()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.append)
 
-Parameters defining the plasmon-pole technique.
-The common way to instantiate a PPModel object is via the class method PPModel.as_ppmodel(string).
 
+        * [`BasicMultiDataset.deepcopy()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.deepcopy)
 
-* **Parameters**
 
+        * [`BasicMultiDataset.extend()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.extend)
 
-    * **mode** – ppmodel type
 
+        * [`BasicMultiDataset.from_inputs()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.from_inputs)
 
-    * **plasmon_freq** – Plasmon frequency in Ha.
 
+        * [`BasicMultiDataset.has_same_structures`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.has_same_structures)
 
 
-#### as_dict()
-Convert object to dictionary.
+        * [`BasicMultiDataset.isnc`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.isnc)
 
 
-#### _classmethod_ as_ppmodel(obj)
-Constructs an instance of PPModel from obj.
+        * [`BasicMultiDataset.ispaw`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.ispaw)
 
-Accepts obj in the form:
 
+        * [`BasicMultiDataset.ndtset`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.ndtset)
 
-    * PPmodel instance
 
+        * [`BasicMultiDataset.pseudos`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.pseudos)
 
-    * string. e.g “godby:12.3 eV”, “linden”.
 
+        * [`BasicMultiDataset.replicate_input()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.replicate_input)
 
-#### _static_ from_dict(d)
-Build object from dictionary.
 
+        * [`BasicMultiDataset.split_datasets()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.split_datasets)
 
-#### _classmethod_ get_noppmodel()
-Calculation without plasmon-pole model.
 
+        * [`BasicMultiDataset.to_str()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.to_str)
 
-#### to_abivars()
-Return dictionary with Abinit variables.
 
+        * [`BasicMultiDataset.to_string()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.to_string)
 
-### _class_ pymatgen.io.abinit.abiobjects.PPModelModes(value)
-Bases: `Enum`
 
-Different kind of plasmon-pole models.
+        * [`BasicMultiDataset.write()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.BasicMultiDataset.write)
 
 
-#### farid(_ = _ )
+    * [`ShiftMode`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.ShiftMode)
 
-#### godby(_ = _ )
 
-#### hybersten(_ = _ )
+        * [`ShiftMode.GammaCentered`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.ShiftMode.GammaCentered)
 
-#### linden(_ = _ )
 
-#### noppmodel(_ = _ )
+        * [`ShiftMode.MonkhorstPack`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.ShiftMode.MonkhorstPack)
 
-### _class_ pymatgen.io.abinit.abiobjects.RelaxationMethod(\*args, \*\*kwargs)
-Bases: `AbivarAble`, `MSONable`
 
-This object stores the variables for the (constrained) structural optimization
-ionmov and optcell specify the type of relaxation.
-The other variables are optional and their use depend on ionmov and optcell.
-A None value indicates that we use abinit default. Default values can
-be modified by passing them to the constructor.
-The set of variables are constructed in to_abivars depending on ionmov and optcell.
+        * [`ShiftMode.OneSymmetric`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.ShiftMode.OneSymmetric)
 
-Initialize object.
 
+        * [`ShiftMode.Symmetric`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.ShiftMode.Symmetric)
 
-#### IONMOV_DEFAULT(_ = _ )
 
-#### OPTCELL_DEFAULT(_ = _ )
+        * [`ShiftMode.from_object()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.ShiftMode.from_object)
 
-#### as_dict()
-Convert object to dict.
 
+    * [`as_structure()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.as_structure)
 
-#### _classmethod_ atoms_and_cell(atoms_constraints=None)
-Relax atomic positions as well as unit cell.
 
+    * [`calc_shiftk()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.calc_shiftk)
 
-#### _classmethod_ atoms_only(atoms_constraints=None)
-Relax atomic positions, keep unit cell fixed.
 
+    * [`ebands_input()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.ebands_input)
 
-#### _classmethod_ from_dict(d)
-Build object from dictionary.
 
+    * [`gs_input()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.gs_input)
 
-#### _property_ move_atoms()
-True if atoms must be moved.
 
+    * [`ion_ioncell_relax_input()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.ion_ioncell_relax_input)
 
-#### _property_ move_cell()
-True if lattice parameters must be optimized.
 
+    * [`num_valence_electrons()`](pymatgen.io.abinit.inputs.md#pymatgen.io.abinit.inputs.num_valence_electrons)
 
-#### to_abivars()
-Returns a dictionary with the abinit variables.
 
+* [pymatgen.io.abinit.netcdf module](pymatgen.io.abinit.netcdf.md)
 
-### _class_ pymatgen.io.abinit.abiobjects.Screening(ecuteps, nband, w_type='RPA', sc_mode='one_shot', hilbert=None, ecutwfn=None, inclvkb=2)
-Bases: `AbivarAble`
 
-This object defines the parameters used for the
-computation of the screening function.
+    * [`ETSF_Reader`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.ETSF_Reader)
 
 
-* **Parameters**
+        * [`ETSF_Reader.chemical_symbols()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.ETSF_Reader.chemical_symbols)
 
 
-    * **ecuteps** – Cutoff energy for the screening (Ha units).
+        * [`ETSF_Reader.read_abinit_hdr()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr)
 
 
-    * **function** (*nband Number** of **bands for the Green's*) –
+        * [`ETSF_Reader.read_abinit_xcfunc()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc)
 
 
-    * **w_type** – Screening type
+        * [`ETSF_Reader.read_structure()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure)
 
 
-    * **sc_mode** – Self-consistency mode.
+        * [`ETSF_Reader.typeidx_from_symbol()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.ETSF_Reader.typeidx_from_symbol)
 
 
-    * **hilbert** – Instance of `HilbertTransform` defining the parameters for the Hilber transform method.
+    * [`NO_DEFAULT`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.NO_DEFAULT)
 
 
-    * **ecutwfn** – Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
+    * [`NetcdfReader`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.NetcdfReader)
 
 
-    * **inclvkb** – Option for the treatment of the dipole matrix elements (NC pseudos).
+        * [`NetcdfReader.Error`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.NetcdfReader.Error)
 
 
+        * [`NetcdfReader.close()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.NetcdfReader.close)
 
-#### to_abivars()
-Returns a dictionary with the abinit variables.
 
+        * [`NetcdfReader.print_tree()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.NetcdfReader.print_tree)
 
-#### _property_ use_hilbert()
-True if we are using the Hilbert transform method.
 
+        * [`NetcdfReader.read_dimvalue()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.NetcdfReader.read_dimvalue)
 
-### _class_ pymatgen.io.abinit.abiobjects.SelfEnergy(se_type, sc_mode, nband, ecutsigx, screening, gw_qprange=1, ppmodel=None, ecuteps=None, ecutwfn=None, gwpara=2)
-Bases: `AbivarAble`
 
-This object defines the parameters used for the computation of the self-energy.
+        * [`NetcdfReader.read_keys()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.NetcdfReader.read_keys)
 
 
-* **Parameters**
+        * [`NetcdfReader.read_value()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.NetcdfReader.read_value)
 
 
-    * **se_type** – Type of self-energy (str)
+        * [`NetcdfReader.read_variable()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.NetcdfReader.read_variable)
 
 
-    * **sc_mode** – Self-consistency mode.
+        * [`NetcdfReader.read_varnames()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.NetcdfReader.read_varnames)
 
 
-    * **nband** – Number of bands for the Green’s function
+        * [`NetcdfReader.walk_tree()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.NetcdfReader.walk_tree)
 
 
-    * **ecutsigx** – Cutoff energy for the exchange part of the self-energy (Ha units).
+    * [`as_etsfreader()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.as_etsfreader)
 
 
-    * **screening** – `Screening` instance.
+    * [`as_ncreader()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.as_ncreader)
 
 
-    * **gw_qprange** – Option for the automatic selection of k-points and bands for GW corrections.
-    See Abinit docs for more detail. The default value makes the code computie the
-    QP energies for all the point in the IBZ and one band above and one band below the Fermi level.
+    * [`structure_from_ncdata()`](pymatgen.io.abinit.netcdf.md#pymatgen.io.abinit.netcdf.structure_from_ncdata)
 
 
-    * **ppmodel** – `PPModel` instance with the parameters used for the plasmon-pole technique.
+* [pymatgen.io.abinit.pseudos module](pymatgen.io.abinit.pseudos.md)
 
 
-    * **ecuteps** – Cutoff energy for the screening (Ha units).
+    * [`AbinitHeader`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.AbinitHeader)
 
 
-    * **ecutwfn** – Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
+    * [`AbinitPseudo`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.AbinitPseudo)
 
 
+        * [`AbinitPseudo.Z`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.AbinitPseudo.Z)
 
-#### _property_ gwcalctyp()
-Returns the value of the gwcalctyp input variable.
 
+        * [`AbinitPseudo.Z_val`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.AbinitPseudo.Z_val)
 
-#### _property_ symsigma()
-1 if symmetries can be used to reduce the number of q-points.
 
+        * [`AbinitPseudo.l_local`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.AbinitPseudo.l_local)
 
-#### to_abivars()
-Returns a dictionary with the abinit variables.
 
+        * [`AbinitPseudo.l_max`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.AbinitPseudo.l_max)
 
-#### _property_ use_ppmodel()
-True if we are using the plasmon-pole approximation.
 
+        * [`AbinitPseudo.summary`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.AbinitPseudo.summary)
 
-### _class_ pymatgen.io.abinit.abiobjects.Smearing(occopt, tsmear)
-Bases: `AbivarAble`, `MSONable`
 
-Variables defining the smearing technique. The preferred way to instantiate
-a Smearing object is via the class method Smearing.as_smearing(string).
+        * [`AbinitPseudo.supports_soc`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.AbinitPseudo.supports_soc)
 
-Build object with occopt and tsmear.
 
+    * [`Hint`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Hint)
 
-#### as_dict()
-JSON-friendly dict representation of Smearing.
 
+        * [`Hint.as_dict()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Hint.as_dict)
 
-#### _classmethod_ as_smearing(obj)
-Constructs an instance of Smearing from obj. Accepts obj in the form:
 
->
-> * Smearing instance
+        * [`Hint.from_dict()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Hint.from_dict)
 
 
-> * “name:tsmear”  e.g. “gaussian:0.004”  (Hartree units)
+    * [`NcAbinitHeader`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitHeader)
 
 
-> * “name:tsmear units” e.g. “gaussian:0.1 eV”
+        * [`NcAbinitHeader.fhi_header()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitHeader.fhi_header)
 
 
-> * None –> no smearing
+        * [`NcAbinitHeader.gth_header()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitHeader.gth_header)
 
 
-#### _static_ from_dict(d)
-Build object from dict.
+        * [`NcAbinitHeader.hgh_header()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitHeader.hgh_header)
 
 
-#### _property_ mode()
-String with smearing technique.
+        * [`NcAbinitHeader.oncvpsp_header()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitHeader.oncvpsp_header)
 
 
-#### _static_ nosmearing()
-Build object for calculations without smearing.
+        * [`NcAbinitHeader.tm_header()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitHeader.tm_header)
 
 
-#### to_abivars()
-Return dictionary with Abinit variables.
+    * [`NcAbinitPseudo`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitPseudo)
 
 
-### _class_ pymatgen.io.abinit.abiobjects.SpinMode(mode, nsppol, nspinor, nspden)
-Bases: `SpinMode`, `AbivarAble`, `MSONable`
+        * [`NcAbinitPseudo.Z`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitPseudo.Z)
 
-Different configurations of the electron density as implemented in abinit:
-One can use as_spinmode to construct the object via SpinMode.as_spinmode
-(string) where string can assume the values:
 
->
-> * polarized
+        * [`NcAbinitPseudo.Z_val`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitPseudo.Z_val)
 
 
-> * unpolarized
+        * [`NcAbinitPseudo.l_local`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitPseudo.l_local)
 
 
-> * afm (anti-ferromagnetic)
+        * [`NcAbinitPseudo.l_max`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitPseudo.l_max)
 
 
-> * spinor (non-collinear magnetism)
+        * [`NcAbinitPseudo.nlcc_radius`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitPseudo.nlcc_radius)
 
 
-> * spinor_nomag (non-collinear, no magnetism)
+        * [`NcAbinitPseudo.summary`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcAbinitPseudo.summary)
 
-Create new instance of SpinMode(mode, nsppol, nspinor, nspden)
 
+    * [`NcPseudo`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcPseudo)
 
-#### as_dict()
-Convert object to dict.
 
+        * [`NcPseudo.has_nlcc`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcPseudo.has_nlcc)
 
-#### _classmethod_ as_spinmode(obj)
-Converts obj into a SpinMode instance.
 
+        * [`NcPseudo.nlcc_radius`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcPseudo.nlcc_radius)
 
-#### _classmethod_ from_dict(d)
-Build object from dict.
 
+        * [`NcPseudo.rcore`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.NcPseudo.rcore)
 
-#### to_abivars()
-Dictionary with Abinit input variables.
 
+    * [`PawAbinitHeader`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawAbinitHeader)
 
-### pymatgen.io.abinit.abiobjects.contract(s)
-```python
->>> assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
->>> assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3".
-```
 
+        * [`PawAbinitHeader.paw_header()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawAbinitHeader.paw_header)
 
-### pymatgen.io.abinit.abiobjects.lattice_from_abivars(cls=None, \*args, \*\*kwargs)
-Returns a Lattice object from a dictionary
-with the Abinit variables acell and either rprim in Bohr or angdeg
-If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr.
 
+    * [`PawAbinitPseudo`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawAbinitPseudo)
 
-* **Parameters**
 
-    **cls** – Lattice class to be instantiated. pymatgen.core.lattice.Lattice if cls is None
+        * [`PawAbinitPseudo.paw_radius`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawAbinitPseudo.paw_radius)
 
 
-### Example
+        * [`PawAbinitPseudo.supports_soc`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawAbinitPseudo.supports_soc)
 
-lattice_from_abivars(acell=3\*[10], rprim=np.eye(3))
 
+    * [`PawPseudo`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawPseudo)
 
-### pymatgen.io.abinit.abiobjects.species_by_znucl(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-Return list of unique specie found in structure **ordered according to sites**.
 
-### Example
+        * [`PawPseudo.paw_radius`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawPseudo.paw_radius)
 
-Site0: 0.5 0 0 O
-Site1: 0   0 0 Si
 
-produces [Specie_O, Specie_Si] and not set([Specie_O, Specie_Si]) as in types_of_specie
+        * [`PawPseudo.rcore`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawPseudo.rcore)
 
 
-### pymatgen.io.abinit.abiobjects.structure_from_abivars(cls=None, \*args, \*\*kwargs)
-Build a `Structure` object from a dictionary with ABINIT variables.
+    * [`PawXmlSetup`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup)
 
 
-* **Parameters**
+        * [`PawXmlSetup.Z`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.Z)
 
-    **cls** – Structure class to be instantiated. pymatgen.core.structure.Structure if cls is None
 
+        * [`PawXmlSetup.Z_val`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.Z_val)
 
-### Example
 
-al_structure = structure_from_abivars(
+        * [`PawXmlSetup.ae_core_density()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.ae_core_density)
 
-    acell=3\*[7.5],
-    rprim=[0.0, 0.5, 0.5,
 
-    > 0.5, 0.0, 0.5,
-    > 0.5, 0.5, 0.0],
+        * [`PawXmlSetup.ae_partial_waves()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.ae_partial_waves)
 
-    typat=1,
-    xred=[0.0, 0.0, 0.0],
-    ntypat=1,
-    znucl=13,
 
-)
+        * [`PawXmlSetup.l_local`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.l_local)
 
-xred can be replaced with xcart or xangst.
 
+        * [`PawXmlSetup.l_max`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.l_max)
 
-### pymatgen.io.abinit.abiobjects.structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, \*\*kwargs)
-Receives a structure and returns a dictionary with ABINIT variables.
 
+        * [`PawXmlSetup.paw_radius`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.paw_radius)
 
-* **Parameters**
 
+        * [`PawXmlSetup.plot_densities()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.plot_densities)
 
-    * **enforce_znucl** – List of ntypat entries with the value of Z for each type of atom.
-    Used to change the default ordering.
 
+        * [`PawXmlSetup.plot_projectors()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.plot_projectors)
 
-    * **enforce_typat** – List with natom entries with the type index.
-    Fortran conventions: start to count from 1.
-    Used to change the default ordering.
 
+        * [`PawXmlSetup.plot_waves()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.plot_waves)
 
-## pymatgen.io.abinit.abitimer module
 
-This module provides objects for extracting timing data from the ABINIT output files
-It also provides tools to analyze and to visualize the parallel efficiency.
+        * [`PawXmlSetup.projector_functions()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.projector_functions)
 
 
-### _class_ pymatgen.io.abinit.abitimer.AbinitTimer(sections, info, cpu_time, wall_time)
-Bases: `object`
+        * [`PawXmlSetup.pseudo_core_density()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.pseudo_core_density)
 
-Container class storing the timing results.
 
+        * [`PawXmlSetup.pseudo_partial_waves`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.pseudo_partial_waves)
 
-* **Parameters**
 
+        * [`PawXmlSetup.root()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.root)
 
-    * **sections** – List of sections
 
+        * [`PawXmlSetup.summary`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.summary)
 
-    * **info** – Dictionary with extra info.
 
+        * [`PawXmlSetup.supports_soc`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.supports_soc)
 
-    * **cpu_time** – Cpu-time in seconds.
 
+        * [`PawXmlSetup.yield_figs()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PawXmlSetup.yield_figs)
 
-    * **wall_time** – Wall-time in seconds.
 
+    * [`Pseudo`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo)
 
 
-#### cpuwall_histogram(ax=None, \*\*kwargs)
-Plot histogram with cpu- and wall-time on axis ax.
+        * [`Pseudo.Z`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.Z)
 
 
-* **Parameters**
+        * [`Pseudo.Z_val`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.Z_val)
 
-    **ax** – matplotlib `Axes` or None if a new figure should be created.
 
+        * [`Pseudo.as_dict()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.as_dict)
 
-Returns: matplotlib figure
 
-Keyword arguments controlling the display of the figure:
+        * [`Pseudo.as_pseudo()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.as_pseudo)
 
-| kwargs
 
- | Meaning
+        * [`Pseudo.as_tmpfile()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.as_tmpfile)
 
- |
-| ------------ | ------------------------------------------------------------------------------------------------- |  |  |  |  |  |  |
-| title
 
-        | Title of the plot (Default: None).
+        * [`Pseudo.basename`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.basename)
 
-                                                                |
-| show
 
-         | True to show the figure (default: True).
+        * [`Pseudo.compute_md5()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.compute_md5)
 
-                                                          |
-| savefig
 
-      | “abc.png” or “abc.eps” to save the figure to a file.
+        * [`Pseudo.djrepo_path`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.djrepo_path)
 
-                                              |
-| size_kwargs
 
-  | Dictionary with options passed to fig.set_size_inches
-e.g. size_kwargs=dict(w=3, h=4)
+        * [`Pseudo.element`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.element)
 
-             |
-| tight_layout
 
- | True to call fig.tight_layout (default: False)
+        * [`Pseudo.filepath`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.filepath)
 
-                                                    |
-| ax_grid
 
-      | True (False) to add (remove) grid from all axes in fig.
-Default: None i.e. fig is left unchanged.
+        * [`Pseudo.from_dict()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.from_dict)
 
- |
-| ax_annotate
 
-  | Add labels to  subplots e.g. (a), (b).
-Default: False
+        * [`Pseudo.from_file()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.from_file)
 
-                                             |
-| fig_close
 
-    | Close figure. Default: False.
+        * [`Pseudo.has_dojo_report`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.has_dojo_report)
 
-                                                                     |
 
-#### get_dataframe(sort_key='wall_time', \*\*kwargs)
-Return a pandas DataFrame with entries sorted according to sort_key.
+        * [`Pseudo.has_hints`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.has_hints)
 
 
-#### get_section(section_name)
-Return section associated to section_name.
+        * [`Pseudo.hint_for_accuracy()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.hint_for_accuracy)
 
 
-#### get_values(keys)
-Return a list of values associated to a particular list of keys.
+        * [`Pseudo.isnc`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.isnc)
 
 
-#### names_and_values(key, minval=None, minfract=None, sorted=True)
-Select the entries whose value[key] is >= minval or whose fraction[key] is >= minfract
-Return the names of the sections and the corresponding values.
+        * [`Pseudo.ispaw`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.ispaw)
 
 
-#### _property_ ncpus()
-Total number of CPUs employed.
+        * [`Pseudo.l_local`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.l_local)
 
 
-#### order_sections(key, reverse=True)
-Sort sections according to the value of key.
+        * [`Pseudo.l_max`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.l_max)
 
 
-#### pie(key='wall_time', minfract=0.05, ax=None, \*\*kwargs)
-Plot pie chart for this timer.
+        * [`Pseudo.md5()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.md5)
 
 
-* **Parameters**
+        * [`Pseudo.open_pspsfile()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.open_pspsfile)
 
 
-    * **key** – Keyword used to extract data from the timer.
+        * [`Pseudo.summary`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.summary)
 
 
-    * **minfract** – Don’t show sections whose relative weight is less that minfract.
+        * [`Pseudo.supports_soc`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.supports_soc)
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+        * [`Pseudo.symbol`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.symbol)
 
 
-Returns: matplotlib figure
+        * [`Pseudo.to_str()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.to_str)
 
-Keyword arguments controlling the display of the figure:
 
-| kwargs
+        * [`Pseudo.to_string()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.to_string)
 
-       | Meaning
 
-                                                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------- |
-| title
+        * [`Pseudo.type`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.Pseudo.type)
 
-        | Title of the plot (Default: None).
 
-                                                                |
-| show
+    * [`PseudoParseError`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoParseError)
 
-         | True to show the figure (default: True).
 
-                                                          |
-| savefig
+    * [`PseudoParser`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoParser)
 
-      | “abc.png” or “abc.eps” to save the figure to a file.
 
-                                              |
-| size_kwargs
+        * [`PseudoParser.Error`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoParser.Error)
 
-  | Dictionary with options passed to fig.set_size_inches
-e.g. size_kwargs=dict(w=3, h=4)
 
-             |
-| tight_layout
+        * [`PseudoParser.parse()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoParser.parse)
 
- | True to call fig.tight_layout (default: False)
 
-                                                    |
-| ax_grid
+        * [`PseudoParser.read_ppdesc()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoParser.read_ppdesc)
 
-      | True (False) to add (remove) grid from all axes in fig.
-Default: None i.e. fig is left unchanged.
 
- |
-| ax_annotate
+        * [`PseudoParser.scan_directory()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoParser.scan_directory)
 
-  | Add labels to  subplots e.g. (a), (b).
-Default: False
 
-                                             |
-| fig_close
+    * [`PseudoTable`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable)
 
-    | Close figure. Default: False.
 
-                                                                     |
+        * [`PseudoTable.all_combinations_for_elements()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.all_combinations_for_elements)
 
-#### scatter_hist(ax=None, \*\*kwargs)
-Scatter plot + histogram.
 
+        * [`PseudoTable.allnc`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.allnc)
 
-* **Parameters**
 
-    **ax** – matplotlib `Axes` or None if a new figure should be created.
+        * [`PseudoTable.allpaw`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.allpaw)
 
 
-Returns: matplotlib figure
+        * [`PseudoTable.as_dict()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.as_dict)
 
-Keyword arguments controlling the display of the figure:
 
-| kwargs
+        * [`PseudoTable.as_table()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.as_table)
 
-       | Meaning
 
-                                                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------- |
-| title
+        * [`PseudoTable.from_dict()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.from_dict)
 
-        | Title of the plot (Default: None).
 
-                                                                |
-| show
+        * [`PseudoTable.from_dir()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.from_dir)
 
-         | True to show the figure (default: True).
 
-                                                          |
-| savefig
+        * [`PseudoTable.get_pseudos_for_structure()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.get_pseudos_for_structure)
 
-      | “abc.png” or “abc.eps” to save the figure to a file.
 
-                                              |
-| size_kwargs
+        * [`PseudoTable.is_complete()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.is_complete)
 
-  | Dictionary with options passed to fig.set_size_inches
-e.g. size_kwargs=dict(w=3, h=4)
 
-             |
-| tight_layout
+        * [`PseudoTable.print_table()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.print_table)
 
- | True to call fig.tight_layout (default: False)
 
-                                                    |
-| ax_grid
+        * [`PseudoTable.pseudo_with_symbol()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.pseudo_with_symbol)
 
-      | True (False) to add (remove) grid from all axes in fig.
-Default: None i.e. fig is left unchanged.
 
- |
-| ax_annotate
+        * [`PseudoTable.pseudos_with_symbols()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.pseudos_with_symbols)
 
-  | Add labels to  subplots e.g. (a), (b).
-Default: False
 
-                                             |
-| fig_close
+        * [`PseudoTable.select()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.select)
 
-    | Close figure. Default: False.
 
-                                                                     |
+        * [`PseudoTable.select_family()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.select_family)
 
-#### sum_sections(keys)
-Sum value of keys.
 
+        * [`PseudoTable.select_rows()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.select_rows)
 
-#### to_csv(fileobj=<_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>)
-Write data on file fileobj using CSV format.
 
+        * [`PseudoTable.select_symbols()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.select_symbols)
 
-#### to_table(sort_key='wall_time', stop=None)
-Return a table (list of lists) with timer data.
 
+        * [`PseudoTable.sort_by_z()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.sort_by_z)
 
-#### totable(sort_key='wall_time', stop=None)
-Return a table (list of lists) with timer data.
 
+        * [`PseudoTable.sorted()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.sorted)
 
-### _exception_ pymatgen.io.abinit.abitimer.AbinitTimerParseError()
-Bases: [`ParseError`](pymatgen.io.md#pymatgen.io.core.ParseError)
 
-Errors raised by AbinitTimerParser.
+        * [`PseudoTable.to_table()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.to_table)
 
 
-### _class_ pymatgen.io.abinit.abitimer.AbinitTimerParser()
-Bases: `Iterable`
+        * [`PseudoTable.with_dojo_report()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.with_dojo_report)
 
-Responsible for parsing a list of output files, extracting the timing results
-and analyzing the results.
-Assume the Abinit output files have been produced with timopt -1.
 
-### Example
+        * [`PseudoTable.zlist`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.PseudoTable.zlist)
 
-parser = AbinitTimerParser()
-parser.parse(list_of_files)
 
-To analyze all
+    * [`RadialFunction`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.RadialFunction)
 
-```
-*
-```
 
-.abo files within top, use:
+    * [`l2str()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.l2str)
 
-> parser, paths, okfiles = AbinitTimerParser.walk(top=”.”, ext=”.abo”)
 
-Initialize object.
+    * [`str2l()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.str2l)
 
 
-#### BEGIN_TAG(_ = '-<BEGIN_TIMER_ )
+    * [`straceback()`](pymatgen.io.abinit.pseudos.md#pymatgen.io.abinit.pseudos.straceback)
 
-#### END_TAG(_ = '-<END_TIMER>_ )
 
-#### Error()
-alias of `AbinitTimerParseError`
+* [pymatgen.io.abinit.variable module](pymatgen.io.abinit.variable.md)
 
 
-#### _property_ filenames()
-List of files that have been parsed successfully.
+    * [`InputVariable`](pymatgen.io.abinit.variable.md#pymatgen.io.abinit.variable.InputVariable)
 
 
-#### get_sections(section_name)
-Return the list of sections stored in self.timers() given section_name
-A fake section is returned if the timer does not have section_name.
+        * [`InputVariable.basename`](pymatgen.io.abinit.variable.md#pymatgen.io.abinit.variable.InputVariable.basename)
 
 
-#### parse(filenames)
-Read and parse a filename or a list of filenames.
-Files that cannot be opened are ignored. A single filename may also be given.
+        * [`InputVariable.dataset`](pymatgen.io.abinit.variable.md#pymatgen.io.abinit.variable.InputVariable.dataset)
 
-Return: list of successfully read files.
 
+        * [`InputVariable.format_list()`](pymatgen.io.abinit.variable.md#pymatgen.io.abinit.variable.InputVariable.format_list)
 
-#### pefficiency()
-Analyze the parallel efficiency.
 
-Return: `ParallelEfficiency` object.
+        * [`InputVariable.format_list2d()`](pymatgen.io.abinit.variable.md#pymatgen.io.abinit.variable.InputVariable.format_list2d)
 
 
-#### plot_all(show=True, \*\*kwargs)
-Call all plot methods provided by the parser.
+        * [`InputVariable.format_scalar()`](pymatgen.io.abinit.variable.md#pymatgen.io.abinit.variable.InputVariable.format_scalar)
 
 
-#### plot_efficiency(key='wall_time', what='good+bad', nmax=5, ax=None, \*\*kwargs)
-Plot the parallel efficiency.
+        * [`InputVariable.get_value()`](pymatgen.io.abinit.variable.md#pymatgen.io.abinit.variable.InputVariable.get_value)
 
 
-* **Parameters**
+        * [`InputVariable.name`](pymatgen.io.abinit.variable.md#pymatgen.io.abinit.variable.InputVariable.name)
 
 
-    * **key** – Parallel efficiency is computed using the wall_time.
-
-
-    * **what** – Specifies what to plot: good for sections with good parallel efficiency.
-    bad for sections with bad efficiency. Options can be concatenated with +.
-
-
-    * **nmax** – Maximum number of entries in plot
-
-
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
-
-
-| kwargs
-
-       | Meaning
-
-                                                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------- |
-| linewidth
-
-    | matplotlib linewidth. Default: 2.0
-
-                                                                |
-| markersize
-
-   | matplotlib markersize. Default: 10
-
-                                                                |
-
-* **Returns**
-
-    matplotlib figure
-
-
-Keyword arguments controlling the display of the figure:
-
-| kwargs
-
-       | Meaning
-
-                                                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------- |
-| title
-
-        | Title of the plot (Default: None).
-
-                                                                |
-| show
-
-         | True to show the figure (default: True).
-
-                                                          |
-| savefig
-
-      | “abc.png” or “abc.eps” to save the figure to a file.
-
-                                              |
-| size_kwargs
-
-  | Dictionary with options passed to fig.set_size_inches
-e.g. size_kwargs=dict(w=3, h=4)
-
-             |
-| tight_layout
-
- | True to call fig.tight_layout (default: False)
-
-                                                    |
-| ax_grid
-
-      | True (False) to add (remove) grid from all axes in fig.
-Default: None i.e. fig is left unchanged.
-
- |
-| ax_annotate
-
-  | Add labels to  subplots e.g. (a), (b).
-Default: False
-
-                                             |
-| fig_close
-
-    | Close figure. Default: False.
-
-                                                                     |
-
-#### plot_pie(key='wall_time', minfract=0.05, \*\*kwargs)
-Plot pie charts of the different timers.
-
-
-* **Parameters**
-
-
-    * **key** – Keyword used to extract data from timers.
-
-
-    * **minfract** – Don’t show sections whose relative weight is less that minfract.
-
-
-
-* **Returns**
-
-    matplotlib figure
-
-
-Keyword arguments controlling the display of the figure:
-
-| kwargs
-
-       | Meaning
-
-                                                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------- |
-| title
-
-        | Title of the plot (Default: None).
-
-                                                                |
-| show
-
-         | True to show the figure (default: True).
-
-                                                          |
-| savefig
-
-      | “abc.png” or “abc.eps” to save the figure to a file.
-
-                                              |
-| size_kwargs
-
-  | Dictionary with options passed to fig.set_size_inches
-e.g. size_kwargs=dict(w=3, h=4)
-
-             |
-| tight_layout
-
- | True to call fig.tight_layout (default: False)
-
-                                                    |
-| ax_grid
-
-      | True (False) to add (remove) grid from all axes in fig.
-Default: None i.e. fig is left unchanged.
-
- |
-| ax_annotate
-
-  | Add labels to  subplots e.g. (a), (b).
-Default: False
-
-                                             |
-| fig_close
-
-    | Close figure. Default: False.
-
-                                                                     |
-
-#### plot_stacked_hist(key='wall_time', nmax=5, ax=None, \*\*kwargs)
-Plot stacked histogram of the different timers.
-
-
-* **Parameters**
-
-
-    * **key** – Keyword used to extract data from the timers. Only the first nmax
-    sections with largest value are show.
-
-
-    * **mmax** – Maximum number of sections to show. Other entries are grouped together
-    in the others section.
-
-
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
-
-
-
-* **Returns**
-
-    matplotlib figure
-
-
-Keyword arguments controlling the display of the figure:
-
-| kwargs
-
-       | Meaning
-
-                                                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------- |
-| title
-
-        | Title of the plot (Default: None).
-
-                                                                |
-| show
-
-         | True to show the figure (default: True).
-
-                                                          |
-| savefig
-
-      | “abc.png” or “abc.eps” to save the figure to a file.
-
-                                              |
-| size_kwargs
-
-  | Dictionary with options passed to fig.set_size_inches
-e.g. size_kwargs=dict(w=3, h=4)
-
-             |
-| tight_layout
-
- | True to call fig.tight_layout (default: False)
-
-                                                    |
-| ax_grid
-
-      | True (False) to add (remove) grid from all axes in fig.
-Default: None i.e. fig is left unchanged.
-
- |
-| ax_annotate
-
-  | Add labels to  subplots e.g. (a), (b).
-Default: False
-
-                                             |
-| fig_close
-
-    | Close figure. Default: False.
-
-                                                                     |
-
-#### section_names(ordkey='wall_time')
-Return the names of sections ordered by ordkey.
-For the time being, the values are taken from the first timer.
-
-
-#### summarize(\*\*kwargs)
-Return pandas DataFrame with the most important results stored in the timers.
-
-
-#### timers(filename=None, mpi_rank='0')
-Return the list of timers associated to the given filename and MPI rank mpi_rank.
-
-
-#### _classmethod_ walk(top='.', ext='.abo')
-Scan directory tree starting from top, look for files with extension ext and
-parse timing data.
-
-Return: (parser, paths, okfiles)
-
-    where parser is the new object, paths is the list of files found and okfiles
-    is the list of files that have been parsed successfully.
-    (okfiles == paths) if all files have been parsed.
-
-
-### _class_ pymatgen.io.abinit.abitimer.AbinitTimerSection(name, cpu_time, cpu_fract, wall_time, wall_fract, ncalls, gflops)
-Bases: `object`
-
-Record with the timing results associated to a section of code.
-
-
-* **Parameters**
-
-
-    * **name** – Name of the sections.
-
-
-    * **cpu_time** – CPU time in seconds.
-
-
-    * **cpu_fract** – Percentage of CPU time.
-
-
-    * **wall_time** – Wall-time in seconds.
-
-
-    * **wall_fract** – Percentage of wall-time.
-
-
-    * **ncalls** – Number of calls
-
-
-    * **gflops** – Gigaflops.
-
-
-
-#### FIELDS(_ = ('name', 'wall_time', 'wall_fract', 'cpu_time', 'cpu_fract', 'ncalls', 'gflops'_ )
-
-#### NUMERIC_FIELDS(_ = ('wall_time', 'wall_fract', 'cpu_time', 'cpu_fract', 'ncalls', 'gflops'_ )
-
-#### STR_FIELDS(_ = ('name',_ )
-
-#### _classmethod_ fake()
-Return a fake section. Mainly used to fill missing entries if needed.
-
-
-#### to_csvline(with_header=False)
-Return a string with data in CSV format. Add header if with_header.
-
-
-#### to_dict()
-Convert object to dictionary.
-
-
-#### to_tuple()
-Convert object to tuple.
-
-
-### _class_ pymatgen.io.abinit.abitimer.ParallelEfficiency(filenames, ref_idx, \*args, \*\*kwargs)
-Bases: `dict`
-
-Store results concerning the parallel efficiency of the job.
-
-
-* **Parameters**
-
-
-    * **filennames** – List of filenames
-
-
-    * **ref_idx** – Index of the Reference time (calculation done with the smallest number of cpus).
-
-
-
-#### bad_sections(key='wall_time', criterion='mean', nmax=5)
-Return first nmax sections with worst value of key key using criterion criterion.
-
-
-#### good_sections(key='wall_time', criterion='mean', nmax=5)
-Return first nmax sections with best value of key key using criterion criterion.
-
-
-#### totable(stop=None, reverse=True)
-Return table (list of lists) with timing results.
-
-
-* **Parameters**
-
-
-    * **stop** – Include results up to stop. None for all
-
-
-    * **reverse** – Put items with highest wall_time in first positions if True.
-
-
-
-### pymatgen.io.abinit.abitimer.alternate(\*iterables)
-[a[0], b[0], … , a[1], b[1], …, a[n], b[n] …]
->>> alternate([1,4], [2,5], [3,6])
-[1, 2, 3, 4, 5, 6].
-
-## pymatgen.io.abinit.inputs module
-
-This module defines a simplified interface for generating ABINIT input files.
-Note that not all the features of Abinit are supported by BasicAbinitInput.
-For a more comprehensive implementation, use the AbinitInput object provided by AbiPy.
-
-
-### _class_ pymatgen.io.abinit.inputs.AbstractInput()
-Bases: `MutableMapping`
-
-Abstract class defining the methods that must be implemented by Input objects.
-
-
-#### deepcopy()
-Deep copy of the input.
-
-
-#### pop_vars(keys)
-Remove the variables listed in keys.
-Return dictionary with the variables that have been removed.
-Unlike remove_vars, no exception is raised if the variables are not in the input.
-
-
-* **Parameters**
-
-    **keys** – string or list of strings with variable names.
-
-
-### Example
-
-inp.pop_vars([“ionmov”, “optcell”, “ntime”, “dilatmx”])
-
-
-#### remove_vars(keys, strict=True)
-Remove the variables listed in keys.
-Return dictionary with the variables that have been removed.
-
-
-* **Parameters**
-
-
-    * **keys** – string or list of strings with variable names.
-
-
-    * **strict** – If True, KeyError is raised if at least one variable is not present.
-
-
-
-#### set_vars(\*args, \*\*kwargs)
-Set the value of the variables.
-Return dict with the variables added to the input.
-
-### Example
-
-input.set_vars(ecut=10, ionmov=3)
-
-
-#### set_vars_ifnotin(\*args, \*\*kwargs)
-Set the value of the variables but only if the variable is not already present.
-Return dict with the variables added to the input.
-
-### Example
-
-input.set_vars(ecut=10, ionmov=3)
-
-
-#### _abstract_ to_str()
-Returns a string with the input.
-
-
-#### _abstract property_ vars()
-Dictionary with the input variables. Used to implement dict-like interface.
-
-
-#### write(filepath='run.abi')
-Write the input file to file to `filepath`.
-
-
-### _class_ pymatgen.io.abinit.inputs.BasicAbinitInput(structure, pseudos, pseudo_dir=None, comment=None, abi_args=None, abi_kwargs=None)
-Bases: `AbstractInput`, `MSONable`
-
-This object stores the ABINIT variables for a single dataset.
-
-
-* **Parameters**
-
-
-    * **structure** (*file with*) – Parameters defining the crystalline structure. Accepts
-
-    ```
-    |Structure|
-    ```
-
-     object
-
-
-    * **structure** –
-
-
-    * **pseudos** – Pseudopotentials to be used for the calculation. Accepts: string or list of strings
-    with the name of the pseudopotential files, list of
-
-    ```
-    |Pseudo|
-    ```
-
-     objects
-    or
-
-    ```
-    |PseudoTable|
-    ```
-
-     object.
-
-
-    * **pseudo_dir** – Name of the directory where the pseudopotential files are located.
-
-
-    * **ndtset** – Number of datasets.
-
-
-    * **comment** – Optional string with a comment that will be placed at the beginning of the file.
-
-
-    * **abi_args** – list of tuples (key, value) with the initial set of variables. Default: Empty
-
-
-    * **abi_kwargs** – Dictionary with the initial set of variables. Default: Empty.
-
-
-
-#### Error()
-alias of `BasicAbinitInputError`
-
-
-#### add_abiobjects(\*abi_objects)
-This function receive a list of `AbiVarable` objects and add
-the corresponding variables to the input.
-
-
-#### as_dict()
-JSON interface used in pymatgen for easier serialization.
-
-
-#### _property_ comment()
-Optional string with comment. None if comment is not set.
-
-
-#### _classmethod_ from_dict(d)
-JSON interface used in pymatgen for easier serialization.
-
-
-#### _property_ isnc()
-True if norm-conserving calculation.
-
-
-#### _property_ ispaw()
-True if PAW calculation.
-
-
-#### new_with_vars(\*args, \*\*kwargs)
-Return a new input with the given variables.
-
-### Example
-
-new = input.new_with_vars(ecut=20)
-
-
-#### pop_irdvars()
-Remove all the ird\* variables present in self.
-Return dictionary with the variables that have been removed.
-
-
-#### pop_tolerances()
-Remove all the tolerance variables present in self.
-Return dictionary with the variables that have been removed.
-
-
-#### _property_ pseudos()
-List of
-
-```
-|Pseudo|
-```
-
- objects.
-
-
-#### set_comment(comment)
-Set a comment to be included at the top of the file.
-
-
-#### set_gamma_sampling()
-Gamma-only sampling of the BZ.
-
-
-#### set_kmesh(ngkpt, shiftk, kptopt=1)
-Set the variables for the sampling of the BZ.
-
-
-* **Parameters**
-
-
-    * **ngkpt** – Monkhorst-Pack divisions
-
-
-    * **shiftk** – List of shifts.
-
-
-    * **kptopt** – Option for the generation of the mesh.
-
-
-
-#### set_kpath(ndivsm, kptbounds=None, iscf=-2)
-Set the variables for the computation of the electronic band structure.
-
-
-* **Parameters**
-
-
-    * **ndivsm** – Number of divisions for the smallest segment.
-
-
-    * **kptbounds** – k-points defining the path in k-space.
-    If None, we use the default high-symmetry k-path defined in the pymatgen database.
-
-
-
-#### set_spin_mode(spin_mode)
-Set the variables used to the treat the spin degree of freedom.
-Return dictionary with the variables that have been removed.
-
-
-* **Parameters**
-
-
-    * **spin_mode** – `SpinMode` object or string. Possible values for string are:
-
-
-    * **polarized** (*-*) –
-
-
-    * **unpolarized** (*-*) –
-
-
-    * **afm** (*-*) –
-
-
-    * **spinor** (*-*) –
-
-
-    * **spinor_nomag** (*-*) –
-
-
-
-#### set_structure(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-Set structure.
-
-
-#### _property_ structure()
-The
-
-```
-|Structure|
-```
-
- object associated to this input.
-
-
-#### to_str(post=None, with_structure=True, with_pseudos=True, exclude=None)
-String representation.
-
-
-* **Parameters**
-
-
-    * **post** – String that will be appended to the name of the variables
-    Note that post is usually autodetected when we have multiple datatasets
-    It is mainly used when we have an input file with a single dataset
-    so that we can prevent the code from adding “1” to the name of the variables
-    (In this case, indeed, Abinit complains if ndtset=1 is not specified
-    and we don’t want ndtset=1 simply because the code will start to add
-    _DS1_ to all the input and output files.
-
-
-    * **with_structure** – False if section with structure variables should not be printed.
-
-
-    * **with_pseudos** – False if JSON section with pseudo data should not be added.
-
-
-    * **exclude** – List of variable names that should be ignored.
-
-
-
-#### to_string(\*\*kwds)
-to_string is deprecated!
-Use to_str instead
-
-
-#### _property_ vars()
-Dictionary with variables.
-
-
-### _exception_ pymatgen.io.abinit.inputs.BasicAbinitInputError()
-Bases: `Exception`
-
-Base error class for exceptions raised by `BasicAbinitInput`.
-
-
-### _class_ pymatgen.io.abinit.inputs.BasicMultiDataset(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), pseudos, pseudo_dir='', ndtset=1)
-Bases: `object`
-
-This object is essentially a list of BasicAbinitInput objects.
-that provides an easy-to-use interface to apply global changes to the
-the inputs stored in the objects.
-
-Let’s assume for example that multi contains two `BasicAbinitInput` objects and we
-want to set ecut to 1 in both dictionaries. The direct approach would be:
-
-> for inp in multi:
-
->     inp.set_vars(ecut=1)
-
-or alternatively:
-
-> for i in range(multi.ndtset):
-
->     multi[i].set_vars(ecut=1)
-
-BasicMultiDataset provides its own implementation of __getattr__ so that one can simply use:
-
-> multi.set_vars(ecut=1)
-
-> multi.get(“ecut”) returns a list of values. It’s equivalent to:
-
-> > [inp[“ecut”] for inp in multi]
-
-> Note that if “ecut” is not present in one of the input of multi, the corresponding entry is set to None.
-> A default value can be specified with:
-
-> > multi.get(“paral_kgb”, 0)
-
-**WARNING**: BasicMultiDataset does not support calculations done with different sets of pseudopotentials.
-The inputs can have different crystalline structures (as long as the atom types are equal)
-but each input in BasicMultiDataset must have the same set of pseudopotentials.
-
-
-* **Parameters**
-
-
-    * **structure** – file with the structure,
-
-    ```
-    |Structure|
-    ```
-
-     object or dictionary with ABINIT geo variable
-    Accepts also list of objects that can be converted to Structure object.
-    In this case, however, ndtset must be equal to the length of the list.
-
-
-    * **pseudos** – String or list of string with the name of the pseudopotential files.
-
-
-    * **pseudo_dir** – Name of the directory where the pseudopotential files are located.
-
-
-    * **ndtset** – Number of datasets.
-
-
-
-#### Error()
-alias of `BasicAbinitInputError`
-
-
-#### addnew_from(dtindex)
-Add a new entry in the multidataset by copying the input with index `dtindex`.
-
-
-#### append(abinit_input)
-Add a
-
-```
-|BasicAbinitInput|
-```
-
- to the list.
-
-
-#### deepcopy()
-Deep copy of the BasicMultiDataset.
-
-
-#### extend(abinit_inputs)
-Extends self with a list of
-
-```
-|BasicAbinitInput|
-```
-
- objects.
-
-
-#### _classmethod_ from_inputs(inputs)
-Build object from a list of BasicAbinitInput objects.
-
-
-#### _property_ has_same_structures()
-True if all inputs in BasicMultiDataset are equal.
-
-
-#### _property_ isnc()
-True if norm-conserving calculation.
-
-
-#### _property_ ispaw()
-True if PAW calculation.
-
-
-#### _property_ ndtset()
-Number of inputs in self.
-
-
-#### _property_ pseudos()
-Pseudopotential objects.
-
-
-#### _classmethod_ replicate_input(input, ndtset)
-Construct a multidataset with ndtset from the BasicAbinitInput input.
-
-
-#### split_datasets()
-Return list of
-
-```
-|BasicAbinitInput|
-```
-
- objects..
-
-
-#### to_str(with_pseudos=True)
-String representation i.e. the input file read by Abinit.
-
-
-* **Parameters**
-
-    **with_pseudos** – False if JSON section with pseudo data should not be added.
-
-
-
-#### to_string(\*\*kwds)
-to_string is deprecated!
-Use to_str instead
-
-
-#### write(filepath='run.abi')
-Write `ndset` input files to disk. The name of the file
-is constructed from the dataset index e.g. run0.abi.
-
-
-### _class_ pymatgen.io.abinit.inputs.ShiftMode(value)
-Bases: `Enum`
-
-Class defining the mode to be used for the shifts.
-G: Gamma centered
-M: Monkhorst-Pack ((0.5, 0.5, 0.5))
-S: Symmetric. Respects the chksymbreak with multiple shifts
-O: OneSymmetric. Respects the chksymbreak with a single shift (as in ‘S’ if a single shift is given, gamma
-
-> centered otherwise.
-
-
-#### GammaCentered(_ = 'G_ )
-
-#### MonkhorstPack(_ = 'M_ )
-
-#### OneSymmetric(_ = 'O_ )
-
-#### Symmetric(_ = 'S_ )
-
-#### _classmethod_ from_object(obj)
-Returns an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
-on the iniital letter of the string. G for GammaCenterd, M for MonkhorstPack,
-S for Symmetric, O for OneSymmetric.
-Case insensitive.
-
-
-### pymatgen.io.abinit.inputs.as_structure(obj)
-Convert obj into a Structure. Accepts:
-
->
-> * Structure object.
-
-
-> * Filename
-
-
-> * Dictionaries (MSONable format or dictionaries with abinit variables).
-
-
-### pymatgen.io.abinit.inputs.calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5)
-Find the values of `shiftk` and `nshiftk` appropriated for the sampling of the Brillouin zone.
-
-When the primitive vectors of the lattice do NOT form a FCC or a BCC lattice,
-the usual (shifted) Monkhorst-Pack grids are formed by using nshiftk=1 and shiftk 0.5 0.5 0.5 .
-This is often the preferred k point sampling. For a non-shifted Monkhorst-Pack grid,
-use nshiftk=1 and shiftk 0.0 0.0 0.0, but there is little reason to do that.
-
-When the primitive vectors of the lattice form a FCC lattice, with rprim:
-
-```default
-0.0 0.5 0.5
-0.5 0.0 0.5
-0.5 0.5 0.0
-```
-
-the (very efficient) usual Monkhorst-Pack sampling will be generated by using nshiftk= 4 and shiftk:
-
-```default
-0.5 0.5 0.5
-0.5 0.0 0.0
-0.0 0.5 0.0
-0.0 0.0 0.5
-```
-
-When the primitive vectors of the lattice form a BCC lattice, with rprim:
-
-```default
--0.5  0.5  0.5
- 0.5 -0.5  0.5
- 0.5  0.5 -0.5
-```
-
-the usual Monkhorst-Pack sampling will be generated by using nshiftk= 2 and shiftk:
-
-```default
- 0.25  0.25  0.25
--0.25 -0.25 -0.25
-```
-
-However, the simple sampling nshiftk=1 and shiftk 0.5 0.5 0.5 is excellent.
-
-For hexagonal lattices with hexagonal axes, e.g. rprim:
-
-```default
- 1.0  0.0       0.0
--0.5  sqrt(3)/2 0.0
- 0.0  0.0       1.0
-```
-
-one can use nshiftk= 1 and shiftk 0.0 0.0 0.5
-In rhombohedral axes, e.g. using angdeg 3\*60., this corresponds to shiftk 0.5 0.5 0.5,
-to keep the shift along the symmetry axis.
-
-
-* **Returns**
-
-    Suggested value of shiftk.
-
-
-
-### pymatgen.io.abinit.inputs.ebands_input(structure, pseudos, kppa=None, nscf_nband=None, ndivsm=15, ecut=None, pawecutdg=None, scf_nband=None, accuracy='normal', spin_mode='polarized', smearing='fermi_dirac:0.1 eV', charge=0.0, scf_algorithm=None, dos_kppa=None)
-Returns a
-
-```
-|BasicMultiDataset|
-```
-
- object for band structure calculations.
-
-
-* **Parameters**
-
-
-    * **structure** –
-
-    ```
-    |Structure|
-    ```
-
-     object.
-
-
-    * **pseudos** – List of filenames or list of
-
-    ```
-    |Pseudo|
-    ```
-
-     objects or
-
-    ```
-    |PseudoTable|
-    ```
-
-     object.
-
-
-    * **kppa** – Defines the sampling used for the SCF run. Defaults to 1000 if not given.
-
-
-    * **nscf_nband** – Number of bands included in the NSCF run. Set to scf_nband + 10 if None.
-
-
-    * **ndivsm** – Number of divisions used to sample the smallest segment of the k-path.
-    if 0, only the GS input is returned in multi[0].
-
-
-    * **ecut** – cutoff energy in Ha (if None, ecut is initialized from the pseudos according to accuracy)
-
-
-    * **pawecutdg** – cutoff energy in Ha for PAW double-grid (if None, pawecutdg is initialized from the pseudos
-    according to accuracy)
-
-
-    * **scf_nband** – Number of bands for SCF run. If scf_nband is None, nband is automatically initialized
-    from the list of pseudos, the structure and the smearing option.
-
-
-    * **accuracy** – Accuracy of the calculation.
-
-
-    * **spin_mode** – Spin polarization.
-
-
-    * **smearing** – Smearing technique.
-
-
-    * **charge** – Electronic charge added to the unit cell.
-
-
-    * **scf_algorithm** – Algorithm used for solving of the SCF cycle.
-
-
-    * **dos_kppa** – Scalar or List of integers with the number of k-points per atom
-    to be used for the computation of the DOS (None if DOS is not wanted).
-
-
-
-### pymatgen.io.abinit.inputs.gs_input(structure, pseudos, kppa=None, ecut=None, pawecutdg=None, scf_nband=None, accuracy='normal', spin_mode='polarized', smearing='fermi_dirac:0.1 eV', charge=0.0, scf_algorithm=None)
-Returns a
-
-```
-|BasicAbinitInput|
-```
-
- for ground-state calculation.
-
-
-* **Parameters**
-
-
-    * **structure** –
-
-    ```
-    |Structure|
-    ```
-
-     object.
-
-
-    * **pseudos** – List of filenames or list of
-
-    ```
-    |Pseudo|
-    ```
-
-     objects or
-
-    ```
-    |PseudoTable|
-    ```
-
-     object.
-
-
-    * **kppa** – Defines the sampling used for the SCF run. Defaults to 1000 if not given.
-
-
-    * **ecut** – cutoff energy in Ha (if None, ecut is initialized from the pseudos according to accuracy)
-
-
-    * **pawecutdg** – cutoff energy in Ha for PAW double-grid (if None, pawecutdg is initialized from the pseudos
-    according to accuracy)
-
-
-    * **scf_nband** – Number of bands for SCF run. If scf_nband is None, nband is automatically initialized
-    from the list of pseudos, the structure and the smearing option.
-
-
-    * **accuracy** – Accuracy of the calculation.
-
-
-    * **spin_mode** – Spin polarization.
-
-
-    * **smearing** – Smearing technique.
-
-
-    * **charge** – Electronic charge added to the unit cell.
-
-
-    * **scf_algorithm** – Algorithm used for solving of the SCF cycle.
-
-
-
-### pymatgen.io.abinit.inputs.ion_ioncell_relax_input(structure, pseudos, kppa=None, nband=None, ecut=None, pawecutdg=None, accuracy='normal', spin_mode='polarized', smearing='fermi_dirac:0.1 eV', charge=0.0, scf_algorithm=None, shift_mode='Monkhorst-pack')
-Returns a
-
-```
-|BasicMultiDataset|
-```
-
- for a structural relaxation. The first dataset optmizes the
-atomic positions at fixed unit cell. The second datasets optimizes both ions and unit cell parameters.
-
-
-* **Parameters**
-
-
-    * **structure** –
-
-    ```
-    |Structure|
-    ```
-
-     object.
-
-
-    * **pseudos** – List of filenames or list of
-
-    ```
-    |Pseudo|
-    ```
-
-     objects or
-
-    ```
-    |PseudoTable|
-    ```
-
-     object.
-
-
-    * **kppa** – Defines the sampling used for the Brillouin zone.
-
-
-    * **nband** – Number of bands included in the SCF run.
-
-
-    * **accuracy** – Accuracy of the calculation.
-
-
-    * **spin_mode** – Spin polarization.
-
-
-    * **smearing** – Smearing technique.
-
-
-    * **charge** – Electronic charge added to the unit cell.
-
-
-    * **scf_algorithm** – Algorithm used for the solution of the SCF cycle.
-
-
-
-### pymatgen.io.abinit.inputs.num_valence_electrons(structure, pseudos)
-Returns the number of valence electrons.
-
-
-* **Parameters**
-
-    **pseudos** – List of
-
-    ```
-    |Pseudo|
-    ```
-
-     objects or list of filenames.
-
-
-## pymatgen.io.abinit.netcdf module
-
-Wrapper for netCDF readers.
-
-
-### _class_ pymatgen.io.abinit.netcdf.ETSF_Reader(path)
-Bases: `NetcdfReader`
-
-This object reads data from a file written according to the ETSF-IO specifications.
-
-We assume that the netcdf file contains at least the crystallographic section.
-
-Open the Netcdf file specified by path (read mode).
-
-
-#### chemical_symbols()
-Chemical symbols char [number of atom species][symbol length].
-
-
-#### read_abinit_hdr()
-Read the variables associated to the Abinit header.
-
-Return `AbinitHeader`
-
-
-#### read_abinit_xcfunc()
-Read ixc from an Abinit file. Return `XcFunc` object.
-
-
-#### read_structure(cls=<class 'pymatgen.core.structure.Structure'>)
-Returns the crystalline structure stored in the rootgrp.
-
-
-#### typeidx_from_symbol(symbol)
-Returns the type index from the chemical symbol. Note python convention.
-
-
-### _class_ pymatgen.io.abinit.netcdf.NO_DEFAULT()
-Bases: `object`
-
-Signal that read_value should raise an Error.
-
-
-### _class_ pymatgen.io.abinit.netcdf.NetcdfReader(path)
-Bases: `object`
-
-Wraps and extends netCDF4.Dataset. Read only mode. Supports with statements.
-
-Additional documentation available at:
-
-    [http://netcdf4-python.googlecode.com/svn/trunk/docs/netCDF4-module.html](http://netcdf4-python.googlecode.com/svn/trunk/docs/netCDF4-module.html)
-
-Open the Netcdf file specified by path (read mode).
-
-
-#### Error()
-alias of `NetcdfReaderError`
-
-
-#### close()
-Close the file.
-
-
-#### print_tree()
-Print all the groups in the file.
-
-
-#### read_dimvalue(dimname, path='/', default=<class 'pymatgen.io.abinit.netcdf.NO_DEFAULT'>)
-Returns the value of a dimension.
-
-
-* **Parameters**
-
-
-    * **dimname** – Name of the variable
-
-
-    * **path** – path to the group.
-
-
-    * **default** – return default if dimname is not present and
-    default is not NO_DEFAULT else raise self.Error.
-
-
-
-#### read_keys(keys, dict_cls=<class 'monty.collections.AttrDict'>, path='/')
-Read a list of variables/dimensions from file. If a key is not present the corresponding
-entry in the output dictionary is set to None.
-
-
-#### read_value(varname, path='/', cmode=None, default=<class 'pymatgen.io.abinit.netcdf.NO_DEFAULT'>)
-Returns the values of variable with name varname in the group specified by path.
-
-
-* **Parameters**
-
-
-    * **varname** – Name of the variable
-
-
-    * **path** – path to the group.
-
-
-    * **cmode** – if cmode==”c”, a complex ndarrays is constructed and returned
-    (netcdf does not provide native support from complex datatype).
-
-
-    * **default** – returns default if varname is not present.
-    self.Error is raised if default is set to NO_DEFAULT
-
-
-
-* **Returns**
-
-    numpy array if varname represents an array, scalar otherwise.
-
-
-
-#### read_variable(varname, path='/')
-Returns the variable with name varname in the group specified by path.
-
-
-#### read_varnames(path='/')
-List of variable names stored in the group specified by path.
-
-
-#### walk_tree(top=None)
-Navigate all the groups in the file starting from top.
-If top is None, the root group is used.
-
-
-### pymatgen.io.abinit.netcdf.as_etsfreader(file)
-Return an ETSF_Reader. Accepts filename or ETSF_Reader.
-
-
-### pymatgen.io.abinit.netcdf.as_ncreader(file)
-Convert file into a NetcdfReader instance.
-Returns reader, closeit where closeit is set to True
-if we have to close the file before leaving the procedure.
-
-
-### pymatgen.io.abinit.netcdf.structure_from_ncdata(ncdata, site_properties=None, cls=<class 'pymatgen.core.structure.Structure'>)
-Reads and returns a pymatgen structure from a NetCDF file
-containing crystallographic data in the ETSF-IO format.
-
-
-* **Parameters**
-
-
-    * **ncdata** – filename or NetcdfReader instance.
-
-
-    * **site_properties** – Dictionary with site properties.
-
-
-    * **cls** – The Structure class to instantiate.
-
-
-## pymatgen.io.abinit.pseudos module
-
-This module provides objects describing the basic parameters of the
-pseudopotentials used in Abinit, and a parser to instantiate pseudopotential objects..
-
-
-### _class_ pymatgen.io.abinit.pseudos.AbinitHeader()
-Bases: `dict`
-
-Dictionary whose keys can be also accessed as attributes.
-
-
-### _class_ pymatgen.io.abinit.pseudos.AbinitPseudo(path, header)
-Bases: `Pseudo`
-
-An AbinitPseudo is a pseudopotential whose file contains an abinit header.
-
-
-* **Parameters**
-
-
-    * **path** – Filename.
-
-
-    * **header** – `AbinitHeader` instance.
-
-
-
-#### _property_ Z()
-The atomic number of the atom.
-
-
-#### _property_ Z_val()
-Valence charge.
-
-
-#### _property_ l_local()
-Angular momentum used for the local part.
-
-
-#### _property_ l_max()
-Maximum angular momentum.
-
-
-#### _property_ summary()
-Summary line reported in the ABINIT header.
-
-
-#### _property_ supports_soc()
-True if the pseudo can be used in a calculation with spin-orbit coupling.
-Base classes should provide a concrete implementation that computes this value.
-
-
-### _class_ pymatgen.io.abinit.pseudos.Hint(ecut, pawecutdg=None)
-Bases: `object`
-
-Suggested value for the cutoff energy [Hartree units]
-and the cutoff energy for the dense grid (only for PAW pseudos).
-
-
-#### as_dict()
-Return dictionary for MSONable protocol.
-
-
-#### _classmethod_ from_dict(d)
-Build instance from dictionary (MSONable protocol).
-
-
-### _class_ pymatgen.io.abinit.pseudos.NcAbinitHeader(summary, \*\*kwargs)
-Bases: `AbinitHeader`
-
-The abinit header found in the NC pseudopotential files.
-
-
-#### _static_ fhi_header(filename, ppdesc)
-Parse the FHI abinit header. Example:
-
-Troullier-Martins psp for element  Sc        Thu Oct 27 17:33:22 EDT 1994
-
-    21.00000   3.00000    940714                zatom, zion, pspdat
-
-        1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
-
-1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
-
-
-#### _static_ gth_header(filename, ppdesc)
-Parse the GTH abinit header. Example:
-
-Goedecker-Teter-Hutter  Wed May  8 14:27:44 EDT 1996
-1   1   960508                     zatom,zion,pspdat
-2   1   0    0    2001    0.       pspcod,pspxc,lmax,lloc,mmax,r2well
-0.2000000 -4.0663326  0.6778322 0 0     rloc, c1, c2, c3, c4
-0 0 0                              rs, h1s, h2s
-0 0                                rp, h1p
-
-> 1.36 .2   0.6                    rcutoff, rloc
-
-
-#### _static_ hgh_header(filename, ppdesc)
-Parse the HGH abinit header. Example:
-
-Hartwigsen-Goedecker-Hutter psp for Ne,  from PRB58, 3641 (1998)
-
-    > 10   8  010605 zatom,zion,pspdat
-
-    3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well
-
-
-#### _static_ oncvpsp_header(filename, ppdesc)
-Parse the ONCVPSP abinit header. Example:
-
-Li    ONCVPSP  r_core=  2.01  3.02
-
-    > > 3.0000      3.0000      140504    zatom,zion,pspd
-
-    > 8     2     1     4   600     0    pspcod,pspxc,lmax,lloc,mmax,r2well
-
-    5.99000000  0.00000000  0.00000000    rchrg fchrg qchrg
-
-        > 2     2     0     0     0    nproj
-        > 0                 extension_switch
-
-        0                        -2.5000025868368D+00 -1.2006906995331D+00
-
-            1  0.0000000000000D+00  0.0000000000000D+00  0.0000000000000D+00
-            2  1.0000000000000D-02  4.4140499497377D-02  1.9909081701712D-02
-
-
-#### _static_ tm_header(filename, ppdesc)
-Parse the TM abinit header. Example:
-
-Troullier-Martins psp for element Fm         Thu Oct 27 17:28:39 EDT 1994
-100.00000  14.00000    940714                zatom, zion, pspdat
-
-> 1    1    3    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
-> 0   4.085   6.246    0   2.8786493        l,e99.0,e99.9,nproj,rcpsp
-> .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-> 1   3.116   4.632    1   3.4291849        l,e99.0,e99.9,nproj,rcpsp
-> .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-> 2   4.557   6.308    1   2.1865358        l,e99.0,e99.9,nproj,rcpsp
-> .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-> 3  23.251  29.387    1   2.4776730        l,e99.0,e99.9,nproj,rcpsp
-> .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-> 3.62474762267880     .07409391739104    3.07937699839200   rchrg,fchrg,qchrg
-
-
-### _class_ pymatgen.io.abinit.pseudos.NcAbinitPseudo(path, header)
-Bases: `NcPseudo`, `AbinitPseudo`
-
-Norm-conserving pseudopotential in the Abinit format.
-
-
-* **Parameters**
-
-
-    * **path** – Filename.
-
-
-    * **header** – `AbinitHeader` instance.
-
-
-
-#### _property_ Z()
-The atomic number of the atom.
-
-
-#### _property_ Z_val()
-Number of valence electrons.
-
-
-#### _property_ l_local()
-Angular momentum used for the local part.
-
-
-#### _property_ l_max()
-Maximum angular momentum.
-
-
-#### _property_ nlcc_radius()
-Radius at which the core charge vanish (i.e. cut-off in a.u.).
-Returns 0.0 if nlcc is not used.
-
-
-#### _property_ summary()
-Summary line reported in the ABINIT header.
-
-
-### _class_ pymatgen.io.abinit.pseudos.NcPseudo()
-Bases: `object`
-
-Abstract class defining the methods that must be implemented
-by the concrete classes representing norm-conserving pseudopotentials.
-
-
-#### _property_ has_nlcc()
-True if the pseudo is generated with non-linear core correction.
-
-
-#### _abstract property_ nlcc_radius()
-Radius at which the core charge vanish (i.e. cut-off in a.u.).
-Returns 0.0 if nlcc is not used.
-
-
-#### _property_ rcore()
-Radius of the pseudization sphere in a.u.
-
-
-### _class_ pymatgen.io.abinit.pseudos.PawAbinitHeader(summary, \*\*kwargs)
-Bases: `AbinitHeader`
-
-The abinit header found in the PAW pseudopotential files.
-
-
-#### _static_ paw_header(filename, ppdesc)
-Parse the PAW abinit header. Examples:
-
-Paw atomic data for element Ni - Generated by AtomPAW (N. Holzwarth) + AtomPAW2Abinit v3.0.5
-
-    > 28.000  18.000 20061204               : zatom,zion,pspdat
-    > 7  7  2 0   350 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
-
-    paw3 1305
-
-        5 13                                  : basis_size,lmn_size
-
-    0 0 1 1 2                              : orbitals
-    3                                      : number_of_meshes
-    1 3  350 1.1803778368E-05 3.5000000000E-02 : mesh 1, type,size,rad_step[,log_step]
-    2 1  921 2.500000000000E-03                : mesh 2, type,size,rad_step[,log_step]
-    3 3  391 1.1803778368E-05 3.5000000000E-02 : mesh 3, type,size,rad_step[,log_step]
-
-    > 2.3000000000                          : r_cut(SPH)
-
-    2 0.
-
-Another format:
-
-C  (US d-loc) - PAW data extracted from US-psp (D.Vanderbilt) - generated by USpp2Abinit v2.3.0
-
-    > > 6.000   4.000 20090106               : zatom,zion,pspdat
-
-    > 7 11  1 0   560 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
-
-    paw4 2230
-
-        4  8                                  : basis_size,lmn_size
-
-    0 0 1 1                                : orbitals
-    5                                      : number_of_meshes
-    1 2  560 1.5198032759E-04 1.6666666667E-02 : mesh 1, type,size,rad_step[,log_step]
-    2 2  556 1.5198032759E-04 1.6666666667E-02 : mesh 2, type,size,rad_step[,log_step]
-    3 2  576 1.5198032759E-04 1.6666666667E-02 : mesh 3, type,size,rad_step[,log_step]
-    4 2  666 1.5198032759E-04 1.6666666667E-02 : mesh 4, type,size,rad_step[,log_step]
-    5 2  673 1.5198032759E-04 1.6666666667E-02 : mesh 5, type,size,rad_step[,log_step]
-
-    > 1.5550009124                          : r_cut(PAW)
-
-    3 0.                                   : shape_type,rshape
-
-Yet nnother one:
-
-Paw atomic data for element Si - Generated by atompaw v3.0.1.3 & AtomPAW2Abinit v3.3.1
-
-    > 14.000   4.000 20120814               : zatom,zion,pspdat
-    > 7      11  1 0   663 0.               : pspcod,pspxc,lmax,lloc,mmax,r2well
-
-    paw5 1331
-
-        4  8                                  : basis_size,lmn_size
-
-    0 0 1 1                                : orbitals
-    5                                      : number_of_meshes
-    1 2  663 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 1, type,size,rad_step[,log_step]
-    2 2  658 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 2, type,size,rad_step[,log_step]
-    3 2  740 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 3, type,size,rad_step[,log_step]
-    4 2  819 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 4, type,size,rad_step[,log_step]
-    5 2  870 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 5, type,size,rad_step[,log_step]
-
-    > 1.5669671236                          : r_cut(PAW)
-
-    2 0.                                   : shape_type,rshape
-
-
-### _class_ pymatgen.io.abinit.pseudos.PawAbinitPseudo(path, header)
-Bases: `PawPseudo`, `AbinitPseudo`
-
-Paw pseudopotential in the Abinit format.
-
-
-* **Parameters**
-
-
-    * **path** – Filename.
-
-
-    * **header** – `AbinitHeader` instance.
-
-
-
-#### _property_ paw_radius()
-Radius of the PAW sphere in a.u.
-
-
-#### _property_ supports_soc()
-True if the pseudo can be used in a calculation with spin-orbit coupling.
-Base classes should provide a concrete implementation that computes this value.
-
-
-### _class_ pymatgen.io.abinit.pseudos.PawPseudo()
-Bases: `object`
-
-Abstract class that defines the methods that must be implemented
-by the concrete classes representing PAW pseudopotentials.
-
-
-#### _abstract property_ paw_radius()
-Radius of the PAW sphere in a.u.
-
-
-#### _property_ rcore()
-Alias of paw_radius.
-
-
-### _class_ pymatgen.io.abinit.pseudos.PawXmlSetup(filepath)
-Bases: `Pseudo`, `PawPseudo`
-
-Setup class for PawXml.
-
-
-* **Parameters**
-
-    **filepath** (*str*) – Path to the XML file.
-
-
-
-#### _property_ Z()
-The atomic number of the atom.
-
-
-#### _property_ Z_val()
-Number of valence electrons.
-
-
-#### ae_core_density()
-The all-electron radial density.
-
-
-#### ae_partial_waves()
-Dictionary with the AE partial waves indexed by state.
-
-
-#### _property_ l_local()
-Angular momentum used for the local part.
-
-
-#### _property_ l_max()
-Maximum angular momentum.
-
-
-#### _property_ paw_radius()
-Radius of the PAW sphere in a.u.
-
-
-#### plot_densities(ax=None, \*\*kwargs)
-Plot the PAW densities.
-
-
-* **Parameters**
-
-    **ax** – matplotlib `Axes` or None if a new figure should be created.
-
-
-
-* **Returns**
-
-    matplotlib figure
-
-
-Keyword arguments controlling the display of the figure:
-
-| kwargs
-
-       | Meaning
-
-                                                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------- |
-| title
-
-        | Title of the plot (Default: None).
-
-                                                                |
-| show
-
-         | True to show the figure (default: True).
-
-                                                          |
-| savefig
-
-      | “abc.png” or “abc.eps” to save the figure to a file.
-
-                                              |
-| size_kwargs
-
-  | Dictionary with options passed to fig.set_size_inches
-e.g. size_kwargs=dict(w=3, h=4)
-
-             |
-| tight_layout
-
- | True to call fig.tight_layout (default: False)
-
-                                                    |
-| ax_grid
-
-      | True (False) to add (remove) grid from all axes in fig.
-Default: None i.e. fig is left unchanged.
-
- |
-| ax_annotate
-
-  | Add labels to  subplots e.g. (a), (b).
-Default: False
-
-                                             |
-| fig_close
-
-    | Close figure. Default: False.
-
-                                                                     |
-
-#### plot_projectors(ax=None, fontsize=12, \*\*kwargs)
-Plot the PAW projectors.
-
-
-* **Parameters**
-
-    **ax** – matplotlib `Axes` or None if a new figure should be created.
-
-
-Returns: matplotlib figure
-
-Keyword arguments controlling the display of the figure:
-
-| kwargs
-
-       | Meaning
-
-                                                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------- |
-| title
-
-        | Title of the plot (Default: None).
-
-                                                                |
-| show
-
-         | True to show the figure (default: True).
-
-                                                          |
-| savefig
-
-      | “abc.png” or “abc.eps” to save the figure to a file.
-
-                                              |
-| size_kwargs
-
-  | Dictionary with options passed to fig.set_size_inches
-e.g. size_kwargs=dict(w=3, h=4)
-
-             |
-| tight_layout
-
- | True to call fig.tight_layout (default: False)
-
-                                                    |
-| ax_grid
-
-      | True (False) to add (remove) grid from all axes in fig.
-Default: None i.e. fig is left unchanged.
-
- |
-| ax_annotate
-
-  | Add labels to  subplots e.g. (a), (b).
-Default: False
-
-                                             |
-| fig_close
-
-    | Close figure. Default: False.
-
-                                                                     |
-
-#### plot_waves(ax=None, fontsize=12, \*\*kwargs)
-Plot the AE and the pseudo partial waves.
-
-
-* **Parameters**
-
-
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
-
-
-    * **fontsize** – fontsize for legends and titles
-
-
-Returns: matplotlib figure
-
-Keyword arguments controlling the display of the figure:
-
-| kwargs
-
-       | Meaning
-
-                                                                                           |
-| ------------ | ------------------------------------------------------------------------------------------------- |
-| title
-
-        | Title of the plot (Default: None).
-
-                                                                |
-| show
-
-         | True to show the figure (default: True).
-
-                                                          |
-| savefig
-
-      | “abc.png” or “abc.eps” to save the figure to a file.
-
-                                              |
-| size_kwargs
-
-  | Dictionary with options passed to fig.set_size_inches
-e.g. size_kwargs=dict(w=3, h=4)
-
-             |
-| tight_layout
-
- | True to call fig.tight_layout (default: False)
-
-                                                    |
-| ax_grid
-
-      | True (False) to add (remove) grid from all axes in fig.
-Default: None i.e. fig is left unchanged.
-
- |
-| ax_annotate
-
-  | Add labels to  subplots e.g. (a), (b).
-Default: False
-
-                                             |
-| fig_close
-
-    | Close figure. Default: False.
-
-                                                                     |
-
-#### projector_functions()
-Dictionary with the PAW projectors indexed by state.
-
-
-#### pseudo_core_density()
-The pseudized radial density.
-
-
-#### _property_ pseudo_partial_waves()
-Dictionary with the pseudo partial waves indexed by state.
-
-
-#### root()
-Root tree of XML.
-
-
-#### _property_ summary()
-String summarizing the most important properties.
-
-
-#### _property_ supports_soc()
-Here I assume that the ab-initio code can treat the SOC within the on-site approximation.
-
-
-#### yield_figs(\*\*kwargs)
-This function *generates* a predefined list of matplotlib figures with minimal input from the user.
-
-
-### _class_ pymatgen.io.abinit.pseudos.Pseudo()
-Bases: `MSONable`
-
-Abstract base class defining the methods that must be
-implemented by the concrete pseudo-potential sub-classes.
-
-
-#### _abstract property_ Z(_: in_ )
-The atomic number of the atom.
-
-
-#### _abstract property_ Z_val(_: in_ )
-Valence charge.
-
-
-#### as_dict(\*\*kwargs)
-Return dictionary for MSONable protocol.
-
-
-#### _classmethod_ as_pseudo(obj)
-Convert obj into a pseudo. Accepts:
-
->
-> * Pseudo object.
-
-
-> * string defining a valid path.
-
-
-#### as_tmpfile(tmpdir=None)
-Copy the pseudopotential to a temporary a file and returns a new pseudopotential object.
-Useful for unit tests in which we have to change the content of the file.
-
-
-* **Parameters**
-
-    **tmpdir** – If None, a new temporary directory is created and files are copied here
-    else tmpdir is used.
-
-
-
-#### _property_ basename(_: st_ )
-File basename.
-
-
-#### compute_md5()
-Compute and return MD5 hash value.
-
-
-#### _property_ djrepo_path()
-The path of the djrepo file. None if file does not exist.
-
-
-#### _property_ element(_: [Element](pymatgen.core.md#pymatgen.core.periodic_table.Element_ )
-Pymatgen `Element`.
-
-
-#### _property_ filepath(_: st_ )
-Absolute path to pseudopotential file.
-
-
-#### _classmethod_ from_dict(dct)
-Build instance from dictionary (MSONable protocol).
-
-
-#### _static_ from_file(filename)
-Build an instance of a concrete Pseudo subclass from filename.
-Note: the parser knows the concrete class that should be instantiated
-Client code should rely on the abstract interface provided by Pseudo.
-
-
-#### _property_ has_dojo_report()
-True if the pseudo has an associated DOJO_REPORT section.
-
-
-#### _property_ has_hints()
-True if self provides hints on the cutoff energy.
-
-
-#### hint_for_accuracy(accuracy='normal')
-Returns a `Hint` object with the suggested value of ecut [Ha] and
-pawecutdg [Ha] for the given accuracy.
-ecut and pawecutdg are set to zero if no hint is available.
-
-
-* **Parameters**
-
-    **accuracy** – [“low”, “normal”, “high”]
-
-
-
-#### _property_ isnc(_: boo_ )
-True if norm-conserving pseudopotential.
-
-
-#### _property_ ispaw(_: boo_ )
-True if PAW pseudopotential.
-
-
-#### _abstract property_ l_local(_: in_ )
-Angular momentum used for the local part.
-
-
-#### _abstract property_ l_max(_: in_ )
-Maximum angular momentum.
-
-
-#### md5()
-MD5 hash value.
-
-
-#### open_pspsfile(ecut=20, pawecutdg=None)
-Calls Abinit to compute the internal tables for the application of the
-pseudopotential part. Returns `PspsFile` object providing methods
-to plot and analyze the data or None if file is not found or it’s not readable.
-
-
-* **Parameters**
-
-
-    * **ecut** – Cutoff energy in Hartree.
-
-
-    * **pawecutdg** – Cutoff energy for the PAW double grid.
-
-
-
-#### _abstract property_ summary(_: st_ )
-String summarizing the most important properties.
-
-
-#### _abstract property_ supports_soc()
-True if the pseudo can be used in a calculation with spin-orbit coupling.
-Base classes should provide a concrete implementation that computes this value.
-
-
-#### _property_ symbol(_: st_ )
-Element symbol.
-
-
-#### to_str(verbose=0)
-String representation.
-
-
-#### to_string(\*\*kwds)
-to_string is deprecated!
-Use to_str instead
-
-
-#### _property_ type(_: st_ )
-Type of pseudo.
-
-
-### _exception_ pymatgen.io.abinit.pseudos.PseudoParseError()
-Bases: [`ParseError`](pymatgen.io.md#pymatgen.io.core.ParseError)
-
-Base Error class for the exceptions raised by `PseudoParser`.
-
-
-### _class_ pymatgen.io.abinit.pseudos.PseudoParser()
-Bases: `object`
-
-Responsible for parsing pseudopotential files and returning pseudopotential objects.
-
-Usage:
-
-```default
-pseudo = PseudoParser().parse("filename")
-```
-
-
-#### Error()
-alias of `PseudoParseError`
-
-
-#### parse(filename)
-Read and parse a pseudopotential file. Main entry point for client code.
-
-
-* **Returns**
-
-    pseudopotential object or None if filename is not a valid pseudopotential file.
-
-
-
-#### read_ppdesc(filename)
-Read the pseudopotential descriptor from filename.
-
-
-* **Returns**
-
-    Pseudopotential descriptor. None if filename is not a valid pseudopotential file.
-
-
-
-* **Raises**
-
-    **PseudoParseError** –
-
-
-
-#### scan_directory(dirname, exclude_exts=(), exclude_fnames=())
-Analyze the files contained in directory dirname.
-
-
-* **Parameters**
-
-
-    * **dirname** – directory path
-
-
-    * **exclude_exts** – list of file extensions that should be skipped.
-
-
-    * **exclude_fnames** – list of file names that should be skipped.
-
-
-
-* **Returns**
-
-    List of pseudopotential objects.
-
-
-
-### _class_ pymatgen.io.abinit.pseudos.PseudoTable(pseudos)
-Bases: `Sequence`, `MSONable`
-
-Define the pseudopotentials from the element table.
-Individidual elements are accessed by name, symbol or atomic number.
-
-For example, the following all retrieve iron:
-
-print elements[26]
-Fe
-print elements.Fe
-Fe
-print elements.symbol(‘Fe’)
-Fe
-print elements.name(‘iron’)
-Fe
-print elements.isotope(‘Fe’)
-Fe
-
-
-* **Parameters**
-
-    **pseudos** – List of pseudopotentials or filepaths.
-
-
-
-#### all_combinations_for_elements(element_symbols)
-Return a list with all the possible combination of pseudos
-for the given list of element_symbols.
-Each item is a list of pseudopotential objects.
-
-Example:
-
-```default
-table.all_combinations_for_elements(["Li", "F"])
-```
-
-
-#### _property_ allnc()
-True if all pseudos are norm-conserving.
-
-
-#### _property_ allpaw()
-True if all pseudos are PAW.
-
-
-#### as_dict(\*\*kwargs)
-Return dictionary for MSONable protocol.
-
-
-#### _classmethod_ as_table(items)
-Return an instance of `PseudoTable` from the iterable items.
-
-
-#### _classmethod_ from_dict(d)
-Build instance from dictionary (MSONable protocol).
-
-
-#### _classmethod_ from_dir(top, exts=None, exclude_dirs='_\*')
-Find all pseudos in the directory tree starting from top.
-
-
-* **Parameters**
-
-
-    * **top** – Top of the directory tree
-
-
-    * **exts** – List of files extensions. if exts == “all_files”
-    we try to open all files in top
-
-
-    * **exclude_dirs** – Wildcard used to exclude directories.
-
-
-return: `PseudoTable` sorted by atomic number Z.
-
-
-#### get_pseudos_for_structure(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-Return the list of `Pseudo` objects to be used for this `Structure`.
-
-
-* **Parameters**
-
-    **structure** – pymatgen `Structure`.
-
-
-
-* **Raises**
-
-
-    * **ValueError** –
-
-
-    * **multiple occurrences are present in the table.** –
-
-
-
-#### is_complete(zmax=118)
-True if table is complete i.e. all elements with Z < zmax have at least on pseudopotential.
-
-
-#### print_table(stream=<_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>, filter_function=None)
-A pretty ASCII printer for the periodic table, based on some filter_function.
-
-
-* **Parameters**
-
-
-    * **stream** – file-like object
-
-
-    * **filter_function** – A filtering function that take a Pseudo as input and returns a boolean.
-    For example, setting filter_function = lambda p: p.Z_val > 2 will print
-    a periodic table containing only pseudos with Z_val > 2.
-
-
-
-#### pseudo_with_symbol(symbol, allow_multi=False)
-Return the pseudo with the given chemical symbol.
-
-
-* **Parameters**
-
-
-    * **symbols** – String with the chemical symbol of the element
-
-
-    * **allow_multi** – By default, the method raises ValueError
-    if multiple occurrences are found. Use allow_multi to prevent this.
-
-
-
-* **Raises**
-
-    **ValueError if symbol is not found**** or ****multiple occurrences are present and not allow_multi** –
-
-
-
-#### pseudos_with_symbols(symbols)
-Return the pseudos with the given chemical symbols.
-
-
-* **Raises**
-
-    **ValueError if one**** of ****the symbols is not found**** or ****multiple occurrences are present.** –
-
-
-
-#### select(condition)
-Select only those pseudopotentials for which condition is True.
-
-
-* **Parameters**
-
-    **condition** – Function that accepts a `Pseudo` object and returns True or False.
-
-
-
-* **Returns**
-
-    New PseudoTable instance with pseudos for which condition is True.
-
-
-
-* **Return type**
-
-    PseudoTable
-
-
-
-#### select_family(family)
-Return PseudoTable with element belonging to the specified family, e.g. family=”alkaline”.
-
-
-#### select_rows(rows)
-Return new class:PseudoTable object with pseudos in the given rows of the periodic table.
-rows can be either a int or a list of integers.
-
-
-#### select_symbols(symbols, ret_list=False)
-Return a `PseudoTable` with the pseudopotentials with the given list of chemical symbols.
-
-
-* **Parameters**
-
-
-    * **symbols** – str or list of symbols
-    Prepend the symbol string with “-”, to exclude pseudos.
-
-
-    * **ret_list** – if True a list of pseudos is returned instead of a `PseudoTable`
-
-
-
-#### sort_by_z()
-Return a new `PseudoTable` with pseudos sorted by Z.
-
-
-#### sorted(attrname, reverse=False)
-Sort the table according to the value of attribute attrname.
-
-
-* **Returns**
-
-    PseudoTable object
-
-
-
-* **Return type**
-
-    New class
-
-
-
-#### to_table(filter_function=None)
-Return string with data in tabular form.
-
-
-#### with_dojo_report()
-Select pseudos containing the DOJO_REPORT section. Return new class:PseudoTable object.
-
-
-#### _property_ zlist()
-Ordered list with the atomic numbers available in the table.
-
-
-### _class_ pymatgen.io.abinit.pseudos.RadialFunction(mesh, values)
-Bases: `RadialFunction`
-
-Radial Function class.
-
-Create new instance of RadialFunction(mesh, values)
-
-
-### pymatgen.io.abinit.pseudos.l2str(l_ang_mom)
-Convert the angular momentum l (int) to string.
-
-
-### pymatgen.io.abinit.pseudos.str2l(s)
-Convert a string to the angular momentum l (int).
-
-
-### pymatgen.io.abinit.pseudos.straceback()
-Returns a string with the traceback.
-
-## pymatgen.io.abinit.variable module
-
-Support for Abinit input variables.
-
-
-### _class_ pymatgen.io.abinit.variable.InputVariable(name, value, units='', valperline=3)
-Bases: `object`
-
-An Abinit input variable.
-
-
-* **Parameters**
-
-
-    * **name** – Name of the variable.
-
-
-    * **value** – Value of the variable.
-
-
-    * **units** – String specifying one of the units supported by Abinit. Default: atomic units.
-
-
-    * **valperline** – Number of items printed per line.
-
-
-
-#### _property_ basename()
-Return the name trimmed of any dataset index.
-
-
-#### _property_ dataset()
-Return the dataset index in string form.
-
-
-#### format_list(values, floatdecimal=0)
-Format a list of values into a string.
-The result might be spread among several lines.
-
-
-#### _static_ format_list2d(values, floatdecimal=0)
-Format a list of lists.
-
-
-#### _static_ format_scalar(val, floatdecimal=0)
-Format a single numerical value into a string
-with the appropriate number of decimal.
-
-
-#### get_value()
-Return the value.
-
-
-#### _property_ name()
-Name of the variable.
-
-
-#### _property_ units()
-Return the units.
+        * [`InputVariable.units`](pymatgen.io.abinit.variable.md#pymatgen.io.abinit.variable.InputVariable.units)

@@ -9,963 +9,168 @@ nav_exclude: true
 This package provides the modules for performing large scale transformations on
 a large number of structures.
 
-## Subpackages
 
 
-* [pymatgen.alchemy.tests package](pymatgen.alchemy.tests.md)
+* [pymatgen.alchemy.filters module](pymatgen.alchemy.filters.md)
 
 
+    * [`AbstractStructureFilter`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.AbstractStructureFilter)
 
 
-    * [pymatgen.alchemy.tests.test_filters module](pymatgen.alchemy.tests.md#module-pymatgen.alchemy.tests.test_filters)
+        * [`AbstractStructureFilter.test()`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.AbstractStructureFilter.test)
 
 
-        * [`ContainsSpecieFilterTest`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.ContainsSpecieFilterTest)
+    * [`ChargeBalanceFilter`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.ChargeBalanceFilter)
 
 
-            * [`ContainsSpecieFilterTest.test_filtering()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.ContainsSpecieFilterTest.test_filtering)
+        * [`ChargeBalanceFilter.test()`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.ChargeBalanceFilter.test)
 
 
-            * [`ContainsSpecieFilterTest.test_to_from_dict()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.ContainsSpecieFilterTest.test_to_from_dict)
+    * [`ContainsSpecieFilter`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.ContainsSpecieFilter)
 
 
-        * [`RemoveDuplicatesFilterTest`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.RemoveDuplicatesFilterTest)
+        * [`ContainsSpecieFilter.as_dict()`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.ContainsSpecieFilter.as_dict)
 
 
-            * [`RemoveDuplicatesFilterTest.setUp()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.RemoveDuplicatesFilterTest.setUp)
+        * [`ContainsSpecieFilter.from_dict()`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.ContainsSpecieFilter.from_dict)
 
 
-            * [`RemoveDuplicatesFilterTest.test_filter()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.RemoveDuplicatesFilterTest.test_filter)
+        * [`ContainsSpecieFilter.test()`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.ContainsSpecieFilter.test)
 
 
-            * [`RemoveDuplicatesFilterTest.test_to_from_dict()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.RemoveDuplicatesFilterTest.test_to_from_dict)
+    * [`RemoveDuplicatesFilter`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.RemoveDuplicatesFilter)
 
 
-        * [`RemoveExistingFilterTest`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.RemoveExistingFilterTest)
+        * [`RemoveDuplicatesFilter.test()`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.RemoveDuplicatesFilter.test)
 
 
-            * [`RemoveExistingFilterTest.setUp()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.RemoveExistingFilterTest.setUp)
+    * [`RemoveExistingFilter`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.RemoveExistingFilter)
 
 
-            * [`RemoveExistingFilterTest.test_filter()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.RemoveExistingFilterTest.test_filter)
+        * [`RemoveExistingFilter.as_dict()`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.RemoveExistingFilter.as_dict)
 
 
-        * [`SpecieProximityFilterTest`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.SpecieProximityFilterTest)
+        * [`RemoveExistingFilter.test()`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.RemoveExistingFilter.test)
 
 
-            * [`SpecieProximityFilterTest.test_filter()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.SpecieProximityFilterTest.test_filter)
+    * [`SpecieProximityFilter`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.SpecieProximityFilter)
 
 
-            * [`SpecieProximityFilterTest.test_to_from_dict()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_filters.SpecieProximityFilterTest.test_to_from_dict)
+        * [`SpecieProximityFilter.as_dict()`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.SpecieProximityFilter.as_dict)
 
 
-    * [pymatgen.alchemy.tests.test_materials module](pymatgen.alchemy.tests.md#module-pymatgen.alchemy.tests.test_materials)
+        * [`SpecieProximityFilter.from_dict()`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.SpecieProximityFilter.from_dict)
 
 
-        * [`TransformedStructureTest`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_materials.TransformedStructureTest)
+        * [`SpecieProximityFilter.test()`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.SpecieProximityFilter.test)
 
 
-            * [`TransformedStructureTest.setUp()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_materials.TransformedStructureTest.setUp)
+    * [`SpeciesMaxDistFilter`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.SpeciesMaxDistFilter)
 
 
-            * [`TransformedStructureTest.test_append_filter()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_materials.TransformedStructureTest.test_append_filter)
+        * [`SpeciesMaxDistFilter.test()`](pymatgen.alchemy.filters.md#pymatgen.alchemy.filters.SpeciesMaxDistFilter.test)
 
 
-            * [`TransformedStructureTest.test_append_transformation()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_materials.TransformedStructureTest.test_append_transformation)
+* [pymatgen.alchemy.materials module](pymatgen.alchemy.materials.md)
 
 
-            * [`TransformedStructureTest.test_as_dict()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_materials.TransformedStructureTest.test_as_dict)
+    * [`TransformedStructure`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure)
 
 
-            * [`TransformedStructureTest.test_final_structure()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_materials.TransformedStructureTest.test_final_structure)
+        * [`TransformedStructure.append_filter()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.append_filter)
 
 
-            * [`TransformedStructureTest.test_from_dict()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_materials.TransformedStructureTest.test_from_dict)
+        * [`TransformedStructure.append_transformation()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.append_transformation)
 
 
-            * [`TransformedStructureTest.test_get_vasp_input()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_materials.TransformedStructureTest.test_get_vasp_input)
+        * [`TransformedStructure.as_dict()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.as_dict)
 
 
-            * [`TransformedStructureTest.test_snl()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_materials.TransformedStructureTest.test_snl)
+        * [`TransformedStructure.extend_transformations()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.extend_transformations)
 
 
-            * [`TransformedStructureTest.test_undo_and_redo_last_change()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_materials.TransformedStructureTest.test_undo_and_redo_last_change)
+        * [`TransformedStructure.from_cif_string()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.from_cif_string)
 
 
-    * [pymatgen.alchemy.tests.test_transmuters module](pymatgen.alchemy.tests.md#module-pymatgen.alchemy.tests.test_transmuters)
+        * [`TransformedStructure.from_dict()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.from_dict)
 
 
-        * [`CifTransmuterTest`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_transmuters.CifTransmuterTest)
+        * [`TransformedStructure.from_poscar_string()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.from_poscar_string)
 
 
-            * [`CifTransmuterTest.setUp()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_transmuters.CifTransmuterTest.setUp)
+        * [`TransformedStructure.from_snl()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.from_snl)
 
 
-            * [`CifTransmuterTest.tearDown()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_transmuters.CifTransmuterTest.tearDown)
+        * [`TransformedStructure.get_vasp_input()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.get_vasp_input)
 
 
-            * [`CifTransmuterTest.test_init()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_transmuters.CifTransmuterTest.test_init)
+        * [`TransformedStructure.redo_next_change()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.redo_next_change)
 
 
-        * [`PoscarTransmuterTest`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_transmuters.PoscarTransmuterTest)
+        * [`TransformedStructure.set_parameter()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.set_parameter)
 
 
-            * [`PoscarTransmuterTest.test_init()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_transmuters.PoscarTransmuterTest.test_init)
+        * [`TransformedStructure.structures`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.structures)
 
 
-            * [`PoscarTransmuterTest.test_transmuter()`](pymatgen.alchemy.tests.md#pymatgen.alchemy.tests.test_transmuters.PoscarTransmuterTest.test_transmuter)
+        * [`TransformedStructure.to_snl()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.to_snl)
 
 
+        * [`TransformedStructure.undo_last_change()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.undo_last_change)
 
-## pymatgen.alchemy.filters module
 
-This module defines filters for Transmuter object.
+        * [`TransformedStructure.was_modified`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.was_modified)
 
 
-### _class_ pymatgen.alchemy.filters.AbstractStructureFilter()
-Bases: `MSONable`
+        * [`TransformedStructure.write_vasp_input()`](pymatgen.alchemy.materials.md#pymatgen.alchemy.materials.TransformedStructure.write_vasp_input)
 
-AbstractStructureFilter that defines an API to perform testing of
-Structures. Structures that return True to a test are retained during
-transmutation while those that return False are removed.
 
+* [pymatgen.alchemy.transmuters module](pymatgen.alchemy.transmuters.md)
 
-#### _abstract_ test(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-Method to execute the test.
 
+    * [`CifTransmuter`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.CifTransmuter)
 
-* **Parameters**
 
-    **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Input structure to test
+        * [`CifTransmuter.from_filenames()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.CifTransmuter.from_filenames)
 
 
+    * [`PoscarTransmuter`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.PoscarTransmuter)
 
-* **Returns**
 
-    (bool) Structures that return true are kept in the Transmuter
-    object during filtering.
+        * [`PoscarTransmuter.from_filenames()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.PoscarTransmuter.from_filenames)
 
 
+    * [`StandardTransmuter`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.StandardTransmuter)
 
-### _class_ pymatgen.alchemy.filters.ChargeBalanceFilter()
-Bases: `AbstractStructureFilter`
 
-This filter removes structures that are not charge balanced from the
-transmuter. This only works if the structure is oxidation state
-decorated, as structures with only elemental sites are automatically
-assumed to have net charge of 0.
+        * [`StandardTransmuter.add_tags()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.StandardTransmuter.add_tags)
 
-No args required.
 
+        * [`StandardTransmuter.append_transformation()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.StandardTransmuter.append_transformation)
 
-#### test(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-Method to execute the test.
 
+        * [`StandardTransmuter.append_transformed_structures()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.StandardTransmuter.append_transformed_structures)
 
-* **Parameters**
 
-    **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Input structure to test
+        * [`StandardTransmuter.apply_filter()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.StandardTransmuter.apply_filter)
 
 
-Returns: True if structure is neutral.
+        * [`StandardTransmuter.extend_transformations()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.StandardTransmuter.extend_transformations)
 
 
-### _class_ pymatgen.alchemy.filters.ContainsSpecieFilter(species, strict_compare=False, AND=True, exclude=False)
-Bases: `AbstractStructureFilter`
+        * [`StandardTransmuter.from_structures()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.StandardTransmuter.from_structures)
 
-Filter for structures containing certain elements or species.
-By default compares by atomic number.
 
+        * [`StandardTransmuter.redo_next_change()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.StandardTransmuter.redo_next_change)
 
-* **Parameters**
 
+        * [`StandardTransmuter.set_parameter()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.StandardTransmuter.set_parameter)
 
-    * **species** (*[**Species/Element**]*) – list of species to look for
 
+        * [`StandardTransmuter.undo_last_change()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.StandardTransmuter.undo_last_change)
 
-    * **AND** – whether all species must be present to pass (or fail) filter.
 
+        * [`StandardTransmuter.write_vasp_input()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.StandardTransmuter.write_vasp_input)
 
-    * **strict_compare** – if true, compares objects by specie or element
-    object if false, compares atomic number
 
-
-    * **exclude** – If true, returns false for any structures with the specie
-    (excludes them from the Transmuter).
-
-
-
-#### as_dict()
-Returns: MSONable dict.
-
-
-#### _classmethod_ from_dict(dct)
-
-* **Parameters**
-
-    **dct** (*dict*) – Dict representation.
-
-
-
-* **Returns**
-
-    Filter
-
-
-
-#### test(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-Method to execute the test.
-
-Returns: True if structure do not contain specified species.
-
-
-### _class_ pymatgen.alchemy.filters.RemoveDuplicatesFilter(structure_matcher: dict | [StructureMatcher](pymatgen.analysis.md#pymatgen.analysis.structure_matcher.StructureMatcher) | None = None, symprec: float | None = None)
-Bases: `AbstractStructureFilter`
-
-This filter removes exact duplicate structures from the transmuter.
-
-Remove duplicate structures based on the structure matcher
-and symmetry (if symprec is given).
-
-
-* **Parameters**
-
-
-    * **structure_matcher** (*dict** | *[*StructureMatcher*](pymatgen.analysis.md#pymatgen.analysis.structure_matcher.StructureMatcher)*, **optional*) – Provides a structure matcher to be used for
-    structure comparison.
-
-
-    * **symprec** (*float**, **optional*) – The precision in the symmetry finder algorithm if None (
-    default value), no symmetry check is performed and only the
-    structure matcher is used. A recommended value is 1e-5.
-
-
-
-#### test(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-
-* **Parameters**
-
-    **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Input structure to test.
-
-
-Returns: True if structure is not in list.
-
-
-### _class_ pymatgen.alchemy.filters.RemoveExistingFilter(existing_structures, structure_matcher=None, symprec=None)
-Bases: `AbstractStructureFilter`
-
-This filter removes structures existing in a given list from the transmuter.
-
-Remove existing structures based on the structure matcher
-and symmetry (if symprec is given).
-
-
-* **Parameters**
-
-
-    * **existing_structures** – List of existing structures to compare with
-
-
-    * **structure_matcher** – Provides a structure matcher to be used for
-    structure comparison.
-
-
-    * **symprec** – The precision in the symmetry finder algorithm if None (
-    default value), no symmetry check is performed and only the
-    structure matcher is used. A recommended value is 1e-5.
-
-
-
-#### as_dict()
-Returns: MSONable dict.
-
-
-#### test(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-Method to execute the test.
-
-
-* **Parameters**
-
-    **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Input structure to test
-
-
-Returns: True if structure is not in existing list.
-
-
-### _class_ pymatgen.alchemy.filters.SpecieProximityFilter(specie_and_min_dist_dict)
-Bases: `AbstractStructureFilter`
-
-This filter removes structures that have certain species that are too close
-together.
-
-
-* **Parameters**
-
-    **specie_and_min_dist_dict** (*dict*) – A species string to float mapping. For
-    example, {“Na+”: 1} means that all Na+ ions must be at least 1
-    Angstrom away from each other. Multiple species criteria can be
-    applied. Note that the testing is done based on the actual object
-    . If you have a structure with Element, you must use {“Na”:1}
-    instead to filter based on Element and not Species.
-
-
-
-#### as_dict()
-Returns: MSONable dict.
-
-
-#### _classmethod_ from_dict(dct)
-
-* **Parameters**
-
-    **dct** (*dict*) – Dict representation.
-
-
-
-* **Returns**
-
-    Filter
-
-
-
-#### test(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-Method to execute the test.
-
-
-* **Parameters**
-
-    **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Input structure to test
-
-
-Returns: True if structure does not contain species within specified
-
-    distances.
-
-
-### _class_ pymatgen.alchemy.filters.SpeciesMaxDistFilter(sp1, sp2, max_dist)
-Bases: `AbstractStructureFilter`
-
-This filter removes structures that do have two particular species that are
-not nearest neighbors by a predefined max_dist. For instance, if you are
-analyzing Li battery materials, you would expect that each Li+ would be
-nearest neighbor to lower oxidation state transition metal for
-electrostatic reasons. This only works if the structure is oxidation state
-decorated, as structures with only elemental sites are automatically
-assumed to have net charge of 0.
-
-
-* **Parameters**
-
-
-    * **sp1** ([*Species*](pymatgen.core.md#pymatgen.core.periodic_table.Species)) – First specie
-
-
-    * **sp2** ([*Species*](pymatgen.core.md#pymatgen.core.periodic_table.Species)) – Second specie
-
-
-    * **max_dist** (*float*) – Maximum distance between species.
-
-
-
-#### test(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-Method to execute the test.
-
-
-* **Parameters**
-
-    **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Input structure to test
-
-
-Returns: True if structure does not contain the two species are distances
-
-    greater than max_dist.
-
-## pymatgen.alchemy.materials module
-
-This module provides various representations of transformed structures. A
-TransformedStructure is a structure that has been modified by undergoing a
-series of transformations.
-
-
-### _class_ pymatgen.alchemy.materials.TransformedStructure(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), transformations: list[[AbstractTransformation](pymatgen.transformations.md#pymatgen.transformations.transformation_abc.AbstractTransformation)] | None = None, history: list[[AbstractTransformation](pymatgen.transformations.md#pymatgen.transformations.transformation_abc.AbstractTransformation) | dict[str, Any]] | None = None, other_parameters: dict[str, Any] | None = None)
-Bases: `MSONable`
-
-Container object for new structures that include history of
-transformations.
-
-Each transformed structure is made up of a sequence of structures with
-associated transformation history.
-
-Initializes a transformed structure from a structure.
-
-
-* **Parameters**
-
-
-    * **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Input structure
-
-
-    * **transformations** (*list**[**Transformation**]*) – List of transformations to
-    apply.
-
-
-    * **history** (*list**[**Transformation**]*) – Previous history.
-
-
-    * **other_parameters** (*dict*) – Additional parameters to be added.
-
-
-
-#### append_filter(structure_filter: AbstractStructureFilter)
-Adds a filter.
-
-
-* **Parameters**
-
-    **structure_filter** (*StructureFilter*) – A filter implementing the
-    AbstractStructureFilter API. Tells transmuter what structures to retain.
-
-
-
-#### append_transformation(transformation, return_alternatives: bool = False, clear_redo: bool = True)
-Appends a transformation to the TransformedStructure.
-
-
-* **Parameters**
-
-
-    * **transformation** – Transformation to append
-
-
-    * **return_alternatives** – Whether to return alternative
-    TransformedStructures for one-to-many transformations.
-    return_alternatives can be a number, which stipulates the
-    total number of structures to return.
-
-
-    * **clear_redo** – Boolean indicating whether to clear the redo list.
-    By default, this is True, meaning any appends clears the
-    history of undoing. However, when using append_transformation
-    to do a redo, the redo list should not be cleared to allow
-    multiple redos.
-
-
-
-#### as_dict()
-Dict representation of the TransformedStructure.
-
-
-#### extend_transformations(transformations: list[[AbstractTransformation](pymatgen.transformations.md#pymatgen.transformations.transformation_abc.AbstractTransformation)], return_alternatives: bool = False)
-Extends a sequence of transformations to the TransformedStructure.
-
-
-* **Parameters**
-
-
-    * **transformations** – Sequence of Transformations
-
-
-    * **return_alternatives** – Whether to return alternative
-    TransformedStructures for one-to-many transformations.
-    return_alternatives can be a number, which stipulates the
-    total number of structures to return.
-
-
-
-#### _static_ from_cif_string(cif_string: str, transformations: list[[AbstractTransformation](pymatgen.transformations.md#pymatgen.transformations.transformation_abc.AbstractTransformation)] | None = None, primitive: bool = True, occupancy_tolerance: float = 1.0)
-Generates TransformedStructure from a cif string.
-
-
-* **Parameters**
-
-
-    * **cif_string** (*str*) – Input cif string. Should contain only one
-    structure. For CIFs containing multiple structures, please use
-    CifTransmuter.
-
-
-    * **transformations** (*list**[**Transformation**]*) – Sequence of transformations
-    to be applied to the input structure.
-
-
-    * **primitive** (*bool*) – Option to set if the primitive cell should be
-    extracted. Defaults to True. However, there are certain
-    instances where you might want to use a non-primitive cell,
-    e.g., if you are trying to generate all possible orderings of
-    partial removals or order a disordered structure.
-
-
-    * **occupancy_tolerance** (*float*) – If total occupancy of a site is
-    between 1 and occupancy_tolerance, the occupancies will be
-    scaled down to 1.
-
-
-
-* **Returns**
-
-    TransformedStructure
-
-
-
-#### _classmethod_ from_dict(d)
-Creates a TransformedStructure from a dict.
-
-
-#### _static_ from_poscar_string(poscar_string: str, transformations: list[[AbstractTransformation](pymatgen.transformations.md#pymatgen.transformations.transformation_abc.AbstractTransformation)] | None = None)
-Generates TransformedStructure from a poscar string.
-
-
-* **Parameters**
-
-
-    * **poscar_string** (*str*) – Input POSCAR string.
-
-
-    * **transformations** (*list**[**Transformation**]*) – Sequence of transformations
-    to be applied to the input structure.
-
-
-
-#### _classmethod_ from_snl(snl: [StructureNL](pymatgen.util.md#pymatgen.util.provenance.StructureNL))
-Create TransformedStructure from SNL.
-
-
-* **Parameters**
-
-    **snl** ([*StructureNL*](pymatgen.util.md#pymatgen.util.provenance.StructureNL)) – Starting snl
-
-
-
-* **Returns**
-
-    TransformedStructure
-
-
-
-#### get_vasp_input(vasp_input_set: type[pymatgen.io.vasp.sets.VaspInputSet] = <class 'pymatgen.io.vasp.sets.MPRelaxSet'>, \*\*kwargs)
-Returns VASP input as a dict of VASP objects.
-
-
-* **Parameters**
-
-
-    * **vasp_input_set** ([*pymatgen.io.vasp.sets.VaspInputSet*](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.VaspInputSet)) – input set
-    to create VASP input files from structures
-
-
-    * **\*\*kwargs** – All keyword args supported by the VASP input set.
-
-
-
-#### redo_next_change()
-Redo the last undone change in the TransformedStructure.
-
-
-* **Raises**
-
-    **IndexError** – If already at the latest change.
-
-
-
-#### set_parameter(key: str, value: Any)
-Set a parameter.
-
-
-* **Parameters**
-
-
-    * **key** – The string key
-
-
-    * **value** – The value.
-
-
-
-#### _property_ structures(_: list[[pymatgen.core.structure.Structure](pymatgen.core.md#pymatgen.core.structure.Structure)_ )
-Copy of all structures in the TransformedStructure. A
-structure is stored after every single transformation.
-
-
-#### to_snl(authors, \*\*kwargs)
-Generate SNL from TransformedStructure.
-
-
-* **Parameters**
-
-
-    * **authors** – List of authors
-
-
-    * **\*\*kwargs** – All kwargs supported by StructureNL.
-
-
-
-
-* **Returns**
-
-    StructureNL
-
-
-
-#### undo_last_change()
-Undo the last change in the TransformedStructure.
-
-
-* **Raises**
-
-    **IndexError** – If already at the oldest change.
-
-
-
-#### _property_ was_modified(_: boo_ )
-Boolean describing whether the last transformation on the structure
-made any alterations to it one example of when this would return false
-is in the case of performing a substitution transformation on the
-structure when the specie to replace isn’t in the structure.
-
-
-#### write_vasp_input(vasp_input_set: type[pymatgen.io.vasp.sets.VaspInputSet] = <class 'pymatgen.io.vasp.sets.MPRelaxSet'>, output_dir: str = '.', create_directory: bool = True, \*\*kwargs)
-Writes VASP input to an output_dir.
-
-
-* **Parameters**
-
-
-    * **vasp_input_set** – pymatgen.io.vasp.sets.VaspInputSet like object that creates vasp input files from
-    structures.
-
-
-    * **output_dir** – Directory to output files
-
-
-    * **create_directory** – Create the directory if not present. Defaults to
-    True.
-
-
-    * **\*\*kwargs** – All keyword args supported by the VASP input set.
-
-
-## pymatgen.alchemy.transmuters module
-
-This module implements various transmuter classes.
-Transmuters are essentially classes that generate TransformedStructures from
-various data sources. They enable the high-throughput generation of new
-structures and input files.
-
-It also includes the helper function, batch_write_vasp_input to generate an
-entire directory of vasp input files for running.
-
-
-### _class_ pymatgen.alchemy.transmuters.CifTransmuter(cif_string, transformations=None, primitive=True, extend_collection=False)
-Bases: `StandardTransmuter`
-
-Generates a Transmuter from a cif string, possibly containing multiple
-structures.
-
-Generates a Transmuter from a cif string, possibly
-containing multiple structures.
-
-
-* **Parameters**
-
-
-    * **cif_string** – A string containing a cif or a series of cifs
-
-
-    * **transformations** – New transformations to be applied to all
-    structures
-
-
-    * **primitive** – Whether to generate the primitive cell from the cif.
-
-
-    * **extend_collection** – Whether to use more than one output structure
-    from one-to-many transformations. extend_collection can be a
-    number, which determines the maximum branching for each
-    transformation.
-
-
-
-#### _static_ from_filenames(filenames, transformations=None, primitive=True, extend_collection=False)
-Generates a TransformedStructureCollection from a cif, possibly
-containing multiple structures.
-
-
-* **Parameters**
-
-
-    * **filenames** – List of strings of the cif files
-
-
-    * **transformations** – New transformations to be applied to all
-    structures
-
-
-    * **primitive** – Same meaning as in __init__.
-
-
-    * **extend_collection** – Same meaning as in __init__.
-
-
-
-### _class_ pymatgen.alchemy.transmuters.PoscarTransmuter(poscar_string, transformations=None, extend_collection=False)
-Bases: `StandardTransmuter`
-
-Generates a transmuter from a sequence of POSCARs.
-
-
-* **Parameters**
-
-
-    * **poscar_string** – List of POSCAR strings
-
-
-    * **transformations** – New transformations to be applied to all
-    structures.
-
-
-    * **extend_collection** – Whether to use more than one output structure
-    from one-to-many transformations.
-
-
-
-#### _static_ from_filenames(poscar_filenames, transformations=None, extend_collection=False)
-Convenient constructor to generates a POSCAR transmuter from a list of
-POSCAR filenames.
-
-
-* **Parameters**
-
-
-    * **poscar_filenames** – List of POSCAR filenames
-
-
-    * **transformations** – New transformations to be applied to all
-    structures.
-
-
-    * **extend_collection** – Same meaning as in __init__.
-
-
-
-### _class_ pymatgen.alchemy.transmuters.StandardTransmuter(transformed_structures, transformations=None, extend_collection=0, ncores=None)
-Bases: `object`
-
-An example of a Transmuter object, which performs a sequence of
-transformations on many structures to generate TransformedStructures.
-
-<!-- attribute: transformed_structures
-
-List of all transformed structures. -->
-Initializes a transmuter from an initial list of
-`pymatgen.alchemy.materials.TransformedStructure`.
-
-
-* **Parameters**
-
-
-    * **transformed_structures** (*[**TransformedStructure**]*) – Input transformed
-    structures
-
-
-    * **transformations** (*[**Transformations**]*) – New transformations to be
-    applied to all structures.
-
-
-    * **extend_collection** (*int*) – Whether to use more than one output
-    structure from one-to-many transformations. extend_collection
-    can be an int, which determines the maximum branching for each
-    transformation.
-
-
-    * **ncores** (*int*) – Number of cores to use for applying transformations.
-    Uses multiprocessing.Pool. Default is None, which implies
-    serial.
-
-
-
-#### add_tags(tags)
-Add tags for the structures generated by the transmuter.
-
-
-* **Parameters**
-
-    **tags** – A sequence of tags. Note that this should be a sequence of
-    strings, e.g., [“My awesome structures”, “Project X”].
-
-
-
-#### append_transformation(transformation, extend_collection=False, clear_redo=True)
-Appends a transformation to all TransformedStructures.
-
-
-* **Parameters**
-
-
-    * **transformation** – Transformation to append
-
-
-    * **extend_collection** – Whether to use more than one output structure
-    from one-to-many transformations. extend_collection can be a
-    number, which determines the maximum branching for each
-    transformation.
-
-
-    * **clear_redo** (*bool*) – Whether to clear the redo list. By default,
-    this is True, meaning any appends clears the history of
-    undoing. However, when using append_transformation to do a
-    redo, the redo list should not be cleared to allow multiple
-    redos.
-
-
-
-* **Returns**
-
-    List of booleans corresponding to initial transformed structures
-    each boolean describes whether the transformation altered the
-    structure
-
-
-
-#### append_transformed_structures(tstructs_or_transmuter)
-Method is overloaded to accept either a list of transformed structures
-or transmuter, it which case it appends the second transmuter”s
-structures.
-
-
-* **Parameters**
-
-    **tstructs_or_transmuter** – A list of transformed structures or a
-    transmuter.
-
-
-
-#### apply_filter(structure_filter)
-Applies a structure_filter to the list of TransformedStructures
-in the transmuter.
-
-
-* **Parameters**
-
-    **structure_filter** – StructureFilter to apply.
-
-
-
-#### extend_transformations(transformations)
-Extends a sequence of transformations to the TransformedStructure.
-
-
-* **Parameters**
-
-    **transformations** – Sequence of Transformations
-
-
-
-#### _static_ from_structures(structures, transformations=None, extend_collection=0)
-Alternative constructor from structures rather than
-TransformedStructures.
-
-
-* **Parameters**
-
-
-    * **structures** – Sequence of structures
-
-
-    * **transformations** – New transformations to be applied to all
-    structures
-
-
-    * **extend_collection** – Whether to use more than one output structure
-    from one-to-many transformations. extend_collection can be a
-    number, which determines the maximum branching for each
-    transformation.
-
-
-
-* **Returns**
-
-    StandardTransmuter
-
-
-
-#### redo_next_change()
-Redo the last undone transformation in the TransformedStructure.
-
-
-* **Raises**
-
-    **IndexError if already at the latest change.** –
-
-
-
-#### set_parameter(key, value)
-Add parameters to the transmuter. Additional parameters are stored in
-the as_dict() output.
-
-
-* **Parameters**
-
-
-    * **key** – The key for the parameter.
-
-
-    * **value** – The value for the parameter.
-
-
-
-#### undo_last_change()
-Undo the last transformation in the TransformedStructure.
-
-
-* **Raises**
-
-    **IndexError if already at the oldest change.** –
-
-
-
-#### write_vasp_input(\*\*kwargs)
-Batch write vasp input for a sequence of transformed structures to
-output_dir, following the format output_dir/{formula}_{number}.
-
-
-* **Parameters**
-
-    **kwargs** – All kwargs supported by batch_write_vasp_input.
-
-
-
-### pymatgen.alchemy.transmuters.batch_write_vasp_input(transformed_structures: Sequence[TransformedStructure], vasp_input_set: type[VaspInputSet] = <class 'pymatgen.io.vasp.sets.MPRelaxSet'>, output_dir: str = '.', create_directory: bool = True, subfolder: Callable[[TransformedStructure], str] | None = None, include_cif: bool = False, \*\*kwargs)
-Batch write vasp input for a sequence of transformed structures to
-output_dir, following the format output_dir/{group}/{formula}_{number}.
-
-
-* **Parameters**
-
-
-    * **transformed_structures** – Sequence of TransformedStructures.
-
-
-    * **vasp_input_set** – pymatgen.io.vasp.sets.VaspInputSet to creates
-    vasp input files from structures.
-
-
-    * **output_dir** – Directory to output files
-
-
-    * **create_directory** (*bool*) – Create the directory if not present.
-    Defaults to True.
-
-
-    * **subfolder** – Function to create subdirectory name from
-    transformed_structure.
-    e.g., lambda x: x.other_parameters[“tags”][0] to use the first
-    tag.
-
-
-    * **include_cif** (*bool*) – Boolean indication whether to output a CIF as
-    well. CIF files are generally better supported in visualization
-    programs.
-
-
-    * **\*\*kwargs** – Any kwargs supported by vasp_input_set.
+    * [`batch_write_vasp_input()`](pymatgen.alchemy.transmuters.md#pymatgen.alchemy.transmuters.batch_write_vasp_input)

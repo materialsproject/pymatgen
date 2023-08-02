@@ -14,263 +14,207 @@ Package for analyzing chemical environments.
 * [pymatgen.analysis.chemenv.connectivity package](pymatgen.analysis.chemenv.connectivity.md)
 
 
-    * [Subpackages](pymatgen.analysis.chemenv.connectivity.md#subpackages)
 
 
-        * [pymatgen.analysis.chemenv.connectivity.tests package](pymatgen.analysis.chemenv.connectivity.tests.md)
+        * [pymatgen.analysis.chemenv.connectivity.connected_components module](pymatgen.analysis.chemenv.connectivity.connected_components.md)
 
 
+            * [`ConnectedComponent`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent)
 
 
-            * [pymatgen.analysis.chemenv.connectivity.tests.test_connected_components module](pymatgen.analysis.chemenv.connectivity.tests.md#module-pymatgen.analysis.chemenv.connectivity.tests.test_connected_components)
+                * [`ConnectedComponent.as_dict()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.as_dict)
 
 
-                * [`ConnectedComponentTest`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_connected_components.ConnectedComponentTest)
+                * [`ConnectedComponent.compute_periodicity()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity)
 
 
-                    * [`ConnectedComponentTest.test_coordination_sequences()`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_connected_components.ConnectedComponentTest.test_coordination_sequences)
+                * [`ConnectedComponent.compute_periodicity_all_simple_paths_algorithm()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity_all_simple_paths_algorithm)
 
 
-                    * [`ConnectedComponentTest.test_init()`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_connected_components.ConnectedComponentTest.test_init)
+                * [`ConnectedComponent.compute_periodicity_cycle_basis()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity_cycle_basis)
 
 
-                    * [`ConnectedComponentTest.test_periodicity()`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_connected_components.ConnectedComponentTest.test_periodicity)
+                * [`ConnectedComponent.coordination_sequence()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.coordination_sequence)
 
 
-                    * [`ConnectedComponentTest.test_real_systems()`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_connected_components.ConnectedComponentTest.test_real_systems)
+                * [`ConnectedComponent.description()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.description)
 
 
-                    * [`ConnectedComponentTest.test_serialization()`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_connected_components.ConnectedComponentTest.test_serialization)
+                * [`ConnectedComponent.elastic_centered_graph()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.elastic_centered_graph)
 
 
-                    * [`ConnectedComponentTest.test_serialization_private_methods()`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_connected_components.ConnectedComponentTest.test_serialization_private_methods)
+                * [`ConnectedComponent.from_dict()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.from_dict)
 
 
-            * [pymatgen.analysis.chemenv.connectivity.tests.test_environment_nodes module](pymatgen.analysis.chemenv.connectivity.tests.md#module-pymatgen.analysis.chemenv.connectivity.tests.test_environment_nodes)
+                * [`ConnectedComponent.from_graph()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.from_graph)
 
 
-                * [`EnvironmentNodesTest`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_environment_nodes.EnvironmentNodesTest)
+                * [`ConnectedComponent.graph`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.graph)
 
 
-                    * [`EnvironmentNodesTest.test_as_dict()`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_environment_nodes.EnvironmentNodesTest.test_as_dict)
+                * [`ConnectedComponent.is_0d`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_0d)
 
 
-                    * [`EnvironmentNodesTest.test_equal()`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_environment_nodes.EnvironmentNodesTest.test_equal)
+                * [`ConnectedComponent.is_1d`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_1d)
 
 
-                    * [`EnvironmentNodesTest.test_str()`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_environment_nodes.EnvironmentNodesTest.test_str)
+                * [`ConnectedComponent.is_2d`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_2d)
 
 
-            * [pymatgen.analysis.chemenv.connectivity.tests.test_structure_connectivity module](pymatgen.analysis.chemenv.connectivity.tests.md#module-pymatgen.analysis.chemenv.connectivity.tests.test_structure_connectivity)
+                * [`ConnectedComponent.is_3d`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_3d)
 
 
-                * [`StructureConnectivityTest`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_structure_connectivity.StructureConnectivityTest)
+                * [`ConnectedComponent.is_periodic`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_periodic)
 
 
-                    * [`StructureConnectivityTest.test_serialization()`](pymatgen.analysis.chemenv.connectivity.tests.md#pymatgen.analysis.chemenv.connectivity.tests.test_structure_connectivity.StructureConnectivityTest.test_serialization)
+                * [`ConnectedComponent.make_supergraph()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.make_supergraph)
 
 
+                * [`ConnectedComponent.periodicity`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.periodicity)
 
 
-    * [pymatgen.analysis.chemenv.connectivity.connected_components module](pymatgen.analysis.chemenv.connectivity.md#module-pymatgen.analysis.chemenv.connectivity.connected_components)
+                * [`ConnectedComponent.periodicity_vectors`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.periodicity_vectors)
 
 
-        * [`ConnectedComponent`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent)
+                * [`ConnectedComponent.show_graph()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.show_graph)
 
 
-            * [`ConnectedComponent.as_dict()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.as_dict)
+            * [`draw_network()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.draw_network)
 
 
-            * [`ConnectedComponent.compute_periodicity()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity)
+            * [`make_supergraph()`](pymatgen.analysis.chemenv.connectivity.connected_components.md#pymatgen.analysis.chemenv.connectivity.connected_components.make_supergraph)
 
 
-            * [`ConnectedComponent.compute_periodicity_all_simple_paths_algorithm()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity_all_simple_paths_algorithm)
+        * [pymatgen.analysis.chemenv.connectivity.connectivity_finder module](pymatgen.analysis.chemenv.connectivity.connectivity_finder.md)
 
 
-            * [`ConnectedComponent.compute_periodicity_cycle_basis()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity_cycle_basis)
+            * [`ConnectivityFinder`](pymatgen.analysis.chemenv.connectivity.connectivity_finder.md#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder)
 
 
-            * [`ConnectedComponent.coordination_sequence()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.coordination_sequence)
+                * [`ConnectivityFinder.get_structure_connectivity()`](pymatgen.analysis.chemenv.connectivity.connectivity_finder.md#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.get_structure_connectivity)
 
 
-            * [`ConnectedComponent.description()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.description)
+                * [`ConnectivityFinder.setup_parameters()`](pymatgen.analysis.chemenv.connectivity.connectivity_finder.md#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.setup_parameters)
 
 
-            * [`ConnectedComponent.elastic_centered_graph()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.elastic_centered_graph)
+        * [pymatgen.analysis.chemenv.connectivity.environment_nodes module](pymatgen.analysis.chemenv.connectivity.environment_nodes.md)
 
 
-            * [`ConnectedComponent.from_dict()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.from_dict)
+            * [`AbstractEnvironmentNode`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode)
 
 
-            * [`ConnectedComponent.from_graph()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.from_graph)
+                * [`AbstractEnvironmentNode.ATOM`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ATOM)
 
 
-            * [`ConnectedComponent.graph`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.graph)
+                * [`AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS)
 
 
-            * [`ConnectedComponent.is_0d`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_0d)
+                * [`AbstractEnvironmentNode.COORDINATION_ENVIRONMENT`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.COORDINATION_ENVIRONMENT)
 
 
-            * [`ConnectedComponent.is_1d`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_1d)
+                * [`AbstractEnvironmentNode.DEFAULT_EXTENSIONS`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.DEFAULT_EXTENSIONS)
 
 
-            * [`ConnectedComponent.is_2d`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_2d)
+                * [`AbstractEnvironmentNode.LIGANDS_ARRANGEMENT`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.LIGANDS_ARRANGEMENT)
 
 
-            * [`ConnectedComponent.is_3d`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_3d)
+                * [`AbstractEnvironmentNode.NEIGHBORING_CES`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_CES)
 
 
-            * [`ConnectedComponent.is_periodic`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_periodic)
+                * [`AbstractEnvironmentNode.NEIGHBORING_COORDINATION_ENVIRONMENTS`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_COORDINATION_ENVIRONMENTS)
 
 
-            * [`ConnectedComponent.make_supergraph()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.make_supergraph)
+                * [`AbstractEnvironmentNode.NEIGHBORS_LIGANDS_ARRANGEMENT`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORS_LIGANDS_ARRANGEMENT)
 
 
-            * [`ConnectedComponent.periodicity`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.periodicity)
+                * [`AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE)
 
 
-            * [`ConnectedComponent.periodicity_vectors`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.periodicity_vectors)
+                * [`AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT)
 
 
-            * [`ConnectedComponent.show_graph()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.show_graph)
+                * [`AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES)
 
 
-        * [`draw_network()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.draw_network)
+                * [`AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS)
 
 
-        * [`make_supergraph()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connected_components.make_supergraph)
+                * [`AbstractEnvironmentNode.atom_symbol`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.atom_symbol)
 
 
-    * [pymatgen.analysis.chemenv.connectivity.connectivity_finder module](pymatgen.analysis.chemenv.connectivity.md#module-pymatgen.analysis.chemenv.connectivity.connectivity_finder)
+                * [`AbstractEnvironmentNode.ce`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce)
 
 
-        * [`ConnectivityFinder`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder)
+                * [`AbstractEnvironmentNode.ce_symbol`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce_symbol)
 
 
-            * [`ConnectivityFinder.get_structure_connectivity()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.get_structure_connectivity)
+                * [`AbstractEnvironmentNode.coordination_environment`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.coordination_environment)
 
 
-            * [`ConnectivityFinder.setup_parameters()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.setup_parameters)
+                * [`AbstractEnvironmentNode.everything_equal()`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.everything_equal)
 
 
-    * [pymatgen.analysis.chemenv.connectivity.environment_nodes module](pymatgen.analysis.chemenv.connectivity.md#module-pymatgen.analysis.chemenv.connectivity.environment_nodes)
+                * [`AbstractEnvironmentNode.isite`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.isite)
 
 
-        * [`AbstractEnvironmentNode`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode)
+                * [`AbstractEnvironmentNode.mp_symbol`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.mp_symbol)
 
 
-            * [`AbstractEnvironmentNode.ATOM`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ATOM)
+            * [`EnvironmentNode`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode)
 
 
-            * [`AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS)
+                * [`EnvironmentNode.coordination_environment`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.coordination_environment)
 
 
-            * [`AbstractEnvironmentNode.COORDINATION_ENVIRONMENT`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.COORDINATION_ENVIRONMENT)
+                * [`EnvironmentNode.everything_equal()`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.everything_equal)
 
 
-            * [`AbstractEnvironmentNode.DEFAULT_EXTENSIONS`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.DEFAULT_EXTENSIONS)
+            * [`get_environment_node()`](pymatgen.analysis.chemenv.connectivity.environment_nodes.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.get_environment_node)
 
 
-            * [`AbstractEnvironmentNode.LIGANDS_ARRANGEMENT`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.LIGANDS_ARRANGEMENT)
+        * [pymatgen.analysis.chemenv.connectivity.structure_connectivity module](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md)
 
 
-            * [`AbstractEnvironmentNode.NEIGHBORING_CES`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_CES)
+            * [`StructureConnectivity`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity)
 
 
-            * [`AbstractEnvironmentNode.NEIGHBORING_COORDINATION_ENVIRONMENTS`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORING_COORDINATION_ENVIRONMENTS)
+                * [`StructureConnectivity.add_bonds()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_bonds)
 
 
-            * [`AbstractEnvironmentNode.NEIGHBORS_LIGANDS_ARRANGEMENT`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NEIGHBORS_LIGANDS_ARRANGEMENT)
+                * [`StructureConnectivity.add_sites()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_sites)
 
 
-            * [`AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE)
+                * [`StructureConnectivity.as_dict()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.as_dict)
 
 
-            * [`AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT)
+                * [`StructureConnectivity.environment_subgraph()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.environment_subgraph)
 
 
-            * [`AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES)
+                * [`StructureConnectivity.from_dict()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.from_dict)
 
 
-            * [`AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS)
+                * [`StructureConnectivity.get_connected_components()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.get_connected_components)
 
 
-            * [`AbstractEnvironmentNode.atom_symbol`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.atom_symbol)
+                * [`StructureConnectivity.print_links()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.print_links)
 
 
-            * [`AbstractEnvironmentNode.ce`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce)
+                * [`StructureConnectivity.setup_atom_environment_subgraph()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environment_subgraph)
 
 
-            * [`AbstractEnvironmentNode.ce_symbol`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.ce_symbol)
+                * [`StructureConnectivity.setup_atom_environments_subgraph()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environments_subgraph)
 
 
-            * [`AbstractEnvironmentNode.coordination_environment`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.coordination_environment)
+                * [`StructureConnectivity.setup_connectivity_description()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_connectivity_description)
 
 
-            * [`AbstractEnvironmentNode.everything_equal()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.everything_equal)
+                * [`StructureConnectivity.setup_environment_subgraph()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environment_subgraph)
 
 
-            * [`AbstractEnvironmentNode.isite`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.isite)
+                * [`StructureConnectivity.setup_environments_subgraph()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environments_subgraph)
 
 
-            * [`AbstractEnvironmentNode.mp_symbol`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.mp_symbol)
-
-
-        * [`EnvironmentNode`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode)
-
-
-            * [`EnvironmentNode.coordination_environment`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.coordination_environment)
-
-
-            * [`EnvironmentNode.everything_equal()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.everything_equal)
-
-
-        * [`get_environment_node()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.environment_nodes.get_environment_node)
-
-
-    * [pymatgen.analysis.chemenv.connectivity.structure_connectivity module](pymatgen.analysis.chemenv.connectivity.md#module-pymatgen.analysis.chemenv.connectivity.structure_connectivity)
-
-
-        * [`StructureConnectivity`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity)
-
-
-            * [`StructureConnectivity.add_bonds()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_bonds)
-
-
-            * [`StructureConnectivity.add_sites()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_sites)
-
-
-            * [`StructureConnectivity.as_dict()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.as_dict)
-
-
-            * [`StructureConnectivity.environment_subgraph()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.environment_subgraph)
-
-
-            * [`StructureConnectivity.from_dict()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.from_dict)
-
-
-            * [`StructureConnectivity.get_connected_components()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.get_connected_components)
-
-
-            * [`StructureConnectivity.print_links()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.print_links)
-
-
-            * [`StructureConnectivity.setup_atom_environment_subgraph()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environment_subgraph)
-
-
-            * [`StructureConnectivity.setup_atom_environments_subgraph()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environments_subgraph)
-
-
-            * [`StructureConnectivity.setup_connectivity_description()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_connectivity_description)
-
-
-            * [`StructureConnectivity.setup_environment_subgraph()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environment_subgraph)
-
-
-            * [`StructureConnectivity.setup_environments_subgraph()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environments_subgraph)
-
-
-        * [`get_delta_image()`](pymatgen.analysis.chemenv.connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.get_delta_image)
+            * [`get_delta_image()`](pymatgen.analysis.chemenv.connectivity.structure_connectivity.md#pymatgen.analysis.chemenv.connectivity.structure_connectivity.get_delta_image)
 
 
 * [pymatgen.analysis.chemenv.coordination_environments package](pymatgen.analysis.chemenv.coordination_environments.md)
@@ -282,1872 +226,1586 @@ Package for analyzing chemical environments.
         * [pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files package](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files.md)
 
 
-        * [pymatgen.analysis.chemenv.coordination_environments.tests package](pymatgen.analysis.chemenv.coordination_environments.tests.md)
 
 
+        * [pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies module](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md)
 
 
-            * [pymatgen.analysis.chemenv.coordination_environments.tests.test_chemenv_strategies module](pymatgen.analysis.chemenv.coordination_environments.tests.md#module-pymatgen.analysis.chemenv.coordination_environments.tests.test_chemenv_strategies)
+            * [`AbstractChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy)
 
 
-                * [`StrategyOptionsTest`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_chemenv_strategies.StrategyOptionsTest)
+                * [`AbstractChemenvStrategy.AC`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.AC)
 
 
-                    * [`StrategyOptionsTest.test_options()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_chemenv_strategies.StrategyOptionsTest.test_options)
+                * [`AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE)
 
 
-                    * [`StrategyOptionsTest.test_strategies()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_chemenv_strategies.StrategyOptionsTest.test_strategies)
+                * [`AbstractChemenvStrategy.STRATEGY_DESCRIPTION`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.STRATEGY_DESCRIPTION)
 
 
-            * [pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometries module](pymatgen.analysis.chemenv.coordination_environments.tests.md#module-pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometries)
+                * [`AbstractChemenvStrategy.STRATEGY_INFO_FIELDS`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.STRATEGY_INFO_FIELDS)
 
 
-                * [`CoordinationGeometriesTest`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometries.CoordinationGeometriesTest)
+                * [`AbstractChemenvStrategy.STRATEGY_OPTIONS`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.STRATEGY_OPTIONS)
 
 
-                    * [`CoordinationGeometriesTest.test_algorithms()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometries.CoordinationGeometriesTest.test_algorithms)
+                * [`AbstractChemenvStrategy.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.as_dict)
 
 
-                    * [`CoordinationGeometriesTest.test_coordination_geometry()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometries.CoordinationGeometriesTest.test_coordination_geometry)
+                * [`AbstractChemenvStrategy.equivalent_site_index_and_transform()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.equivalent_site_index_and_transform)
 
 
-                    * [`CoordinationGeometriesTest.test_hints()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometries.CoordinationGeometriesTest.test_hints)
+                * [`AbstractChemenvStrategy.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.from_dict)
 
 
-                * [`FakeSite`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometries.FakeSite)
+                * [`AbstractChemenvStrategy.get_site_ce_fractions_and_neighbors()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.get_site_ce_fractions_and_neighbors)
 
 
-            * [pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometry_finder module](pymatgen.analysis.chemenv.coordination_environments.tests.md#module-pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometry_finder)
+                * [`AbstractChemenvStrategy.get_site_coordination_environment()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.get_site_coordination_environment)
 
 
-                * [`CoordinationGeometryFinderTest`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometry_finder.CoordinationGeometryFinderTest)
+                * [`AbstractChemenvStrategy.get_site_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.get_site_coordination_environments)
 
 
-                    * [`CoordinationGeometryFinderTest.setUp()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometry_finder.CoordinationGeometryFinderTest.setUp)
+                * [`AbstractChemenvStrategy.get_site_coordination_environments_fractions()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.get_site_coordination_environments_fractions)
 
 
-                    * [`CoordinationGeometryFinderTest.test_abstract_geometry()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometry_finder.CoordinationGeometryFinderTest.test_abstract_geometry)
+                * [`AbstractChemenvStrategy.get_site_neighbors()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.get_site_neighbors)
 
 
-                    * [`CoordinationGeometryFinderTest.test_disable_hints()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometry_finder.CoordinationGeometryFinderTest.test_disable_hints)
+                * [`AbstractChemenvStrategy.prepare_symmetries()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.prepare_symmetries)
 
 
-                    * [`CoordinationGeometryFinderTest.test_perfect_environments()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_coordination_geometry_finder.CoordinationGeometryFinderTest.test_perfect_environments)
+                * [`AbstractChemenvStrategy.set_option()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.set_option)
 
 
-            * [pymatgen.analysis.chemenv.coordination_environments.tests.test_read_write module](pymatgen.analysis.chemenv.coordination_environments.tests.md#module-pymatgen.analysis.chemenv.coordination_environments.tests.test_read_write)
+                * [`AbstractChemenvStrategy.set_structure_environments()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.set_structure_environments)
 
 
-                * [`ReadWriteChemenvTest`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_read_write.ReadWriteChemenvTest)
+                * [`AbstractChemenvStrategy.setup_options()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.setup_options)
 
 
-                    * [`ReadWriteChemenvTest.setUpClass()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_read_write.ReadWriteChemenvTest.setUpClass)
+                * [`AbstractChemenvStrategy.symmetry_measure_type`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.symmetry_measure_type)
 
 
-                    * [`ReadWriteChemenvTest.tearDownClass()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_read_write.ReadWriteChemenvTest.tearDownClass)
+                * [`AbstractChemenvStrategy.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.uniquely_determines_coordination_environments)
 
 
-                    * [`ReadWriteChemenvTest.test_read_write_structure_environments()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_read_write.ReadWriteChemenvTest.test_read_write_structure_environments)
+            * [`AdditionalConditionInt`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt)
 
 
-                    * [`ReadWriteChemenvTest.test_read_write_voronoi()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_read_write.ReadWriteChemenvTest.test_read_write_voronoi)
+                * [`AdditionalConditionInt.allowed_values`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.allowed_values)
 
 
-                    * [`ReadWriteChemenvTest.test_strategies()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_read_write.ReadWriteChemenvTest.test_strategies)
+                * [`AdditionalConditionInt.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.as_dict)
 
 
-                    * [`ReadWriteChemenvTest.test_structure_environments_neighbors_sets()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_read_write.ReadWriteChemenvTest.test_structure_environments_neighbors_sets)
+                * [`AdditionalConditionInt.description`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.description)
 
 
-            * [pymatgen.analysis.chemenv.coordination_environments.tests.test_structure_environments module](pymatgen.analysis.chemenv.coordination_environments.tests.md#module-pymatgen.analysis.chemenv.coordination_environments.tests.test_structure_environments)
+                * [`AdditionalConditionInt.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.from_dict)
 
 
-                * [`StructureEnvironmentsTest`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_structure_environments.StructureEnvironmentsTest)
+                * [`AdditionalConditionInt.integer`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer)
 
 
-                    * [`StructureEnvironmentsTest.test_from_structure_environments()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_structure_environments.StructureEnvironmentsTest.test_from_structure_environments)
+            * [`AngleCutoffFloat`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat)
 
 
-                    * [`StructureEnvironmentsTest.test_light_structure_environments()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_structure_environments.StructureEnvironmentsTest.test_light_structure_environments)
+                * [`AngleCutoffFloat.allowed_values`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat.allowed_values)
 
 
-                    * [`StructureEnvironmentsTest.test_structure_environments()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_structure_environments.StructureEnvironmentsTest.test_structure_environments)
+                * [`AngleCutoffFloat.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat.as_dict)
 
 
-            * [pymatgen.analysis.chemenv.coordination_environments.tests.test_voronoi module](pymatgen.analysis.chemenv.coordination_environments.tests.md#module-pymatgen.analysis.chemenv.coordination_environments.tests.test_voronoi)
+                * [`AngleCutoffFloat.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat.from_dict)
 
 
-                * [`VoronoiContainerTest`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_voronoi.VoronoiContainerTest)
+            * [`AngleNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight)
 
 
-                    * [`VoronoiContainerTest.test_get_vertices_dist_ang_indices()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_voronoi.VoronoiContainerTest.test_get_vertices_dist_ang_indices)
+                * [`AngleNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.SHORT_NAME)
 
 
-                    * [`VoronoiContainerTest.test_voronoi()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_voronoi.VoronoiContainerTest.test_voronoi)
+                * [`AngleNbSetWeight.angle_sum()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.angle_sum)
 
 
-            * [pymatgen.analysis.chemenv.coordination_environments.tests.test_weights module](pymatgen.analysis.chemenv.coordination_environments.tests.md#module-pymatgen.analysis.chemenv.coordination_environments.tests.test_weights)
+                * [`AngleNbSetWeight.angle_sumn()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.angle_sumn)
 
 
-                * [`DummyStructureEnvironments`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_weights.DummyStructureEnvironments)
+                * [`AngleNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.as_dict)
 
 
-                * [`DummyVoronoiContainer`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_weights.DummyVoronoiContainer)
+                * [`AngleNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.from_dict)
 
 
-                * [`FakeNbSet`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_weights.FakeNbSet)
+                * [`AngleNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.weight)
 
 
-                * [`StrategyWeightsTest`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_weights.StrategyWeightsTest)
+            * [`AnglePlateauNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight)
 
 
-                    * [`StrategyWeightsTest.test_CN_bias_weight()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_weights.StrategyWeightsTest.test_CN_bias_weight)
+                * [`AnglePlateauNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.SHORT_NAME)
 
 
-                    * [`StrategyWeightsTest.test_angle_weight()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_weights.StrategyWeightsTest.test_angle_weight)
+                * [`AnglePlateauNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.as_dict)
 
 
-                    * [`StrategyWeightsTest.test_delta_csms_weight()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_weights.StrategyWeightsTest.test_delta_csms_weight)
+                * [`AnglePlateauNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.from_dict)
 
 
-                    * [`StrategyWeightsTest.test_dist_angle_area_weight()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_weights.StrategyWeightsTest.test_dist_angle_area_weight)
+                * [`AnglePlateauNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.weight)
 
 
-                    * [`StrategyWeightsTest.test_dist_nb_set_weight()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_weights.StrategyWeightsTest.test_dist_nb_set_weight)
+            * [`CNBiasNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight)
 
 
-                    * [`StrategyWeightsTest.test_normalized_angle_distance_weight()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_weights.StrategyWeightsTest.test_normalized_angle_distance_weight)
+                * [`CNBiasNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.SHORT_NAME)
 
 
-                    * [`StrategyWeightsTest.test_self_csms_weight()`](pymatgen.analysis.chemenv.coordination_environments.tests.md#pymatgen.analysis.chemenv.coordination_environments.tests.test_weights.StrategyWeightsTest.test_self_csms_weight)
+                * [`CNBiasNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.as_dict)
 
 
+                * [`CNBiasNbSetWeight.explicit()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.explicit)
 
 
-    * [pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies module](pymatgen.analysis.chemenv.coordination_environments.md#module-pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies)
+                * [`CNBiasNbSetWeight.from_description()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.from_description)
 
 
-        * [`AbstractChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy)
+                * [`CNBiasNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.from_dict)
 
 
-            * [`AbstractChemenvStrategy.AC`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.AC)
+                * [`CNBiasNbSetWeight.geometrically_equidistant()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.geometrically_equidistant)
 
 
-            * [`AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE)
+                * [`CNBiasNbSetWeight.linearly_equidistant()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.linearly_equidistant)
 
 
-            * [`AbstractChemenvStrategy.STRATEGY_DESCRIPTION`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.STRATEGY_DESCRIPTION)
+                * [`CNBiasNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.weight)
 
 
-            * [`AbstractChemenvStrategy.STRATEGY_INFO_FIELDS`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.STRATEGY_INFO_FIELDS)
+            * [`CSMFloat`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat)
 
 
-            * [`AbstractChemenvStrategy.STRATEGY_OPTIONS`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.STRATEGY_OPTIONS)
+                * [`CSMFloat.allowed_values`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat.allowed_values)
 
 
-            * [`AbstractChemenvStrategy.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.as_dict)
+                * [`CSMFloat.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat.as_dict)
 
 
-            * [`AbstractChemenvStrategy.equivalent_site_index_and_transform()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.equivalent_site_index_and_transform)
+                * [`CSMFloat.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat.from_dict)
 
 
-            * [`AbstractChemenvStrategy.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.from_dict)
+            * [`DeltaCSMNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight)
 
 
-            * [`AbstractChemenvStrategy.get_site_ce_fractions_and_neighbors()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.get_site_ce_fractions_and_neighbors)
+                * [`DeltaCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR)
 
 
-            * [`AbstractChemenvStrategy.get_site_coordination_environment()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.get_site_coordination_environment)
+                * [`DeltaCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE)
 
 
-            * [`AbstractChemenvStrategy.get_site_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.get_site_coordination_environments)
+                * [`DeltaCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR)
 
 
-            * [`AbstractChemenvStrategy.get_site_coordination_environments_fractions()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.get_site_coordination_environments_fractions)
+                * [`DeltaCSMNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.SHORT_NAME)
 
 
-            * [`AbstractChemenvStrategy.get_site_neighbors()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.get_site_neighbors)
+                * [`DeltaCSMNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.as_dict)
 
 
-            * [`AbstractChemenvStrategy.prepare_symmetries()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.prepare_symmetries)
+                * [`DeltaCSMNbSetWeight.delta_cn_specifics()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.delta_cn_specifics)
 
 
-            * [`AbstractChemenvStrategy.set_option()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.set_option)
+                * [`DeltaCSMNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.from_dict)
 
 
-            * [`AbstractChemenvStrategy.set_structure_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.set_structure_environments)
+                * [`DeltaCSMNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.weight)
 
 
-            * [`AbstractChemenvStrategy.setup_options()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.setup_options)
+            * [`DeltaDistanceNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight)
 
 
-            * [`AbstractChemenvStrategy.symmetry_measure_type`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.symmetry_measure_type)
+                * [`DeltaDistanceNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight.SHORT_NAME)
 
 
-            * [`AbstractChemenvStrategy.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.uniquely_determines_coordination_environments)
+                * [`DeltaDistanceNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight.as_dict)
 
 
-        * [`AdditionalConditionInt`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt)
+                * [`DeltaDistanceNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight.from_dict)
 
 
-            * [`AdditionalConditionInt.allowed_values`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.allowed_values)
+                * [`DeltaDistanceNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight.weight)
 
 
-            * [`AdditionalConditionInt.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.as_dict)
+            * [`DistanceAngleAreaNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight)
 
 
-            * [`AdditionalConditionInt.description`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.description)
+                * [`DistanceAngleAreaNbSetWeight.AC`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.AC)
 
 
-            * [`AdditionalConditionInt.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.from_dict)
+                * [`DistanceAngleAreaNbSetWeight.DEFAULT_SURFACE_DEFINITION`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.DEFAULT_SURFACE_DEFINITION)
 
 
-            * [`AdditionalConditionInt.integer`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer)
+                * [`DistanceAngleAreaNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.SHORT_NAME)
 
 
-        * [`AngleCutoffFloat`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat)
+                * [`DistanceAngleAreaNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.as_dict)
 
 
-            * [`AngleCutoffFloat.allowed_values`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat.allowed_values)
+                * [`DistanceAngleAreaNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.from_dict)
 
 
-            * [`AngleCutoffFloat.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat.as_dict)
+                * [`DistanceAngleAreaNbSetWeight.rectangle_crosses_area()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.rectangle_crosses_area)
 
 
-            * [`AngleCutoffFloat.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat.from_dict)
+                * [`DistanceAngleAreaNbSetWeight.w_area_has_intersection()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.w_area_has_intersection)
 
 
-        * [`AngleNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight)
+                * [`DistanceAngleAreaNbSetWeight.w_area_intersection_nbsfh_fbs_onb0()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.w_area_intersection_nbsfh_fbs_onb0)
 
 
-            * [`AngleNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.SHORT_NAME)
+                * [`DistanceAngleAreaNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.weight)
 
 
-            * [`AngleNbSetWeight.angle_sum()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.angle_sum)
+            * [`DistanceCutoffFloat`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat)
 
 
-            * [`AngleNbSetWeight.angle_sumn()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.angle_sumn)
+                * [`DistanceCutoffFloat.allowed_values`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat.allowed_values)
 
 
-            * [`AngleNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.as_dict)
+                * [`DistanceCutoffFloat.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat.as_dict)
 
 
-            * [`AngleNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.from_dict)
+                * [`DistanceCutoffFloat.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat.from_dict)
 
 
-            * [`AngleNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.weight)
+            * [`DistanceNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceNbSetWeight)
 
 
-        * [`AnglePlateauNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight)
+                * [`DistanceNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceNbSetWeight.SHORT_NAME)
 
 
-            * [`AnglePlateauNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.SHORT_NAME)
+                * [`DistanceNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceNbSetWeight.as_dict)
 
 
-            * [`AnglePlateauNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.as_dict)
+                * [`DistanceNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceNbSetWeight.from_dict)
 
 
-            * [`AnglePlateauNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.from_dict)
+                * [`DistanceNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceNbSetWeight.weight)
 
 
-            * [`AnglePlateauNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.weight)
+            * [`DistancePlateauNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight)
 
 
-        * [`CNBiasNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight)
+                * [`DistancePlateauNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.SHORT_NAME)
 
 
-            * [`CNBiasNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.SHORT_NAME)
+                * [`DistancePlateauNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.as_dict)
 
 
-            * [`CNBiasNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.as_dict)
+                * [`DistancePlateauNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.from_dict)
 
 
-            * [`CNBiasNbSetWeight.explicit()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.explicit)
+                * [`DistancePlateauNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.weight)
 
 
-            * [`CNBiasNbSetWeight.from_description()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.from_description)
+            * [`MultiWeightsChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy)
 
 
-            * [`CNBiasNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.from_dict)
+                * [`MultiWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR)
 
 
-            * [`CNBiasNbSetWeight.geometrically_equidistant()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.geometrically_equidistant)
+                * [`MultiWeightsChemenvStrategy.STRATEGY_DESCRIPTION`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.STRATEGY_DESCRIPTION)
 
 
-            * [`CNBiasNbSetWeight.linearly_equidistant()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.linearly_equidistant)
+                * [`MultiWeightsChemenvStrategy.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.as_dict)
 
 
-            * [`CNBiasNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.weight)
+                * [`MultiWeightsChemenvStrategy.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.from_dict)
 
 
-        * [`CSMFloat`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat)
+                * [`MultiWeightsChemenvStrategy.stats_article_weights_parameters()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.stats_article_weights_parameters)
 
 
-            * [`CSMFloat.allowed_values`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat.allowed_values)
+                * [`MultiWeightsChemenvStrategy.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.uniquely_determines_coordination_environments)
 
 
-            * [`CSMFloat.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat.as_dict)
+            * [`NbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight)
 
 
-            * [`CSMFloat.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat.from_dict)
+                * [`NbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight.as_dict)
 
 
-        * [`DeltaCSMNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight)
+                * [`NbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight.weight)
 
 
-            * [`DeltaCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR)
+            * [`NormalizedAngleDistanceNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight)
 
 
-            * [`DeltaCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE)
+                * [`NormalizedAngleDistanceNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.SHORT_NAME)
 
 
-            * [`DeltaCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR)
+                * [`NormalizedAngleDistanceNbSetWeight.ang()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.ang)
 
 
-            * [`DeltaCSMNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.SHORT_NAME)
+                * [`NormalizedAngleDistanceNbSetWeight.anginvdist()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.anginvdist)
 
 
-            * [`DeltaCSMNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.as_dict)
+                * [`NormalizedAngleDistanceNbSetWeight.anginvndist()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.anginvndist)
 
 
-            * [`DeltaCSMNbSetWeight.delta_cn_specifics()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.delta_cn_specifics)
+                * [`NormalizedAngleDistanceNbSetWeight.angn()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.angn)
 
 
-            * [`DeltaCSMNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.from_dict)
+                * [`NormalizedAngleDistanceNbSetWeight.angninvdist()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.angninvdist)
 
 
-            * [`DeltaCSMNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.weight)
+                * [`NormalizedAngleDistanceNbSetWeight.angninvndist()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.angninvndist)
 
 
-        * [`DeltaDistanceNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight)
+                * [`NormalizedAngleDistanceNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.as_dict)
 
 
-            * [`DeltaDistanceNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight.SHORT_NAME)
+                * [`NormalizedAngleDistanceNbSetWeight.aweight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.aweight)
 
 
-            * [`DeltaDistanceNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight.as_dict)
+                * [`NormalizedAngleDistanceNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.from_dict)
 
 
-            * [`DeltaDistanceNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight.from_dict)
+                * [`NormalizedAngleDistanceNbSetWeight.gweight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.gweight)
 
 
-            * [`DeltaDistanceNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight.weight)
+                * [`NormalizedAngleDistanceNbSetWeight.invdist()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.invdist)
 
 
-        * [`DistanceAngleAreaNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight)
+                * [`NormalizedAngleDistanceNbSetWeight.invndist()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.invndist)
 
 
-            * [`DistanceAngleAreaNbSetWeight.AC`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.AC)
+                * [`NormalizedAngleDistanceNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.weight)
 
 
-            * [`DistanceAngleAreaNbSetWeight.DEFAULT_SURFACE_DEFINITION`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.DEFAULT_SURFACE_DEFINITION)
+            * [`SelfCSMNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight)
 
 
-            * [`DistanceAngleAreaNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.SHORT_NAME)
+                * [`SelfCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR)
 
 
-            * [`DistanceAngleAreaNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.as_dict)
+                * [`SelfCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE)
 
 
-            * [`DistanceAngleAreaNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.from_dict)
+                * [`SelfCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR)
 
 
-            * [`DistanceAngleAreaNbSetWeight.rectangle_crosses_area()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.rectangle_crosses_area)
+                * [`SelfCSMNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.SHORT_NAME)
 
 
-            * [`DistanceAngleAreaNbSetWeight.w_area_has_intersection()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.w_area_has_intersection)
+                * [`SelfCSMNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.as_dict)
 
 
-            * [`DistanceAngleAreaNbSetWeight.w_area_intersection_nbsfh_fbs_onb0()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.w_area_intersection_nbsfh_fbs_onb0)
+                * [`SelfCSMNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.from_dict)
 
 
-            * [`DistanceAngleAreaNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.weight)
+                * [`SelfCSMNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.weight)
 
 
-        * [`DistanceCutoffFloat`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat)
+            * [`SimpleAbundanceChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy)
 
 
-            * [`DistanceCutoffFloat.allowed_values`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat.allowed_values)
+                * [`SimpleAbundanceChemenvStrategy.DEFAULT_ADDITIONAL_CONDITION`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.DEFAULT_ADDITIONAL_CONDITION)
 
 
-            * [`DistanceCutoffFloat.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat.as_dict)
+                * [`SimpleAbundanceChemenvStrategy.DEFAULT_MAX_DIST`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.DEFAULT_MAX_DIST)
 
 
-            * [`DistanceCutoffFloat.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat.from_dict)
+                * [`SimpleAbundanceChemenvStrategy.STRATEGY_DESCRIPTION`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_DESCRIPTION)
 
 
-        * [`DistanceNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceNbSetWeight)
+                * [`SimpleAbundanceChemenvStrategy.STRATEGY_OPTIONS`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_OPTIONS)
 
 
-            * [`DistanceNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceNbSetWeight.SHORT_NAME)
+                * [`SimpleAbundanceChemenvStrategy.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.as_dict)
 
 
-            * [`DistanceNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceNbSetWeight.as_dict)
+                * [`SimpleAbundanceChemenvStrategy.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.from_dict)
 
 
-            * [`DistanceNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceNbSetWeight.from_dict)
+                * [`SimpleAbundanceChemenvStrategy.get_site_coordination_environment()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.get_site_coordination_environment)
 
 
-            * [`DistanceNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceNbSetWeight.weight)
+                * [`SimpleAbundanceChemenvStrategy.get_site_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.get_site_coordination_environments)
 
 
-        * [`DistancePlateauNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight)
+                * [`SimpleAbundanceChemenvStrategy.get_site_neighbors()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.get_site_neighbors)
 
 
-            * [`DistancePlateauNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.SHORT_NAME)
+                * [`SimpleAbundanceChemenvStrategy.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.uniquely_determines_coordination_environments)
 
 
-            * [`DistancePlateauNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.as_dict)
+            * [`SimplestChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy)
 
 
-            * [`DistancePlateauNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.from_dict)
+                * [`SimplestChemenvStrategy.DEFAULT_ADDITIONAL_CONDITION`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.DEFAULT_ADDITIONAL_CONDITION)
 
 
-            * [`DistancePlateauNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.weight)
+                * [`SimplestChemenvStrategy.DEFAULT_ANGLE_CUTOFF`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.DEFAULT_ANGLE_CUTOFF)
 
 
-        * [`MultiWeightsChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy)
+                * [`SimplestChemenvStrategy.DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF)
 
 
-            * [`MultiWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR)
+                * [`SimplestChemenvStrategy.DEFAULT_DISTANCE_CUTOFF`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.DEFAULT_DISTANCE_CUTOFF)
 
 
-            * [`MultiWeightsChemenvStrategy.STRATEGY_DESCRIPTION`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.STRATEGY_DESCRIPTION)
+                * [`SimplestChemenvStrategy.STRATEGY_DESCRIPTION`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_DESCRIPTION)
 
 
-            * [`MultiWeightsChemenvStrategy.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.as_dict)
+                * [`SimplestChemenvStrategy.STRATEGY_OPTIONS`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_OPTIONS)
 
 
-            * [`MultiWeightsChemenvStrategy.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.from_dict)
+                * [`SimplestChemenvStrategy.add_strategy_visualization_to_subplot()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.add_strategy_visualization_to_subplot)
 
 
-            * [`MultiWeightsChemenvStrategy.stats_article_weights_parameters()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.stats_article_weights_parameters)
+                * [`SimplestChemenvStrategy.additional_condition`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.additional_condition)
 
 
-            * [`MultiWeightsChemenvStrategy.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.uniquely_determines_coordination_environments)
+                * [`SimplestChemenvStrategy.angle_cutoff`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.angle_cutoff)
 
 
-        * [`NbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight)
+                * [`SimplestChemenvStrategy.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.as_dict)
 
 
-            * [`NbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight.as_dict)
+                * [`SimplestChemenvStrategy.continuous_symmetry_measure_cutoff`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.continuous_symmetry_measure_cutoff)
 
 
-            * [`NbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight.weight)
+                * [`SimplestChemenvStrategy.distance_cutoff`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.distance_cutoff)
 
 
-        * [`NormalizedAngleDistanceNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight)
+                * [`SimplestChemenvStrategy.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.from_dict)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.SHORT_NAME)
+                * [`SimplestChemenvStrategy.get_site_coordination_environment()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.get_site_coordination_environment)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.ang()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.ang)
+                * [`SimplestChemenvStrategy.get_site_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.get_site_coordination_environments)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.anginvdist()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.anginvdist)
+                * [`SimplestChemenvStrategy.get_site_coordination_environments_fractions()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.get_site_coordination_environments_fractions)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.anginvndist()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.anginvndist)
+                * [`SimplestChemenvStrategy.get_site_neighbors()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.get_site_neighbors)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.angn()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.angn)
+                * [`SimplestChemenvStrategy.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.uniquely_determines_coordination_environments)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.angninvdist()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.angninvdist)
+            * [`StrategyOption`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.angninvndist()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.angninvndist)
+                * [`StrategyOption.allowed_values`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption.allowed_values)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.as_dict)
+                * [`StrategyOption.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption.as_dict)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.aweight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.aweight)
+            * [`TargettedPenaltiedAbundanceChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.from_dict)
+                * [`TargettedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.gweight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.gweight)
+                * [`TargettedPenaltiedAbundanceChemenvStrategy.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.as_dict)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.invdist()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.invdist)
+                * [`TargettedPenaltiedAbundanceChemenvStrategy.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.from_dict)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.invndist()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.invndist)
+                * [`TargettedPenaltiedAbundanceChemenvStrategy.get_site_coordination_environment()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.get_site_coordination_environment)
 
 
-            * [`NormalizedAngleDistanceNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.weight)
+                * [`TargettedPenaltiedAbundanceChemenvStrategy.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.uniquely_determines_coordination_environments)
 
 
-        * [`SelfCSMNbSetWeight`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight)
+            * [`WeightedNbSetChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy)
 
 
-            * [`SelfCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR)
+                * [`WeightedNbSetChemenvStrategy.DEFAULT_CE_ESTIMATOR`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.DEFAULT_CE_ESTIMATOR)
 
 
-            * [`SelfCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE)
+                * [`WeightedNbSetChemenvStrategy.STRATEGY_DESCRIPTION`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.STRATEGY_DESCRIPTION)
 
 
-            * [`SelfCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR)
+                * [`WeightedNbSetChemenvStrategy.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.as_dict)
 
 
-            * [`SelfCSMNbSetWeight.SHORT_NAME`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.SHORT_NAME)
+                * [`WeightedNbSetChemenvStrategy.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.from_dict)
 
 
-            * [`SelfCSMNbSetWeight.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.as_dict)
+                * [`WeightedNbSetChemenvStrategy.get_site_coordination_environment()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.get_site_coordination_environment)
 
 
-            * [`SelfCSMNbSetWeight.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.from_dict)
+                * [`WeightedNbSetChemenvStrategy.get_site_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.get_site_coordination_environments)
 
 
-            * [`SelfCSMNbSetWeight.weight()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.weight)
+                * [`WeightedNbSetChemenvStrategy.get_site_coordination_environments_fractions()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.get_site_coordination_environments_fractions)
 
 
-        * [`SimpleAbundanceChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy)
+                * [`WeightedNbSetChemenvStrategy.get_site_neighbors()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.get_site_neighbors)
 
 
-            * [`SimpleAbundanceChemenvStrategy.DEFAULT_ADDITIONAL_CONDITION`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.DEFAULT_ADDITIONAL_CONDITION)
+                * [`WeightedNbSetChemenvStrategy.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.uniquely_determines_coordination_environments)
 
 
-            * [`SimpleAbundanceChemenvStrategy.DEFAULT_MAX_DIST`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.DEFAULT_MAX_DIST)
+            * [`get_effective_csm()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.get_effective_csm)
 
 
-            * [`SimpleAbundanceChemenvStrategy.STRATEGY_DESCRIPTION`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_DESCRIPTION)
+            * [`set_info()`](pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.set_info)
 
 
-            * [`SimpleAbundanceChemenvStrategy.STRATEGY_OPTIONS`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_OPTIONS)
+        * [pymatgen.analysis.chemenv.coordination_environments.coordination_geometries module](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md)
 
 
-            * [`SimpleAbundanceChemenvStrategy.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.as_dict)
+            * [`AbstractChemenvAlgorithm`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AbstractChemenvAlgorithm)
 
 
-            * [`SimpleAbundanceChemenvStrategy.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.from_dict)
+                * [`AbstractChemenvAlgorithm.algorithm_type`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AbstractChemenvAlgorithm.algorithm_type)
 
 
-            * [`SimpleAbundanceChemenvStrategy.get_site_coordination_environment()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.get_site_coordination_environment)
+                * [`AbstractChemenvAlgorithm.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AbstractChemenvAlgorithm.as_dict)
 
 
-            * [`SimpleAbundanceChemenvStrategy.get_site_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.get_site_coordination_environments)
+            * [`AllCoordinationGeometries`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries)
 
 
-            * [`SimpleAbundanceChemenvStrategy.get_site_neighbors()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.get_site_neighbors)
+                * [`AllCoordinationGeometries.get_geometries()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometries)
 
 
-            * [`SimpleAbundanceChemenvStrategy.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.uniquely_determines_coordination_environments)
+                * [`AllCoordinationGeometries.get_geometry_from_IUCr_symbol()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometry_from_IUCr_symbol)
 
 
-        * [`SimplestChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy)
+                * [`AllCoordinationGeometries.get_geometry_from_IUPAC_symbol()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometry_from_IUPAC_symbol)
 
 
-            * [`SimplestChemenvStrategy.DEFAULT_ADDITIONAL_CONDITION`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.DEFAULT_ADDITIONAL_CONDITION)
+                * [`AllCoordinationGeometries.get_geometry_from_mp_symbol()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometry_from_mp_symbol)
 
 
-            * [`SimplestChemenvStrategy.DEFAULT_ANGLE_CUTOFF`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.DEFAULT_ANGLE_CUTOFF)
+                * [`AllCoordinationGeometries.get_geometry_from_name()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometry_from_name)
 
 
-            * [`SimplestChemenvStrategy.DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF)
+                * [`AllCoordinationGeometries.get_implemented_geometries()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_implemented_geometries)
 
 
-            * [`SimplestChemenvStrategy.DEFAULT_DISTANCE_CUTOFF`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.DEFAULT_DISTANCE_CUTOFF)
+                * [`AllCoordinationGeometries.get_not_implemented_geometries()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_not_implemented_geometries)
 
 
-            * [`SimplestChemenvStrategy.STRATEGY_DESCRIPTION`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_DESCRIPTION)
+                * [`AllCoordinationGeometries.get_symbol_cn_mapping()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_symbol_cn_mapping)
 
 
-            * [`SimplestChemenvStrategy.STRATEGY_OPTIONS`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_OPTIONS)
+                * [`AllCoordinationGeometries.get_symbol_name_mapping()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_symbol_name_mapping)
 
 
-            * [`SimplestChemenvStrategy.add_strategy_visualization_to_subplot()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.add_strategy_visualization_to_subplot)
+                * [`AllCoordinationGeometries.is_a_valid_coordination_geometry()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.is_a_valid_coordination_geometry)
 
 
-            * [`SimplestChemenvStrategy.additional_condition`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.additional_condition)
+                * [`AllCoordinationGeometries.pretty_print()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.pretty_print)
 
 
-            * [`SimplestChemenvStrategy.angle_cutoff`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.angle_cutoff)
+            * [`CoordinationGeometry`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry)
 
 
-            * [`SimplestChemenvStrategy.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.as_dict)
+                * [`CoordinationGeometry.CSM_SKIP_SEPARATION_PLANE_ALGO`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.CSM_SKIP_SEPARATION_PLANE_ALGO)
 
 
-            * [`SimplestChemenvStrategy.continuous_symmetry_measure_cutoff`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.continuous_symmetry_measure_cutoff)
+                * [`CoordinationGeometry.IUCr_symbol`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.IUCr_symbol)
 
 
-            * [`SimplestChemenvStrategy.distance_cutoff`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.distance_cutoff)
+                * [`CoordinationGeometry.IUCr_symbol_str`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.IUCr_symbol_str)
 
 
-            * [`SimplestChemenvStrategy.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.from_dict)
+                * [`CoordinationGeometry.IUPAC_symbol`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.IUPAC_symbol)
 
 
-            * [`SimplestChemenvStrategy.get_site_coordination_environment()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.get_site_coordination_environment)
+                * [`CoordinationGeometry.IUPAC_symbol_str`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.IUPAC_symbol_str)
 
 
-            * [`SimplestChemenvStrategy.get_site_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.get_site_coordination_environments)
+                * [`CoordinationGeometry.NeighborsSetsHints`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints)
 
 
-            * [`SimplestChemenvStrategy.get_site_coordination_environments_fractions()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.get_site_coordination_environments_fractions)
+                    * [`CoordinationGeometry.NeighborsSetsHints.ALLOWED_HINTS_TYPES`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.ALLOWED_HINTS_TYPES)
 
 
-            * [`SimplestChemenvStrategy.get_site_neighbors()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.get_site_neighbors)
+                    * [`CoordinationGeometry.NeighborsSetsHints.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.as_dict)
 
 
-            * [`SimplestChemenvStrategy.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.uniquely_determines_coordination_environments)
+                    * [`CoordinationGeometry.NeighborsSetsHints.double_cap_hints()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.double_cap_hints)
 
 
-        * [`StrategyOption`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption)
+                    * [`CoordinationGeometry.NeighborsSetsHints.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.from_dict)
 
 
-            * [`StrategyOption.allowed_values`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption.allowed_values)
+                    * [`CoordinationGeometry.NeighborsSetsHints.hints()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.hints)
 
 
-            * [`StrategyOption.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption.as_dict)
+                    * [`CoordinationGeometry.NeighborsSetsHints.single_cap_hints()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.single_cap_hints)
 
 
-        * [`TargettedPenaltiedAbundanceChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy)
+                    * [`CoordinationGeometry.NeighborsSetsHints.triple_cap_hints()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.triple_cap_hints)
 
 
-            * [`TargettedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS)
+                * [`CoordinationGeometry.algorithms`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.algorithms)
 
 
-            * [`TargettedPenaltiedAbundanceChemenvStrategy.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.as_dict)
+                * [`CoordinationGeometry.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.as_dict)
 
 
-            * [`TargettedPenaltiedAbundanceChemenvStrategy.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.from_dict)
+                * [`CoordinationGeometry.ce_symbol`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ce_symbol)
 
 
-            * [`TargettedPenaltiedAbundanceChemenvStrategy.get_site_coordination_environment()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.get_site_coordination_environment)
+                * [`CoordinationGeometry.coordination_number`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.coordination_number)
 
 
-            * [`TargettedPenaltiedAbundanceChemenvStrategy.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.uniquely_determines_coordination_environments)
+                * [`CoordinationGeometry.distfactor_max`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.distfactor_max)
 
 
-        * [`WeightedNbSetChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy)
+                * [`CoordinationGeometry.edges()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.edges)
 
 
-            * [`WeightedNbSetChemenvStrategy.DEFAULT_CE_ESTIMATOR`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.DEFAULT_CE_ESTIMATOR)
+                * [`CoordinationGeometry.faces()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.faces)
 
 
-            * [`WeightedNbSetChemenvStrategy.STRATEGY_DESCRIPTION`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.STRATEGY_DESCRIPTION)
+                * [`CoordinationGeometry.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.from_dict)
 
 
-            * [`WeightedNbSetChemenvStrategy.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.as_dict)
+                * [`CoordinationGeometry.get_central_site()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_central_site)
 
 
-            * [`WeightedNbSetChemenvStrategy.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.from_dict)
+                * [`CoordinationGeometry.get_coordination_number()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_coordination_number)
 
 
-            * [`WeightedNbSetChemenvStrategy.get_site_coordination_environment()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.get_site_coordination_environment)
+                * [`CoordinationGeometry.get_name()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_name)
 
 
-            * [`WeightedNbSetChemenvStrategy.get_site_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.get_site_coordination_environments)
+                * [`CoordinationGeometry.get_pmeshes()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_pmeshes)
 
 
-            * [`WeightedNbSetChemenvStrategy.get_site_coordination_environments_fractions()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.get_site_coordination_environments_fractions)
+                * [`CoordinationGeometry.is_implemented()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.is_implemented)
 
 
-            * [`WeightedNbSetChemenvStrategy.get_site_neighbors()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.get_site_neighbors)
+                * [`CoordinationGeometry.mp_symbol`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.mp_symbol)
 
 
-            * [`WeightedNbSetChemenvStrategy.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.uniquely_determines_coordination_environments)
+                * [`CoordinationGeometry.number_of_permutations`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.number_of_permutations)
 
 
-        * [`get_effective_csm()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.get_effective_csm)
+                * [`CoordinationGeometry.pauling_stability_ratio`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.pauling_stability_ratio)
 
 
-        * [`set_info()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.set_info)
+                * [`CoordinationGeometry.ref_permutation()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ref_permutation)
 
 
-    * [pymatgen.analysis.chemenv.coordination_environments.coordination_geometries module](pymatgen.analysis.chemenv.coordination_environments.md#module-pymatgen.analysis.chemenv.coordination_environments.coordination_geometries)
+                * [`CoordinationGeometry.set_permutations_safe_override()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.set_permutations_safe_override)
 
 
-        * [`AbstractChemenvAlgorithm`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AbstractChemenvAlgorithm)
+                * [`CoordinationGeometry.solid_angles()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.solid_angles)
 
 
-            * [`AbstractChemenvAlgorithm.algorithm_type`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AbstractChemenvAlgorithm.algorithm_type)
+            * [`ExplicitPermutationsAlgorithm`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm)
 
 
-            * [`AbstractChemenvAlgorithm.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AbstractChemenvAlgorithm.as_dict)
+                * [`ExplicitPermutationsAlgorithm.as_dict`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.as_dict)
 
 
-        * [`AllCoordinationGeometries`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries)
+                * [`ExplicitPermutationsAlgorithm.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.from_dict)
 
 
-            * [`AllCoordinationGeometries.get_geometries()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometries)
+                * [`ExplicitPermutationsAlgorithm.permutations`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.permutations)
 
 
-            * [`AllCoordinationGeometries.get_geometry_from_IUCr_symbol()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometry_from_IUCr_symbol)
+            * [`SeparationPlane`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane)
 
 
-            * [`AllCoordinationGeometries.get_geometry_from_IUPAC_symbol()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometry_from_IUPAC_symbol)
+                * [`SeparationPlane.argsorted_ref_separation_perm`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.argsorted_ref_separation_perm)
 
 
-            * [`AllCoordinationGeometries.get_geometry_from_mp_symbol()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometry_from_mp_symbol)
+                * [`SeparationPlane.as_dict`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.as_dict)
 
 
-            * [`AllCoordinationGeometries.get_geometry_from_name()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometry_from_name)
+                * [`SeparationPlane.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.from_dict)
 
 
-            * [`AllCoordinationGeometries.get_implemented_geometries()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_implemented_geometries)
+                * [`SeparationPlane.permutations`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.permutations)
 
 
-            * [`AllCoordinationGeometries.get_not_implemented_geometries()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_not_implemented_geometries)
+                * [`SeparationPlane.ref_separation_perm`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.ref_separation_perm)
 
 
-            * [`AllCoordinationGeometries.get_symbol_cn_mapping()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_symbol_cn_mapping)
+                * [`SeparationPlane.safe_separation_permutations()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.safe_separation_permutations)
 
 
-            * [`AllCoordinationGeometries.get_symbol_name_mapping()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_symbol_name_mapping)
+        * [pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md)
 
 
-            * [`AllCoordinationGeometries.is_a_valid_coordination_geometry()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.is_a_valid_coordination_geometry)
+            * [`AbstractGeometry`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry)
 
 
-            * [`AllCoordinationGeometries.pretty_print()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.pretty_print)
+                * [`AbstractGeometry.cn`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn)
 
 
-        * [`CoordinationGeometry`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry)
+                * [`AbstractGeometry.coordination_number`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.coordination_number)
 
 
-            * [`CoordinationGeometry.CSM_SKIP_SEPARATION_PLANE_ALGO`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.CSM_SKIP_SEPARATION_PLANE_ALGO)
+                * [`AbstractGeometry.from_cg()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.from_cg)
 
 
-            * [`CoordinationGeometry.IUCr_symbol`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.IUCr_symbol)
+                * [`AbstractGeometry.points_wcs_csc()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_csc)
 
 
-            * [`CoordinationGeometry.IUCr_symbol_str`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.IUCr_symbol_str)
+                * [`AbstractGeometry.points_wcs_ctwcc()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_ctwcc)
 
 
-            * [`CoordinationGeometry.IUPAC_symbol`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.IUPAC_symbol)
+                * [`AbstractGeometry.points_wcs_ctwocc()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_ctwocc)
 
 
-            * [`CoordinationGeometry.IUPAC_symbol_str`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.IUPAC_symbol_str)
+                * [`AbstractGeometry.points_wocs_csc()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_csc)
 
 
-            * [`CoordinationGeometry.NeighborsSetsHints`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints)
+                * [`AbstractGeometry.points_wocs_ctwcc()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_ctwcc)
 
 
-                * [`CoordinationGeometry.NeighborsSetsHints.ALLOWED_HINTS_TYPES`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.ALLOWED_HINTS_TYPES)
+                * [`AbstractGeometry.points_wocs_ctwocc()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_ctwocc)
 
 
-                * [`CoordinationGeometry.NeighborsSetsHints.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.as_dict)
+            * [`LocalGeometryFinder`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder)
 
 
-                * [`CoordinationGeometry.NeighborsSetsHints.double_cap_hints()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.double_cap_hints)
+                * [`LocalGeometryFinder.BVA_DISTANCE_SCALE_FACTORS`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.BVA_DISTANCE_SCALE_FACTORS)
 
 
-                * [`CoordinationGeometry.NeighborsSetsHints.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.from_dict)
+                * [`LocalGeometryFinder.DEFAULT_BVA_DISTANCE_SCALE_FACTOR`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_BVA_DISTANCE_SCALE_FACTOR)
 
 
-                * [`CoordinationGeometry.NeighborsSetsHints.hints()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.hints)
+                * [`LocalGeometryFinder.DEFAULT_SPG_ANALYZER_OPTIONS`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_SPG_ANALYZER_OPTIONS)
 
 
-                * [`CoordinationGeometry.NeighborsSetsHints.single_cap_hints()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.single_cap_hints)
+                * [`LocalGeometryFinder.DEFAULT_STRATEGY`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_STRATEGY)
 
 
-                * [`CoordinationGeometry.NeighborsSetsHints.triple_cap_hints()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.triple_cap_hints)
+                * [`LocalGeometryFinder.PRESETS`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.PRESETS)
 
 
-            * [`CoordinationGeometry.algorithms`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.algorithms)
+                * [`LocalGeometryFinder.STRUCTURE_REFINEMENT_NONE`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_NONE)
 
 
-            * [`CoordinationGeometry.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.as_dict)
+                * [`LocalGeometryFinder.STRUCTURE_REFINEMENT_REFINED`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_REFINED)
 
 
-            * [`CoordinationGeometry.ce_symbol`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ce_symbol)
+                * [`LocalGeometryFinder.STRUCTURE_REFINEMENT_SYMMETRIZED`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_SYMMETRIZED)
 
 
-            * [`CoordinationGeometry.coordination_number`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.coordination_number)
+                * [`LocalGeometryFinder.compute_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_coordination_environments)
 
 
-            * [`CoordinationGeometry.distfactor_max`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.distfactor_max)
+                * [`LocalGeometryFinder.compute_structure_environments()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_structure_environments)
 
 
-            * [`CoordinationGeometry.edges()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.edges)
+                * [`LocalGeometryFinder.coordination_geometry_symmetry_measures()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures)
 
 
-            * [`CoordinationGeometry.faces()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.faces)
+                * [`LocalGeometryFinder.coordination_geometry_symmetry_measures_fallback_random()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_fallback_random)
 
 
-            * [`CoordinationGeometry.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.from_dict)
+                * [`LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane)
 
 
-            * [`CoordinationGeometry.get_central_site()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_central_site)
+                * [`LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane_optim()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane_optim)
 
 
-            * [`CoordinationGeometry.get_coordination_number()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_coordination_number)
+                * [`LocalGeometryFinder.coordination_geometry_symmetry_measures_sepplane_optim()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_sepplane_optim)
 
 
-            * [`CoordinationGeometry.get_name()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_name)
+                * [`LocalGeometryFinder.coordination_geometry_symmetry_measures_standard()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_standard)
 
 
-            * [`CoordinationGeometry.get_pmeshes()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_pmeshes)
+                * [`LocalGeometryFinder.get_coordination_symmetry_measures()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_coordination_symmetry_measures)
 
 
-            * [`CoordinationGeometry.is_implemented()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.is_implemented)
+                * [`LocalGeometryFinder.get_coordination_symmetry_measures_optim()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_coordination_symmetry_measures_optim)
 
 
-            * [`CoordinationGeometry.mp_symbol`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.mp_symbol)
+                * [`LocalGeometryFinder.get_structure()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_structure)
 
 
-            * [`CoordinationGeometry.number_of_permutations`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.number_of_permutations)
+                * [`LocalGeometryFinder.set_structure()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.set_structure)
 
 
-            * [`CoordinationGeometry.pauling_stability_ratio`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.pauling_stability_ratio)
+                * [`LocalGeometryFinder.setup_explicit_indices_local_geometry()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_explicit_indices_local_geometry)
 
 
-            * [`CoordinationGeometry.ref_permutation()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ref_permutation)
+                * [`LocalGeometryFinder.setup_local_geometry()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_local_geometry)
 
 
-            * [`CoordinationGeometry.set_permutations_safe_override()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.set_permutations_safe_override)
+                * [`LocalGeometryFinder.setup_ordered_indices_local_geometry()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_ordered_indices_local_geometry)
 
 
-            * [`CoordinationGeometry.solid_angles()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.solid_angles)
+                * [`LocalGeometryFinder.setup_parameter()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameter)
 
 
-        * [`ExplicitPermutationsAlgorithm`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm)
+                * [`LocalGeometryFinder.setup_parameters()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameters)
 
 
-            * [`ExplicitPermutationsAlgorithm.as_dict`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.as_dict)
+                * [`LocalGeometryFinder.setup_random_indices_local_geometry()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_random_indices_local_geometry)
 
 
-            * [`ExplicitPermutationsAlgorithm.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.from_dict)
+                * [`LocalGeometryFinder.setup_random_structure()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_random_structure)
 
 
-            * [`ExplicitPermutationsAlgorithm.permutations`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.permutations)
+                * [`LocalGeometryFinder.setup_structure()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_structure)
 
 
-        * [`SeparationPlane`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane)
+                * [`LocalGeometryFinder.setup_test_perfect_environment()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_test_perfect_environment)
 
 
-            * [`SeparationPlane.argsorted_ref_separation_perm`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.argsorted_ref_separation_perm)
+                * [`LocalGeometryFinder.update_nb_set_environments()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.update_nb_set_environments)
 
 
-            * [`SeparationPlane.as_dict`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.as_dict)
+            * [`find_rotation()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_rotation)
 
 
-            * [`SeparationPlane.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.from_dict)
+            * [`find_scaling_factor()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_scaling_factor)
 
 
-            * [`SeparationPlane.permutations`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.permutations)
+            * [`symmetry_measure()`](pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.symmetry_measure)
 
 
-            * [`SeparationPlane.ref_separation_perm`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.ref_separation_perm)
+        * [pymatgen.analysis.chemenv.coordination_environments.structure_environments module](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md)
 
 
-            * [`SeparationPlane.safe_separation_permutations()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.safe_separation_permutations)
+            * [`ChemicalEnvironments`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments)
 
 
-    * [pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module](pymatgen.analysis.chemenv.coordination_environments.md#module-pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder)
+                * [`ChemicalEnvironments.add_coord_geom()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.add_coord_geom)
 
 
-        * [`AbstractGeometry`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry)
+                * [`ChemicalEnvironments.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.as_dict)
 
 
-            * [`AbstractGeometry.cn`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn)
+                * [`ChemicalEnvironments.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.from_dict)
 
 
-            * [`AbstractGeometry.coordination_number`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.coordination_number)
+                * [`ChemicalEnvironments.is_close_to()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.is_close_to)
 
 
-            * [`AbstractGeometry.from_cg()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.from_cg)
+                * [`ChemicalEnvironments.minimum_geometries()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.minimum_geometries)
 
 
-            * [`AbstractGeometry.points_wcs_csc()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_csc)
+                * [`ChemicalEnvironments.minimum_geometry()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.minimum_geometry)
 
 
-            * [`AbstractGeometry.points_wcs_ctwcc()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_ctwcc)
+            * [`LightStructureEnvironments`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments)
 
 
-            * [`AbstractGeometry.points_wcs_ctwocc()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wcs_ctwocc)
+                * [`LightStructureEnvironments.DEFAULT_STATISTICS_FIELDS`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.DEFAULT_STATISTICS_FIELDS)
 
 
-            * [`AbstractGeometry.points_wocs_csc()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_csc)
+                * [`LightStructureEnvironments.DELTA_MAX_OXIDATION_STATE`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.DELTA_MAX_OXIDATION_STATE)
 
 
-            * [`AbstractGeometry.points_wocs_ctwcc()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_ctwcc)
+                * [`LightStructureEnvironments.NeighborsSet`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet)
 
 
-            * [`AbstractGeometry.points_wocs_ctwocc()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.points_wocs_ctwocc)
+                    * [`LightStructureEnvironments.NeighborsSet.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.as_dict)
 
 
-        * [`LocalGeometryFinder`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder)
+                    * [`LightStructureEnvironments.NeighborsSet.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.from_dict)
 
 
-            * [`LocalGeometryFinder.BVA_DISTANCE_SCALE_FACTORS`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.BVA_DISTANCE_SCALE_FACTORS)
+                    * [`LightStructureEnvironments.NeighborsSet.neighb_coords`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_coords)
 
 
-            * [`LocalGeometryFinder.DEFAULT_BVA_DISTANCE_SCALE_FACTOR`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_BVA_DISTANCE_SCALE_FACTOR)
+                    * [`LightStructureEnvironments.NeighborsSet.neighb_indices_and_images`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_indices_and_images)
 
 
-            * [`LocalGeometryFinder.DEFAULT_SPG_ANALYZER_OPTIONS`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_SPG_ANALYZER_OPTIONS)
+                    * [`LightStructureEnvironments.NeighborsSet.neighb_sites`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_sites)
 
 
-            * [`LocalGeometryFinder.DEFAULT_STRATEGY`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.DEFAULT_STRATEGY)
+                    * [`LightStructureEnvironments.NeighborsSet.neighb_sites_and_indices`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_sites_and_indices)
 
 
-            * [`LocalGeometryFinder.PRESETS`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.PRESETS)
+                * [`LightStructureEnvironments.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.as_dict)
 
 
-            * [`LocalGeometryFinder.STRUCTURE_REFINEMENT_NONE`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_NONE)
+                * [`LightStructureEnvironments.clear_environments()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.clear_environments)
 
 
-            * [`LocalGeometryFinder.STRUCTURE_REFINEMENT_REFINED`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_REFINED)
+                * [`LightStructureEnvironments.contains_only_one_anion()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion)
 
 
-            * [`LocalGeometryFinder.STRUCTURE_REFINEMENT_SYMMETRIZED`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.STRUCTURE_REFINEMENT_SYMMETRIZED)
+                * [`LightStructureEnvironments.contains_only_one_anion_atom()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion_atom)
 
 
-            * [`LocalGeometryFinder.compute_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_coordination_environments)
+                * [`LightStructureEnvironments.environments_identified()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.environments_identified)
 
 
-            * [`LocalGeometryFinder.compute_structure_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.compute_structure_environments)
+                * [`LightStructureEnvironments.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.from_dict)
 
 
-            * [`LocalGeometryFinder.coordination_geometry_symmetry_measures()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures)
+                * [`LightStructureEnvironments.from_structure_environments()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.from_structure_environments)
 
 
-            * [`LocalGeometryFinder.coordination_geometry_symmetry_measures_fallback_random()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_fallback_random)
+                * [`LightStructureEnvironments.get_site_info_for_specie_allces()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_site_info_for_specie_allces)
 
 
-            * [`LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane)
+                * [`LightStructureEnvironments.get_site_info_for_specie_ce()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_site_info_for_specie_ce)
 
 
-            * [`LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane_optim()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_separation_plane_optim)
+                * [`LightStructureEnvironments.get_statistics()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_statistics)
 
 
-            * [`LocalGeometryFinder.coordination_geometry_symmetry_measures_sepplane_optim()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_sepplane_optim)
+                * [`LightStructureEnvironments.setup_statistic_lists()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.setup_statistic_lists)
 
 
-            * [`LocalGeometryFinder.coordination_geometry_symmetry_measures_standard()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.coordination_geometry_symmetry_measures_standard)
+                * [`LightStructureEnvironments.site_contains_environment()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_contains_environment)
 
 
-            * [`LocalGeometryFinder.get_coordination_symmetry_measures()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_coordination_symmetry_measures)
+                * [`LightStructureEnvironments.site_has_clear_environment()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_has_clear_environment)
 
 
-            * [`LocalGeometryFinder.get_coordination_symmetry_measures_optim()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_coordination_symmetry_measures_optim)
+                * [`LightStructureEnvironments.structure_contains_atom_environment()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_contains_atom_environment)
 
 
-            * [`LocalGeometryFinder.get_structure()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.get_structure)
+                * [`LightStructureEnvironments.structure_has_clear_environments()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_has_clear_environments)
 
 
-            * [`LocalGeometryFinder.set_structure()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.set_structure)
+                * [`LightStructureEnvironments.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.uniquely_determines_coordination_environments)
 
 
-            * [`LocalGeometryFinder.setup_explicit_indices_local_geometry()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_explicit_indices_local_geometry)
+            * [`StructureEnvironments`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments)
 
 
-            * [`LocalGeometryFinder.setup_local_geometry()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_local_geometry)
+                * [`StructureEnvironments.AC`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.AC)
 
 
-            * [`LocalGeometryFinder.setup_ordered_indices_local_geometry()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_ordered_indices_local_geometry)
+                * [`StructureEnvironments.NeighborsSet`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet)
 
 
-            * [`LocalGeometryFinder.setup_parameter()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameter)
+                    * [`StructureEnvironments.NeighborsSet.add_source()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.add_source)
 
 
-            * [`LocalGeometryFinder.setup_parameters()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_parameters)
+                    * [`StructureEnvironments.NeighborsSet.angle_plateau()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angle_plateau)
 
 
-            * [`LocalGeometryFinder.setup_random_indices_local_geometry()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_random_indices_local_geometry)
+                    * [`StructureEnvironments.NeighborsSet.angles`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angles)
 
 
-            * [`LocalGeometryFinder.setup_random_structure()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_random_structure)
+                    * [`StructureEnvironments.NeighborsSet.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.as_dict)
 
 
-            * [`LocalGeometryFinder.setup_structure()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_structure)
+                    * [`StructureEnvironments.NeighborsSet.coords`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.coords)
 
 
-            * [`LocalGeometryFinder.setup_test_perfect_environment()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.setup_test_perfect_environment)
+                    * [`StructureEnvironments.NeighborsSet.distance_plateau()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.distance_plateau)
 
 
-            * [`LocalGeometryFinder.update_nb_set_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.LocalGeometryFinder.update_nb_set_environments)
+                    * [`StructureEnvironments.NeighborsSet.distances`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.distances)
 
 
-        * [`find_rotation()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_rotation)
+                    * [`StructureEnvironments.NeighborsSet.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.from_dict)
 
 
-        * [`find_scaling_factor()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.find_scaling_factor)
+                    * [`StructureEnvironments.NeighborsSet.get_neighb_voronoi_indices()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.get_neighb_voronoi_indices)
 
 
-        * [`symmetry_measure()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.symmetry_measure)
+                    * [`StructureEnvironments.NeighborsSet.info`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.info)
 
 
-    * [pymatgen.analysis.chemenv.coordination_environments.structure_environments module](pymatgen.analysis.chemenv.coordination_environments.md#module-pymatgen.analysis.chemenv.coordination_environments.structure_environments)
+                    * [`StructureEnvironments.NeighborsSet.neighb_coords`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_coords)
 
 
-        * [`ChemicalEnvironments`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments)
+                    * [`StructureEnvironments.NeighborsSet.neighb_coordsOpt`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_coordsOpt)
 
 
-            * [`ChemicalEnvironments.add_coord_geom()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.add_coord_geom)
+                    * [`StructureEnvironments.NeighborsSet.neighb_sites`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_sites)
 
 
-            * [`ChemicalEnvironments.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.as_dict)
+                    * [`StructureEnvironments.NeighborsSet.neighb_sites_and_indices`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_sites_and_indices)
 
 
-            * [`ChemicalEnvironments.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.from_dict)
+                    * [`StructureEnvironments.NeighborsSet.normalized_angles`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.normalized_angles)
 
 
-            * [`ChemicalEnvironments.is_close_to()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.is_close_to)
+                    * [`StructureEnvironments.NeighborsSet.normalized_distances`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.normalized_distances)
 
 
-            * [`ChemicalEnvironments.minimum_geometries()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.minimum_geometries)
+                    * [`StructureEnvironments.NeighborsSet.source`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.source)
 
 
-            * [`ChemicalEnvironments.minimum_geometry()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.minimum_geometry)
+                    * [`StructureEnvironments.NeighborsSet.voronoi_grid_surface_points()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.voronoi_grid_surface_points)
 
 
-        * [`LightStructureEnvironments`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments)
+                * [`StructureEnvironments.add_neighbors_set()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.add_neighbors_set)
 
 
-            * [`LightStructureEnvironments.DEFAULT_STATISTICS_FIELDS`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.DEFAULT_STATISTICS_FIELDS)
+                * [`StructureEnvironments.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.as_dict)
 
 
-            * [`LightStructureEnvironments.DELTA_MAX_OXIDATION_STATE`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.DELTA_MAX_OXIDATION_STATE)
+                * [`StructureEnvironments.differences_wrt()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.differences_wrt)
 
 
-            * [`LightStructureEnvironments.NeighborsSet`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet)
+                * [`StructureEnvironments.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.from_dict)
 
 
-                * [`LightStructureEnvironments.NeighborsSet.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.as_dict)
+                * [`StructureEnvironments.get_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_coordination_environments)
 
 
-                * [`LightStructureEnvironments.NeighborsSet.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.from_dict)
+                * [`StructureEnvironments.get_csm()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csm)
 
 
-                * [`LightStructureEnvironments.NeighborsSet.neighb_coords`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_coords)
+                * [`StructureEnvironments.get_csm_and_maps()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csm_and_maps)
 
 
-                * [`LightStructureEnvironments.NeighborsSet.neighb_indices_and_images`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_indices_and_images)
+                * [`StructureEnvironments.get_csms()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csms)
 
 
-                * [`LightStructureEnvironments.NeighborsSet.neighb_sites`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_sites)
+                * [`StructureEnvironments.get_environments_figure()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_environments_figure)
 
 
-                * [`LightStructureEnvironments.NeighborsSet.neighb_sites_and_indices`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_sites_and_indices)
+                * [`StructureEnvironments.init_neighbors_sets()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.init_neighbors_sets)
 
 
-            * [`LightStructureEnvironments.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.as_dict)
+                * [`StructureEnvironments.plot_csm_and_maps()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.plot_csm_and_maps)
 
 
-            * [`LightStructureEnvironments.clear_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.clear_environments)
+                * [`StructureEnvironments.plot_environments()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.plot_environments)
 
 
-            * [`LightStructureEnvironments.contains_only_one_anion()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion)
+                * [`StructureEnvironments.save_environments_figure()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.save_environments_figure)
 
 
-            * [`LightStructureEnvironments.contains_only_one_anion_atom()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion_atom)
+                * [`StructureEnvironments.update_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_coordination_environments)
 
 
-            * [`LightStructureEnvironments.environments_identified()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.environments_identified)
+                * [`StructureEnvironments.update_site_info()`](pymatgen.analysis.chemenv.coordination_environments.structure_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_site_info)
 
 
-            * [`LightStructureEnvironments.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.from_dict)
+        * [pymatgen.analysis.chemenv.coordination_environments.voronoi module](pymatgen.analysis.chemenv.coordination_environments.voronoi.md)
 
 
-            * [`LightStructureEnvironments.from_structure_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.from_structure_environments)
+            * [`DetailedVoronoiContainer`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer)
 
 
-            * [`LightStructureEnvironments.get_site_info_for_specie_allces()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_site_info_for_specie_allces)
+                * [`DetailedVoronoiContainer.AC`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.AC)
 
 
-            * [`LightStructureEnvironments.get_site_info_for_specie_ce()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_site_info_for_specie_ce)
+                * [`DetailedVoronoiContainer.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.as_dict)
 
 
-            * [`LightStructureEnvironments.get_statistics()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_statistics)
+                * [`DetailedVoronoiContainer.default_normalized_angle_tolerance`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_angle_tolerance)
 
 
-            * [`LightStructureEnvironments.setup_statistic_lists()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.setup_statistic_lists)
+                * [`DetailedVoronoiContainer.default_normalized_distance_tolerance`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_distance_tolerance)
 
 
-            * [`LightStructureEnvironments.site_contains_environment()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_contains_environment)
+                * [`DetailedVoronoiContainer.default_voronoi_cutoff`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_voronoi_cutoff)
 
 
-            * [`LightStructureEnvironments.site_has_clear_environment()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_has_clear_environment)
+                * [`DetailedVoronoiContainer.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.from_dict)
 
 
-            * [`LightStructureEnvironments.structure_contains_atom_environment()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_contains_atom_environment)
+                * [`DetailedVoronoiContainer.get_rdf_figure()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_rdf_figure)
 
 
-            * [`LightStructureEnvironments.structure_has_clear_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_has_clear_environments)
+                * [`DetailedVoronoiContainer.get_sadf_figure()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_sadf_figure)
 
 
-            * [`LightStructureEnvironments.uniquely_determines_coordination_environments`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.uniquely_determines_coordination_environments)
+                * [`DetailedVoronoiContainer.is_close_to()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.is_close_to)
 
 
-        * [`StructureEnvironments`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments)
+                * [`DetailedVoronoiContainer.maps_and_surfaces()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces)
 
 
-            * [`StructureEnvironments.AC`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.AC)
+                * [`DetailedVoronoiContainer.maps_and_surfaces_bounded()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces_bounded)
 
 
-            * [`StructureEnvironments.NeighborsSet`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet)
+                * [`DetailedVoronoiContainer.neighbors()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors)
 
 
-                * [`StructureEnvironments.NeighborsSet.add_source()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.add_source)
+                * [`DetailedVoronoiContainer.neighbors_surfaces()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces)
 
 
-                * [`StructureEnvironments.NeighborsSet.angle_plateau()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angle_plateau)
+                * [`DetailedVoronoiContainer.neighbors_surfaces_bounded()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces_bounded)
 
 
-                * [`StructureEnvironments.NeighborsSet.angles`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angles)
+                * [`DetailedVoronoiContainer.setup_neighbors_distances_and_angles()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_neighbors_distances_and_angles)
 
 
-                * [`StructureEnvironments.NeighborsSet.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.as_dict)
+                * [`DetailedVoronoiContainer.setup_voronoi_list()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_voronoi_list)
 
 
-                * [`StructureEnvironments.NeighborsSet.coords`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.coords)
+                * [`DetailedVoronoiContainer.to_bson_voronoi_list2()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.to_bson_voronoi_list2)
 
 
-                * [`StructureEnvironments.NeighborsSet.distance_plateau()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.distance_plateau)
+                * [`DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits)
 
 
-                * [`StructureEnvironments.NeighborsSet.distances`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.distances)
-
-
-                * [`StructureEnvironments.NeighborsSet.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.from_dict)
-
-
-                * [`StructureEnvironments.NeighborsSet.get_neighb_voronoi_indices()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.get_neighb_voronoi_indices)
-
-
-                * [`StructureEnvironments.NeighborsSet.info`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.info)
-
-
-                * [`StructureEnvironments.NeighborsSet.neighb_coords`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_coords)
-
-
-                * [`StructureEnvironments.NeighborsSet.neighb_coordsOpt`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_coordsOpt)
-
-
-                * [`StructureEnvironments.NeighborsSet.neighb_sites`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_sites)
-
-
-                * [`StructureEnvironments.NeighborsSet.neighb_sites_and_indices`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_sites_and_indices)
-
-
-                * [`StructureEnvironments.NeighborsSet.normalized_angles`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.normalized_angles)
-
-
-                * [`StructureEnvironments.NeighborsSet.normalized_distances`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.normalized_distances)
-
-
-                * [`StructureEnvironments.NeighborsSet.source`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.source)
-
-
-                * [`StructureEnvironments.NeighborsSet.voronoi_grid_surface_points()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.voronoi_grid_surface_points)
-
-
-            * [`StructureEnvironments.add_neighbors_set()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.add_neighbors_set)
-
-
-            * [`StructureEnvironments.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.as_dict)
-
-
-            * [`StructureEnvironments.differences_wrt()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.differences_wrt)
-
-
-            * [`StructureEnvironments.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.from_dict)
-
-
-            * [`StructureEnvironments.get_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_coordination_environments)
-
-
-            * [`StructureEnvironments.get_csm()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csm)
-
-
-            * [`StructureEnvironments.get_csm_and_maps()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csm_and_maps)
-
-
-            * [`StructureEnvironments.get_csms()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csms)
-
-
-            * [`StructureEnvironments.get_environments_figure()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_environments_figure)
-
-
-            * [`StructureEnvironments.init_neighbors_sets()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.init_neighbors_sets)
-
-
-            * [`StructureEnvironments.plot_csm_and_maps()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.plot_csm_and_maps)
-
-
-            * [`StructureEnvironments.plot_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.plot_environments)
-
-
-            * [`StructureEnvironments.save_environments_figure()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.save_environments_figure)
-
-
-            * [`StructureEnvironments.update_coordination_environments()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_coordination_environments)
-
-
-            * [`StructureEnvironments.update_site_info()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_site_info)
-
-
-    * [pymatgen.analysis.chemenv.coordination_environments.voronoi module](pymatgen.analysis.chemenv.coordination_environments.md#module-pymatgen.analysis.chemenv.coordination_environments.voronoi)
-
-
-        * [`DetailedVoronoiContainer`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer)
-
-
-            * [`DetailedVoronoiContainer.AC`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.AC)
-
-
-            * [`DetailedVoronoiContainer.as_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.as_dict)
-
-
-            * [`DetailedVoronoiContainer.default_normalized_angle_tolerance`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_angle_tolerance)
-
-
-            * [`DetailedVoronoiContainer.default_normalized_distance_tolerance`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_distance_tolerance)
-
-
-            * [`DetailedVoronoiContainer.default_voronoi_cutoff`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_voronoi_cutoff)
-
-
-            * [`DetailedVoronoiContainer.from_dict()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.from_dict)
-
-
-            * [`DetailedVoronoiContainer.get_rdf_figure()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_rdf_figure)
-
-
-            * [`DetailedVoronoiContainer.get_sadf_figure()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_sadf_figure)
-
-
-            * [`DetailedVoronoiContainer.is_close_to()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.is_close_to)
-
-
-            * [`DetailedVoronoiContainer.maps_and_surfaces()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces)
-
-
-            * [`DetailedVoronoiContainer.maps_and_surfaces_bounded()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces_bounded)
-
-
-            * [`DetailedVoronoiContainer.neighbors()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors)
-
-
-            * [`DetailedVoronoiContainer.neighbors_surfaces()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces)
-
-
-            * [`DetailedVoronoiContainer.neighbors_surfaces_bounded()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces_bounded)
-
-
-            * [`DetailedVoronoiContainer.setup_neighbors_distances_and_angles()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_neighbors_distances_and_angles)
-
-
-            * [`DetailedVoronoiContainer.setup_voronoi_list()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_voronoi_list)
-
-
-            * [`DetailedVoronoiContainer.to_bson_voronoi_list2()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.to_bson_voronoi_list2)
-
-
-            * [`DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits)
-
-
-        * [`from_bson_voronoi_list2()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list2)
+            * [`from_bson_voronoi_list2()`](pymatgen.analysis.chemenv.coordination_environments.voronoi.md#pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list2)
 
 
 * [pymatgen.analysis.chemenv.utils package](pymatgen.analysis.chemenv.utils.md)
 
 
-    * [Subpackages](pymatgen.analysis.chemenv.utils.md#subpackages)
 
 
-        * [pymatgen.analysis.chemenv.utils.tests package](pymatgen.analysis.chemenv.utils.tests.md)
+        * [pymatgen.analysis.chemenv.utils.chemenv_config module](pymatgen.analysis.chemenv.utils.chemenv_config.md)
 
 
+            * [`ChemEnvConfig`](pymatgen.analysis.chemenv.utils.chemenv_config.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig)
 
 
-            * [pymatgen.analysis.chemenv.utils.tests.test_chemenv_config module](pymatgen.analysis.chemenv.utils.tests.md#module-pymatgen.analysis.chemenv.utils.tests.test_chemenv_config)
+                * [`ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS`](pymatgen.analysis.chemenv.utils.chemenv_config.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS)
 
 
-                * [`ChemenvConfigTest`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_chemenv_config.ChemenvConfigTest)
+                * [`ChemEnvConfig.auto_load()`](pymatgen.analysis.chemenv.utils.chemenv_config.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.auto_load)
 
 
-                    * [`ChemenvConfigTest.test_chemenv_config()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_chemenv_config.ChemenvConfigTest.test_chemenv_config)
+                * [`ChemEnvConfig.has_materials_project_access`](pymatgen.analysis.chemenv.utils.chemenv_config.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.has_materials_project_access)
 
 
-            * [pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils module](pymatgen.analysis.chemenv.utils.tests.md#module-pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils)
+                * [`ChemEnvConfig.package_options_description()`](pymatgen.analysis.chemenv.utils.chemenv_config.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.package_options_description)
 
 
-                * [`PlanesUtilsTest`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest)
+                * [`ChemEnvConfig.save()`](pymatgen.analysis.chemenv.utils.chemenv_config.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.save)
 
 
-                    * [`PlanesUtilsTest.setUp()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.setUp)
+                * [`ChemEnvConfig.setup()`](pymatgen.analysis.chemenv.utils.chemenv_config.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup)
 
 
-                    * [`PlanesUtilsTest.test_distances()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.test_distances)
+                * [`ChemEnvConfig.setup_package_options()`](pymatgen.analysis.chemenv.utils.chemenv_config.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup_package_options)
 
 
-                    * [`PlanesUtilsTest.test_factors_abcd_normal_vector()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.test_factors_abcd_normal_vector)
+        * [pymatgen.analysis.chemenv.utils.chemenv_errors module](pymatgen.analysis.chemenv.utils.chemenv_errors.md)
 
 
-                    * [`PlanesUtilsTest.test_from_npoints_plane()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.test_from_npoints_plane)
+            * [`AbstractChemenvError`](pymatgen.analysis.chemenv.utils.chemenv_errors.md#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError)
 
 
-                    * [`PlanesUtilsTest.test_indices_separate()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.test_indices_separate)
+            * [`ChemenvError`](pymatgen.analysis.chemenv.utils.chemenv_errors.md#pymatgen.analysis.chemenv.utils.chemenv_errors.ChemenvError)
 
 
-                    * [`PlanesUtilsTest.test_is_in_plane()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.test_is_in_plane)
+            * [`EquivalentSiteSearchError`](pymatgen.analysis.chemenv.utils.chemenv_errors.md#pymatgen.analysis.chemenv.utils.chemenv_errors.EquivalentSiteSearchError)
 
 
-                    * [`PlanesUtilsTest.test_normal_vector_is_normed()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.test_normal_vector_is_normed)
+            * [`NeighborsNotComputedChemenvError`](pymatgen.analysis.chemenv.utils.chemenv_errors.md#pymatgen.analysis.chemenv.utils.chemenv_errors.NeighborsNotComputedChemenvError)
 
 
-                    * [`PlanesUtilsTest.test_orthonormal_vectors()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.test_orthonormal_vectors)
+            * [`SolidAngleError`](pymatgen.analysis.chemenv.utils.chemenv_errors.md#pymatgen.analysis.chemenv.utils.chemenv_errors.SolidAngleError)
 
 
-                    * [`PlanesUtilsTest.test_plane_2_coefficients()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.test_plane_2_coefficients)
+        * [pymatgen.analysis.chemenv.utils.coordination_geometry_utils module](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md)
 
 
-                    * [`PlanesUtilsTest.test_plane_3_coefficients()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.test_plane_3_coefficients)
+            * [`Plane`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane)
 
 
-                    * [`PlanesUtilsTest.test_plane_comparison()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.test_plane_comparison)
+                * [`Plane.TEST_2D_POINTS`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.TEST_2D_POINTS)
 
 
-                    * [`PlanesUtilsTest.test_plane_is_in_list_of_planes()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.test_plane_is_in_list_of_planes)
+                * [`Plane.a`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.a)
 
 
-                    * [`PlanesUtilsTest.test_projections()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_coordination_geometry_utils.PlanesUtilsTest.test_projections)
+                * [`Plane.abcd`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.abcd)
 
 
-            * [pymatgen.analysis.chemenv.utils.tests.test_func_utils module](pymatgen.analysis.chemenv.utils.tests.md#module-pymatgen.analysis.chemenv.utils.tests.test_func_utils)
+                * [`Plane.b`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.b)
 
 
-                * [`FuncUtilsTest`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_func_utils.FuncUtilsTest)
+                * [`Plane.c`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.c)
 
 
-                    * [`FuncUtilsTest.test_CSMFiniteRatioFunction()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_func_utils.FuncUtilsTest.test_CSMFiniteRatioFunction)
+                * [`Plane.coefficients`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.coefficients)
 
 
-                    * [`FuncUtilsTest.test_CSMInfiniteRatioFunction()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_func_utils.FuncUtilsTest.test_CSMInfiniteRatioFunction)
+                * [`Plane.crosses_origin`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.crosses_origin)
 
 
-                    * [`FuncUtilsTest.test_DeltaCSMRatioFunction()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_func_utils.FuncUtilsTest.test_DeltaCSMRatioFunction)
+                * [`Plane.d`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.d)
 
 
-            * [pymatgen.analysis.chemenv.utils.tests.test_graph_utils module](pymatgen.analysis.chemenv.utils.tests.md#module-pymatgen.analysis.chemenv.utils.tests.test_graph_utils)
+                * [`Plane.distance_to_origin`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distance_to_origin)
 
 
-                * [`EnvironmentNodesGraphUtilsTest`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_graph_utils.EnvironmentNodesGraphUtilsTest)
+                * [`Plane.distance_to_point()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distance_to_point)
 
 
-                    * [`EnvironmentNodesGraphUtilsTest.test_cycle()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_graph_utils.EnvironmentNodesGraphUtilsTest.test_cycle)
+                * [`Plane.distances()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances)
 
 
-                * [`FakeNode`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_graph_utils.FakeNode)
+                * [`Plane.distances_indices_groups()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances_indices_groups)
 
 
-                * [`FakeNodeWithEqLtMethods`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_graph_utils.FakeNodeWithEqLtMethods)
+                * [`Plane.distances_indices_sorted()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances_indices_sorted)
 
 
-                * [`FakeNodeWithEqLtMethodsBis`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_graph_utils.FakeNodeWithEqLtMethodsBis)
+                * [`Plane.fit_error()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_error)
 
 
-                * [`FakeNodeWithEqMethod`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_graph_utils.FakeNodeWithEqMethod)
+                * [`Plane.fit_least_square_distance_error()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_least_square_distance_error)
 
 
-                * [`FakeNodeWithEqMethodWrongSortable`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_graph_utils.FakeNodeWithEqMethodWrongSortable)
+                * [`Plane.fit_maximum_distance_error()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_maximum_distance_error)
 
 
-                * [`GraphUtilsTest`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_graph_utils.GraphUtilsTest)
+                * [`Plane.from_2points_and_origin()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_2points_and_origin)
 
 
-                    * [`GraphUtilsTest.test_get_delta()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_graph_utils.GraphUtilsTest.test_get_delta)
+                * [`Plane.from_3points()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_3points)
 
 
-                    * [`GraphUtilsTest.test_multigraph_cycle()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_graph_utils.GraphUtilsTest.test_multigraph_cycle)
+                * [`Plane.from_coefficients()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_coefficients)
 
 
-                    * [`GraphUtilsTest.test_simple_graph_cycle()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_graph_utils.GraphUtilsTest.test_simple_graph_cycle)
+                * [`Plane.from_npoints()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints)
 
 
-            * [pymatgen.analysis.chemenv.utils.tests.test_math_utils module](pymatgen.analysis.chemenv.utils.tests.md#module-pymatgen.analysis.chemenv.utils.tests.test_math_utils)
+                * [`Plane.from_npoints_least_square_distance()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints_least_square_distance)
 
 
-                * [`MathUtilsTest`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_math_utils.MathUtilsTest)
+                * [`Plane.from_npoints_maximum_distance()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints_maximum_distance)
 
 
-                    * [`MathUtilsTest.test_cosinus_step()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_math_utils.MathUtilsTest.test_cosinus_step)
+                * [`Plane.indices_separate()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.indices_separate)
 
 
-                    * [`MathUtilsTest.test_linearly_independent_vectors()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_math_utils.MathUtilsTest.test_linearly_independent_vectors)
+                * [`Plane.init_3points()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.init_3points)
 
 
-                    * [`MathUtilsTest.test_list_cartesian_product()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_math_utils.MathUtilsTest.test_list_cartesian_product)
+                * [`Plane.is_in_list()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_in_list)
 
 
-                    * [`MathUtilsTest.test_math_utils()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_math_utils.MathUtilsTest.test_math_utils)
+                * [`Plane.is_in_plane()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_in_plane)
 
 
-                    * [`MathUtilsTest.test_power3_step()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_math_utils.MathUtilsTest.test_power3_step)
+                * [`Plane.is_same_plane_as()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_same_plane_as)
 
 
-                    * [`MathUtilsTest.test_powern_parts_step()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_math_utils.MathUtilsTest.test_powern_parts_step)
+                * [`Plane.orthonormal_vectors()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.orthonormal_vectors)
 
 
-                    * [`MathUtilsTest.test_scale_and_clamp()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_math_utils.MathUtilsTest.test_scale_and_clamp)
+                * [`Plane.perpendicular_bisector()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.perpendicular_bisector)
 
 
-                    * [`MathUtilsTest.test_smootherstep()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_math_utils.MathUtilsTest.test_smootherstep)
+                * [`Plane.project_and_to2dim()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim)
 
 
-                    * [`MathUtilsTest.test_smoothstep()`](pymatgen.analysis.chemenv.utils.tests.md#pymatgen.analysis.chemenv.utils.tests.test_math_utils.MathUtilsTest.test_smoothstep)
+                * [`Plane.project_and_to2dim_ordered_indices()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim_ordered_indices)
 
 
+                * [`Plane.projectionpoints()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.projectionpoints)
 
 
-    * [pymatgen.analysis.chemenv.utils.chemenv_config module](pymatgen.analysis.chemenv.utils.md#module-pymatgen.analysis.chemenv.utils.chemenv_config)
+            * [`anticlockwise_sort()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.anticlockwise_sort)
 
 
-        * [`ChemEnvConfig`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig)
+            * [`anticlockwise_sort_indices()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.anticlockwise_sort_indices)
 
 
-            * [`ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS)
+            * [`changebasis()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.changebasis)
 
 
-            * [`ChemEnvConfig.auto_load()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.auto_load)
+            * [`collinear()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.collinear)
 
 
-            * [`ChemEnvConfig.has_materials_project_access`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.has_materials_project_access)
+            * [`diamond_functions()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.diamond_functions)
 
 
-            * [`ChemEnvConfig.package_options_description()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.package_options_description)
+            * [`function_comparison()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.function_comparison)
 
 
-            * [`ChemEnvConfig.save()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.save)
+            * [`get_lower_and_upper_f()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.get_lower_and_upper_f)
 
 
-            * [`ChemEnvConfig.setup()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup)
+            * [`is_anion_cation_bond()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.is_anion_cation_bond)
 
 
-            * [`ChemEnvConfig.setup_package_options()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup_package_options)
+            * [`matrixTimesVector()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.matrixTimesVector)
 
 
-    * [pymatgen.analysis.chemenv.utils.chemenv_errors module](pymatgen.analysis.chemenv.utils.md#module-pymatgen.analysis.chemenv.utils.chemenv_errors)
+            * [`my_solid_angle()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.my_solid_angle)
 
 
-        * [`AbstractChemenvError`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError)
+            * [`quarter_ellipsis_functions()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.quarter_ellipsis_functions)
 
 
-        * [`ChemenvError`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_errors.ChemenvError)
+            * [`rectangle_surface_intersection()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rectangle_surface_intersection)
 
 
-        * [`EquivalentSiteSearchError`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_errors.EquivalentSiteSearchError)
+            * [`rotateCoords()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoords)
 
 
-        * [`NeighborsNotComputedChemenvError`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_errors.NeighborsNotComputedChemenvError)
+            * [`rotateCoordsOpt()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoordsOpt)
 
 
-        * [`SolidAngleError`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.chemenv_errors.SolidAngleError)
+            * [`separation_in_list()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.separation_in_list)
 
 
-    * [pymatgen.analysis.chemenv.utils.coordination_geometry_utils module](pymatgen.analysis.chemenv.utils.md#module-pymatgen.analysis.chemenv.utils.coordination_geometry_utils)
+            * [`sort_separation()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation)
 
 
-        * [`Plane`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane)
+            * [`sort_separation_tuple()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation_tuple)
 
 
-            * [`Plane.TEST_2D_POINTS`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.TEST_2D_POINTS)
+            * [`spline_functions()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.spline_functions)
 
 
-            * [`Plane.a`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.a)
+            * [`vectorsToMatrix()`](pymatgen.analysis.chemenv.utils.coordination_geometry_utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.vectorsToMatrix)
 
 
-            * [`Plane.abcd`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.abcd)
+        * [pymatgen.analysis.chemenv.utils.defs_utils module](pymatgen.analysis.chemenv.utils.defs_utils.md)
 
 
-            * [`Plane.b`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.b)
+            * [`AdditionalConditions`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions)
 
 
-            * [`Plane.c`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.c)
+                * [`AdditionalConditions.ALL`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ALL)
 
 
-            * [`Plane.coefficients`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.coefficients)
+                * [`AdditionalConditions.CONDITION_DESCRIPTION`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.CONDITION_DESCRIPTION)
 
 
-            * [`Plane.crosses_origin`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.crosses_origin)
+                * [`AdditionalConditions.NONE`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NONE)
 
 
-            * [`Plane.d`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.d)
+                * [`AdditionalConditions.NO_AC`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_AC)
 
 
-            * [`Plane.distance_to_origin`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distance_to_origin)
+                * [`AdditionalConditions.NO_ADDITIONAL_CONDITION`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_ADDITIONAL_CONDITION)
 
 
-            * [`Plane.distance_to_point()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distance_to_point)
+                * [`AdditionalConditions.NO_E2SEB`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_E2SEB)
 
 
-            * [`Plane.distances()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances)
+                * [`AdditionalConditions.NO_ELEMENT_TO_SAME_ELEMENT_BONDS`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_ELEMENT_TO_SAME_ELEMENT_BONDS)
 
 
-            * [`Plane.distances_indices_groups()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances_indices_groups)
+                * [`AdditionalConditions.ONLY_ACB`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ACB)
 
 
-            * [`Plane.distances_indices_sorted()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.distances_indices_sorted)
+                * [`AdditionalConditions.ONLY_ACB_AND_NO_E2SEB`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ACB_AND_NO_E2SEB)
 
 
-            * [`Plane.fit_error()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_error)
+                * [`AdditionalConditions.ONLY_ANION_CATION_BONDS`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ANION_CATION_BONDS)
 
 
-            * [`Plane.fit_least_square_distance_error()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_least_square_distance_error)
+                * [`AdditionalConditions.ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS)
 
 
-            * [`Plane.fit_maximum_distance_error()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_maximum_distance_error)
+                * [`AdditionalConditions.ONLY_E2OB`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_E2OB)
 
 
-            * [`Plane.from_2points_and_origin()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_2points_and_origin)
+                * [`AdditionalConditions.ONLY_ELEMENT_TO_OXYGEN_BONDS`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ELEMENT_TO_OXYGEN_BONDS)
 
 
-            * [`Plane.from_3points()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_3points)
+                * [`AdditionalConditions.check_condition()`](pymatgen.analysis.chemenv.utils.defs_utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.check_condition)
 
 
-            * [`Plane.from_coefficients()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_coefficients)
+        * [pymatgen.analysis.chemenv.utils.func_utils module](pymatgen.analysis.chemenv.utils.func_utils.md)
 
 
-            * [`Plane.from_npoints()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints)
+            * [`AbstractRatioFunction`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction)
 
 
-            * [`Plane.from_npoints_least_square_distance()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints_least_square_distance)
+                * [`AbstractRatioFunction.ALLOWED_FUNCTIONS`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.ALLOWED_FUNCTIONS)
 
 
-            * [`Plane.from_npoints_maximum_distance()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.from_npoints_maximum_distance)
+                * [`AbstractRatioFunction.evaluate()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.evaluate)
 
 
-            * [`Plane.indices_separate()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.indices_separate)
+                * [`AbstractRatioFunction.from_dict()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.from_dict)
 
 
-            * [`Plane.init_3points()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.init_3points)
+                * [`AbstractRatioFunction.setup_parameters()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.setup_parameters)
 
 
-            * [`Plane.is_in_list()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_in_list)
+            * [`CSMFiniteRatioFunction`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction)
 
 
-            * [`Plane.is_in_plane()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_in_plane)
+                * [`CSMFiniteRatioFunction.ALLOWED_FUNCTIONS`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ALLOWED_FUNCTIONS)
 
 
-            * [`Plane.is_same_plane_as()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.is_same_plane_as)
+                * [`CSMFiniteRatioFunction.fractions()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.fractions)
 
 
-            * [`Plane.orthonormal_vectors()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.orthonormal_vectors)
+                * [`CSMFiniteRatioFunction.mean_estimator()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.mean_estimator)
 
 
-            * [`Plane.perpendicular_bisector()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.perpendicular_bisector)
+                * [`CSMFiniteRatioFunction.power2_decreasing_exp()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.power2_decreasing_exp)
 
 
-            * [`Plane.project_and_to2dim()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim)
+                * [`CSMFiniteRatioFunction.ratios()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ratios)
 
 
-            * [`Plane.project_and_to2dim_ordered_indices()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim_ordered_indices)
+                * [`CSMFiniteRatioFunction.smootherstep()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.smootherstep)
 
 
-            * [`Plane.projectionpoints()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.projectionpoints)
+                * [`CSMFiniteRatioFunction.smoothstep()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.smoothstep)
 
 
-        * [`anticlockwise_sort()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.anticlockwise_sort)
+            * [`CSMInfiniteRatioFunction`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction)
 
 
-        * [`anticlockwise_sort_indices()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.anticlockwise_sort_indices)
+                * [`CSMInfiniteRatioFunction.ALLOWED_FUNCTIONS`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ALLOWED_FUNCTIONS)
 
 
-        * [`changebasis()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.changebasis)
+                * [`CSMInfiniteRatioFunction.fractions()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.fractions)
 
 
-        * [`collinear()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.collinear)
+                * [`CSMInfiniteRatioFunction.mean_estimator()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.mean_estimator)
 
 
-        * [`diamond_functions()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.diamond_functions)
+                * [`CSMInfiniteRatioFunction.power2_inverse_decreasing()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.power2_inverse_decreasing)
 
 
-        * [`function_comparison()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.function_comparison)
+                * [`CSMInfiniteRatioFunction.power2_inverse_power2_decreasing()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.power2_inverse_power2_decreasing)
 
 
-        * [`get_lower_and_upper_f()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.get_lower_and_upper_f)
+                * [`CSMInfiniteRatioFunction.ratios()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ratios)
 
 
-        * [`is_anion_cation_bond()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.is_anion_cation_bond)
+            * [`DeltaCSMRatioFunction`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction)
 
 
-        * [`matrixTimesVector()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.matrixTimesVector)
+                * [`DeltaCSMRatioFunction.ALLOWED_FUNCTIONS`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.ALLOWED_FUNCTIONS)
 
 
-        * [`my_solid_angle()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.my_solid_angle)
+                * [`DeltaCSMRatioFunction.smootherstep()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.smootherstep)
 
 
-        * [`quarter_ellipsis_functions()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.quarter_ellipsis_functions)
+            * [`RatioFunction`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction)
 
 
-        * [`rectangle_surface_intersection()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rectangle_surface_intersection)
+                * [`RatioFunction.ALLOWED_FUNCTIONS`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.ALLOWED_FUNCTIONS)
 
 
-        * [`rotateCoords()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoords)
+                * [`RatioFunction.inverse_smootherstep()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.inverse_smootherstep)
 
 
-        * [`rotateCoordsOpt()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoordsOpt)
+                * [`RatioFunction.inverse_smoothstep()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.inverse_smoothstep)
 
 
-        * [`separation_in_list()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.separation_in_list)
+                * [`RatioFunction.power2_decreasing_exp()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_decreasing_exp)
 
 
-        * [`sort_separation()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation)
+                * [`RatioFunction.power2_inverse_decreasing()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_inverse_decreasing)
 
 
-        * [`sort_separation_tuple()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation_tuple)
+                * [`RatioFunction.power2_inverse_power2_decreasing()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_inverse_power2_decreasing)
 
 
-        * [`spline_functions()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.spline_functions)
+                * [`RatioFunction.smootherstep()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.smootherstep)
 
 
-        * [`vectorsToMatrix()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.vectorsToMatrix)
+                * [`RatioFunction.smoothstep()`](pymatgen.analysis.chemenv.utils.func_utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.smoothstep)
 
 
-    * [pymatgen.analysis.chemenv.utils.defs_utils module](pymatgen.analysis.chemenv.utils.md#module-pymatgen.analysis.chemenv.utils.defs_utils)
+        * [pymatgen.analysis.chemenv.utils.graph_utils module](pymatgen.analysis.chemenv.utils.graph_utils.md)
 
 
-        * [`AdditionalConditions`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions)
+            * [`MultiGraphCycle`](pymatgen.analysis.chemenv.utils.graph_utils.md#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle)
 
 
-            * [`AdditionalConditions.ALL`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ALL)
+                * [`MultiGraphCycle.order()`](pymatgen.analysis.chemenv.utils.graph_utils.md#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle.order)
 
 
-            * [`AdditionalConditions.CONDITION_DESCRIPTION`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.CONDITION_DESCRIPTION)
+                * [`MultiGraphCycle.validate()`](pymatgen.analysis.chemenv.utils.graph_utils.md#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle.validate)
 
 
-            * [`AdditionalConditions.NONE`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NONE)
+            * [`SimpleGraphCycle`](pymatgen.analysis.chemenv.utils.graph_utils.md#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle)
 
 
-            * [`AdditionalConditions.NO_AC`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_AC)
+                * [`SimpleGraphCycle.as_dict()`](pymatgen.analysis.chemenv.utils.graph_utils.md#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.as_dict)
 
 
-            * [`AdditionalConditions.NO_ADDITIONAL_CONDITION`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_ADDITIONAL_CONDITION)
+                * [`SimpleGraphCycle.from_dict()`](pymatgen.analysis.chemenv.utils.graph_utils.md#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.from_dict)
 
 
-            * [`AdditionalConditions.NO_E2SEB`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_E2SEB)
+                * [`SimpleGraphCycle.from_edges()`](pymatgen.analysis.chemenv.utils.graph_utils.md#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.from_edges)
 
 
-            * [`AdditionalConditions.NO_ELEMENT_TO_SAME_ELEMENT_BONDS`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.NO_ELEMENT_TO_SAME_ELEMENT_BONDS)
+                * [`SimpleGraphCycle.order()`](pymatgen.analysis.chemenv.utils.graph_utils.md#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.order)
 
 
-            * [`AdditionalConditions.ONLY_ACB`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ACB)
+                * [`SimpleGraphCycle.validate()`](pymatgen.analysis.chemenv.utils.graph_utils.md#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.validate)
 
 
-            * [`AdditionalConditions.ONLY_ACB_AND_NO_E2SEB`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ACB_AND_NO_E2SEB)
+            * [`get_all_elementary_cycles()`](pymatgen.analysis.chemenv.utils.graph_utils.md#pymatgen.analysis.chemenv.utils.graph_utils.get_all_elementary_cycles)
 
 
-            * [`AdditionalConditions.ONLY_ANION_CATION_BONDS`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ANION_CATION_BONDS)
+            * [`get_all_simple_paths_edges()`](pymatgen.analysis.chemenv.utils.graph_utils.md#pymatgen.analysis.chemenv.utils.graph_utils.get_all_simple_paths_edges)
 
 
-            * [`AdditionalConditions.ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS)
+            * [`get_delta()`](pymatgen.analysis.chemenv.utils.graph_utils.md#pymatgen.analysis.chemenv.utils.graph_utils.get_delta)
 
 
-            * [`AdditionalConditions.ONLY_E2OB`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_E2OB)
+        * [pymatgen.analysis.chemenv.utils.math_utils module](pymatgen.analysis.chemenv.utils.math_utils.md)
 
 
-            * [`AdditionalConditions.ONLY_ELEMENT_TO_OXYGEN_BONDS`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.ONLY_ELEMENT_TO_OXYGEN_BONDS)
+            * [`cosinus_step()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.cosinus_step)
 
 
-            * [`AdditionalConditions.check_condition()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions.check_condition)
+            * [`divisors()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.divisors)
 
 
-    * [pymatgen.analysis.chemenv.utils.func_utils module](pymatgen.analysis.chemenv.utils.md#module-pymatgen.analysis.chemenv.utils.func_utils)
+            * [`get_center_of_arc()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.get_center_of_arc)
 
 
-        * [`AbstractRatioFunction`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction)
+            * [`get_linearly_independent_vectors()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.get_linearly_independent_vectors)
 
 
-            * [`AbstractRatioFunction.ALLOWED_FUNCTIONS`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.ALLOWED_FUNCTIONS)
+            * [`normal_cdf_step()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.normal_cdf_step)
 
 
-            * [`AbstractRatioFunction.evaluate()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.evaluate)
+            * [`power2_decreasing_exp()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.power2_decreasing_exp)
 
 
-            * [`AbstractRatioFunction.from_dict()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.from_dict)
+            * [`power2_inverse_decreasing()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_decreasing)
 
 
-            * [`AbstractRatioFunction.setup_parameters()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.AbstractRatioFunction.setup_parameters)
+            * [`power2_inverse_power2_decreasing()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_power2_decreasing)
 
 
-        * [`CSMFiniteRatioFunction`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction)
+            * [`power2_inverse_powern_decreasing()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_powern_decreasing)
 
 
-            * [`CSMFiniteRatioFunction.ALLOWED_FUNCTIONS`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ALLOWED_FUNCTIONS)
+            * [`power2_tangent_decreasing()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.power2_tangent_decreasing)
 
 
-            * [`CSMFiniteRatioFunction.fractions()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.fractions)
+            * [`power3_step()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.power3_step)
 
 
-            * [`CSMFiniteRatioFunction.mean_estimator()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.mean_estimator)
+            * [`powern_decreasing()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.powern_decreasing)
 
 
-            * [`CSMFiniteRatioFunction.power2_decreasing_exp()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.power2_decreasing_exp)
+            * [`powern_parts_step()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.powern_parts_step)
 
 
-            * [`CSMFiniteRatioFunction.ratios()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.ratios)
+            * [`prime_factors()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.prime_factors)
 
 
-            * [`CSMFiniteRatioFunction.smootherstep()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.smootherstep)
+            * [`scale_and_clamp()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.scale_and_clamp)
 
 
-            * [`CSMFiniteRatioFunction.smoothstep()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMFiniteRatioFunction.smoothstep)
+            * [`smootherstep()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.smootherstep)
 
 
-        * [`CSMInfiniteRatioFunction`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction)
+            * [`smoothstep()`](pymatgen.analysis.chemenv.utils.math_utils.md#pymatgen.analysis.chemenv.utils.math_utils.smoothstep)
 
 
-            * [`CSMInfiniteRatioFunction.ALLOWED_FUNCTIONS`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ALLOWED_FUNCTIONS)
+        * [pymatgen.analysis.chemenv.utils.scripts_utils module](pymatgen.analysis.chemenv.utils.scripts_utils.md)
 
 
-            * [`CSMInfiniteRatioFunction.fractions()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.fractions)
+            * [`compute_environments()`](pymatgen.analysis.chemenv.utils.scripts_utils.md#pymatgen.analysis.chemenv.utils.scripts_utils.compute_environments)
 
 
-            * [`CSMInfiniteRatioFunction.mean_estimator()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.mean_estimator)
+            * [`draw_cg()`](pymatgen.analysis.chemenv.utils.scripts_utils.md#pymatgen.analysis.chemenv.utils.scripts_utils.draw_cg)
 
 
-            * [`CSMInfiniteRatioFunction.power2_inverse_decreasing()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.power2_inverse_decreasing)
-
-
-            * [`CSMInfiniteRatioFunction.power2_inverse_power2_decreasing()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.power2_inverse_power2_decreasing)
-
-
-            * [`CSMInfiniteRatioFunction.ratios()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.CSMInfiniteRatioFunction.ratios)
-
-
-        * [`DeltaCSMRatioFunction`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction)
-
-
-            * [`DeltaCSMRatioFunction.ALLOWED_FUNCTIONS`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.ALLOWED_FUNCTIONS)
-
-
-            * [`DeltaCSMRatioFunction.smootherstep()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.DeltaCSMRatioFunction.smootherstep)
-
-
-        * [`RatioFunction`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction)
-
-
-            * [`RatioFunction.ALLOWED_FUNCTIONS`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.ALLOWED_FUNCTIONS)
-
-
-            * [`RatioFunction.inverse_smootherstep()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.inverse_smootherstep)
-
-
-            * [`RatioFunction.inverse_smoothstep()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.inverse_smoothstep)
-
-
-            * [`RatioFunction.power2_decreasing_exp()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_decreasing_exp)
-
-
-            * [`RatioFunction.power2_inverse_decreasing()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_inverse_decreasing)
-
-
-            * [`RatioFunction.power2_inverse_power2_decreasing()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.power2_inverse_power2_decreasing)
-
-
-            * [`RatioFunction.smootherstep()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.smootherstep)
-
-
-            * [`RatioFunction.smoothstep()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.func_utils.RatioFunction.smoothstep)
-
-
-    * [pymatgen.analysis.chemenv.utils.graph_utils module](pymatgen.analysis.chemenv.utils.md#module-pymatgen.analysis.chemenv.utils.graph_utils)
-
-
-        * [`MultiGraphCycle`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle)
-
-
-            * [`MultiGraphCycle.order()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle.order)
-
-
-            * [`MultiGraphCycle.validate()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle.validate)
-
-
-        * [`SimpleGraphCycle`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle)
-
-
-            * [`SimpleGraphCycle.as_dict()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.as_dict)
-
-
-            * [`SimpleGraphCycle.from_dict()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.from_dict)
-
-
-            * [`SimpleGraphCycle.from_edges()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.from_edges)
-
-
-            * [`SimpleGraphCycle.order()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.order)
-
-
-            * [`SimpleGraphCycle.validate()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.validate)
-
-
-        * [`get_all_elementary_cycles()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.graph_utils.get_all_elementary_cycles)
-
-
-        * [`get_all_simple_paths_edges()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.graph_utils.get_all_simple_paths_edges)
-
-
-        * [`get_delta()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.graph_utils.get_delta)
-
-
-    * [pymatgen.analysis.chemenv.utils.math_utils module](pymatgen.analysis.chemenv.utils.md#module-pymatgen.analysis.chemenv.utils.math_utils)
-
-
-        * [`cosinus_step()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.cosinus_step)
-
-
-        * [`divisors()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.divisors)
-
-
-        * [`get_center_of_arc()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.get_center_of_arc)
-
-
-        * [`get_linearly_independent_vectors()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.get_linearly_independent_vectors)
-
-
-        * [`normal_cdf_step()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.normal_cdf_step)
-
-
-        * [`power2_decreasing_exp()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.power2_decreasing_exp)
-
-
-        * [`power2_inverse_decreasing()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_decreasing)
-
-
-        * [`power2_inverse_power2_decreasing()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_power2_decreasing)
-
-
-        * [`power2_inverse_powern_decreasing()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_powern_decreasing)
-
-
-        * [`power2_tangent_decreasing()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.power2_tangent_decreasing)
-
-
-        * [`power3_step()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.power3_step)
-
-
-        * [`powern_decreasing()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.powern_decreasing)
-
-
-        * [`powern_parts_step()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.powern_parts_step)
-
-
-        * [`prime_factors()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.prime_factors)
-
-
-        * [`scale_and_clamp()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.scale_and_clamp)
-
-
-        * [`smootherstep()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.smootherstep)
-
-
-        * [`smoothstep()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.math_utils.smoothstep)
-
-
-    * [pymatgen.analysis.chemenv.utils.scripts_utils module](pymatgen.analysis.chemenv.utils.md#module-pymatgen.analysis.chemenv.utils.scripts_utils)
-
-
-        * [`compute_environments()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.scripts_utils.compute_environments)
-
-
-        * [`draw_cg()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.scripts_utils.draw_cg)
-
-
-        * [`visualize()`](pymatgen.analysis.chemenv.utils.md#pymatgen.analysis.chemenv.utils.scripts_utils.visualize)
+            * [`visualize()`](pymatgen.analysis.chemenv.utils.scripts_utils.md#pymatgen.analysis.chemenv.utils.scripts_utils.visualize)

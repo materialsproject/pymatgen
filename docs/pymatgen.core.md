@@ -8,12643 +8,3549 @@ nav_exclude: true
 
 This package contains core modules and classes for representing structures and operations on them.
 
-## Subpackages
 
 
-* [pymatgen.core.tests package](pymatgen.core.tests.md)
+* [pymatgen.core.bonds module](pymatgen.core.bonds.md)
 
 
+    * [`CovalentBond`](pymatgen.core.bonds.md#pymatgen.core.bonds.CovalentBond)
 
 
-    * [pymatgen.core.tests.test_bonds module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_bonds)
+        * [`CovalentBond.get_bond_order()`](pymatgen.core.bonds.md#pymatgen.core.bonds.CovalentBond.get_bond_order)
 
 
-        * [`CovalentBondTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_bonds.CovalentBondTest)
+        * [`CovalentBond.is_bonded()`](pymatgen.core.bonds.md#pymatgen.core.bonds.CovalentBond.is_bonded)
 
 
-            * [`CovalentBondTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_bonds.CovalentBondTest.setUp)
+        * [`CovalentBond.length`](pymatgen.core.bonds.md#pymatgen.core.bonds.CovalentBond.length)
 
 
-            * [`CovalentBondTest.tearDown()`](pymatgen.core.tests.md#pymatgen.core.tests.test_bonds.CovalentBondTest.tearDown)
+    * [`get_bond_length()`](pymatgen.core.bonds.md#pymatgen.core.bonds.get_bond_length)
 
 
-            * [`CovalentBondTest.test_get_bond_order()`](pymatgen.core.tests.md#pymatgen.core.tests.test_bonds.CovalentBondTest.test_get_bond_order)
+    * [`get_bond_order()`](pymatgen.core.bonds.md#pymatgen.core.bonds.get_bond_order)
 
 
-            * [`CovalentBondTest.test_is_bonded()`](pymatgen.core.tests.md#pymatgen.core.tests.test_bonds.CovalentBondTest.test_is_bonded)
+    * [`obtain_all_bond_lengths()`](pymatgen.core.bonds.md#pymatgen.core.bonds.obtain_all_bond_lengths)
 
 
-            * [`CovalentBondTest.test_length()`](pymatgen.core.tests.md#pymatgen.core.tests.test_bonds.CovalentBondTest.test_length)
+* [pymatgen.core.composition module](pymatgen.core.composition.md)
 
 
-            * [`CovalentBondTest.test_str()`](pymatgen.core.tests.md#pymatgen.core.tests.test_bonds.CovalentBondTest.test_str)
+    * [`ChemicalPotential`](pymatgen.core.composition.md#pymatgen.core.composition.ChemicalPotential)
 
 
-        * [`FuncTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_bonds.FuncTest)
+        * [`ChemicalPotential.get_energy()`](pymatgen.core.composition.md#pymatgen.core.composition.ChemicalPotential.get_energy)
 
 
-            * [`FuncTest.test_get_bond_length()`](pymatgen.core.tests.md#pymatgen.core.tests.test_bonds.FuncTest.test_get_bond_length)
+    * [`Composition`](pymatgen.core.composition.md#pymatgen.core.composition.Composition)
 
 
-            * [`FuncTest.test_get_bond_order()`](pymatgen.core.tests.md#pymatgen.core.tests.test_bonds.FuncTest.test_get_bond_order)
+        * [`Composition.add_charges_from_oxi_state_guesses()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.add_charges_from_oxi_state_guesses)
 
 
-            * [`FuncTest.test_obtain_all_bond_lengths()`](pymatgen.core.tests.md#pymatgen.core.tests.test_bonds.FuncTest.test_obtain_all_bond_lengths)
+        * [`Composition.almost_equals()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.almost_equals)
 
 
-    * [pymatgen.core.tests.test_composition module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_composition)
+        * [`Composition.alphabetical_formula`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.alphabetical_formula)
 
 
-        * [`ChemicalPotentialTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.ChemicalPotentialTest)
+        * [`Composition.amount_tolerance`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.amount_tolerance)
 
 
-            * [`ChemicalPotentialTest.test_init()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.ChemicalPotentialTest.test_init)
+        * [`Composition.anonymized_formula`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.anonymized_formula)
 
 
-            * [`ChemicalPotentialTest.test_math()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.ChemicalPotentialTest.test_math)
+        * [`Composition.as_dict()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.as_dict)
 
 
-        * [`CompositionTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest)
+        * [`Composition.average_electroneg`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.average_electroneg)
 
 
-            * [`CompositionTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.setUp)
+        * [`Composition.chemical_system`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.chemical_system)
 
 
-            * [`CompositionTest.test_add()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_add)
+        * [`Composition.contains_element_type()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.contains_element_type)
 
 
-            * [`CompositionTest.test_almost_equals()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_almost_equals)
+        * [`Composition.copy()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.copy)
 
 
-            * [`CompositionTest.test_alphabetical_formula()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_alphabetical_formula)
+        * [`Composition.element_composition`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.element_composition)
 
 
-            * [`CompositionTest.test_anonymized_formula()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_anonymized_formula)
+        * [`Composition.elements`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.elements)
 
 
-            * [`CompositionTest.test_as_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_as_dict)
+        * [`Composition.formula`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.formula)
 
 
-            * [`CompositionTest.test_average_electroneg()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_average_electroneg)
+        * [`Composition.fractional_composition`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.fractional_composition)
 
 
-            * [`CompositionTest.test_chemical_system()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_chemical_system)
+        * [`Composition.from_dict()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.from_dict)
 
 
-            * [`CompositionTest.test_comparisons()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_comparisons)
+        * [`Composition.from_weight_dict()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.from_weight_dict)
 
 
-            * [`CompositionTest.test_contains_element_type()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_contains_element_type)
+        * [`Composition.get_atomic_fraction()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.get_atomic_fraction)
 
 
-            * [`CompositionTest.test_div()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_div)
+        * [`Composition.get_el_amt_dict()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.get_el_amt_dict)
 
 
-            * [`CompositionTest.test_equality()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_equality)
+        * [`Composition.get_integer_formula_and_factor()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.get_integer_formula_and_factor)
 
 
-            * [`CompositionTest.test_equals()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_equals)
+        * [`Composition.get_reduced_composition_and_factor()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.get_reduced_composition_and_factor)
 
 
-            * [`CompositionTest.test_formula()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_formula)
+        * [`Composition.get_reduced_formula_and_factor()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.get_reduced_formula_and_factor)
 
 
-            * [`CompositionTest.test_fractional_composition()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_fractional_composition)
+        * [`Composition.get_wt_fraction()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.get_wt_fraction)
 
 
-            * [`CompositionTest.test_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_from_dict)
+        * [`Composition.hill_formula`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.hill_formula)
 
 
-            * [`CompositionTest.test_from_weight_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_from_weight_dict)
+        * [`Composition.is_element`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.is_element)
 
 
-            * [`CompositionTest.test_get_atomic_fraction()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_get_atomic_fraction)
+        * [`Composition.iupac_formula`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.iupac_formula)
 
 
-            * [`CompositionTest.test_get_wt_fraction()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_get_wt_fraction)
+        * [`Composition.num_atoms`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.num_atoms)
 
 
-            * [`CompositionTest.test_hash_robustness()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_hash_robustness)
+        * [`Composition.oxi_prob`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.oxi_prob)
 
 
-            * [`CompositionTest.test_hill_formula()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_hill_formula)
+        * [`Composition.oxi_state_guesses()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.oxi_state_guesses)
 
 
-            * [`CompositionTest.test_immutable()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_immutable)
+        * [`Composition.ranked_compositions_from_indeterminate_formula()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.ranked_compositions_from_indeterminate_formula)
 
 
-            * [`CompositionTest.test_in()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_in)
+        * [`Composition.reduced_composition`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.reduced_composition)
 
 
-            * [`CompositionTest.test_indeterminate_formula()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_indeterminate_formula)
+        * [`Composition.reduced_formula`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.reduced_formula)
 
 
-            * [`CompositionTest.test_init()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_init)
+        * [`Composition.remove_charges()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.remove_charges)
 
 
-            * [`CompositionTest.test_init_numerical_tolerance()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_init_numerical_tolerance)
+        * [`Composition.replace()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.replace)
 
 
-            * [`CompositionTest.test_integer_formula()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_integer_formula)
+        * [`Composition.special_formulas`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.special_formulas)
 
 
-            * [`CompositionTest.test_is_valid()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_is_valid)
+        * [`Composition.to_data_dict`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.to_data_dict)
 
 
-            * [`CompositionTest.test_iupac_formula()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_iupac_formula)
+        * [`Composition.to_pretty_string()`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.to_pretty_string)
 
 
-            * [`CompositionTest.test_metallofullerene()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_metallofullerene)
+        * [`Composition.to_reduced_dict`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.to_reduced_dict)
 
 
-            * [`CompositionTest.test_mixed_valence()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_mixed_valence)
+        * [`Composition.to_weight_dict`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.to_weight_dict)
 
 
-            * [`CompositionTest.test_mul()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_mul)
+        * [`Composition.total_electrons`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.total_electrons)
 
 
-            * [`CompositionTest.test_negative_compositions()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_negative_compositions)
+        * [`Composition.valid`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.valid)
 
 
-            * [`CompositionTest.test_num_atoms()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_num_atoms)
+        * [`Composition.weight`](pymatgen.core.composition.md#pymatgen.core.composition.Composition.weight)
 
 
-            * [`CompositionTest.test_oxi_state_decoration()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_oxi_state_decoration)
+    * [`CompositionError`](pymatgen.core.composition.md#pymatgen.core.composition.CompositionError)
 
 
-            * [`CompositionTest.test_oxi_state_guesses()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_oxi_state_guesses)
+    * [`reduce_formula()`](pymatgen.core.composition.md#pymatgen.core.composition.reduce_formula)
 
 
-            * [`CompositionTest.test_pickle()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_pickle)
+* [pymatgen.core.interface module](pymatgen.core.interface.md)
 
 
-            * [`CompositionTest.test_reduced_composition()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_reduced_composition)
+    * [`Interface`](pymatgen.core.interface.md#pymatgen.core.interface.Interface)
 
 
-            * [`CompositionTest.test_reduced_formula()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_reduced_formula)
+        * [`Interface.as_dict()`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.as_dict)
 
 
-            * [`CompositionTest.test_remove_charges()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_remove_charges)
+        * [`Interface.copy()`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.copy)
 
 
-            * [`CompositionTest.test_replace()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_replace)
+        * [`Interface.film`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.film)
 
 
-            * [`CompositionTest.test_special_formulas()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_special_formulas)
+        * [`Interface.film_indices`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.film_indices)
 
 
-            * [`CompositionTest.test_str_and_repr()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_str_and_repr)
+        * [`Interface.film_layers`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.film_layers)
 
 
-            * [`CompositionTest.test_sub()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_sub)
+        * [`Interface.film_sites`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.film_sites)
 
 
-            * [`CompositionTest.test_to_data_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_to_data_dict)
+        * [`Interface.film_termination`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.film_termination)
 
 
-            * [`CompositionTest.test_to_latex_html_unicode()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_to_latex_html_unicode)
+        * [`Interface.from_dict()`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.from_dict)
 
 
-            * [`CompositionTest.test_tofrom_weight_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_tofrom_weight_dict)
+        * [`Interface.from_slabs()`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.from_slabs)
 
 
-            * [`CompositionTest.test_total_electrons()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_total_electrons)
+        * [`Interface.gap`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.gap)
 
 
-            * [`CompositionTest.test_weight()`](pymatgen.core.tests.md#pymatgen.core.tests.test_composition.CompositionTest.test_weight)
+        * [`Interface.get_shifts_based_on_adsorbate_sites()`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.get_shifts_based_on_adsorbate_sites)
 
 
-    * [pymatgen.core.tests.test_interface module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_interface)
+        * [`Interface.get_sorted_structure()`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.get_sorted_structure)
 
 
-        * [`InterfaceTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_interface.InterfaceTest)
+        * [`Interface.in_plane_offset`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.in_plane_offset)
 
 
-            * [`InterfaceTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_interface.InterfaceTest.setUp)
+        * [`Interface.substrate`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.substrate)
 
 
-            * [`InterfaceTest.test_basic_props()`](pymatgen.core.tests.md#pymatgen.core.tests.test_interface.InterfaceTest.test_basic_props)
+        * [`Interface.substrate_indices`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.substrate_indices)
 
 
-            * [`InterfaceTest.test_from_slabs()`](pymatgen.core.tests.md#pymatgen.core.tests.test_interface.InterfaceTest.test_from_slabs)
+        * [`Interface.substrate_layers`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.substrate_layers)
 
 
-            * [`InterfaceTest.test_gap_setter()`](pymatgen.core.tests.md#pymatgen.core.tests.test_interface.InterfaceTest.test_gap_setter)
+        * [`Interface.substrate_sites`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.substrate_sites)
 
 
-            * [`InterfaceTest.test_get_shifts_based_on_adsorbate_sites()`](pymatgen.core.tests.md#pymatgen.core.tests.test_interface.InterfaceTest.test_get_shifts_based_on_adsorbate_sites)
+        * [`Interface.substrate_termination`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.substrate_termination)
 
 
-            * [`InterfaceTest.test_in_plane_offset_setter()`](pymatgen.core.tests.md#pymatgen.core.tests.test_interface.InterfaceTest.test_in_plane_offset_setter)
+        * [`Interface.vacuum_over_film`](pymatgen.core.interface.md#pymatgen.core.interface.Interface.vacuum_over_film)
 
 
-            * [`InterfaceTest.test_vacuum_over_film_setter()`](pymatgen.core.tests.md#pymatgen.core.tests.test_interface.InterfaceTest.test_vacuum_over_film_setter)
+    * [`count_layers()`](pymatgen.core.interface.md#pymatgen.core.interface.count_layers)
 
 
-    * [pymatgen.core.tests.test_ion module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_ion)
+    * [`label_termination()`](pymatgen.core.interface.md#pymatgen.core.interface.label_termination)
 
 
-        * [`IonTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest)
+* [pymatgen.core.ion module](pymatgen.core.ion.md)
 
 
-            * [`IonTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.setUp)
+    * [`Ion`](pymatgen.core.ion.md#pymatgen.core.ion.Ion)
 
 
-            * [`IonTest.test_alphabetical_formula()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_alphabetical_formula)
+        * [`Ion.alphabetical_formula`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.alphabetical_formula)
 
 
-            * [`IonTest.test_anonymized_formula()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_anonymized_formula)
+        * [`Ion.anonymized_formula`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.anonymized_formula)
 
 
-            * [`IonTest.test_as_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_as_dict)
+        * [`Ion.as_dict()`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.as_dict)
 
 
-            * [`IonTest.test_charge_from_formula()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_charge_from_formula)
+        * [`Ion.charge`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.charge)
 
 
-            * [`IonTest.test_equality()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_equality)
+        * [`Ion.composition`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.composition)
 
 
-            * [`IonTest.test_equals()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_equals)
+        * [`Ion.formula`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.formula)
 
 
-            * [`IonTest.test_formula()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_formula)
+        * [`Ion.from_dict()`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.from_dict)
 
 
-            * [`IonTest.test_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_from_dict)
+        * [`Ion.from_formula()`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.from_formula)
 
 
-            * [`IonTest.test_init()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_init)
+        * [`Ion.get_reduced_formula_and_factor()`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.get_reduced_formula_and_factor)
 
 
-            * [`IonTest.test_len()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_len)
+        * [`Ion.oxi_state_guesses()`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.oxi_state_guesses)
 
 
-            * [`IonTest.test_mixed_valence()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_mixed_valence)
+        * [`Ion.reduced_formula`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.reduced_formula)
 
 
-            * [`IonTest.test_mul()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_mul)
+        * [`Ion.to_pretty_string()`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.to_pretty_string)
 
 
-            * [`IonTest.test_num_atoms()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_num_atoms)
+        * [`Ion.to_reduced_dict`](pymatgen.core.ion.md#pymatgen.core.ion.Ion.to_reduced_dict)
 
 
-            * [`IonTest.test_oxi_state_guesses()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_oxi_state_guesses)
+* [pymatgen.core.lattice module](pymatgen.core.lattice.md)
 
 
-            * [`IonTest.test_special_formulas()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_special_formulas)
+    * [`Lattice`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice)
 
 
-            * [`IonTest.test_to_latex_string()`](pymatgen.core.tests.md#pymatgen.core.tests.test_ion.IonTest.test_to_latex_string)
+        * [`Lattice.a`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.a)
 
 
-    * [pymatgen.core.tests.test_lattice module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_lattice)
+        * [`Lattice.abc`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.abc)
 
 
-        * [`LatticeTestCase`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase)
+        * [`Lattice.alpha`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.alpha)
 
 
-            * [`LatticeTestCase.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.setUp)
+        * [`Lattice.angles`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.angles)
 
 
-            * [`LatticeTestCase.test_attributes()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_attributes)
+        * [`Lattice.as_dict()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.as_dict)
 
 
-            * [`LatticeTestCase.test_copy()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_copy)
+        * [`Lattice.b`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.b)
 
 
-            * [`LatticeTestCase.test_d_hkl()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_d_hkl)
+        * [`Lattice.beta`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.beta)
 
 
-            * [`LatticeTestCase.test_dot_and_norm()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_dot_and_norm)
+        * [`Lattice.c`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.c)
 
 
-            * [`LatticeTestCase.test_equal()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_equal)
+        * [`Lattice.copy()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.copy)
 
 
-            * [`LatticeTestCase.test_find_all_mappings()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_find_all_mappings)
+        * [`Lattice.cubic()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.cubic)
 
 
-            * [`LatticeTestCase.test_find_mapping()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_find_mapping)
+        * [`Lattice.d_hkl()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.d_hkl)
 
 
-            * [`LatticeTestCase.test_format()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_format)
+        * [`Lattice.dot()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.dot)
 
 
-            * [`LatticeTestCase.test_get_all_distances()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_get_all_distances)
+        * [`Lattice.find_all_mappings()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.find_all_mappings)
 
 
-            * [`LatticeTestCase.test_get_cartesian_or_frac_coord()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_get_cartesian_or_frac_coord)
+        * [`Lattice.find_mapping()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.find_mapping)
 
 
-            * [`LatticeTestCase.test_get_distance_and_image()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_get_distance_and_image)
+        * [`Lattice.from_dict()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.from_dict)
 
 
-            * [`LatticeTestCase.test_get_distance_and_image_strict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_get_distance_and_image_strict)
+        * [`Lattice.from_parameters()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.from_parameters)
 
 
-            * [`LatticeTestCase.test_get_lll_reduced_lattice()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_get_lll_reduced_lattice)
+        * [`Lattice.gamma`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.gamma)
 
 
-            * [`LatticeTestCase.test_get_miller_index_from_sites()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_get_miller_index_from_sites)
+        * [`Lattice.get_all_distances()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_all_distances)
 
 
-            * [`LatticeTestCase.test_get_niggli_reduced_lattice()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_get_niggli_reduced_lattice)
+        * [`Lattice.get_brillouin_zone()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_brillouin_zone)
 
 
-            * [`LatticeTestCase.test_get_points_in_sphere()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_get_points_in_sphere)
+        * [`Lattice.get_cartesian_coords()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_cartesian_coords)
 
 
-            * [`LatticeTestCase.test_get_vector_along_lattice_directions()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_get_vector_along_lattice_directions)
+        * [`Lattice.get_distance_and_image()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_distance_and_image)
 
 
-            * [`LatticeTestCase.test_get_wigner_seitz_cell()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_get_wigner_seitz_cell)
+        * [`Lattice.get_frac_coords_from_lll()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_frac_coords_from_lll)
 
 
-            * [`LatticeTestCase.test_init()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_init)
+        * [`Lattice.get_fractional_coords()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_fractional_coords)
 
 
-            * [`LatticeTestCase.test_is_3d_periodic()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_is_3d_periodic)
+        * [`Lattice.get_lll_frac_coords()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_lll_frac_coords)
 
 
-            * [`LatticeTestCase.test_is_hexagonal()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_is_hexagonal)
+        * [`Lattice.get_lll_reduced_lattice()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_lll_reduced_lattice)
 
 
-            * [`LatticeTestCase.test_lattice_matrices()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_lattice_matrices)
+        * [`Lattice.get_miller_index_from_coords()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_miller_index_from_coords)
 
 
-            * [`LatticeTestCase.test_lll_basis()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_lll_basis)
+        * [`Lattice.get_niggli_reduced_lattice()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_niggli_reduced_lattice)
 
 
-            * [`LatticeTestCase.test_mapping_symmetry()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_mapping_symmetry)
+        * [`Lattice.get_points_in_sphere()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_points_in_sphere)
 
 
-            * [`LatticeTestCase.test_monoclinic()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_monoclinic)
+        * [`Lattice.get_points_in_sphere_old()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_points_in_sphere_old)
 
 
-            * [`LatticeTestCase.test_points_in_spheres()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_points_in_spheres)
+        * [`Lattice.get_points_in_sphere_py()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_points_in_sphere_py)
 
 
-            * [`LatticeTestCase.test_reciprocal_lattice()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_reciprocal_lattice)
+        * [`Lattice.get_recp_symmetry_operation()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_recp_symmetry_operation)
 
 
-            * [`LatticeTestCase.test_scale()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_scale)
+        * [`Lattice.get_vector_along_lattice_directions()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_vector_along_lattice_directions)
 
 
-            * [`LatticeTestCase.test_selling_dist()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_selling_dist)
+        * [`Lattice.get_wigner_seitz_cell()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.get_wigner_seitz_cell)
 
 
-            * [`LatticeTestCase.test_selling_vector()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_selling_vector)
+        * [`Lattice.hexagonal()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.hexagonal)
 
 
-            * [`LatticeTestCase.test_static_methods()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_static_methods)
+        * [`Lattice.inv_matrix`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.inv_matrix)
 
 
-            * [`LatticeTestCase.test_to_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_lattice.LatticeTestCase.test_to_from_dict)
+        * [`Lattice.is_3d_periodic`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.is_3d_periodic)
 
 
-    * [pymatgen.core.tests.test_libxcfunc module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_libxcfunc)
+        * [`Lattice.is_hexagonal()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.is_hexagonal)
 
 
-        * [`LibxcFuncTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_libxcfunc.LibxcFuncTest)
+        * [`Lattice.is_orthogonal`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.is_orthogonal)
 
 
-            * [`LibxcFuncTest.test_libxcfunc_api()`](pymatgen.core.tests.md#pymatgen.core.tests.test_libxcfunc.LibxcFuncTest.test_libxcfunc_api)
+        * [`Lattice.lengths`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.lengths)
 
 
-    * [pymatgen.core.tests.test_molecular_orbitals module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_molecular_orbitals)
+        * [`Lattice.lll_inverse`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.lll_inverse)
 
 
-        * [`MolecularOrbitalTestCase`](pymatgen.core.tests.md#pymatgen.core.tests.test_molecular_orbitals.MolecularOrbitalTestCase)
+        * [`Lattice.lll_mapping`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.lll_mapping)
 
 
-            * [`MolecularOrbitalTestCase.test_aos_as_list()`](pymatgen.core.tests.md#pymatgen.core.tests.test_molecular_orbitals.MolecularOrbitalTestCase.test_aos_as_list)
+        * [`Lattice.lll_matrix`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.lll_matrix)
 
 
-            * [`MolecularOrbitalTestCase.test_fractional_compositions()`](pymatgen.core.tests.md#pymatgen.core.tests.test_molecular_orbitals.MolecularOrbitalTestCase.test_fractional_compositions)
+        * [`Lattice.matrix`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.matrix)
 
 
-            * [`MolecularOrbitalTestCase.test_max_electronegativity()`](pymatgen.core.tests.md#pymatgen.core.tests.test_molecular_orbitals.MolecularOrbitalTestCase.test_max_electronegativity)
+        * [`Lattice.metric_tensor`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.metric_tensor)
 
 
-            * [`MolecularOrbitalTestCase.test_obtain_band_edges()`](pymatgen.core.tests.md#pymatgen.core.tests.test_molecular_orbitals.MolecularOrbitalTestCase.test_obtain_band_edges)
+        * [`Lattice.monoclinic()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.monoclinic)
 
 
-    * [pymatgen.core.tests.test_operations module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_operations)
+        * [`Lattice.norm()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.norm)
 
 
-        * [`MagSymmOpTestCase`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.MagSymmOpTestCase)
+        * [`Lattice.orthorhombic()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.orthorhombic)
 
 
-            * [`MagSymmOpTestCase.test_operate_magmom()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.MagSymmOpTestCase.test_operate_magmom)
+        * [`Lattice.parameters`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.parameters)
 
 
-            * [`MagSymmOpTestCase.test_to_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.MagSymmOpTestCase.test_to_from_dict)
+        * [`Lattice.pbc`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.pbc)
 
 
-            * [`MagSymmOpTestCase.test_xyzt_string()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.MagSymmOpTestCase.test_xyzt_string)
+        * [`Lattice.reciprocal_lattice`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.reciprocal_lattice)
 
 
-        * [`SymmOpTestCase`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase)
+        * [`Lattice.reciprocal_lattice_crystallographic`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.reciprocal_lattice_crystallographic)
 
 
-            * [`SymmOpTestCase.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.setUp)
+        * [`Lattice.rhombohedral()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.rhombohedral)
 
 
-            * [`SymmOpTestCase.test_apply_rotation_only()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.test_apply_rotation_only)
+        * [`Lattice.scale()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.scale)
 
 
-            * [`SymmOpTestCase.test_are_symmetrically_related()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.test_are_symmetrically_related)
+        * [`Lattice.selling_dist()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.selling_dist)
 
 
-            * [`SymmOpTestCase.test_are_symmetrically_related_vectors()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.test_are_symmetrically_related_vectors)
+        * [`Lattice.selling_vector`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.selling_vector)
 
 
-            * [`SymmOpTestCase.test_inverse()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.test_inverse)
+        * [`Lattice.tetragonal()`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.tetragonal)
 
 
-            * [`SymmOpTestCase.test_inversion()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.test_inversion)
+        * [`Lattice.volume`](pymatgen.core.lattice.md#pymatgen.core.lattice.Lattice.volume)
 
 
-            * [`SymmOpTestCase.test_operate()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.test_operate)
+    * [`find_neighbors()`](pymatgen.core.lattice.md#pymatgen.core.lattice.find_neighbors)
 
 
-            * [`SymmOpTestCase.test_operate_multi()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.test_operate_multi)
+    * [`get_integer_index()`](pymatgen.core.lattice.md#pymatgen.core.lattice.get_integer_index)
 
 
-            * [`SymmOpTestCase.test_properties()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.test_properties)
+    * [`get_points_in_spheres()`](pymatgen.core.lattice.md#pymatgen.core.lattice.get_points_in_spheres)
 
 
-            * [`SymmOpTestCase.test_reflection()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.test_reflection)
+* [pymatgen.core.libxcfunc module](pymatgen.core.libxcfunc.md)
 
 
-            * [`SymmOpTestCase.test_to_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.test_to_from_dict)
+    * [`LibxcFunc`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc)
 
 
-            * [`SymmOpTestCase.test_transform_tensor()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.test_transform_tensor)
+        * [`LibxcFunc.GGA_C_AM05`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_AM05)
 
 
-            * [`SymmOpTestCase.test_xyz()`](pymatgen.core.tests.md#pymatgen.core.tests.test_operations.SymmOpTestCase.test_xyz)
+        * [`LibxcFunc.GGA_C_APBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_APBE)
 
 
-    * [pymatgen.core.tests.test_periodic_table module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_periodic_table)
+        * [`LibxcFunc.GGA_C_BGCP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_BGCP)
 
 
-        * [`DummySpeciesTestCase`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.DummySpeciesTestCase)
+        * [`LibxcFunc.GGA_C_FT97`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_FT97)
 
 
-            * [`DummySpeciesTestCase.test_attr()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.DummySpeciesTestCase.test_attr)
+        * [`LibxcFunc.GGA_C_GAM`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_GAM)
 
 
-            * [`DummySpeciesTestCase.test_eq()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.DummySpeciesTestCase.test_eq)
+        * [`LibxcFunc.GGA_C_HCTH_A`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_HCTH_A)
 
 
-            * [`DummySpeciesTestCase.test_from_string()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.DummySpeciesTestCase.test_from_string)
+        * [`LibxcFunc.GGA_C_LM`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_LM)
 
 
-            * [`DummySpeciesTestCase.test_immutable()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.DummySpeciesTestCase.test_immutable)
+        * [`LibxcFunc.GGA_C_LYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_LYP)
 
 
-            * [`DummySpeciesTestCase.test_init()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.DummySpeciesTestCase.test_init)
+        * [`LibxcFunc.GGA_C_N12`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_N12)
 
 
-            * [`DummySpeciesTestCase.test_pickle()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.DummySpeciesTestCase.test_pickle)
+        * [`LibxcFunc.GGA_C_N12_SX`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_N12_SX)
 
 
-            * [`DummySpeciesTestCase.test_sort()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.DummySpeciesTestCase.test_sort)
+        * [`LibxcFunc.GGA_C_OPTC`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_OPTC)
 
 
-        * [`ElementTestCase`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase)
+        * [`LibxcFunc.GGA_C_OP_B88`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_OP_B88)
 
 
-            * [`ElementTestCase.test_attributes()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_attributes)
+        * [`LibxcFunc.GGA_C_OP_G96`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_OP_G96)
 
 
-            * [`ElementTestCase.test_block()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_block)
+        * [`LibxcFunc.GGA_C_OP_PBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_OP_PBE)
 
 
-            * [`ElementTestCase.test_data()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_data)
+        * [`LibxcFunc.GGA_C_OP_PW91`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_OP_PW91)
 
 
-            * [`ElementTestCase.test_deepcopy()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_deepcopy)
+        * [`LibxcFunc.GGA_C_OP_XALPHA`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_OP_XALPHA)
 
 
-            * [`ElementTestCase.test_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_dict)
+        * [`LibxcFunc.GGA_C_P86`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_P86)
 
 
-            * [`ElementTestCase.test_from_name()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_from_name)
+        * [`LibxcFunc.GGA_C_PBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_PBE)
 
 
-            * [`ElementTestCase.test_from_row_and_group()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_from_row_and_group)
+        * [`LibxcFunc.GGA_C_PBEFE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_PBEFE)
 
 
-            * [`ElementTestCase.test_full_electronic_structure()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_full_electronic_structure)
+        * [`LibxcFunc.GGA_C_PBEINT`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_PBEINT)
 
 
-            * [`ElementTestCase.test_ground_state_term_symbol()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_ground_state_term_symbol)
+        * [`LibxcFunc.GGA_C_PBELOC`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_PBELOC)
 
 
-            * [`ElementTestCase.test_group()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_group)
+        * [`LibxcFunc.GGA_C_PBE_JRGX`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_PBE_JRGX)
 
 
-            * [`ElementTestCase.test_ie_ea()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_ie_ea)
+        * [`LibxcFunc.GGA_C_PBE_SOL`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_PBE_SOL)
 
 
-            * [`ElementTestCase.test_init()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_init)
+        * [`LibxcFunc.GGA_C_PW91`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_PW91)
 
 
-            * [`ElementTestCase.test_is()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_is)
+        * [`LibxcFunc.GGA_C_Q2D`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_Q2D)
 
 
-            * [`ElementTestCase.test_is_metal()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_is_metal)
+        * [`LibxcFunc.GGA_C_REGTPSS`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_REGTPSS)
 
 
-            * [`ElementTestCase.test_nan_X()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_nan_X)
+        * [`LibxcFunc.GGA_C_REVTCA`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_REVTCA)
 
 
-            * [`ElementTestCase.test_oxidation_states()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_oxidation_states)
+        * [`LibxcFunc.GGA_C_RGE2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_RGE2)
 
 
-            * [`ElementTestCase.test_pickle()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_pickle)
+        * [`LibxcFunc.GGA_C_SOGGA11`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_SOGGA11)
 
 
-            * [`ElementTestCase.test_print_periodic_table()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_print_periodic_table)
+        * [`LibxcFunc.GGA_C_SOGGA11_X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_SOGGA11_X)
 
 
-            * [`ElementTestCase.test_radii()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_radii)
+        * [`LibxcFunc.GGA_C_SPBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_SPBE)
 
 
-            * [`ElementTestCase.test_row()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_row)
+        * [`LibxcFunc.GGA_C_TCA`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_TCA)
 
 
-            * [`ElementTestCase.test_sort()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_sort)
+        * [`LibxcFunc.GGA_C_WI`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_WI)
 
 
-            * [`ElementTestCase.test_term_symbols()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_term_symbols)
+        * [`LibxcFunc.GGA_C_WI0`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_WI0)
 
 
-            * [`ElementTestCase.test_valence()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.ElementTestCase.test_valence)
+        * [`LibxcFunc.GGA_C_WL`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_WL)
 
 
-        * [`FuncTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.FuncTest)
+        * [`LibxcFunc.GGA_C_XPBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_XPBE)
 
 
-            * [`FuncTest.test_get_el_sp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.FuncTest.test_get_el_sp)
+        * [`LibxcFunc.GGA_C_ZPBEINT`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_ZPBEINT)
 
 
-        * [`SpeciesTestCase`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase)
+        * [`LibxcFunc.GGA_C_ZPBESOL`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_C_ZPBESOL)
 
 
-            * [`SpeciesTestCase.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.setUp)
+        * [`LibxcFunc.GGA_K_ABSP1`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_ABSP1)
 
 
-            * [`SpeciesTestCase.test_attr()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_attr)
+        * [`LibxcFunc.GGA_K_ABSP2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_ABSP2)
 
 
-            * [`SpeciesTestCase.test_cmp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_cmp)
+        * [`LibxcFunc.GGA_K_APBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_APBE)
 
 
-            * [`SpeciesTestCase.test_deepcopy()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_deepcopy)
+        * [`LibxcFunc.GGA_K_APBEINT`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_APBEINT)
 
 
-            * [`SpeciesTestCase.test_eq()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_eq)
+        * [`LibxcFunc.GGA_K_BALTIN`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_BALTIN)
 
 
-            * [`SpeciesTestCase.test_get_crystal_field_spin()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_get_crystal_field_spin)
+        * [`LibxcFunc.GGA_K_DK`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_DK)
 
 
-            * [`SpeciesTestCase.test_get_nmr_mom()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_get_nmr_mom)
+        * [`LibxcFunc.GGA_K_ERNZERHOF`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_ERNZERHOF)
 
 
-            * [`SpeciesTestCase.test_get_shannon_radius()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_get_shannon_radius)
+        * [`LibxcFunc.GGA_K_FR_B88`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_FR_B88)
 
 
-            * [`SpeciesTestCase.test_init()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_init)
+        * [`LibxcFunc.GGA_K_FR_PW86`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_FR_PW86)
 
 
-            * [`SpeciesTestCase.test_ionic_radius()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_ionic_radius)
+        * [`LibxcFunc.GGA_K_GE2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_GE2)
 
 
-            * [`SpeciesTestCase.test_no_oxidation_state()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_no_oxidation_state)
+        * [`LibxcFunc.GGA_K_GOLDEN`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_GOLDEN)
 
 
-            * [`SpeciesTestCase.test_pickle()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_pickle)
+        * [`LibxcFunc.GGA_K_GP85`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_GP85)
 
 
-            * [`SpeciesTestCase.test_sort()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_sort)
+        * [`LibxcFunc.GGA_K_GR`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_GR)
 
 
-            * [`SpeciesTestCase.test_stringify()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_stringify)
+        * [`LibxcFunc.GGA_K_LC94`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_LC94)
 
 
-            * [`SpeciesTestCase.test_to_from_string()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.SpeciesTestCase.test_to_from_string)
+        * [`LibxcFunc.GGA_K_LIEB`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_LIEB)
 
 
-        * [`test_symbol_oxi_state_str()`](pymatgen.core.tests.md#pymatgen.core.tests.test_periodic_table.test_symbol_oxi_state_str)
+        * [`LibxcFunc.GGA_K_LLP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_LLP)
 
 
-    * [pymatgen.core.tests.test_settings module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_settings)
+        * [`LibxcFunc.GGA_K_LUDENA`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_LUDENA)
 
 
-        * [`test_load_settings()`](pymatgen.core.tests.md#pymatgen.core.tests.test_settings.test_load_settings)
+        * [`LibxcFunc.GGA_K_MEYER`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_MEYER)
 
 
-    * [pymatgen.core.tests.test_sites module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_sites)
+        * [`LibxcFunc.GGA_K_OL1`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_OL1)
 
 
-        * [`PeriodicSiteTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest)
+        * [`LibxcFunc.GGA_K_OL2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_OL2)
 
 
-            * [`PeriodicSiteTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest.setUp)
+        * [`LibxcFunc.GGA_K_PEARSON`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_PEARSON)
 
 
-            * [`PeriodicSiteTest.test_as_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest.test_as_from_dict)
+        * [`LibxcFunc.GGA_K_PERDEW`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_PERDEW)
 
 
-            * [`PeriodicSiteTest.test_distance()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest.test_distance)
+        * [`LibxcFunc.GGA_K_REVAPBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_REVAPBE)
 
 
-            * [`PeriodicSiteTest.test_distance_and_image()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest.test_distance_and_image)
+        * [`LibxcFunc.GGA_K_REVAPBEINT`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_REVAPBEINT)
 
 
-            * [`PeriodicSiteTest.test_distance_from_point()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest.test_distance_from_point)
+        * [`LibxcFunc.GGA_K_TFVW`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_TFVW)
 
 
-            * [`PeriodicSiteTest.test_equality()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest.test_equality)
+        * [`LibxcFunc.GGA_K_THAKKAR`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_THAKKAR)
 
 
-            * [`PeriodicSiteTest.test_equality_with_label()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest.test_equality_with_label)
+        * [`LibxcFunc.GGA_K_TW1`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_TW1)
 
 
-            * [`PeriodicSiteTest.test_is_periodic_image()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest.test_is_periodic_image)
+        * [`LibxcFunc.GGA_K_TW2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_TW2)
 
 
-            * [`PeriodicSiteTest.test_properties()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest.test_properties)
+        * [`LibxcFunc.GGA_K_TW3`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_TW3)
 
 
-            * [`PeriodicSiteTest.test_repr()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest.test_repr)
+        * [`LibxcFunc.GGA_K_TW4`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_TW4)
 
 
-            * [`PeriodicSiteTest.test_setters()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest.test_setters)
+        * [`LibxcFunc.GGA_K_VJKS`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_VJKS)
 
 
-            * [`PeriodicSiteTest.test_to_unit_cell()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.PeriodicSiteTest.test_to_unit_cell)
+        * [`LibxcFunc.GGA_K_VSK`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_VSK)
 
 
-        * [`SiteTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.SiteTest)
+        * [`LibxcFunc.GGA_K_VW`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_VW)
 
 
-            * [`SiteTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.SiteTest.setUp)
+        * [`LibxcFunc.GGA_K_YT65`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_K_YT65)
 
 
-            * [`SiteTest.test_distance()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.SiteTest.test_distance)
+        * [`LibxcFunc.GGA_XC_B97_D`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_B97_D)
 
 
-            * [`SiteTest.test_gt_lt()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.SiteTest.test_gt_lt)
+        * [`LibxcFunc.GGA_XC_B97_GGA1`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_B97_GGA1)
 
 
-            * [`SiteTest.test_hash()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.SiteTest.test_hash)
+        * [`LibxcFunc.GGA_XC_EDF1`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_EDF1)
 
 
-            * [`SiteTest.test_pickle()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.SiteTest.test_pickle)
+        * [`LibxcFunc.GGA_XC_HCTH_120`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_HCTH_120)
 
 
-            * [`SiteTest.test_properties()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.SiteTest.test_properties)
+        * [`LibxcFunc.GGA_XC_HCTH_147`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_HCTH_147)
 
 
-            * [`SiteTest.test_setters()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.SiteTest.test_setters)
+        * [`LibxcFunc.GGA_XC_HCTH_407`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_HCTH_407)
 
 
-            * [`SiteTest.test_to_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.SiteTest.test_to_from_dict)
+        * [`LibxcFunc.GGA_XC_HCTH_407P`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_HCTH_407P)
 
 
-        * [`get_distance_and_image_old()`](pymatgen.core.tests.md#pymatgen.core.tests.test_sites.get_distance_and_image_old)
+        * [`LibxcFunc.GGA_XC_HCTH_93`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_HCTH_93)
 
 
-    * [pymatgen.core.tests.test_spectrum module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_spectrum)
+        * [`LibxcFunc.GGA_XC_HCTH_P14`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_HCTH_P14)
 
 
-        * [`SpectrumTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_spectrum.SpectrumTest)
+        * [`LibxcFunc.GGA_XC_HCTH_P76`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_HCTH_P76)
 
 
-            * [`SpectrumTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_spectrum.SpectrumTest.setUp)
+        * [`LibxcFunc.GGA_XC_KT2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_KT2)
 
 
-            * [`SpectrumTest.test_copy()`](pymatgen.core.tests.md#pymatgen.core.tests.test_spectrum.SpectrumTest.test_copy)
+        * [`LibxcFunc.GGA_XC_MOHLYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_MOHLYP)
 
 
-            * [`SpectrumTest.test_normalize()`](pymatgen.core.tests.md#pymatgen.core.tests.test_spectrum.SpectrumTest.test_normalize)
+        * [`LibxcFunc.GGA_XC_MOHLYP2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_MOHLYP2)
 
 
-            * [`SpectrumTest.test_operators()`](pymatgen.core.tests.md#pymatgen.core.tests.test_spectrum.SpectrumTest.test_operators)
+        * [`LibxcFunc.GGA_XC_MPWLYP1W`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_MPWLYP1W)
 
 
-            * [`SpectrumTest.test_smear()`](pymatgen.core.tests.md#pymatgen.core.tests.test_spectrum.SpectrumTest.test_smear)
+        * [`LibxcFunc.GGA_XC_OBLYP_D`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_OBLYP_D)
 
 
-            * [`SpectrumTest.test_str()`](pymatgen.core.tests.md#pymatgen.core.tests.test_spectrum.SpectrumTest.test_str)
+        * [`LibxcFunc.GGA_XC_OPBE_D`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_OPBE_D)
 
 
-    * [pymatgen.core.tests.test_structure module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_structure)
+        * [`LibxcFunc.GGA_XC_OPWLYP_D`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_OPWLYP_D)
 
 
-        * [`IMoleculeTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest)
+        * [`LibxcFunc.GGA_XC_PBE1W`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_PBE1W)
 
 
-            * [`IMoleculeTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.setUp)
+        * [`LibxcFunc.GGA_XC_PBELYP1W`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_PBELYP1W)
 
 
-            * [`IMoleculeTest.test_bad_molecule()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_bad_molecule)
+        * [`LibxcFunc.GGA_XC_TH1`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_TH1)
 
 
-            * [`IMoleculeTest.test_break_bond()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_break_bond)
+        * [`LibxcFunc.GGA_XC_TH2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_TH2)
 
 
-            * [`IMoleculeTest.test_default_dict_attrs()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_default_dict_attrs)
+        * [`LibxcFunc.GGA_XC_TH3`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_TH3)
 
 
-            * [`IMoleculeTest.test_equal()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_equal)
+        * [`LibxcFunc.GGA_XC_TH4`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_TH4)
 
 
-            * [`IMoleculeTest.test_get_angle_dihedral()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_get_angle_dihedral)
+        * [`LibxcFunc.GGA_XC_TH_FC`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_TH_FC)
 
 
-            * [`IMoleculeTest.test_get_boxed_structure()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_get_boxed_structure)
+        * [`LibxcFunc.GGA_XC_TH_FCFO`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_TH_FCFO)
 
 
-            * [`IMoleculeTest.test_get_centered_molecule()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_get_centered_molecule)
+        * [`LibxcFunc.GGA_XC_TH_FCO`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_TH_FCO)
 
 
-            * [`IMoleculeTest.test_get_covalent_bonds()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_get_covalent_bonds)
+        * [`LibxcFunc.GGA_XC_TH_FL`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_TH_FL)
 
 
-            * [`IMoleculeTest.test_get_dist_matrix()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_get_dist_matrix)
+        * [`LibxcFunc.GGA_XC_VV10`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_VV10)
 
 
-            * [`IMoleculeTest.test_get_distance()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_get_distance)
+        * [`LibxcFunc.GGA_XC_XLYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_XC_XLYP)
 
 
-            * [`IMoleculeTest.test_get_neighbors()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_get_neighbors)
+        * [`LibxcFunc.GGA_X_2D_B86`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_2D_B86)
 
 
-            * [`IMoleculeTest.test_get_neighbors_in_shell()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_get_neighbors_in_shell)
+        * [`LibxcFunc.GGA_X_2D_B86_MGC`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_2D_B86_MGC)
 
 
-            * [`IMoleculeTest.test_get_zmatrix()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_get_zmatrix)
+        * [`LibxcFunc.GGA_X_2D_B88`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_2D_B88)
 
 
-            * [`IMoleculeTest.test_no_spin_check()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_no_spin_check)
+        * [`LibxcFunc.GGA_X_2D_PBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_2D_PBE)
 
 
-            * [`IMoleculeTest.test_prop()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_prop)
+        * [`LibxcFunc.GGA_X_AIRY`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_AIRY)
 
 
-            * [`IMoleculeTest.test_properties()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_properties)
+        * [`LibxcFunc.GGA_X_AK13`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_AK13)
 
 
-            * [`IMoleculeTest.test_repr_str()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_repr_str)
+        * [`LibxcFunc.GGA_X_AM05`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_AM05)
 
 
-            * [`IMoleculeTest.test_set_item()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_set_item)
+        * [`LibxcFunc.GGA_X_APBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_APBE)
 
 
-            * [`IMoleculeTest.test_site_properties()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_site_properties)
+        * [`LibxcFunc.GGA_X_B86`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_B86)
 
 
-            * [`IMoleculeTest.test_to_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_to_from_dict)
+        * [`LibxcFunc.GGA_X_B86_MGC`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_B86_MGC)
 
 
-            * [`IMoleculeTest.test_to_from_file_string()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IMoleculeTest.test_to_from_file_string)
+        * [`LibxcFunc.GGA_X_B86_R`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_B86_R)
 
 
-        * [`IStructureTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest)
+        * [`LibxcFunc.GGA_X_B88`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_B88)
 
 
-            * [`IStructureTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.setUp)
+        * [`LibxcFunc.GGA_X_BAYESIAN`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_BAYESIAN)
 
 
-            * [`IStructureTest.test_as_dataframe()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_as_dataframe)
+        * [`LibxcFunc.GGA_X_BGCP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_BGCP)
 
 
-            * [`IStructureTest.test_as_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_as_dict)
+        * [`LibxcFunc.GGA_X_BPCCAC`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_BPCCAC)
 
 
-            * [`IStructureTest.test_bad_structure()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_bad_structure)
+        * [`LibxcFunc.GGA_X_C09X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_C09X)
 
 
-            * [`IStructureTest.test_coincide_sites()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_coincide_sites)
+        * [`LibxcFunc.GGA_X_CAP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_CAP)
 
 
-            * [`IStructureTest.test_copy()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_copy)
+        * [`LibxcFunc.GGA_X_DK87_R1`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_DK87_R1)
 
 
-            * [`IStructureTest.test_equal()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_equal)
+        * [`LibxcFunc.GGA_X_DK87_R2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_DK87_R2)
 
 
-            * [`IStructureTest.test_fractional_occupations()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_fractional_occupations)
+        * [`LibxcFunc.GGA_X_EV93`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_EV93)
 
 
-            * [`IStructureTest.test_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_from_dict)
+        * [`LibxcFunc.GGA_X_FT97_A`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_FT97_A)
 
 
-            * [`IStructureTest.test_get_all_neighbors_and_get_neighbors()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_all_neighbors_and_get_neighbors)
+        * [`LibxcFunc.GGA_X_FT97_B`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_FT97_B)
 
 
-            * [`IStructureTest.test_get_all_neighbors_equal()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_all_neighbors_equal)
+        * [`LibxcFunc.GGA_X_G96`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_G96)
 
 
-            * [`IStructureTest.test_get_all_neighbors_outside_cell()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_all_neighbors_outside_cell)
+        * [`LibxcFunc.GGA_X_GAM`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_GAM)
 
 
-            * [`IStructureTest.test_get_all_neighbors_small_cutoff()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_all_neighbors_small_cutoff)
+        * [`LibxcFunc.GGA_X_HCTH_A`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_HCTH_A)
 
 
-            * [`IStructureTest.test_get_dist_matrix()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_dist_matrix)
+        * [`LibxcFunc.GGA_X_HERMAN`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_HERMAN)
 
 
-            * [`IStructureTest.test_get_distance()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_distance)
+        * [`LibxcFunc.GGA_X_HJS_B88`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_HJS_B88)
 
 
-            * [`IStructureTest.test_get_miller_index()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_miller_index)
+        * [`LibxcFunc.GGA_X_HJS_B88_V2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_HJS_B88_V2)
 
 
-            * [`IStructureTest.test_get_neighbor_list()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_neighbor_list)
+        * [`LibxcFunc.GGA_X_HJS_B97X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_HJS_B97X)
 
 
-            * [`IStructureTest.test_get_orderings()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_orderings)
+        * [`LibxcFunc.GGA_X_HJS_PBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_HJS_PBE)
 
 
-            * [`IStructureTest.test_get_primitive_structure()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_primitive_structure)
+        * [`LibxcFunc.GGA_X_HJS_PBE_SOL`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_HJS_PBE_SOL)
 
 
-            * [`IStructureTest.test_get_sorted_structure()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_sorted_structure)
+        * [`LibxcFunc.GGA_X_HTBS`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_HTBS)
 
 
-            * [`IStructureTest.test_get_space_group_data()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_space_group_data)
+        * [`LibxcFunc.GGA_X_ITYH`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_ITYH)
 
 
-            * [`IStructureTest.test_get_symmetric_neighbor_list()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_get_symmetric_neighbor_list)
+        * [`LibxcFunc.GGA_X_KT1`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_KT1)
 
 
-            * [`IStructureTest.test_interpolate()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_interpolate)
+        * [`LibxcFunc.GGA_X_LAG`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_LAG)
 
 
-            * [`IStructureTest.test_interpolate_lattice()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_interpolate_lattice)
+        * [`LibxcFunc.GGA_X_LAMBDA_CH_N`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_LAMBDA_CH_N)
 
 
-            * [`IStructureTest.test_interpolate_lattice_rotation()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_interpolate_lattice_rotation)
+        * [`LibxcFunc.GGA_X_LAMBDA_LO_N`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_LAMBDA_LO_N)
 
 
-            * [`IStructureTest.test_labeled_structure()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_labeled_structure)
+        * [`LibxcFunc.GGA_X_LAMBDA_OC2_N`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_LAMBDA_OC2_N)
 
 
-            * [`IStructureTest.test_matches()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_matches)
+        * [`LibxcFunc.GGA_X_LB`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_LB)
 
 
-            * [`IStructureTest.test_pbc()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_pbc)
+        * [`LibxcFunc.GGA_X_LBM`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_LBM)
 
 
-            * [`IStructureTest.test_primitive_cell_site_merging()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_primitive_cell_site_merging)
+        * [`LibxcFunc.GGA_X_LG93`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_LG93)
 
 
-            * [`IStructureTest.test_primitive_on_large_supercell()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_primitive_on_large_supercell)
+        * [`LibxcFunc.GGA_X_LV_RPW86`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_LV_RPW86)
 
 
-            * [`IStructureTest.test_primitive_positions()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_primitive_positions)
+        * [`LibxcFunc.GGA_X_MB88`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_MB88)
 
 
-            * [`IStructureTest.test_primitive_structure_volume_check()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_primitive_structure_volume_check)
+        * [`LibxcFunc.GGA_X_MPBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_MPBE)
 
 
-            * [`IStructureTest.test_site_properties()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_site_properties)
+        * [`LibxcFunc.GGA_X_MPW91`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_MPW91)
 
 
-            * [`IStructureTest.test_sites_setter()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_sites_setter)
+        * [`LibxcFunc.GGA_X_N12`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_N12)
 
 
-            * [`IStructureTest.test_specie_init()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_specie_init)
+        * [`LibxcFunc.GGA_X_OL2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_OL2)
 
 
-            * [`IStructureTest.test_to_from_file_string()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_to_from_file_string)
+        * [`LibxcFunc.GGA_X_OPTB88_VDW`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_OPTB88_VDW)
 
 
-            * [`IStructureTest.test_volume_and_density()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.IStructureTest.test_volume_and_density)
+        * [`LibxcFunc.GGA_X_OPTPBE_VDW`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_OPTPBE_VDW)
 
 
-        * [`MoleculeTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest)
+        * [`LibxcFunc.GGA_X_OPTX`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_OPTX)
 
 
-            * [`MoleculeTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.setUp)
+        * [`LibxcFunc.GGA_X_PBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_PBE)
 
 
-            * [`MoleculeTest.tearDown()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.tearDown)
+        * [`LibxcFunc.GGA_X_PBEA`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_PBEA)
 
 
-            * [`MoleculeTest.test_add_site_property()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_add_site_property)
+        * [`LibxcFunc.GGA_X_PBEFE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_PBEFE)
 
 
-            * [`MoleculeTest.test_apply_operation()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_apply_operation)
+        * [`LibxcFunc.GGA_X_PBEINT`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_PBEINT)
 
 
-            * [`MoleculeTest.test_calculate_ase_mol()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_calculate_ase_mol)
+        * [`LibxcFunc.GGA_X_PBEK1_VDW`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_PBEK1_VDW)
 
 
-            * [`MoleculeTest.test_calculate_gfnxtb()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_calculate_gfnxtb)
+        * [`LibxcFunc.GGA_X_PBE_JSJR`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_PBE_JSJR)
 
 
-            * [`MoleculeTest.test_extract_cluster()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_extract_cluster)
+        * [`LibxcFunc.GGA_X_PBE_MOL`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_PBE_MOL)
 
 
-            * [`MoleculeTest.test_insert_remove_append()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_insert_remove_append)
+        * [`LibxcFunc.GGA_X_PBE_R`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_PBE_R)
 
 
-            * [`MoleculeTest.test_mutable_sequence_methods()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_mutable_sequence_methods)
+        * [`LibxcFunc.GGA_X_PBE_SOL`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_PBE_SOL)
 
 
-            * [`MoleculeTest.test_no_spin_check()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_no_spin_check)
+        * [`LibxcFunc.GGA_X_PBE_TCA`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_PBE_TCA)
 
 
-            * [`MoleculeTest.test_relax_ase_mol()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_relax_ase_mol)
+        * [`LibxcFunc.GGA_X_PW86`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_PW86)
 
 
-            * [`MoleculeTest.test_relax_ase_mol_return_traj()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_relax_ase_mol_return_traj)
+        * [`LibxcFunc.GGA_X_PW91`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_PW91)
 
 
-            * [`MoleculeTest.test_relax_gfnxtb()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_relax_gfnxtb)
+        * [`LibxcFunc.GGA_X_Q2D`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_Q2D)
 
 
-            * [`MoleculeTest.test_replace()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_replace)
+        * [`LibxcFunc.GGA_X_RGE2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_RGE2)
 
 
-            * [`MoleculeTest.test_rotate_sites()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_rotate_sites)
+        * [`LibxcFunc.GGA_X_RPBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_RPBE)
 
 
-            * [`MoleculeTest.test_substitute()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_substitute)
+        * [`LibxcFunc.GGA_X_RPW86`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_RPW86)
 
 
-            * [`MoleculeTest.test_to_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_to_from_dict)
+        * [`LibxcFunc.GGA_X_SFAT`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_SFAT)
 
 
-            * [`MoleculeTest.test_to_from_file_string()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_to_from_file_string)
+        * [`LibxcFunc.GGA_X_SOGGA`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_SOGGA)
 
 
-            * [`MoleculeTest.test_translate_sites()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.MoleculeTest.test_translate_sites)
+        * [`LibxcFunc.GGA_X_SOGGA11`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_SOGGA11)
 
 
-        * [`NeighborTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.NeighborTest)
+        * [`LibxcFunc.GGA_X_SSB`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_SSB)
 
 
-            * [`NeighborTest.test_msonable()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.NeighborTest.test_msonable)
+        * [`LibxcFunc.GGA_X_SSB_D`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_SSB_D)
 
 
-            * [`NeighborTest.test_neighbor_labels()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.NeighborTest.test_neighbor_labels)
+        * [`LibxcFunc.GGA_X_SSB_SW`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_SSB_SW)
 
 
-        * [`StructureTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest)
+        * [`LibxcFunc.GGA_X_VMT84_GE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_VMT84_GE)
 
 
-            * [`StructureTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.setUp)
+        * [`LibxcFunc.GGA_X_VMT84_PBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_VMT84_PBE)
 
 
-            * [`StructureTest.test_add_oxidation_states_by_element()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_add_oxidation_states_by_element)
+        * [`LibxcFunc.GGA_X_VMT_GE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_VMT_GE)
 
 
-            * [`StructureTest.test_add_oxidation_states_by_guess()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_add_oxidation_states_by_guess)
+        * [`LibxcFunc.GGA_X_VMT_PBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_VMT_PBE)
 
 
-            * [`StructureTest.test_add_oxidation_states_by_site()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_add_oxidation_states_by_site)
+        * [`LibxcFunc.GGA_X_WC`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_WC)
 
 
-            * [`StructureTest.test_add_remove_site_property()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_add_remove_site_property)
+        * [`LibxcFunc.GGA_X_WPBEH`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_WPBEH)
 
 
-            * [`StructureTest.test_add_remove_spin_states()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_add_remove_spin_states)
+        * [`LibxcFunc.GGA_X_XPBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.GGA_X_XPBE)
 
 
-            * [`StructureTest.test_another_supercell()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_another_supercell)
+        * [`LibxcFunc.HYB_GGA_XC_B1LYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B1LYP)
 
 
-            * [`StructureTest.test_append_insert_remove_replace_substitute()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_append_insert_remove_replace_substitute)
+        * [`LibxcFunc.HYB_GGA_XC_B1PW91`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B1PW91)
 
 
-            * [`StructureTest.test_apply_operation()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_apply_operation)
+        * [`LibxcFunc.HYB_GGA_XC_B1WC`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B1WC)
 
 
-            * [`StructureTest.test_apply_strain()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_apply_strain)
+        * [`LibxcFunc.HYB_GGA_XC_B3LYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B3LYP)
 
 
-            * [`StructureTest.test_calculate_ase()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_calculate_ase)
+        * [`LibxcFunc.HYB_GGA_XC_B3LYP5`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B3LYP5)
 
 
-            * [`StructureTest.test_calculate_chgnet()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_calculate_chgnet)
+        * [`LibxcFunc.HYB_GGA_XC_B3LYPs`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B3LYPs)
 
 
-            * [`StructureTest.test_calculate_m3gnet()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_calculate_m3gnet)
+        * [`LibxcFunc.HYB_GGA_XC_B3P86`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B3P86)
 
 
-            * [`StructureTest.test_charge()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_charge)
+        * [`LibxcFunc.HYB_GGA_XC_B3PW91`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B3PW91)
 
 
-            * [`StructureTest.test_default_dict_attrs()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_default_dict_attrs)
+        * [`LibxcFunc.HYB_GGA_XC_B97`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B97)
 
 
-            * [`StructureTest.test_disordered_supercell_primitive_cell()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_disordered_supercell_primitive_cell)
+        * [`LibxcFunc.HYB_GGA_XC_B97_1`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B97_1)
 
 
-            * [`StructureTest.test_extract_cluster()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_extract_cluster)
+        * [`LibxcFunc.HYB_GGA_XC_B97_1p`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B97_1p)
 
 
-            * [`StructureTest.test_from_magnetic_spacegroup()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_from_magnetic_spacegroup)
+        * [`LibxcFunc.HYB_GGA_XC_B97_2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B97_2)
 
 
-            * [`StructureTest.test_from_prototype()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_from_prototype)
+        * [`LibxcFunc.HYB_GGA_XC_B97_3`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B97_3)
 
 
-            * [`StructureTest.test_from_sites()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_from_sites)
+        * [`LibxcFunc.HYB_GGA_XC_B97_K`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_B97_K)
 
 
-            * [`StructureTest.test_from_spacegroup()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_from_spacegroup)
+        * [`LibxcFunc.HYB_GGA_XC_BHANDH`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_BHANDH)
 
 
-            * [`StructureTest.test_init_error()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_init_error)
+        * [`LibxcFunc.HYB_GGA_XC_BHANDHLYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_BHANDHLYP)
 
 
-            * [`StructureTest.test_make_supercell()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_make_supercell)
+        * [`LibxcFunc.HYB_GGA_XC_CAMY_B3LYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_CAMY_B3LYP)
 
 
-            * [`StructureTest.test_make_supercell_labeled()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_make_supercell_labeled)
+        * [`LibxcFunc.HYB_GGA_XC_CAMY_BLYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_CAMY_BLYP)
 
 
-            * [`StructureTest.test_merge_sites()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_merge_sites)
+        * [`LibxcFunc.HYB_GGA_XC_CAM_B3LYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_CAM_B3LYP)
 
 
-            * [`StructureTest.test_mul()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_mul)
+        * [`LibxcFunc.HYB_GGA_XC_CAP0`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_CAP0)
 
 
-            * [`StructureTest.test_mutable_sequence_methods()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_mutable_sequence_methods)
+        * [`LibxcFunc.HYB_GGA_XC_EDF2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_EDF2)
 
 
-            * [`StructureTest.test_not_hashable()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_not_hashable)
+        * [`LibxcFunc.HYB_GGA_XC_HJS_B88`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_HJS_B88)
 
 
-            * [`StructureTest.test_perturb()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_perturb)
+        * [`LibxcFunc.HYB_GGA_XC_HJS_B97X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_HJS_B97X)
 
 
-            * [`StructureTest.test_propertied_structure()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_propertied_structure)
+        * [`LibxcFunc.HYB_GGA_XC_HJS_PBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_HJS_PBE)
 
 
-            * [`StructureTest.test_properties()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_properties)
+        * [`LibxcFunc.HYB_GGA_XC_HJS_PBE_SOL`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_HJS_PBE_SOL)
 
 
-            * [`StructureTest.test_relax_ase()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_relax_ase)
+        * [`LibxcFunc.HYB_GGA_XC_HPBEINT`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_HPBEINT)
 
 
-            * [`StructureTest.test_relax_ase_opt_kwargs()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_relax_ase_opt_kwargs)
+        * [`LibxcFunc.HYB_GGA_XC_HSE03`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_HSE03)
 
 
-            * [`StructureTest.test_relax_ase_return_traj()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_relax_ase_return_traj)
+        * [`LibxcFunc.HYB_GGA_XC_HSE06`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_HSE06)
 
 
-            * [`StructureTest.test_relax_chgnet()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_relax_chgnet)
+        * [`LibxcFunc.HYB_GGA_XC_LCY_BLYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_LCY_BLYP)
 
 
-            * [`StructureTest.test_relax_m3gnet()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_relax_m3gnet)
+        * [`LibxcFunc.HYB_GGA_XC_LCY_PBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_LCY_PBE)
 
 
-            * [`StructureTest.test_relax_m3gnet_fixed_lattice()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_relax_m3gnet_fixed_lattice)
+        * [`LibxcFunc.HYB_GGA_XC_LC_VV10`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_LC_VV10)
 
 
-            * [`StructureTest.test_relax_m3gnet_with_traj()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_relax_m3gnet_with_traj)
+        * [`LibxcFunc.HYB_GGA_XC_LRC_WPBE`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_LRC_WPBE)
 
 
-            * [`StructureTest.test_remove_oxidation_states()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_remove_oxidation_states)
+        * [`LibxcFunc.HYB_GGA_XC_LRC_WPBEH`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_LRC_WPBEH)
 
 
-            * [`StructureTest.test_rotate_sites()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_rotate_sites)
+        * [`LibxcFunc.HYB_GGA_XC_MB3LYP_RC04`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_MB3LYP_RC04)
 
 
-            * [`StructureTest.test_scale_lattice()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_scale_lattice)
+        * [`LibxcFunc.HYB_GGA_XC_MPW3LYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_MPW3LYP)
 
 
-            * [`StructureTest.test_set_item()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_set_item)
+        * [`LibxcFunc.HYB_GGA_XC_MPW3PW`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_MPW3PW)
 
 
-            * [`StructureTest.test_sort()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_sort)
+        * [`LibxcFunc.HYB_GGA_XC_MPWLYP1M`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_MPWLYP1M)
 
 
-            * [`StructureTest.test_species()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_species)
+        * [`LibxcFunc.HYB_GGA_XC_O3LYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_O3LYP)
 
 
-            * [`StructureTest.test_to_from_abivars()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_to_from_abivars)
+        * [`LibxcFunc.HYB_GGA_XC_PBE0_13`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_PBE0_13)
 
 
-            * [`StructureTest.test_to_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_to_from_dict)
+        * [`LibxcFunc.HYB_GGA_XC_PBEH`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_PBEH)
 
 
-            * [`StructureTest.test_to_from_file_string()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_to_from_file_string)
+        * [`LibxcFunc.HYB_GGA_XC_REVB3LYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_REVB3LYP)
 
 
-            * [`StructureTest.test_translate_sites()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_translate_sites)
+        * [`LibxcFunc.HYB_GGA_XC_SB98_1a`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_SB98_1a)
 
 
-            * [`StructureTest.test_vesta_lattice_matrix()`](pymatgen.core.tests.md#pymatgen.core.tests.test_structure.StructureTest.test_vesta_lattice_matrix)
+        * [`LibxcFunc.HYB_GGA_XC_SB98_1b`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_SB98_1b)
 
 
-    * [pymatgen.core.tests.test_surface module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_surface)
+        * [`LibxcFunc.HYB_GGA_XC_SB98_1c`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_SB98_1c)
 
 
-        * [`MillerIndexFinderTests`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.MillerIndexFinderTests)
+        * [`LibxcFunc.HYB_GGA_XC_SB98_2a`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_SB98_2a)
 
 
-            * [`MillerIndexFinderTests.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.MillerIndexFinderTests.setUp)
+        * [`LibxcFunc.HYB_GGA_XC_SB98_2b`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_SB98_2b)
 
 
-            * [`MillerIndexFinderTests.test_generate_all_slabs()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.MillerIndexFinderTests.test_generate_all_slabs)
+        * [`LibxcFunc.HYB_GGA_XC_SB98_2c`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_SB98_2c)
 
 
-            * [`MillerIndexFinderTests.test_get_symmetrically_distinct_miller_indices()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.MillerIndexFinderTests.test_get_symmetrically_distinct_miller_indices)
+        * [`LibxcFunc.HYB_GGA_XC_TUNED_CAM_B3LYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_TUNED_CAM_B3LYP)
 
 
-            * [`MillerIndexFinderTests.test_get_symmetrically_equivalent_miller_indices()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.MillerIndexFinderTests.test_get_symmetrically_equivalent_miller_indices)
+        * [`LibxcFunc.HYB_GGA_XC_WB97`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_WB97)
 
 
-            * [`MillerIndexFinderTests.test_miller_index_from_sites()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.MillerIndexFinderTests.test_miller_index_from_sites)
+        * [`LibxcFunc.HYB_GGA_XC_WB97X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_WB97X)
 
 
-        * [`ReconstructionGeneratorTests`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.ReconstructionGeneratorTests)
+        * [`LibxcFunc.HYB_GGA_XC_WB97X_D`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_WB97X_D)
 
 
-            * [`ReconstructionGeneratorTests.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.ReconstructionGeneratorTests.setUp)
+        * [`LibxcFunc.HYB_GGA_XC_WB97X_V`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_WB97X_V)
 
 
-            * [`ReconstructionGeneratorTests.test_build_slab()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.ReconstructionGeneratorTests.test_build_slab)
+        * [`LibxcFunc.HYB_GGA_XC_X3LYP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_X3LYP)
 
 
-            * [`ReconstructionGeneratorTests.test_get_d()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.ReconstructionGeneratorTests.test_get_d)
+        * [`LibxcFunc.HYB_GGA_XC_mPW1K`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_mPW1K)
 
 
-            * [`ReconstructionGeneratorTests.test_previous_reconstructions()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.ReconstructionGeneratorTests.test_previous_reconstructions)
+        * [`LibxcFunc.HYB_GGA_XC_mPW1PW`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_XC_mPW1PW)
 
 
-        * [`SlabGeneratorTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabGeneratorTest)
+        * [`LibxcFunc.HYB_GGA_X_N12_SX`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_X_N12_SX)
 
 
-            * [`SlabGeneratorTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabGeneratorTest.setUp)
+        * [`LibxcFunc.HYB_GGA_X_SOGGA11_X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_GGA_X_SOGGA11_X)
 
 
-            * [`SlabGeneratorTest.test_bonds_broken()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabGeneratorTest.test_bonds_broken)
+        * [`LibxcFunc.HYB_MGGA_XC_B86B95`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_B86B95)
 
 
-            * [`SlabGeneratorTest.test_get_orthogonal_c_slab()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabGeneratorTest.test_get_orthogonal_c_slab)
+        * [`LibxcFunc.HYB_MGGA_XC_B88B95`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_B88B95)
 
 
-            * [`SlabGeneratorTest.test_get_orthogonal_c_slab_site_props()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabGeneratorTest.test_get_orthogonal_c_slab_site_props)
+        * [`LibxcFunc.HYB_MGGA_XC_BB1K`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_BB1K)
 
 
-            * [`SlabGeneratorTest.test_get_slab()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabGeneratorTest.test_get_slab)
+        * [`LibxcFunc.HYB_MGGA_XC_M05`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_M05)
 
 
-            * [`SlabGeneratorTest.test_get_slabs()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabGeneratorTest.test_get_slabs)
+        * [`LibxcFunc.HYB_MGGA_XC_M05_2X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_M05_2X)
 
 
-            * [`SlabGeneratorTest.test_get_tasker2_slabs()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabGeneratorTest.test_get_tasker2_slabs)
+        * [`LibxcFunc.HYB_MGGA_XC_M06`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_M06)
 
 
-            * [`SlabGeneratorTest.test_move_to_other_side()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabGeneratorTest.test_move_to_other_side)
+        * [`LibxcFunc.HYB_MGGA_XC_M06_2X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_M06_2X)
 
 
-            * [`SlabGeneratorTest.test_nonstoichiometric_symmetrized_slab()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabGeneratorTest.test_nonstoichiometric_symmetrized_slab)
+        * [`LibxcFunc.HYB_MGGA_XC_M06_HF`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_M06_HF)
 
 
-            * [`SlabGeneratorTest.test_normal_search()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabGeneratorTest.test_normal_search)
+        * [`LibxcFunc.HYB_MGGA_XC_M08_HX`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_M08_HX)
 
 
-            * [`SlabGeneratorTest.test_triclinic_TeI()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabGeneratorTest.test_triclinic_TeI)
+        * [`LibxcFunc.HYB_MGGA_XC_M08_SO`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_M08_SO)
 
 
-        * [`SlabTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest)
+        * [`LibxcFunc.HYB_MGGA_XC_M11`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_M11)
 
 
-            * [`SlabTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.setUp)
+        * [`LibxcFunc.HYB_MGGA_XC_MPW1B95`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_MPW1B95)
 
 
-            * [`SlabTest.test_add_adsorbate_atom()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.test_add_adsorbate_atom)
+        * [`LibxcFunc.HYB_MGGA_XC_MPWB1K`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_MPWB1K)
 
 
-            * [`SlabTest.test_as_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.test_as_dict)
+        * [`LibxcFunc.HYB_MGGA_XC_PW6B95`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_PW6B95)
 
 
-            * [`SlabTest.test_as_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.test_as_from_dict)
+        * [`LibxcFunc.HYB_MGGA_XC_PW86B95`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_PW86B95)
 
 
-            * [`SlabTest.test_dipole_and_is_polar()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.test_dipole_and_is_polar)
+        * [`LibxcFunc.HYB_MGGA_XC_PWB6K`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_PWB6K)
 
 
-            * [`SlabTest.test_get_slab_regions()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.test_get_slab_regions)
+        * [`LibxcFunc.HYB_MGGA_XC_REVTPSSH`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_REVTPSSH)
 
 
-            * [`SlabTest.test_get_sorted_structure()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.test_get_sorted_structure)
+        * [`LibxcFunc.HYB_MGGA_XC_TPSSH`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_TPSSH)
 
 
-            * [`SlabTest.test_get_symmetric_sites()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.test_get_symmetric_sites)
+        * [`LibxcFunc.HYB_MGGA_XC_WB97M_V`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_WB97M_V)
 
 
-            * [`SlabTest.test_init()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.test_init)
+        * [`LibxcFunc.HYB_MGGA_XC_X1B95`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_X1B95)
 
 
-            * [`SlabTest.test_methods()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.test_methods)
+        * [`LibxcFunc.HYB_MGGA_XC_XB1K`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_XC_XB1K)
 
 
-            * [`SlabTest.test_oriented_unit_cell()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.test_oriented_unit_cell)
+        * [`LibxcFunc.HYB_MGGA_X_DLDF`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_X_DLDF)
 
 
-            * [`SlabTest.test_surface_sites_and_symmetry()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.test_surface_sites_and_symmetry)
+        * [`LibxcFunc.HYB_MGGA_X_MN12_SX`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_X_MN12_SX)
 
 
-            * [`SlabTest.test_symmetrization()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.SlabTest.test_symmetrization)
+        * [`LibxcFunc.HYB_MGGA_X_MN15`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_X_MN15)
 
 
-        * [`get_path()`](pymatgen.core.tests.md#pymatgen.core.tests.test_surface.get_path)
+        * [`LibxcFunc.HYB_MGGA_X_MS2H`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_X_MS2H)
 
 
-    * [pymatgen.core.tests.test_tensors module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_tensors)
+        * [`LibxcFunc.HYB_MGGA_X_MVSH`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_X_MVSH)
 
 
-        * [`SquareTensorTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.SquareTensorTest)
+        * [`LibxcFunc.HYB_MGGA_X_SCAN0`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.HYB_MGGA_X_SCAN0)
 
 
-            * [`SquareTensorTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.SquareTensorTest.setUp)
+        * [`LibxcFunc.LDA_C_1D_CSC`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_1D_CSC)
 
 
-            * [`SquareTensorTest.test_get_scaled()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.SquareTensorTest.test_get_scaled)
+        * [`LibxcFunc.LDA_C_1D_LOOS`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_1D_LOOS)
 
 
-            * [`SquareTensorTest.test_is_rotation()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.SquareTensorTest.test_is_rotation)
+        * [`LibxcFunc.LDA_C_2D_AMGB`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_2D_AMGB)
 
 
-            * [`SquareTensorTest.test_new()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.SquareTensorTest.test_new)
+        * [`LibxcFunc.LDA_C_2D_PRM`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_2D_PRM)
 
 
-            * [`SquareTensorTest.test_polar_decomposition()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.SquareTensorTest.test_polar_decomposition)
+        * [`LibxcFunc.LDA_C_GL`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_GL)
 
 
-            * [`SquareTensorTest.test_properties()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.SquareTensorTest.test_properties)
+        * [`LibxcFunc.LDA_C_GOMBAS`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_GOMBAS)
 
 
-            * [`SquareTensorTest.test_refine_rotation()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.SquareTensorTest.test_refine_rotation)
+        * [`LibxcFunc.LDA_C_HL`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_HL)
 
 
-            * [`SquareTensorTest.test_serialization()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.SquareTensorTest.test_serialization)
+        * [`LibxcFunc.LDA_C_ML1`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_ML1)
 
 
-        * [`TensorCollectionTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorCollectionTest)
+        * [`LibxcFunc.LDA_C_ML2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_ML2)
 
 
-            * [`TensorCollectionTest.list_based_function_check()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorCollectionTest.list_based_function_check)
+        * [`LibxcFunc.LDA_C_OB_PW`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_OB_PW)
 
 
-            * [`TensorCollectionTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorCollectionTest.setUp)
+        * [`LibxcFunc.LDA_C_OB_PZ`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_OB_PZ)
 
 
-            * [`TensorCollectionTest.test_list_based_functions()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorCollectionTest.test_list_based_functions)
+        * [`LibxcFunc.LDA_C_PW`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_PW)
 
 
-            * [`TensorCollectionTest.test_serialization()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorCollectionTest.test_serialization)
+        * [`LibxcFunc.LDA_C_PW_MOD`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_PW_MOD)
 
 
-        * [`TensorTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest)
+        * [`LibxcFunc.LDA_C_PW_RPA`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_PW_RPA)
 
 
-            * [`TensorTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.setUp)
+        * [`LibxcFunc.LDA_C_PZ`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_PZ)
 
 
-            * [`TensorTest.test_convert_to_ieee()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_convert_to_ieee)
+        * [`LibxcFunc.LDA_C_PZ_MOD`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_PZ_MOD)
 
 
-            * [`TensorTest.test_einsum_sequence()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_einsum_sequence)
+        * [`LibxcFunc.LDA_C_RC04`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_RC04)
 
 
-            * [`TensorTest.test_fit_to_structure()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_fit_to_structure)
+        * [`LibxcFunc.LDA_C_RPA`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_RPA)
 
 
-            * [`TensorTest.test_from_values_indices()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_from_values_indices)
+        * [`LibxcFunc.LDA_C_VWN`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_VWN)
 
 
-            * [`TensorTest.test_from_voigt()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_from_voigt)
+        * [`LibxcFunc.LDA_C_VWN_1`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_VWN_1)
 
 
-            * [`TensorTest.test_is_fit_to_structure()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_is_fit_to_structure)
+        * [`LibxcFunc.LDA_C_VWN_2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_VWN_2)
 
 
-            * [`TensorTest.test_is_symmetric()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_is_symmetric)
+        * [`LibxcFunc.LDA_C_VWN_3`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_VWN_3)
 
 
-            * [`TensorTest.test_new()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_new)
+        * [`LibxcFunc.LDA_C_VWN_4`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_VWN_4)
 
 
-            * [`TensorTest.test_populate()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_populate)
+        * [`LibxcFunc.LDA_C_VWN_RPA`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_VWN_RPA)
 
 
-            * [`TensorTest.test_projection_methods()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_projection_methods)
+        * [`LibxcFunc.LDA_C_WIGNER`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_WIGNER)
 
 
-            * [`TensorTest.test_rotate()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_rotate)
+        * [`LibxcFunc.LDA_C_XALPHA`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_XALPHA)
 
 
-            * [`TensorTest.test_round()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_round)
+        * [`LibxcFunc.LDA_C_vBH`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_C_vBH)
 
 
-            * [`TensorTest.test_serialization()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_serialization)
+        * [`LibxcFunc.LDA_K_LP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_K_LP)
 
 
-            * [`TensorTest.test_structure_transform()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_structure_transform)
+        * [`LibxcFunc.LDA_K_TF`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_K_TF)
 
 
-            * [`TensorTest.test_summary_methods()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_summary_methods)
+        * [`LibxcFunc.LDA_X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_X)
 
 
-            * [`TensorTest.test_symmetrized()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_symmetrized)
+        * [`LibxcFunc.LDA_XC_KSDT`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_XC_KSDT)
 
 
-            * [`TensorTest.test_symmetry_reduce()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_symmetry_reduce)
+        * [`LibxcFunc.LDA_XC_TETER93`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_XC_TETER93)
 
 
-            * [`TensorTest.test_tensor_mapping()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_tensor_mapping)
+        * [`LibxcFunc.LDA_XC_ZLP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_XC_ZLP)
 
 
-            * [`TensorTest.test_transform()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_transform)
+        * [`LibxcFunc.LDA_X_1D`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_X_1D)
 
 
-            * [`TensorTest.test_zeroed()`](pymatgen.core.tests.md#pymatgen.core.tests.test_tensors.TensorTest.test_zeroed)
+        * [`LibxcFunc.LDA_X_2D`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.LDA_X_2D)
 
 
-    * [pymatgen.core.tests.test_trajectory module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_trajectory)
+        * [`LibxcFunc.MGGA_C_BC95`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_BC95)
 
 
-        * [`TrajectoryTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest)
+        * [`LibxcFunc.MGGA_C_CC06`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_CC06)
 
 
-            * [`TrajectoryTest.setUp()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.setUp)
+        * [`LibxcFunc.MGGA_C_CS`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_CS)
 
 
-            * [`TrajectoryTest.test_conversion()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_conversion)
+        * [`LibxcFunc.MGGA_C_DLDF`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_DLDF)
 
 
-            * [`TrajectoryTest.test_displacements()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_displacements)
+        * [`LibxcFunc.MGGA_C_M05`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_M05)
 
 
-            * [`TrajectoryTest.test_extend()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_extend)
+        * [`LibxcFunc.MGGA_C_M05_2X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_M05_2X)
 
 
-            * [`TrajectoryTest.test_extend_frame_props()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_extend_frame_props)
+        * [`LibxcFunc.MGGA_C_M06`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_M06)
 
 
-            * [`TrajectoryTest.test_extend_site_props()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_extend_site_props)
+        * [`LibxcFunc.MGGA_C_M06_2X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_M06_2X)
 
 
-            * [`TrajectoryTest.test_frame_properties()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_frame_properties)
+        * [`LibxcFunc.MGGA_C_M06_HF`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_M06_HF)
 
 
-            * [`TrajectoryTest.test_length()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_length)
+        * [`LibxcFunc.MGGA_C_M06_L`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_M06_L)
 
 
-            * [`TrajectoryTest.test_list_slice()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_list_slice)
+        * [`LibxcFunc.MGGA_C_M08_HX`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_M08_HX)
 
 
-            * [`TrajectoryTest.test_single_index_slice()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_single_index_slice)
+        * [`LibxcFunc.MGGA_C_M08_SO`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_M08_SO)
 
 
-            * [`TrajectoryTest.test_site_properties()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_site_properties)
+        * [`LibxcFunc.MGGA_C_M11`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_M11)
 
 
-            * [`TrajectoryTest.test_slice()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_slice)
+        * [`LibxcFunc.MGGA_C_M11_L`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_M11_L)
 
 
-            * [`TrajectoryTest.test_to_from_dict()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_to_from_dict)
+        * [`LibxcFunc.MGGA_C_MN12_L`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_MN12_L)
 
 
-            * [`TrajectoryTest.test_variable_lattice()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_variable_lattice)
+        * [`LibxcFunc.MGGA_C_MN12_SX`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_MN12_SX)
 
 
-            * [`TrajectoryTest.test_xdatcar_write()`](pymatgen.core.tests.md#pymatgen.core.tests.test_trajectory.TrajectoryTest.test_xdatcar_write)
+        * [`LibxcFunc.MGGA_C_MN15`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_MN15)
 
 
-    * [pymatgen.core.tests.test_units module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_units)
+        * [`LibxcFunc.MGGA_C_MN15_L`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_MN15_L)
 
 
-        * [`ArrayWithFloatWithUnitTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.ArrayWithFloatWithUnitTest)
+        * [`LibxcFunc.MGGA_C_PKZB`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_PKZB)
 
 
-            * [`ArrayWithFloatWithUnitTest.test_array_algebra()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.ArrayWithFloatWithUnitTest.test_array_algebra)
+        * [`LibxcFunc.MGGA_C_REVTPSS`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_REVTPSS)
 
 
-            * [`ArrayWithFloatWithUnitTest.test_as_base_units()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.ArrayWithFloatWithUnitTest.test_as_base_units)
+        * [`LibxcFunc.MGGA_C_SCAN`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_SCAN)
 
 
-            * [`ArrayWithFloatWithUnitTest.test_energy()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.ArrayWithFloatWithUnitTest.test_energy)
+        * [`LibxcFunc.MGGA_C_TPSS`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_TPSS)
 
 
-            * [`ArrayWithFloatWithUnitTest.test_factors()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.ArrayWithFloatWithUnitTest.test_factors)
+        * [`LibxcFunc.MGGA_C_TPSSLOC`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_TPSSLOC)
 
 
-            * [`ArrayWithFloatWithUnitTest.test_length()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.ArrayWithFloatWithUnitTest.test_length)
+        * [`LibxcFunc.MGGA_C_VSXC`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_C_VSXC)
 
 
-            * [`ArrayWithFloatWithUnitTest.test_time()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.ArrayWithFloatWithUnitTest.test_time)
+        * [`LibxcFunc.MGGA_XC_B97M_V`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_XC_B97M_V)
 
 
-        * [`DataPersistenceTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.DataPersistenceTest)
+        * [`LibxcFunc.MGGA_XC_OTPSS_D`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_XC_OTPSS_D)
 
 
-            * [`DataPersistenceTest.test_pickle()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.DataPersistenceTest.test_pickle)
+        * [`LibxcFunc.MGGA_XC_TPSSLYP1W`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_XC_TPSSLYP1W)
 
 
-        * [`FloatWithUnitTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.FloatWithUnitTest)
+        * [`LibxcFunc.MGGA_XC_ZLP`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_XC_ZLP)
 
 
-            * [`FloatWithUnitTest.test_as_base_units()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.FloatWithUnitTest.test_as_base_units)
+        * [`LibxcFunc.MGGA_X_2D_PRHG07`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_2D_PRHG07)
 
 
-            * [`FloatWithUnitTest.test_compound_operations()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.FloatWithUnitTest.test_compound_operations)
+        * [`LibxcFunc.MGGA_X_2D_PRHG07_PRP10`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_2D_PRHG07_PRP10)
 
 
-            * [`FloatWithUnitTest.test_energy()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.FloatWithUnitTest.test_energy)
+        * [`LibxcFunc.MGGA_X_BJ06`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_BJ06)
 
 
-            * [`FloatWithUnitTest.test_length()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.FloatWithUnitTest.test_length)
+        * [`LibxcFunc.MGGA_X_BLOC`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_BLOC)
 
 
-            * [`FloatWithUnitTest.test_memory()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.FloatWithUnitTest.test_memory)
+        * [`LibxcFunc.MGGA_X_BR89`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_BR89)
 
 
-            * [`FloatWithUnitTest.test_time()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.FloatWithUnitTest.test_time)
+        * [`LibxcFunc.MGGA_X_GVT4`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_GVT4)
 
 
-            * [`FloatWithUnitTest.test_unitized()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.FloatWithUnitTest.test_unitized)
+        * [`LibxcFunc.MGGA_X_LTA`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_LTA)
 
 
-        * [`UnitTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.UnitTest)
+        * [`LibxcFunc.MGGA_X_M05`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M05)
 
 
-            * [`UnitTest.test_init()`](pymatgen.core.tests.md#pymatgen.core.tests.test_units.UnitTest.test_init)
+        * [`LibxcFunc.MGGA_X_M05_2X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M05_2X)
 
 
-    * [pymatgen.core.tests.test_xcfunc module](pymatgen.core.tests.md#module-pymatgen.core.tests.test_xcfunc)
+        * [`LibxcFunc.MGGA_X_M06`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M06)
 
 
-        * [`LibxcFuncTest`](pymatgen.core.tests.md#pymatgen.core.tests.test_xcfunc.LibxcFuncTest)
+        * [`LibxcFunc.MGGA_X_M06_2X`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M06_2X)
 
 
-            * [`LibxcFuncTest.test_xcfunc_api()`](pymatgen.core.tests.md#pymatgen.core.tests.test_xcfunc.LibxcFuncTest.test_xcfunc_api)
+        * [`LibxcFunc.MGGA_X_M06_HF`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M06_HF)
 
 
+        * [`LibxcFunc.MGGA_X_M06_L`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M06_L)
 
-## pymatgen.core.bonds module
 
-This class implements definitions for various kinds of bonds. Typically used in
-Molecule analysis.
+        * [`LibxcFunc.MGGA_X_M08_HX`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M08_HX)
 
 
-### _class_ pymatgen.core.bonds.CovalentBond(site1: Site, site2: Site)
-Bases: `object`
+        * [`LibxcFunc.MGGA_X_M08_SO`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M08_SO)
 
-Defines a covalent bond between two sites.
 
-Initializes a covalent bond between two sites.
+        * [`LibxcFunc.MGGA_X_M11`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M11)
 
 
-* **Parameters**
+        * [`LibxcFunc.MGGA_X_M11_L`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_M11_L)
 
 
-    * **site1** (*Site*) – First site.
+        * [`LibxcFunc.MGGA_X_MBEEF`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_MBEEF)
 
 
-    * **site2** (*Site*) – Second site.
+        * [`LibxcFunc.MGGA_X_MBEEFVDW`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_MBEEFVDW)
 
 
+        * [`LibxcFunc.MGGA_X_MK00`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_MK00)
 
-#### get_bond_order(tol: float = 0.2, default_bl: float | None = None)
-The bond order according the distance between the two sites
-:param tol: Relative tolerance to test.
 
-> (1 + tol) \* the longest bond distance is considered
-> to be the threshold length for a bond to exist.
-> (1 - tol) \* the shortest bond distance is considered
-> to be the shortest possible bond length
-> Defaults to 0.2.
+        * [`LibxcFunc.MGGA_X_MK00B`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_MK00B)
 
 
-* **Parameters**
+        * [`LibxcFunc.MGGA_X_MN12_L`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_MN12_L)
 
-    **default_bl** – If a particular type of bond does not exist,
-    use this bond length as a default value
-    (bond order = 1). If None, a ValueError will be thrown.
 
+        * [`LibxcFunc.MGGA_X_MN15_L`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_MN15_L)
 
 
-* **Returns**
+        * [`LibxcFunc.MGGA_X_MODTPSS`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_MODTPSS)
 
-    Float value of bond order. For example, for C-C bond in
-    benzene, return 1.7.
 
+        * [`LibxcFunc.MGGA_X_MS0`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_MS0)
 
 
-#### _static_ is_bonded(site1, site2, tol: float = 0.2, bond_order: float | None = None, default_bl: float | None = None)
-Test if two sites are bonded, up to a certain limit.
+        * [`LibxcFunc.MGGA_X_MS1`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_MS1)
 
 
-* **Parameters**
+        * [`LibxcFunc.MGGA_X_MS2`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_MS2)
 
 
-    * **site1** (*Site*) – First site
+        * [`LibxcFunc.MGGA_X_MVS`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_MVS)
 
 
-    * **site2** (*Site*) – Second site
+        * [`LibxcFunc.MGGA_X_PKZB`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_PKZB)
 
 
-    * **tol** (*float*) – Relative tolerance to test. Basically, the code
-    checks if the distance between the sites is less than (1 +
-    tol) \* typical bond distances. Defaults to 0.2, i.e.,
-    20% longer.
+        * [`LibxcFunc.MGGA_X_REVTPSS`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_REVTPSS)
 
 
-    * **bond_order** – Bond order to test. If None, the code simply checks
-    against all possible bond data. Defaults to None.
+        * [`LibxcFunc.MGGA_X_RPP09`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_RPP09)
 
 
-    * **default_bl** – If a particular type of bond does not exist, use this
-    bond length. If None, a ValueError will be thrown.
+        * [`LibxcFunc.MGGA_X_SCAN`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_SCAN)
 
 
+        * [`LibxcFunc.MGGA_X_TAU_HCTH`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_TAU_HCTH)
 
-* **Returns**
 
-    Boolean indicating whether two sites are bonded.
+        * [`LibxcFunc.MGGA_X_TB09`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_TB09)
 
 
+        * [`LibxcFunc.MGGA_X_TPSS`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.MGGA_X_TPSS)
 
-#### _property_ length(_: floa_ )
-Length of the bond.
 
+        * [`LibxcFunc.all_families()`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.all_families)
 
-### pymatgen.core.bonds.get_bond_length(sp1: SpeciesLike, sp2: SpeciesLike, bond_order: float = 1)
-Get the bond length between two species.
 
+        * [`LibxcFunc.all_kinds()`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.all_kinds)
 
-* **Parameters**
 
+        * [`LibxcFunc.as_dict()`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.as_dict)
 
-    * **sp1** (*Species*) – First specie.
 
+        * [`LibxcFunc.from_dict()`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.from_dict)
 
-    * **sp2** (*Species*) – Second specie.
 
+        * [`LibxcFunc.info_dict`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.info_dict)
 
-    * **bond_order** – For species with different possible bond orders,
-    this allows one to obtain the bond length for a particular bond
-    order. For example, to get the C=C bond length instead of the
-    C-C bond length, this should be set to 2. Defaults to 1.
 
+        * [`LibxcFunc.is_c_kind`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.is_c_kind)
 
 
-* **Returns**
+        * [`LibxcFunc.is_gga_family`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.is_gga_family)
 
-    Bond length in Angstrom. If no data is available, the sum of the atomic
-    radius is used.
 
+        * [`LibxcFunc.is_hyb_gga_family`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.is_hyb_gga_family)
 
 
-### pymatgen.core.bonds.get_bond_order(sp1, sp2, dist: float, tol: float = 0.2, default_bl: float | None = None)
-Calculate the bond order given the distance of 2 species.
+        * [`LibxcFunc.is_hyb_mgga_family`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.is_hyb_mgga_family)
 
 
-* **Parameters**
+        * [`LibxcFunc.is_k_kind`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.is_k_kind)
 
 
-    * **sp1** (*Species*) – First specie.
+        * [`LibxcFunc.is_lda_family`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.is_lda_family)
 
 
-    * **sp2** (*Species*) – Second specie.
+        * [`LibxcFunc.is_mgga_family`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.is_mgga_family)
 
 
-    * **dist** – Their distance in angstrom
+        * [`LibxcFunc.is_x_kind`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.is_x_kind)
 
 
-    * **tol** (*float*) – Relative tolerance to test. Basically, the code
-    checks if the distance between the sites is larger than
-    (1 + tol) \* the longest bond distance or smaller than
-    (1 - tol) \* the shortest bond distance to determine if
-    they are bonded or the distance is too short.
-    Defaults to 0.2.
+        * [`LibxcFunc.is_xc_kind`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.is_xc_kind)
 
 
-    * **default_bl** – If a particular type of bond does not exist, use this
-    bond length (bond order = 1). If None, a ValueError will be thrown.
+        * [`LibxcFunc.to_json()`](pymatgen.core.libxcfunc.md#pymatgen.core.libxcfunc.LibxcFunc.to_json)
 
 
+* [pymatgen.core.molecular_orbitals module](pymatgen.core.molecular_orbitals.md)
 
-* **Returns**
 
-    Float value of bond order. For example, for C-C bond in benzene,
-    return 1.7.
+    * [`MolecularOrbitals`](pymatgen.core.molecular_orbitals.md#pymatgen.core.molecular_orbitals.MolecularOrbitals)
 
 
+        * [`MolecularOrbitals.composition`](pymatgen.core.molecular_orbitals.md#pymatgen.core.molecular_orbitals.MolecularOrbitals.composition)
 
-### pymatgen.core.bonds.obtain_all_bond_lengths(sp1, sp2, default_bl: float | None = None)
-Obtain bond lengths for all bond orders from bond length database.
 
+        * [`MolecularOrbitals.elements`](pymatgen.core.molecular_orbitals.md#pymatgen.core.molecular_orbitals.MolecularOrbitals.elements)
 
-* **Parameters**
 
+        * [`MolecularOrbitals.elec_neg`](pymatgen.core.molecular_orbitals.md#pymatgen.core.molecular_orbitals.MolecularOrbitals.elec_neg)
 
-    * **sp1** (*Species*) – First specie.
 
+        * [`MolecularOrbitals.aos`](pymatgen.core.molecular_orbitals.md#pymatgen.core.molecular_orbitals.MolecularOrbitals.aos)
 
-    * **sp2** (*Species*) – Second specie.
 
+        * [`MolecularOrbitals.band_edges`](pymatgen.core.molecular_orbitals.md#pymatgen.core.molecular_orbitals.MolecularOrbitals.band_edges)
 
-    * **default_bl** – If a particular type of bond does not exist, use this
-    bond length as a default value (bond order = 1).
-    If None, a ValueError will be thrown.
 
+        * [`MolecularOrbitals.aos_as_list()`](pymatgen.core.molecular_orbitals.md#pymatgen.core.molecular_orbitals.MolecularOrbitals.aos_as_list)
 
 
-* **Returns**
+        * [`MolecularOrbitals.max_electronegativity()`](pymatgen.core.molecular_orbitals.md#pymatgen.core.molecular_orbitals.MolecularOrbitals.max_electronegativity)
 
-    A dict mapping bond order to bond length in angstrom
 
+        * [`MolecularOrbitals.obtain_band_edges()`](pymatgen.core.molecular_orbitals.md#pymatgen.core.molecular_orbitals.MolecularOrbitals.obtain_band_edges)
 
-## pymatgen.core.composition module
 
-This module implements a Composition class to represent compositions,
-and a ChemicalPotential class to represent potentials.
+* [pymatgen.core.operations module](pymatgen.core.operations.md)
 
 
-### _class_ pymatgen.core.composition.ChemicalPotential(\*args, \*\*kwargs)
-Bases: `dict`, `MSONable`
+    * [`MagSymmOp`](pymatgen.core.operations.md#pymatgen.core.operations.MagSymmOp)
 
-Class to represent set of chemical potentials. Can be: multiplied/divided by a Number
-multiplied by a Composition (returns an energy) added/subtracted with other ChemicalPotentials.
 
+        * [`MagSymmOp.as_dict()`](pymatgen.core.operations.md#pymatgen.core.operations.MagSymmOp.as_dict)
 
-* **Parameters**
 
+        * [`MagSymmOp.as_xyzt_string()`](pymatgen.core.operations.md#pymatgen.core.operations.MagSymmOp.as_xyzt_string)
 
-    * **\*args** – any valid dict init arguments
 
+        * [`MagSymmOp.from_dict()`](pymatgen.core.operations.md#pymatgen.core.operations.MagSymmOp.from_dict)
 
-    * **\*\*kwargs** – any valid dict init arguments.
 
+        * [`MagSymmOp.from_rotation_and_translation_and_time_reversal()`](pymatgen.core.operations.md#pymatgen.core.operations.MagSymmOp.from_rotation_and_translation_and_time_reversal)
 
 
-#### get_energy(composition: Composition, strict: bool = True)
-Calculates the energy of a composition.
+        * [`MagSymmOp.from_symmop()`](pymatgen.core.operations.md#pymatgen.core.operations.MagSymmOp.from_symmop)
 
 
-* **Parameters**
+        * [`MagSymmOp.from_xyzt_string()`](pymatgen.core.operations.md#pymatgen.core.operations.MagSymmOp.from_xyzt_string)
 
 
-    * **composition** (*Composition*) – input composition
+        * [`MagSymmOp.operate_magmom()`](pymatgen.core.operations.md#pymatgen.core.operations.MagSymmOp.operate_magmom)
 
 
-    * **strict** (*bool*) – Whether all potentials must be specified
+    * [`SymmOp`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp)
 
 
+        * [`SymmOp.affine_matrix`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.affine_matrix)
 
-### _class_ pymatgen.core.composition.Composition(\*args, strict: bool = False, \*\*kwargs)
-Bases: `Hashable`, `Mapping`, `MSONable`, [`Stringify`](pymatgen.util.md#pymatgen.util.string.Stringify)
 
-Represents a Composition, which is essentially a {element:amount} mapping
-type. Composition is written to be immutable and hashable,
-unlike a standard Python dict.
+        * [`SymmOp.apply_rotation_only()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.apply_rotation_only)
 
-Note that the key can be either an Element or a Species. Elements and Species
-are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Species and
-would be put in separate keys. This differentiation is deliberate to
-support using Composition to determine the fraction of a particular Species.
 
-Works almost completely like a standard python dictionary, except that
-__getitem__ is overridden to return 0 when an element is not found.
-(somewhat like a defaultdict, except it is immutable).
+        * [`SymmOp.are_symmetrically_related()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.are_symmetrically_related)
 
-Also adds more convenience methods relevant to compositions, e.g.,
-get_fraction.
 
-It should also be noted that many Composition related functionality takes
-in a standard string as a convenient input. For example,
-even though the internal representation of a Fe2O3 composition is
-{Element(“Fe”): 2, Element(“O”): 3}, you can obtain the amount of Fe
-simply by comp[“Fe”] instead of the more verbose comp[Element(“Fe”)].
+        * [`SymmOp.are_symmetrically_related_vectors()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.are_symmetrically_related_vectors)
 
-```python
->>> comp = Composition("LiFePO4")
->>> comp.get_atomic_fraction(Element("Li"))
-0.14285714285714285
->>> comp.num_atoms
-7.0
->>> comp.reduced_formula
-'LiFePO4'
->>> comp.formula
-'Li1 Fe1 P1 O4'
->>> comp.get_wt_fraction(Element("Li"))
-0.04399794666951898
->>> comp.num_atoms
-7.0
-```
 
-Very flexible Composition construction, similar to the built-in Python
-dict(). Also extended to allow simple string init.
+        * [`SymmOp.as_dict()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.as_dict)
 
-Takes any inputs supported by the Python built-in dict function.
 
+        * [`SymmOp.as_xyz_string()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.as_xyz_string)
 
-1. A dict of either {Element/Species: amount},
 
-> {string symbol:amount}, or {atomic number:amount} or any mixture
-> of these. E.g., {Element(“Li”): 2, Element(“O”): 1},
-> {“Li”:2, “O”:1}, {3: 2, 8: 1} all result in a Li2O composition.
+        * [`SymmOp.from_axis_angle_and_translation()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.from_axis_angle_and_translation)
 
 
-2. Keyword arg initialization, similar to a dict, e.g.,
+        * [`SymmOp.from_dict()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.from_dict)
 
-> Composition(Li = 2, O = 1)
 
-In addition, the Composition constructor also allows a single
-string as an input formula. E.g., Composition(“Li2O”).
+        * [`SymmOp.from_origin_axis_angle()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.from_origin_axis_angle)
 
 
-* **Parameters**
+        * [`SymmOp.from_rotation_and_translation()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.from_rotation_and_translation)
 
 
-    * **\*args** – Any number of 2-tuples as key-value pairs.
+        * [`SymmOp.from_xyz_string()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.from_xyz_string)
 
 
-    * **strict** (*bool*) – Only allow valid Elements and Species in the Composition. Defaults to False.
+        * [`SymmOp.inverse`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.inverse)
 
 
-    * **allow_negative** (*bool*) – Whether to allow negative compositions. Defaults to False.
+        * [`SymmOp.inversion()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.inversion)
 
 
-    * **\*\*kwargs** – Additional kwargs supported by the dict() constructor.
+        * [`SymmOp.operate()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.operate)
 
 
+        * [`SymmOp.operate_multi()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.operate_multi)
 
-#### add_charges_from_oxi_state_guesses(oxi_states_override: dict | None = None, target_charge: float = 0, all_oxi_states: bool = False, max_sites: int | None = None)
-Assign oxidation states based on guessed oxidation states.
 
-See oxi_state_guesses for an explanation of how oxidation states are
-guessed. This operation uses the set of oxidation states for each site
-that were determined to be most likely from the oxidation state guessing
-routine.
+        * [`SymmOp.reflection()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.reflection)
 
 
-* **Parameters**
+        * [`SymmOp.rotation_matrix`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.rotation_matrix)
 
 
-    * **oxi_states_override** (*dict*) – dict of str->list to override an
-    element’s common oxidation states, e.g. {“V”: [2,3,4,5]}
+        * [`SymmOp.rotoreflection()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.rotoreflection)
 
 
-    * **target_charge** (*int*) – the desired total charge on the structure.
-    Default is 0 signifying charge balance.
+        * [`SymmOp.transform_tensor()`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.transform_tensor)
 
 
-    * **all_oxi_states** (*bool*) – if True, an element defaults to
-    all oxidation states in pymatgen Element.icsd_oxidation_states.
-    Otherwise, default is Element.common_oxidation_states. Note
-    that the full oxidation state list is *very* inclusive and
-    can produce nonsensical results.
+        * [`SymmOp.translation_vector`](pymatgen.core.operations.md#pymatgen.core.operations.SymmOp.translation_vector)
 
 
-    * **max_sites** (*int*) – if possible, will reduce Compositions to at most
-    this many sites to speed up oxidation state guesses. If the
-    composition cannot be reduced to this many sites a ValueError
-    will be raised. Set to -1 to just reduce fully. If set to a
-    number less than -1, the formula will be fully reduced but a
-    ValueError will be thrown if the number of atoms in the reduced
-    formula is greater than abs(max_sites).
+* [pymatgen.core.periodic_table module](pymatgen.core.periodic_table.md)
 
 
+    * [`DummySpecie`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.DummySpecie)
 
-* **Returns**
 
-    Composition, where the elements are assigned oxidation states based
-    on the results form guessing oxidation states. If no oxidation state
-    is possible, returns a Composition where all oxidation states are 0.
+    * [`DummySpecies`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.DummySpecies)
 
 
+        * [`DummySpecies.oxi_state`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.DummySpecies.oxi_state)
 
-#### almost_equals(other: Composition, rtol: float = 0.1, atol: float = 1e-08)
-Returns true if compositions are equal within a tolerance.
 
+        * [`DummySpecies.Z`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.DummySpecies.Z)
 
-* **Parameters**
 
+        * [`DummySpecies.X`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.DummySpecies.X)
 
-    * **other** (*Composition*) – Other composition to check
 
+        * [`DummySpecies.X`](pymatgen.core.periodic_table.md#id0)
 
-    * **rtol** (*float*) – Relative tolerance
 
+        * [`DummySpecies.Z`](pymatgen.core.periodic_table.md#id1)
 
-    * **atol** (*float*) – Absolute tolerance
 
+        * [`DummySpecies.as_dict()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.DummySpecies.as_dict)
 
 
-#### _property_ alphabetical_formula(_: st_ )
-Returns a formula string, with elements sorted by alphabetically
-e.g., Fe4 Li4 O16 P4.
+        * [`DummySpecies.from_dict()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.DummySpecies.from_dict)
 
 
-#### amount_tolerance(_ = 1e-0_ )
+        * [`DummySpecies.from_str()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.DummySpecies.from_str)
 
-#### _property_ anonymized_formula(_: st_ )
-An anonymized formula. Unique species are arranged in ordering of
-increasing amounts and assigned ascending alphabets. Useful for
-prototyping formulas. For example, all stoichiometric perovskites have
-anonymized_formula ABC3.
 
+        * [`DummySpecies.oxi_state`](pymatgen.core.periodic_table.md#id2)
 
-#### as_dict()
-Note: Subtly different from get_el_amt_dict in that they keys here are str(Element) instead of Element.symbol.
 
+        * [`DummySpecies.symbol`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.DummySpecies.symbol)
 
-* **Returns**
 
-    element symbol and (unreduced) amount. E.g.
+    * [`Element`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element)
 
-        {“Fe”: 4.0, “O”:6.0} or {“Fe3+”: 4.0, “O2-“:6.0}
 
+        * [`Element.Z`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Z)
 
 
+        * [`Element.symbol`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.symbol)
 
-* **Return type**
 
-    dict[str, float]
+        * [`Element.long_name`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.long_name)
 
 
+        * [`Element.atomic_radius_calculated`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.atomic_radius_calculated)
 
-#### _property_ average_electroneg(_: floa_ )
-Average electronegativity of the composition.
 
+        * [`Element.van_der_waals_radius`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.van_der_waals_radius)
 
-* **Type**
 
-    return
+        * [`Element.mendeleev_no`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.mendeleev_no)
 
 
+        * [`Element.electrical_resistivity`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.electrical_resistivity)
 
-#### _property_ chemical_system(_: st_ )
-Get the chemical system of a Composition, for example “O-Si” for
-SiO2. Chemical system is a string of a list of elements
-sorted alphabetically and joined by dashes, by convention for use
-in database keys.
 
+        * [`Element.velocity_of_sound`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.velocity_of_sound)
 
-#### contains_element_type(category: str)
-Check if Composition contains any elements matching a given category.
 
+        * [`Element.reflectivity`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.reflectivity)
 
-* **Parameters**
 
-    **category** (*str*) – one of “noble_gas”, “transition_metal”,
-    “post_transition_metal”, “rare_earth_metal”, “metal”, “metalloid”,
-    “alkali”, “alkaline”, “halogen”, “chalcogen”, “lanthanoid”,
-    “actinoid”, “quadrupolar”, “s-block”, “p-block”, “d-block”, “f-block”
+        * [`Element.refractive_index`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.refractive_index)
 
 
+        * [`Element.poissons_ratio`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.poissons_ratio)
 
-* **Returns**
 
-    True if any elements in Composition match category, otherwise False
+        * [`Element.molar_volume`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.molar_volume)
 
 
+        * [`Element.electronic_structure`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.electronic_structure)
 
-#### copy()
 
-* **Returns**
+        * [`Element.atomic_orbitals`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.atomic_orbitals)
 
-    A copy of the composition.
 
+        * [`Element.thermal_conductivity`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.thermal_conductivity)
 
 
-#### _property_ element_composition(_: Compositio_ )
-Returns the composition replacing any species by the corresponding
-element.
+        * [`Element.boiling_point`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.boiling_point)
 
 
-#### _property_ elements(_: list[Element | Species | DummySpecies_ )
-Returns view of elements in Composition.
+        * [`Element.melting_point`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.melting_point)
 
 
-#### _property_ formula(_: st_ )
-Returns a formula string, with elements sorted by electronegativity,
-e.g., Li4 Fe4 P4 O16.
+        * [`Element.critical_temperature`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.critical_temperature)
 
 
-#### _property_ fractional_composition(_: Compositio_ )
-Returns the normalized composition in which the amounts of each species sum to
-1.
-E.g. “Fe2 O3”.fractional_composition = “Fe0.4 O0.6”.
+        * [`Element.superconduction_temperature`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.superconduction_temperature)
 
 
-#### _classmethod_ from_dict(d)
-Creates a composition from a dict generated by as_dict(). Strictly not
-necessary given that the standard constructor already takes in such an
-input, but this method preserves the standard pymatgen API of having
-from_dict methods to reconstitute objects generated by as_dict(). Allows
-for easier introspection.
+        * [`Element.liquid_range`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.liquid_range)
 
 
-* **Parameters**
+        * [`Element.bulk_modulus`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.bulk_modulus)
 
-    **d** (*dict*) – {symbol: amount} dict.
 
+        * [`Element.youngs_modulus`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.youngs_modulus)
 
 
-#### _classmethod_ from_weight_dict(weight_dict)
-Creates a Composition based on a dict of atomic fractions calculated
-from a dict of weight fractions. Allows for quick creation of the class
-from weight-based notations commonly used in the industry, such as
-Ti6V4Al and Ni60Ti40.
+        * [`Element.brinell_hardness`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.brinell_hardness)
 
 
-* **Parameters**
+        * [`Element.rigidity_modulus`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.rigidity_modulus)
 
-    **weight_dict** (*dict*) – {symbol: weight_fraction} dict.
 
+        * [`Element.mineral_hardness`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.mineral_hardness)
 
 
-* **Returns**
+        * [`Element.vickers_hardness`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.vickers_hardness)
 
-    Composition
 
+        * [`Element.density_of_solid`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.density_of_solid)
 
 
-#### get_atomic_fraction(el: str | Element | Species | DummySpecies)
-Calculate atomic fraction of an Element or Species.
+        * [`Element.coefficient_of_linear_thermal_expansion`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.coefficient_of_linear_thermal_expansion)
 
 
-* **Parameters**
+        * [`Element.ground_level`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.ground_level)
 
-    **el** (*Element/Species*) – Element or Species to get fraction for.
 
+        * [`Element.ionization_energies`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.ionization_energies)
 
 
-* **Returns**
+        * [`Element.Ac`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ac)
 
-    Atomic fraction for element el in Composition
 
+        * [`Element.Ag`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ag)
 
 
-#### get_el_amt_dict()
+        * [`Element.Al`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Al)
 
-* **Returns**
 
-    element symbol and (unreduced) amount. E.g.
+        * [`Element.Am`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Am)
 
-        {“Fe”: 4.0, “O”:6.0} or {“Fe3+”: 4.0, “O2-“:6.0}.
 
+        * [`Element.Ar`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ar)
 
 
+        * [`Element.As`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.As)
 
-* **Return type**
 
-    dict[str, float]
+        * [`Element.At`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.At)
 
 
+        * [`Element.Au`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Au)
 
-#### get_integer_formula_and_factor(max_denominator: int = 10000, iupac_ordering: bool = False)
-Calculates an integer formula and factor.
 
+        * [`Element.B`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.B)
 
-* **Parameters**
 
+        * [`Element.Ba`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ba)
 
-    * **max_denominator** (*int*) – all amounts in the el:amt dict are
-    first converted to a Fraction with this maximum denominator
 
+        * [`Element.Be`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Be)
 
-    * **iupac_ordering** (*bool**, **optional*) – Whether to order the
-    formula by the iupac “electronegativity” series, defined in
-    Table VI of “Nomenclature of Inorganic Chemistry (IUPAC
-    Recommendations 2005)”. This ordering effectively follows
-    the groups and rows of the periodic table, except the
-    Lanthanides, Actinides and hydrogen. Note that polyanions
-    will still be determined based on the true electronegativity of
-    the elements.
 
+        * [`Element.Bh`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Bh)
 
 
-* **Returns**
+        * [`Element.Bi`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Bi)
 
-    A pretty normalized formula and a multiplicative factor, i.e.,
-    Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)
 
+        * [`Element.Bk`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Bk)
 
 
-#### get_reduced_composition_and_factor()
-Calculates a reduced composition and factor.
+        * [`Element.Br`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Br)
 
 
-* **Returns**
+        * [`Element.C`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.C)
 
-    A normalized composition and a multiplicative factor, i.e.,
-    Li4Fe4P4O16 returns (Composition(“LiFePO4”), 4).
 
+        * [`Element.Ca`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ca)
 
 
-#### get_reduced_formula_and_factor(iupac_ordering: bool = False)
-Calculates a reduced formula and factor.
+        * [`Element.Cd`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Cd)
 
 
-* **Parameters**
+        * [`Element.Ce`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ce)
 
-    **iupac_ordering** (*bool**, **optional*) – Whether to order the
-    formula by the iupac “electronegativity” series, defined in
-    Table VI of “Nomenclature of Inorganic Chemistry (IUPAC
-    Recommendations 2005)”. This ordering effectively follows
-    the groups and rows of the periodic table, except the
-    Lanthanides, Actinides and hydrogen. Note that polyanions
-    will still be determined based on the true electronegativity of
-    the elements.
 
+        * [`Element.Cf`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Cf)
 
 
-* **Returns**
+        * [`Element.Cl`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Cl)
 
-    A pretty normalized formula and a multiplicative factor, i.e.,
-    Li4Fe4P4O16 returns (LiFePO4, 4).
 
+        * [`Element.Cm`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Cm)
 
 
-#### get_wt_fraction(el: str | Element | Species | DummySpecies)
-Calculate weight fraction of an Element or Species.
+        * [`Element.Cn`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Cn)
 
 
-* **Parameters**
+        * [`Element.Co`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Co)
 
-    **el** (*Element** | **Species*) – Element or Species to get fraction for.
 
+        * [`Element.Cr`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Cr)
 
 
-* **Returns**
+        * [`Element.Cs`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Cs)
 
-    Weight fraction for element el in Composition.
 
+        * [`Element.Cu`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Cu)
 
 
-* **Return type**
+        * [`Element.Db`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Db)
 
-    float
 
+        * [`Element.Ds`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ds)
 
 
-#### _property_ hill_formula(_: st_ )
-Hill formula. The Hill system (or Hill notation) is a system
-of writing empirical chemical formulas, molecular chemical formulas and
-components of a condensed formula such that the number of carbon atoms
-in a molecule is indicated first, the number of hydrogen atoms next,
-and then the number of all other chemical elements subsequently, in
-alphabetical order of the chemical symbols. When the formula contains
-no carbon, all the elements, including hydrogen, are listed
-alphabetically.
+        * [`Element.Dy`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Dy)
 
 
-* **Type**
+        * [`Element.Er`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Er)
 
-    return
 
+        * [`Element.Es`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Es)
 
 
-#### _property_ is_element(_: boo_ )
-True if composition is an element.
+        * [`Element.Eu`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Eu)
 
 
-#### _property_ iupac_formula(_: st_ )
-Returns a formula string, with elements sorted by the iupac
-electronegativity ordering defined in Table VI of “Nomenclature of
-Inorganic Chemistry (IUPAC Recommendations 2005)”. This ordering
-effectively follows the groups and rows of the periodic table, except
-the Lanthanides, Actinides and hydrogen. Polyanions are still determined
-based on the true electronegativity of the elements.
-e.g. CH2(SO4)2.
+        * [`Element.F`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.F)
 
 
-#### _property_ num_atoms(_: floa_ )
-Total number of atoms in Composition. For negative amounts, sum
-of absolute values.
+        * [`Element.Fe`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Fe)
 
 
-#### oxi_prob(_ = Non_ )
+        * [`Element.Fl`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Fl)
 
-#### oxi_state_guesses(oxi_states_override: dict | None = None, target_charge: float = 0, all_oxi_states: bool = False, max_sites: int | None = None)
-Checks if the composition is charge-balanced and returns back all
-charge-balanced oxidation state combinations. Composition must have
-integer values. Note that more num_atoms in the composition gives
-more degrees of freedom. e.g., if possible oxidation states of
-element X are [2,4] and Y are [-3], then XY is not charge balanced
-but X2Y2 is. Results are returned from most to least probable based
-on ICSD statistics. Use max_sites to improve performance if needed.
 
+        * [`Element.Fm`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Fm)
 
-* **Parameters**
 
+        * [`Element.Fr`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Fr)
 
-    * **oxi_states_override** (*dict*) – dict of str->list to override an
-    element’s common oxidation states, e.g. {“V”: [2,3,4,5]}
 
+        * [`Element.Ga`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ga)
 
-    * **target_charge** (*int*) – the desired total charge on the structure.
-    Default is 0 signifying charge balance.
 
+        * [`Element.Gd`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Gd)
 
-    * **all_oxi_states** (*bool*) – if True, an element defaults to
-    all oxidation states in pymatgen Element.icsd_oxidation_states.
-    Otherwise, default is Element.common_oxidation_states. Note
-    that the full oxidation state list is *very* inclusive and
-    can produce nonsensical results.
 
+        * [`Element.Ge`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ge)
 
-    * **max_sites** (*int*) – if possible, will reduce Compositions to at most
-    this many sites to speed up oxidation state guesses. If the
-    composition cannot be reduced to this many sites a ValueError
-    will be raised. Set to -1 to just reduce fully. If set to a
-    number less than -1, the formula will be fully reduced but a
-    ValueError will be thrown if the number of atoms in the reduced
-    formula is greater than abs(max_sites).
 
+        * [`Element.H`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.H)
 
 
-* **Returns**
+        * [`Element.He`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.He)
 
-    A list of dicts - each dict reports an element symbol and average
 
-        oxidation state across all sites in that composition. If the
-        composition is not charge balanced, an empty list is returned.
+        * [`Element.Hf`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Hf)
 
 
+        * [`Element.Hg`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Hg)
 
 
-#### _static_ ranked_compositions_from_indeterminate_formula(fuzzy_formula: str, lock_if_strict: bool = True)
-Takes in a formula where capitalization might not be correctly entered,
-and suggests a ranked list of potential Composition matches.
-Author: Anubhav Jain.
+        * [`Element.Ho`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ho)
 
 
-* **Parameters**
+        * [`Element.Hs`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Hs)
 
 
-    * **fuzzy_formula** (*str*) – A formula string, such as “co2o3” or “MN”,
-    that may or may not have multiple interpretations
+        * [`Element.I`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.I)
 
 
-    * **lock_if_strict** (*bool*) – If true, a properly entered formula will
-    only return the one correct interpretation. For example,
-    “Co1” will only return “Co1” if true, but will return both
-    “Co1” and “C1 O1” if false.
+        * [`Element.In`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.In)
 
 
+        * [`Element.Ir`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ir)
 
-* **Returns**
 
-    A ranked list of potential Composition matches
+        * [`Element.K`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.K)
 
 
+        * [`Element.Kr`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Kr)
 
-#### _property_ reduced_composition(_: Compositio_ )
-Returns the reduced composition, i.e. amounts normalized by greatest common denominator.
-E.g. “Fe4 P4 O16”.reduced_composition = “Fe P O4”.
 
+        * [`Element.La`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.La)
 
-#### _property_ reduced_formula(_: st_ )
-Returns a pretty normalized formula, i.e., LiFePO4 instead of
-Li4Fe4P4O16.
 
+        * [`Element.Li`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Li)
 
-#### remove_charges()
-Returns a new Composition with charges from each Species removed.
 
+        * [`Element.Lr`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Lr)
 
-* **Returns**
 
-    Composition object without charge decoration, for example
-    {“Fe3+”: 2.0, “O2-“:3.0} becomes {“Fe”: 2.0, “O”:3.0}
+        * [`Element.Lu`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Lu)
 
 
+        * [`Element.Lv`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Lv)
 
-#### replace(elem_map: dict[str, str | dict[str, int | float]])
-Replace elements in a composition. Returns a new Composition, leaving the old one unchanged.
 
+        * [`Element.Mc`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Mc)
 
-* **Parameters**
 
-    **elem_map** (*dict**[**str**, **str** | **dict**[**str**, **int** | **float**]**]*) – dict of elements or species to swap. E.g.
-    {“Li”: “Na”} performs a Li for Na substitution. The target can be a {species: factor} dict. For
-    example, in Fe2O3 you could map {“Fe”: {“Mg”: 0.5, “Cu”:0.5}} to obtain MgCuO3.
+        * [`Element.Md`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Md)
 
 
+        * [`Element.Mg`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Mg)
 
-* **Returns**
 
-    New object with elements remapped according to elem_map.
+        * [`Element.Mn`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Mn)
 
 
+        * [`Element.Mo`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Mo)
 
-* **Return type**
 
-    Composition
+        * [`Element.Mt`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Mt)
 
 
+        * [`Element.N`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.N)
 
-#### special_formulas(_ = {'Cl': 'Cl2', 'CsO': 'Cs2O2', 'F': 'F2', 'H': 'H2', 'HO': 'H2O2', 'KO': 'K2O2', 'LiO': 'Li2O2', 'N': 'N2', 'NaO': 'Na2O2', 'O': 'O2', 'RbO': 'Rb2O2'_ )
 
-#### _property_ to_data_dict(_: dic_ )
-Returns:
-A dict with many keys and values relating to Composition/Formula,
-including reduced_cell_composition, unit_cell_composition,
-reduced_cell_formula, elements and nelements.
+        * [`Element.Na`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Na)
 
 
-#### to_pretty_string()
+        * [`Element.Nb`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Nb)
 
-* **Returns**
 
-    Same as output __str__() but without spaces.
+        * [`Element.Nd`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Nd)
 
 
+        * [`Element.Ne`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ne)
 
-* **Return type**
 
-    str
+        * [`Element.Nh`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Nh)
 
 
+        * [`Element.Ni`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ni)
 
-#### _property_ to_reduced_dict(_: dict[str, float_ )
-Returns:
-dict[str, float]: element symbols mapped to reduced amount e.g. {“Fe”: 2.0, “O”:3.0}.
 
+        * [`Element.No`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.No)
 
-#### _property_ to_weight_dict(_: dict[str, float_ )
-Returns:
-dict[str, float] with weight fraction of each component {“Ti”: 0.90, “V”: 0.06, “Al”: 0.04}.
 
+        * [`Element.Np`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Np)
 
-#### _property_ total_electrons(_: floa_ )
-Total number of electrons in composition.
 
+        * [`Element.O`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.O)
 
-* **Type**
 
-    return
+        * [`Element.Og`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Og)
 
 
+        * [`Element.Os`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Os)
 
-#### _property_ valid(_: boo_ )
-Returns True if Composition contains valid elements or species and
-False if the Composition contains any dummy species.
 
+        * [`Element.P`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.P)
 
-#### _property_ weight(_: floa_ )
-Total molecular weight of Composition.
 
+        * [`Element.Pa`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Pa)
 
-### _exception_ pymatgen.core.composition.CompositionError()
-Bases: `Exception`
 
-Exception class for composition errors.
+        * [`Element.Pb`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Pb)
 
 
-### pymatgen.core.composition.reduce_formula(sym_amt, iupac_ordering: bool = False)
-Helper method to reduce a sym_amt dict to a reduced formula and factor.
+        * [`Element.Pd`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Pd)
 
 
-* **Parameters**
+        * [`Element.Pm`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Pm)
 
 
-    * **sym_amt** (*dict*) – {symbol: amount}.
+        * [`Element.Po`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Po)
 
 
-    * **iupac_ordering** (*bool**, **optional*) – Whether to order the
-    formula by the iupac “electronegativity” series, defined in
-    Table VI of “Nomenclature of Inorganic Chemistry (IUPAC
-    Recommendations 2005)”. This ordering effectively follows
-    the groups and rows of the periodic table, except the
-    Lanthanides, Actinides and hydrogen. Note that polyanions
-    will still be determined based on the true electronegativity of
-    the elements.
+        * [`Element.Pr`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Pr)
 
 
+        * [`Element.Pt`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Pt)
 
-* **Returns**
 
-    (reduced_formula, factor).
+        * [`Element.Pu`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Pu)
 
 
-## pymatgen.core.interface module
+        * [`Element.Ra`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ra)
 
-This module provides classes to store, generate, and manipulate material interfaces.
 
+        * [`Element.Rb`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Rb)
 
-### _class_ pymatgen.core.interface.Interface(lattice, species, coords, site_properties, validate_proximity=False, to_unit_cell=False, coords_are_cartesian=False, in_plane_offset: tuple[float, float] = (0, 0), gap: float = 0, vacuum_over_film: float = 0, interface_properties: dict | None = None)
-Bases: `Structure`
 
-This class stores data for defining an interface between two structures.
-It is a subclass of pymatgen.core.structure.Structure.
+        * [`Element.Re`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Re)
 
-Makes an interface structure, a structure object with additional information
-and methods pertaining to interfaces.
 
+        * [`Element.Rf`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Rf)
 
-* **Parameters**
 
+        * [`Element.Rg`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Rg)
 
-    * **lattice** (*Lattice/3x3 array*) – The lattice, either as a
-    `pymatgen.core.lattice.Lattice` or
-    simply as any 2D array. Each row should correspond to a lattice
-    vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-    lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
 
+        * [`Element.Rh`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Rh)
 
-    * **species** (*[**Species**]*) – Sequence of species on each site. Can take in
-    flexible input, including:
 
+        * [`Element.Rn`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Rn)
 
-        1. A sequence of element / species specified either as string
-    symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
-    e.g., (3, 56, …) or actual Element or Species objects.
 
+        * [`Element.Ru`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ru)
 
-        2. List of dict of elements/species and occupancies, e.g.,
-    [{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
-    disordered structures.
 
+        * [`Element.S`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.S)
 
 
-    * **coords** (*Nx3 array*) – list of fractional/cartesian coordinates of
-    each species.
+        * [`Element.Sb`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Sb)
 
 
-    * **validate_proximity** (*bool*) – Whether to check if there are sites
-    that are less than 0.01 Ang apart. Defaults to False.
+        * [`Element.Sc`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Sc)
 
 
-    * **to_unit_cell** (*bool*) – Whether to translate sites into the unit cell. Defaults to False.
+        * [`Element.Se`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Se)
 
 
-    * **coords_are_cartesian** (*bool*) – Set to True if you are providing
-    coordinates in Cartesian coordinates. Defaults to False.
+        * [`Element.Sg`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Sg)
 
 
-    * **site_properties** (*dict*) – Properties associated with the sites as a
-    dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
-    have to be the same length as the atomic species and
-    fractional_coords. Defaults to None for no properties.
+        * [`Element.Si`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Si)
 
 
-    * **in_plane_offset** – fractional shift in plane for the film with respect
-    to the substrate
+        * [`Element.Sm`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Sm)
 
 
-    * **gap** – gap between substrate and film in Angstroms; zero corresponds to
-    the original distance between substrate and film sites
+        * [`Element.Sn`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Sn)
 
 
-    * **vacuum_over_film** – vacuum space above the film in Angstroms. Defaults to 0.
+        * [`Element.Sr`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Sr)
 
 
-    * **interface_properties** – properties associated with the interface. Defaults to None.
+        * [`Element.Ta`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ta)
 
 
+        * [`Element.Tb`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Tb)
 
-#### as_dict()
 
-* **Returns**
+        * [`Element.Tc`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Tc)
 
-    MSONable dict
 
+        * [`Element.Te`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Te)
 
 
-#### copy()
+        * [`Element.Th`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Th)
 
-* **Returns**
 
-    A copy of the Interface.
+        * [`Element.Ti`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ti)
 
 
+        * [`Element.Tl`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Tl)
 
-* **Return type**
 
-    Interface
+        * [`Element.Tm`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Tm)
 
 
+        * [`Element.Ts`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Ts)
 
-#### _property_ film(_: Structur_ )
-A pymatgen Structure for just the film.
 
+        * [`Element.U`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.U)
 
-#### _property_ film_indices(_: list[int_ )
-Site indices of the film sites.
 
+        * [`Element.V`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.V)
 
-#### _property_ film_layers(_: in_ )
-Number of layers of the minimum element in the film composition.
 
+        * [`Element.W`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.W)
 
-#### _property_ film_sites(_: list[pymatgen.core.sites.Site_ )
-Return the film sites of the interface.
 
+        * [`Element.Xe`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Xe)
 
-#### _property_ film_termination(_: st_ )
-Label for the film termination chemistry.
 
+        * [`Element.Y`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Y)
 
-#### _classmethod_ from_dict(d)
 
-* **Parameters**
+        * [`Element.Yb`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Yb)
 
-    **d** – dict
 
+        * [`Element.Zn`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Zn)
 
 
-* **Returns**
+        * [`Element.Zr`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Element.Zr)
 
-    Creates slab from dict.
 
+    * [`ElementBase`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase)
 
 
-#### _classmethod_ from_slabs(substrate_slab: Slab, film_slab: Slab, in_plane_offset: tuple[float, float] = (0, 0), gap: float = 1.6, vacuum_over_film: float = 0, interface_properties: dict | None = None, center_slab: bool = True)
-Makes an interface structure by merging a substrate and film slabs
-The film a- and b-vectors will be forced to be the substrate slab’s
-a- and b-vectors.
+        * [`ElementBase.Z`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.Z)
 
-For now, it’s suggested to use a factory method that will ensure the
-appropriate interface structure is already met.
 
+        * [`ElementBase.symbol`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.symbol)
 
-* **Parameters**
 
+        * [`ElementBase.long_name`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.long_name)
 
-    * **substrate_slab** (*Slab*) – slab for the substrate
 
+        * [`ElementBase.atomic_radius_calculated`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.atomic_radius_calculated)
 
-    * **film_slab** (*Slab*) – slab for the film
 
+        * [`ElementBase.van_der_waals_radius`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.van_der_waals_radius)
 
-    * **in_plane_offset** (*tuple*) – fractional shift in plane for the film with respect to the substrate.
-    For example, (0.5, 0.5) will shift the film by half the substrate’s a- and b-vectors.
-    Defaults to (0, 0).
 
+        * [`ElementBase.mendeleev_no`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.mendeleev_no)
 
-    * **gap** (*float*) – gap between substrate and film in Angstroms. Defaults to 1.6.
 
+        * [`ElementBase.electrical_resistivity`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.electrical_resistivity)
 
-    * **vacuum_over_film** (*float*) – vacuum space above the film in Angstroms. Defaults to 0.
 
+        * [`ElementBase.velocity_of_sound`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.velocity_of_sound)
 
-    * **interface_properties** (*dict*) – misc properties to assign to the interface. Defaults to None.
 
+        * [`ElementBase.reflectivity`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.reflectivity)
 
-    * **center_slab** (*bool*) – center the slab. Defaults to True.
 
+        * [`ElementBase.refractive_index`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.refractive_index)
 
 
-#### _property_ gap(_: floa_ )
-The gap in Cartesian units between the film and the substrate.
+        * [`ElementBase.poissons_ratio`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.poissons_ratio)
 
 
-#### get_shifts_based_on_adsorbate_sites(tolerance: float = 0.1)
-Computes possible in-plane shifts based on an adsorbate site  algorithm.
+        * [`ElementBase.molar_volume`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.molar_volume)
 
 
-* **Parameters**
+        * [`ElementBase.electronic_structure`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.electronic_structure)
 
-    **tolerance** – tolerance for “uniqueness” for shifts in Cartesian unit
-    This is usually Angstroms.
 
+        * [`ElementBase.atomic_orbitals`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.atomic_orbitals)
 
 
-#### get_sorted_structure(key=None, reverse=False)
-Get a sorted structure for the interface. The parameters have the same
-meaning as in list.sort. By default, sites are sorted by the
-electronegativity of the species.
+        * [`ElementBase.thermal_conductivity`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.thermal_conductivity)
 
 
-* **Parameters**
+        * [`ElementBase.boiling_point`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.boiling_point)
 
 
-    * **key** – Specifies a function of one argument that is used to extract
-    a comparison key from each list element: key=str.lower. The
-    default value is None (compare the elements directly).
+        * [`ElementBase.melting_point`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.melting_point)
 
 
-    * **reverse** (*bool*) – If set to True, then the list elements are sorted
-    as if each comparison were reversed.
+        * [`ElementBase.critical_temperature`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.critical_temperature)
 
 
+        * [`ElementBase.superconduction_temperature`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.superconduction_temperature)
 
-#### _property_ in_plane_offset(_: ndarra_ )
-The shift between the film and substrate in fractional
-coordinates.
 
+        * [`ElementBase.liquid_range`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.liquid_range)
 
-#### _property_ substrate(_: Structur_ )
-A pymatgen Structure for just the substrate.
 
+        * [`ElementBase.bulk_modulus`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.bulk_modulus)
 
-#### _property_ substrate_indices(_: list[int_ )
-Site indices for the substrate atoms.
 
+        * [`ElementBase.youngs_modulus`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.youngs_modulus)
 
-#### _property_ substrate_layers(_: in_ )
-Number of layers of the minimum element in the substrate composition.
 
+        * [`ElementBase.brinell_hardness`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.brinell_hardness)
 
-#### _property_ substrate_sites(_: list[pymatgen.core.sites.Site_ )
-The site objects in the substrate.
 
+        * [`ElementBase.rigidity_modulus`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.rigidity_modulus)
 
-#### _property_ substrate_termination(_: st_ )
-Label for the substrate termination chemistry.
 
+        * [`ElementBase.mineral_hardness`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.mineral_hardness)
 
-#### _property_ vacuum_over_film(_: floa_ )
-The vacuum space over the film in Cartesian units.
 
+        * [`ElementBase.vickers_hardness`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.vickers_hardness)
 
-### pymatgen.core.interface.count_layers(struct: Structure, el=None)
-Counts the number of ‘layers’ along the c-axis.
 
+        * [`ElementBase.density_of_solid`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.density_of_solid)
 
-### pymatgen.core.interface.label_termination(slab: Structure)
-Labels the slab surface termination.
 
-## pymatgen.core.ion module
+        * [`ElementBase.coefficient_of_linear_thermal_expansion`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.coefficient_of_linear_thermal_expansion)
 
-Module containing class to create an ion.
 
+        * [`ElementBase.ground_level`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.ground_level)
 
-### _class_ pymatgen.core.ion.Ion(composition, charge=0.0, _properties=None)
-Bases: `Composition`, `MSONable`, [`Stringify`](pymatgen.util.md#pymatgen.util.string.Stringify)
 
-Ion object. Just a Composition object with an additional variable to store
-charge.
+        * [`ElementBase.ionization_energies`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.ionization_energies)
 
-The net charge can either be represented as Mn++, Mn+2, Mn[2+], Mn[++], or
-Mn[+2]. Note the order of the sign and magnitude in each representation.
 
-Flexible Ion construction, similar to Composition.
-For more information, please see pymatgen.core.Composition.
+        * [`ElementBase.X`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.X)
 
 
-#### _property_ alphabetical_formula(_: st_ )
-Returns a formula string, with elements sorted by alphabetically and
-appended charge.
+        * [`ElementBase.as_dict()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.as_dict)
 
 
-#### _property_ anonymized_formula(_: st_ )
-An anonymized formula. Appends charge to the end
-of anonymized composition.
+        * [`ElementBase.atomic_mass`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.atomic_mass)
 
 
-#### as_dict()
+        * [`ElementBase.atomic_radius`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.atomic_radius)
 
-* **Returns**
 
-    dict with composition, as well as charge.
+        * [`ElementBase.average_anionic_radius`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.average_anionic_radius)
 
 
+        * [`ElementBase.average_cationic_radius`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.average_cationic_radius)
 
-#### _property_ charge(_: floa_ )
-Charge of the ion.
 
+        * [`ElementBase.average_ionic_radius`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.average_ionic_radius)
 
-#### _property_ composition(_: Compositio_ )
-Composition of ion.
 
+        * [`ElementBase.block`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.block)
 
-#### _property_ formula(_: st_ )
-Returns a formula string, with elements sorted by electronegativity,
-e.g., Li4 Fe4 P4 O16.
 
+        * [`ElementBase.common_oxidation_states`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.common_oxidation_states)
 
-#### _classmethod_ from_dict(d)
-Generates an ion object from a dict created by as_dict().
 
+        * [`ElementBase.data`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.data)
 
-* **Parameters**
 
-    **d** – {symbol: amount} dict.
+        * [`ElementBase.electron_affinity`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.electron_affinity)
 
 
+        * [`ElementBase.electronic_structure`](pymatgen.core.periodic_table.md#id3)
 
-#### _classmethod_ from_formula(formula: str)
-Creates Ion from formula. The net charge can either be represented as
-Mn++, Mn+2, Mn[2+], Mn[++], or Mn[+2]. Note the order of the sign and
-magnitude in each representation.
 
-Also note that (aq) can be included in the formula, e.g. “NaOH (aq)”.
+        * [`ElementBase.from_Z()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.from_Z)
 
 
-* **Parameters**
+        * [`ElementBase.from_dict()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.from_dict)
 
-    **formula** –
 
+        * [`ElementBase.from_name()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.from_name)
 
 
-* **Returns**
+        * [`ElementBase.from_row_and_group()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.from_row_and_group)
 
-    Ion
 
+        * [`ElementBase.full_electronic_structure`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.full_electronic_structure)
 
 
-#### get_reduced_formula_and_factor(iupac_ordering: bool = False, hydrates: bool = True)
-Calculates a reduced formula and factor.
+        * [`ElementBase.ground_state_term_symbol`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.ground_state_term_symbol)
 
-Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
-receive special handling to differentiate between hydrogen peroxide and OH-.
-Formulas containing HO are written with oxygen first (e.g. ‘Fe(OH)2’ rather than
-‘Fe(HO)2’), and special formulas that apply to solids (e.g. Li2O2 instead of LiO)
-are not used.
 
-Note that the formula returned by this method does not contain a charge.
-To include charge, use formula or reduced_formula instead.
+        * [`ElementBase.group`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.group)
 
 
-* **Parameters**
+        * [`ElementBase.icsd_oxidation_states`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.icsd_oxidation_states)
 
 
-    * **iupac_ordering** (*bool**, **optional*) – Whether to order the
-    formula by the iupac “electronegativity” series, defined in
-    Table VI of “Nomenclature of Inorganic Chemistry (IUPAC
-    Recommendations 2005)”. This ordering effectively follows
-    the groups and rows of the periodic table, except the
-    Lanthanides, Actinides and hydrogen. Note that polyanions
-    will still be determined based on the true electronegativity of
-    the elements.
+        * [`ElementBase.ionic_radii`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.ionic_radii)
 
 
-    * **hydrates** – If True (default), attempt to recognize hydrated metal
-    complexes and separate out the H2O in the reduced formula.
-    For example, Zr(OH)4 becomes ZrO2.2H2O. Applies only to
-    Ions containing metals.
+        * [`ElementBase.ionization_energy`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.ionization_energy)
 
 
+        * [`ElementBase.is_actinoid`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_actinoid)
 
-* **Returns**
 
-    A pretty normalized formula and a multiplicative factor, i.e.,
-    H4O4 returns (‘H2O2’, 2.0).
+        * [`ElementBase.is_alkali`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_alkali)
 
 
+        * [`ElementBase.is_alkaline`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_alkaline)
 
-#### oxi_state_guesses(oxi_states_override: dict | None = None, all_oxi_states: bool = False, max_sites: int | None = None)
-Checks if the composition is charge-balanced and returns back all
-charge-balanced oxidation state combinations. Composition must have
-integer values. Note that more num_atoms in the composition gives
-more degrees of freedom. e.g., if possible oxidation states of
-element X are [2,4] and Y are [-3], then XY is not charge balanced
-but X2Y2 is. Results are returned from most to least probable based
-on ICSD statistics. Use max_sites to improve performance if needed.
 
+        * [`ElementBase.is_chalcogen`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_chalcogen)
 
-* **Parameters**
 
+        * [`ElementBase.is_halogen`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_halogen)
 
-    * **oxi_states_override** (*dict*) – dict of str->list to override an
-    element’s common oxidation states, e.g. {“V”: [2,3,4,5]}
 
+        * [`ElementBase.is_lanthanoid`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_lanthanoid)
 
-    * **all_oxi_states** (*bool*) – if True, an element defaults to
-    all oxidation states in pymatgen Element.icsd_oxidation_states.
-    Otherwise, default is Element.common_oxidation_states. Note
-    that the full oxidation state list is *very* inclusive and
-    can produce nonsensical results.
 
+        * [`ElementBase.is_metal`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_metal)
 
-    * **max_sites** (*int*) – if possible, will reduce Compositions to at most
-    this many sites to speed up oxidation state guesses. If the
-    composition cannot be reduced to this many sites a ValueError
-    will be raised. Set to -1 to just reduce fully. If set to a
-    number less than -1, the formula will be fully reduced but a
-    ValueError will be thrown if the number of atoms in the reduced
-    formula is greater than abs(max_sites).
 
+        * [`ElementBase.is_metalloid`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_metalloid)
 
 
-* **Returns**
+        * [`ElementBase.is_noble_gas`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_noble_gas)
 
-    A list of dicts - each dict reports an element symbol and average
 
-        oxidation state across all sites in that composition. If the
-        composition is not charge balanced, an empty list is returned.
+        * [`ElementBase.is_post_transition_metal`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_post_transition_metal)
 
 
+        * [`ElementBase.is_quadrupolar`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_quadrupolar)
 
 
-#### _property_ reduced_formula(_: st_ )
-Returns a reduced formula string with appended charge. The
-charge is placed in brackets with the sign preceding the magnitude, e.g.,
-‘Ca[+2]’.
+        * [`ElementBase.is_rare_earth_metal`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_rare_earth_metal)
 
 
-#### to_pretty_string()
+        * [`ElementBase.is_transition_metal`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_transition_metal)
 
-* **Returns**
 
-    Pretty string with proper superscripts.
+        * [`ElementBase.is_valid_symbol()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.is_valid_symbol)
 
 
+        * [`ElementBase.iupac_ordering`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.iupac_ordering)
 
-#### _property_ to_reduced_dict(_: dic_ )
-Returns:
-dict with element symbol and reduced amount e.g.,
-{“Fe”: 2.0, “O”:3.0}.
 
-## pymatgen.core.lattice module
+        * [`ElementBase.max_oxidation_state`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.max_oxidation_state)
 
-Defines the classes relating to 3D lattices.
 
+        * [`ElementBase.metallic_radius`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.metallic_radius)
 
-### _class_ pymatgen.core.lattice.Lattice(matrix: ArrayLike, pbc: tuple[bool, bool, bool] = (True, True, True))
-Bases: `MSONable`
 
-A lattice object. Essentially a matrix with conversion matrices. In
-general, it is assumed that length units are in Angstroms and angles are in
-degrees unless otherwise stated.
+        * [`ElementBase.min_oxidation_state`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.min_oxidation_state)
 
-Create a lattice from any sequence of 9 numbers. Note that the sequence
-is assumed to be read one row at a time. Each row represents one
-lattice vector.
 
+        * [`ElementBase.nmr_quadrupole_moment`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.nmr_quadrupole_moment)
 
-* **Parameters**
 
+        * [`ElementBase.number`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.number)
 
-    * **matrix** – Sequence of numbers in any form. Examples of acceptable
-    input.
-    i) An actual numpy array.
-    ii) [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-    iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
-    iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
-    Each row should correspond to a lattice vector.
-    E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
-    with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].
 
+        * [`ElementBase.oxidation_states`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.oxidation_states)
 
-    * **pbc** – a tuple defining the periodic boundary conditions along the three
-    axis of the lattice. If None periodic in all directions.
 
+        * [`ElementBase.print_periodic_table()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.print_periodic_table)
 
 
-#### _property_ a(_: floa_ )
-*a* lattice parameter.
+        * [`ElementBase.row`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.row)
 
 
-#### _property_ abc(_: Vector3_ )
-Lengths of the lattice vectors, i.e. (a, b, c).
+        * [`ElementBase.term_symbols`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.term_symbols)
 
 
-#### _property_ alpha(_: floa_ )
-Angle alpha of lattice in degrees.
+        * [`ElementBase.valence`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.ElementBase.valence)
 
 
-#### _property_ angles(_: Vector3_ )
-Lattice angles.
+    * [`Specie`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Specie)
 
 
-* **Returns**
+    * [`Species`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species)
 
-    The angles (alpha, beta, gamma) of the lattice.
 
+        * [`Species.STRING_MODE`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.STRING_MODE)
 
 
-#### as_dict(verbosity: int = 0)
-Json-serialization dict representation of the Lattice.
+        * [`Species.as_dict()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.as_dict)
 
 
-* **Parameters**
+        * [`Species.element`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.element)
 
-    **verbosity** (*int*) – Verbosity level. Default of 0 only includes the
-    matrix representation. Set to 1 for more details.
 
+        * [`Species.from_dict()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.from_dict)
 
 
-#### _property_ b(_: floa_ )
-*b* lattice parameter.
+        * [`Species.from_str()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.from_str)
 
 
-#### _property_ beta(_: floa_ )
-Angle beta of lattice in degrees.
+        * [`Species.from_string()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.from_string)
 
 
-#### _property_ c(_: floa_ )
-*c* lattice parameter.
+        * [`Species.get_crystal_field_spin()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.get_crystal_field_spin)
 
 
-#### copy()
-Deep copy of self.
+        * [`Species.get_nmr_quadrupole_moment()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.get_nmr_quadrupole_moment)
 
 
-#### _static_ cubic(a: float, pbc: tuple[bool, bool, bool] = (True, True, True))
-Convenience constructor for a cubic lattice.
+        * [`Species.get_shannon_radius()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.get_shannon_radius)
 
 
-* **Parameters**
+        * [`Species.ionic_radius`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.ionic_radius)
 
 
-    * **a** (*float*) – The *a* lattice parameter of the cubic cell.
+        * [`Species.oxi_state`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.oxi_state)
 
 
-    * **pbc** (*tuple*) – a tuple defining the periodic boundary conditions along the three
-    axis of the lattice. If None periodic in all directions.
+        * [`Species.properties`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.properties)
 
 
+        * [`Species.spin`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.spin)
 
-* **Returns**
 
-    Cubic lattice of dimensions a x a x a.
+        * [`Species.to_pretty_string()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.Species.to_pretty_string)
 
 
+    * [`get_el_sp()`](pymatgen.core.periodic_table.md#pymatgen.core.periodic_table.get_el_sp)
 
-#### d_hkl(miller_index: ArrayLike)
-Returns the distance between the hkl plane and the origin.
 
+* [pymatgen.core.sites module](pymatgen.core.sites.md)
 
-* **Parameters**
 
-    **miller_index** (*[**h**,**k**,**l**]*) – Miller index of plane
+    * [`PeriodicSite`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite)
 
 
+        * [`PeriodicSite.a`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.a)
 
-* **Returns**
 
-    d_hkl (float)
+        * [`PeriodicSite.as_dict()`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.as_dict)
 
 
+        * [`PeriodicSite.b`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.b)
 
-#### dot(coords_a: ArrayLike, coords_b: ArrayLike, frac_coords: bool = False)
-Compute the scalar product of vector(s).
 
+        * [`PeriodicSite.c`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.c)
 
-* **Parameters**
 
+        * [`PeriodicSite.coords`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.coords)
 
-    * **coords_a** – Array-like coordinates.
 
+        * [`PeriodicSite.distance()`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.distance)
 
-    * **coords_b** – Array-like coordinates.
 
+        * [`PeriodicSite.distance_and_image()`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.distance_and_image)
 
-    * **frac_coords** (*bool*) – Boolean stating whether the vector
-    corresponds to fractional or Cartesian coordinates.
 
+        * [`PeriodicSite.distance_and_image_from_frac_coords()`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.distance_and_image_from_frac_coords)
 
 
-* **Returns**
+        * [`PeriodicSite.frac_coords`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.frac_coords)
 
-    one-dimensional numpy array.
 
+        * [`PeriodicSite.from_dict()`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.from_dict)
 
 
-#### find_all_mappings(other_lattice: Lattice, ltol: float = 1e-05, atol: float = 1, skip_rotation_matrix: bool = False)
-Finds all mappings between current lattice and another lattice.
+        * [`PeriodicSite.is_periodic_image()`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.is_periodic_image)
 
 
-* **Parameters**
+        * [`PeriodicSite.lattice`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.lattice)
 
 
-    * **other_lattice** (*Lattice*) – Another lattice that is equivalent to
-    this one.
+        * [`PeriodicSite.to_unit_cell()`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.to_unit_cell)
 
 
-    * **ltol** (*float*) – Tolerance for matching lengths. Defaults to 1e-5.
+        * [`PeriodicSite.x`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.x)
 
 
-    * **atol** (*float*) – Tolerance for matching angles. Defaults to 1.
+        * [`PeriodicSite.y`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.y)
 
 
-    * **skip_rotation_matrix** (*bool*) – Whether to skip calculation of the
-    rotation matrix
+        * [`PeriodicSite.z`](pymatgen.core.sites.md#pymatgen.core.sites.PeriodicSite.z)
 
 
+    * [`Site`](pymatgen.core.sites.md#pymatgen.core.sites.Site)
 
-* **Yields**
 
-    (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
-    found. aligned_lattice is a rotated version of other_lattice that
-    has the same lattice parameters, but which is aligned in the
-    coordinate system of this lattice so that translational points
-    match up in 3D. rotation_matrix is the rotation that has to be
-    applied to other_lattice to obtain aligned_lattice, i.e.,
-    aligned_matrix = np.inner(other_lattice, rotation_matrix) and
-    op = SymmOp.from_rotation_and_translation(rotation_matrix)
-    aligned_matrix = op.operate_multi(latt.matrix)
-    Finally, scale_matrix is the integer matrix that expresses
-    aligned_matrix as a linear combination of this
-    lattice, i.e., aligned_matrix = np.dot(scale_matrix, self.matrix)
+        * [`Site.as_dict()`](pymatgen.core.sites.md#pymatgen.core.sites.Site.as_dict)
 
-    None is returned if no matches are found.
 
+        * [`Site.distance()`](pymatgen.core.sites.md#pymatgen.core.sites.Site.distance)
 
 
-#### find_mapping(other_lattice: Lattice, ltol: float = 1e-05, atol: float = 1, skip_rotation_matrix: bool = False)
-Finds a mapping between current lattice and another lattice. There
-are an infinite number of choices of basis vectors for two entirely
-equivalent lattices. This method returns a mapping that maps
-other_lattice to this lattice.
+        * [`Site.distance_from_point()`](pymatgen.core.sites.md#pymatgen.core.sites.Site.distance_from_point)
 
 
-* **Parameters**
+        * [`Site.from_dict()`](pymatgen.core.sites.md#pymatgen.core.sites.Site.from_dict)
 
 
-    * **other_lattice** (*Lattice*) – Another lattice that is equivalent to
-    this one.
+        * [`Site.is_ordered`](pymatgen.core.sites.md#pymatgen.core.sites.Site.is_ordered)
 
 
-    * **ltol** (*float*) – Tolerance for matching lengths. Defaults to 1e-5.
+        * [`Site.label`](pymatgen.core.sites.md#pymatgen.core.sites.Site.label)
 
 
-    * **atol** (*float*) – Tolerance for matching angles. Defaults to 1.
+        * [`Site.position_atol`](pymatgen.core.sites.md#pymatgen.core.sites.Site.position_atol)
 
 
-    * **skip_rotation_matrix** (*bool*) – Whether to skip calculation of the rotation matrix.
-    Defaults to False.
+        * [`Site.specie`](pymatgen.core.sites.md#pymatgen.core.sites.Site.specie)
 
 
+        * [`Site.species`](pymatgen.core.sites.md#pymatgen.core.sites.Site.species)
 
-* **Returns**
 
-    (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
-    found. aligned_lattice is a rotated version of other_lattice that
-    has the same lattice parameters, but which is aligned in the
-    coordinate system of this lattice so that translational points
-    match up in 3D. rotation_matrix is the rotation that has to be
-    applied to other_lattice to obtain aligned_lattice, i.e.,
-    aligned_matrix = np.inner(other_lattice, rotation_matrix) and
-    op = SymmOp.from_rotation_and_translation(rotation_matrix)
-    aligned_matrix = op.operate_multi(latt.matrix)
-    Finally, scale_matrix is the integer matrix that expresses
-    aligned_matrix as a linear combination of this
-    lattice, i.e., aligned_matrix = np.dot(scale_matrix, self.matrix)
+        * [`Site.species_string`](pymatgen.core.sites.md#pymatgen.core.sites.Site.species_string)
 
-    None is returned if no matches are found.
 
+        * [`Site.x`](pymatgen.core.sites.md#pymatgen.core.sites.Site.x)
 
 
+        * [`Site.y`](pymatgen.core.sites.md#pymatgen.core.sites.Site.y)
 
-#### _classmethod_ from_dict(d: dict, fmt: str | None = None, \*\*kwargs)
-Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
-and gamma parameters if fmt is None.
 
-If fmt == “abivars”, the function build a Lattice object from a
-dictionary with the Abinit variables acell and rprim in Bohr.
-If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
+        * [`Site.z`](pymatgen.core.sites.md#pymatgen.core.sites.Site.z)
 
-### Example
 
-Lattice.from_dict(fmt=”abivars”, acell=3\*[10], rprim=np.eye(3))
+* [pymatgen.core.spectrum module](pymatgen.core.spectrum.md)
 
 
-#### _classmethod_ from_parameters(a: float, b: float, c: float, alpha: float, beta: float, gamma: float, vesta: bool = False, pbc: tuple[bool, bool, bool] = (True, True, True))
-Create a Lattice using unit cell lengths (in Angstrom) and angles (in degrees).
+    * [`Spectrum`](pymatgen.core.spectrum.md#pymatgen.core.spectrum.Spectrum)
 
 
-* **Parameters**
+        * [`Spectrum.XLABEL`](pymatgen.core.spectrum.md#pymatgen.core.spectrum.Spectrum.XLABEL)
 
 
-    * **a** (*float*) – *a* lattice parameter.
+        * [`Spectrum.YLABEL`](pymatgen.core.spectrum.md#pymatgen.core.spectrum.Spectrum.YLABEL)
 
 
-    * **b** (*float*) – *b* lattice parameter.
+        * [`Spectrum.copy()`](pymatgen.core.spectrum.md#pymatgen.core.spectrum.Spectrum.copy)
 
 
-    * **c** (*float*) – *c* lattice parameter.
+        * [`Spectrum.get_interpolated_value()`](pymatgen.core.spectrum.md#pymatgen.core.spectrum.Spectrum.get_interpolated_value)
 
 
-    * **alpha** (*float*) – *alpha* angle in degrees.
+        * [`Spectrum.normalize()`](pymatgen.core.spectrum.md#pymatgen.core.spectrum.Spectrum.normalize)
 
 
-    * **beta** (*float*) – *beta* angle in degrees.
+        * [`Spectrum.smear()`](pymatgen.core.spectrum.md#pymatgen.core.spectrum.Spectrum.smear)
 
 
-    * **gamma** (*float*) – *gamma* angle in degrees.
+    * [`lorentzian()`](pymatgen.core.spectrum.md#pymatgen.core.spectrum.lorentzian)
 
 
-    * **vesta** – True if you import Cartesian coordinates from VESTA.
+* [pymatgen.core.structure module](pymatgen.core.structure.md)
 
 
-    * **pbc** (*tuple*) – a tuple defining the periodic boundary conditions along the three
-    axis of the lattice. If None periodic in all directions.
+    * [`IMolecule`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule)
 
 
+        * [`IMolecule.as_dict()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.as_dict)
 
-* **Returns**
 
-    Lattice with the specified lattice parameters.
+        * [`IMolecule.break_bond()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.break_bond)
 
 
+        * [`IMolecule.center_of_mass`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.center_of_mass)
 
-#### _property_ gamma(_: floa_ )
-Angle gamma of lattice in degrees.
 
+        * [`IMolecule.charge`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.charge)
 
-#### get_all_distances(fcoords1: ArrayLike, fcoords2: ArrayLike)
-Returns the distances between two lists of coordinates taking into
-account periodic boundary conditions and the lattice. Note that this
-computes an MxN array of distances (i.e. the distance between each
-point in fcoords1 and every coordinate in fcoords2). This is
-different functionality from pbc_diff.
 
+        * [`IMolecule.from_dict()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.from_dict)
 
-* **Parameters**
 
+        * [`IMolecule.from_file()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.from_file)
 
-    * **fcoords1** – First set of fractional coordinates. e.g., [0.5, 0.6,
-    0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
-    coord or any array of coords.
 
+        * [`IMolecule.from_sites()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.from_sites)
 
-    * **fcoords2** – Second set of fractional coordinates.
 
+        * [`IMolecule.from_str()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.from_str)
 
 
-* **Returns**
+        * [`IMolecule.get_boxed_structure()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.get_boxed_structure)
 
-    2d array of Cartesian distances. E.g the distance between
-    fcoords1[i] and fcoords2[j] is distances[i,j]
 
+        * [`IMolecule.get_centered_molecule()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.get_centered_molecule)
 
 
-#### get_brillouin_zone()
-Returns the Wigner-Seitz cell for the reciprocal lattice, aka the
-Brillouin Zone.
+        * [`IMolecule.get_covalent_bonds()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.get_covalent_bonds)
 
 
-* **Returns**
+        * [`IMolecule.get_distance()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.get_distance)
 
-    A list of list of coordinates.
-    Each element in the list is a “facet” of the boundary of the
-    Brillouin Zone. For instance, a list of four coordinates will
-    represent a square facet.
 
+        * [`IMolecule.get_neighbors()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.get_neighbors)
 
 
-#### get_cartesian_coords(fractional_coords: ArrayLike)
-Returns the Cartesian coordinates given fractional coordinates.
+        * [`IMolecule.get_neighbors_in_shell()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.get_neighbors_in_shell)
 
 
-* **Parameters**
+        * [`IMolecule.get_sites_in_sphere()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.get_sites_in_sphere)
 
-    **fractional_coords** (*3x1 array*) – Fractional coords.
 
+        * [`IMolecule.get_zmatrix()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.get_zmatrix)
 
 
-* **Returns**
+        * [`IMolecule.nelectrons`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.nelectrons)
 
-    Cartesian coordinates
 
+        * [`IMolecule.spin_multiplicity`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.spin_multiplicity)
 
 
-#### get_distance_and_image(frac_coords1: ArrayLike, frac_coords2: ArrayLike, jimage: ArrayLike | None = None)
-Gets distance between two frac_coords assuming periodic boundary
-conditions. If the index jimage is not specified it selects the j
-image nearest to the i atom and returns the distance and jimage
-indices in terms of lattice vector translations. If the index jimage
-is specified it returns the distance between the frac_coords1 and
-the specified jimage of frac_coords2, and the given jimage is also
-returned.
+        * [`IMolecule.to()`](pymatgen.core.structure.md#pymatgen.core.structure.IMolecule.to)
 
 
-* **Parameters**
+    * [`IStructure`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure)
 
 
-    * **frac_coords1** (*3x1 array*) – Reference fcoords to get distance from.
+        * [`IStructure.as_dataframe()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.as_dataframe)
 
 
-    * **frac_coords2** (*3x1 array*) – fcoords to get distance from.
+        * [`IStructure.as_dict()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.as_dict)
 
 
-    * **jimage** (*3x1 array*) – Specific periodic image in terms of
-    lattice translations, e.g., [1,0,0] implies to take periodic
-    image that is one a-lattice vector away. If jimage is None,
-    the image that is nearest to the site is found.
+        * [`IStructure.charge`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.charge)
 
 
+        * [`IStructure.copy()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.copy)
 
-* **Returns**
 
-    distance and periodic lattice translations
-    of the other site for which the distance applies. This means that
-    the distance between frac_coords1 and (jimage + frac_coords2) is
-    equal to distance.
+        * [`IStructure.density`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.density)
 
 
+        * [`IStructure.distance_matrix`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.distance_matrix)
 
-* **Return type**
 
-    (distance, jimage)
+        * [`IStructure.frac_coords`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.frac_coords)
 
 
+        * [`IStructure.from_dict()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.from_dict)
 
-#### get_frac_coords_from_lll(lll_frac_coords: ArrayLike)
-Given fractional coordinates in the lll basis, returns corresponding
-fractional coordinates in the lattice basis.
 
+        * [`IStructure.from_file()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.from_file)
 
-#### get_fractional_coords(cart_coords: ArrayLike)
-Returns the fractional coordinates given Cartesian coordinates.
 
+        * [`IStructure.from_magnetic_spacegroup()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.from_magnetic_spacegroup)
 
-* **Parameters**
 
-    **cart_coords** (*3x1 array*) – Cartesian coords.
+        * [`IStructure.from_sites()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.from_sites)
 
 
+        * [`IStructure.from_spacegroup()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.from_spacegroup)
 
-* **Returns**
 
-    Fractional coordinates.
+        * [`IStructure.from_str()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.from_str)
 
 
+        * [`IStructure.get_all_neighbors()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_all_neighbors)
 
-#### get_lll_frac_coords(frac_coords: ArrayLike)
-Given fractional coordinates in the lattice basis, returns corresponding
-fractional coordinates in the lll basis.
 
+        * [`IStructure.get_all_neighbors_old()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_all_neighbors_old)
 
-#### get_lll_reduced_lattice(delta: float = 0.75)
 
-* **Parameters**
+        * [`IStructure.get_all_neighbors_py()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_all_neighbors_py)
 
-    **delta** – Delta parameter.
 
+        * [`IStructure.get_distance()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_distance)
 
 
-* **Returns**
+        * [`IStructure.get_miller_index_from_site_indexes()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_miller_index_from_site_indexes)
 
-    LLL reduced Lattice.
 
+        * [`IStructure.get_neighbor_list()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_neighbor_list)
 
 
-#### get_miller_index_from_coords(coords: ArrayLike, coords_are_cartesian: bool = True, round_dp: int = 4, verbose: bool = True)
-Get the Miller index of a plane from a list of site coordinates.
+        * [`IStructure.get_neighbors()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_neighbors)
 
-A minimum of 3 sets of coordinates are required. If more than 3 sets of
-coordinates are given, the best plane that minimises the distance to all
-points will be calculated.
 
+        * [`IStructure.get_neighbors_in_shell()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_neighbors_in_shell)
 
-* **Parameters**
 
+        * [`IStructure.get_neighbors_old()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_neighbors_old)
 
-    * **coords** (*iterable*) – A list or numpy array of coordinates. Can be
-    Cartesian or fractional coordinates. If more than three sets of
-    coordinates are provided, the best plane that minimises the
-    distance to all sites will be calculated.
 
+        * [`IStructure.get_orderings()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_orderings)
 
-    * **coords_are_cartesian** (*bool**, **optional*) – Whether the coordinates are
-    in Cartesian space. If using fractional coordinates set to
-    False.
 
+        * [`IStructure.get_primitive_structure()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_primitive_structure)
 
-    * **round_dp** (*int**, **optional*) – The number of decimal places to round the
-    miller index to.
 
+        * [`IStructure.get_reduced_structure()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_reduced_structure)
 
-    * **verbose** (*bool**, **optional*) – Whether to print warnings.
 
+        * [`IStructure.get_sites_in_sphere()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_sites_in_sphere)
 
 
-* **Returns**
+        * [`IStructure.get_sorted_structure()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_sorted_structure)
 
-    The Miller index.
 
+        * [`IStructure.get_space_group_info()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_space_group_info)
 
 
-* **Return type**
+        * [`IStructure.get_symmetric_neighbor_list()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.get_symmetric_neighbor_list)
 
-    (tuple)
 
+        * [`IStructure.interpolate()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.interpolate)
 
 
-#### get_niggli_reduced_lattice(tol: float = 1e-05)
-Get the Niggli reduced lattice using the numerically stable algo
-proposed by R. W. Grosse-Kunstleve, N. K. Sauter, & P. D. Adams,
-Acta Crystallographica Section A Foundations of Crystallography, 2003,
-60(1), 1-6. doi:10.1107/S010876730302186X.
+        * [`IStructure.is_3d_periodic`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.is_3d_periodic)
 
 
-* **Parameters**
+        * [`IStructure.lattice`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.lattice)
 
-    **tol** (*float*) – The numerical tolerance. The default of 1e-5 should
-    result in stable behavior for most cases.
 
+        * [`IStructure.matches()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.matches)
 
 
-* **Returns**
+        * [`IStructure.pbc`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.pbc)
 
-    Niggli-reduced lattice.
 
+        * [`IStructure.to()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.to)
 
 
-#### get_points_in_sphere(frac_points: ArrayLike, center: ArrayLike, r: float, zip_results=True)
-Find all points within a sphere from the point taking into account
-periodic boundary conditions. This includes sites in other periodic
-images.
+        * [`IStructure.unset_charge()`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.unset_charge)
 
-Algorithm:
 
+        * [`IStructure.volume`](pymatgen.core.structure.md#pymatgen.core.structure.IStructure.volume)
 
-1. place sphere of radius r in crystal and determine minimum supercell
-(parallelpiped) which would contain a sphere of radius r. for this
-we need the projection of a_1 on a unit vector perpendicular
-to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
-determine how many a_1”s it will take to contain the sphere.
 
-Nxmax = r \* length_of_b_1 / (2 Pi)
+    * [`Molecule`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule)
 
 
-2. keep points falling within r.
+        * [`Molecule.append()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.append)
 
 
-* **Parameters**
+        * [`Molecule.apply_operation()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.apply_operation)
 
 
-    * **frac_points** – All points in the lattice in fractional coordinates.
+        * [`Molecule.calculate()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.calculate)
 
 
-    * **center** – Cartesian coordinates of center of sphere.
+        * [`Molecule.copy()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.copy)
 
 
-    * **r** – radius of sphere.
+        * [`Molecule.insert()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.insert)
 
 
-    * **zip_results** (*bool*) – Whether to zip the results together to group by
-    point, or return the raw fcoord, dist, index arrays
+        * [`Molecule.perturb()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.perturb)
 
 
+        * [`Molecule.relax()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.relax)
 
-* **Returns**
 
-    [(fcoord, dist, index, supercell_image) …] since most of the time, subsequent
+        * [`Molecule.remove_sites()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.remove_sites)
 
-        processing requires the distance, index number of the atom, or index of the image
 
-    else:
+        * [`Molecule.remove_species()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.remove_species)
 
-        fcoords, dists, inds, image
 
+        * [`Molecule.rotate_sites()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.rotate_sites)
 
 
+        * [`Molecule.set_charge_and_spin()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.set_charge_and_spin)
 
-* **Return type**
 
-    if zip_results
+        * [`Molecule.substitute()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.substitute)
 
 
+        * [`Molecule.translate_sites()`](pymatgen.core.structure.md#pymatgen.core.structure.Molecule.translate_sites)
 
-#### get_points_in_sphere_old(\*\*kwargs)
 
-#### get_points_in_sphere_py(frac_points: ArrayLike, center: ArrayLike, r: float, zip_results=True)
-Find all points within a sphere from the point taking into account
-periodic boundary conditions. This includes sites in other periodic
-images.
+    * [`Neighbor`](pymatgen.core.structure.md#pymatgen.core.structure.Neighbor)
 
-Algorithm:
 
+        * [`Neighbor.as_dict()`](pymatgen.core.structure.md#pymatgen.core.structure.Neighbor.as_dict)
 
-1. place sphere of radius r in crystal and determine minimum supercell
-(parallelpiped) which would contain a sphere of radius r. for this
-we need the projection of a_1 on a unit vector perpendicular
-to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
-determine how many a_1”s it will take to contain the sphere.
 
-Nxmax = r \* length_of_b_1 / (2 Pi)
+        * [`Neighbor.coords`](pymatgen.core.structure.md#pymatgen.core.structure.Neighbor.coords)
 
 
-2. keep points falling within r.
+        * [`Neighbor.from_dict()`](pymatgen.core.structure.md#pymatgen.core.structure.Neighbor.from_dict)
 
 
-* **Parameters**
+        * [`Neighbor.properties`](pymatgen.core.structure.md#pymatgen.core.structure.Neighbor.properties)
 
 
-    * **frac_points** – All points in the lattice in fractional coordinates.
+    * [`PeriodicNeighbor`](pymatgen.core.structure.md#pymatgen.core.structure.PeriodicNeighbor)
 
 
-    * **center** – Cartesian coordinates of center of sphere.
+        * [`PeriodicNeighbor.as_dict()`](pymatgen.core.structure.md#pymatgen.core.structure.PeriodicNeighbor.as_dict)
 
 
-    * **r** – radius of sphere.
+        * [`PeriodicNeighbor.coords`](pymatgen.core.structure.md#pymatgen.core.structure.PeriodicNeighbor.coords)
 
 
-    * **zip_results** (*bool*) – Whether to zip the results together to group by
-    point, or return the raw fcoord, dist, index arrays
+        * [`PeriodicNeighbor.from_dict()`](pymatgen.core.structure.md#pymatgen.core.structure.PeriodicNeighbor.from_dict)
 
 
+        * [`PeriodicNeighbor.properties`](pymatgen.core.structure.md#pymatgen.core.structure.PeriodicNeighbor.properties)
 
-* **Returns**
 
-    [(fcoord, dist, index, supercell_image) …] since most of the time, subsequent
+    * [`SiteCollection`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection)
 
-        processing requires the distance, index number of the atom, or index of the image
 
-    else:
+        * [`SiteCollection.DISTANCE_TOLERANCE`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.DISTANCE_TOLERANCE)
 
-        fcoords, dists, inds, image
 
+        * [`SiteCollection.add_oxidation_state_by_element()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.add_oxidation_state_by_element)
 
 
+        * [`SiteCollection.add_oxidation_state_by_guess()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.add_oxidation_state_by_guess)
 
-* **Return type**
 
-    if zip_results
+        * [`SiteCollection.add_oxidation_state_by_site()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.add_oxidation_state_by_site)
 
 
+        * [`SiteCollection.add_site_property()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.add_site_property)
 
-#### get_recp_symmetry_operation(symprec: float = 0.01)
-Find the symmetric operations of the reciprocal lattice,
-to be used for hkl transformations
-:param symprec: default is 0.001.
 
+        * [`SiteCollection.add_spin_by_element()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.add_spin_by_element)
 
-#### get_vector_along_lattice_directions(cart_coords: ArrayLike)
-Returns the coordinates along lattice directions given Cartesian coordinates.
 
-Note, this is different than a projection of the Cartesian vector along the
-lattice parameters. It is simply the fractional coordinates multiplied by the
-lattice vector magnitudes.
+        * [`SiteCollection.add_spin_by_site()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.add_spin_by_site)
 
-For example, this method is helpful when analyzing the dipole moment (in
-units of electron Angstroms) of a ferroelectric crystal. See the Polarization
-class in pymatgen.analysis.ferroelectricity.polarization.
 
+        * [`SiteCollection.atomic_numbers`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.atomic_numbers)
 
-* **Parameters**
 
-    **cart_coords** (*3x1 array*) – Cartesian coords.
+        * [`SiteCollection.cart_coords`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.cart_coords)
 
 
+        * [`SiteCollection.charge`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.charge)
 
-* **Returns**
 
-    Lattice coordinates.
+        * [`SiteCollection.composition`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.composition)
 
 
+        * [`SiteCollection.distance_matrix`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.distance_matrix)
 
-#### get_wigner_seitz_cell()
-Returns the Wigner-Seitz cell for the given lattice.
 
+        * [`SiteCollection.extract_cluster()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.extract_cluster)
 
-* **Returns**
 
-    A list of list of coordinates.
-    Each element in the list is a “facet” of the boundary of the
-    Wigner Seitz cell. For instance, a list of four coordinates will
-    represent a square facet.
+        * [`SiteCollection.formula`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.formula)
 
 
+        * [`SiteCollection.from_file()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.from_file)
 
-#### _static_ hexagonal(a: float, c: float, pbc: tuple[bool, bool, bool] = (True, True, True))
-Convenience constructor for a hexagonal lattice.
 
+        * [`SiteCollection.from_str()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.from_str)
 
-* **Parameters**
 
+        * [`SiteCollection.get_angle()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.get_angle)
 
-    * **a** (*float*) – *a* lattice parameter of the hexagonal cell.
 
+        * [`SiteCollection.get_dihedral()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.get_dihedral)
 
-    * **c** (*float*) – *c* lattice parameter of the hexagonal cell.
 
+        * [`SiteCollection.get_distance()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.get_distance)
 
-    * **pbc** (*tuple*) – a tuple defining the periodic boundary conditions along the three
-    axis of the lattice. If None periodic in all directions.
 
+        * [`SiteCollection.group_by_types()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.group_by_types)
 
 
-* **Returns**
+        * [`SiteCollection.indices_from_symbol()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.indices_from_symbol)
 
-    Hexagonal lattice of dimensions a x a x c.
 
+        * [`SiteCollection.is_ordered`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.is_ordered)
 
 
-#### _property_ inv_matrix(_: ndarra_ )
-Inverse of lattice matrix.
+        * [`SiteCollection.is_valid()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.is_valid)
 
 
-#### _property_ is_3d_periodic(_: boo_ )
-True if the Lattice is periodic in all directions.
+        * [`SiteCollection.labels`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.labels)
 
 
-#### is_hexagonal(hex_angle_tol: float = 5, hex_length_tol: float = 0.01)
+        * [`SiteCollection.ntypesp`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.ntypesp)
 
-* **Parameters**
 
+        * [`SiteCollection.num_sites`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.num_sites)
 
-    * **hex_angle_tol** – Angle tolerance
 
+        * [`SiteCollection.remove_oxidation_states()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.remove_oxidation_states)
 
-    * **hex_length_tol** – Length tolerance
 
+        * [`SiteCollection.remove_site_property()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.remove_site_property)
 
 
-* **Returns**
+        * [`SiteCollection.remove_spin()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.remove_spin)
 
-    Whether lattice corresponds to hexagonal lattice.
 
+        * [`SiteCollection.replace_species()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.replace_species)
 
 
-#### _property_ is_orthogonal(_: boo_ )
-Whether all angles are 90 degrees.
+        * [`SiteCollection.site_properties`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.site_properties)
 
 
-* **Type**
+        * [`SiteCollection.sites`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.sites)
 
-    return
 
+        * [`SiteCollection.species`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.species)
 
 
-#### _property_ lengths(_: Vector3_ )
-Lattice lengths.
+        * [`SiteCollection.species_and_occu`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.species_and_occu)
 
 
-* **Returns**
+        * [`SiteCollection.symbol_set`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.symbol_set)
 
-    The lengths (a, b, c) of the lattice.
 
+        * [`SiteCollection.to()`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.to)
 
 
-#### _property_ lll_inverse(_: ndarra_ )
-Inverse of self.lll_mapping.
+        * [`SiteCollection.types_of_specie`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.types_of_specie)
 
 
-* **Type**
+        * [`SiteCollection.types_of_species`](pymatgen.core.structure.md#pymatgen.core.structure.SiteCollection.types_of_species)
 
-    return
 
+    * [`Structure`](pymatgen.core.structure.md#pymatgen.core.structure.Structure)
 
 
-#### _property_ lll_mapping(_: ndarra_ )
-The mapping between the LLL reduced lattice and the original
-lattice.
+        * [`Structure.append()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.append)
 
 
-* **Type**
+        * [`Structure.apply_operation()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.apply_operation)
 
-    return
 
+        * [`Structure.apply_strain()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.apply_strain)
 
 
-#### _property_ lll_matrix(_: ndarra_ )
-The matrix for LLL reduction
+        * [`Structure.calculate()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.calculate)
 
 
-* **Type**
+        * [`Structure.from_prototype()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.from_prototype)
 
-    return
 
+        * [`Structure.insert()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.insert)
 
 
-#### _property_ matrix(_: ndarra_ )
-Copy of matrix representing the Lattice.
+        * [`Structure.lattice`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.lattice)
 
 
-#### _property_ metric_tensor(_: ndarra_ )
-The metric tensor of the lattice.
+        * [`Structure.make_supercell()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.make_supercell)
 
 
-#### _static_ monoclinic(a: float, b: float, c: float, beta: float, pbc: tuple[bool, bool, bool] = (True, True, True))
-Convenience constructor for a monoclinic lattice.
+        * [`Structure.merge_sites()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.merge_sites)
 
 
-* **Parameters**
+        * [`Structure.perturb()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.perturb)
 
 
-    * **a** (*float*) – *a* lattice parameter of the monoclinc cell.
+        * [`Structure.relax()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.relax)
 
 
-    * **b** (*float*) – *b* lattice parameter of the monoclinc cell.
+        * [`Structure.remove_sites()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.remove_sites)
 
 
-    * **c** (*float*) – *c* lattice parameter of the monoclinc cell.
+        * [`Structure.remove_species()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.remove_species)
 
 
-    * **beta** (*float*) – *beta* angle between lattice vectors b and c in
-    degrees.
+        * [`Structure.replace()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.replace)
 
 
-    * **pbc** (*tuple*) – a tuple defining the periodic boundary conditions along the three
-    axis of the lattice. If None periodic in all directions.
+        * [`Structure.rotate_sites()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.rotate_sites)
 
 
+        * [`Structure.scale_lattice()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.scale_lattice)
 
-* **Returns**
 
-    Monoclinic lattice of dimensions a x b x c with non right-angle
-    beta between lattice vectors a and c.
+        * [`Structure.set_charge()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.set_charge)
 
 
+        * [`Structure.sort()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.sort)
 
-#### norm(coords: ArrayLike, frac_coords: bool = True)
-Compute the norm of vector(s).
 
+        * [`Structure.substitute()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.substitute)
 
-* **Parameters**
 
+        * [`Structure.translate_sites()`](pymatgen.core.structure.md#pymatgen.core.structure.Structure.translate_sites)
 
-    * **coords** – Array-like object with the coordinates.
 
+    * [`StructureError`](pymatgen.core.structure.md#pymatgen.core.structure.StructureError)
 
-    * **frac_coords** – Boolean stating whether the vector corresponds to fractional or
-    Cartesian coordinates.
 
+* [pymatgen.core.surface module](pymatgen.core.surface.md)
 
 
-* **Returns**
+    * [`ReconstructionGenerator`](pymatgen.core.surface.md#pymatgen.core.surface.ReconstructionGenerator)
 
-    one-dimensional numpy array.
 
+        * [`ReconstructionGenerator.slabgen_params`](pymatgen.core.surface.md#pymatgen.core.surface.ReconstructionGenerator.slabgen_params)
 
 
-#### _static_ orthorhombic(a: float, b: float, c: float, pbc: tuple[bool, bool, bool] = (True, True, True))
-Convenience constructor for an orthorhombic lattice.
+        * [`ReconstructionGenerator.build_slabs()`](pymatgen.core.surface.md#pymatgen.core.surface.ReconstructionGenerator.build_slabs)
 
 
-* **Parameters**
+        * [`ReconstructionGenerator.get_unreconstructed_slabs()`](pymatgen.core.surface.md#pymatgen.core.surface.ReconstructionGenerator.get_unreconstructed_slabs)
 
 
-    * **a** (*float*) – *a* lattice parameter of the orthorhombic cell.
+    * [`Slab`](pymatgen.core.surface.md#pymatgen.core.surface.Slab)
 
 
-    * **b** (*float*) – *b* lattice parameter of the orthorhombic cell.
+        * [`Slab.miller_index`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.miller_index)
 
 
-    * **c** (*float*) – *c* lattice parameter of the orthorhombic cell.
+        * [`Slab.scale_factor`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.scale_factor)
 
 
-    * **pbc** (*tuple*) – a tuple defining the periodic boundary conditions along the three
-    axis of the lattice. If None periodic in all directions.
+        * [`Slab.shift`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.shift)
 
 
+        * [`Slab.add_adsorbate_atom()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.add_adsorbate_atom)
 
-* **Returns**
 
-    Orthorhombic lattice of dimensions a x b x c.
+        * [`Slab.as_dict()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.as_dict)
 
 
+        * [`Slab.center_of_mass`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.center_of_mass)
 
-#### _property_ parameters(_: tuple[float, float, float, float, float, float_ )
-(a, b, c, alpha, beta, gamma).
 
+        * [`Slab.copy()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.copy)
 
-* **Type**
 
-    Returns
+        * [`Slab.dipole`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.dipole)
 
 
+        * [`Slab.from_dict()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.from_dict)
 
-#### _property_ pbc(_: tuple[bool, bool, bool_ )
-Tuple defining the periodicity of the Lattice.
 
+        * [`Slab.get_orthogonal_c_slab()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.get_orthogonal_c_slab)
 
-#### _property_ reciprocal_lattice(_: Lattic_ )
-Return the reciprocal lattice. Note that this is the standard
-reciprocal lattice used for solid state physics with a factor of 2 \*
-pi. If you are looking for the crystallographic reciprocal lattice,
-use the reciprocal_lattice_crystallographic property.
-The property is lazily generated for efficiency.
 
+        * [`Slab.get_sorted_structure()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.get_sorted_structure)
 
-#### _property_ reciprocal_lattice_crystallographic(_: Lattic_ )
-Returns the *crystallographic* reciprocal lattice, i.e., no factor of
-2 \* pi.
 
+        * [`Slab.get_surface_sites()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.get_surface_sites)
 
-#### _static_ rhombohedral(a: float, alpha: float, pbc: tuple[bool, bool, bool] = (True, True, True))
-Convenience constructor for a rhombohedral lattice.
 
+        * [`Slab.get_symmetric_site()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.get_symmetric_site)
 
-* **Parameters**
 
+        * [`Slab.get_tasker2_slabs()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.get_tasker2_slabs)
 
-    * **a** (*float*) – *a* lattice parameter of the rhombohedral cell.
 
+        * [`Slab.is_polar()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.is_polar)
 
-    * **alpha** (*float*) – Angle for the rhombohedral lattice in degrees.
 
+        * [`Slab.is_symmetric()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.is_symmetric)
 
-    * **pbc** (*tuple*) – a tuple defining the periodic boundary conditions along the three
-    axis of the lattice. If None periodic in all directions.
 
+        * [`Slab.normal`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.normal)
 
 
-* **Returns**
+        * [`Slab.surface_area`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.surface_area)
 
-    Rhombohedral lattice of dimensions a x a x a.
 
+        * [`Slab.symmetrically_add_atom()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.symmetrically_add_atom)
 
 
-#### scale(new_volume: float)
-Return a new Lattice with volume new_volume by performing a
-scaling of the lattice vectors so that length proportions and angles
-are preserved.
+        * [`Slab.symmetrically_remove_atoms()`](pymatgen.core.surface.md#pymatgen.core.surface.Slab.symmetrically_remove_atoms)
 
 
-* **Parameters**
+    * [`SlabGenerator`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator)
 
-    **new_volume** – New volume to scale to.
 
+        * [`SlabGenerator.oriented_unit_cell`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.oriented_unit_cell)
 
 
-* **Returns**
+        * [`SlabGenerator.parent`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.parent)
 
-    New lattice with desired volume.
 
+        * [`SlabGenerator.lll_reduce`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.lll_reduce)
 
 
-#### selling_dist(other)
-Returns the minimum Selling distance between two lattices.
+        * [`SlabGenerator.center_slab`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.center_slab)
 
 
-#### _property_ selling_vector(_: ndarra_ )
-Returns the (1,6) array of Selling Scalars.
+        * [`SlabGenerator.slab_scale_factor`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.slab_scale_factor)
 
 
-#### _static_ tetragonal(a: float, c: float, pbc: tuple[bool, bool, bool] = (True, True, True))
-Convenience constructor for a tetragonal lattice.
+        * [`SlabGenerator.miller_index`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.miller_index)
 
 
-* **Parameters**
+        * [`SlabGenerator.min_slab_size`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.min_slab_size)
 
 
-    * **a** (*float*) – *a* lattice parameter of the tetragonal cell.
+        * [`SlabGenerator.min_vac_size`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.min_vac_size)
 
 
-    * **c** (*float*) – *c* lattice parameter of the tetragonal cell.
+        * [`SlabGenerator.get_slab()`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.get_slab)
 
 
-    * **pbc** (*tuple*) – a tuple defining the periodic boundary conditions along the three
-    axis of the lattice. If None periodic in all directions.
+        * [`SlabGenerator.get_slabs()`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.get_slabs)
 
 
+        * [`SlabGenerator.move_to_other_side()`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.move_to_other_side)
 
-* **Returns**
 
-    Tetragonal lattice of dimensions a x a x c.
+        * [`SlabGenerator.nonstoichiometric_symmetrized_slab()`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab)
 
 
+        * [`SlabGenerator.repair_broken_bonds()`](pymatgen.core.surface.md#pymatgen.core.surface.SlabGenerator.repair_broken_bonds)
 
-#### _property_ volume(_: floa_ )
-Volume of the unit cell in Angstrom^3.
 
+    * [`center_slab()`](pymatgen.core.surface.md#pymatgen.core.surface.center_slab)
 
-### pymatgen.core.lattice.find_neighbors(label: ndarray, nx: int, ny: int, nz: int)
-Given a cube index, find the neighbor cube indices.
 
+    * [`generate_all_slabs()`](pymatgen.core.surface.md#pymatgen.core.surface.generate_all_slabs)
 
-* **Parameters**
 
+    * [`get_d()`](pymatgen.core.surface.md#pymatgen.core.surface.get_d)
 
-    * **label** – (array) (n,) or (n x 3) indice array
 
+    * [`get_slab_regions()`](pymatgen.core.surface.md#pymatgen.core.surface.get_slab_regions)
 
-    * **nx** – (int) number of cells in y direction
 
+    * [`get_symmetrically_distinct_miller_indices()`](pymatgen.core.surface.md#pymatgen.core.surface.get_symmetrically_distinct_miller_indices)
 
-    * **ny** – (int) number of cells in y direction
 
+    * [`get_symmetrically_equivalent_miller_indices()`](pymatgen.core.surface.md#pymatgen.core.surface.get_symmetrically_equivalent_miller_indices)
 
-    * **nz** – (int) number of cells in z direction
 
+    * [`hkl_transformation()`](pymatgen.core.surface.md#pymatgen.core.surface.hkl_transformation)
 
 
-* **Returns**
+    * [`is_already_analyzed()`](pymatgen.core.surface.md#pymatgen.core.surface.is_already_analyzed)
 
-    Neighbor cell indices.
 
+    * [`miller_index_from_sites()`](pymatgen.core.surface.md#pymatgen.core.surface.miller_index_from_sites)
 
 
-### pymatgen.core.lattice.get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose: bool = True)
-Attempt to convert a vector of floats to whole numbers.
+* [pymatgen.core.tensors module](pymatgen.core.tensors.md)
 
 
-* **Parameters**
+    * [`SquareTensor`](pymatgen.core.tensors.md#pymatgen.core.tensors.SquareTensor)
 
 
-    * **miller_index** (*list** of **float*) – A list miller indexes.
+        * [`SquareTensor.det`](pymatgen.core.tensors.md#pymatgen.core.tensors.SquareTensor.det)
 
 
-    * **round_dp** (*int**, **optional*) – The number of decimal places to round the
-    miller index to.
+        * [`SquareTensor.get_scaled()`](pymatgen.core.tensors.md#pymatgen.core.tensors.SquareTensor.get_scaled)
 
 
-    * **verbose** (*bool**, **optional*) – Whether to print warnings.
+        * [`SquareTensor.inv`](pymatgen.core.tensors.md#pymatgen.core.tensors.SquareTensor.inv)
 
 
+        * [`SquareTensor.is_rotation()`](pymatgen.core.tensors.md#pymatgen.core.tensors.SquareTensor.is_rotation)
 
-* **Returns**
 
-    The Miller index.
+        * [`SquareTensor.polar_decomposition()`](pymatgen.core.tensors.md#pymatgen.core.tensors.SquareTensor.polar_decomposition)
 
 
+        * [`SquareTensor.principal_invariants`](pymatgen.core.tensors.md#pymatgen.core.tensors.SquareTensor.principal_invariants)
 
-* **Return type**
 
-    (tuple)
+        * [`SquareTensor.refine_rotation()`](pymatgen.core.tensors.md#pymatgen.core.tensors.SquareTensor.refine_rotation)
 
 
+        * [`SquareTensor.trans`](pymatgen.core.tensors.md#pymatgen.core.tensors.SquareTensor.trans)
 
-### pymatgen.core.lattice.get_points_in_spheres(all_coords: np.ndarray, center_coords: np.ndarray, r: float, pbc: bool | list[bool] | tuple[bool, bool, bool] = True, numerical_tol: float = 1e-08, lattice: Lattice | None = None, return_fcoords: bool = False)
-For each point in center_coords, get all the neighboring points in all_coords that are within the
-cutoff radius r.
 
+    * [`Tensor`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor)
 
-* **Parameters**
 
+        * [`Tensor.as_dict()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.as_dict)
 
-    * **all_coords** – (list of Cartesian coordinates) all available points
 
+        * [`Tensor.average_over_unit_sphere()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.average_over_unit_sphere)
 
-    * **center_coords** – (list of Cartesian coordinates) all centering points
 
+        * [`Tensor.convert_to_ieee()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.convert_to_ieee)
 
-    * **r** – (float) cutoff radius
 
+        * [`Tensor.einsum_sequence()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.einsum_sequence)
 
-    * **pbc** – (bool or a list of bool) whether to set periodic boundaries
 
+        * [`Tensor.fit_to_structure()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.fit_to_structure)
 
-    * **numerical_tol** – (float) numerical tolerance
 
+        * [`Tensor.from_dict()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.from_dict)
 
-    * **lattice** – (Lattice) lattice to consider when PBC is enabled
 
+        * [`Tensor.from_values_indices()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.from_values_indices)
 
-    * **return_fcoords** – (bool) whether to return fractional coords when pbc is set.
 
+        * [`Tensor.from_voigt()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.from_voigt)
 
 
-* **Returns**
+        * [`Tensor.get_grouped_indices()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.get_grouped_indices)
 
-    List[List[Tuple[coords, distance, index, image]]]
 
+        * [`Tensor.get_ieee_rotation()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.get_ieee_rotation)
 
-## pymatgen.core.libxcfunc module
 
-Enumerator with the libxc identifiers.
-This is a low level object, client code should not interact with LibxcFunc directly
-but use the API provided by the Xcfunc object defined in core.xcfunc.py.
-Part of this module is automatically generated so be careful when refactoring stuff.
-Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum values.
+        * [`Tensor.get_symbol_dict()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.get_symbol_dict)
 
 
-### _class_ pymatgen.core.libxcfunc.LibxcFunc(value)
-Bases: `Enum`
+        * [`Tensor.get_voigt_dict()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.get_voigt_dict)
 
-Enumerator with the identifiers. This object is used by Xcfunc
-declared in xcfunc.py to create an internal representation of the XC functional.
-This is a low level object, client code should not interact with LibxcFunc directly
-but use the API provided by Xcfunc.
 
+        * [`Tensor.is_fit_to_structure()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.is_fit_to_structure)
 
-* **Parameters**
 
-    **num** – Number for the xc.
+        * [`Tensor.is_symmetric()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.is_symmetric)
 
 
+        * [`Tensor.is_voigt_symmetric()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.is_voigt_symmetric)
 
-#### GGA_C_AM05(_ = 13_ )
 
-#### GGA_C_APBE(_ = 18_ )
+        * [`Tensor.populate()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.populate)
 
-#### GGA_C_BGCP(_ = 3_ )
 
-#### GGA_C_FT97(_ = 8_ )
+        * [`Tensor.project()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.project)
 
-#### GGA_C_GAM(_ = 3_ )
 
-#### GGA_C_HCTH_A(_ = 9_ )
+        * [`Tensor.rotate()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.rotate)
 
-#### GGA_C_LM(_ = 13_ )
 
-#### GGA_C_LYP(_ = 13_ )
+        * [`Tensor.round()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.round)
 
-#### GGA_C_N12(_ = 8_ )
 
-#### GGA_C_N12_SX(_ = 7_ )
+        * [`Tensor.structure_transform()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.structure_transform)
 
-#### GGA_C_OPTC(_ = 20_ )
 
-#### GGA_C_OP_B88(_ = 8_ )
+        * [`Tensor.symbol`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.symbol)
 
-#### GGA_C_OP_G96(_ = 8_ )
 
-#### GGA_C_OP_PBE(_ = 8_ )
+        * [`Tensor.symmetrized`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.symmetrized)
 
-#### GGA_C_OP_PW91(_ = 26_ )
 
-#### GGA_C_OP_XALPHA(_ = 8_ )
+        * [`Tensor.transform()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.transform)
 
-#### GGA_C_P86(_ = 13_ )
 
-#### GGA_C_PBE(_ = 13_ )
+        * [`Tensor.voigt`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.voigt)
 
-#### GGA_C_PBEFE(_ = 25_ )
 
-#### GGA_C_PBEINT(_ = 6_ )
+        * [`Tensor.voigt_symmetrized`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.voigt_symmetrized)
 
-#### GGA_C_PBELOC(_ = 24_ )
 
-#### GGA_C_PBE_JRGX(_ = 13_ )
+        * [`Tensor.zeroed()`](pymatgen.core.tensors.md#pymatgen.core.tensors.Tensor.zeroed)
 
-#### GGA_C_PBE_SOL(_ = 13_ )
 
-#### GGA_C_PW91(_ = 13_ )
+    * [`TensorCollection`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection)
 
-#### GGA_C_Q2D(_ = 4_ )
 
-#### GGA_C_REGTPSS(_ = 8_ )
+        * [`TensorCollection.as_dict()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.as_dict)
 
-#### GGA_C_REVTCA(_ = 9_ )
 
-#### GGA_C_RGE2(_ = 14_ )
+        * [`TensorCollection.convert_to_ieee()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.convert_to_ieee)
 
-#### GGA_C_SOGGA11(_ = 15_ )
 
-#### GGA_C_SOGGA11_X(_ = 15_ )
+        * [`TensorCollection.fit_to_structure()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.fit_to_structure)
 
-#### GGA_C_SPBE(_ = 8_ )
 
-#### GGA_C_TCA(_ = 10_ )
+        * [`TensorCollection.from_dict()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.from_dict)
 
-#### GGA_C_WI(_ = 14_ )
 
-#### GGA_C_WI0(_ = 15_ )
+        * [`TensorCollection.from_voigt()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.from_voigt)
 
-#### GGA_C_WL(_ = 14_ )
 
-#### GGA_C_XPBE(_ = 13_ )
+        * [`TensorCollection.is_fit_to_structure()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.is_fit_to_structure)
 
-#### GGA_C_ZPBEINT(_ = 6_ )
 
-#### GGA_C_ZPBESOL(_ = 6_ )
+        * [`TensorCollection.is_symmetric()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.is_symmetric)
 
-#### GGA_K_ABSP1(_ = 50_ )
 
-#### GGA_K_ABSP2(_ = 50_ )
+        * [`TensorCollection.is_voigt_symmetric()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.is_voigt_symmetric)
 
-#### GGA_K_APBE(_ = 18_ )
 
-#### GGA_K_APBEINT(_ = 5_ )
+        * [`TensorCollection.ranks`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.ranks)
 
-#### GGA_K_BALTIN(_ = 50_ )
 
-#### GGA_K_DK(_ = 51_ )
+        * [`TensorCollection.rotate()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.rotate)
 
-#### GGA_K_ERNZERHOF(_ = 52_ )
 
-#### GGA_K_FR_B88(_ = 51_ )
+        * [`TensorCollection.round()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.round)
 
-#### GGA_K_FR_PW86(_ = 51_ )
 
-#### GGA_K_GE2(_ = 50_ )
+        * [`TensorCollection.symmetrized`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.symmetrized)
 
-#### GGA_K_GOLDEN(_ = 50_ )
 
-#### GGA_K_GP85(_ = 51_ )
+        * [`TensorCollection.transform()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.transform)
 
-#### GGA_K_GR(_ = 50_ )
 
-#### GGA_K_LC94(_ = 52_ )
+        * [`TensorCollection.voigt`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.voigt)
 
-#### GGA_K_LIEB(_ = 50_ )
 
-#### GGA_K_LLP(_ = 52_ )
+        * [`TensorCollection.voigt_symmetrized`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.voigt_symmetrized)
 
-#### GGA_K_LUDENA(_ = 50_ )
 
-#### GGA_K_MEYER(_ = 5_ )
+        * [`TensorCollection.zeroed()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorCollection.zeroed)
 
-#### GGA_K_OL1(_ = 51_ )
 
-#### GGA_K_OL2(_ = 51_ )
+    * [`TensorMapping`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorMapping)
 
-#### GGA_K_PEARSON(_ = 51_ )
 
-#### GGA_K_PERDEW(_ = 51_ )
+        * [`TensorMapping.items()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorMapping.items)
 
-#### GGA_K_REVAPBE(_ = 5_ )
 
-#### GGA_K_REVAPBEINT(_ = 5_ )
+        * [`TensorMapping.values()`](pymatgen.core.tensors.md#pymatgen.core.tensors.TensorMapping.values)
 
-#### GGA_K_TFVW(_ = 5_ )
 
-#### GGA_K_THAKKAR(_ = 52_ )
+    * [`get_uvec()`](pymatgen.core.tensors.md#pymatgen.core.tensors.get_uvec)
 
-#### GGA_K_TW1(_ = 18_ )
 
-#### GGA_K_TW2(_ = 18_ )
+    * [`symmetry_reduce()`](pymatgen.core.tensors.md#pymatgen.core.tensors.symmetry_reduce)
 
-#### GGA_K_TW3(_ = 18_ )
 
-#### GGA_K_TW4(_ = 19_ )
+* [pymatgen.core.trajectory module](pymatgen.core.trajectory.md)
 
-#### GGA_K_VJKS(_ = 51_ )
 
-#### GGA_K_VSK(_ = 51_ )
+    * [`Trajectory`](pymatgen.core.trajectory.md#pymatgen.core.trajectory.Trajectory)
 
-#### GGA_K_VW(_ = 50_ )
 
-#### GGA_K_YT65(_ = 50_ )
+        * [`Trajectory.as_dict()`](pymatgen.core.trajectory.md#pymatgen.core.trajectory.Trajectory.as_dict)
 
-#### GGA_XC_B97_D(_ = 17_ )
 
-#### GGA_XC_B97_GGA1(_ = 9_ )
+        * [`Trajectory.extend()`](pymatgen.core.trajectory.md#pymatgen.core.trajectory.Trajectory.extend)
 
-#### GGA_XC_EDF1(_ = 16_ )
 
-#### GGA_XC_HCTH_120(_ = 16_ )
+        * [`Trajectory.from_file()`](pymatgen.core.trajectory.md#pymatgen.core.trajectory.Trajectory.from_file)
 
-#### GGA_XC_HCTH_147(_ = 16_ )
 
-#### GGA_XC_HCTH_407(_ = 16_ )
+        * [`Trajectory.from_molecules()`](pymatgen.core.trajectory.md#pymatgen.core.trajectory.Trajectory.from_molecules)
 
-#### GGA_XC_HCTH_407P(_ = 9_ )
 
-#### GGA_XC_HCTH_93(_ = 16_ )
+        * [`Trajectory.from_structures()`](pymatgen.core.trajectory.md#pymatgen.core.trajectory.Trajectory.from_structures)
 
-#### GGA_XC_HCTH_P14(_ = 9_ )
 
-#### GGA_XC_HCTH_P76(_ = 9_ )
+        * [`Trajectory.get_molecule()`](pymatgen.core.trajectory.md#pymatgen.core.trajectory.Trajectory.get_molecule)
 
-#### GGA_XC_KT2(_ = 14_ )
 
-#### GGA_XC_MOHLYP(_ = 19_ )
+        * [`Trajectory.get_structure()`](pymatgen.core.trajectory.md#pymatgen.core.trajectory.Trajectory.get_structure)
 
-#### GGA_XC_MOHLYP2(_ = 19_ )
 
-#### GGA_XC_MPWLYP1W(_ = 17_ )
+        * [`Trajectory.to_displacements()`](pymatgen.core.trajectory.md#pymatgen.core.trajectory.Trajectory.to_displacements)
 
-#### GGA_XC_OBLYP_D(_ = 6_ )
 
-#### GGA_XC_OPBE_D(_ = 6_ )
+        * [`Trajectory.to_positions()`](pymatgen.core.trajectory.md#pymatgen.core.trajectory.Trajectory.to_positions)
 
-#### GGA_XC_OPWLYP_D(_ = 6_ )
 
-#### GGA_XC_PBE1W(_ = 17_ )
+        * [`Trajectory.write_Xdatcar()`](pymatgen.core.trajectory.md#pymatgen.core.trajectory.Trajectory.write_Xdatcar)
 
-#### GGA_XC_PBELYP1W(_ = 17_ )
 
-#### GGA_XC_TH1(_ = 15_ )
+* [pymatgen.core.units module](pymatgen.core.units.md)
 
-#### GGA_XC_TH2(_ = 15_ )
 
-#### GGA_XC_TH3(_ = 15_ )
+    * [`ArrayWithUnit`](pymatgen.core.units.md#pymatgen.core.units.ArrayWithUnit)
 
-#### GGA_XC_TH4(_ = 15_ )
 
-#### GGA_XC_TH_FC(_ = 19_ )
+        * [`ArrayWithUnit.Error`](pymatgen.core.units.md#pymatgen.core.units.ArrayWithUnit.Error)
 
-#### GGA_XC_TH_FCFO(_ = 19_ )
 
-#### GGA_XC_TH_FCO(_ = 19_ )
+        * [`ArrayWithUnit.as_base_units`](pymatgen.core.units.md#pymatgen.core.units.ArrayWithUnit.as_base_units)
 
-#### GGA_XC_TH_FL(_ = 19_ )
 
-#### GGA_XC_VV10(_ = 25_ )
+        * [`ArrayWithUnit.conversions()`](pymatgen.core.units.md#pymatgen.core.units.ArrayWithUnit.conversions)
 
-#### GGA_XC_XLYP(_ = 16_ )
 
-#### GGA_X_2D_B86(_ = 12_ )
+        * [`ArrayWithUnit.supported_units`](pymatgen.core.units.md#pymatgen.core.units.ArrayWithUnit.supported_units)
 
-#### GGA_X_2D_B86_MGC(_ = 12_ )
 
-#### GGA_X_2D_B88(_ = 12_ )
+        * [`ArrayWithUnit.to()`](pymatgen.core.units.md#pymatgen.core.units.ArrayWithUnit.to)
 
-#### GGA_X_2D_PBE(_ = 12_ )
 
-#### GGA_X_AIRY(_ = 19_ )
+        * [`ArrayWithUnit.unit`](pymatgen.core.units.md#pymatgen.core.units.ArrayWithUnit.unit)
 
-#### GGA_X_AK13(_ = 5_ )
 
-#### GGA_X_AM05(_ = 12_ )
+        * [`ArrayWithUnit.unit_type`](pymatgen.core.units.md#pymatgen.core.units.ArrayWithUnit.unit_type)
 
-#### GGA_X_APBE(_ = 18_ )
 
-#### GGA_X_B86(_ = 10_ )
+    * [`Charge`](pymatgen.core.units.md#pymatgen.core.units.Charge)
 
-#### GGA_X_B86_MGC(_ = 10_ )
 
-#### GGA_X_B86_R(_ = 4_ )
+    * [`Energy`](pymatgen.core.units.md#pymatgen.core.units.Energy)
 
-#### GGA_X_B88(_ = 10_ )
 
-#### GGA_X_BAYESIAN(_ = 12_ )
+    * [`FloatWithUnit`](pymatgen.core.units.md#pymatgen.core.units.FloatWithUnit)
 
-#### GGA_X_BGCP(_ = 3_ )
 
-#### GGA_X_BPCCAC(_ = 9_ )
+        * [`FloatWithUnit.Error`](pymatgen.core.units.md#pymatgen.core.units.FloatWithUnit.Error)
 
-#### GGA_X_C09X(_ = 15_ )
 
-#### GGA_X_CAP(_ = 27_ )
+        * [`FloatWithUnit.as_base_units`](pymatgen.core.units.md#pymatgen.core.units.FloatWithUnit.as_base_units)
 
-#### GGA_X_DK87_R1(_ = 11_ )
 
-#### GGA_X_DK87_R2(_ = 11_ )
+        * [`FloatWithUnit.from_str()`](pymatgen.core.units.md#pymatgen.core.units.FloatWithUnit.from_str)
 
-#### GGA_X_EV93(_ = 3_ )
 
-#### GGA_X_FT97_A(_ = 11_ )
+        * [`FloatWithUnit.from_string()`](pymatgen.core.units.md#pymatgen.core.units.FloatWithUnit.from_string)
 
-#### GGA_X_FT97_B(_ = 11_ )
 
-#### GGA_X_G96(_ = 10_ )
+        * [`FloatWithUnit.supported_units`](pymatgen.core.units.md#pymatgen.core.units.FloatWithUnit.supported_units)
 
-#### GGA_X_GAM(_ = 3_ )
 
-#### GGA_X_HCTH_A(_ = 3_ )
+        * [`FloatWithUnit.to()`](pymatgen.core.units.md#pymatgen.core.units.FloatWithUnit.to)
 
-#### GGA_X_HERMAN(_ = 10_ )
 
-#### GGA_X_HJS_B88(_ = 52_ )
+        * [`FloatWithUnit.unit`](pymatgen.core.units.md#pymatgen.core.units.FloatWithUnit.unit)
 
-#### GGA_X_HJS_B88_V2(_ = 4_ )
 
-#### GGA_X_HJS_B97X(_ = 52_ )
+        * [`FloatWithUnit.unit_type`](pymatgen.core.units.md#pymatgen.core.units.FloatWithUnit.unit_type)
 
-#### GGA_X_HJS_PBE(_ = 52_ )
 
-#### GGA_X_HJS_PBE_SOL(_ = 52_ )
+    * [`Length`](pymatgen.core.units.md#pymatgen.core.units.Length)
 
-#### GGA_X_HTBS(_ = 19_ )
 
-#### GGA_X_ITYH(_ = 52_ )
+    * [`Mass`](pymatgen.core.units.md#pymatgen.core.units.Mass)
 
-#### GGA_X_KT1(_ = 14_ )
 
-#### GGA_X_LAG(_ = 19_ )
+    * [`Memory`](pymatgen.core.units.md#pymatgen.core.units.Memory)
 
-#### GGA_X_LAMBDA_CH_N(_ = 4_ )
 
-#### GGA_X_LAMBDA_LO_N(_ = 4_ )
+    * [`Temp`](pymatgen.core.units.md#pymatgen.core.units.Temp)
 
-#### GGA_X_LAMBDA_OC2_N(_ = 4_ )
 
-#### GGA_X_LB(_ = 16_ )
+    * [`Time`](pymatgen.core.units.md#pymatgen.core.units.Time)
 
-#### GGA_X_LBM(_ = 18_ )
 
-#### GGA_X_LG93(_ = 11_ )
+    * [`Unit`](pymatgen.core.units.md#pymatgen.core.units.Unit)
 
-#### GGA_X_LV_RPW86(_ = 5_ )
 
-#### GGA_X_MB88(_ = 14_ )
+        * [`Unit.Error`](pymatgen.core.units.md#pymatgen.core.units.Unit.Error)
 
-#### GGA_X_MPBE(_ = 12_ )
 
-#### GGA_X_MPW91(_ = 11_ )
+        * [`Unit.as_base_units`](pymatgen.core.units.md#pymatgen.core.units.Unit.as_base_units)
 
-#### GGA_X_N12(_ = 8_ )
 
-#### GGA_X_OL2(_ = 18_ )
+        * [`Unit.get_conversion_factor()`](pymatgen.core.units.md#pymatgen.core.units.Unit.get_conversion_factor)
 
-#### GGA_X_OPTB88_VDW(_ = 13_ )
 
-#### GGA_X_OPTPBE_VDW(_ = 14_ )
+    * [`UnitError`](pymatgen.core.units.md#pymatgen.core.units.UnitError)
 
-#### GGA_X_OPTX(_ = 11_ )
 
-#### GGA_X_PBE(_ = 10_ )
+    * [`kb`](pymatgen.core.units.md#pymatgen.core.units.kb)
 
-#### GGA_X_PBEA(_ = 12_ )
 
-#### GGA_X_PBEFE(_ = 26_ )
+    * [`obj_with_unit()`](pymatgen.core.units.md#pymatgen.core.units.obj_with_unit)
 
-#### GGA_X_PBEINT(_ = 6_ )
 
-#### GGA_X_PBEK1_VDW(_ = 14_ )
+    * [`unitized()`](pymatgen.core.units.md#pymatgen.core.units.unitized)
 
-#### GGA_X_PBE_JSJR(_ = 12_ )
 
-#### GGA_X_PBE_MOL(_ = 4_ )
+* [pymatgen.core.xcfunc module](pymatgen.core.xcfunc.md)
 
-#### GGA_X_PBE_R(_ = 10_ )
 
-#### GGA_X_PBE_SOL(_ = 11_ )
+    * [`XcFunc`](pymatgen.core.xcfunc.md#pymatgen.core.xcfunc.XcFunc)
 
-#### GGA_X_PBE_TCA(_ = 5_ )
 
-#### GGA_X_PW86(_ = 10_ )
+        * [`XcFunc.abinitixc_to_libxc`](pymatgen.core.xcfunc.md#pymatgen.core.xcfunc.XcFunc.abinitixc_to_libxc)
 
-#### GGA_X_PW91(_ = 10_ )
 
-#### GGA_X_Q2D(_ = 4_ )
+        * [`XcFunc.aliases()`](pymatgen.core.xcfunc.md#pymatgen.core.xcfunc.XcFunc.aliases)
 
-#### GGA_X_RGE2(_ = 14_ )
 
-#### GGA_X_RPBE(_ = 11_ )
+        * [`XcFunc.as_dict()`](pymatgen.core.xcfunc.md#pymatgen.core.xcfunc.XcFunc.as_dict)
 
-#### GGA_X_RPW86(_ = 14_ )
 
-#### GGA_X_SFAT(_ = 53_ )
+        * [`XcFunc.asxc()`](pymatgen.core.xcfunc.md#pymatgen.core.xcfunc.XcFunc.asxc)
 
-#### GGA_X_SOGGA(_ = 15_ )
 
-#### GGA_X_SOGGA11(_ = 15_ )
+        * [`XcFunc.defined_aliases`](pymatgen.core.xcfunc.md#pymatgen.core.xcfunc.XcFunc.defined_aliases)
 
-#### GGA_X_SSB(_ = 9_ )
 
-#### GGA_X_SSB_D(_ = 9_ )
+        * [`XcFunc.from_abinit_ixc()`](pymatgen.core.xcfunc.md#pymatgen.core.xcfunc.XcFunc.from_abinit_ixc)
 
-#### GGA_X_SSB_SW(_ = 9_ )
 
-#### GGA_X_VMT84_GE(_ = 6_ )
+        * [`XcFunc.from_dict()`](pymatgen.core.xcfunc.md#pymatgen.core.xcfunc.XcFunc.from_dict)
 
-#### GGA_X_VMT84_PBE(_ = 6_ )
 
-#### GGA_X_VMT_GE(_ = 7_ )
+        * [`XcFunc.from_name()`](pymatgen.core.xcfunc.md#pymatgen.core.xcfunc.XcFunc.from_name)
 
-#### GGA_X_VMT_PBE(_ = 7_ )
 
-#### GGA_X_WC(_ = 11_ )
+        * [`XcFunc.from_type_name()`](pymatgen.core.xcfunc.md#pymatgen.core.xcfunc.XcFunc.from_type_name)
 
-#### GGA_X_WPBEH(_ = 52_ )
 
-#### GGA_X_XPBE(_ = 12_ )
+        * [`XcFunc.name()`](pymatgen.core.xcfunc.md#pymatgen.core.xcfunc.XcFunc.name)
 
-#### HYB_GGA_XC_B1LYP(_ = 41_ )
 
-#### HYB_GGA_XC_B1PW91(_ = 41_ )
-
-#### HYB_GGA_XC_B1WC(_ = 41_ )
-
-#### HYB_GGA_XC_B3LYP(_ = 40_ )
-
-#### HYB_GGA_XC_B3LYP5(_ = 47_ )
-
-#### HYB_GGA_XC_B3LYPs(_ = 45_ )
-
-#### HYB_GGA_XC_B3P86(_ = 40_ )
-
-#### HYB_GGA_XC_B3PW91(_ = 40_ )
-
-#### HYB_GGA_XC_B97(_ = 40_ )
-
-#### HYB_GGA_XC_B97_1(_ = 40_ )
-
-#### HYB_GGA_XC_B97_1p(_ = 26_ )
-
-#### HYB_GGA_XC_B97_2(_ = 41_ )
-
-#### HYB_GGA_XC_B97_3(_ = 41_ )
-
-#### HYB_GGA_XC_B97_K(_ = 41_ )
-
-#### HYB_GGA_XC_BHANDH(_ = 43_ )
-
-#### HYB_GGA_XC_BHANDHLYP(_ = 43_ )
-
-#### HYB_GGA_XC_CAMY_B3LYP(_ = 47_ )
-
-#### HYB_GGA_XC_CAMY_BLYP(_ = 45_ )
-
-#### HYB_GGA_XC_CAM_B3LYP(_ = 43_ )
-
-#### HYB_GGA_XC_CAP0(_ = 47_ )
-
-#### HYB_GGA_XC_EDF2(_ = 47_ )
-
-#### HYB_GGA_XC_HJS_B88(_ = 43_ )
-
-#### HYB_GGA_XC_HJS_B97X(_ = 43_ )
-
-#### HYB_GGA_XC_HJS_PBE(_ = 42_ )
-
-#### HYB_GGA_XC_HJS_PBE_SOL(_ = 43_ )
-
-#### HYB_GGA_XC_HPBEINT(_ = 47_ )
-
-#### HYB_GGA_XC_HSE03(_ = 42_ )
-
-#### HYB_GGA_XC_HSE06(_ = 42_ )
-
-#### HYB_GGA_XC_LCY_BLYP(_ = 46_ )
-
-#### HYB_GGA_XC_LCY_PBE(_ = 46_ )
-
-#### HYB_GGA_XC_LC_VV10(_ = 46_ )
-
-#### HYB_GGA_XC_LRC_WPBE(_ = 47_ )
-
-#### HYB_GGA_XC_LRC_WPBEH(_ = 46_ )
-
-#### HYB_GGA_XC_MB3LYP_RC04(_ = 43_ )
-
-#### HYB_GGA_XC_MPW3LYP(_ = 41_ )
-
-#### HYB_GGA_XC_MPW3PW(_ = 41_ )
-
-#### HYB_GGA_XC_MPWLYP1M(_ = 45_ )
-
-#### HYB_GGA_XC_O3LYP(_ = 40_ )
-
-#### HYB_GGA_XC_PBE0_13(_ = 45_ )
-
-#### HYB_GGA_XC_PBEH(_ = 40_ )
-
-#### HYB_GGA_XC_REVB3LYP(_ = 45_ )
-
-#### HYB_GGA_XC_SB98_1a(_ = 42_ )
-
-#### HYB_GGA_XC_SB98_1b(_ = 42_ )
-
-#### HYB_GGA_XC_SB98_1c(_ = 42_ )
-
-#### HYB_GGA_XC_SB98_2a(_ = 42_ )
-
-#### HYB_GGA_XC_SB98_2b(_ = 42_ )
-
-#### HYB_GGA_XC_SB98_2c(_ = 42_ )
-
-#### HYB_GGA_XC_TUNED_CAM_B3LYP(_ = 43_ )
-
-#### HYB_GGA_XC_WB97(_ = 46_ )
-
-#### HYB_GGA_XC_WB97X(_ = 46_ )
-
-#### HYB_GGA_XC_WB97X_D(_ = 47_ )
-
-#### HYB_GGA_XC_WB97X_V(_ = 46_ )
-
-#### HYB_GGA_XC_X3LYP(_ = 41_ )
-
-#### HYB_GGA_XC_mPW1K(_ = 40_ )
-
-#### HYB_GGA_XC_mPW1PW(_ = 41_ )
-
-#### HYB_GGA_X_N12_SX(_ = 8_ )
-
-#### HYB_GGA_X_SOGGA11_X(_ = 42_ )
-
-#### HYB_MGGA_XC_B86B95(_ = 44_ )
-
-#### HYB_MGGA_XC_B88B95(_ = 44_ )
-
-#### HYB_MGGA_XC_BB1K(_ = 44_ )
-
-#### HYB_MGGA_XC_M05(_ = 43_ )
-
-#### HYB_MGGA_XC_M05_2X(_ = 43_ )
-
-#### HYB_MGGA_XC_M06(_ = 44_ )
-
-#### HYB_MGGA_XC_M06_2X(_ = 45_ )
-
-#### HYB_MGGA_XC_M06_HF(_ = 44_ )
-
-#### HYB_MGGA_XC_M08_HX(_ = 46_ )
-
-#### HYB_MGGA_XC_M08_SO(_ = 46_ )
-
-#### HYB_MGGA_XC_M11(_ = 46_ )
-
-#### HYB_MGGA_XC_MPW1B95(_ = 44_ )
-
-#### HYB_MGGA_XC_MPWB1K(_ = 44_ )
-
-#### HYB_MGGA_XC_PW6B95(_ = 45_ )
-
-#### HYB_MGGA_XC_PW86B95(_ = 44_ )
-
-#### HYB_MGGA_XC_PWB6K(_ = 45_ )
-
-#### HYB_MGGA_XC_REVTPSSH(_ = 45_ )
-
-#### HYB_MGGA_XC_TPSSH(_ = 45_ )
-
-#### HYB_MGGA_XC_WB97M_V(_ = 53_ )
-
-#### HYB_MGGA_XC_X1B95(_ = 44_ )
-
-#### HYB_MGGA_XC_XB1K(_ = 44_ )
-
-#### HYB_MGGA_X_DLDF(_ = 3_ )
-
-#### HYB_MGGA_X_MN12_SX(_ = 24_ )
-
-#### HYB_MGGA_X_MN15(_ = 26_ )
-
-#### HYB_MGGA_X_MS2H(_ = 22_ )
-
-#### HYB_MGGA_X_MVSH(_ = 47_ )
-
-#### HYB_MGGA_X_SCAN0(_ = 26_ )
-
-#### LDA_C_1D_CSC(_ = 1_ )
-
-#### LDA_C_1D_LOOS(_ = 2_ )
-
-#### LDA_C_2D_AMGB(_ = 1_ )
-
-#### LDA_C_2D_PRM(_ = 1_ )
-
-#### LDA_C_GL(_ = _ )
-
-#### LDA_C_GOMBAS(_ = 2_ )
-
-#### LDA_C_HL(_ = _ )
-
-#### LDA_C_ML1(_ = 2_ )
-
-#### LDA_C_ML2(_ = 2_ )
-
-#### LDA_C_OB_PW(_ = 1_ )
-
-#### LDA_C_OB_PZ(_ = 1_ )
-
-#### LDA_C_PW(_ = 1_ )
-
-#### LDA_C_PW_MOD(_ = 1_ )
-
-#### LDA_C_PW_RPA(_ = 2_ )
-
-#### LDA_C_PZ(_ = _ )
-
-#### LDA_C_PZ_MOD(_ = 1_ )
-
-#### LDA_C_RC04(_ = 2_ )
-
-#### LDA_C_RPA(_ = _ )
-
-#### LDA_C_VWN(_ = _ )
-
-#### LDA_C_VWN_1(_ = 2_ )
-
-#### LDA_C_VWN_2(_ = 2_ )
-
-#### LDA_C_VWN_3(_ = 3_ )
-
-#### LDA_C_VWN_4(_ = 3_ )
-
-#### LDA_C_VWN_RPA(_ = _ )
-
-#### LDA_C_WIGNER(_ = _ )
-
-#### LDA_C_XALPHA(_ = _ )
-
-#### LDA_C_vBH(_ = 1_ )
-
-#### LDA_K_LP(_ = 5_ )
-
-#### LDA_K_TF(_ = 5_ )
-
-#### LDA_X(_ = _ )
-
-#### LDA_XC_KSDT(_ = 25_ )
-
-#### LDA_XC_TETER93(_ = 2_ )
-
-#### LDA_XC_ZLP(_ = 4_ )
-
-#### LDA_X_1D(_ = 2_ )
-
-#### LDA_X_2D(_ = 1_ )
-
-#### MGGA_C_BC95(_ = 24_ )
-
-#### MGGA_C_CC06(_ = 22_ )
-
-#### MGGA_C_CS(_ = 7_ )
-
-#### MGGA_C_DLDF(_ = 3_ )
-
-#### MGGA_C_M05(_ = 23_ )
-
-#### MGGA_C_M05_2X(_ = 23_ )
-
-#### MGGA_C_M06(_ = 23_ )
-
-#### MGGA_C_M06_2X(_ = 23_ )
-
-#### MGGA_C_M06_HF(_ = 23_ )
-
-#### MGGA_C_M06_L(_ = 23_ )
-
-#### MGGA_C_M08_HX(_ = 7_ )
-
-#### MGGA_C_M08_SO(_ = 7_ )
-
-#### MGGA_C_M11(_ = 7_ )
-
-#### MGGA_C_M11_L(_ = 7_ )
-
-#### MGGA_C_MN12_L(_ = 7_ )
-
-#### MGGA_C_MN12_SX(_ = 7_ )
-
-#### MGGA_C_MN15(_ = 26_ )
-
-#### MGGA_C_MN15_L(_ = 26_ )
-
-#### MGGA_C_PKZB(_ = 23_ )
-
-#### MGGA_C_REVTPSS(_ = 24_ )
-
-#### MGGA_C_SCAN(_ = 26_ )
-
-#### MGGA_C_TPSS(_ = 23_ )
-
-#### MGGA_C_TPSSLOC(_ = 24_ )
-
-#### MGGA_C_VSXC(_ = 23_ )
-
-#### MGGA_XC_B97M_V(_ = 25_ )
-
-#### MGGA_XC_OTPSS_D(_ = 6_ )
-
-#### MGGA_XC_TPSSLYP1W(_ = 24_ )
-
-#### MGGA_XC_ZLP(_ = 4_ )
-
-#### MGGA_X_2D_PRHG07(_ = 21_ )
-
-#### MGGA_X_2D_PRHG07_PRP10(_ = 21_ )
-
-#### MGGA_X_BJ06(_ = 20_ )
-
-#### MGGA_X_BLOC(_ = 24_ )
-
-#### MGGA_X_BR89(_ = 20_ )
-
-#### MGGA_X_GVT4(_ = 20_ )
-
-#### MGGA_X_LTA(_ = 20_ )
-
-#### MGGA_X_M05(_ = 21_ )
-
-#### MGGA_X_M05_2X(_ = 21_ )
-
-#### MGGA_X_M06(_ = 21_ )
-
-#### MGGA_X_M06_2X(_ = 21_ )
-
-#### MGGA_X_M06_HF(_ = 21_ )
-
-#### MGGA_X_M06_L(_ = 20_ )
-
-#### MGGA_X_M08_HX(_ = 21_ )
-
-#### MGGA_X_M08_SO(_ = 22_ )
-
-#### MGGA_X_M11(_ = 22_ )
-
-#### MGGA_X_M11_L(_ = 22_ )
-
-#### MGGA_X_MBEEF(_ = 24_ )
-
-#### MGGA_X_MBEEFVDW(_ = 25_ )
-
-#### MGGA_X_MK00(_ = 23_ )
-
-#### MGGA_X_MK00B(_ = 24_ )
-
-#### MGGA_X_MN12_L(_ = 22_ )
-
-#### MGGA_X_MN15_L(_ = 26_ )
-
-#### MGGA_X_MODTPSS(_ = 24_ )
-
-#### MGGA_X_MS0(_ = 22_ )
-
-#### MGGA_X_MS1(_ = 22_ )
-
-#### MGGA_X_MS2(_ = 22_ )
-
-#### MGGA_X_MVS(_ = 25_ )
-
-#### MGGA_X_PKZB(_ = 21_ )
-
-#### MGGA_X_REVTPSS(_ = 21_ )
-
-#### MGGA_X_RPP09(_ = 20_ )
-
-#### MGGA_X_SCAN(_ = 26_ )
-
-#### MGGA_X_TAU_HCTH(_ = 20_ )
-
-#### MGGA_X_TB09(_ = 20_ )
-
-#### MGGA_X_TPSS(_ = 20_ )
-
-#### _static_ all_families()
-List of strings with the libxc families.
-Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA.
-
-
-#### _static_ all_kinds()
-List of strings with the libxc kinds.
-Also in this case, the string is obtained by remove the
-
-```
-XC_
-```
-
- prefix.
-XC_CORRELATION –> CORRELATION.
-
-
-#### as_dict()
-Makes LibxcFunc obey the general json interface used in pymatgen for
-easier serialization.
-
-
-#### _static_ from_dict(d)
-Makes LibxcFunc obey the general json interface used in pymatgen for
-easier serialization.
-
-
-#### _property_ info_dict()
-Dictionary with metadata. see libxc_docs.json.
-
-
-#### _property_ is_c_kind(_: boo_ )
-True if this is a correlation-only functional.
-
-
-#### _property_ is_gga_family(_: boo_ )
-True if this functional belongs to the GGA family.
-
-
-#### _property_ is_hyb_gga_family(_: boo_ )
-True if this functional belongs to the hybrid + GGA family.
-
-
-#### _property_ is_hyb_mgga_family(_: boo_ )
-True if this functional belongs to the hybrid + meta-GGA family.
-
-
-#### _property_ is_k_kind(_: boo_ )
-True if this is a kinetic functional.
-
-
-#### _property_ is_lda_family(_: boo_ )
-True if this functional belongs to the LDA family.
-
-
-#### _property_ is_mgga_family(_: boo_ )
-True if this functional belongs to the meta-GGA family.
-
-
-#### _property_ is_x_kind(_: boo_ )
-True if this is an exchange-only functional.
-
-
-#### _property_ is_xc_kind(_: boo_ )
-True if this is a exchange+correlation functional.
-
-
-#### to_json()
-Returns a json string representation of the MSONable object.
-
-## pymatgen.core.molecular_orbitals module
-
-This module implements a MolecularOrbital class to represent band character in
-solids. Useful for predicting PDOS character from structural information.
-
-
-### _class_ pymatgen.core.molecular_orbitals.MolecularOrbitals(formula)
-Bases: `object`
-
-Represents the character of bands in a solid. The input is a chemical
-formula, since no structural characteristics are taken into account.
-
-The band character of a crystal emerges from the atomic orbitals of the
-constituent ions, hybridization/covalent bonds, and the spin-orbit
-interaction (ex: Fe2O3). Right now the orbitals are only built from
-the uncharged atomic species. Functionality can be improved by:
-1) calculate charged ion orbital energies
-2) incorporate the coordination environment to account for covalent bonds
-
-The atomic orbital energies are stored in pymatgen.core.periodic_table.JSON
-
-```python
->>> MOs = MolecularOrbitals('SrTiO3')
->>> MOs.band_edges
-{'HOMO':['O','2p',-0.338381], 'LUMO':['Ti','3d',-0.17001], 'metal':False}
-```
-
-
-* **Parameters**
-
-    **formula** (*str*) – Chemical formula. Must have integer subscripts. Ex: ‘SrTiO3’.
-
-
-
-#### composition()
-the composition as a dictionary. Ex: {‘Sr’: 1, ‘Ti’: 1, ‘O’, 3}
-
-
-#### elements()
-the dictionary keys for the composition
-
-
-#### elec_neg()
-the maximum pairwise electronegativity difference
-
-
-#### aos()
-the constituent atomic orbitals for each element as a dictionary
-
-
-#### band_edges()
-dictionary containing the highest occupied molecular orbital (HOMO),
-lowest unoccupied molecular orbital (LUMO), and whether the material is predicted
-to be a metal
-
-
-#### aos_as_list()
-
-* **Returns**
-
-    A list of atomic orbitals, sorted from lowest to highest energy.
-
-    The orbitals energies in eV are represented as
-
-        [[‘O’, ‘1s’, -18.758245], [‘O’, ‘2s’, -0.871362], [‘O’, ‘2p’, -0.338381]]
-
-    Data is obtained from
-    [https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations](https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations)
-
-
-
-
-#### max_electronegativity()
-
-* **Returns**
-
-    The maximum pairwise electronegativity difference.
-
-
-
-#### obtain_band_edges()
-Fill up the atomic orbitals with available electrons.
-
-
-* **Returns**
-
-    HOMO, LUMO, and whether it’s a metal.
-
-
-## pymatgen.core.operations module
-
-This module provides classes that operate on points or vectors in 3D space.
-
-
-### _class_ pymatgen.core.operations.MagSymmOp(affine_transformation_matrix: ArrayLike, time_reversal: int, tol: float = 0.01)
-Bases: `SymmOp`
-
-Thin wrapper around SymmOp to extend it to support magnetic symmetry by including a time
-reversal operator. Magnetic symmetry is similar to conventional crystal symmetry, except
-symmetry is reduced by the addition of a time reversal operator which acts on an atom’s magnetic
-moment.
-
-Initializes the MagSymmOp from a 4x4 affine transformation matrix and time reversal
-operator. In general, this constructor should not be used unless you are transferring
-rotations. Use the static constructors instead to generate a SymmOp from proper rotations
-and translation.
-
-
-* **Parameters**
-
-
-    * **affine_transformation_matrix** (*4x4 array*) – Representing an
-    affine transformation.
-
-
-    * **time_reversal** (*int*) – 1 or -1
-
-
-    * **tol** (*float*) – Tolerance for determining if matrices are equal.
-
-
-
-#### as_dict()
-
-* **Returns**
-
-    MSONABle dict
-
-
-
-#### as_xyzt_string()
-Returns a string of the form ‘x, y, z, +1’, ‘-x, -y, z, -1’,
-‘-y+1/2, x+1/2, z+1/2, +1’, etc. Only works for integer rotation matrices.
-
-
-#### _classmethod_ from_dict(d: dict)
-
-* **Parameters**
-
-    **d** – dict
-
-
-
-* **Returns**
-
-    MagneticSymmOp from dict representation.
-
-
-
-#### _static_ from_rotation_and_translation_and_time_reversal(rotation_matrix: ArrayLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)), translation_vec: ArrayLike = (0, 0, 0), time_reversal: int = 1, tol: float = 0.1)
-Creates a symmetry operation from a rotation matrix, translation
-vector and time reversal operator.
-
-
-* **Parameters**
-
-
-    * **rotation_matrix** (*3x3 array*) – Rotation matrix.
-
-
-    * **translation_vec** (*3x1 array*) – Translation vector.
-
-
-    * **time_reversal** (*int*) – Time reversal operator, +1 or -1.
-
-
-    * **tol** (*float*) – Tolerance to determine if rotation matrix is valid.
-
-
-
-* **Returns**
-
-    MagSymmOp object
-
-
-
-#### _classmethod_ from_symmop(symmop: SymmOp, time_reversal)
-Initialize a MagSymmOp from a SymmOp and time reversal operator.
-
-
-* **Parameters**
-
-
-    * **symmop** (*SymmOp*) – SymmOp
-
-
-    * **time_reversal** (*int*) – Time reversal operator, +1 or -1.
-
-
-
-* **Returns**
-
-    MagSymmOp object
-
-
-
-#### _static_ from_xyzt_string(xyzt_string: str)
-
-* **Parameters**
-
-    **xyzt_string** (*str*) – of the form ‘x, y, z, +1’, ‘-x, -y, z, -1’,
-    ‘-2y+1/2, 3x+1/2, z-y+1/2, +1’, etc.
-
-
-
-* **Returns**
-
-    MagSymmOp object
-
-
-
-#### operate_magmom(magmom)
-Apply time reversal operator on the magnetic moment. Note that
-magnetic moments transform as axial vectors, not polar vectors.
-
-See ‘Symmetry and magnetic structures’, Rodríguez-Carvajal and
-Bourée for a good discussion. DOI: 10.1051/epjconf/20122200010
-
-
-* **Parameters**
-
-
-    * **magmom** – Magnetic moment as electronic_structure.core.Magmom
-
-
-    * **array-like** (*class** or **as list** or **np*) –
-
-
-
-* **Returns**
-
-    Magnetic moment after operator applied as Magmom class
-
-
-
-### _class_ pymatgen.core.operations.SymmOp(affine_transformation_matrix: ArrayLike, tol: float = 0.01)
-Bases: `MSONable`
-
-A symmetry operation in Cartesian space. Consists of a rotation plus a
-translation. Implementation is as an affine transformation matrix of rank 4
-for efficiency. Read: [http://en.wikipedia.org/wiki/Affine_transformation](http://en.wikipedia.org/wiki/Affine_transformation).
-
-
-#### affine_matrix()
-A 4x4 numpy.array representing the symmetry operation.
-
-Initializes the SymmOp from a 4x4 affine transformation matrix.
-In general, this constructor should not be used unless you are
-transferring rotations. Use the static constructors instead to
-generate a SymmOp from proper rotations and translation.
-
-
-* **Parameters**
-
-
-    * **affine_transformation_matrix** (*4x4 array*) – Representing an
-    affine transformation.
-
-
-    * **tol** (*float*) – Tolerance for determining if matrices are equal.
-
-
-
-* **Raises**
-
-    **ValueError** – if matrix is not 4x4.
-
-
-
-#### apply_rotation_only(vector: ArrayLike)
-Vectors should only be operated by the rotation matrix and not the
-translation vector.
-
-
-* **Parameters**
-
-    **vector** (*3x1 array*) – A vector.
-
-
-
-#### are_symmetrically_related(point_a: ArrayLike, point_b: ArrayLike, tol: float = 0.001)
-Checks if two points are symmetrically related.
-
-
-* **Parameters**
-
-
-    * **point_a** (*3x1 array*) – First point.
-
-
-    * **point_b** (*3x1 array*) – Second point.
-
-
-    * **tol** (*float*) – Absolute tolerance for checking distance.
-
-
-
-* **Returns**
-
-    True if self.operate(point_a) == point_b or vice versa.
-
-
-
-#### are_symmetrically_related_vectors(from_a: ArrayLike, to_a: ArrayLike, r_a: ArrayLike, from_b: ArrayLike, to_b: ArrayLike, r_b: ArrayLike, tol: float = 0.001)
-Checks if two vectors, or rather two vectors that connect two points
-each are symmetrically related. r_a and r_b give the change of unit
-cells. Two vectors are also considered symmetrically equivalent if starting
-and end point are exchanged.
-
-
-* **Parameters**
-
-
-    * **from_a** (*3x1 array*) – Starting point of the first vector.
-
-
-    * **to_a** (*3x1 array*) – Ending point of the first vector.
-
-
-    * **from_b** (*3x1 array*) – Starting point of the second vector.
-
-
-    * **to_b** (*3x1 array*) – Ending point of the second vector.
-
-
-    * **r_a** (*3x1 array*) – Change of unit cell of the first vector.
-
-
-    * **r_b** (*3x1 array*) – Change of unit cell of the second vector.
-
-
-    * **tol** (*float*) – Absolute tolerance for checking distance.
-
-
-
-* **Returns**
-
-    (are_related, is_reversed)
-
-
-
-#### as_dict()
-
-* **Returns**
-
-    MSONable dict.
-
-
-
-#### as_xyz_string()
-Returns a string of the form ‘x, y, z’, ‘-x, -y, z’,
-‘-y+1/2, x+1/2, z+1/2’, etc. Only works for integer rotation matrices.
-
-
-#### _static_ from_axis_angle_and_translation(axis: ArrayLike, angle: float, angle_in_radians: bool = False, translation_vec: ArrayLike = (0, 0, 0))
-Generates a SymmOp for a rotation about a given axis plus translation.
-
-
-* **Parameters**
-
-
-    * **axis** – The axis of rotation in Cartesian space. For example,
-    [1, 0, 0]indicates rotation about x-axis.
-
-
-    * **angle** (*float*) – Angle of rotation.
-
-
-    * **angle_in_radians** (*bool*) – Set to True if angles are given in
-    radians. Or else, units of degrees are assumed.
-
-
-    * **translation_vec** – A translation vector. Defaults to zero.
-
-
-
-* **Returns**
-
-    SymmOp for a rotation about given axis and translation.
-
-
-
-#### _classmethod_ from_dict(d)
-
-* **Parameters**
-
-    **d** – dict
-
-
-
-* **Returns**
-
-    SymmOp from dict representation.
-
-
-
-#### _static_ from_origin_axis_angle(origin: ArrayLike, axis: ArrayLike, angle: float, angle_in_radians: bool = False)
-Generates a SymmOp for a rotation about a given axis through an
-origin.
-
-
-* **Parameters**
-
-
-    * **origin** (*3x1 array*) – The origin which the axis passes through.
-
-
-    * **axis** (*3x1 array*) – The axis of rotation in Cartesian space. For
-    example, [1, 0, 0]indicates rotation about x-axis.
-
-
-    * **angle** (*float*) – Angle of rotation.
-
-
-    * **angle_in_radians** (*bool*) – Set to True if angles are given in
-    radians. Or else, units of degrees are assumed.
-
-
-
-* **Returns**
-
-    SymmOp.
-
-
-
-#### _static_ from_rotation_and_translation(rotation_matrix: ArrayLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)), translation_vec: ArrayLike = (0, 0, 0), tol: float = 0.1)
-Creates a symmetry operation from a rotation matrix and a translation
-vector.
-
-
-* **Parameters**
-
-
-    * **rotation_matrix** (*3x3 array*) – Rotation matrix.
-
-
-    * **translation_vec** (*3x1 array*) – Translation vector.
-
-
-    * **tol** (*float*) – Tolerance to determine if rotation matrix is valid.
-
-
-
-* **Returns**
-
-    SymmOp object
-
-
-
-#### _static_ from_xyz_string(xyz_string: str)
-
-* **Parameters**
-
-    **xyz_string** – string of the form ‘x, y, z’, ‘-x, -y, z’,
-    ‘-2y+1/2, 3x+1/2, z-y+1/2’, etc.
-
-
-
-* **Returns**
-
-    SymmOp
-
-
-
-#### _property_ inverse(_: SymmO_ )
-Returns inverse of transformation.
-
-
-#### _static_ inversion(origin: ArrayLike = (0, 0, 0))
-Inversion symmetry operation about axis.
-
-
-* **Parameters**
-
-    **origin** (*3x1 array*) – Origin of the inversion operation. Defaults
-    to [0, 0, 0].
-
-
-
-* **Returns**
-
-    SymmOp representing an inversion operation about the origin.
-
-
-
-#### operate(point: ArrayLike)
-Apply the operation on a point.
-
-
-* **Parameters**
-
-    **point** – Cartesian coordinate.
-
-
-
-* **Returns**
-
-    Coordinates of point after operation.
-
-
-
-#### operate_multi(points: ArrayLike)
-Apply the operation on a list of points.
-
-
-* **Parameters**
-
-    **points** – List of Cartesian coordinates
-
-
-
-* **Returns**
-
-    Numpy array of coordinates after operation
-
-
-
-#### _static_ reflection(normal: ArrayLike, origin: ArrayLike = (0, 0, 0))
-Returns reflection symmetry operation.
-
-
-* **Parameters**
-
-
-    * **normal** (*3x1 array*) – Vector of the normal to the plane of
-    reflection.
-
-
-    * **origin** (*3x1 array*) – A point in which the mirror plane passes
-    through.
-
-
-
-* **Returns**
-
-    SymmOp for the reflection about the plane
-
-
-
-#### _property_ rotation_matrix(_: ndarra_ )
-A 3x3 numpy.array representing the rotation matrix.
-
-
-#### _static_ rotoreflection(axis: ArrayLike, angle: float, origin: ArrayLike = (0, 0, 0))
-Returns a roto-reflection symmetry operation.
-
-
-* **Parameters**
-
-
-    * **axis** (*3x1 array*) – Axis of rotation / mirror normal
-
-
-    * **angle** (*float*) – Angle in degrees
-
-
-    * **origin** (*3x1 array*) – Point left invariant by roto-reflection.
-    Defaults to (0, 0, 0).
-
-
-
-* **Returns**
-
-    Roto-reflection operation
-
-
-
-#### transform_tensor(tensor: ndarray)
-Applies rotation portion to a tensor. Note that tensor has to be in
-full form, not the Voigt form.
-
-
-* **Parameters**
-
-    **tensor** (*numpy array*) – a rank n tensor
-
-
-
-* **Returns**
-
-    Transformed tensor.
-
-
-
-#### _property_ translation_vector(_: ndarra_ )
-A rank 1 numpy.array of dim 3 representing the translation vector.
-
-## pymatgen.core.periodic_table module
-
-Module contains classes presenting Element, Species (Element + oxidation state) and PeriodicTable.
-
-It should be noted that Element and Species are meant to be immutable objects.
-
-
-### _class_ pymatgen.core.periodic_table.DummySpecie(symbol: str = 'X', oxidation_state: float | None = 0, properties: dict | None = None, spin: float | None = None)
-Bases: `DummySpecies`
-
-This maps the historical grammatically inaccurate DummySpecie to DummySpecies
-to maintain backwards compatibility.
-
-
-* **Parameters**
-
-
-    * **symbol** (*str*) – An assigned symbol for the dummy specie. Strict
-    rules are applied to the choice of the symbol. The dummy
-    symbol cannot have any part of first two letters that will
-    constitute an Element symbol. Otherwise, a composition may
-    be parsed wrongly. E.g., “X” is fine, but “Vac” is not
-    because Vac contains V, a valid Element.
-
-
-    * **oxidation_state** (*float*) – Oxidation state for dummy specie. Defaults to 0.
-
-
-    * **properties** – Properties associated with the Species, e.g. {“spin”: 5}. Defaults to None. This is now
-    deprecated and retained purely for backward compatibility.
-
-
-    * **spin** – Spin associated with Species. Defaults to None.
-
-
-
-### _class_ pymatgen.core.periodic_table.DummySpecies(symbol: str = 'X', oxidation_state: float | None = 0, properties: dict | None = None, spin: float | None = None)
-Bases: `Species`
-
-A special specie for representing non-traditional elements or species. For
-example, representation of vacancies (charged or otherwise), or special
-sites, etc.
-
-
-#### oxi_state()
-Oxidation state associated with Species.
-
-
-#### Z()
-DummySpecies is always assigned an atomic number equal to the hash
-number of the symbol. Obviously, it makes no sense whatsoever to use
-the atomic number of a Dummy specie for anything scientific. The purpose
-of this is to ensure that for most use cases, a DummySpecies behaves no
-differently from an Element or Species.
-
-
-#### X()
-DummySpecies is always assigned a Pauling electronegativity of 0.
-
-
-* **Parameters**
-
-
-    * **symbol** (*str*) – An assigned symbol for the dummy specie. Strict
-    rules are applied to the choice of the symbol. The dummy
-    symbol cannot have any part of first two letters that will
-    constitute an Element symbol. Otherwise, a composition may
-    be parsed wrongly. E.g., “X” is fine, but “Vac” is not
-    because Vac contains V, a valid Element.
-
-
-    * **oxidation_state** (*float*) – Oxidation state for dummy specie. Defaults to 0.
-
-
-    * **properties** – Properties associated with the Species, e.g. {“spin”: 5}. Defaults to None. This is now
-    deprecated and retained purely for backward compatibility.
-
-
-    * **spin** – Spin associated with Species. Defaults to None.
-
-
-
-#### _property_ X(_: floa_ )
-DummySpecies is always assigned a Pauling electronegativity of 0. The effect of
-this is that DummySpecies are always sorted in front of actual Species.
-
-
-#### _property_ Z(_: in_ )
-DummySpecies is always assigned an atomic number equal to the hash of
-the symbol. The expectation is that someone would be an actual dummy
-to use atomic numbers for a Dummy specie.
-
-
-#### as_dict()
-
-* **Returns**
-
-    MSONable dict representation.
-
-
-
-#### _classmethod_ from_dict(d)
-
-* **Parameters**
-
-    **d** – Dict representation
-
-
-
-* **Returns**
-
-    DummySpecies
-
-
-
-#### _static_ from_str(species_string: str)
-Returns a Dummy from a string representation.
-
-
-* **Parameters**
-
-    **species_string** (*str*) – A string representation of a dummy
-    species, e.g., “X2+”, “X3+”.
-
-
-
-* **Returns**
-
-    A DummySpecies object.
-
-
-
-* **Raises**
-
-    **ValueError if species_string cannot be interpreted.** –
-
-
-
-#### _property_ oxi_state(_: float | Non_ )
-Oxidation state associated with DummySpecies.
-
-
-#### _property_ symbol(_: st_ )
-Symbol for DummySpecies.
-
-
-* **Type**
-
-    return
-
-
-
-### _class_ pymatgen.core.periodic_table.Element(value)
-Bases: `ElementBase`
-
-Enum representing an element in the periodic table.
-
-Basic immutable element object with all relevant properties.
-
-Only one instance of Element for each symbol is stored after creation,
-ensuring that a particular element behaves like a singleton. For all
-attributes, missing data (i.e., data for which is not available) is
-represented by a None unless otherwise stated.
-
-
-* **Parameters**
-
-    **symbol** (*str*) – Element symbol, e.g., “H”, “Fe”
-
-
-
-#### Z()
-Atomic number
-
-
-#### symbol()
-Element symbol
-
-
-#### long_name()
-Long name for element. E.g., “Hydrogen”.
-
-
-#### atomic_radius_calculated()
-Calculated atomic radius for the element. This is the empirical value.
-Data is obtained from
-[http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page](http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)).
-
-
-#### van_der_waals_radius()
-Van der Waals radius for the element. This is the empirical
-value determined from critical reviews of X-ray diffraction, gas kinetic
-collision cross-section, and other experimental data by Bondi and later
-workers. The uncertainty in these values is on the order of 0.1 Å.
-
-Data are obtained from
-
-“Atomic Radii of the Elements” in CRC Handbook of Chemistry and Physics,
-
-    91st Ed.; Haynes, W.M., Ed.; CRC Press: Boca Raton, FL, 2010.
-
-
-#### mendeleev_no()
-Mendeleev number from definition given by Pettifor, D. G. (1984).
-A chemical scale for crystal-structure maps. Solid State Communications,
-51 (1), 31-34
-
-
-#### electrical_resistivity()
-Electrical resistivity
-
-
-#### velocity_of_sound()
-Velocity of sound
-
-
-#### reflectivity()
-Reflectivity
-
-
-#### refractive_index()
-Refractice index
-
-
-#### poissons_ratio()
-Poisson’s ratio
-
-
-#### molar_volume()
-Molar volume
-
-
-#### electronic_structure()
-Electronic structure.
-E.g., The electronic structure for Fe is represented as
-[Ar].3d6.4s2
-
-
-#### atomic_orbitals()
-Atomic Orbitals. Energy of the atomic orbitals as a dict.
-E.g., The orbitals energies in eV are represented as
-{‘1s’: -1.0, ‘2s’: -0.1}
-Data is obtained from
-[https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations](https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations)
-The LDA values for neutral atoms are used
-
-
-#### thermal_conductivity()
-Thermal conductivity
-
-
-#### boiling_point()
-Boiling point
-
-
-#### melting_point()
-Melting point
-
-
-#### critical_temperature()
-Critical temperature
-
-
-#### superconduction_temperature()
-Superconduction temperature
-
-
-#### liquid_range()
-Liquid range
-
-
-#### bulk_modulus()
-Bulk modulus
-
-
-#### youngs_modulus()
-Young’s modulus
-
-
-#### brinell_hardness()
-Brinell hardness
-
-
-#### rigidity_modulus()
-Rigidity modulus
-
-
-#### mineral_hardness()
-Mineral hardness
-
-
-#### vickers_hardness()
-Vicker’s hardness
-
-
-#### density_of_solid()
-Density of solid phase
-
-
-#### coefficient_of_linear_thermal_expansion()
-Coefficient of linear thermal expansion
-
-
-#### ground_level()
-Ground level for element
-
-
-#### ionization_energies()
-List of ionization energies. First value is the first ionization energy, second is the second ionization
-energy, etc. Note that this is zero-based indexing! So Element.ionization_energies[0] refer to the 1st
-ionization energy. Values are from the NIST Atomic Spectra Database. Missing values are None.
-
-
-#### Ac(_ = 'Ac_ )
-
-#### Ag(_ = 'Ag_ )
-
-#### Al(_ = 'Al_ )
-
-#### Am(_ = 'Am_ )
-
-#### Ar(_ = 'Ar_ )
-
-#### As(_ = 'As_ )
-
-#### At(_ = 'At_ )
-
-#### Au(_ = 'Au_ )
-
-#### B(_ = 'B_ )
-
-#### Ba(_ = 'Ba_ )
-
-#### Be(_ = 'Be_ )
-
-#### Bh(_ = 'Bh_ )
-
-#### Bi(_ = 'Bi_ )
-
-#### Bk(_ = 'Bk_ )
-
-#### Br(_ = 'Br_ )
-
-#### C(_ = 'C_ )
-
-#### Ca(_ = 'Ca_ )
-
-#### Cd(_ = 'Cd_ )
-
-#### Ce(_ = 'Ce_ )
-
-#### Cf(_ = 'Cf_ )
-
-#### Cl(_ = 'Cl_ )
-
-#### Cm(_ = 'Cm_ )
-
-#### Cn(_ = 'Cn_ )
-
-#### Co(_ = 'Co_ )
-
-#### Cr(_ = 'Cr_ )
-
-#### Cs(_ = 'Cs_ )
-
-#### Cu(_ = 'Cu_ )
-
-#### Db(_ = 'Db_ )
-
-#### Ds(_ = 'Ds_ )
-
-#### Dy(_ = 'Dy_ )
-
-#### Er(_ = 'Er_ )
-
-#### Es(_ = 'Es_ )
-
-#### Eu(_ = 'Eu_ )
-
-#### F(_ = 'F_ )
-
-#### Fe(_ = 'Fe_ )
-
-#### Fl(_ = 'Fl_ )
-
-#### Fm(_ = 'Fm_ )
-
-#### Fr(_ = 'Fr_ )
-
-#### Ga(_ = 'Ga_ )
-
-#### Gd(_ = 'Gd_ )
-
-#### Ge(_ = 'Ge_ )
-
-#### H(_ = 'H_ )
-
-#### He(_ = 'He_ )
-
-#### Hf(_ = 'Hf_ )
-
-#### Hg(_ = 'Hg_ )
-
-#### Ho(_ = 'Ho_ )
-
-#### Hs(_ = 'Hs_ )
-
-#### I(_ = 'I_ )
-
-#### In(_ = 'In_ )
-
-#### Ir(_ = 'Ir_ )
-
-#### K(_ = 'K_ )
-
-#### Kr(_ = 'Kr_ )
-
-#### La(_ = 'La_ )
-
-#### Li(_ = 'Li_ )
-
-#### Lr(_ = 'Lr_ )
-
-#### Lu(_ = 'Lu_ )
-
-#### Lv(_ = 'Lv_ )
-
-#### Mc(_ = 'Mc_ )
-
-#### Md(_ = 'Md_ )
-
-#### Mg(_ = 'Mg_ )
-
-#### Mn(_ = 'Mn_ )
-
-#### Mo(_ = 'Mo_ )
-
-#### Mt(_ = 'Mt_ )
-
-#### N(_ = 'N_ )
-
-#### Na(_ = 'Na_ )
-
-#### Nb(_ = 'Nb_ )
-
-#### Nd(_ = 'Nd_ )
-
-#### Ne(_ = 'Ne_ )
-
-#### Nh(_ = 'Nh_ )
-
-#### Ni(_ = 'Ni_ )
-
-#### No(_ = 'No_ )
-
-#### Np(_ = 'Np_ )
-
-#### O(_ = 'O_ )
-
-#### Og(_ = 'Og_ )
-
-#### Os(_ = 'Os_ )
-
-#### P(_ = 'P_ )
-
-#### Pa(_ = 'Pa_ )
-
-#### Pb(_ = 'Pb_ )
-
-#### Pd(_ = 'Pd_ )
-
-#### Pm(_ = 'Pm_ )
-
-#### Po(_ = 'Po_ )
-
-#### Pr(_ = 'Pr_ )
-
-#### Pt(_ = 'Pt_ )
-
-#### Pu(_ = 'Pu_ )
-
-#### Ra(_ = 'Ra_ )
-
-#### Rb(_ = 'Rb_ )
-
-#### Re(_ = 'Re_ )
-
-#### Rf(_ = 'Rf_ )
-
-#### Rg(_ = 'Rg_ )
-
-#### Rh(_ = 'Rh_ )
-
-#### Rn(_ = 'Rn_ )
-
-#### Ru(_ = 'Ru_ )
-
-#### S(_ = 'S_ )
-
-#### Sb(_ = 'Sb_ )
-
-#### Sc(_ = 'Sc_ )
-
-#### Se(_ = 'Se_ )
-
-#### Sg(_ = 'Sg_ )
-
-#### Si(_ = 'Si_ )
-
-#### Sm(_ = 'Sm_ )
-
-#### Sn(_ = 'Sn_ )
-
-#### Sr(_ = 'Sr_ )
-
-#### Ta(_ = 'Ta_ )
-
-#### Tb(_ = 'Tb_ )
-
-#### Tc(_ = 'Tc_ )
-
-#### Te(_ = 'Te_ )
-
-#### Th(_ = 'Th_ )
-
-#### Ti(_ = 'Ti_ )
-
-#### Tl(_ = 'Tl_ )
-
-#### Tm(_ = 'Tm_ )
-
-#### Ts(_ = 'Ts_ )
-
-#### U(_ = 'U_ )
-
-#### V(_ = 'V_ )
-
-#### W(_ = 'W_ )
-
-#### Xe(_ = 'Xe_ )
-
-#### Y(_ = 'Y_ )
-
-#### Yb(_ = 'Yb_ )
-
-#### Zn(_ = 'Zn_ )
-
-#### Zr(_ = 'Zr_ )
-
-### _class_ pymatgen.core.periodic_table.ElementBase(value)
-Bases: `Enum`
-
-Element class defined without any enum values so it can be subclassed.
-
-This class is needed to get nested (as|from)_dict to work properly. All emmet classes that had
-Element classes required custom construction whereas this definition behaves more like dataclasses
-so serialization is less troublesome. There were many times where objects in as_dict serialized
-only when they were top level. See [https://github.com/materialsproject/pymatgen/issues/2999](https://github.com/materialsproject/pymatgen/issues/2999).
-
-Basic immutable element object with all relevant properties.
-
-Only one instance of Element for each symbol is stored after creation,
-ensuring that a particular element behaves like a singleton. For all
-attributes, missing data (i.e., data for which is not available) is
-represented by a None unless otherwise stated.
-
-
-* **Parameters**
-
-    **symbol** (*str*) – Element symbol, e.g., “H”, “Fe”
-
-
-
-#### Z()
-Atomic number
-
-
-#### symbol()
-Element symbol
-
-
-#### long_name()
-Long name for element. E.g., “Hydrogen”.
-
-
-#### atomic_radius_calculated()
-Calculated atomic radius for the element. This is the empirical value.
-Data is obtained from
-[http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page](http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)).
-
-
-#### van_der_waals_radius()
-Van der Waals radius for the element. This is the empirical
-value determined from critical reviews of X-ray diffraction, gas kinetic
-collision cross-section, and other experimental data by Bondi and later
-workers. The uncertainty in these values is on the order of 0.1 Å.
-
-Data are obtained from
-
-“Atomic Radii of the Elements” in CRC Handbook of Chemistry and Physics,
-
-    91st Ed.; Haynes, W.M., Ed.; CRC Press: Boca Raton, FL, 2010.
-
-
-#### mendeleev_no()
-Mendeleev number from definition given by Pettifor, D. G. (1984).
-A chemical scale for crystal-structure maps. Solid State Communications,
-51 (1), 31-34
-
-
-#### electrical_resistivity()
-Electrical resistivity
-
-
-#### velocity_of_sound()
-Velocity of sound
-
-
-#### reflectivity()
-Reflectivity
-
-
-#### refractive_index()
-Refractice index
-
-
-#### poissons_ratio()
-Poisson’s ratio
-
-
-#### molar_volume()
-Molar volume
-
-
-#### electronic_structure()
-Electronic structure.
-E.g., The electronic structure for Fe is represented as
-[Ar].3d6.4s2
-
-
-#### atomic_orbitals()
-Atomic Orbitals. Energy of the atomic orbitals as a dict.
-E.g., The orbitals energies in eV are represented as
-{‘1s’: -1.0, ‘2s’: -0.1}
-Data is obtained from
-[https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations](https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations)
-The LDA values for neutral atoms are used
-
-
-#### thermal_conductivity()
-Thermal conductivity
-
-
-#### boiling_point()
-Boiling point
-
-
-#### melting_point()
-Melting point
-
-
-#### critical_temperature()
-Critical temperature
-
-
-#### superconduction_temperature()
-Superconduction temperature
-
-
-#### liquid_range()
-Liquid range
-
-
-#### bulk_modulus()
-Bulk modulus
-
-
-#### youngs_modulus()
-Young’s modulus
-
-
-#### brinell_hardness()
-Brinell hardness
-
-
-#### rigidity_modulus()
-Rigidity modulus
-
-
-#### mineral_hardness()
-Mineral hardness
-
-
-#### vickers_hardness()
-Vicker’s hardness
-
-
-#### density_of_solid()
-Density of solid phase
-
-
-#### coefficient_of_linear_thermal_expansion()
-Coefficient of linear thermal expansion
-
-
-#### ground_level()
-Ground level for element
-
-
-#### ionization_energies()
-List of ionization energies. First value is the first ionization energy, second is the second ionization
-energy, etc. Note that this is zero-based indexing! So Element.ionization_energies[0] refer to the 1st
-ionization energy. Values are from the NIST Atomic Spectra Database. Missing values are None.
-
-
-#### _property_ X(_: floa_ )
-Pauling electronegativity of element. Note that if an element does not
-have an Pauling electronegativity, a NaN float is returned.
-
-
-* **Type**
-
-    return
-
-
-
-#### as_dict()
-Makes Element obey the general json interface used in pymatgen for
-easier serialization.
-
-
-#### _property_ atomic_mass(_: FloatWithUni_ )
-Returns:
-float: The atomic mass of the element in amu.
-
-
-#### _property_ atomic_radius(_: FloatWithUnit | Non_ )
-Returns:
-float | None: The atomic radius of the element in Ångstroms. Can be None for
-
-> some elements like noble gases.
-
-
-#### _property_ average_anionic_radius(_: floa_ )
-Average anionic radius for element (with units). The average is
-taken over all negative oxidation states of the element for which
-data is present.
-
-
-#### _property_ average_cationic_radius(_: FloatWithUni_ )
-Average cationic radius for element (with units). The average is
-taken over all positive oxidation states of the element for which
-data is present.
-
-
-#### _property_ average_ionic_radius(_: FloatWithUni_ )
-Average ionic radius for element (with units). The average is taken
-over all oxidation states of the element for which data is present.
-
-
-#### _property_ block(_: st_ )
-Return the block character “s,p,d,f”.
-
-
-#### _property_ common_oxidation_states(_: tuple[int, ..._ )
-Tuple of common oxidation states.
-
-
-#### _property_ data(_: dict[str, Any_ )
-Returns dict of data for element.
-
-
-#### _property_ electron_affinity(_: floa_ )
-The amount of energy released when an electron is attached to a neutral atom.
-
-
-#### _property_ electronic_structure(_: st_ )
-Electronic structure as string, with only valence electrons.
-E.g., The electronic structure for Fe is represented as ‘[Ar].3d6.4s2’.
-
-
-#### _static_ from_Z(Z: int)
-Get an element from an atomic number.
-
-
-* **Parameters**
-
-    **Z** (*int*) – Atomic number
-
-
-
-* **Returns**
-
-    Element with atomic number Z.
-
-
-
-#### _static_ from_dict(d)
-Makes Element obey the general json interface used in pymatgen for
-easier serialization.
-
-
-#### _static_ from_name(name: str)
-Get an element from its long name.
-
-
-* **Parameters**
-
-    **name** – Long name of the element, e.g. ‘Hydrogen’ or
-    ‘Iron’. Not case-sensitive.
-
-
-
-* **Returns**
-
-    Element with the name ‘name’
-
-
-
-#### _static_ from_row_and_group(row: int, group: int)
-Returns an element from a row and group number.
-Important Note: For lanthanoids and actinoids, the row number must
-be 8 and 9, respectively, and the group number must be
-between 3 (La, Ac) and 17 (Lu, Lr). This is different than the
-value for Element(symbol).row and Element(symbol).group for these
-elements.
-
-
-* **Parameters**
-
-
-    * **row** (*int*) – (pseudo) row number. This is the
-    standard row number except for the lanthanoids
-    and actinoids for which it is 8 or 9, respectively.
-
-
-    * **group** (*int*) – (pseudo) group number. This is the
-    standard group number except for the lanthanoids
-    and actinoids for which it is 3 (La, Ac) to 17 (Lu, Lr).
-
-
-**NOTE**: The 18 group number system is used, i.e., Noble gases are group 18.
-
-
-#### _property_ full_electronic_structure(_: list[tuple[int, str, int]_ )
-Full electronic structure as tuple.
-E.g., The electronic structure for Fe is represented as:
-[(1, “s”, 2), (2, “s”, 2), (2, “p”, 6), (3, “s”, 2), (3, “p”, 6),
-(3, “d”, 6), (4, “s”, 2)].
-
-
-#### _property_ ground_state_term_symbol()
-Ground state term symbol
-Selected based on Hund’s Rule.
-
-
-#### _property_ group(_: in_ )
-Returns the periodic table group of the element.
-Note: For lanthanoids and actinoids, the group is always 3.
-
-
-#### _property_ icsd_oxidation_states(_: tuple[int, ..._ )
-Tuple of all oxidation states with at least 10 instances in
-ICSD database AND at least 1% of entries for that element.
-
-
-#### _property_ ionic_radii(_: dict[int, float_ )
-All ionic radii of the element as a dict of
-{oxidation state: ionic radii}. Radii are given in angstrom.
-
-
-#### _property_ ionization_energy(_: floa_ )
-First ionization energy of element.
-
-
-#### _property_ is_actinoid(_: boo_ )
-True if element is a actinoid.
-
-
-#### _property_ is_alkali(_: boo_ )
-True if element is an alkali metal.
-
-
-#### _property_ is_alkaline(_: boo_ )
-True if element is an alkaline earth metal (group II).
-
-
-#### _property_ is_chalcogen(_: boo_ )
-True if element is a chalcogen.
-
-
-#### _property_ is_halogen(_: boo_ )
-True if element is a halogen.
-
-
-#### _property_ is_lanthanoid(_: boo_ )
-True if element is a lanthanoid.
-
-
-#### _property_ is_metal(_: boo_ )
-True if is a metal.
-
-
-#### _property_ is_metalloid(_: boo_ )
-True if element is a metalloid.
-
-
-#### _property_ is_noble_gas(_: boo_ )
-True if element is noble gas.
-
-
-#### _property_ is_post_transition_metal(_: boo_ )
-True if element is a post-transition or poor metal.
-
-
-#### _property_ is_quadrupolar(_: boo_ )
-Checks if this element can be quadrupolar.
-
-
-#### _property_ is_rare_earth_metal(_: boo_ )
-True if element is a rare earth metal.
-
-
-#### _property_ is_transition_metal(_: boo_ )
-True if element is a transition metal.
-
-
-#### _static_ is_valid_symbol(symbol: str)
-Returns true if symbol is a valid element symbol.
-
-
-* **Parameters**
-
-    **symbol** (*str*) – Element symbol
-
-
-
-* **Returns**
-
-    True if symbol is a valid element (e.g., “H”). False otherwise
-    (e.g., “Zebra”).
-
-
-
-#### _property_ iupac_ordering()
-Ordering according to Table VI of “Nomenclature of Inorganic Chemistry
-(IUPAC Recommendations 2005)”. This ordering effectively follows the
-groups and rows of the periodic table, except the Lanthanides, Actinides
-and hydrogen.
-
-
-#### _property_ max_oxidation_state(_: floa_ )
-Maximum oxidation state for element.
-
-
-#### _property_ metallic_radius(_: floa_ )
-Metallic radius of the element. Radius is given in ang.
-
-
-#### _property_ min_oxidation_state(_: floa_ )
-Minimum oxidation state for element.
-
-
-#### _property_ nmr_quadrupole_moment(_: dict[str, pymatgen.core.units.FloatWithUnit_ )
-Get a dictionary the nuclear electric quadrupole moment in units of
-e\*millibarns for various isotopes.
-
-
-#### _property_ number(_: in_ )
-Alternative attribute for atomic number Z.
-
-
-#### _property_ oxidation_states(_: tuple[int, ..._ )
-Tuple of all known oxidation states.
-
-
-#### _static_ print_periodic_table(filter_function: Callable | None = None)
-A pretty ASCII printer for the periodic table, based on some
-filter_function.
-
-
-* **Parameters**
-
-    **filter_function** – A filtering function taking an Element as input
-    and returning a boolean. For example, setting
-    filter_function = lambda el: el.X > 2 will print a periodic
-    table containing only elements with Pauling electronegativity > 2.
-
-
-
-#### _property_ row(_: in_ )
-Returns the periodic table row of the element.
-Note: For lanthanoids and actinoids, the row is always 6 or 7,
-respectively.
-
-
-#### _property_ term_symbols(_: list[list[str]_ )
-All possible  Russell-Saunders term symbol of the Element.
-eg. L = 1, n_e = 2 (s2) returns [[‘1D2’], [‘3P0’, ‘3P1’, ‘3P2’], [‘1S0’]].
-
-
-#### _property_ valence()
-From full electron config obtain valence subshell angular moment (L) and number of valence e- (v_e).
-
-
-### _class_ pymatgen.core.periodic_table.Specie(symbol: SpeciesLike, oxidation_state: float | None = None, properties: dict | None = None, spin: float | None = None)
-Bases: `Species`
-
-This maps the historical grammatically inaccurate Specie to Species
-to maintain backwards compatibility.
-
-
-* **Parameters**
-
-
-    * **symbol** (*str*) – Element symbol optionally incl. oxidation state. E.g. Fe, Fe2+, O2-.
-
-
-    * **oxidation_state** (*float*) – Explicit oxidation state of element, e.g. -2, -1, 0, 1, 2, …
-    If oxidation state is present in symbol, this argument is ignored.
-
-
-    * **properties** – Properties associated with the Species, e.g., {“spin”: 5}. Defaults to None. This is now
-    deprecated and retained purely for backward compatibility.
-
-
-    * **spin** – Spin associated with Species. Defaults to None.
-
-
-
-* **Raises**
-
-    **ValueError** – If oxidation state passed both in symbol string and via
-        oxidation_state kwarg.
-
-
-
-### _class_ pymatgen.core.periodic_table.Species(symbol: SpeciesLike, oxidation_state: float | None = None, properties: dict | None = None, spin: float | None = None)
-Bases: `MSONable`, [`Stringify`](pymatgen.util.md#pymatgen.util.string.Stringify)
-
-An extension of Element with an oxidation state and other optional
-properties. Properties associated with Species should be “idealized”
-values, not calculated values. For example, high-spin Fe2+ may be
-assigned an idealized spin of +5, but an actual Fe2+ site may be
-calculated to have a magmom of +4.5. Calculated properties should be
-assigned to Site objects, and not Species.
-
-
-* **Parameters**
-
-
-    * **symbol** (*str*) – Element symbol optionally incl. oxidation state. E.g. Fe, Fe2+, O2-.
-
-
-    * **oxidation_state** (*float*) – Explicit oxidation state of element, e.g. -2, -1, 0, 1, 2, …
-    If oxidation state is present in symbol, this argument is ignored.
-
-
-    * **properties** – Properties associated with the Species, e.g., {“spin”: 5}. Defaults to None. This is now
-    deprecated and retained purely for backward compatibility.
-
-
-    * **spin** – Spin associated with Species. Defaults to None.
-
-
-
-* **Raises**
-
-    **ValueError** – If oxidation state passed both in symbol string and via
-        oxidation_state kwarg.
-
-
-
-#### STRING_MODE(_ = 'SUPERSCRIPT_ )
-
-#### as_dict()
-
-* **Returns**
-
-    Json-able dictionary representation.
-
-
-
-#### _property_ element(_: Elemen_ )
-Underlying element object.
-
-
-#### _classmethod_ from_dict(d)
-
-* **Parameters**
-
-    **d** – Dict representation.
-
-
-
-* **Returns**
-
-    Species.
-
-
-
-#### _static_ from_str(species_string: str)
-Returns a Species from a string representation.
-
-
-* **Parameters**
-
-    **species_string** (*str*) – A typical string representation of a
-    species, e.g., “Mn2+”, “Fe3+”, “O2-“.
-
-
-
-* **Returns**
-
-    A Species object.
-
-
-
-* **Raises**
-
-    **ValueError if species_string cannot be interpreted.** –
-
-
-
-#### _classmethod_ from_string(\*args, \*\*kwds)
-from_string is deprecated!
-Use from_str instead
-
-Use from_str instead.
-
-
-#### get_crystal_field_spin(coordination: Literal['oct', 'tet'] = 'oct', spin_config: Literal['low', 'high'] = 'high')
-Calculate the crystal field spin based on coordination and spin
-configuration. Only works for transition metal species.
-
-
-* **Parameters**
-
-
-    * **coordination** (*"oct"** | **"tet"*) – Tetrahedron or octahedron crystal site coordination
-
-
-    * **spin_config** (*"low"** | **"high"*) – Whether the species is in a high or low spin state
-
-
-
-* **Returns**
-
-    Crystal field spin in Bohr magneton.
-
-
-
-* **Raises**
-
-
-    * **AttributeError if species is not a valid transition metal**** or ****has** – an invalid oxidation state.
-
-
-    * **ValueError if invalid coordination**** or ****spin_config.** –
-
-
-
-#### get_nmr_quadrupole_moment(isotope: str | None = None)
-Gets the nuclear electric quadrupole moment in units of e \* millibarns.
-
-
-* **Parameters**
-
-    **isotope** (*str*) – the isotope to get the quadrupole moment for
-    default is None, which gets the lowest mass isotope
-
-
-
-#### get_shannon_radius(cn: str, spin: Literal['', 'Low Spin', 'High Spin'] = '', radius_type: Literal['ionic', 'crystal'] = 'ionic')
-Get the local environment specific ionic radius for species.
-
-
-* **Parameters**
-
-
-    * **cn** (*str*) – Coordination using roman letters. Supported values are
-    I-IX, as well as IIIPY, IVPY and IVSQ.
-
-
-    * **spin** (*str*) – Some species have different radii for different
-    spins. You can get specific values using “High Spin” or
-    “Low Spin”. Leave it as “” if not available. If only one spin
-    data is available, it is returned and this spin parameter is
-    ignored.
-
-
-    * **radius_type** (*str*) – Either “crystal” or “ionic” (default).
-
-
-
-* **Returns**
-
-    Shannon radius for specie in the specified environment.
-
-
-
-#### _property_ ionic_radius(_: float | Non_ )
-Ionic radius of specie. Returns None if data is not present.
-
-
-#### _property_ oxi_state(_: float | Non_ )
-Oxidation state of Species.
-
-
-#### _property_ properties(_: dic_ )
-Retained for backwards incompatibility.
-
-
-#### _property_ spin(_: float | Non_ )
-Spin of Species.
-
-
-#### to_pretty_string()
-
-* **Returns**
-
-    String without properties.
-
-
-
-### pymatgen.core.periodic_table.get_el_sp(obj: int | SpeciesLike)
-Utility method to get an Element, Species or DummySpecies from any input.
-
-If obj is in itself an element or a specie, it is returned automatically.
-If obj is an int or a string representing an integer, the Element with the
-atomic number obj is returned.
-If obj is a string, Species parsing will be attempted (e.g. Mn2+). Failing that
-Element parsing will be attempted (e.g. Mn). Failing that DummyElement parsing
-will be attempted.
-
-
-* **Parameters**
-
-    **obj** (*Element/Species/str/int*) – An arbitrary object. Supported objects
-    are actual Element/Species objects, integers (representing atomic
-    numbers) or strings (element symbols or species strings).
-
-
-
-* **Returns**
-
-    Species or Element, with a bias for the maximum number of properties
-    that can be determined.
-
-
-
-* **Raises**
-
-    **ValueError** – if obj cannot be converted into an Element or Species.
-
-
-## pymatgen.core.sites module
-
-This module defines classes representing non-periodic and periodic sites.
-
-
-### _class_ pymatgen.core.sites.PeriodicSite(species: SpeciesLike | CompositionLike, coords: ArrayLike, lattice: Lattice, to_unit_cell: bool = False, coords_are_cartesian: bool = False, properties: dict | None = None, label: str | None = None, skip_checks: bool = False)
-Bases: `Site`, `MSONable`
-
-Extension of generic Site object to periodic systems.
-PeriodicSite includes a lattice system.
-
-Create a periodic site.
-
-
-* **Parameters**
-
-
-    * **species** – Species on the site. Can be:
-    i.  A Composition-type object (preferred)
-    ii. An  element / species specified either as a string
-
-    > symbols, e.g. “Li”, “Fe2+”, “P” or atomic numbers,
-    > e.g., 3, 56, or actual Element or Species objects.
-
-    iii.Dict of elements/species and occupancies, e.g.,
-
-        {“Fe” : 0.5, “Mn”:0.5}. This allows the setup of
-        disordered structures.
-
-
-
-    * **coords** – Cartesian coordinates of site.
-
-
-    * **lattice** – Lattice associated with the site.
-
-
-    * **to_unit_cell** – Translates fractional coordinate to the
-    basic unit cell, i.e. all fractional coordinates satisfy 0
-    <= a < 1. Defaults to False.
-
-
-    * **coords_are_cartesian** – Set to True if you are providing
-    Cartesian coordinates. Defaults to False.
-
-
-    * **properties** – Properties associated with the site as a dict, e.g.
-    {“magmom”: 5}. Defaults to None.
-
-
-    * **label** – Label for the site. Defaults to None.
-
-
-    * **skip_checks** – Whether to ignore all the usual checks and just
-    create the site. Use this if the PeriodicSite is created in a
-    controlled manner and speed is desired.
-
-
-
-#### _property_ a(_: floa_ )
-Fractional a coordinate.
-
-
-#### as_dict(verbosity: int = 0)
-JSON-serializable dict representation of PeriodicSite.
-
-
-* **Parameters**
-
-    **verbosity** (*int*) – Verbosity level. Default of 0 only includes the matrix
-    representation. Set to 1 for more details such as Cartesian coordinates, etc.
-
-
-
-#### _property_ b(_: floa_ )
-Fractional b coordinate.
-
-
-#### _property_ c(_: floa_ )
-Fractional c coordinate.
-
-
-#### _property_ coords(_: ndarra_ )
-Cartesian coordinates.
-
-
-#### distance(other: PeriodicSite, jimage: ArrayLike | None = None)
-Get distance between two sites assuming periodic boundary conditions.
-
-
-* **Parameters**
-
-
-    * **other** (*PeriodicSite*) – Other site to get distance from.
-
-
-    * **jimage** (*3x1 array*) – Specific periodic image in terms of lattice
-    translations, e.g., [1,0,0] implies to take periodic image
-    that is one a-lattice vector away. If jimage is None,
-    the image that is nearest to the site is found.
-
-
-
-* **Returns**
-
-    Distance between the two sites
-
-
-
-* **Return type**
-
-    distance (float)
-
-
-
-#### distance_and_image(other: PeriodicSite, jimage: ArrayLike | None = None)
-Gets distance and instance between two sites assuming periodic boundary
-conditions. If the index jimage of two sites atom j is not specified it
-selects the j image nearest to the i atom and returns the distance and
-jimage indices in terms of lattice vector translations. If the index
-jimage of atom j is specified it returns the distance between the ith
-atom and the specified jimage atom, the given jimage is also returned.
-
-
-* **Parameters**
-
-
-    * **other** (*PeriodicSite*) – Other site to get distance from.
-
-
-    * **jimage** (*3x1 array*) – Specific periodic image in terms of lattice
-    translations, e.g., [1,0,0] implies to take periodic image
-    that is one a-lattice vector away. If jimage is None,
-    the image that is nearest to the site is found.
-
-
-
-* **Returns**
-
-    distance and periodic lattice translations
-    of the other site for which the distance applies.
-
-
-
-* **Return type**
-
-    (distance, jimage)
-
-
-
-#### distance_and_image_from_frac_coords(fcoords: ArrayLike, jimage: ArrayLike | None = None)
-Gets distance between site and a fractional coordinate assuming
-periodic boundary conditions. If the index jimage of two sites atom j
-is not specified it selects the j image nearest to the i atom and
-returns the distance and jimage indices in terms of lattice vector
-translations. If the index jimage of atom j is specified it returns the
-distance between the i atom and the specified jimage atom, the given
-jimage is also returned.
-
-
-* **Parameters**
-
-
-    * **fcoords** (*3x1 array*) – fcoords to get distance from.
-
-
-    * **jimage** (*3x1 array*) – Specific periodic image in terms of
-    lattice translations, e.g., [1,0,0] implies to take periodic
-    image that is one a-lattice vector away. If jimage is None,
-    the image that is nearest to the site is found.
-
-
-
-* **Returns**
-
-    distance and periodic lattice translations
-    of the other site for which the distance applies.
-
-
-
-* **Return type**
-
-    (distance, jimage)
-
-
-
-#### _property_ frac_coords(_: ndarra_ )
-Fractional coordinates.
-
-
-#### _classmethod_ from_dict(dct, lattice=None)
-Create PeriodicSite from dict representation.
-
-
-* **Parameters**
-
-
-    * **dct** (*dict*) – dict representation of PeriodicSite
-
-
-    * **lattice** – Optional lattice to override lattice specified in d.
-    Useful for ensuring all sites in a structure share the same
-    lattice.
-
-
-
-* **Returns**
-
-    PeriodicSite
-
-
-
-#### is_periodic_image(other: PeriodicSite, tolerance: float = 1e-08, check_lattice: bool = True)
-Returns True if sites are periodic images of each other.
-
-
-* **Parameters**
-
-
-    * **other** (*PeriodicSite*) – Other site
-
-
-    * **tolerance** (*float*) – Tolerance to compare fractional coordinates
-
-
-    * **check_lattice** (*bool*) – Whether to check if the two sites have the
-    same lattice.
-
-
-
-* **Returns**
-
-    True if sites are periodic images of each other.
-
-
-
-* **Return type**
-
-    bool
-
-
-
-#### _property_ lattice(_: Lattic_ )
-Lattice associated with PeriodicSite.
-
-
-#### to_unit_cell(in_place=False)
-Move frac coords to within the unit cell.
-
-
-#### _property_ x(_: floa_ )
-Cartesian x coordinate.
-
-
-#### _property_ y(_: floa_ )
-Cartesian y coordinate.
-
-
-#### _property_ z(_: floa_ )
-Cartesian z coordinate.
-
-
-### _class_ pymatgen.core.sites.Site(species: SpeciesLike | CompositionLike, coords: ArrayLike, properties: dict | None = None, label: str | None = None, skip_checks: bool = False)
-Bases: `Hashable`, `MSONable`
-
-A generalized *non-periodic* site. This is essentially a composition
-at a point in space, with some optional properties associated with it. A
-Composition is used to represent the atoms and occupancy, which allows for
-disordered site representation. Coords are given in standard Cartesian
-coordinates.
-
-Creates a non-periodic Site.
-
-
-* **Parameters**
-
-
-    * **species** – Species on the site. Can be:
-    i.  A Composition-type object (preferred)
-    ii. An  element / species specified either as a string
-
-    > symbols, e.g. “Li”, “Fe2+”, “P” or atomic numbers,
-    > e.g., 3, 56, or actual Element or Species objects.
-
-    iii.Dict of elements/species and occupancies, e.g.,
-
-        {“Fe” : 0.5, “Mn”:0.5}. This allows the setup of
-        disordered structures.
-
-
-
-    * **coords** – Cartesian coordinates of site.
-
-
-    * **properties** – Properties associated with the site as a dict, e.g.
-    {“magmom”: 5}. Defaults to None.
-
-
-    * **label** – Label for the site. Defaults to None.
-
-
-    * **skip_checks** – Whether to ignore all the usual checks and just
-    create the site. Use this if the Site is created in a controlled
-    manner and speed is desired.
-
-
-
-#### as_dict()
-JSON-serializable dict representation for Site.
-
-
-#### distance(other)
-Get distance between two sites.
-
-
-* **Parameters**
-
-    **other** – Other site.
-
-
-
-* **Returns**
-
-    distance
-
-
-
-* **Return type**
-
-    float
-
-
-
-#### distance_from_point(pt)
-Returns distance between the site and a point in space.
-
-
-* **Parameters**
-
-    **pt** – Cartesian coordinates of point.
-
-
-
-* **Returns**
-
-    distance
-
-
-
-* **Return type**
-
-    float
-
-
-
-#### _classmethod_ from_dict(dct: dict)
-Create Site from dict representation.
-
-
-#### _property_ is_ordered(_: boo_ )
-True if site is an ordered site, i.e., with a single species with
-occupancy 1.
-
-
-#### _property_ label(_: st_ )
-Site label.
-
-
-#### position_atol(_ = 1e-0_ )
-
-#### _property_ specie(_: Element | Species | DummySpecie_ )
-The Species/Element at the site. Only works for ordered sites. Otherwise
-an AttributeError is raised. Use this property sparingly.  Robust
-design should make use of the property species instead. Note that the
-singular of species is also species. So the choice of this variable
-name is governed by programmatic concerns as opposed to grammar.
-
-
-* **Raises**
-
-    **AttributeError if Site is not ordered.** –
-
-
-
-#### _property_ species(_: Compositio_ )
-The species on the site as a composition, e.g., Fe0.5Mn0.5.
-
-
-* **Type**
-
-    return
-
-
-
-#### _property_ species_string(_: st_ )
-String representation of species on the site.
-
-
-#### _property_ x(_: floa_ )
-Cartesian x coordinate.
-
-
-#### _property_ y(_: floa_ )
-Cartesian y coordinate.
-
-
-#### _property_ z(_: floa_ )
-Cartesian z coordinate.
-
-## pymatgen.core.spectrum module
-
-This module defines classes to represent any type of spectrum, essentially any
-x y value pairs.
-
-
-### _class_ pymatgen.core.spectrum.Spectrum(x: ArrayLike, y: ArrayLike, \*args, \*\*kwargs)
-Bases: `MSONable`
-
-Base class for any type of xas, essentially just x, y values. Examples
-include XRD patterns, XANES, EXAFS, NMR, DOS, etc.
-
-Implements basic tools like application of smearing, normalization, addition
-multiplication, etc.
-
-Subclasses should extend this object and ensure that super is called with
-ALL args and kwargs. That ensures subsequent things like add and mult work
-properly.
-
-
-* **Parameters**
-
-
-    * **x** (*ndarray*) – A ndarray of N values.
-
-
-    * **y** (*ndarray*) – A ndarray of N x k values. The first dimension must be
-    the same as that of x. Each of the k values are interpreted as separate.
-
-
-    * **\*args** – All subclasses should provide args other than x and y
-    when calling super, e.g., super().__init__(
-    x, y, arg1, arg2, kwarg1=val1, ..). This guarantees the +, -,
-
-    ```
-    *
-    ```
-
-    ,
-    etc. operators work properly.
-
-
-    * **\*\*kwargs** – Same as that for
-
-    ```
-    *
-    ```
-
-    args.
-
-
-
-#### XLABEL(_ = 'x_ )
-
-#### YLABEL(_ = 'y_ )
-
-#### copy()
-
-* **Returns**
-
-    Copy of Spectrum object.
-
-
-
-#### get_interpolated_value(x: float)
-Returns an interpolated y value for a particular x value.
-
-
-* **Parameters**
-
-    **x** – x value to return the y value for
-
-
-
-* **Returns**
-
-    Value of y at x
-
-
-
-#### normalize(mode: Literal['max', 'sum'] = 'max', value: float = 1.0)
-Normalize the spectrum with respect to the sum of intensity.
-
-
-* **Parameters**
-
-
-    * **mode** (*"max"** | **"sum"*) – Normalization mode. “max” sets the max y value to value,
-    e.g., in XRD patterns. “sum” sets the sum of y to a value, i.e., like a
-    probability density.
-
-
-    * **value** (*float*) – Value to normalize to. Defaults to 1.
-
-
-
-#### smear(sigma: float = 0.0, func: str | Callable = 'gaussian')
-Apply Gaussian/Lorentzian smearing to spectrum y value.
-
-
-* **Parameters**
-
-
-    * **sigma** – Std dev for Gaussian smear function
-
-
-    * **func** – “gaussian” or “lorentzian” or a callable. If this is a callable, the sigma value is ignored. The
-    callable should only take a single argument (a numpy array) and return a set of weights.
-
-
-
-### pymatgen.core.spectrum.lorentzian(x, x_0: float = 0, sigma: float = 1.0)
-
-* **Parameters**
-
-
-    * **x** – x values
-
-
-    * **x_0** – Center
-
-
-    * **sigma** – FWHM
-
-
-
-* **Returns**
-
-    Value of lorentzian at x.
-
-
-## pymatgen.core.structure module
-
-This module provides classes used to define a non-periodic molecule and a
-periodic structure.
-
-
-### _class_ pymatgen.core.structure.IMolecule(species: Sequence[CompositionLike], coords: Sequence[ArrayLike], charge: float = 0.0, spin_multiplicity: int | None = None, validate_proximity: bool = False, site_properties: dict | None = None, labels: Sequence[str | None] | None = None, charge_spin_check: bool = True)
-Bases: `SiteCollection`, `MSONable`
-
-Basic immutable Molecule object without periodicity. Essentially a
-sequence of sites. IMolecule is made to be immutable so that they can
-function as keys in a dict. For a mutable molecule,
-use the :class:Molecule.
-
-Molecule extends Sequence and Hashable, which means that in many cases,
-it can be used like any Python sequence. Iterating through a molecule is
-equivalent to going through the sites in sequence.
-
-Create a Molecule.
-
-
-* **Parameters**
-
-
-    * **species** – list of atomic species. Possible kinds of input include a
-    list of dict of elements/species and occupancies, a List of
-    elements/specie specified as actual Element/Species, Strings
-    (“Fe”, “Fe2+”) or atomic numbers (1,56).
-
-
-    * **coords** (*3x1 array*) – list of Cartesian coordinates of each species.
-
-
-    * **charge** (*float*) – Charge for the molecule. Defaults to 0.
-
-
-    * **spin_multiplicity** (*int*) – Spin multiplicity for molecule.
-    Defaults to None, which means that the spin multiplicity is
-    set to 1 if the molecule has no unpaired electrons and to 2
-    if there are unpaired electrons.
-
-
-    * **validate_proximity** (*bool*) – Whether to check if there are sites
-    that are less than 1 Ang apart. Defaults to False.
-
-
-    * **site_properties** (*dict*) – Properties associated with the sites as
-    a dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The
-    sequences have to be the same length as the atomic species
-    and fractional_coords. Defaults to None for no properties.
-
-
-    * **labels** (*list**[**str**]*) – Labels associated with the sites as a
-    list of strings, e.g. [‘Li1’, ‘Li2’]. Must have the same
-    length as the species and fractional coords. Defaults to
-    None for no labels.
-
-
-    * **charge_spin_check** (*bool*) – Whether to check that the charge and
-    spin multiplicity are compatible with each other. Defaults
-    to True.
-
-
-
-#### as_dict()
-JSON-serializable dict representation of Molecule.
-
-
-#### break_bond(ind1: int, ind2: int, tol: float = 0.2)
-Returns two molecules based on breaking the bond between atoms at index
-ind1 and ind2.
-
-
-* **Parameters**
-
-
-    * **ind1** (*int*) – 1st site index
-
-
-    * **ind2** (*int*) – 2nd site index
-
-
-    * **tol** (*float*) – Relative tolerance to test. Basically, the code
-    checks if the distance between the sites is less than (1 +
-    tol) \* typical bond distances. Defaults to 0.2, i.e.,
-    20% longer.
-
-
-
-* **Returns**
-
-    Two Molecule objects representing the two clusters formed from
-    breaking the bond.
-
-
-
-#### _property_ center_of_mass(_: ndarra_ )
-Center of mass of molecule.
-
-
-#### _property_ charge(_: floa_ )
-Charge of molecule.
-
-
-#### _classmethod_ from_dict(d)
-Reconstitute a Molecule object from a dict representation created using
-as_dict().
-
-
-* **Parameters**
-
-    **d** (*dict*) – dict representation of Molecule.
-
-
-
-* **Returns**
-
-    Molecule object
-
-
-
-#### _classmethod_ from_file(filename)
-Reads a molecule from a file. Supported formats include xyz,
-gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
-pymatgen’s JSON-serialized molecules. Using openbabel,
-many more extensions are supported but requires openbabel to be
-installed.
-
-
-* **Parameters**
-
-    **filename** (*str*) – The filename to read from.
-
-
-
-* **Returns**
-
-    Molecule
-
-
-
-#### _classmethod_ from_sites(sites: Sequence[Site], charge: float = 0, spin_multiplicity: int | None = None, validate_proximity: bool = False, charge_spin_check: bool = True)
-Convenience constructor to make a Molecule from a list of sites.
-
-
-* **Parameters**
-
-
-    * **sites** (*[**Site**]*) – Sequence of Sites.
-
-
-    * **charge** (*int*) – Charge of molecule. Defaults to 0.
-
-
-    * **spin_multiplicity** (*int*) – Spin multicipity. Defaults to None,
-    in which it is determined automatically.
-
-
-    * **validate_proximity** (*bool*) – Whether to check that atoms are too
-    close.
-
-
-    * **charge_spin_check** (*bool*) – Whether to check that the charge and
-    spin multiplicity are compatible with each other. Defaults
-    to True.
-
-
-
-#### _classmethod_ from_str(input_string: str, fmt: Literal['xyz', 'gjf', 'g03', 'g09', 'com', 'inp', 'json', 'yaml'])
-Reads the molecule from a string.
-
-
-* **Parameters**
-
-
-    * **input_string** (*str*) – String to parse.
-
-
-    * **fmt** (*str*) – Format to output to. Defaults to JSON unless filename
-    is provided. If fmt is specifies, it overrides whatever the
-    filename is. Options include “xyz”, “gjf”, “g03”, “json”. If
-    you have OpenBabel installed, any of the formats supported by
-    OpenBabel. Non-case sensitive.
-
-
-
-* **Returns**
-
-    IMolecule or Molecule.
-
-
-
-#### get_boxed_structure(a: float, b: float, c: float, images: ArrayLike = (1, 1, 1), random_rotation: bool = False, min_dist: float = 1.0, cls=None, offset: ArrayLike | None = None, no_cross: bool = False, reorder: bool = True)
-Creates a Structure from a Molecule by putting the Molecule in the
-center of a orthorhombic box. Useful for creating Structure for
-calculating molecules using periodic codes.
-
-
-* **Parameters**
-
-
-    * **a** (*float*) – a-lattice parameter.
-
-
-    * **b** (*float*) – b-lattice parameter.
-
-
-    * **c** (*float*) – c-lattice parameter.
-
-
-    * **images** – No. of boxed images in each direction. Defaults to
-    (1, 1, 1), meaning single molecule with 1 lattice parameter
-    in each direction.
-
-
-    * **random_rotation** (*bool*) – Whether to apply a random rotation to
-    each molecule. This jumbles all the molecules so that they
-    are not exact images of each other.
-
-
-    * **min_dist** (*float*) – The minimum distance that atoms should be from
-    each other. This is only used if random_rotation is True.
-    The randomized rotations are searched such that no two atoms
-    are less than min_dist from each other.
-
-
-    * **cls** – The Structure class to instantiate (defaults to pymatgen
-    structure)
-
-
-    * **offset** – Translation to offset molecule from center of mass coords
-
-
-    * **no_cross** – Whether to forbid molecule coords from extending beyond
-    boundary of box.
-
-
-    * **reorder** – Whether to reorder the sites to be in electronegativity
-    order.
-
-
-
-* **Returns**
-
-    Structure containing molecule in a box.
-
-
-
-#### get_centered_molecule()
-Returns a Molecule centered at the center of mass.
-
-
-* **Returns**
-
-    Molecule centered with center of mass at origin.
-
-
-
-#### get_covalent_bonds(tol: float = 0.2)
-Determines the covalent bonds in a molecule.
-
-
-* **Parameters**
-
-    **tol** (*float*) – The tol to determine bonds in a structure. See
-    CovalentBond.is_bonded.
-
-
-
-* **Returns**
-
-    List of bonds
-
-
-
-#### get_distance(i: int, j: int)
-Get distance between site i and j.
-
-
-* **Parameters**
-
-
-    * **i** (*int*) – 1st site index
-
-
-    * **j** (*int*) – 2nd site index
-
-
-
-* **Returns**
-
-    Distance between the two sites.
-
-
-
-#### get_neighbors(site: Site, r: float)
-Get all neighbors to a site within a sphere of radius r. Excludes the
-site itself.
-
-
-* **Parameters**
-
-
-    * **site** (*Site*) – Site at the center of the sphere.
-
-
-    * **r** (*float*) – Radius of sphere.
-
-
-
-* **Returns**
-
-    Neighbor
-
-
-
-#### get_neighbors_in_shell(origin: ArrayLike, r: float, dr: float)
-Returns all sites in a shell centered on origin (coords) between radii
-r-dr and r+dr.
-
-
-* **Parameters**
-
-
-    * **origin** (*3x1 array*) – Cartesian coordinates of center of sphere.
-
-
-    * **r** (*float*) – Inner radius of shell.
-
-
-    * **dr** (*float*) – Width of shell.
-
-
-
-* **Returns**
-
-    Neighbor
-
-
-
-#### get_sites_in_sphere(pt: ArrayLike, r: float)
-Find all sites within a sphere from a point.
-
-
-* **Parameters**
-
-
-    * **pt** (*3x1 array*) – Cartesian coordinates of center of sphere
-
-
-    * **r** (*float*) – Radius of sphere.
-
-
-
-* **Returns**
-
-    Neighbor
-
-
-
-#### get_zmatrix()
-Returns a z-matrix representation of the molecule.
-
-
-#### _property_ nelectrons(_: floa_ )
-Number of electrons in the molecule.
-
-
-#### _property_ spin_multiplicity(_: floa_ )
-Spin multiplicity of molecule.
-
-
-#### to(filename: str = '', fmt: str = '')
-Outputs the molecule to a file or string.
-
-
-* **Parameters**
-
-
-    * **filename** (*str*) – If provided, output will be written to a file. If
-    fmt is not specified, the format is determined from the
-    filename. Defaults is None, i.e. string output.
-
-
-    * **fmt** (*str*) – Format to output to. Defaults to JSON unless filename
-    is provided. If fmt is specifies, it overrides whatever the
-    filename is. Options include “xyz”, “gjf”, “g03”, “json”. If
-    you have OpenBabel installed, any of the formats supported by
-    OpenBabel. Non-case sensitive.
-
-
-
-* **Returns**
-
-    (str) if filename is None. None otherwise.
-
-
-
-### _class_ pymatgen.core.structure.IStructure(lattice: ArrayLike | Lattice, species: Sequence[CompositionLike], coords: Sequence[ArrayLike], charge: float | None = None, validate_proximity: bool = False, to_unit_cell: bool = False, coords_are_cartesian: bool = False, site_properties: dict | None = None, labels: Sequence[str | None] | None = None)
-Bases: `SiteCollection`, `MSONable`
-
-Basic immutable Structure object with periodicity. Essentially a sequence
-of PeriodicSites having a common lattice. IStructure is made to be
-(somewhat) immutable so that they can function as keys in a dict. To make
-modifications, use the standard Structure object instead. Structure
-extends Sequence and Hashable, which means that in many cases,
-it can be used like any Python sequence. Iterating through a
-structure is equivalent to going through the sites in sequence.
-
-Create a periodic structure.
-
-
-* **Parameters**
-
-
-    * **lattice** (*Lattice/3x3 array*) – The lattice, either as a
-    `pymatgen.core.lattice.Lattice` or
-    simply as any 2D array. Each row should correspond to a lattice
-    vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-    lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-
-
-    * **species** (*[**Species**]*) – Sequence of species on each site. Can take in
-    flexible input, including:
-
-
-        1. A sequence of element / species specified either as string
-    symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
-    e.g., (3, 56, …) or actual Element or Species objects.
-
-
-        2. List of dict of elements/species and occupancies, e.g.,
-    [{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
-    disordered structures.
-
-
-
-    * **coords** (*Nx3 array*) – list of fractional/Cartesian coordinates of
-    each species.
-
-
-    * **charge** (*int*) – overall charge of the structure. Defaults to behavior
-    in SiteCollection where total charge is the sum of the oxidation
-    states.
-
-
-    * **validate_proximity** (*bool*) – Whether to check if there are sites
-    that are less than 0.01 Ang apart. Defaults to False.
-
-
-    * **to_unit_cell** (*bool*) – Whether to map all sites into the unit cell,
-    i.e. fractional coords between 0 and 1. Defaults to False.
-
-
-    * **coords_are_cartesian** (*bool*) – Set to True if you are providing
-    coordinates in Cartesian coordinates. Defaults to False.
-
-
-    * **site_properties** (*dict*) – Properties associated with the sites as a
-    dict of sequences, e.g. {“magmom”:[5, 5, 5, 5]}. The sequences
-    have to be the same length as the atomic species and
-    fractional_coords. Defaults to None for no properties.
-
-
-    * **labels** (*list**[**str**]*) – Labels associated with the sites as a
-    list of strings, e.g. [‘Li1’, ‘Li2’]. Must have the same
-    length as the species and fractional coords. Defaults to
-    None for no labels.
-
-
-
-#### as_dataframe()
-Create a Pandas dataframe of the sites. Structure-level attributes are stored in DataFrame.attrs.
-
-### Example
-
-Species    a    b             c    x             y             z  magmom
-0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
-1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5
-
-
-#### as_dict(verbosity=1, fmt=None, \*\*kwargs)
-Dict representation of Structure.
-
-
-* **Parameters**
-
-
-    * **verbosity** (*int*) – Verbosity level. Default of 1 includes both
-    direct and Cartesian coordinates for all sites, lattice
-    parameters, etc. Useful for reading and for insertion into a
-    database. Set to 0 for an extremely lightweight version
-    that only includes sufficient information to reconstruct the
-    object.
-
-
-    * **fmt** (*str*) – Specifies a format for the dict. Defaults to None,
-    which is the default format used in pymatgen. Other options
-    include “abivars”.
-
-
-    * **\*\*kwargs** – Allow passing of other kwargs needed for certain
-
-
-    * **formats** –
-
-
-    * **e.g.** –
-
-
-    * **"abivars".** –
-
-
-
-* **Returns**
-
-    JSON-serializable dict representation.
-
-
-
-#### _property_ charge(_: floa_ )
-Overall charge of the structure.
-
-
-#### copy(site_properties=None, sanitize=False)
-Convenience method to get a copy of the structure, with options to add
-site properties.
-
-
-* **Parameters**
-
-
-    * **site_properties** (*dict*) – Properties to add or override. The
-    properties are specified in the same way as the constructor,
-    i.e., as a dict of the form {property: [values]}. The
-    properties should be in the order of the *original* structure
-    if you are performing sanitization.
-
-
-    * **sanitize** (*bool*) – If True, this method will return a sanitized
-    structure. Sanitization performs a few things: (i) The sites are
-    sorted by electronegativity, (ii) a LLL lattice reduction is
-    carried out to obtain a relatively orthogonalized cell,
-    (iii) all fractional coords for sites are mapped into the
-    unit cell.
-
-
-
-* **Returns**
-
-    A copy of the Structure, with optionally new site_properties and
-    optionally sanitized.
-
-
-
-#### _property_ density(_: floa_ )
-Returns the density in units of g/cm^3.
-
-
-#### _property_ distance_matrix(_: ndarra_ )
-Returns the distance matrix between all sites in the structure. For
-periodic structures, this should return the nearest image distance.
-
-
-#### _property_ frac_coords()
-Fractional coordinates as a Nx3 numpy array.
-
-
-#### _classmethod_ from_dict(d: dict[str, Any], fmt: Literal['abivars'] | None = None)
-Reconstitute a Structure object from a dict representation of Structure
-created using as_dict().
-
-
-* **Parameters**
-
-
-    * **d** (*dict*) – Dict representation of structure.
-
-
-    * **fmt** (*'abivars'** | **None*) – Use structure_from_abivars() to parse the dict. Defaults to None.
-
-
-
-* **Returns**
-
-    Structure object
-
-
-
-#### _classmethod_ from_file(filename, primitive=False, sort=False, merge_tol=0.0, \*\*kwargs)
-Reads a structure from a file. For example, anything ending in
-a “cif” is assumed to be a Crystallographic Information Format file.
-Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
-vasprun.xml, CSSR, Netcdf and pymatgen’s JSON-serialized structures.
-
-
-* **Parameters**
-
-
-    * **filename** (*str*) – The filename to read from.
-
-
-    * **primitive** (*bool*) – Whether to convert to a primitive cell. Only available for cifs. Defaults to False.
-
-
-    * **sort** (*bool*) – Whether to sort sites. Default to False.
-
-
-    * **merge_tol** (*float*) – If this is some positive number, sites that are within merge_tol from each other will be
-    merged. Usually 0.01 should be enough to deal with common numerical issues.
-
-
-    * **kwargs** – Passthrough to relevant reader. E.g. if the file has CIF format, the kwargs will be passed
-    through to CifParser.
-
-
-
-* **Returns**
-
-    Structure.
-
-
-
-#### _classmethod_ from_magnetic_spacegroup(msg: str | [MagneticSpaceGroup](pymatgen.symmetry.md#pymatgen.symmetry.maggroups.MagneticSpaceGroup), lattice: list | np.ndarray | Lattice, species: Sequence[str | Element | Species | DummySpecies | Composition], coords: Sequence[Sequence[float]], site_properties: dict[str, Sequence], coords_are_cartesian: bool = False, tol: float = 1e-05, labels: Sequence[str | None] | None = None)
-Generate a structure using a magnetic spacegroup. Note that only
-symmetrically distinct species, coords and magmoms should be provided.]
-All equivalent sites are generated from the spacegroup operations.
-
-
-* **Parameters**
-
-
-    * **msg** (str/list/[`pymatgen.symmetry.maggroups.MagneticSpaceGroup`](pymatgen.symmetry.md#pymatgen.symmetry.maggroups.MagneticSpaceGroup)) – The magnetic spacegroup.
-    If a string, it will be interpreted as one of the notations
-    supported by MagneticSymmetryGroup, e.g., “R-3’c” or “Fm’-3’m”.
-    If a list of two ints, it will be interpreted as the number of
-    the spacegroup in its Belov, Neronova and Smirnova (BNS) setting.
-
-
-    * **lattice** (*Lattice/3x3 array*) – The lattice, either as a
-    `pymatgen.core.lattice.Lattice` or
-    simply as any 2D array. Each row should correspond to a lattice
-    vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-    lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-    Note that no attempt is made to check that the lattice is
-    compatible with the spacegroup specified. This may be
-    introduced in a future version.
-
-
-    * **species** (*[**Species**]*) – Sequence of species on each site. Can take in
-    flexible input, including:
-    i.  A sequence of element / species specified either as string
-    symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
-    e.g., (3, 56, …) or actual Element or Species objects.
-
-
-        1. List of dict of elements/species and occupancies, e.g.,
-    [{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
-    disordered structures.
-
-
-
-    * **coords** (*Nx3 array*) – list of fractional/cartesian coordinates of
-    each species.
-
-
-    * **site_properties** (*dict*) – Properties associated with the sites as a
-    dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
-    have to be the same length as the atomic species and
-    fractional_coords. Unlike Structure.from_spacegroup(),
-    this argument is mandatory, since magnetic moment information
-    has to be included. Note that the *direction* of the supplied
-    magnetic moment relative to the crystal is important, even if
-    the resulting structure is used for collinear calculations.
-
-
-    * **coords_are_cartesian** (*bool*) – Set to True if you are providing
-    coordinates in Cartesian coordinates. Defaults to False.
-
-
-    * **tol** (*float*) – A fractional tolerance to deal with numerical
-    precision issues in determining if orbits are the same.
-
-
-    * **labels** (*list**[**str**]*) – Labels associated with the sites as a
-    list of strings, e.g. [‘Li1’, ‘Li2’]. Must have the same
-    length as the species and fractional coords. Defaults to
-    None for no labels.
-
-
-
-* **Returns**
-
-    Structure | IStructure
-
-
-
-#### _classmethod_ from_sites(sites: list[PeriodicSite], charge: float | None = None, validate_proximity: bool = False, to_unit_cell: bool = False)
-Convenience constructor to make a Structure from a list of sites.
-
-
-* **Parameters**
-
-
-    * **sites** – Sequence of PeriodicSites. Sites must have the same
-    lattice.
-
-
-    * **charge** – Charge of structure.
-
-
-    * **validate_proximity** (*bool*) – Whether to check if there are sites
-    that are less than 0.01 Ang apart. Defaults to False.
-
-
-    * **to_unit_cell** (*bool*) – Whether to translate sites into the unit
-    cell.
-
-
-
-* **Returns**
-
-    (Structure) Note that missing properties are set as None.
-
-
-
-#### _classmethod_ from_spacegroup(sg: str | int, lattice: list | np.ndarray | Lattice, species: Sequence[str | Element | Species | DummySpecies | Composition], coords: Sequence[Sequence[float]], site_properties: dict[str, Sequence] | None = None, coords_are_cartesian: bool = False, tol: float = 1e-05, labels: Sequence[str | None] | None = None)
-Generate a structure using a spacegroup. Note that only symmetrically
-distinct species and coords should be provided. All equivalent sites
-are generated from the spacegroup operations.
-
-
-* **Parameters**
-
-
-    * **sg** (*str/int*) – The spacegroup. If a string, it will be interpreted
-    as one of the notations supported by
-    pymatgen.symmetry.groups.Spacegroup. E.g., “R-3c” or “Fm-3m”.
-    If an int, it will be interpreted as an international number.
-
-
-    * **lattice** (*Lattice/3x3 array*) – The lattice, either as a
-    `pymatgen.core.lattice.Lattice` or
-    simply as any 2D array. Each row should correspond to a lattice
-    vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-    lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-    Note that no attempt is made to check that the lattice is
-    compatible with the spacegroup specified. This may be
-    introduced in a future version.
-
-
-    * **species** (*[**Species**]*) – Sequence of species on each site. Can take in
-    flexible input, including:
-
-
-        1. A sequence of element / species specified either as string
-    symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
-    e.g., (3, 56, …) or actual Element or Species objects.
-
-
-        2. List of dict of elements/species and occupancies, e.g.,
-    [{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
-    disordered structures.
-
-
-
-    * **coords** (*Nx3 array*) – list of fractional/cartesian coordinates of
-    each species.
-
-
-    * **coords_are_cartesian** (*bool*) – Set to True if you are providing
-    coordinates in Cartesian coordinates. Defaults to False.
-
-
-    * **site_properties** (*dict*) – Properties associated with the sites as a
-    dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
-    have to be the same length as the atomic species and
-    fractional_coords. Defaults to None for no properties.
-
-
-    * **tol** (*float*) – A fractional tolerance to deal with numerical
-    precision issues in determining if orbits are the same.
-
-
-    * **labels** (*list**[**str**]*) – Labels associated with the sites as a
-    list of strings, e.g. [‘Li1’, ‘Li2’]. Must have the same
-    length as the species and fractional coords. Defaults to
-    None for no labels.
-
-
-
-#### _classmethod_ from_str(input_string: str, fmt: Literal['cif', 'poscar', 'cssr', 'json', 'yaml', 'xsf', 'mcsqs', 'res'], primitive: bool = False, sort: bool = False, merge_tol: float = 0.0, \*\*kwargs)
-Reads a structure from a string.
-
-
-* **Parameters**
-
-
-    * **input_string** (*str*) – String to parse.
-
-
-    * **fmt** (*str*) – A file format specification. One of “cif”, “poscar”, “cssr”,
-    “json”, “yaml”, “xsf”, “mcsqs”.
-
-
-    * **primitive** (*bool*) – Whether to find a primitive cell. Defaults to
-    False.
-
-
-    * **sort** (*bool*) – Whether to sort the sites in accordance to the default
-    ordering criteria, i.e., electronegativity.
-
-
-    * **merge_tol** (*float*) – If this is some positive number, sites that
-    are within merge_tol from each other will be merged. Usually
-    0.01 should be enough to deal with common numerical issues.
-
-
-    * **\*\*kwargs** – Passthrough to relevant parser.
-
-
-
-* **Returns**
-
-    IStructure | Structure
-
-
-
-#### get_all_neighbors(r: float, include_index: bool = False, include_image: bool = False, sites: Sequence[PeriodicSite] | None = None, numerical_tol: float = 1e-08)
-Get neighbors for each atom in the unit cell, out to a distance r
-Returns a list of list of neighbors for each site in structure.
-Use this method if you are planning on looping over all sites in the
-crystal. If you only want neighbors for a particular site, use the
-method get_neighbors as it may not have to build such a large supercell
-However if you are looping over all sites in the crystal, this method
-is more efficient since it only performs one pass over a large enough
-supercell to contain all possible atoms out to a distance r.
-The return type is a [(site, dist) …] since most of the time,
-subsequent processing requires the distance.
-
-A note about periodic images: Before computing the neighbors, this
-operation translates all atoms to within the unit cell (having
-fractional coordinates within [0,1)). This means that the “image” of a
-site does not correspond to how much it has been translates from its
-current position, but which image of the unit cell it resides.
-
-
-* **Parameters**
-
-
-    * **r** (*float*) – Radius of sphere.
-
-
-    * **include_index** (*bool*) – Deprecated. Now, the non-supercell site index
-    is always included in the returned data.
-
-
-    * **include_image** (*bool*) – Deprecated. Now the supercell image
-    is always included in the returned data.
-
-
-    * **sites** (*list** of **Sites** or **None*) – sites for getting all neighbors,
-    default is None, which means neighbors will be obtained for all
-    sites. This is useful in the situation where you are interested
-    only in one subspecies type, and makes it a lot faster.
-
-
-    * **numerical_tol** (*float*) – This is a numerical tolerance for distances.
-    Sites which are < numerical_tol are determined to be coincident
-    with the site. Sites which are r + numerical_tol away is deemed
-    to be within r from the site. The default of 1e-8 should be
-    ok in most instances.
-
-
-
-* **Returns**
-
-    [[`pymatgen.core.structure.PeriodicNeighbor`], ..]
-
-
-
-#### get_all_neighbors_old(\*\*kwargs)
-
-#### get_all_neighbors_py(r: float, include_index: bool = False, include_image: bool = False, sites: Sequence[PeriodicSite] | None = None, numerical_tol: float = 1e-08)
-Get neighbors for each atom in the unit cell, out to a distance r
-Returns a list of list of neighbors for each site in structure.
-Use this method if you are planning on looping over all sites in the
-crystal. If you only want neighbors for a particular site, use the
-method get_neighbors as it may not have to build such a large supercell
-However if you are looping over all sites in the crystal, this method
-is more efficient since it only performs one pass over a large enough
-supercell to contain all possible atoms out to a distance r.
-The return type is a [(site, dist) …] since most of the time,
-subsequent processing requires the distance.
-
-A note about periodic images: Before computing the neighbors, this
-operation translates all atoms to within the unit cell (having
-fractional coordinates within [0,1)). This means that the “image” of a
-site does not correspond to how much it has been translates from its
-current position, but which image of the unit cell it resides.
-
-
-* **Parameters**
-
-
-    * **r** (*float*) – Radius of sphere.
-
-
-    * **include_index** (*bool*) – Deprecated. Now, the non-supercell site index
-    is always included in the returned data.
-
-
-    * **include_image** (*bool*) – Deprecated. Now the supercell image
-    is always included in the returned data.
-
-
-    * **sites** (*list** of **Sites** or **None*) – sites for getting all neighbors,
-    default is None, which means neighbors will be obtained for all
-    sites. This is useful in the situation where you are interested
-    only in one subspecies type, and makes it a lot faster.
-
-
-    * **numerical_tol** (*float*) – This is a numerical tolerance for distances.
-    Sites which are < numerical_tol are determined to be coincident
-    with the site. Sites which are r + numerical_tol away is deemed
-    to be within r from the site. The default of 1e-8 should be
-    ok in most instances.
-
-
-
-* **Returns**
-
-    list[list[PeriodicNeighbor]]
-
-
-
-#### get_distance(i: int, j: int, jimage=None)
-Get distance between site i and j assuming periodic boundary
-conditions. If the index jimage of two sites atom j is not specified it
-selects the jimage nearest to the i atom and returns the distance and
-jimage indices in terms of lattice vector translations if the index
-jimage of atom j is specified it returns the distance between the i
-atom and the specified jimage atom.
-
-
-* **Parameters**
-
-
-    * **i** (*int*) – 1st site index
-
-
-    * **j** (*int*) – 2nd site index
-
-
-    * **jimage** – Number of lattice translations in each lattice direction.
-    Default is None for nearest image.
-
-
-
-* **Returns**
-
-    distance
-
-
-
-#### get_miller_index_from_site_indexes(site_ids, round_dp=4, verbose=True)
-Get the Miller index of a plane from a set of sites indexes.
-
-A minimum of 3 sites are required. If more than 3 sites are given
-the best plane that minimises the distance to all points will be
-calculated.
-
-
-* **Parameters**
-
-
-    * **site_ids** (*list** of **int*) – A list of site indexes to consider. A
-    minimum of three site indexes are required. If more than three
-    sites are provided, the best plane that minimises the distance
-    to all sites will be calculated.
-
-
-    * **round_dp** (*int**, **optional*) – The number of decimal places to round the
-    miller index to.
-
-
-    * **verbose** (*bool**, **optional*) – Whether to print warnings.
-
-
-
-* **Returns**
-
-    The Miller index.
-
-
-
-* **Return type**
-
-    (tuple)
-
-
-
-#### get_neighbor_list(r: float, sites: Sequence[PeriodicSite] | None = None, numerical_tol: float = 1e-08, exclude_self: bool = True)
-Get neighbor lists using numpy array representations without constructing
-Neighbor objects. If the cython extension is installed, this method will
-be orders of magnitude faster than get_all_neighbors_old and 2-3x faster
-than get_all_neighbors.
-The returned values are a tuple of numpy arrays
-(center_indices, points_indices, offset_vectors, distances).
-Atom center_indices[i] has neighbor atom points_indices[i] that is
-translated by offset_vectors[i] lattice vectors, and the distance is
-distances[i].
-
-
-* **Parameters**
-
-
-    * **r** (*float*) – Radius of sphere
-
-
-    * **sites** (*list** of **Sites** or **None*) – sites for getting all neighbors,
-    default is None, which means neighbors will be obtained for all
-    sites. This is useful in the situation where you are interested
-    only in one subspecies type, and makes it a lot faster.
-
-
-    * **numerical_tol** (*float*) – This is a numerical tolerance for distances.
-    Sites which are < numerical_tol are determined to be coincident
-    with the site. Sites which are r + numerical_tol away is deemed
-    to be within r from the site. The default of 1e-8 should be
-    ok in most instances.
-
-
-    * **exclude_self** (*bool*) – whether to exclude atom neighboring with itself within
-    numerical tolerance distance, default to True
-
-
-Returns: (center_indices, points_indices, offset_vectors, distances)
-
-
-#### get_neighbors(site: PeriodicSite, r: float, include_index: bool = False, include_image: bool = False)
-Get all neighbors to a site within a sphere of radius r. Excludes the
-site itself.
-
-
-* **Parameters**
-
-
-    * **site** (*Site*) – Which is the center of the sphere.
-
-
-    * **r** (*float*) – Radius of sphere.
-
-
-    * **include_index** (*bool*) – Deprecated. Now, the non-supercell site index
-    is always included in the returned data.
-
-
-    * **include_image** (*bool*) – Deprecated. Now the supercell image
-    is always included in the returned data.
-
-
-
-* **Returns**
-
-    PeriodicNeighbor
-
-
-
-#### get_neighbors_in_shell(origin: ArrayLike, r: float, dr: float, include_index: bool = False, include_image: bool = False)
-Returns all sites in a shell centered on origin (coords) between radii
-r-dr and r+dr.
-
-
-* **Parameters**
-
-
-    * **origin** (*3x1 array*) – Cartesian coordinates of center of sphere.
-
-
-    * **r** (*float*) – Inner radius of shell.
-
-
-    * **dr** (*float*) – Width of shell.
-
-
-    * **include_index** (*bool*) – Deprecated. Now, the non-supercell site index
-    is always included in the returned data.
-
-
-    * **include_image** (*bool*) – Deprecated. Now the supercell image
-    is always included in the returned data.
-
-
-
-* **Returns**
-
-    [NearestNeighbor] where Nearest Neighbor is a named tuple containing
-    (site, distance, index, image).
-
-
-
-#### get_neighbors_old(\*\*kwargs)
-
-#### get_orderings(mode: Literal['enum', 'sqs'] = 'enum', \*\*kwargs)
-Returns list of orderings for a disordered structure. If structure
-does not contain disorder, the default structure is returned.
-
-
-* **Parameters**
-
-
-    * **mode** (*"enum"** | **"sqs"*) – Either “enum” or “sqs”. If enum,
-    the enumlib will be used to return all distinct
-    orderings. If sqs, mcsqs will be used to return
-    an sqs structure.
-
-
-    * **kwargs** – kwargs passed to either
-    pymatgen.command_line..enumlib_caller.EnumlibAdaptor
-    or pymatgen.command_line.mcsqs_caller.run_mcsqs.
-    For run_mcsqs, a default cluster search of 2 cluster interactions
-    with 1NN distance and 3 cluster interactions with 2NN distance
-    is set.
-
-
-
-* **Returns**
-
-    List[Structure]
-
-
-
-#### get_primitive_structure(tolerance: float = 0.25, use_site_props: bool = False, constrain_latt: list | dict | None = None)
-This finds a smaller unit cell than the input. Sometimes it doesn”t
-find the smallest possible one, so this method is recursively called
-until it is unable to find a smaller cell.
-
-NOTE: if the tolerance is greater than 1/2 the minimum inter-site
-distance in the primitive cell, the algorithm will reject this lattice.
-
-
-* **Parameters**
-
-
-    * **tolerance** (*float*) – Tolerance for each coordinate of a
-    particular site in Angstroms. For example, [0.1, 0, 0.1] in cartesian
-    coordinates will be considered to be on the same coordinates
-    as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
-
-
-    * **use_site_props** (*bool*) – Whether to account for site properties in
-    differentiating sites.
-
-
-    * **constrain_latt** (*list/dict*) – List of lattice parameters we want to
-    preserve, e.g. [“alpha”, “c”] or dict with the lattice
-    parameter names as keys and values we want the parameters to
-    be e.g. {“alpha”: 90, “c”: 2.5}.
-
-
-
-* **Returns**
-
-    The most primitive structure found.
-
-
-
-#### get_reduced_structure(reduction_algo: Literal['niggli', 'LLL'] = 'niggli')
-Get a reduced structure.
-
-
-* **Parameters**
-
-    **reduction_algo** (*"niggli"** | **"LLL"*) – The lattice reduction algorithm to use.
-    Defaults to “niggli”.
-
-
-
-#### get_sites_in_sphere(pt: ArrayLike, r: float, include_index: bool = False, include_image: bool = False)
-Find all sites within a sphere from the point, including a site (if any)
-sitting on the point itself. This includes sites in other periodic
-images.
-
-Algorithm:
-
-
-1. place sphere of radius r in crystal and determine minimum supercell
-(parallelepiped) which would contain a sphere of radius r. for this
-we need the projection of a_1 on a unit vector perpendicular
-to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
-determine how many a_1”s it will take to contain the sphere.
-
-Nxmax = r \* length_of_b_1 / (2 Pi)
-
-
-2. keep points falling within r.
-
-
-* **Parameters**
-
-
-    * **pt** (*3x1 array*) – Cartesian coordinates of center of sphere.
-
-
-    * **r** (*float*) – Radius of sphere.
-
-
-    * **include_index** (*bool*) – Whether the non-supercell site index
-    is included in the returned data
-
-
-    * **include_image** (*bool*) – Whether to include the supercell image
-    is included in the returned data
-
-
-
-* **Returns**
-
-    PeriodicNeighbor
-
-
-
-#### get_sorted_structure(key: Callable | None = None, reverse: bool = False)
-Get a sorted copy of the structure. The parameters have the same
-meaning as in list.sort. By default, sites are sorted by the
-electronegativity of the species.
-
-
-* **Parameters**
-
-
-    * **key** – Specifies a function of one argument that is used to extract
-    a comparison key from each list element: key=str.lower. The
-    default value is None (compare the elements directly).
-
-
-    * **reverse** (*bool*) – If set to True, then the list elements are sorted
-    as if each comparison were reversed.
-
-
-
-#### get_space_group_info(symprec=0.01, angle_tolerance=5.0)
-Convenience method to quickly get the spacegroup of a structure.
-
-
-* **Parameters**
-
-
-    * **symprec** (*float*) – Same definition as in SpacegroupAnalyzer.
-    Defaults to 1e-2.
-
-
-    * **angle_tolerance** (*float*) – Same definition as in SpacegroupAnalyzer.
-    Defaults to 5 degrees.
-
-
-
-* **Returns**
-
-    spacegroup_symbol, international_number
-
-
-
-#### get_symmetric_neighbor_list(r: float, sg: str, unique: bool = False, numerical_tol: float = 1e-08, exclude_self: bool = True)
-Similar to ‘get_neighbor_list’ with sites=None, but the neighbors are
-grouped by symmetry. The returned values are a tuple of numpy arrays
-(center_indices, points_indices, offset_vectors, distances,
-
-> symmetry_indices). Atom center_indices[i] has neighbor atom
-
-points_indices[i] that is translated by offset_vectors[i] lattice
-vectors, and the distance is distances[i]. Symmetry_idx groups the bonds
-that are related by a symmetry of the provided space group and symmetry_op
-is the operation that relates the first bond of the same symmetry_idx to
-the respective atom. The first bond maps onto itself via the Identity. The
-output is sorted w.r.t. to symmetry_indices. If unique is True only one of the
-two bonds connecting two points is given. Out of the two, the bond that does not
-reverse the sites is chosen.
-
-
-* **Parameters**
-
-
-    * **r** (*float*) – Radius of sphere
-
-
-    * **sg** (*str/int*) – The spacegroup the symmetry operations of which will be
-    used to classify the neighbors. If a string, it will be interpreted
-    as one of the notations supported by
-    pymatgen.symmetry.groups.Spacegroup. E.g., “R-3c” or “Fm-3m”.
-    If an int, it will be interpreted as an international number.
-    If None, ‘get_space_group_info’ will be used to determine the
-    space group, default to None.
-
-
-    * **unique** (*bool*) – Whether a bond is given for both, or only a single
-    direction is given. The default is False.
-
-
-    * **numerical_tol** (*float*) – This is a numerical tolerance for distances.
-    Sites which are < numerical_tol are determined to be coincident
-    with the site. Sites which are r + numerical_tol away is deemed
-    to be within r from the site. The default of 1e-8 should be
-    ok in most instances.
-
-
-    * **exclude_self** (*bool*) – whether to exclude atom neighboring with itself within
-    numerical tolerance distance, default to True
-
-
-Returns: (center_indices, points_indices, offset_vectors, distances,
-
-    symmetry_indices, symmetry_ops)
-
-
-#### interpolate(end_structure: IStructure | Structure, nimages: int | Iterable = 10, interpolate_lattices: bool = False, pbc: bool = True, autosort_tol: float = 0)
-Interpolate between this structure and end_structure. Useful for
-construction of NEB inputs.
-
-
-* **Parameters**
-
-
-    * **end_structure** (*Structure*) – structure to interpolate between this
-    structure and end.
-
-
-    * **nimages** (*int**,**list*) – No. of interpolation images or a list of
-    interpolation images. Defaults to 10 images.
-
-
-    * **interpolate_lattices** (*bool*) – Whether to interpolate the lattices.
-    Interpolates the lengths and angles (rather than the matrix)
-    so orientation may be affected.
-
-
-    * **pbc** (*bool*) – Whether to use periodic boundary conditions to find
-    the shortest path between endpoints.
-
-
-    * **autosort_tol** (*float*) – A distance tolerance in angstrom in
-    which to automatically sort end_structure to match to the
-    closest points in this particular structure. This is usually
-    what you want in a NEB calculation. 0 implies no sorting.
-    Otherwise, a 0.5 value usually works pretty well.
-
-
-
-* **Returns**
-
-    List of interpolated structures. The starting and ending
-    structures included as the first and last structures respectively.
-    A total of (nimages + 1) structures are returned.
-
-
-
-#### _property_ is_3d_periodic(_: boo_ )
-True if the Lattice is periodic in all directions.
-
-
-#### _property_ lattice(_: Lattic_ )
-Lattice of the structure.
-
-
-#### matches(other: IStructure | Structure, anonymous: bool = False, \*\*kwargs)
-Check whether this structure is similar to another structure.
-Basically a convenience method to call structure matching.
-
-
-* **Parameters**
-
-
-    * **other** (*IStructure/Structure*) – Another structure.
-
-
-    * **anonymous** (*bool*) – Whether to use anonymous structure matching which allows distinct
-    species in one structure to map to another.
-
-
-    * **\*\*kwargs** – Same
-
-    ```
-    **
-    ```
-
-    kwargs as in
-    [`pymatgen.analysis.structure_matcher.StructureMatcher`](pymatgen.analysis.md#pymatgen.analysis.structure_matcher.StructureMatcher).
-
-
-
-* **Returns**
-
-    True if the structures are similar under some affine transformation.
-
-
-
-* **Return type**
-
-    bool
-
-
-
-#### _property_ pbc(_: tuple[bool, bool, bool_ )
-Returns the periodicity of the structure.
-
-
-#### to(filename: str = '', fmt: str = '', \*\*kwargs)
-Outputs the structure to a file or string.
-
-
-* **Parameters**
-
-
-    * **filename** (*str*) – If provided, output will be written to a file. If
-    fmt is not specified, the format is determined from the
-    filename. Defaults is None, i.e. string output.
-
-
-    * **fmt** (*str*) – Format to output to. Defaults to JSON unless filename
-    is provided. If fmt is specifies, it overrides whatever the
-    filename is. Options include “cif”, “poscar”, “cssr”, “json”,
-    “xsf”, “mcsqs”, “prismatic”, “yaml”, “fleur-inpgen”.
-    Non-case sensitive.
-
-
-    * **\*\*kwargs** – Kwargs passthru to relevant methods. E.g., This allows
-    the passing of parameters like symprec to the
-    CifWriter.__init__ method for generation of symmetric cifs.
-
-
-
-* **Returns**
-
-    (str) if filename is None. None otherwise.
-
-
-
-#### unset_charge()
-Reset the charge to None, i.e., computed dynamically based on oxidation states.
-
-
-#### _property_ volume(_: floa_ )
-Returns the volume of the structure in Angstrom^3.
-
-
-### _class_ pymatgen.core.structure.Molecule(species: Sequence[SpeciesLike], coords: Sequence[ArrayLike], charge: float = 0.0, spin_multiplicity: int | None = None, validate_proximity: bool = False, site_properties: dict | None = None, labels: Sequence[str | None] | None = None, charge_spin_check: bool = True)
-Bases: `IMolecule`, `MutableSequence`
-
-Mutable Molecule. It has all the methods in IMolecule, but in addition,
-it allows a user to perform edits on the molecule.
-
-Creates a MutableMolecule.
-
-
-* **Parameters**
-
-
-    * **species** – list of atomic species. Possible kinds of input include a
-    list of dict of elements/species and occupancies, a List of
-    elements/specie specified as actual Element/Species, Strings
-    (“Fe”, “Fe2+”) or atomic numbers (1,56).
-
-
-    * **coords** (*3x1 array*) – list of Cartesian coordinates of each species.
-
-
-    * **charge** (*float*) – Charge for the molecule. Defaults to 0.
-
-
-    * **spin_multiplicity** (*int*) – Spin multiplicity for molecule.
-    Defaults to None, which means that the spin multiplicity is
-    set to 1 if the molecule has no unpaired electrons and to 2
-    if there are unpaired electrons.
-
-
-    * **validate_proximity** (*bool*) – Whether to check if there are sites
-    that are less than 1 Ang apart. Defaults to False.
-
-
-    * **site_properties** (*dict*) – Properties associated with the sites as
-    a dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The
-    sequences have to be the same length as the atomic species
-    and fractional_coords. Defaults to None for no properties.
-
-
-    * **labels** (*list**[**str**]*) – Labels associated with the sites as a
-    list of strings, e.g. [‘Li1’, ‘Li2’]. Must have the same
-    length as the species and fractional coords. Defaults to
-    None for no labels.
-
-
-    * **charge_spin_check** (*bool*) – Whether to check that the charge and
-    spin multiplicity are compatible with each other. Defaults
-    to True.
-
-
-
-#### append(species: CompositionLike, coords: ArrayLike, validate_proximity: bool = False, properties: dict | None = None)
-Appends a site to the molecule.
-
-
-* **Parameters**
-
-
-    * **species** – Species of inserted site
-
-
-    * **coords** – Coordinates of inserted site
-
-
-    * **validate_proximity** (*bool*) – Whether to check if inserted site is
-    too close to an existing site. Defaults to False.
-
-
-    * **properties** (*dict*) – A dict of properties for the Site.
-
-
-
-* **Returns**
-
-    New molecule with inserted site.
-
-
-
-#### apply_operation(symmop: SymmOp)
-Apply a symmetry operation to the molecule.
-
-
-* **Parameters**
-
-    **symmop** (*SymmOp*) – Symmetry operation to apply.
-
-
-
-#### calculate(calculator: str | Calculator = 'gfn2-xtb', verbose: bool = False)
-Performs an ASE calculation.
-
-
-* **Parameters**
-
-
-    * **calculator** – An ASE Calculator or a string from the following options: “gfn2-xtb”.
-    Defaults to ‘gfn2-xtb’.
-
-
-    * **verbose** (*bool*) – whether to print stdout. Defaults to False.
-
-
-
-* **Returns**
-
-    ASE Calculator instance with a results attribute containing the output.
-
-
-
-* **Return type**
-
-    Calculator
-
-
-
-#### copy()
-Convenience method to get a copy of the molecule.
-
-
-* **Returns**
-
-    A copy of the Molecule.
-
-
-
-#### insert(idx: int, species: CompositionLike, coords: ArrayLike, validate_proximity: bool = False, properties: dict | None = None, label: str | None = None)
-Insert a site to the molecule.
-
-
-* **Parameters**
-
-
-    * **idx** (*int*) – Index to insert site
-
-
-    * **species** – species of inserted site
-
-
-    * **coords** (*3x1 array*) – coordinates of inserted site
-
-
-    * **validate_proximity** (*bool*) – Whether to check if inserted site is
-    too close to an existing site. Defaults to True.
-
-
-    * **properties** (*dict*) – Dict of properties for the Site.
-
-
-    * **label** (*str*) – Label of inserted site
-
-
-
-* **Returns**
-
-    New molecule with inserted site.
-
-
-
-#### perturb(distance: float)
-Performs a random perturbation of the sites in a structure to break
-symmetries.
-
-
-* **Parameters**
-
-    **distance** (*float*) – Distance in angstroms by which to perturb each
-    site.
-
-
-
-#### relax(calculator: str | Calculator = 'gfn2-xtb', optimizer: str | Optimizer = 'FIRE', steps: int = 500, fmax: float = 0.1, opt_kwargs: dict | None = None, return_trajectory: bool = False, verbose: bool = False)
-Performs a molecule relaxation using an ASE calculator.
-
-
-* **Parameters**
-
-
-    * **calculator** – An ASE Calculator or a string from the following options: “gfn2-xtb”.
-    Defaults to ‘gfn2-xtb’.
-
-
-    * **optimizer** (*str*) – name of the ASE optimizer class to use
-
-
-    * **steps** (*int*) – max number of steps for relaxation. Defaults to 500.
-
-
-    * **fmax** (*float*) – total force tolerance for relaxation convergence.
-    Defaults to 0.1 eV/A.
-
-
-    * **opt_kwargs** (*dict*) – kwargs for the ASE optimizer class.
-
-
-    * **return_trajectory** (*bool*) – Whether to return the trajectory of relaxation.
-    Defaults to False.
-
-
-    * **verbose** (*bool*) – whether to print out relaxation steps. Defaults to False.
-
-
-
-* **Returns**
-
-    Relaxed Molecule or if return_trajectory=True,
-
-        2-tuple of Molecule and ASE TrajectoryObserver.
-
-
-
-
-* **Return type**
-
-    Molecule | tuple[Molecule, Trajectory]
-
-
-
-#### remove_sites(indices: Sequence[int])
-Delete sites with at indices.
-
-
-* **Parameters**
-
-    **indices** – Sequence of indices of sites to delete.
-
-
-
-#### remove_species(species: Sequence[SpeciesLike])
-Remove all occurrences of a species from a molecule.
-
-
-* **Parameters**
-
-    **species** – Species to remove.
-
-
-
-#### rotate_sites(indices: Sequence[int] | None = None, theta: float = 0.0, axis: ArrayLike | None = None, anchor: ArrayLike | None = None)
-Rotate specific sites by some angle around vector at anchor.
-
-
-* **Parameters**
-
-
-    * **indices** (*list*) – List of site indices on which to perform the
-    translation.
-
-
-    * **theta** (*float*) – Angle in radians
-
-
-    * **axis** (*3x1 array*) – Rotation axis vector.
-
-
-    * **anchor** (*3x1 array*) – Point of rotation.
-
-
-
-#### set_charge_and_spin(charge: float, spin_multiplicity: int | None = None)
-Set the charge and spin multiplicity.
-
-
-* **Parameters**
-
-
-    * **charge** (*int*) – Charge for the molecule. Defaults to 0.
-
-
-    * **spin_multiplicity** (*int*) – Spin multiplicity for molecule.
-    Defaults to None, which means that the spin multiplicity is
-    set to 1 if the molecule has no unpaired electrons and to 2
-    if there are unpaired electrons.
-
-
-
-#### substitute(index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1)
-Substitute atom at index with a functional group.
-
-
-* **Parameters**
-
-
-    * **index** (*int*) – Index of atom to substitute.
-
-
-    * **func_group** – Substituent molecule. There are two options:
-
-
-        1. Providing an actual molecule as the input. The first atom
-    must be a DummySpecies X, indicating the position of
-    nearest neighbor. The second atom must be the next
-    nearest atom. For example, for a methyl group
-    substitution, func_group should be X-CH3, where X is the
-    first site and C is the second site. What the code will
-    do is to remove the index site, and connect the nearest
-    neighbor to the C atom in CH3. The X-C bond indicates the
-    directionality to connect the atoms.
-
-
-        2. A string name. The molecule will be obtained from the
-    relevant template in func_groups.json.
-
-
-
-    * **bond_order** (*int*) – A specified bond order to calculate the bond
-    length between the attached functional group and the nearest
-    neighbor site. Defaults to 1.
-
-
-
-#### translate_sites(indices: Sequence[int] | None = None, vector: ArrayLike | None = None)
-Translate specific sites by some vector, keeping the sites within the
-unit cell.
-
-
-* **Parameters**
-
-
-    * **indices** (*list*) – List of site indices on which to perform the
-    translation.
-
-
-    * **vector** (*3x1 array*) – Translation vector for sites.
-
-
-
-### _class_ pymatgen.core.structure.Neighbor(species: Composition, coords: np.ndarray, properties: dict | None = None, nn_distance: float = 0.0, index: int = 0, label: str | None = None)
-Bases: `Site`
-
-Simple Site subclass to contain a neighboring atom that skips all the unnecessary checks for speed. Can be
-used as a fixed-length tuple of size 3 to retain backwards compatibility with past use cases.
-
-> (site, nn_distance, index).
-
-In future, usage should be to call attributes, e.g., Neighbor.index, Neighbor.distance, etc.
-
-
-* **Parameters**
-
-
-    * **species** – Same as Site
-
-
-    * **coords** – Same as Site, but must be fractional.
-
-
-    * **properties** – Same as Site
-
-
-    * **nn_distance** – Distance to some other Site.
-
-
-    * **index** – Index within structure.
-
-
-    * **label** – Label for the site. Defaults to None.
-
-
-
-#### as_dict()
-Note that method calls the super of Site, which is MSONable itself.
-
-Returns: dict
-
-
-#### coords(_: ndarra_ )
-
-#### _classmethod_ from_dict(d: dict)
-Returns a Neighbor from a dict.
-
-
-* **Parameters**
-
-    **d** – MSONable dict format.
-
-
-
-* **Returns**
-
-    Neighbor
-
-
-
-#### properties(_: dic_ )
-
-### _class_ pymatgen.core.structure.PeriodicNeighbor(species: Composition, coords: np.ndarray, lattice: Lattice, properties: dict | None = None, nn_distance: float = 0.0, index: int = 0, image: tuple = (0, 0, 0), label: str | None = None)
-Bases: `PeriodicSite`
-
-Simple PeriodicSite subclass to contain a neighboring atom that skips all
-the unnecessary checks for speed. Can be used as a fixed-length tuple of
-size 4 to retain backwards compatibility with past use cases.
-
-> (site, distance, index, image).
-
-In future, usage should be to call attributes, e.g., PeriodicNeighbor.index,
-PeriodicNeighbor.distance, etc.
-
-
-* **Parameters**
-
-
-    * **species** (*Composition*) – Same as PeriodicSite
-
-
-    * **coords** (*np.ndarray*) – Same as PeriodicSite, but must be fractional.
-
-
-    * **lattice** (*Lattice*) – Same as PeriodicSite
-
-
-    * **properties** (*dict**, **optional*) – Same as PeriodicSite. Defaults to None.
-
-
-    * **nn_distance** (*float**, **optional*) – Distance to some other Site.. Defaults to 0.0.
-
-
-    * **index** (*int**, **optional*) – Index within structure.. Defaults to 0.
-
-
-    * **image** (*tuple**, **optional*) – PeriodicImage. Defaults to (0, 0, 0).
-
-
-    * **label** (*str**, **optional*) – Label for the site. Defaults to None.
-
-
-
-#### as_dict()
-Note that method calls the super of Site, which is MSONable itself.
-
-Returns: dict
-
-
-#### _property_ coords(_: ndarra_ )
-Cartesian coords.
-
-
-* **Type**
-
-    return
-
-
-
-#### _classmethod_ from_dict(d: dict)
-Returns a PeriodicNeighbor from a dict.
-
-
-* **Parameters**
-
-    **d** – MSONable dict format.
-
-
-
-* **Returns**
-
-    PeriodicNeighbor
-
-
-
-#### properties(_: dic_ )
-
-### _class_ pymatgen.core.structure.SiteCollection()
-Bases: `Sequence`
-
-Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
-This serves as a base class for Molecule (a collection of Site, i.e., no
-periodicity) and Structure (a collection of PeriodicSites, i.e.,
-periodicity). Not meant to be instantiated directly.
-
-
-#### DISTANCE_TOLERANCE(_ = 0._ )
-
-#### add_oxidation_state_by_element(oxidation_states: dict[str, float])
-Add oxidation states.
-
-
-* **Parameters**
-
-    **oxidation_states** (*dict*) – Dict of oxidation states.
-    E.g., {“Li”:1, “Fe”:2, “P”:5, “O”:-2}
-
-
-
-* **Raises**
-
-    **ValueError if oxidation states are not specified for all elements.** –
-
-
-
-#### add_oxidation_state_by_guess(\*\*kwargs)
-Decorates the structure with oxidation state, guessing
-using Composition.oxi_state_guesses().
-
-
-* **Parameters**
-
-    **\*\*kwargs** – parameters to pass into oxi_state_guesses()
-
-
-
-#### add_oxidation_state_by_site(oxidation_states: list[float])
-Add oxidation states to a structure by site.
-
-
-* **Parameters**
-
-    **oxidation_states** (*list**[**float**]*) – List of oxidation states.
-    E.g. [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
-
-
-
-#### add_site_property(property_name: str, values: list)
-Adds a property to a site. Note: This is the preferred method
-for adding magnetic moments, selective dynamics, and related
-site-specific properties to a structure/molecule object.
-
-### Examples
-
-structure.add_site_property(“magmom”, [1.0, 0.0])
-structure.add_site_property(“selective_dynamics”, [[True, True, True], [False, False, False]])
-
-
-* **Parameters**
-
-
-    * **property_name** (*str*) – The name of the property to add.
-
-
-    * **values** (*list*) – A sequence of values. Must be same length as
-    number of sites.
-
-
-
-#### add_spin_by_element(spins: dict[str, float])
-Add spin states to structure.
-
-
-* **Parameters**
-
-    **spins** (*dict*) – Dict of spins associated with elements or species,
-    e.g. {“Ni”:+5} or {“Ni2+”:5}
-
-
-
-#### add_spin_by_site(spins: list[float])
-Add spin states to structure by site.
-
-
-* **Parameters**
-
-    **spins** (*list*) – List of spins
-    E.g., [+5, -5, 0, 0]
-
-
-
-#### _property_ atomic_numbers(_: tuple[int, ..._ )
-List of atomic numbers.
-
-
-#### _property_ cart_coords(_: ndarra_ )
-Returns an np.array of the Cartesian coordinates of sites in the
-structure.
-
-
-#### _property_ charge(_: floa_ )
-Returns the net charge of the structure based on oxidation states. If
-Elements are found, a charge of 0 is assumed.
-
-
-#### _property_ composition(_: Compositio_ )
-(Composition) Returns the composition.
-
-
-#### _property_ distance_matrix(_: ndarra_ )
-Returns the distance matrix between all sites in the structure. For
-periodic structures, this is overwritten to return the nearest image
-distance.
-
-
-#### extract_cluster(target_sites: list[pymatgen.core.sites.Site], \*\*kwargs)
-Extracts a cluster of atoms based on bond lengths.
-
-
-* **Parameters**
-
-
-    * **target_sites** (*list**[**Site**]*) – Initial sites from which to nucleate cluster.
-
-
-    * **\*\*kwargs** – kwargs passed through to CovalentBond.is_bonded.
-
-
-
-* **Returns**
-
-    list[Site/PeriodicSite] Cluster of atoms.
-
-
-
-#### _property_ formula(_: st_ )
-(str) Returns the formula.
-
-
-#### _abstract classmethod_ from_file(filename: str)
-Reads in SiteCollection from a filename.
-
-
-#### _abstract classmethod_ from_str(input_string: str, fmt: Any)
-Reads in SiteCollection from a string.
-
-
-#### get_angle(i: int, j: int, k: int)
-Returns angle specified by three sites.
-
-
-* **Parameters**
-
-
-    * **i** – 1st site index
-
-
-    * **j** – 2nd site index
-
-
-    * **k** – 3rd site index
-
-
-
-* **Returns**
-
-    Angle in degrees.
-
-
-
-#### get_dihedral(i: int, j: int, k: int, l: int)
-Returns dihedral angle specified by four sites.
-
-
-* **Parameters**
-
-
-    * **i** – 1st site index
-
-
-    * **j** – 2nd site index
-
-
-    * **k** – 3rd site index
-
-
-    * **l** – 4th site index
-
-
-
-* **Returns**
-
-    Dihedral angle in degrees.
-
-
-
-#### _abstract_ get_distance(i: int, j: int)
-Returns distance between sites at index i and j.
-
-
-* **Parameters**
-
-
-    * **i** – 1st site index
-
-
-    * **j** – 2nd site index
-
-
-
-* **Returns**
-
-    Distance between sites at index i and index j.
-
-
-
-#### group_by_types()
-Iterate over species grouped by type.
-
-
-#### indices_from_symbol(symbol: str)
-Returns a tuple with the sequential indices of the sites
-that contain an element with the given chemical symbol.
-
-
-#### _property_ is_ordered(_: boo_ )
-Checks if structure is ordered, meaning no partial occupancies in any
-of the sites.
-
-
-#### is_valid(tol: float = 0.5)
-True if SiteCollection does not contain atoms that are too close
-together. Note that the distance definition is based on type of
-SiteCollection. Cartesian distances are used for non-periodic
-Molecules, while PBC is taken into account for periodic structures.
-
-
-* **Parameters**
-
-    **tol** (*float*) – Distance tolerance. Default is 0.5 Angstrom, which is fairly large.
-
-
-
-* **Returns**
-
-    (bool) True if SiteCollection does not contain atoms that are too close together.
-
-
-
-#### _property_ labels(_: list[str_ )
-Return site labels as a list.
-
-
-#### _property_ ntypesp(_: in_ )
-Number of types of atoms.
-
-
-#### _property_ num_sites(_: in_ )
-Number of sites.
-
-
-#### remove_oxidation_states()
-Removes oxidation states from a structure.
-
-
-#### remove_site_property(property_name: str)
-Removes a property to a site.
-
-
-* **Parameters**
-
-    **property_name** (*str*) – The name of the property to remove.
-
-
-
-#### remove_spin()
-Remove spin states from structure.
-
-
-#### replace_species(species_mapping: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]])
-Swap species. Note that this method modifies the structure in place.
-
-
-* **Parameters**
-
-    **species_mapping** (*dict*) – dict of species to swap. Species can be elements too. E.g.,
-    {Element(“Li”): Element(“Na”)} performs a Li for Na substitution. The second species can
-    be a sp_and_occu dict. For example, a site with 0.5 Si that is passed the mapping
-    {Element(‘Si): {Element(‘Ge’): 0.75, Element(‘C’): 0.25} } will have .375 Ge and .125 C.
-
-
-
-#### _property_ site_properties(_: dict[str, Sequence_ )
-(-4,4)}.
-
-
-* **Type**
-
-    Returns the site properties as a dict of sequences. E.g. {“magmom”
-
-
-
-* **Type**
-
-    (5,-5), “charge”
-
-
-
-#### _property_ sites(_: list[pymatgen.core.sites.Site_ )
-Returns an iterator for the sites in the Structure.
-
-
-#### _property_ species(_: list[Element | Species_ )
-Only works for ordered structures.
-
-
-* **Raises**
-
-    **AttributeError** – If structure is disordered.
-
-
-
-* **Returns**
-
-    ([Species]) List of species at each site of the structure.
-
-
-
-#### _property_ species_and_occu(_: list[pymatgen.core.composition.Composition_ )
-List of species and occupancies at each site of the structure.
-
-
-#### _property_ symbol_set(_: tuple[str, ..._ )
-Tuple with the set of chemical symbols.
-Note that len(symbol_set) == len(types_of_specie).
-
-
-#### _abstract_ to(filename: str = '', fmt: str = '')
-Generates string representations (cif, json, poscar, ….) of SiteCollections (e.g.,
-molecules / structures). Should return str or None if written to a file.
-
-
-#### _property_ types_of_specie(_: tuple[Element | Species | DummySpecies_ )
-Specie->Species rename. Maintained for backwards compatibility.
-
-
-#### _property_ types_of_species(_: tuple[Element | Species | DummySpecies_ )
-List of types of specie.
-
-
-### _class_ pymatgen.core.structure.Structure(lattice: ArrayLike | Lattice, species: Sequence[CompositionLike], coords: Sequence[ArrayLike], charge: float | None = None, validate_proximity: bool = False, to_unit_cell: bool = False, coords_are_cartesian: bool = False, site_properties: dict | None = None, labels: Sequence[str | None] | None = None)
-Bases: `IStructure`, `MutableSequence`
-
-Mutable version of structure.
-
-Create a periodic structure.
-
-
-* **Parameters**
-
-
-    * **lattice** – The lattice, either as a pymatgen.core.lattice.Lattice or
-    simply as any 2D array. Each row should correspond to a lattice
-    vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-    lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-
-
-    * **species** – List of species on each site. Can take in flexible input,
-    including:
-
-
-        1. A sequence of element / species specified either as string
-    symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
-    e.g., (3, 56, …) or actual Element or Species objects.
-
-
-        2. List of dict of elements/species and occupancies, e.g.,
-    [{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
-    disordered structures.
-
-
-
-    * **coords** (*Nx3 array*) – list of fractional/cartesian coordinates of
-    each species.
-
-
-    * **charge** (*int*) – overall charge of the structure. Defaults to behavior
-    in SiteCollection where total charge is the sum of the oxidation
-    states.
-
-
-    * **validate_proximity** (*bool*) – Whether to check if there are sites
-    that are less than 0.01 Ang apart. Defaults to False.
-
-
-    * **to_unit_cell** (*bool*) – Whether to map all sites into the unit cell,
-    i.e., fractional coords between 0 and 1. Defaults to False.
-
-
-    * **coords_are_cartesian** (*bool*) – Set to True if you are providing
-    coordinates in Cartesian coordinates. Defaults to False.
-
-
-    * **site_properties** (*dict*) – Properties associated with the sites as a
-    dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
-    have to be the same length as the atomic species and
-    fractional_coords. Defaults to None for no properties.
-
-
-    * **labels** (*list**[**str**]*) – Labels associated with the sites as a
-    list of strings, e.g. [‘Li1’, ‘Li2’]. Must have the same
-    length as the species and fractional coords. Defaults to
-    None for no labels.
-
-
-
-#### append(species: CompositionLike, coords: ArrayLike, coords_are_cartesian: bool = False, validate_proximity: bool = False, properties: dict | None = None)
-Append a site to the structure.
-
-
-* **Parameters**
-
-
-    * **species** – Species of inserted site
-
-
-    * **coords** (*3x1 array*) – Coordinates of inserted site
-
-
-    * **coords_are_cartesian** (*bool*) – Whether coordinates are cartesian.
-    Defaults to False.
-
-
-    * **validate_proximity** (*bool*) – Whether to check if inserted site is
-    too close to an existing site. Defaults to False.
-
-
-    * **properties** (*dict*) – Properties of the site.
-
-
-
-* **Returns**
-
-    New structure with inserted site.
-
-
-
-#### apply_operation(symmop: SymmOp, fractional: bool = False)
-Apply a symmetry operation to the structure in place and return the modified
-structure. The lattice is operated on by the rotation matrix only.
-Coords are operated in full and then transformed to the new lattice.
-
-
-* **Parameters**
-
-
-    * **symmop** (*SymmOp*) – Symmetry operation to apply.
-
-
-    * **fractional** (*bool*) – Whether the symmetry operation is applied in
-    fractional space. Defaults to False, i.e., symmetry operation
-    is applied in Cartesian coordinates.
-
-
-
-* **Returns**
-
-    post-operation structure
-
-
-
-* **Return type**
-
-    Structure
-
-
-
-#### apply_strain(strain: ArrayLike)
-Apply a strain to the lattice.
-
-
-* **Parameters**
-
-    **strain** (*float** or **list*) – Amount of strain to apply. Can be a float,
-    or a sequence of 3 numbers. E.g., 0.01 means all lattice
-    vectors are increased by 1%. This is equivalent to calling
-    modify_lattice with a lattice with lattice parameters that
-    are 1% larger.
-
-
-
-#### calculate(calculator: str | Calculator = 'm3gnet', verbose: bool = False)
-Performs an ASE calculation.
-
-
-* **Parameters**
-
-
-    * **calculator** – An ASE Calculator or a string from the following options: “m3gnet”.
-    Defaults to ‘m3gnet’, i.e. the M3GNet universal potential.
-
-
-    * **verbose** (*bool*) – whether to print stdout. Defaults to False.
-
-
-
-* **Returns**
-
-    ASE Calculator instance with a results attribute containing the output.
-
-
-
-* **Return type**
-
-    Calculator
-
-
-
-#### _classmethod_ from_prototype(prototype: str, species: Sequence, \*\*kwargs)
-Method to rapidly construct common prototype structures.
-
-
-* **Parameters**
-
-
-    * **prototype** – Name of prototype. E.g., cubic, rocksalt, perovksite etc.
-
-
-    * **species** – List of species corresponding to symmetrically distinct sites.
-
-
-    * **\*\*kwargs** – Lattice parameters, e.g., a = 3.0, b = 4, c = 5. Only the required lattice parameters need to be
-    specified. For example, if it is a cubic prototype, only a needs to be specified.
-
-
-
-* **Returns**
-
-    Structure
-
-
-
-#### insert(idx: int, species: CompositionLike, coords: ArrayLike, coords_are_cartesian: bool = False, validate_proximity: bool = False, properties: dict | None = None, label: str | None = None)
-Insert a site to the structure.
-
-
-* **Parameters**
-
-
-    * **idx** (*int*) – Index to insert site
-
-
-    * **species** (*species-like*) – Species of inserted site
-
-
-    * **coords** (*3x1 array*) – Coordinates of inserted site
-
-
-    * **coords_are_cartesian** (*bool*) – Whether coordinates are cartesian.
-    Defaults to False.
-
-
-    * **validate_proximity** (*bool*) – Whether to check if inserted site is too close to
-    an existing site. Controlled by self.DISTANCE_TOLERANCE. Defaults to False.
-
-
-    * **properties** (*dict*) – Properties associated with the site.
-
-
-    * **label** (*str*) – Label associated with the site.
-
-
-
-* **Returns**
-
-    New structure with inserted site.
-
-
-
-#### _property_ lattice(_: Lattic_ )
-Lattice associated with structure.
-
-
-* **Type**
-
-    return
-
-
-
-#### make_supercell(scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True)
-Create a supercell.
-
-
-* **Parameters**
-
-
-    * **scaling_matrix** (*ArrayLike*) – A scaling matrix for transforming the lattice
-    vectors. Has to be all integers. Several options are possible:
-
-
-        1. A full 3x3 scaling matrix defining the linear combination
-    the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
-    1]] generates a new structure with lattice vectors a’ =
-    2a + b, b’ = 3b, c’ = c where a, b, and c are the lattice
-    vectors of the original structure.
-
-
-        2. An sequence of three scaling factors. E.g., [2, 1, 1]
-    specifies that the supercell should have dimensions 2a x b x
-    c.
-
-
-        3. A number, which simply scales all lattice vectors by the
-    same factor.
-
-
-
-    * **to_unit_cell** (*bool*) – Whether or not to fold sites back into the unit cell
-    if they have fractional coords > 1. Defaults to True.
-
-
-    * **in_place** (*bool*) – Whether to perform the operation in-place or to return
-    a new Structure object. Defaults to True.
-
-
-
-* **Returns**
-
-    self if in_place is True else self.copy() after making supercell
-
-
-
-* **Return type**
-
-    Structure
-
-
-
-#### merge_sites(tol: float = 0.01, mode: Literal['sum', 'delete', 'average'] = 'sum')
-Merges sites (adding occupancies) within tol of each other.
-Removes site properties.
-
-
-* **Parameters**
-
-
-    * **tol** (*float*) – Tolerance for distance to merge sites.
-
-
-    * **mode** (*'sum'** | **'delete'** | **'average'*) – “delete” means duplicate sites are
-    deleted. “sum” means the occupancies are summed for the sites.
-    “average” means that the site is deleted but the properties are averaged
-    Only first letter is considered.
-
-
-
-#### perturb(distance: float, min_distance: float | None = None)
-Performs a random perturbation of the sites in a structure to break
-symmetries.
-
-
-* **Parameters**
-
-
-    * **distance** (*float*) – Distance in angstroms by which to perturb each
-    site.
-
-
-    * **min_distance** (*None**, **int**, or **float*) – if None, all displacements will
-    be equal amplitude. If int or float, perturb each site a
-    distance drawn from the uniform distribution between
-    ‘min_distance’ and ‘distance’.
-
-
-
-#### relax(calculator: str | Calculator = 'm3gnet', relax_cell: bool = True, optimizer: str | Optimizer = 'FIRE', steps: int = 500, fmax: float = 0.1, stress_weight: float = 0.01, opt_kwargs: dict | None = None, return_trajectory: bool = False, verbose: bool = False)
-Performs a crystal structure relaxation using an ASE calculator.
-
-
-* **Parameters**
-
-
-    * **calculator** – An ASE Calculator or a string from the following options: “m3gnet”.
-    Defaults to ‘m3gnet’, i.e. the M3GNet universal potential.
-
-
-    * **relax_cell** (*bool*) – whether to relax the lattice cell. Defaults to True.
-
-
-    * **optimizer** (*str*) – name of the ASE optimizer class to use
-
-
-    * **steps** (*int*) – max number of steps for relaxation. Defaults to 500.
-
-
-    * **fmax** (*float*) – total force tolerance for relaxation convergence.
-    Here fmax is a sum of force and stress forces. Defaults to 0.1.
-
-
-    * **stress_weight** (*float*) – the stress weight for relaxation with M3GNet.
-    Defaults to 0.01.
-
-
-    * **opt_kwargs** (*dict*) – kwargs for the ASE optimizer class.
-
-
-    * **return_trajectory** (*bool*) – Whether to return the trajectory of relaxation.
-    Defaults to False.
-
-
-    * **verbose** (*bool*) – whether to print out relaxation steps. Defaults to False.
-
-
-
-* **Returns**
-
-    Relaxed structure or if return_trajectory=True,
-
-        2-tuple of Structure and matgl TrajectoryObserver.
-
-
-
-
-* **Return type**
-
-    Structure | tuple[Structure, Trajectory]
-
-
-
-#### remove_sites(indices: Sequence[int])
-Delete sites with at indices.
-
-
-* **Parameters**
-
-    **indices** – Sequence of indices of sites to delete.
-
-
-
-#### remove_species(species: Sequence[SpeciesLike])
-Remove all occurrences of several species from a structure.
-
-
-* **Parameters**
-
-    **species** – Sequence of species to remove, e.g., [“Li”, “Na”].
-
-
-
-#### replace(idx: int, species: CompositionLike, coords: ArrayLike | None = None, coords_are_cartesian: bool = False, properties: dict | None = None, label: str | None = None)
-Replace a single site. Takes either a species or a dict of species and
-occupations.
-
-
-* **Parameters**
-
-
-    * **idx** (*int*) – Index of the site in the sites list.
-
-
-    * **species** (*species-like*) – Species of replacement site
-
-
-    * **coords** (*3x1 array*) – Coordinates of replacement site. If None,
-    the current coordinates are assumed.
-
-
-    * **coords_are_cartesian** (*bool*) – Whether coordinates are cartesian.
-    Defaults to False.
-
-
-    * **properties** (*dict*) – Properties associated with the site.
-
-
-    * **label** (*str*) – Label associated with the site.
-
-
-
-#### rotate_sites(indices: list[int] | None = None, theta: float = 0.0, axis: ArrayLike | None = None, anchor: ArrayLike | None = None, to_unit_cell: bool = True)
-Rotate specific sites by some angle around vector at anchor.
-
-
-* **Parameters**
-
-
-    * **indices** (*list*) – List of site indices on which to perform the
-    translation.
-
-
-    * **theta** (*float*) – Angle in radians
-
-
-    * **axis** (*3x1 array*) – Rotation axis vector.
-
-
-    * **anchor** (*3x1 array*) – Point of rotation.
-
-
-    * **to_unit_cell** (*bool*) – Whether new sites are transformed to unit
-    cell
-
-
-
-#### scale_lattice(volume: float)
-Performs a scaling of the lattice vectors so that length proportions
-and angles are preserved.
-
-
-* **Parameters**
-
-    **volume** (*float*) – New volume of the unit cell in A^3.
-
-
-
-#### set_charge(new_charge: float = 0.0)
-Sets the overall structure charge.
-
-
-* **Parameters**
-
-    **new_charge** (*float*) – new charge to set
-
-
-
-#### sort(key: Callable | None = None, reverse: bool = False)
-Sort a structure in place. The parameters have the same meaning as in
-list.sort. By default, sites are sorted by the electronegativity of
-the species. The difference between this method and
-get_sorted_structure (which also works in IStructure) is that the
-latter returns a new Structure, while this just sorts the Structure
-in place.
-
-
-* **Parameters**
-
-
-    * **key** – Specifies a function of one argument that is used to extract
-    a comparison key from each list element: key=str.lower. The
-    default value is None (compare the elements directly).
-
-
-    * **reverse** (*bool*) – If set to True, then the list elements are sorted
-    as if each comparison were reversed.
-
-
-
-#### substitute(index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1)
-Substitute atom at index with a functional group.
-
-
-* **Parameters**
-
-
-    * **index** (*int*) – Index of atom to substitute.
-
-
-    * **func_group** – Substituent molecule. There are two options:
-
-
-        1. Providing an actual Molecule as the input. The first atom
-    must be a DummySpecies X, indicating the position of
-    nearest neighbor. The second atom must be the next
-    nearest atom. For example, for a methyl group
-    substitution, func_group should be X-CH3, where X is the
-    first site and C is the second site. What the code will
-    do is to remove the index site, and connect the nearest
-    neighbor to the C atom in CH3. The X-C bond indicates the
-    directionality to connect the atoms.
-
-
-        2. A string name. The molecule will be obtained from the
-    relevant template in func_groups.json.
-
-
-
-    * **bond_order** (*int*) – A specified bond order to calculate the bond
-    length between the attached functional group and the nearest
-    neighbor site. Defaults to 1.
-
-
-
-#### translate_sites(indices: int | Sequence[int], vector: ArrayLike, frac_coords: bool = True, to_unit_cell: bool = True)
-Translate specific sites by some vector, keeping the sites within the
-unit cell.
-
-
-* **Parameters**
-
-
-    * **indices** – Integer or List of site indices on which to perform the
-    translation.
-
-
-    * **vector** – Translation vector for sites.
-
-
-    * **frac_coords** (*bool*) – Whether the vector corresponds to fractional or
-    Cartesian coordinates.
-
-
-    * **to_unit_cell** (*bool*) – Whether new sites are transformed to unit
-    cell
-
-
-
-### _exception_ pymatgen.core.structure.StructureError()
-Bases: `Exception`
-
-Exception class for Structure.
-Raised when the structure has problems, e.g., atoms that are too close.
-
-## pymatgen.core.surface module
-
-This module implements representations of slabs and surfaces + algorithms for generating them.
-
-If you use this module, please consider citing the following work:
-
->
-> 1. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
-
-> S. P. Ong, “Surface Energies of Elemental Crystals”, Scientific Data,
-> 2016, 3:160080, doi: 10.1038/sdata.2016.80.
-
-> Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
-> Surface Science, 2013, 617, 53-59, doi:10.1016/j.susc.2013.05.016.
-
-
-### _class_ pymatgen.core.surface.ReconstructionGenerator(initial_structure, min_slab_size, min_vacuum_size, reconstruction_name)
-Bases: `object`
-
-This class takes in a pre-defined dictionary specifying the parameters
-need to build a reconstructed slab such as the SlabGenerator parameters,
-transformation matrix, sites to remove/add and slab/vacuum size. It will
-then use the formatted instructions provided by the dictionary to build
-the desired reconstructed slab from the initial structure.
-
-
-#### slabgen_params()
-Parameters for the SlabGenerator
-
-Todo:
-- Right now there is no way to specify what atom is being
-
-> added. In the future, use basis sets?
-
-Generates reconstructed slabs from a set of instructions
-
-    specified by a dictionary or json file.
-
-
-* **Parameters**
-
-
-    * **initial_structure** (*Structure*) – Initial input structure. Note
-    that to ensure that the miller indices correspond to usual
-    crystallographic definitions, you should supply a conventional
-    unit cell structure.
-
-
-    * **min_slab_size** (*float*) – In Angstroms
-
-
-    * **min_vacuum_size** (*float*) – In Angstroms
-
-
-    * **reconstruction_name** (*str*) – Name of the dict containing the instructions
-    for building a reconstructed slab. The dictionary can contain
-    any item the creator deems relevant, however any instructions
-    archived in pymatgen for public use needs to contain the
-    following keys and items to ensure compatibility with the
-    ReconstructionGenerator:
-
-    > ”name” (str): A descriptive name for the type of
-
-    >     reconstruction. Typically the name will have the type
-    >     of structure the reconstruction is for, the Miller
-    >     index, and Wood’s notation along with anything to
-    >     describe the reconstruction: e.g.:
-    >     “fcc_110_missing_row_1x2”
-
-    > ”description” (str): A longer description of your
-
-    >     reconstruction. This is to help future contributors who
-    >     want to add other types of reconstructions to the
-    >     archive on pymatgen to check if the reconstruction
-    >     already exists. Please read the descriptions carefully
-    >     before adding a new type of reconstruction to ensure it
-    >     is not in the archive yet.
-
-    > ”reference” (str): Optional reference to where the
-
-    >     reconstruction was taken from or first observed.
-
-    > ”spacegroup” (dict): e.g. {“symbol”: “Fm-3m”, “number”: 225}
-
-    >     Indicates what kind of structure is this reconstruction.
-
-    > ”miller_index” ([h,k,l]): Miller index of your reconstruction
-    > “Woods_notation” (str): For a reconstruction, the a and b
-
-    > > lattice may change to accommodate the symmetry of the
-    > > reconstruction. This notation indicates the change in
-    > > the vectors relative to the primitive (p) or
-    > > conventional (c) slab cell. E.g. p(2x1):
-
-    > > Wood, E. A. (1964). Vocabulary of surface
-    > > crystallography. Journal of Applied Physics, 35(4),
-    > > 1306-1312.
-
-    > ”transformation_matrix” (numpy array): A 3x3 matrix to
-
-    >     transform the slab. Only the a and b lattice vectors
-    >     should change while the c vector remains the same.
-
-    > ”SlabGenerator_parameters” (dict): A dictionary containing
-
-    >     the parameters for the SlabGenerator class excluding the
-    >     miller_index, min_slab_size and min_vac_size as the
-    >     Miller index is already specified and the min_slab_size
-    >     and min_vac_size can be changed regardless of what type
-    >     of reconstruction is used. Having a consistent set of
-    >     SlabGenerator parameters allows for the instructions to
-    >     be reused to consistently build a reconstructed slab.
-
-    > ”points_to_remove” (list of coords): A list of sites to
-
-    >     remove where the first two indices are fraction (in a
-    >     and b) and the third index is in units of 1/d (in c).
-
-    > ”points_to_add” (list of frac_coords): A list of sites to add
-
-    >     where the first two indices are fraction (in a an b) and
-    >     the third index is in units of 1/d (in c).
-
-    > ”base_reconstruction” (dict): Option to base a reconstruction on
-
-    >     an existing reconstruction model also exists to easily build
-    >     the instructions without repeating previous work. E.g. the
-    >     alpha reconstruction of halites is based on the octopolar
-    >     reconstruction but with the topmost atom removed. The dictionary
-    >     for the alpha reconstruction would therefore contain the item
-    >     “reconstruction_base”: “halite_111_octopolar_2x2”, and
-    >     additional sites for “points_to_remove” and “points_to_add”
-    >     can be added to modify this reconstruction.
-
-    > For “points_to_remove” and “points_to_add”, the third index for
-
-    >     the c vector is in units of 1/d where d is the spacing
-    >     between atoms along hkl (the c vector) and is relative to
-    >     the topmost site in the unreconstructed slab. e.g. a point
-    >     of [0.5, 0.25, 1] corresponds to the 0.5 frac_coord of a,
-    >     0.25 frac_coord of b and a distance of 1 atomic layer above
-    >     the topmost site. [0.5, 0.25, -0.5] where the third index
-    >     corresponds to a point half a atomic layer below the topmost
-    >     site. [0.5, 0.25, 0] corresponds to a point in the same
-    >     position along c as the topmost site. This is done because
-    >     while the primitive units of a and b will remain constant,
-    >     the user can vary the length of the c direction by changing
-    >     the slab layer or the vacuum layer.
-
-
-
-    * **NOTE** – THE DICTIONARY SHOULD ONLY CONTAIN “points_to_remove” AND
-
-
-    * **ReconstructionGenerator** (*"points_to_add" FOR THE TOP SURFACE. THE*) –
-
-
-    * **WITH** (*WILL MODIFY THE BOTTOM SURFACE ACCORDINGLY TO RETURN A SLAB*) –
-
-
-    * **SURFACES.** (*EQUIVALENT*) –
-
-
-
-#### build_slabs()
-Builds the reconstructed slab by:
-
-
-    1. Obtaining the unreconstructed slab using the specified
-    parameters for the SlabGenerator.
-
-
-    2. Applying the appropriate lattice transformation in the
-    a and b lattice vectors.
-
-
-    3. Remove any specified sites from both surfaces.
-
-
-    4. Add any specified sites to both surfaces.
-
-
-* **Returns**
-
-    The reconstructed slab.
-
-
-
-* **Return type**
-
-    (Slab)
-
-
-
-#### get_unreconstructed_slabs()
-Generates the unreconstructed or pristine super slab.
-
-
-### _class_ pymatgen.core.surface.Slab(lattice, species, coords, miller_index, oriented_unit_cell, shift, scale_factor, reorient_lattice=True, validate_proximity=False, to_unit_cell=False, reconstruction=None, coords_are_cartesian=False, site_properties=None, energy=None)
-Bases: `Structure`
-
-Subclass of Structure representing a Slab. Implements additional
-attributes pertaining to slabs, but the init method does not
-actually implement any algorithm that creates a slab. This is a
-DUMMY class who’s init method only holds information about the
-slab. Also has additional methods that returns other information
-about a slab such as the surface area, normal, and atom adsorption.
-
-Note that all Slabs have the surface normal oriented perpendicular to the a
-and b lattice vectors. This means the lattice vectors a and b are in the
-surface plane and the c vector is out of the surface plane (though not
-necessarily perpendicular to the surface).
-
-
-#### miller_index()
-Miller index of plane parallel to surface.
-
-
-#### scale_factor()
-Final computed scale factor that brings the parent cell to the
-surface cell.
-
-
-#### shift()
-The shift value in Angstrom that indicates how much this
-slab has been shifted.
-
-Makes a Slab structure, a structure object with additional information
-and methods pertaining to slabs.
-
-
-* **Parameters**
-
-
-    * **lattice** (*Lattice/3x3 array*) – The lattice, either as a
-    `pymatgen.core.lattice.Lattice` or
-    simply as any 2D array. Each row should correspond to a lattice
-    vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-    lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-
-
-    * **species** (*[**Species**]*) – Sequence of species on each site. Can take in
-    flexible input, including:
-
-
-        1. A sequence of element / species specified either as string
-    symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
-    e.g., (3, 56, …) or actual Element or Species objects.
-
-
-        2. List of dict of elements/species and occupancies, e.g.,
-    [{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
-    disordered structures.
-
-
-
-    * **coords** (*Nx3 array*) – list of fractional/cartesian coordinates of
-    each species.
-
-
-    * **miller_index** (*[**h**, **k**, **l**]*) – Miller index of plane parallel to
-    surface. Note that this is referenced to the input structure. If
-    you need this to be based on the conventional cell,
-    you should supply the conventional structure.
-
-
-    * **oriented_unit_cell** (*Structure*) – The oriented_unit_cell from which
-    this Slab is created (by scaling in the c-direction).
-
-
-    * **shift** (*float*) – The shift in the c-direction applied to get the
-    termination.
-
-
-    * **scale_factor** (*np.ndarray*) – scale_factor Final computed scale factor
-    that brings the parent cell to the surface cell.
-
-
-    * **reorient_lattice** (*bool*) – reorients the lattice parameters such that
-    the c direction is along the z axis.
-
-
-    * **validate_proximity** (*bool*) – Whether to check if there are sites
-    that are less than 0.01 Ang apart. Defaults to False.
-
-
-    * **reconstruction** (*str*) – Type of reconstruction. Defaults to None if
-    the slab is not reconstructed.
-
-
-    * **to_unit_cell** (*bool*) – Translates fractional coordinates into the unit cell. Defaults to False.
-
-
-    * **coords_are_cartesian** (*bool*) – Set to True if you are providing
-    coordinates in Cartesian coordinates. Defaults to False.
-
-
-    * **site_properties** (*dict*) – Properties associated with the sites as a
-    dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
-    have to be the same length as the atomic species and
-    fractional_coords. Defaults to None for no properties.
-
-
-    * **energy** (*float*) – A value for the energy.
-
-
-
-#### add_adsorbate_atom(indices, specie, distance)
-Gets the structure of single atom adsorption.
-slab structure from the Slab class(in [0, 0, 1]).
-
-
-* **Parameters**
-
-
-    * **indices** (*[**int**]*) – Indices of sites on which to put the absorbate.
-    Absorbed atom will be displaced relative to the center of
-    these sites.
-
-
-    * **specie** (*Species/Element/str*) – adsorbed atom species
-
-
-    * **distance** (*float*) – between centers of the adsorbed atom and the
-    given site in Angstroms.
-
-
-
-#### as_dict()
-
-* **Returns**
-
-    MSONable dict
-
-
-
-#### _property_ center_of_mass()
-Calculates the center of mass of the slab.
-
-
-#### copy(site_properties=None, sanitize=False)
-Convenience method to get a copy of the structure, with options to add
-site properties.
-
-
-* **Parameters**
-
-
-    * **site_properties** (*dict*) – Properties to add or override. The
-    properties are specified in the same way as the constructor,
-    i.e., as a dict of the form {property: [values]}. The
-    properties should be in the order of the *original* structure
-    if you are performing sanitization.
-
-
-    * **sanitize** (*bool*) – If True, this method will return a sanitized
-    structure. Sanitization performs a few things: (i) The sites are
-    sorted by electronegativity, (ii) a LLL lattice reduction is
-    carried out to obtain a relatively orthogonalized cell,
-    (iii) all fractional coords for sites are mapped into the
-    unit cell.
-
-
-
-* **Returns**
-
-    A copy of the Structure, with optionally new site_properties and
-    optionally sanitized.
-
-
-
-#### _property_ dipole()
-Calculates the dipole of the Slab in the direction of the surface
-normal. Note that the Slab must be oxidation state-decorated for this
-to work properly. Otherwise, the Slab will always have a dipole of 0.
-
-
-#### _classmethod_ from_dict(d)
-
-* **Parameters**
-
-    **d** – dict
-
-
-
-* **Returns**
-
-    Creates slab from dict.
-
-
-
-#### get_orthogonal_c_slab()
-This method returns a Slab where the normal (c lattice vector) is
-“forced” to be exactly orthogonal to the surface a and b lattice
-vectors. **Note that this breaks inherent symmetries in the slab.**
-It should be pointed out that orthogonality is not required to get good
-surface energies, but it can be useful in cases where the slabs are
-subsequently used for postprocessing of some kind, e.g. generating
-GBs or interfaces.
-
-
-#### get_sorted_structure(key=None, reverse=False)
-Get a sorted copy of the structure. The parameters have the same
-meaning as in list.sort. By default, sites are sorted by the
-electronegativity of the species. Note that Slab has to override this
-because of the different __init__ args.
-
-
-* **Parameters**
-
-
-    * **key** – Specifies a function of one argument that is used to extract
-    a comparison key from each list element: key=str.lower. The
-    default value is None (compare the elements directly).
-
-
-    * **reverse** (*bool*) – If set to True, then the list elements are sorted
-    as if each comparison were reversed.
-
-
-
-#### get_surface_sites(tag=False)
-Returns the surface sites and their indices in a dictionary. The
-oriented unit cell of the slab will determine the coordination number
-of a typical site. We use VoronoiNN to determine the
-coordination number of bulk sites and slab sites. Due to the
-pathological error resulting from some surface sites in the
-VoronoiNN, we assume any site that has this error is a surface
-site as well. This will work for elemental systems only for now. Useful
-for analysis involving broken bonds and for finding adsorption sites.
-
-
-* **Parameters**
-
-    **tag** (*bool*) – Option to adds site attribute “is_surfsite” (bool)
-    to all sites of slab. Defaults to False
-
-
-
-* **Returns**
-
-    A dictionary grouping sites on top and bottom of the slab
-    together.
-    {“top”: [sites with indices], “bottom”: [sites with indices}
-
-
-
-#### get_symmetric_site(point, cartesian=False)
-This method uses symmetry operations to find equivalent sites on
-
-    both sides of the slab. Works mainly for slabs with Laue
-    symmetry. This is useful for retaining the non-polar and
-    symmetric properties of a slab when creating adsorbed
-    structures or symmetric reconstructions.
-
-Arg:
-
-    point: Fractional coordinate.
-
-
-* **Returns**
-
-    Fractional coordinate. A point equivalent to the
-
-        parameter point, but on the other side of the slab
-
-
-
-
-* **Return type**
-
-    point
-
-
-
-#### get_tasker2_slabs(tol: float = 0.01, same_species_only=True)
-Get a list of slabs that have been Tasker 2 corrected.
-
-
-* **Parameters**
-
-
-    * **tol** (*float*) – Tolerance to determine if atoms are within same plane.
-    This is a fractional tolerance, not an absolute one.
-
-
-    * **same_species_only** (*bool*) – If True, only that are of the exact same
-    species as the atom at the outermost surface are considered for
-    moving. Otherwise, all atoms regardless of species that is
-    within tol are considered for moving. Default is True (usually
-    the desired behavior).
-
-
-
-* **Returns**
-
-    ([Slab]) List of tasker 2 corrected slabs.
-
-
-
-#### is_polar(tol_dipole_per_unit_area=0.001)
-Checks whether the surface is polar by computing the dipole per unit
-area. Note that the Slab must be oxidation state-decorated for this
-to work properly. Otherwise, the Slab will always be non-polar.
-
-
-* **Parameters**
-
-    **tol_dipole_per_unit_area** (*float*) – A tolerance. If the dipole
-    magnitude per unit area is less than this value, the Slab is
-    considered non-polar. Defaults to 1e-3, which is usually
-    pretty good. Normalized dipole per unit area is used as it is
-    more reliable than using the total, which tends to be larger for
-    slabs with larger surface areas.
-
-
-
-#### is_symmetric(symprec: float = 0.1)
-Checks if surfaces are symmetric, i.e., contains inversion, mirror on (hkl) plane,
-
-    or screw axis (rotation and translation) about [hkl].
-
-
-* **Parameters**
-
-    **symprec** (*float*) – Symmetry precision used for SpaceGroup analyzer.
-
-
-
-* **Returns**
-
-    Whether surfaces are symmetric.
-
-
-
-* **Return type**
-
-    bool
-
-
-
-#### _property_ normal()
-Calculates the surface normal vector of the slab.
-
-
-#### _property_ surface_area()
-Calculates the surface area of the slab.
-
-
-#### symmetrically_add_atom(specie, point, coords_are_cartesian=False)
-Class method for adding a site at a specified point in a slab.
-
-    Will add the corresponding site on the other side of the
-    slab to maintain equivalent surfaces.
-
-Arg:
-
-    specie (str): The specie to add
-    point (coords): The coordinate of the site in the slab to add.
-    coords_are_cartesian (bool): Is the point in Cartesian coordinates
-
-
-* **Returns**
-
-    The modified slab
-
-
-
-* **Return type**
-
-    (Slab)
-
-
-
-#### symmetrically_remove_atoms(indices)
-Class method for removing sites corresponding to a list of indices.
-
-    Will remove the corresponding site on the other side of the
-    slab to maintain equivalent surfaces.
-
-Arg:
-
-    indices ([indices]): The indices of the sites
-
-        in the slab to remove.
-
-
-### _class_ pymatgen.core.surface.SlabGenerator(initial_structure, miller_index, min_slab_size, min_vacuum_size, lll_reduce=False, center_slab=False, in_unit_planes=False, primitive=True, max_normal_search=None, reorient_lattice=True)
-Bases: `object`
-
-This class generates different slabs using shift values determined by where
-a unique termination can be found along with other criteria such as where a
-termination doesn’t break a polyhedral bond. The shift value then indicates
-where the slab layer will begin and terminate in the slab-vacuum system.
-
-
-#### oriented_unit_cell()
-A unit cell of the parent structure with the miller
-index of plane parallel to surface
-
-
-#### parent()
-Parent structure from which Slab was derived.
-
-
-#### lll_reduce()
-Whether or not the slabs will be orthogonalized
-
-
-#### center_slab()
-Whether or not the slabs will be centered between
-the vacuum layer
-
-
-#### slab_scale_factor()
-Final computed scale factor that brings the parent cell to the
-surface cell.
-
-
-#### miller_index()
-Miller index of plane parallel to surface.
-
-
-#### min_slab_size()
-Minimum size in angstroms of layers containing atoms
-
-
-#### min_vac_size()
-Minimize size in angstroms of layers containing vacuum
-
-Calculates the slab scale factor and uses it to generate a unit cell
-of the initial structure that has been oriented by its miller index.
-Also stores the initial information needed later on to generate a slab.
-
-
-* **Parameters**
-
-
-    * **initial_structure** (*Structure*) – Initial input structure. Note that to
-    ensure that the miller indices correspond to usual
-    crystallographic definitions, you should supply a conventional
-    unit cell structure.
-
-
-    * **miller_index** (*[**h**, **k**, **l**]*) – Miller index of plane parallel to
-    surface. Note that this is referenced to the input structure. If
-    you need this to be based on the conventional cell,
-    you should supply the conventional structure.
-
-
-    * **min_slab_size** (*float*) – In Angstroms or number of hkl planes
-
-
-    * **min_vacuum_size** (*float*) – In Angstroms or number of hkl planes
-
-
-    * **lll_reduce** (*bool*) – Whether to perform an LLL reduction on the
-    eventual structure.
-
-
-    * **center_slab** (*bool*) – Whether to center the slab in the cell with
-    equal vacuum spacing from the top and bottom.
-
-
-    * **in_unit_planes** (*bool*) – Whether to set min_slab_size and min_vac_size
-    in units of hkl planes (True) or Angstrom (False/default).
-    Setting in units of planes is useful for ensuring some slabs
-    have a certain n_layer of atoms. e.g. for Cs (100), a 10 Ang
-    slab will result in a slab with only 2 layer of atoms, whereas
-    Fe (100) will have more layer of atoms. By using units of hkl
-    planes instead, we ensure both slabs
-    have the same number of atoms. The slab thickness will be in
-    min_slab_size/math.ceil(self._proj_height/dhkl)
-    multiples of oriented unit cells.
-
-
-    * **primitive** (*bool*) – Whether to reduce any generated slabs to a
-    primitive cell (this does **not** mean the slab is generated
-    from a primitive cell, it simply means that after slab
-    generation, we attempt to find shorter lattice vectors,
-    which lead to less surface area and smaller cells).
-
-
-    * **max_normal_search** (*int*) – If set to a positive integer, the code will
-    conduct a search for a normal lattice vector that is as
-    perpendicular to the surface as possible by considering
-    multiples linear combinations of lattice vectors up to
-    max_normal_search. This has no bearing on surface energies,
-    but may be useful as a preliminary step to generating slabs
-    for absorption and other sizes. It is typical that this will
-    not be the smallest possible cell for simulation. Normality
-    is not guaranteed, but the oriented cell will have the c
-    vector as normal as possible (within the search range) to the
-    surface. A value of up to the max absolute Miller index is
-    usually sufficient.
-
-
-    * **reorient_lattice** (*bool*) – reorients the lattice parameters such that
-    the c direction is the third vector of the lattice matrix
-
-
-
-#### get_slab(shift=0, tol: float = 0.1, energy=None)
-This method takes in shift value for the c lattice direction and
-generates a slab based on the given shift. You should rarely use this
-method. Instead, it is used by other generation algorithms to obtain
-all slabs.
-
-Arg:
-
-    shift (float): A shift value in Angstrom that determines how much a
-
-        slab should be shifted.
-
-    tol (float): Tolerance to determine primitive cell.
-    energy (float): An energy to assign to the slab.
-
-
-* **Returns**
-
-    (Slab) A Slab object with a particular shifted oriented unit cell.
-
-
-
-#### get_slabs(bonds=None, ftol=0.1, tol=0.1, max_broken_bonds=0, symmetrize=False, repair=False)
-This method returns a list of slabs that are generated using the list of
-shift values from the method, _calculate_possible_shifts(). Before the
-shifts are used to create the slabs however, if the user decides to take
-into account whether or not a termination will break any polyhedral
-structure (bonds is not None), this method will filter out any shift
-values that do so.
-
-
-* **Parameters**
-
-
-    * **bonds** (*{**(**specie1**, **specie2*) – max_bond_dist}: bonds are
-    specified as a dict of tuples: float of specie1, specie2
-    and the max bonding distance. For example, PO4 groups may be
-    defined as {(“P”, “O”): 3}.
-
-
-    * **tol** (*float*) – General tolerance parameter for getting primitive
-    cells and matching structures
-
-
-    * **ftol** (*float*) – Threshold parameter in fcluster in order to check
-    if two atoms are lying on the same plane. Default thresh set
-    to 0.1 Angstrom in the direction of the surface normal.
-
-
-    * **max_broken_bonds** (*int*) – Maximum number of allowable broken bonds
-    for the slab. Use this to limit # of slabs (some structures
-    may have a lot of slabs). Defaults to zero, which means no
-    defined bonds must be broken.
-
-
-    * **symmetrize** (*bool*) – Whether or not to ensure the surfaces of the
-    slabs are equivalent.
-
-
-    * **repair** (*bool*) – Whether to repair terminations with broken bonds
-    or just omit them. Set to False as repairing terminations can
-    lead to many possible slabs as oppose to just omitting them.
-
-
-
-* **Returns**
-
-    ([Slab]) List of all possible terminations of a particular surface.
-    Slabs are sorted by the # of bonds broken.
-
-
-
-#### move_to_other_side(init_slab, index_of_sites)
-This method will Move a set of sites to the
-other side of the slab (opposite surface).
-
-Arg:
-
-    init_slab (structure): A structure object representing a slab.
-    index_of_sites (list of ints): The list of indices representing
-
-    > the sites we want to move to the other side.
-
-
-* **Returns**
-
-    (Slab) A Slab object with a particular shifted oriented unit cell.
-
-
-
-#### nonstoichiometric_symmetrized_slab(init_slab)
-This method checks whether or not the two surfaces of the slab are
-equivalent. If the point group of the slab has an inversion symmetry (
-ie. belong to one of the Laue groups), then it is assumed that the
-surfaces should be equivalent. Otherwise, sites at the bottom of the
-slab will be removed until the slab is symmetric. Note the removal of sites
-can destroy the stoichiometry of the slab. For non-elemental
-structures, the chemical potential will be needed to calculate surface energy.
-
-Arg:
-
-    init_slab (Structure): A single slab structure
-
-
-* **Returns**
-
-    A symmetrized Slab object.
-
-
-
-* **Return type**
-
-    Slab (structure)
-
-
-
-#### repair_broken_bonds(slab, bonds)
-This method will find undercoordinated atoms due to slab
-cleaving specified by the bonds parameter and move them
-to the other surface to make sure the bond is kept intact.
-In a future release of surface.py, the ghost_sites will be
-used to tell us how the repair bonds should look like.
-
-Arg:
-
-    slab (structure): A structure object representing a slab.
-    bonds ({(specie1, specie2): max_bond_dist}: bonds are
-
-    > specified as a dict of tuples: float of specie1, specie2
-    > and the max bonding distance. For example, PO4 groups may be
-    > defined as {(“P”, “O”): 3}.
-
-
-* **Returns**
-
-    (Slab) A Slab object with a particular shifted oriented unit cell.
-
-
-
-### pymatgen.core.surface.center_slab(slab)
-The goal here is to ensure the center of the slab region
-
-    is centered close to c=0.5. This makes it easier to
-    find the surface sites and apply operations like doping.
-
-There are three cases where the slab in not centered:
-
-1. The slab region is completely between two vacuums in the
-box but not necessarily centered. We simply shift the
-slab by the difference in its center of mass and 0.5
-along the c direction.
-
-2. The slab completely spills outside the box from the bottom
-and into the top. This makes it incredibly difficult to
-locate surface sites. We iterate through all sites that
-spill over (z>c) and shift all sites such that this specific
-site is now on the other side. Repeat for all sites with z>c.
-
-3. This is a simpler case of scenario 2. Either the top or bottom
-slab sites are at c=0 or c=1. Treat as scenario 2.
-
-
-* **Parameters**
-
-    **slab** (*Slab*) – Slab structure to center
-
-
-
-* **Returns**
-
-    Returns a centered slab structure
-
-
-
-### pymatgen.core.surface.generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size, bonds=None, tol=0.1, ftol=0.1, max_broken_bonds=0, lll_reduce=False, center_slab=False, primitive=True, max_normal_search=None, symmetrize=False, repair=False, include_reconstructions=False, in_unit_planes=False)
-A function that finds all different slabs up to a certain miller index.
-Slabs oriented under certain Miller indices that are equivalent to other
-slabs in other Miller indices are filtered out using symmetry operations
-to get rid of any repetitive slabs. For example, under symmetry operations,
-CsCl has equivalent slabs in the (0,0,1), (0,1,0), and (1,0,0) direction.
-
-
-* **Parameters**
-
-
-    * **structure** (*Structure*) – Initial input structure. Note that to
-    ensure that the miller indices correspond to usual
-    crystallographic definitions, you should supply a conventional
-    unit cell structure.
-
-
-    * **max_index** (*int*) – The maximum Miller index to go up to.
-
-
-    * **min_slab_size** (*float*) – In Angstroms
-
-
-    * **min_vacuum_size** (*float*) – In Angstroms
-
-
-    * **bonds** (*{**(**specie1**, **specie2*) – max_bond_dist}: bonds are
-    specified as a dict of tuples: float of specie1, specie2
-    and the max bonding distance. For example, PO4 groups may be
-    defined as {(“P”, “O”): 3}.
-
-
-    * **tol** (*float*) – General tolerance parameter for getting primitive
-    cells and matching structures
-
-
-    * **ftol** (*float*) – Threshold parameter in fcluster in order to check
-    if two atoms are lying on the same plane. Default thresh set
-    to 0.1 Angstrom in the direction of the surface normal.
-
-
-    * **max_broken_bonds** (*int*) – Maximum number of allowable broken bonds
-    for the slab. Use this to limit # of slabs (some structures
-    may have a lot of slabs). Defaults to zero, which means no
-    defined bonds must be broken.
-
-
-    * **lll_reduce** (*bool*) – Whether to perform an LLL reduction on the
-    eventual structure.
-
-
-    * **center_slab** (*bool*) – Whether to center the slab in the cell with
-    equal vacuum spacing from the top and bottom.
-
-
-    * **primitive** (*bool*) – Whether to reduce any generated slabs to a
-    primitive cell (this does **not** mean the slab is generated
-    from a primitive cell, it simply means that after slab
-    generation, we attempt to find shorter lattice vectors,
-    which lead to less surface area and smaller cells).
-
-
-    * **max_normal_search** (*int*) – If set to a positive integer, the code will
-    conduct a search for a normal lattice vector that is as
-    perpendicular to the surface as possible by considering
-    multiples linear combinations of lattice vectors up to
-    max_normal_search. This has no bearing on surface energies,
-    but may be useful as a preliminary step to generating slabs
-    for absorption and other sizes. It is typical that this will
-    not be the smallest possible cell for simulation. Normality
-    is not guaranteed, but the oriented cell will have the c
-    vector as normal as possible (within the search range) to the
-    surface. A value of up to the max absolute Miller index is
-    usually sufficient.
-
-
-    * **symmetrize** (*bool*) – Whether or not to ensure the surfaces of the
-    slabs are equivalent.
-
-
-    * **repair** (*bool*) – Whether to repair terminations with broken bonds
-    or just omit them
-
-
-    * **include_reconstructions** (*bool*) – Whether to include reconstructed
-    slabs available in the reconstructions_archive.json file. Defaults to False.
-
-
-    * **in_unit_planes** (*bool*) – Whether to generate slabs in units of the primitive
-    cell’s c lattice vector. This is useful for generating slabs with
-    a specific number of layers, as the number of layers will be
-    independent of the Miller index. Defaults to False.
-
-
-    * **in_unit_planes** – Whether to set min_slab_size and min_vac_size
-    in units of hkl planes (True) or Angstrom (False, the default). Setting in
-    units of planes is useful for ensuring some slabs have a certain n_layer of
-    atoms. e.g. for Cs (100), a 10 Ang slab will result in a slab with only 2
-    layer of atoms, whereas Fe (100) will have more layer of atoms. By using units
-    of hkl planes instead, we ensure both slabs have the same number of atoms. The
-    slab thickness will be in min_slab_size/math.ceil(self._proj_height/dhkl)
-    multiples of oriented unit cells.
-
-
-
-### pymatgen.core.surface.get_d(slab)
-Determine the distance of space between
-each layer of atoms along c.
-
-
-### pymatgen.core.surface.get_slab_regions(slab, blength=3.5)
-Function to get the ranges of the slab regions. Useful for discerning where
-the slab ends and vacuum begins if the slab is not fully within the cell
-:param slab: Structure object modelling the surface
-:type slab: Structure
-:param blength: The bondlength between atoms. You generally
-
-> want this value to be larger than the actual bondlengths in
-> order to find atoms that are part of the slab.
-
-
-### pymatgen.core.surface.get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=False)
-Returns all symmetrically distinct indices below a certain max-index for
-a given structure. Analysis is based on the symmetry of the reciprocal
-lattice of the structure.
-
-
-* **Parameters**
-
-
-    * **structure** (*Structure*) – input structure.
-
-
-    * **max_index** (*int*) – The maximum index. For example, a max_index of 1
-    means that (100), (110), and (111) are returned for the cubic
-    structure. All other indices are equivalent to one of these.
-
-
-    * **return_hkil** (*bool*) – If true, return hkil form of Miller
-    index for hexagonal systems, otherwise return hkl
-
-
-
-### pymatgen.core.surface.get_symmetrically_equivalent_miller_indices(structure, miller_index, return_hkil=True, system: Literal['triclinic', 'monoclinic', 'orthorhombic', 'tetragonal', 'trigonal', 'hexagonal', 'cubic'] | None = None)
-Returns all symmetrically equivalent indices for a given structure. Analysis
-is based on the symmetry of the reciprocal lattice of the structure.
-
-
-* **Parameters**
-
-
-    * **structure** (*Structure*) – Structure to analyze
-
-
-    * **miller_index** (*tuple*) – Designates the family of Miller indices
-    to find. Can be hkl or hkil for hexagonal systems
-
-
-    * **return_hkil** (*bool*) – If true, return hkil form of Miller
-    index for hexagonal systems, otherwise return hkl
-
-
-    * **system** – If known, specify the crystal system of the structure
-    so that it does not need to be re-calculated.
-
-
-
-### pymatgen.core.surface.hkl_transformation(transf, miller_index)
-Returns the Miller index from setting
-A to B using a transformation matrix
-:param transf: The transformation matrix
-
-> that transforms a lattice of A to B
-
-
-* **Parameters**
-
-    **miller_index** (*[**h**, **k**, **l**]*) – Miller index to transform to setting B.
-
-
-
-### pymatgen.core.surface.is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list)
-Helper function to check if a given Miller index is
-part of the family of indices of any index in a list.
-
-
-* **Parameters**
-
-
-    * **miller_index** (*tuple*) – The Miller index to analyze
-
-
-    * **miller_list** (*list*) – List of Miller indices. If the given
-    Miller index belongs in the same family as any of the
-    indices in this list, return True, else return False
-
-
-    * **symm_ops** (*list*) – Symmetry operations of a
-    lattice, used to define family of indices
-
-
-
-### pymatgen.core.surface.miller_index_from_sites(lattice, coords, coords_are_cartesian=True, round_dp=4, verbose=True)
-Get the Miller index of a plane from a list of site coordinates.
-
-A minimum of 3 sets of coordinates are required. If more than 3 sets of
-coordinates are given, the best plane that minimises the distance to all
-points will be calculated.
-
-
-* **Parameters**
-
-
-    * **lattice** (*list** or **Lattice*) – A 3x3 lattice matrix or Lattice object (for
-    example obtained from Structure.lattice).
-
-
-    * **coords** (*iterable*) – A list or numpy array of coordinates. Can be
-    Cartesian or fractional coordinates. If more than three sets of
-    coordinates are provided, the best plane that minimises the
-    distance to all sites will be calculated.
-
-
-    * **coords_are_cartesian** (*bool**, **optional*) – Whether the coordinates are
-    in Cartesian space. If using fractional coordinates set to False.
-
-
-    * **round_dp** (*int**, **optional*) – The number of decimal places to round the
-    miller index to.
-
-
-    * **verbose** (*bool**, **optional*) – Whether to print warnings.
-
-
-
-* **Returns**
-
-    The Miller index.
-
-
-
-* **Return type**
-
-    (tuple)
-
-
-## pymatgen.core.tensors module
-
-This module provides a base class for tensor-like objects and methods for
-basic tensor manipulation. It also provides a class, SquareTensor,
-that provides basic methods for creating and manipulating rank 2 tensors.
-
-
-### _class_ pymatgen.core.tensors.SquareTensor(input_array, vscale=None)
-Bases: `Tensor`
-
-Base class for doing useful general operations on second rank tensors
-(stress, strain etc.).
-
-Create a SquareTensor object. Note that the constructor uses __new__ rather than
-__init__ according to the standard method of subclassing numpy ndarrays. Error
-is thrown when the class is initialized with non-square matrix.
-
-
-* **Parameters**
-
-
-    * **input_array** (*3x3 array-like*) – the 3x3 array-like
-    representing the content of the tensor
-
-
-    * **vscale** (*6x1 array-like*) – 6x1 array-like scaling the
-    voigt-notation vector with the tensor entries
-
-
-
-#### _property_ det()
-Shorthand for the determinant of the SquareTensor.
-
-
-#### get_scaled(scale_factor)
-Scales the tensor by a certain multiplicative scale factor.
-
-
-* **Parameters**
-
-    **scale_factor** (*float*) – scalar multiplier to be applied to the
-    SquareTensor object
-
-
-
-#### _property_ inv()
-Shorthand for matrix inverse on SquareTensor.
-
-
-#### is_rotation(tol: float = 0.001, include_improper=True)
-Test to see if tensor is a valid rotation matrix, performs a
-test to check whether the inverse is equal to the transpose
-and if the determinant is equal to one within the specified
-tolerance.
-
-
-* **Parameters**
-
-
-    * **tol** (*float*) – tolerance to both tests of whether the
-    the determinant is one and the inverse is equal
-    to the transpose
-
-
-    * **include_improper** (*bool*) – whether to include improper
-    rotations in the determination of validity
-
-
-
-#### polar_decomposition(side='right')
-Calculates matrices for polar decomposition.
-
-
-#### _property_ principal_invariants()
-Returns a list of principal invariants for the tensor,
-which are the values of the coefficients of the characteristic
-polynomial for the matrix.
-
-
-#### refine_rotation()
-Helper method for refining rotation matrix by ensuring
-that second and third rows are perpendicular to the first.
-Gets new y vector from an orthogonal projection of x onto y
-and the new z vector from a cross product of the new x and y.
-
-
-* **Parameters**
-
-    **rotation** (*tol to test for*) –
-
-
-
-* **Returns**
-
-    new rotation matrix
-
-
-
-#### _property_ trans()
-Shorthand for transpose on SquareTensor.
-
-
-### _class_ pymatgen.core.tensors.Tensor(input_array, vscale=None, check_rank=None)
-Bases: `ndarray`, `MSONable`
-
-Base class for doing useful general operations on Nth order tensors,
-without restrictions on the type (stress, elastic, strain, piezo, etc.).
-
-Create a Tensor object. Note that the constructor uses __new__
-rather than __init__ according to the standard method of
-subclassing numpy ndarrays.
-
-
-* **Parameters**
-
-
-    * **input_array** – (array-like with shape 3^N): array-like representing
-    a tensor quantity in standard (i. e. non-voigt) notation
-
-
-    * **vscale** – (N x M array-like): a matrix corresponding
-    to the coefficients of the voigt-notation tensor
-
-
-    * **check_rank** – (int): If not None, checks that input_array’s rank == check_rank.
-    Defaults to None.
-
-
-
-#### as_dict(voigt: bool = False)
-Serializes the tensor object.
-
-
-* **Parameters**
-
-    **voigt** (*bool*) – flag for whether to store entries in
-    voigt-notation. Defaults to false, as information
-    may be lost in conversion.
-
-
-Returns (dict):
-
-    serialized format tensor object
-
-
-#### average_over_unit_sphere(quad=None)
-Method for averaging the tensor projection over the unit
-with option for custom quadrature.
-
-
-* **Parameters**
-
-    **quad** (*dict*) – quadrature for integration, should be
-    dictionary with “points” and “weights” keys defaults
-    to quadpy.sphere.Lebedev(19) as read from file
-
-
-
-* **Returns**
-
-    Average of tensor projected into vectors on the unit sphere
-
-
-
-#### convert_to_ieee(structure: Structure, initial_fit=True, refine_rotation=True)
-Given a structure associated with a tensor, attempts a
-calculation of the tensor in IEEE format according to
-the 1987 IEEE standards.
-
-
-* **Parameters**
-
-
-    * **structure** (*Structure*) – a structure associated with the
-    tensor to be converted to the IEEE standard
-
-
-    * **initial_fit** (*bool*) – flag to indicate whether initial
-    tensor is fit to the symmetry of the structure.
-    Defaults to true. Note that if false, inconsistent
-    results may be obtained due to symmetrically
-    equivalent, but distinct transformations
-    being used in different versions of spglib.
-
-
-    * **refine_rotation** (*bool*) – whether to refine the rotation
-    produced by the ieee transform generator, default True
-
-
-
-#### einsum_sequence(other_arrays, einsum_string=None)
-Calculates the result of an einstein summation expression.
-
-
-#### fit_to_structure(structure: Structure, symprec: float = 0.1)
-Returns a tensor that is invariant with respect to symmetry
-operations corresponding to a structure.
-
-
-* **Parameters**
-
-
-    * **structure** (*Structure*) – structure from which to generate
-    symmetry operations
-
-
-    * **symprec** (*float*) – symmetry tolerance for the Spacegroup Analyzer
-    used to generate the symmetry operations
-
-
-
-#### _classmethod_ from_dict(d)
-Instantiate Tensors from dicts (using MSONable API).
-
-
-* **Returns**
-
-    hydrated tensor object
-
-
-
-* **Return type**
-
-    Tensor
-
-
-
-#### _classmethod_ from_values_indices(values, indices, populate=False, structure=None, voigt_rank=None, vsym=True, verbose=False)
-Creates a tensor from values and indices, with options
-for populating the remainder of the tensor.
-
-
-* **Parameters**
-
-
-    * **values** (*floats*) – numbers to place at indices
-
-
-    * **indices** (*array-likes*) – indices to place values at
-
-
-    * **populate** (*bool*) – whether to populate the tensor
-
-
-    * **structure** (*Structure*) – structure to base population
-    or fit_to_structure on
-
-
-    * **voigt_rank** (*int*) – full tensor rank to indicate the
-    shape of the resulting tensor. This is necessary
-    if one provides a set of indices more minimal than
-    the shape of the tensor they want, e.g.
-    Tensor.from_values_indices((0, 0), 100)
-
-
-    * **vsym** (*bool*) – whether to voigt symmetrize during the
-    optimization procedure
-
-
-    * **verbose** (*bool*) – whether to populate verbosely
-
-
-
-#### _classmethod_ from_voigt(voigt_input)
-Constructor based on the voigt notation vector or matrix.
-
-
-* **Parameters**
-
-    **voigt_input** (*array-like*) – voigt input for a given tensor
-
-
-
-#### get_grouped_indices(voigt=False, \*\*kwargs)
-Gets index sets for equivalent tensor values.
-
-
-* **Parameters**
-
-
-    * **voigt** (*bool*) – whether to get grouped indices
-    of voigt or full notation tensor, defaults
-    to false
-
-
-    * **\*\*kwargs** – keyword args for np.isclose. Can take atol
-    and rtol for absolute and relative tolerance, e. g.
-
-    ```python
-    >>> tensor.group_array_indices(atol=1e-8)
-    ```
-
-    or
-
-    ```python
-    >>> tensor.group_array_indices(rtol=1e-5)
-    ```
-
-
-
-
-* **Returns**
-
-    list of index groups where tensor values are equivalent to
-    within tolerances
-
-
-
-#### _static_ get_ieee_rotation(structure, refine_rotation=True)
-Given a structure associated with a tensor, determines
-the rotation matrix for IEEE conversion according to
-the 1987 IEEE standards.
-
-
-* **Parameters**
-
-
-    * **structure** (*Structure*) – a structure associated with the
-    tensor to be converted to the IEEE standard
-
-
-    * **refine_rotation** (*bool*) – whether to refine the rotation
-    using SquareTensor.refine_rotation
-
-
-
-#### get_symbol_dict(voigt=True, zero_index=False, \*\*kwargs)
-Creates a summary dict for tensor with associated symbol.
-
-
-* **Parameters**
-
-
-    * **voigt** (*bool*) – whether to get symbol dict for voigt
-    notation tensor, as opposed to full notation,
-    defaults to true
-
-
-    * **zero_index** (*bool*) – whether to set initial index to zero,
-    defaults to false, since tensor notations tend to use
-    one-indexing, rather than zero indexing like python
-
-
-    * **\*\*kwargs** – keyword args for np.isclose. Can take atol
-    and rtol for absolute and relative tolerance, e. g.
-
-    ```python
-    >>> tensor.get_symbol_dict(atol=1e-8)
-    ```
-
-    or
-
-    ```python
-    >>> tensor.get_symbol_dict(rtol=1e-5)
-    ```
-
-
-
-
-* **Returns**
-
-    list of index groups where tensor values are equivalent to
-    within tolerances
-
-
-
-#### _static_ get_voigt_dict(rank)
-Returns a dictionary that maps indices in the tensor to those
-in a voigt representation based on input rank.
-
-
-* **Parameters**
-
-    **rank** (*int*) – Tensor rank to generate the voigt map
-
-
-
-#### is_fit_to_structure(structure: Structure, tol: float = 0.01)
-Tests whether a tensor is invariant with respect to the
-symmetry operations of a particular structure by testing
-whether the residual of the symmetric portion is below a
-tolerance.
-
-
-* **Parameters**
-
-
-    * **structure** (*Structure*) – structure to be fit to
-
-
-    * **tol** (*float*) – tolerance for symmetry testing
-
-
-
-#### is_symmetric(tol: float = 1e-05)
-Tests whether a tensor is symmetric or not based on the residual
-with its symmetric part, from self.symmetrized.
-
-
-* **Parameters**
-
-    **tol** (*float*) – tolerance to test for symmetry
-
-
-
-#### is_voigt_symmetric(tol: float = 1e-06)
-Tests symmetry of tensor to that necessary for voigt-conversion
-by grouping indices into pairs and constructing a sequence of
-possible permutations to be used in a tensor transpose.
-
-
-#### populate(structure: Structure, prec: float = 1e-05, maxiter: int = 200, verbose: bool = False, precond: bool = True, vsym: bool = True)
-Takes a partially populated tensor, and populates the non-zero
-entries according to the following procedure, iterated until
-the desired convergence (specified via prec) is achieved.
-
-
-1. Find non-zero entries
-
-
-2. Symmetrize the tensor with respect to crystal symmetry and
-(optionally) voigt symmetry
-
-
-3. Reset the non-zero entries of the original tensor
-
-
-* **Parameters**
-
-
-    * **structure** (*Structure*) – structure to base population on
-
-
-    * **prec** (*float*) – precision for determining a non-zero value
-
-
-    * **maxiter** (*int*) – maximum iterations for populating the tensor
-
-
-    * **verbose** (*bool*) – whether to populate verbosely
-
-
-    * **precond** (*bool*) – whether to precondition by cycling through
-    all symmops and storing new nonzero values, default True
-
-
-    * **vsym** (*bool*) – whether to enforce voigt symmetry, defaults
-    to True
-
-
-
-* **Returns**
-
-    Populated tensor
-
-
-
-* **Return type**
-
-    Tensor
-
-
-
-#### project(n)
-Convenience method for projection of a tensor into a
-vector. Returns the tensor dotted into a unit vector
-along the input n.
-
-
-* **Parameters**
-
-    **n** (*3x1 array-like*) – direction to project onto
-
-
-Returns (float):
-
-    scalar value corresponding to the projection of
-    the tensor into the vector
-
-
-#### rotate(matrix, tol: float = 0.001)
-Applies a rotation directly, and tests input matrix to ensure a valid
-rotation.
-
-
-* **Parameters**
-
-
-    * **matrix** (*3x3 array-like*) – rotation matrix to be applied to tensor
-
-
-    * **tol** (*float*) – tolerance for testing rotation matrix validity
-
-
-
-#### round(decimals=0)
-Wrapper around numpy.round to ensure object
-of same type is returned.
-
-
-* **Parameters**
-
-    **decimals** – Number of decimal places to round to (default: 0).
-    If decimals is negative, it specifies the number of
-    positions to the left of the decimal point.
-
-
-Returns (Tensor):
-
-    rounded tensor of same type
-
-
-#### structure_transform(original_structure, new_structure, refine_rotation=True)
-Transforms a tensor from one basis for an original structure
-into a new basis defined by a new structure.
-
-
-* **Parameters**
-
-
-    * **original_structure** (*Structure*) – structure corresponding
-    to the basis of the current tensor
-
-
-    * **new_structure** (*Structure*) – structure corresponding to the
-    desired basis
-
-
-    * **refine_rotation** (*bool*) – whether to refine the rotations
-    generated in get_ieee_rotation
-
-
-
-* **Returns**
-
-    Tensor that has been transformed such that its basis
-    corresponds to the new_structure’s basis
-
-
-
-#### symbol(_ = 'T_ )
-
-#### _property_ symmetrized()
-Returns a generally symmetrized tensor, calculated by taking
-the sum of the tensor and its transpose with respect to all
-possible permutations of indices.
-
-
-#### transform(symm_op)
-Applies a transformation (via a symmetry operation) to a tensor.
-
-
-* **Parameters**
-
-    **symm_op** (*SymmOp*) – a symmetry operation to apply to the tensor
-
-
-
-#### _property_ voigt()
-Returns the tensor in Voigt notation.
-
-
-#### _property_ voigt_symmetrized()
-Returns a “voigt”-symmetrized tensor, i. e. a voigt-notation
-tensor such that it is invariant wrt permutation of indices.
-
-
-#### zeroed(tol: float = 0.001)
-Returns the matrix with all entries below a certain threshold (i.e. tol) set to zero.
-
-
-### _class_ pymatgen.core.tensors.TensorCollection(tensor_list, base_class=<class 'pymatgen.core.tensors.Tensor'>)
-Bases: `Sequence`, `MSONable`
-
-A sequence of tensors that can be used for fitting data
-or for having a tensor expansion.
-
-
-* **Parameters**
-
-
-    * **tensor_list** – List of tensors.
-
-
-    * **base_class** – Class to be used.
-
-
-
-#### as_dict(voigt=False)
-
-* **Parameters**
-
-    **voigt** – Whether to use voight form.
-
-
-
-* **Returns**
-
-    Dict representation of TensorCollection.
-
-
-
-#### convert_to_ieee(structure: Structure, initial_fit=True, refine_rotation=True)
-Convert all tensors to IEEE.
-
-
-* **Parameters**
-
-
-    * **structure** – Structure
-
-
-    * **initial_fit** – Whether to perform an initial fit.
-
-
-    * **refine_rotation** – Whether to refine the rotation.
-
-
-
-* **Returns**
-
-    TensorCollection.
-
-
-
-#### fit_to_structure(structure: Structure, symprec: float = 0.1)
-Fits all tensors to a Structure.
-
-
-* **Parameters**
-
-
-    * **structure** – Structure
-
-
-    * **symprec** – symmetry precision.
-
-
-
-* **Returns**
-
-    TensorCollection.
-
-
-
-#### _classmethod_ from_dict(d)
-Creates TensorCollection from dict.
-
-
-* **Parameters**
-
-    **d** – dict
-
-
-
-* **Returns**
-
-    TensorCollection
-
-
-
-#### _classmethod_ from_voigt(voigt_input_list, base_class=<class 'pymatgen.core.tensors.Tensor'>)
-Creates TensorCollection from voigt form.
-
-
-* **Parameters**
-
-
-    * **voigt_input_list** – List of voigt tensors
-
-
-    * **base_class** – Class for tensor.
-
-
-
-* **Returns**
-
-    TensorCollection.
-
-
-
-#### is_fit_to_structure(structure: Structure, tol: float = 0.01)
-
-* **Parameters**
-
-
-    * **structure** – Structure
-
-
-    * **tol** – tolerance
-
-
-
-* **Returns**
-
-    Whether all tensors are fitted to Structure.
-
-
-
-#### is_symmetric(tol: float = 1e-05)
-
-* **Parameters**
-
-    **tol** – tolerance
-
-
-
-* **Returns**
-
-    Whether all tensors are symmetric.
-
-
-
-#### is_voigt_symmetric(tol: float = 1e-06)
-
-* **Parameters**
-
-    **tol** – tolerance
-
-
-
-* **Returns**
-
-    Whether all tensors are voigt symmetric.
-
-
-
-#### _property_ ranks()
-Ranks for all tensors.
-
-
-* **Type**
-
-    return
-
-
-
-#### rotate(matrix, tol: float = 0.001)
-Rotates TensorCollection.
-
-
-* **Parameters**
-
-
-    * **matrix** – Rotation matrix.
-
-
-    * **tol** – tolerance.
-
-
-
-* **Returns**
-
-    TensorCollection.
-
-
-
-#### round(\*args, \*\*kwargs)
-Round all tensors.
-
-
-* **Parameters**
-
-
-    * **args** – Passthrough to Tensor.round
-
-
-    * **kwargs** – Passthrough to Tensor.round
-
-
-
-* **Returns**
-
-    TensorCollection.
-
-
-
-#### _property_ symmetrized()
-TensorCollection where all tensors are symmetrized.
-
-
-* **Type**
-
-    return
-
-
-
-#### transform(symm_op)
-Transforms TensorCollection with a symmetry operation.
-
-
-* **Parameters**
-
-    **symm_op** – SymmetryOperation.
-
-
-
-* **Returns**
-
-    TensorCollection.
-
-
-
-#### _property_ voigt()
-TensorCollection where all tensors are in voight form.
-
-
-* **Type**
-
-    return
-
-
-
-#### _property_ voigt_symmetrized()
-TensorCollection where all tensors are voigt symmetrized.
-
-
-* **Type**
-
-    return
-
-
-
-#### zeroed(tol: float = 0.001)
-
-* **Parameters**
-
-    **tol** – Tolerance
-
-
-
-* **Returns**
-
-    TensorCollection where small values are set to 0.
-
-
-
-### _class_ pymatgen.core.tensors.TensorMapping(tensors: Sequence[Tensor] = (), values: Sequence = (), tol: float = 1e-05)
-Bases: `MutableMapping`
-
-Base class for tensor mappings, which function much like
-a dictionary, but use numpy routines to determine approximate
-equality to keys for getting and setting items.
-
-This is intended primarily for convenience with things like
-stress-strain pairs and fitting data manipulation. In general,
-it is significantly less robust than a typical hashing
-and should be used with care.
-
-Initialize a TensorMapping.
-
-
-* **Parameters**
-
-
-    * **tensors** (*Sequence**[**Tensor**]**, **optional*) – Defaults to (,).
-
-
-    * **values** (*Sequence**, **optional*) – Values to be associated with tensors. Defaults to (,).
-
-
-    * **tol** (*float**, **optional*) – an absolute tolerance for getting and setting items in the mapping.
-    Defaults to 1e-5.
-
-
-
-* **Raises**
-
-    **ValueError** – if tensors and values are not the same length
-
-
-
-#### items()
-
-* **Returns**
-
-    Items in mapping.
-
-
-
-#### values()
-
-* **Returns**
-
-    Values in mapping.
-
-
-
-### pymatgen.core.tensors.get_uvec(vec)
-Gets a unit vector parallel to input vector.
-
-
-### pymatgen.core.tensors.symmetry_reduce(tensors, structure: Structure, tol: float = 1e-08, \*\*kwargs)
-Function that converts a list of tensors corresponding to a structure
-and returns a dictionary consisting of unique tensor keys with symmop
-values corresponding to transformations that will result in derivative
-tensors from the original list.
-
-
-* **Parameters**
-
-
-    * **tensors** (*list** of **tensors*) – list of Tensor objects to test for
-    symmetrically-equivalent duplicates
-
-
-    * **structure** (*Structure*) – structure from which to get symmetry
-
-
-    * **tol** (*float*) – tolerance for tensor equivalence
-
-
-    * **kwargs** – keyword arguments for the SpacegroupAnalyzer
-
-
-
-* **Returns**
-
-    dictionary consisting of unique tensors with symmetry operations
-    corresponding to those which will reconstruct the remaining
-    tensors as values
-
-
-## pymatgen.core.trajectory module
-
-This module provides classes to define a simulation trajectory, which could come from
-either relaxation or molecular dynamics.
-
-
-### _class_ pymatgen.core.trajectory.Trajectory(species: list[str | Element | Species | DummySpecies | Composition], coords: list[list[Vector3D]] | np.ndarray | list[np.ndarray], charge: int | float | None = None, spin_multiplicity: int | float | None = None, lattice: Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray | None = None, \*, site_properties: SitePropsType | None = None, frame_properties: list[dict] | None = None, constant_lattice: bool | None = True, time_step: int | float | None = None, coords_are_displacement: bool = False, base_positions: list[list[Vector3D]] | np.ndarray | None = None)
-Bases: `MSONable`
-
-Trajectory of a geometry optimization or molecular dynamics simulation.
-
-Provides basic functions such as slicing trajectory, combining trajectories, and
-obtaining displacements.
-
-In below, N denotes the number of sites in the structure, and M denotes the
-number of frames in the trajectory.
-
-
-* **Parameters**
-
-
-    * **species** – shape (N,). List of species on each site. Can take in flexible
-    input, including:
-    i.  A sequence of element / species specified either as string
-
-    > symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
-    > e.g., (3, 56, …) or actual Element or Species objects.
-
-
-        1. List of dict of elements/species and occupancies, e.g.,
-    [{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
-    disordered structures.
-
-
-
-    * **coords** – shape (M, N, 3). fractional coordinates of the sites.
-
-
-    * **charge** – int or float. Charge of the system. This is only used for Molecule-based
-    trajectories.
-
-
-    * **spin_multiplicity** – int or float. Spin multiplicity of the system. This is only
-    used for Molecule-based trajectories.
-
-
-    * **lattice** – shape (3, 3) or (M, 3, 3). Lattice of the structures in the
-    trajectory; should be used together with constant_lattice.
-    If constant_lattice=True, this should be a single lattice that is
-    common for all structures in the trajectory (e.g. in an NVT run).
-    If constant_lattice=False, this should be a list of lattices,
-    each for one structure in the trajectory (e.g. in an NPT run or a
-    relaxation that allows changing the cell size). This is only used for
-    Structure-based trajectories.
-
-
-    * **site_properties** – Properties associated with the sites. This should be a
-    list of M dicts for a single dict. If a list of dicts, each provides
-    the site properties for a frame. Each value in a dict should be a
-    sequence of length N, giving the properties of the N sites.
-    For example, for a trajectory with M=2 and N=4, the
-    site_properties can be: [{“magmom”:[5,5,5,5]}, {“magmom”:[5,5,5,5]}].
-    If a single dict, the site properties in the dict apply to all frames
-    in the trajectory. For example, for a trajectory with M=2 and N=4,
-    {“magmom”:[2,2,2,2]} means that, through the entire trajectory,
-    the magmom are kept constant at 2 for all four atoms.
-
-
-    * **frame_properties** – Properties associated with the structure (e.g. total
-    energy). This should be a sequence of M dicts, with each dict
-    providing the properties for a frame. For example, for a trajectory with
-    M=2, the frame_properties can be [{‘energy’:1.0}, {‘energy’:2.0}].
-
-
-    * **constant_lattice** – Whether the lattice changes during the simulation.
-    Should be used together with lattice. See usage there. This is only
-    used for Structure-based trajectories.
-
-
-    * **time_step** – Time step of MD simulation in femto-seconds. Should be None
-    for a trajectory representing a geometry optimization.
-
-
-    * **coords_are_displacement** – Whether coords are given in displacements
-    (True) or positions (False). Note, if this is True, coords
-    of a frame (say i) should be relative to the previous frame (i.e.
-    i-1), but not relative to the base_position.
-
-
-    * **base_positions** – shape (N, 3). The starting positions of all atoms in the
-    trajectory. Used to reconstruct positions when converting from
-    displacements to positions. Only needs to be specified if
-    coords_are_displacement=True. Defaults to the first index of
-    coords when coords_are_displacement=False.
-
-
-
-#### as_dict()
-Return the trajectory as a MSONable dict.
-
-
-#### extend(trajectory: Trajectory)
-Append a trajectory to the current one.
-
-The lattice, coords, and all other properties are combined.
-
-
-* **Parameters**
-
-    **trajectory** – Trajectory to append.
-
-
-
-#### _classmethod_ from_file(filename: str | Path, constant_lattice: bool = True, \*\*kwargs)
-Create trajectory from XDATCAR or vasprun.xml file.
-
-
-* **Parameters**
-
-
-    * **filename** – Path to the file to read from.
-
-
-    * **constant_lattice** – Whether the lattice changes during the simulation,
-    such as in an NPT MD simulation.
-
-
-    * **\*\*kwargs** – Additional kwargs passed to Trajectory constructor.
-
-
-
-* **Returns**
-
-    A trajectory from the file.
-
-
-
-#### _classmethod_ from_molecules(molecules: list[pymatgen.core.structure.Molecule], \*\*kwargs)
-Create trajectory from a list of molecules.
-
-Note: Assumes no atoms removed during simulation.
-
-
-* **Parameters**
-
-
-    * **molecules** – pymatgen Molecule objects.
-
-
-    * **\*\*kwargs** – Additional kwargs passed to Trajectory constructor.
-
-
-
-* **Returns**
-
-    A trajectory from the structures.
-
-
-
-#### _classmethod_ from_structures(structures: list[pymatgen.core.structure.Structure], constant_lattice: bool = True, \*\*kwargs)
-Create trajectory from a list of structures.
-
-Note: Assumes no atoms removed during simulation.
-
-
-* **Parameters**
-
-
-    * **structures** – pymatgen Structure objects.
-
-
-    * **constant_lattice** – Whether the lattice changes during the simulation,
-    such as in an NPT MD simulation.
-
-
-    * **\*\*kwargs** – Additional kwargs passed to Trajectory constructor.
-
-
-
-* **Returns**
-
-    A trajectory from the structures.
-
-
-
-#### get_molecule(idx: int)
-Get molecule at specified index.
-
-
-* **Parameters**
-
-    **idx** – Index of molecule.
-
-
-
-* **Returns**
-
-    A pymatgen Molecule object.
-
-
-
-#### get_structure(idx: int)
-Get structure at specified index.
-
-
-* **Parameters**
-
-    **idx** – Index of structure.
-
-
-
-* **Returns**
-
-    A pymatgen Structure object.
-
-
-
-#### to_displacements()
-Converts positions of trajectory into displacements between consecutive frames.
-
-base_positions and coords should both be in fractional coords. Does
-not work for absolute coords because the atoms are to be wrapped into the
-simulation box.
-
-This is the opposite operation of to_positions().
-
-
-#### to_positions()
-Convert displacements between consecutive frames into positions.
-
-base_positions and coords should both be in fractional coords or
-absolute coords.
-
-This is the opposite operation of to_displacements().
-
-
-#### write_Xdatcar(filename: str | Path = 'XDATCAR', system: str | None = None, significant_figures: int = 6)
-Writes to Xdatcar file.
-
-The supported kwargs are the same as those for the
-Xdatcar_from_structs.get_string method and are passed through directly.
-
-
-* **Parameters**
-
-
-    * **filename** – Name of file to write.  It’s prudent to end the filename with
-    ‘XDATCAR’, as most visualization and analysis software require this
-    for autodetection.
-
-
-    * **system** – Description of system (e.g. 2D MoS2).
-
-
-    * **significant_figures** – Significant figures in the output file.
-
-
-## pymatgen.core.units module
-
-This module implements a FloatWithUnit, which is a subclass of float. It
-also defines supported units for some commonly used units for energy, length,
-temperature, time and charge. FloatWithUnit also support conversion to one
-another, and additions and subtractions perform automatic conversion if
-units are detected. An ArrayWithUnit is also implemented, which is a subclass
-of numpy’s ndarray with similar unit features.
-
-
-### _class_ pymatgen.core.units.ArrayWithUnit(input_array, unit, unit_type=None)
-Bases: `ndarray`
-
-Subclasses numpy.ndarray to attach a unit type. Typically, you should
-use the pre-defined unit type subclasses such as EnergyArray,
-LengthArray, etc. instead of using ArrayWithFloatWithUnit directly.
-
-Supports conversion, addition and subtraction of the same unit type. E.g.,
-1 m + 20 cm will be automatically converted to 1.2 m (units follow the
-leftmost quantity).
-
-```python
->>> a = EnergyArray([1, 2], "Ha")
->>> b = EnergyArray([1, 2], "eV")
->>> c = a + b
->>> print(c)
-[ 1.03674933  2.07349865] Ha
->>> c.to("eV")
-array([ 28.21138386,  56.42276772]) eV
-```
-
-Override __new__.
-
-
-#### Error()
-alias of `UnitError`
-
-
-#### _property_ as_base_units()
-Returns this ArrayWithUnit in base SI units, including derived units.
-
-
-* **Returns**
-
-    An ArrayWithUnit object in base SI units
-
-
-
-#### conversions()
-Returns a string showing the available conversions.
-Useful tool in interactive mode.
-
-
-#### _property_ supported_units()
-Supported units for specific unit type.
-
-
-#### to(new_unit)
-Conversion to a new_unit.
-
-
-* **Parameters**
-
-    **new_unit** – New unit type.
-
-
-
-* **Returns**
-
-    A ArrayWithFloatWithUnit object in the new units.
-
-
-Example usage:
->>> e = EnergyArray([1, 1.1], “Ha”)
->>> e.to(“eV”)
-array([ 27.21138386,  29.93252225]) eV
-
-
-#### _property_ unit(_: st_ )
-The unit, e.g., “eV”.
-
-
-* **Type**
-
-    return
-
-
-
-#### _property_ unit_type(_: st_ )
-The type of unit. Energy, Charge, etc.
-
-
-* **Type**
-
-    return
-
-
-
-### pymatgen.core.units.Charge(_ = functools.partial(<class 'pymatgen.core.units.FloatWithUnit'>, unit_type='charge'_ )
-A float with a charge unit.
-
-
-* **Parameters**
-
-
-    * **val** (*float*) – Value
-
-
-    * **unit** (*Unit*) – E.g., C, e (electron charge). Must be valid unit or UnitError
-    is raised.
-
-
-
-### pymatgen.core.units.Energy(_ = functools.partial(<class 'pymatgen.core.units.FloatWithUnit'>, unit_type='energy'_ )
-A float with an energy unit.
-
-
-* **Parameters**
-
-
-    * **val** (*float*) – Value
-
-
-    * **unit** (*Unit*) – E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.
-
-
-
-### _class_ pymatgen.core.units.FloatWithUnit(val, unit, unit_type=None)
-Bases: `float`
-
-Subclasses float to attach a unit type. Typically, you should use the
-pre-defined unit type subclasses such as Energy, Length, etc. instead of
-using FloatWithUnit directly.
-
-Supports conversion, addition and subtraction of the same unit type. E.g.,
-1 m + 20 cm will be automatically converted to 1.2 m (units follow the
-leftmost quantity). Note that FloatWithUnit does not override the eq
-method for float, i.e., units are not checked when testing for equality.
-The reason is to allow this class to be used transparently wherever floats
-are expected.
-
-```python
->>> e = Energy(1.1, "Ha")
->>> a = Energy(1.1, "Ha")
->>> b = Energy(3, "eV")
->>> c = a + b
->>> print(c)
-1.2102479761938871 Ha
->>> c.to("eV")
-32.932522246000005 eV
-```
-
-Initializes a float with unit.
-
-
-* **Parameters**
-
-
-    * **val** (*float*) – Value
-
-
-    * **unit** (*Unit*) – A unit. E.g., “C”.
-
-
-    * **unit_type** (*str*) – A type of unit. E.g., “charge”
-
-
-
-#### Error()
-alias of `UnitError`
-
-
-#### _property_ as_base_units()
-Returns this FloatWithUnit in base SI units, including derived units.
-
-
-* **Returns**
-
-    A FloatWithUnit object in base SI units
-
-
-
-#### _classmethod_ from_str(s)
-Parse string to FloatWithUnit.
-
-Example: Memory.from_str(“1. Mb”)
-
-
-#### _classmethod_ from_string(\*args, \*\*kwds)
-from_string is deprecated!
-Use from_str instead
-
-Use from_str instead.
-
-
-#### _property_ supported_units()
-Supported units for specific unit type.
-
-
-#### to(new_unit)
-Conversion to a new_unit. Right now, only supports 1 to 1 mapping of
-units of each type.
-
-
-* **Parameters**
-
-    **new_unit** – New unit type.
-
-
-
-* **Returns**
-
-    A FloatWithUnit object in the new units.
-
-
-Example usage:
->>> e = Energy(1.1, “eV”)
->>> e = Energy(1.1, “Ha”)
->>> e.to(“eV”)
-29.932522246 eV
-
-
-#### _property_ unit(_: st_ )
-The unit, e.g., “eV”.
-
-
-* **Type**
-
-    return
-
-
-
-#### _property_ unit_type(_: st_ )
-The type of unit. Energy, Charge, etc.
-
-
-* **Type**
-
-    return
-
-
-
-### pymatgen.core.units.Length(_ = functools.partial(<class 'pymatgen.core.units.FloatWithUnit'>, unit_type='length'_ )
-A float with a length unit.
-
-
-* **Parameters**
-
-
-    * **val** (*float*) – Value
-
-
-    * **unit** (*Unit*) – E.g., m, ang, bohr, etc. Must be valid unit or UnitError is
-    raised.
-
-
-
-### pymatgen.core.units.Mass(_ = functools.partial(<class 'pymatgen.core.units.FloatWithUnit'>, unit_type='mass'_ )
-A float with a mass unit.
-
-
-* **Parameters**
-
-
-    * **val** (*float*) – Value
-
-
-    * **unit** (*Unit*) – E.g., amu, kg, etc. Must be valid unit or UnitError is
-    raised.
-
-
-
-### pymatgen.core.units.Memory(_ = functools.partial(<class 'pymatgen.core.units.FloatWithUnit'>, unit_type='memory'_ )
-A float with a memory unit.
-
-
-* **Parameters**
-
-
-    * **val** (*float*) – Value
-
-
-    * **unit** (*Unit*) – E.g., Kb, Mb, Gb, Tb. Must be valid unit or UnitError
-    is raised.
-
-
-
-### pymatgen.core.units.Temp(_ = functools.partial(<class 'pymatgen.core.units.FloatWithUnit'>, unit_type='temperature'_ )
-A float with a temperature unit.
-
-
-* **Parameters**
-
-
-    * **val** (*float*) – Value
-
-
-    * **unit** (*Unit*) – E.g., K. Only K (kelvin) is supported.
-
-
-
-### pymatgen.core.units.Time(_ = functools.partial(<class 'pymatgen.core.units.FloatWithUnit'>, unit_type='time'_ )
-A float with a time unit.
-
-
-* **Parameters**
-
-
-    * **val** (*float*) – Value
-
-
-    * **unit** (*Unit*) – E.g., s, min, h. Must be valid unit or UnitError is
-    raised.
-
-
-
-### _class_ pymatgen.core.units.Unit(unit_def)
-Bases: `Mapping`
-
-Represents a unit, e.g., “m” for meters, etc. Supports compound units.
-Only integer powers are supported for units.
-
-Constructs a unit.
-
-
-* **Parameters**
-
-    **unit_def** – A definition for the unit. Either a mapping of unit to
-    powers, e.g., {“m”: 2, “s”: -1} represents “m^2 s^-1”,
-    or simply as a string “kg m^2 s^-1”. Note that the supported
-    format uses “^” as the power operator and all units must be
-    space-separated.
-
-
-
-#### Error()
-alias of `UnitError`
-
-
-#### _property_ as_base_units()
-Converts all units to base SI units, including derived units.
-
-
-* **Returns**
-
-    (base_units_dict, scaling factor). base_units_dict will not
-    contain any constants, which are gathered in the scaling factor.
-
-
-
-#### get_conversion_factor(new_unit)
-Returns a conversion factor between this unit and a new unit.
-Compound units are supported, but must have the same powers in each
-unit type.
-
-
-* **Parameters**
-
-    **new_unit** – The new unit.
-
-
-
-### _exception_ pymatgen.core.units.UnitError()
-Bases: `BaseException`
-
-Exception class for unit errors.
-
-
-### pymatgen.core.units.kb(_ = 8.617333262e-0_ )
-Definitions of supported units. Values below are essentially scaling and
-conversion factors. What matters is the relative values, not the absolute.
-The SI units must have factor 1.
-
-
-### pymatgen.core.units.obj_with_unit(obj: Any, unit: str)
-Returns a FloatWithUnit instance if obj is scalar, a dictionary of
-objects with units if obj is a dict, else an instance of
-ArrayWithFloatWithUnit.
-
-
-* **Parameters**
-
-
-    * **obj** (*Any*) – Object to be given a unit.
-
-
-    * **unit** (*str*) – Specific units (eV, Ha, m, ang, etc.).
-
-
-
-### pymatgen.core.units.unitized(unit)
-Useful decorator to assign units to the output of a function. You can also
-use it to standardize the output units of a function that already returns
-a FloatWithUnit or ArrayWithUnit. For sequences, all values in the sequences
-are assigned the same unit. It works with Python sequences only. The creation
-of numpy arrays loses all unit information. For mapping types, the values
-are assigned units.
-
-
-* **Parameters**
-
-    **unit** – Specific unit (eV, Ha, m, ang, etc.).
-
-
-Example usage:
-
-```default
-@unitized(unit="kg")
-def get_mass():
-    return 123.45
-```
-
-## pymatgen.core.xcfunc module
-
-This module provides.
-
-
-### _class_ pymatgen.core.xcfunc.XcFunc(xc=None, x=None, c=None)
-Bases: `MSONable`
-
-This object stores information about the XC correlation functional.
-
-Client code usually creates the object by calling the class methods:
-
->
-> * from_name
-
-
-> * from_type_name
-
-or code-specific methods such as:
-
->
-> * from_abinit_ixc
-
-Ax XcFunc instance is hashable and can therefore be used as key in dictionaries.
-
-The implementation is based on the libxc conventions
-and is inspired to the XML specification for atomic PAW datasets documented at:
-
-> [https://wiki.fysik.dtu.dk/gpaw/setups/pawxml.html](https://wiki.fysik.dtu.dk/gpaw/setups/pawxml.html)
-
-For convenience, part of the pawxml documentation is reported here.
-
-The xc_functional element defines the exchange-correlation functional used for
-generating the dataset. It has the two attributes type and name.
-
-The type attribute can be LDA, GGA, MGGA or HYB.
-The name attribute designates the exchange-correlation functional
-and can be specified in the following ways:
-
-[1] Taking the names from the LibXC library. The correlation and exchange names
-
-    are stripped from their
-
-    ```
-    XC_
-    ```
-
-     part and combined with a + sign.
-    Here is an example for an LDA functional:
-
-    <xc_functional type=”LDA”, name=”LDA_X+LDA_C_PW”/>
-
-    and this is what PBE will look like:
-
-    <xc_functional type=”GGA”, name=”GGA_X_PBE+GGA_C_PBE”/>
-
-[2] Using one of the following pre-defined aliases:
-
-type    name    LibXC equivalent             Reference
-LDA     PW      LDA_X+LDA_C_PW               LDA exchange; Perdew, Wang, PRB 45, 13244 (1992)
-GGA     PW91    GGA_X_PW91+GGA_C_PW91        Perdew et al PRB 46, 6671 (1992)
-GGA     PBE     GGA_X_PBE+GGA_C_PBE          Perdew, Burke, Ernzerhof, PRL 77, 3865 (1996)
-GGA     RPBE    GGA_X_RPBE+GGA_C_PBE         Hammer, Hansen, Nørskov, PRB 59, 7413 (1999)
-GGA     revPBE  GGA_X_PBE_R+GGA_C_PBE        Zhang, Yang, PRL 80, 890 (1998)
-GGA     PBEsol  GGA_X_PBE_SOL+GGA_C_PBE_SOL  Perdew et al, PRL 100, 136406 (2008)
-GGA     AM05    GGA_X_AM05+GGA_C_AM05        Armiento, Mattsson, PRB 72, 085108 (2005)
-GGA     BLYP    GGA_X_B88+GGA_C_LYP          Becke, PRA 38, 3098 (1988); Lee, Yang, Parr, PRB 37, 785
-
-
-* **Parameters**
-
-
-    * **xc** – LibxcFunc for XC functional.
-
-
-    * **x** – LibxcFunc for exchange part. Mutually exclusive with xc.
-
-
-    * **c** – LibxcFunc for correlation part. Mutually exclusive with xc.
-
-
-
-#### abinitixc_to_libxc(_ = {1: {'xc': LibxcFunc.LDA_XC_TETER93}, 2: {'c': LibxcFunc.LDA_C_PZ, 'x': LibxcFunc.LDA_X}, 4: {'c': LibxcFunc.LDA_C_WIGNER, 'x': LibxcFunc.LDA_X}, 5: {'c': LibxcFunc.LDA_C_HL, 'x': LibxcFunc.LDA_X}, 7: {'c': LibxcFunc.LDA_C_PW, 'x': LibxcFunc.LDA_X}, 11: {'c': LibxcFunc.GGA_C_PBE, 'x': LibxcFunc.GGA_X_PBE}, 14: {'c': LibxcFunc.GGA_C_PBE, 'x': LibxcFunc.GGA_X_PBE_R}, 15: {'c': LibxcFunc.GGA_C_PBE, 'x': LibxcFunc.GGA_X_RPBE}_ )
-
-#### _classmethod_ aliases()
-List of registered names.
-
-
-#### as_dict()
-Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
-
-
-#### _classmethod_ asxc(obj)
-Convert object into Xcfunc.
-
-
-#### defined_aliases(_ = {(<LibxcFunc.LDA_X: 1>, <LibxcFunc.LDA_C_PW: 12>): type_name(type='LDA', name='PW'), (<LibxcFunc.LDA_X: 1>, <LibxcFunc.LDA_C_PW_MOD: 13>): type_name(type='LDA', name='PW_MOD'), (<LibxcFunc.LDA_X: 1>, <LibxcFunc.LDA_C_PZ: 9>): type_name(type='LDA', name='PZ'), (<LibxcFunc.LDA_X: 1>, <LibxcFunc.LDA_C_WIGNER: 2>): type_name(type='LDA', name='W'), (<LibxcFunc.LDA_X: 1>, <LibxcFunc.LDA_C_HL: 4>): type_name(type='LDA', name='HL'), (<LibxcFunc.LDA_X: 1>, <LibxcFunc.LDA_C_GL: 5>): type_name(type='LDA', name='GL'), (<LibxcFunc.LDA_X: 1>, <LibxcFunc.LDA_C_VWN: 7>): type_name(type='LDA', name='VWN'), (<LibxcFunc.GGA_X_PW91: 109>, <LibxcFunc.GGA_C_PW91: 134>): type_name(type='GGA', name='PW91'), (<LibxcFunc.GGA_X_PBE: 101>, <LibxcFunc.GGA_C_PBE: 130>): type_name(type='GGA', name='PBE'), (<LibxcFunc.GGA_X_RPBE: 117>, <LibxcFunc.GGA_C_PBE: 130>): type_name(type='GGA', name='RPBE'), (<LibxcFunc.GGA_X_PBE_R: 102>, <LibxcFunc.GGA_C_PBE: 130>): type_name(type='GGA', name='revPBE'), (<LibxcFunc.GGA_X_PBE_SOL: 116>, <LibxcFunc.GGA_C_PBE_SOL: 133>): type_name(type='GGA', name='PBEsol'), (<LibxcFunc.GGA_X_AM05: 120>, <LibxcFunc.GGA_C_AM05: 135>): type_name(type='GGA', name='AM05'), (<LibxcFunc.GGA_X_B88: 106>, <LibxcFunc.GGA_C_LYP: 131>): type_name(type='GGA', name='BLYP')_ )
-
-#### _classmethod_ from_abinit_ixc(ixc)
-Build the object from Abinit ixc (integer).
-
-
-#### _classmethod_ from_dict(d)
-Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
-
-
-#### _classmethod_ from_name(name)
-Build the object from one of the registered names.
-
-
-#### _classmethod_ from_type_name(typ, name)
-Build the object from (type, name).
-
-
-#### name()
-The name of the functional. If the functional is not found in the aliases,
-the string has the form X_NAME+C_NAME.
-
-
-#### type()
-The type of the functional.
+        * [`XcFunc.type()`](pymatgen.core.xcfunc.md#pymatgen.core.xcfunc.XcFunc.type)

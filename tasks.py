@@ -33,13 +33,13 @@ def make_doc(ctx):
     with cd("docs"):
         ctx.run("touch index.rst")
         ctx.run("rm pymatgen.*.rst", warn=True)
-        ctx.run("sphinx-apidoc --implicit-namespaces -P -M -d 7 -o . -f ../pymatgen")
+        ctx.run("sphinx-apidoc --implicit-namespaces --separate -P -M -d 7 -o . -f ../pymatgen ../**/tests/*")
         # ctx.run("rm pymatgen*.html", warn=True)
         # ctx.run("sphinx-build -b html . ../docs")  # HTML building.
         ctx.run("sphinx-build -M markdown . .")
         ctx.run("rm *.rst", warn=True)
         ctx.run("cp markdown/pymatgen*.md .")
-        ctx.run("rm pymatgen*tests*.md")
+        ctx.run("rm pymatgen*tests*.md", warn=True)
         for fn in glob.glob("pymatgen*.md"):
             with open(fn) as f:
                 lines = [line.rstrip() for line in f if "Submodules" not in line]
