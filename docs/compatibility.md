@@ -21,7 +21,7 @@ please post on the GitHub Issues page to see if it can be resolved.
 
 ## Depending on Pymatgen
 
-Pymatgen uses `calendar versioning <http://calver.org/>`_ based on a YYYY-MM-DD format.
+Pymatgen uses [calendar versioning](http://calver.org/) based on a YYYY-MM-DD format.
 This has generally worked well since changes to core pymatgen functionality that most
 other codes depend on are rare. There have been only two instances in recent memory that
 breaking changes have been made.
@@ -46,7 +46,7 @@ new namespace architecture and the versioning scheme will go back to calendar ve
 As the developer of a tool that depends on Pymatgen, you can prevent upgrades of the major
 Pymatgen version by specifying a version range like `pymatgen>=2021.1,<2022` or, more
 succinctly, using the
-`compatible release operator <https://www.python.org/dev/peps/pep-0440/#compatible-release>`_
+[compatible release operator](https://www.python.org/dev/peps/pep-0440/#compatible-release)
 `pymatgen~=2021.1`. This will prevent `pip` (and other package managers) from
 pulling in Pymatgen versions with breaking changes that may end up breaking
 your tool.
@@ -68,37 +68,17 @@ Windows and Linux.
 
 ### v2022.9.28
 
-Merge `Waverder` and `Wavederf` objects into a single `Waverder` object.
-`#2666 <https://github.com/materialsproject/pymatgen/pull/2666>`_
-#. :code:`pymatgen.io.vasp.outputs` 
+Merge `Waverder` and `Wavederf` objects into a single `Waverder` object. [#2666](https://github.com/materialsproject/pymatgen/pull/2666)
 
 ### v2022.2.1
 
-Moved defect-specific code under `defects` module.
-`#2582 <https://github.com/materialsproject/pymatgen/pull/2582>`_
-#. :code:`pymatgen.transformations.defect_transformations`
-#. :code:`pymatgen.analysis.structure_matcher.PointDefectComparator`
+Moved defect-specific code under `defects` module. [#2582](https://github.com/materialsproject/pymatgen/pull/2582)
 
-Removal of deprecated functions:
-
-`#2405 <https://github.com/materialsproject/pymatgen/pull/2405>`_
-
-#. :code:`Plane.orthonormal_vectors_old()`
-#. :code:`ElasticTensor.debye_temperature_from_sound_velocities()`
-#. :code:`VaspInputSet.all_input()`
-
-`#2397 <https://github.com/materialsproject/pymatgen/pull/2397>`_
-
-#. :code:`get_dimensionality() in pymatgen/analysis/structure_analyzer.py`
-#. :code:`ConversionElectrode.as_dict_summary()`
-#. :code:`InsertionElectrode.as_dict_summary()`
-#. :code:`Lattice.from_lengths_and_angles()`
-#. :code:`Lattice.lengths_and_angles()`
-#. :code:`Site.species_and_occu()`
+Removal of deprecated functions. [#2405](https://github.com/materialsproject/pymatgen/pull/2405) [#2397](https://github.com/materialsproject/pymatgen/pull/2397)
 
 ### v2022.01.08
 
-Dropped Python 3.7 support for compatibility with the latest numpy. `d00945 <https://github.com/materialsproject/pymatgen/commit/d00945491e9b53548ea8a6755a002c2066ad0ac9>`_ `61ec51c <https://github.com/materialsproject/pymatgen/commit/61ec51cc9751d65df0783af3713e2425d733191e>`_
+Dropped Python 3.7 support for compatibility with the latest numpy. 
 
 ### v2022.0.0
 
@@ -106,17 +86,19 @@ Pymatgen root imports have been removed from v2022.0.0 in preparation for a chan
 architecture that will allow more developers to contribute.
 
 Specifically, the following "convenience imports" have been removed in favor of
-their canonical import::
+their canonical import:
 
-    from pymatgen import Composition  # now "from pymatgen.core.composition import Composition"
-    from pymatgen import Lattice  # now "from pymatgen.core.lattice import Lattice"
-    from pymatgen import SymmOp  # now "from pymatgen.core.operations import SymmOp"
-    from pymatgen import DummySpecie, DummySpecies, Element, Specie, Species  # now "from pymatgen.core.periodic_table ..."
-    from pymatgen import PeriodicSite, Site  # now "from pymatgen.core.sites ..."
-    from pymatgen import IMolecule, IStructure, Molecule, Structure  # now "from pymatgen.core.structure ..."
-    from pymatgen import ArrayWithUnit, FloatWithUnit, Unit  # now "from pymatgen.core.units ..."
-    from pymatgen import Orbital, Spin  # now "from pymatgen.electronic_structure.core ..."
-    from pymatgen import MPRester  # now "from pymatgen.ext.matproj ..."
+```python
+from pymatgen import Composition  # now "from pymatgen.core.composition import Composition"
+from pymatgen import Lattice  # now "from pymatgen.core.lattice import Lattice"
+from pymatgen import SymmOp  # now "from pymatgen.core.operations import SymmOp"
+from pymatgen import DummySpecie, DummySpecies, Element, Specie, Species  # now "from pymatgen.core.periodic_table ..."
+from pymatgen import PeriodicSite, Site  # now "from pymatgen.core.sites ..."
+from pymatgen import IMolecule, IStructure, Molecule, Structure  # now "from pymatgen.core.structure ..."
+from pymatgen import ArrayWithUnit, FloatWithUnit, Unit  # now "from pymatgen.core.units ..."
+from pymatgen import Orbital, Spin  # now "from pymatgen.electronic_structure.core ..."
+from pymatgen import MPRester  # now "from pymatgen.ext.matproj ..."
+```
 
 If your existing code uses `from pymatgen import <something>`, you will need to make
 modifications.
@@ -125,15 +107,19 @@ The easiest way is to use an IDE to run a Search and Replace.
 First, replace any `from pymatgen import MPRester` with
 `from pymatgen.ext.matproj import MPRester`. Then, replace
 `from pymatgen import` with `from pymatgen.core import`. Alternatively, if you
-are using a Mac command line, you can try::
+are using a Mac command line, you can try:
 
-    find . -name '*.py' | xargs sed -i "" 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
-    find . -name '*.py' | xargs sed -i "" 's/from pymatgen import/from pymatgen.core import/g'
+```bash
+find . -name '*.py' | xargs sed -i "" 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
+find . -name '*.py' | xargs sed -i "" 's/from pymatgen import/from pymatgen.core import/g'
+```
 
 From a Linux command line, you can try::
 
-    find . -name '*.py' | xargs sed -i 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
-    find . -name '*.py' | xargs sed -i 's/from pymatgen import/from pymatgen.core import/g'
+```bash
+find . -name '*.py' | xargs sed -i 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
+find . -name '*.py' | xargs sed -i 's/from pymatgen import/from pymatgen.core import/g'
+```
 
 This should resolve most import errors and only a few more modifications may
 need to be done by hand.

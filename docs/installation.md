@@ -84,13 +84,15 @@ programs may require you to compile those programs from source.
 Download and install the version of conda for your operating system from
 http://conda.pydata.org/miniconda.html. For Windows, **make sure it is the
 Miniconda3 installer**, and simply double-click the exe file. For Linux or Mac,
-run::
+run:
 
-    # If Mac
-    bash Miniconda3-latest-MacOSX-x86_64.sh
+```bash
+# If Mac
+bash Miniconda3-latest-MacOSX-x86_64.sh
 
-    # If Linux
-    bash Miniconda3-latest-Linux-x86_64.sh
+# If Linux
+bash Miniconda3-latest-Linux-x86_64.sh
+```
 
 Note that you may need to create a new terminal after this step in order for
 the environmental variables added by conda to be loaded.
@@ -98,24 +100,30 @@ the environmental variables added by conda to be loaded.
 ### Step 2b: (Optional) Create a conda environment
 
 If you are working with many python packages, it is generally recommended you
-create a separate environment for each of your packages. For example::
+create a separate environment for each of your packages. For example:
 
-    conda create --name my_pymatgen python
-    source activate my_pymatgen  # OSX or Linux
-    activate my_pymatgen  # Windows
+```shell
+conda create --name my_pymatgen python
+source activate my_pymatgen  # OSX or Linux
+activate my_pymatgen  # Windows
+```
 
 ### Step 3: Install pymatgen
 
 You can install pymatgen via conda as well via the conda-forge channel on
-Anaconda cloud::
+Anaconda cloud:
 
-    conda install --channel conda-forge pymatgen
+```shell
+conda install --channel conda-forge pymatgen
+```
 
 If the above fails, try using conda to install some critical dependencies and
 then do pip install::
 
-    conda install --yes numpy scipy matplotlib
-    pip install pymatgen
+```shell
+conda install --yes numpy scipy matplotlib
+pip install pymatgen
+```
 
 ### Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)
 
@@ -124,8 +132,10 @@ enumlib or perform Bader charge analysis powered by the Bader analysis code
 of the Henkelmann group, please try installing these from source using the pmg
 command line tool as follows::
 
-   pmg config --install enumlib
-   pmg config --install bader
+```shell
+pmg config --install enumlib
+pmg config --install bader
+```
 
 Then put these in your PATH somewhere. You can also download the source of
 these from the official repos and follow the compile instructions.
@@ -205,9 +215,7 @@ pmg potcar -h
 
 to see full list of choices.
 
-.. note::
-
-    The Materials Project currently uses older versions of the VASP pseudopotentials
+**Note:** The Materials Project currently uses older versions of the VASP pseudopotentials
     for maximum compatibility with historical data, rather than the current 52/54
     pseudopotentials. This setting can be overridden by the user if desired.
     As such, current versions of pymatgen will check the hashes of your pseudopotentials

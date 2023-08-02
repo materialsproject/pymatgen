@@ -19,5 +19,5 @@ favicon_ico: /assets/favicon.ico
 aux_links:
   GitHub: [https://github.com/materialsproject/pymatgen]
   Issues: [https://github.com/materialsproject/pymatgen/issues]
+  Discourse: [https://matsci.org/pymatgen]
   Materials Project: [https://materialsproject.org]
-  matsci: [https://matsci.org/pymatgen]
