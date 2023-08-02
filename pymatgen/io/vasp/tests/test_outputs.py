@@ -667,12 +667,13 @@ class VasprunTest(PymatgenTest):
 
         # test another chemical shift calculation done with 6.4.1
         # and also parsing the associated POTCAR file
-        filepath_wPOT = f"{self.TEST_FILES_DIR}/nmr/cs/basic/cs_with_POTCAR/vasprun.xml.gz"
+        filepath_wPOT = f"{self.TEST_FILES_DIR}/nmr/cs/with_POTCAR/vasprun.xml.gz"
         vasp_run_wPOT = Vasprun(filepath_wPOT, parse_potcar_file=True)
 
         n_estep_wPOT = len(vasp_run_wPOT.ionic_steps[-1]["electronic_steps"])
         assert vasp_run_wPOT.converged
         assert n_estep_wPOT == 4
+        assert vasp_run_wPOT.final_structure._charge == 0.0
 
     def test_parsing_efg_calcs(self):
         filepath = f"{self.TEST_FILES_DIR}/nmr/efg/AlPO4/vasprun.xml"
