@@ -896,7 +896,7 @@ class ChargeTest(PymatgenTest):
             "@module": "pymatgen.core.structure",
         }
         s2 = Structure.from_dict(structure_dict2)
-        assert s2 == self.charge2.get_structure_with_charges(os.path.join(this_dir, "../../tests/POSCAR.MnO"))
+        assert s2 == self.charge2.get_structure_with_charges(PymatgenTest.TEST_FILES_DIR / "POSCAR.MnO")
 
 
 class LobsteroutTest(PymatgenTest):

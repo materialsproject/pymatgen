@@ -16,6 +16,7 @@ from monty.json import MontyDecoder
 from monty.serialization import loadfn
 from pytest import approx, mark
 
+import pymatgen
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
@@ -55,7 +56,7 @@ from pymatgen.io.vasp.sets import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
-MODULE_DIR = Path(__file__).resolve().parent
+MODULE_DIR = Path(pymatgen.io.vasp.__file__).parent
 
 dec = MontyDecoder()
 
@@ -92,13 +93,13 @@ class SetChangeCheckTest(PymatgenTest):
             "notify the users for that set. For sets starting with 'MVL' this is @shyuep, for "
             "sets starting with 'MP' this is @shyuep and @mkhorton. "
         )
-        os.chdir(MODULE_DIR / "..")
-        input_sets = glob("*.yaml")
+
+        input_sets = glob(f"{MODULE_DIR}/*.yaml")
         hashes = {}
         for input_set in input_sets:
             with open(input_set) as file:
                 text = file.read().encode("utf-8")
-                hashes[input_set] = hashlib.sha1(text).hexdigest()
+                hashes[input_set.split("/")[-1]] = hashlib.sha1(text).hexdigest()
 
         known_hashes = {
             "MVLGWSet.yaml": "104ae93c3b3be19a13b0ee46ebdd0f40ceb96597",
@@ -934,7 +935,7 @@ class MagmomLdauTest(PymatgenTest):
         assert magmom == magmom_ans
 
     def test_ln_magmom(self):
-        YAML_PATH = os.path.join(os.path.dirname(__file__), "../VASPIncarBase.yaml")
+        YAML_PATH = MODULE_DIR / "VASPIncarBase.yaml"
         MAGMOM_SETTING = loadfn(YAML_PATH)["INCAR"]["MAGMOM"]
         structure = Structure.from_file(f"{self.TEST_FILES_DIR}/La4Fe4O12.cif")
         structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
@@ -1754,7 +1755,7 @@ class LobsterSetTest(PymatgenTest):
             self.lobsterset6 = LobsterSet(self.struct, user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s"})
         self.lobsterset7 = LobsterSet(
             self.struct,
-            address_basis_file=os.path.join(MODULE_DIR, "../../lobster/lobster_basis/BASIS_PBE_54_standard.yaml"),
+            address_basis_file=os.path.join(MODULE_DIR, "../lobster/lobster_basis/BASIS_PBE_54_standard.yaml"),
         )
         with pytest.warns(BadInputSetWarning, match="Overriding the POTCAR"):
             self.lobsterset6 = LobsterSet(self.struct)
