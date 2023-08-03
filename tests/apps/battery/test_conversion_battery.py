@@ -12,7 +12,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.util.testing import PymatgenTest
 
 
-class ConversionElectrodeTest(unittest.TestCase):
+class TestConversionElectrode(unittest.TestCase):
     def setUp(self):
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_eletrodes = {}

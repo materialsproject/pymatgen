@@ -78,7 +78,7 @@ mcsqs_cmd = which("mcsqs")
 enumlib_present = enum_cmd and makestr_cmd
 
 
-class SuperTransformationTest(unittest.TestCase):
+class TestSuperTransformation(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -132,7 +132,7 @@ class SuperTransformationTest(unittest.TestCase):
         assert len(trafo.apply_transformation(disord, return_ranked_list=20)) == 2
 
 
-class MultipleSubstitutionTransformationTest(unittest.TestCase):
+class TestMultipleSubstitutionTransformation(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -158,7 +158,7 @@ class MultipleSubstitutionTransformationTest(unittest.TestCase):
         assert len(trafo.apply_transformation(struct, return_ranked_list=True)) == 2
 
 
-class ChargeBalanceTransformationTest(unittest.TestCase):
+class TestChargeBalanceTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = ChargeBalanceTransformation("Li+")
         coords = []
@@ -185,7 +185,7 @@ class ChargeBalanceTransformationTest(unittest.TestCase):
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
-class EnumerateStructureTransformationTest(unittest.TestCase):
+class TestEnumerateStructureTransformation(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -285,7 +285,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         assert trans.symm_prec == 0.1
 
 
-class SubstitutionPredictorTransformationTest(unittest.TestCase):
+class TestSubstitutionPredictorTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5, lambda_table=get_table())
         coords = []
@@ -313,7 +313,7 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
-class MagOrderingTransformationTest(PymatgenTest):
+class TestMagOrderingTransformation(PymatgenTest):
     def setUp(self):
         latt = Lattice.cubic(4.17)
         species = ["Ni", "O"]
@@ -534,7 +534,7 @@ class MagOrderingTransformationTest(PymatgenTest):
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
-class DopingTransformationTest(PymatgenTest):
+class TestDopingTransformation(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -603,7 +603,7 @@ class DopingTransformationTest(PymatgenTest):
         assert _find_codopant(Species("Fe", 2), 3) == Species("In", 3)
 
 
-class SlabTransformationTest(PymatgenTest):
+class TestSlabTransformation(PymatgenTest):
     def test_apply_transformation(self):
         struct = self.get_structure("LiFePO4")
         trans = SlabTransformation([0, 0, 1], 10, 10, shift=0.25)
@@ -622,7 +622,7 @@ class SlabTransformationTest(PymatgenTest):
         assert np.allclose(slab_from_gen.cart_coords, slab_from_trans.cart_coords)
 
 
-class GrainBoundaryTransformationTest(PymatgenTest):
+class TestGrainBoundaryTransformation(PymatgenTest):
     def test_apply_transformation(self):
         Al_bulk = Structure.from_spacegroup("Fm-3m", Lattice.cubic(2.8575585), ["Al"], [[0, 0, 0]])
         gb_gen_params_s5 = {
@@ -642,7 +642,7 @@ class GrainBoundaryTransformationTest(PymatgenTest):
         assert np.allclose(gb_from_generator.cart_coords, gb_from_trans.cart_coords)
 
 
-class DisorderedOrderedTransformationTest(PymatgenTest):
+class TestDisorderedOrderedTransformation(PymatgenTest):
     def test_apply_transformation(self):
         # nonsensical example just for testing purposes
         struct = self.get_structure("BaNiO3")
@@ -655,7 +655,7 @@ class DisorderedOrderedTransformationTest(PymatgenTest):
 
 
 @unittest.skipIf(not mcsqs_cmd, "mcsqs not present.")
-class SQSTransformationTest(PymatgenTest):
+class TestSQSTransformation(PymatgenTest):
     def test_apply_transformation(self):
         pzt_structs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs/pztstructs.json"))
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
@@ -689,7 +689,7 @@ class SQSTransformationTest(PymatgenTest):
         assert "Ti,spin=5" in struct_out_specie_strings
 
 
-class CubicSupercellTransformationTest(PymatgenTest):
+class TestCubicSupercellTransformation(PymatgenTest):
     def test_apply_transformation(self):
         structure = self.get_structure("TlBiSe2")
         min_atoms = 100
@@ -755,7 +755,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
         assert np.allclose(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
 
 
-class AddAdsorbateTransformationTest(PymatgenTest):
+class TestAddAdsorbateTransformation(PymatgenTest):
     def test_apply_transformation(self):
         co = Molecule(["C", "O"], [[0, 0, 0], [0, 0, 1.23]])
         trans = AddAdsorbateTransformation(co)
@@ -766,7 +766,7 @@ class AddAdsorbateTransformationTest(PymatgenTest):
         assert out.composition.reduced_formula == "Pt4CO"
 
 
-class SubstituteSurfaceSiteTransformationTest(PymatgenTest):
+class TestSubstituteSurfaceSiteTransformation(PymatgenTest):
     def test_apply_transformation(self):
         trans = SubstituteSurfaceSiteTransformation("Au")
         pt = Structure(Lattice.cubic(5), ["Pt"], [[0, 0, 0]])  # fictitious
@@ -777,7 +777,7 @@ class SubstituteSurfaceSiteTransformationTest(PymatgenTest):
 
 
 @unittest.skipIf(not hiphive, "hiphive not present. Skipping...")
-class MonteCarloRattleTransformationTest(PymatgenTest):
+class TestMonteCarloRattleTransformation(PymatgenTest):
     def test_apply_transformation(self):
         struct = self.get_structure("Si")
         mcrt = MonteCarloRattleTransformation(0.01, 2, seed=1)

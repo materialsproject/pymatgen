@@ -35,7 +35,7 @@ class SupStr(Stringify):
         return "Fe**2+"
 
 
-class StringifyTest(unittest.TestCase):
+class TestStringify(unittest.TestCase):
     def test_to_latex_string(self):
         assert SubStr().to_latex_string() == "Fe$_{8}$O$_{12}$"
         assert SupStr().to_latex_string() == "Fe$^{2+}$"
@@ -49,7 +49,7 @@ class StringifyTest(unittest.TestCase):
         assert SupStr().to_unicode_string() == "Fe²⁺"
 
 
-class FuncTest(unittest.TestCase):
+class TestFunc(unittest.TestCase):
     def test_latexify(self):
         assert latexify("Li3Fe2(PO4)3") == "Li$_{3}$Fe$_{2}$(PO$_{4}$)$_{3}$"
         assert latexify("Li0.2Na0.8Cl") == "Li$_{0.2}$Na$_{0.8}$Cl"

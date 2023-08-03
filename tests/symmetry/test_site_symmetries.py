@@ -18,7 +18,7 @@ __date__ = "4/23/19"
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "site_symmetries")
 
 
-class SiteSymmetriesTest(PymatgenTest):
+class TestSiteSymmetries(PymatgenTest):
     def setUp(self):
         with open(os.path.join(test_dir, "point_ops.pkl"), "rb") as f:
             self.point_ops = pickle.load(f)

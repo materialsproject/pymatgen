@@ -15,7 +15,7 @@ json_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/json_test_files"
 img_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/images"
 
 
-class VoronoiContainerTest(PymatgenTest):
+class TestVoronoiContainer(PymatgenTest):
     def test_voronoi(self):
         # Define a cubic lattice and a list of species (to be used for the fake structures)
         cubic_lattice = Lattice.cubic(10)

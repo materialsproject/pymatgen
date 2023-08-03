@@ -9,7 +9,7 @@ from pymatgen.core import Lattice
 from pymatgen.electronic_structure.core import Magmom, Orbital, Spin
 
 
-class SpinTest(unittest.TestCase):
+class TestSpin(unittest.TestCase):
     def test_init(self):
         assert int(Spin.up) == 1
         assert int(Spin.down) == -1
@@ -24,7 +24,7 @@ class SpinTest(unittest.TestCase):
         assert id(Spin(1)) == id(Spin.up)
 
 
-class OrbitalTest(unittest.TestCase):
+class TestOrbital(unittest.TestCase):
     def test_init(self):
         for orb in Orbital:
             assert Orbital(orb.value) == orb
@@ -35,7 +35,7 @@ class OrbitalTest(unittest.TestCase):
         assert id(Orbital(0)) == id(Orbital.s)
 
 
-class MagmomTest(unittest.TestCase):
+class TestMagmom(unittest.TestCase):
     def test_init(self):
         # backwards compatibility for scalar-like magmoms
         magmom = Magmom(2.0)

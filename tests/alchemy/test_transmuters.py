@@ -14,7 +14,7 @@ from pymatgen.transformations.standard_transformations import (
 from pymatgen.util.testing import PymatgenTest
 
 
-class CifTransmuterTest(PymatgenTest):
+class TestCifTransmuter(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -32,7 +32,7 @@ class CifTransmuterTest(PymatgenTest):
             assert expected == els
 
 
-class PoscarTransmuterTest(PymatgenTest):
+class TestPoscarTransmuter(PymatgenTest):
     def test_init(self):
         trans = []
         trans.append(SubstitutionTransformation({"Fe": "Mn"}))

@@ -35,7 +35,7 @@ from pymatgen.util.testing import PymatgenTest
 module_dir = Path(__file__).absolute().parent
 
 
-class PDEntryTest(unittest.TestCase):
+class TestPDEntry(unittest.TestCase):
     def setUp(self):
         comp = Composition("LiFeO2")
         self.entry = PDEntry(comp, 53, name="mp-757614")
@@ -99,7 +99,7 @@ class PDEntryTest(unittest.TestCase):
         assert len(entries) == 490, "Wrong number of entries!"
 
 
-class TransformedPDEntryTest(unittest.TestCase):
+class TestTransformedPDEntry(unittest.TestCase):
     def setUp(self):
         comp = Composition("LiFeO2")
         entry = PDEntry(comp, 53)
@@ -152,7 +152,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         assert norm_entry.composition == expected_comp
 
 
-class PhaseDiagramTest(PymatgenTest):
+class TestPhaseDiagram(PymatgenTest):
     def setUp(self):
         self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         self.pd = PhaseDiagram(self.entries)
@@ -616,7 +616,7 @@ class PhaseDiagramTest(PymatgenTest):
                 PhaseDiagram(entries=entries)
 
 
-class GrandPotentialPhaseDiagramTest(unittest.TestCase):
+class TestGrandPotentialPhaseDiagram(unittest.TestCase):
     def setUp(self):
         self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5})
@@ -650,7 +650,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
         assert str(self.pd) is not None
 
 
-class CompoundPhaseDiagramTest(unittest.TestCase):
+class TestCompoundPhaseDiagram(unittest.TestCase):
     def setUp(self):
         self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"), Composition("Fe2O3")])
@@ -676,7 +676,7 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
         assert str(self.pd) is not None
 
 
-class PatchedPhaseDiagramTest(unittest.TestCase):
+class TestPatchedPhaseDiagram(unittest.TestCase):
     def setUp(self):
         self.entries = EntrySet.from_csv(module_dir / "reaction_entries_test.csv")
         # NOTE add He to test for correct behavior despite no patches involving He
@@ -807,7 +807,7 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
         del self.ppd[unlikely_chem_space]  # test __delitem__() and restore original state
 
 
-class ReactionDiagramTest(unittest.TestCase):
+class TestReactionDiagram(unittest.TestCase):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self.entries = list(EntrySet.from_csv(os.path.join(module_dir, "reaction_entries_test.csv")).entries)
@@ -848,7 +848,7 @@ class ReactionDiagramTest(unittest.TestCase):
         #     assert formula in formed_formula, f"{formed_formula=} not in {expected_formula=}"
 
 
-class PDPlotterTest(unittest.TestCase):
+class TestPDPlotter(unittest.TestCase):
     def setUp(self):
         entries = list(EntrySet.from_csv(os.path.join(module_dir, "pd_entries_test.csv")))
 
@@ -911,7 +911,7 @@ class PDPlotterTest(unittest.TestCase):
         self.plotter_quaternary_plotly.get_plot()
 
 
-class UtilityFunctionTest(unittest.TestCase):
+class TestUtilityFunction(unittest.TestCase):
     def test_unique_lines(self):
         testdata = [
             [5, 53, 353],

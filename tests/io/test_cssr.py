@@ -19,7 +19,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jan 24, 2012"
 
 
-class CssrTest(unittest.TestCase):
+class TestCssr(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)

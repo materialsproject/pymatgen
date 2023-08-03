@@ -7,7 +7,7 @@ from pytest import approx
 from pymatgen.analysis.hhi import HHIModel
 
 
-class HHIModelTest(unittest.TestCase):
+class TestHHIModel(unittest.TestCase):
     def test_hhi(self):
         hhi = HHIModel()
         assert hhi.get_hhi("He") == (3200, 3900)

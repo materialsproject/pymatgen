@@ -8,7 +8,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
 
-class InterfaceTest(PymatgenTest):
+class TestInterface(PymatgenTest):
     def setUp(self):
         self.interface: Interface = self.get_structure("Si_SiO2_Interface")
 

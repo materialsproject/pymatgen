@@ -16,7 +16,7 @@ __status__ = "Development"
 __date__ = "4/1/16"
 
 
-class PiezoTest(PymatgenTest):
+class TestPiezo(PymatgenTest):
     def setUp(self):
         self.piezo_struc = self.get_structure("BaNiO3")
         self.voigt_matrix = np.array(

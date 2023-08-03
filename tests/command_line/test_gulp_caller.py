@@ -33,7 +33,7 @@ gulp_present = False
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
-class GulpCallerTest(unittest.TestCase):
+class TestGulpCaller(unittest.TestCase):
     def test_run(self):
         mgo_lattice = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg"] * 4 + ["O"] * 4
@@ -97,7 +97,7 @@ class GulpCallerTest(unittest.TestCase):
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
-class GulpIOTest(unittest.TestCase):
+class TestGulpIO(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):
@@ -262,7 +262,7 @@ class GulpIOTest(unittest.TestCase):
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
-class GlobalFunctionsTest(unittest.TestCase):
+class TestGlobalFunctions(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg", "O"] * 4
@@ -309,7 +309,7 @@ class GlobalFunctionsTest(unittest.TestCase):
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
-class BuckinghamPotentialLewisTest(unittest.TestCase):
+class TestBuckinghamPotentialLewis(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):
@@ -339,7 +339,7 @@ class BuckinghamPotentialLewisTest(unittest.TestCase):
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
-class BuckinghamPotentialBushTest(unittest.TestCase):
+class TestBuckinghamPotentialBush(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):

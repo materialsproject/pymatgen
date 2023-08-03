@@ -14,7 +14,7 @@ from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import PymatgenTest
 
 
-class TrajectoryTest(PymatgenTest):
+class TestTrajectory(PymatgenTest):
     def setUp(self):
         xdatcar = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_XDATCAR"))
         self.traj = Trajectory.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_XDATCAR"))

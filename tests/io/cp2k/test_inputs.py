@@ -63,7 +63,7 @@ H GTH-PBE-q1 GTH-PBE
 """
 
 
-class BasisAndPotentialTest(PymatgenTest):
+class TestBasisAndPotential(PymatgenTest):
     def test_basis_info(self):
         # Ensure basis metadata can be read from string
         b = BasisInfo.from_str("cc-pc-DZVP-MOLOPT-q1-SCAN")
@@ -146,8 +146,8 @@ class BasisAndPotentialTest(PymatgenTest):
         assert kw.values[0] == "ALL"  # noqa: PD011
 
 
-class InputTest(PymatgenTest):
-    def setUp(self):
+class TestInput(PymatgenTest):
+    def setUp(self, TEST_FILES_DIR):
         self.TEST_FILES_DIR = Path.joinpath(self.TEST_FILES_DIR, "cp2k")
         self.ci = Cp2kInput.from_file(Path.joinpath(self.TEST_FILES_DIR, "cp2k.inp"))
 

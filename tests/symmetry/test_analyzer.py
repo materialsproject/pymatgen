@@ -19,7 +19,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir_mol = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 
-class SpacegroupAnalyzerTest(PymatgenTest):
+class TestSpacegroupAnalyzer(PymatgenTest):
     def setUp(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         self.structure = p.structure
@@ -463,7 +463,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert sa.get_hall() == "-I 4 2"
 
 
-class SpacegroupTest(unittest.TestCase):
+class TestSpacegroup(unittest.TestCase):
     def setUp(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         self.structure = p.structure
@@ -557,7 +557,7 @@ PF6 = Molecule(
 )
 
 
-class PointGroupAnalyzerTest(PymatgenTest):
+class TestPointGroupAnalyzer(PymatgenTest):
     def test_spherical(self):
         a = PointGroupAnalyzer(CH4)
         assert a.sch_symbol == "Td"
@@ -720,7 +720,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
             spga.get_kpoint_weights(kpts)
 
 
-class FuncTest(unittest.TestCase):
+class TestFunc(unittest.TestCase):
     def test_cluster_sites(self):
         o, c = cluster_sites(CH4, 0.1)
         assert o.specie.symbol == "C"

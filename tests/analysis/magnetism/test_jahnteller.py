@@ -11,7 +11,7 @@ from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
 
 
-class JahnTellerTest(unittest.TestCase):
+class TestJahnTeller(unittest.TestCase):
     def setUp(self):
         self.jt = JahnTellerAnalyzer()
 

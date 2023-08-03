@@ -39,7 +39,7 @@ ions = np.array(
 )
 
 
-class UtilsTest(PymatgenTest):
+class TestUtils(PymatgenTest):
     def setUp(self):
         self.potcar = Potcar.from_file(test_dir + "/POTCAR")
         self.zval_dict = {"Ba": 10, "Ti": 10, "O": 6}
@@ -55,7 +55,7 @@ class UtilsTest(PymatgenTest):
         assert np.allclose(p_ion, self.ions[-1].ravel().tolist())
 
 
-class PolarizationTest(PymatgenTest):
+class TestPolarization(PymatgenTest):
     def setUp(self):
         self.p_ions = ions
         self.p_ions_outcar = np.array(
@@ -243,7 +243,7 @@ class PolarizationTest(PymatgenTest):
         assert np.allclose(self.smoothness_all_in_polar, smoothness)
 
 
-class EnergyTrendTest(PymatgenTest):
+class TestEnergyTrend(PymatgenTest):
     def setUp(self):
         self.energies = [
             -7.97738049,

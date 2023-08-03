@@ -22,7 +22,7 @@ class FakeSite:
         self.coords = coords
 
 
-class CoordinationGeometriesTest(PymatgenTest):
+class TestCoordinationGeometries(PymatgenTest):
     def test_algorithms(self):
         expl_algo = ExplicitPermutationsAlgorithm(permutations=[[0, 1, 2], [1, 2, 3]])
         expl_algo2 = ExplicitPermutationsAlgorithm.from_dict(expl_algo.as_dict)

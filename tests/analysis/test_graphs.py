@@ -46,7 +46,7 @@ module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 molecule_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 
-class StructureGraphTest(PymatgenTest):
+class TestStructureGraph(PymatgenTest):
     def setUp(self):
         self.maxDiff = None
 
@@ -494,7 +494,7 @@ from    to  to_image
         assert list(sg.graph.edges)[-2:] == [(1, 3, 0), (1, 2, 0)]
 
 
-class MoleculeGraphTest(unittest.TestCase):
+class TestMoleculeGraph(unittest.TestCase):
     def setUp(self):
         cyclohexene_xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/cyclohexene.xyz")
         cyclohexene = Molecule.from_file(cyclohexene_xyz)

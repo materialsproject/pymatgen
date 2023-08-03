@@ -18,7 +18,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
 
 
-class LammpsInputFileTest(PymatgenTest):
+class TestLammpsInputFile(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         cls.filename = os.path.join(test_dir, "lgps.in")
@@ -565,7 +565,7 @@ write_data run.data"""
         ]
 
 
-class LammpsRunTest(unittest.TestCase):
+class TestLammpsRun(unittest.TestCase):
     maxDiff = None
 
     def test_md(self):
@@ -624,7 +624,7 @@ run             10000
                 shutil.rmtree(td)
 
 
-class FuncTest(unittest.TestCase):
+class TestFunc(unittest.TestCase):
     def test_write_lammps_inputs(self):
         # script template
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "kappa.txt")) as f:
@@ -667,7 +667,7 @@ class FuncTest(unittest.TestCase):
                 shutil.rmtree(td)
 
 
-class LammpsTemplateGenTest(PymatgenTest):
+class TestLammpsTemplateGen(PymatgenTest):
     def test_write_inputs(self):
         # simple script without data file
         lis = LammpsTemplateGen().get_input_set(

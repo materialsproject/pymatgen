@@ -9,7 +9,7 @@ from pytest import approx
 from pymatgen.optimization.linear_assignment import LinearAssignment
 
 
-class LinearAssignmentTest(unittest.TestCase):
+class TestLinearAssignment(unittest.TestCase):
     def test(self):
         w0 = np.array(
             [

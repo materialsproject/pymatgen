@@ -31,7 +31,7 @@ from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import PymatgenTest
 
 
-class DosPlotterTest(PymatgenTest):
+class TestDosPlotter(PymatgenTest):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
@@ -96,7 +96,7 @@ class DosPlotterTest(PymatgenTest):
         return None
 
 
-class BSPlotterTest(unittest.TestCase):
+class TestBSPlotter(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaO_2605_bandstructure.json")) as f:
             d = json.loads(f.read())
@@ -200,7 +200,7 @@ class BSPlotterTest(unittest.TestCase):
         plt.close("all")
 
 
-class BSPlotterProjectedTest(unittest.TestCase):
+class TestBSPlotterProjected(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json")) as f:
             d = json.load(f)
@@ -223,7 +223,7 @@ class BSPlotterProjectedTest(unittest.TestCase):
         ).close()
 
 
-class BSDOSPlotterTest(unittest.TestCase):
+class TestBSDOSPlotter(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -269,7 +269,7 @@ class BSDOSPlotterTest(unittest.TestCase):
         plt.show()
 
 
-class PlotBZTest(unittest.TestCase):
+class TestPlotBZ(unittest.TestCase):
     def setUp(self):
         self.rec_latt = Structure.from_file(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.cssr")
@@ -321,7 +321,7 @@ x_trans = which("x_trans")
 
 
 @unittest.skipIf(not x_trans, "No x_trans.")
-class BoltztrapPlotterTest(unittest.TestCase):
+class TestBoltztrapPlotter(unittest.TestCase):
     def setUp(self):
         bz = BoltztrapAnalyzer.from_files(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/transp/"))
         self.plotter = BoltztrapPlotter(bz)
@@ -464,7 +464,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
         plt.close()
 
 
-class CohpPlotterTest(PymatgenTest):
+class TestCohpPlotter(PymatgenTest):
     def setUp(self):
         path = f"{PymatgenTest.TEST_FILES_DIR}/cohp/complete_cohp_lobster.json"
         with open(os.path.join(path)) as f:

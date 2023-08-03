@@ -18,7 +18,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jul 26, 2012"
 
 
-class CovalentBondTest(unittest.TestCase):
+class TestCovalentBond(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -54,7 +54,7 @@ class CovalentBondTest(unittest.TestCase):
         assert CovalentBond(site1, site2) is not None
 
 
-class FuncTest(unittest.TestCase):
+class TestFunc(unittest.TestCase):
     def test_get_bond_length(self):
         assert approx(get_bond_length("C", "C", 1) - 1.54) == 0
         assert approx(get_bond_length("C", "C", 2) - 1.34) == 0

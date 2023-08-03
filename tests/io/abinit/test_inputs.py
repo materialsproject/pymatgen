@@ -254,7 +254,7 @@ class TestMultiDataset(PymatgenTest):
         self.serialize_with_pickle(multi, test_eq=False)
 
 
-class ShiftModeTest(PymatgenTest):
+class TestShiftMode(PymatgenTest):
     def test_shiftmode(self):
         """Testing shiftmode."""
         gamma = ShiftMode.GammaCentered
@@ -264,7 +264,7 @@ class ShiftModeTest(PymatgenTest):
             ShiftMode.from_object({})
 
 
-class FactoryTest(PymatgenTest):
+class TestFactory(PymatgenTest):
     def setUp(self):
         # Si ebands
         self.si_structure = Structure.from_file(abiref_file("si.cif"))

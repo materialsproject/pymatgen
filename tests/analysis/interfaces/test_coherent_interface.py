@@ -12,7 +12,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
 
-class InterfaceBuilderTest(PymatgenTest):
+class TestInterfaceBuilder(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         si_struct = cls.get_structure("Si")

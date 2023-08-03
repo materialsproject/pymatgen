@@ -20,7 +20,7 @@ except ModuleNotFoundError:
 __author__ = "waroquiers"
 
 
-class StructureConnectivityTest(PymatgenTest):
+class TestStructureConnectivity(PymatgenTest):
     def test_serialization(self):
         BaTiO3_se_fpath = os.path.join(
             self.TEST_FILES_DIR,

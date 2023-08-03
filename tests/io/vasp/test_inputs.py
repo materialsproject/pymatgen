@@ -396,7 +396,7 @@ direct
         ]
 
 
-class IncarTest:
+class TestIncar:
     def setUp(self, TEST_FILES_DIR):
         file_name = f"{TEST_FILES_DIR}/INCAR"
         self.incar = Incar.from_file(file_name)
@@ -731,7 +731,7 @@ SIGMA = 0.1"""
             incar.check_params()
 
 
-class KpointsTest:
+class TestKpoints:
     def test_init(self, TEST_FILES_DIR):
         filepath = f"{TEST_FILES_DIR}/KPOINTS.auto"
         kpoints = Kpoints.from_file(filepath)
@@ -860,7 +860,7 @@ direct
         assert np.allclose(kpoints.kpts[0], [10, 10, 10])
 
 
-class PotcarSingleTest:
+class TestPotcarSingle:
     _multiprocess_shared_ = True
 
     def setUp(self, TEST_FILES_DIR):
@@ -1038,7 +1038,7 @@ class PotcarSingleTest:
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
 
-class PotcarTest:
+class TestPotcar:
     def setUp(self, TEST_FILES_DIR):
         if "PMG_VASP_PSP_DIR" not in SETTINGS:
             SETTINGS["PMG_VASP_PSP_DIR"] = str(TEST_FILES_DIR)
@@ -1109,7 +1109,7 @@ class PotcarTest:
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
 
-class VaspInputTest:
+class TestVaspInput:
     def setUp(self, TEST_FILES_DIR):
         filepath = f"{TEST_FILES_DIR}/INCAR"
         incar = Incar.from_file(filepath)

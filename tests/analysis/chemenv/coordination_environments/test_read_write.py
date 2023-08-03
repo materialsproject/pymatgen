@@ -34,7 +34,7 @@ json_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/json_test_files"
 se_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/structure_environments_files"
 
 
-class ReadWriteChemenvTest(unittest.TestCase):
+class TestReadWriteChemenv(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.lgf = LocalGeometryFinder()

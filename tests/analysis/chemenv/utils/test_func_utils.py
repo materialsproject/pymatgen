@@ -15,7 +15,7 @@ from pymatgen.analysis.chemenv.utils.func_utils import (
 __author__ = "waroquiers"
 
 
-class FuncUtilsTest(unittest.TestCase):
+class TestFuncUtils(unittest.TestCase):
     def test_CSMFiniteRatioFunction(self):
         max_csm = 8
         alpha = 1

@@ -10,7 +10,7 @@ from pymatgen.phonon.plotter import PhononBSPlotter, PhononDosPlotter, ThermoPlo
 from pymatgen.util.testing import PymatgenTest
 
 
-class PhononDosPlotterTest(unittest.TestCase):
+class TestPhononDosPlotter(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
             self.dos = CompletePhononDos.from_dict(json.load(f))
@@ -46,7 +46,7 @@ class PhononDosPlotterTest(unittest.TestCase):
         assert ax.get_xlabel() == "$\\mathrm{Frequencies\\ (meV)}$"
 
 
-class PhononBSPlotterTest(unittest.TestCase):
+class TestPhononBSPlotter(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json")) as f:
             d = json.loads(f.read())
@@ -94,7 +94,7 @@ class PhononBSPlotterTest(unittest.TestCase):
         self.plotter.plot_compare(self.plotter, units="mev")
 
 
-class ThermoPlotterTest(unittest.TestCase):
+class TestThermoPlotter(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
             self.dos = CompletePhononDos.from_dict(json.load(f))

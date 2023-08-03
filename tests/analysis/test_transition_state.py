@@ -24,7 +24,7 @@ __date__ = "2/5/16"
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "neb_analysis")
 
 
-class NEBAnalysisTest(PymatgenTest):
+class TestNEBAnalysis(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
 

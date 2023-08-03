@@ -26,7 +26,7 @@ __email__ = "samblau1@gmail.com"
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 
-class QChemDictSetTest(PymatgenTest):
+class TestQChemDictSet(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_DictSet = QChemDictSet(
@@ -447,7 +447,7 @@ class QChemDictSetTest(PymatgenTest):
             )
 
 
-class SinglePointSetTest(PymatgenTest):
+class TestSinglePointSet(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule)
@@ -641,7 +641,7 @@ class SinglePointSetTest(PymatgenTest):
         assert test_SPSet.molecule == test_molecule
 
 
-class OptSetTest(PymatgenTest):
+class TestOptSet(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_OptSet = OptSet(molecule=test_molecule)
@@ -816,7 +816,7 @@ class OptSetTest(PymatgenTest):
         assert v6_OptSet_modified.geom_opt == ref_dict
 
 
-class TransitionStateSetTest(PymatgenTest):
+class TestTransitionStateSet(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_TSSet = TransitionStateSet(molecule=test_molecule)
@@ -891,7 +891,7 @@ class TransitionStateSetTest(PymatgenTest):
         assert test_TSSet.molecule == test_molecule
 
 
-class ForceSetTest(PymatgenTest):
+class TestForceSet(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_forceset = ForceSet(molecule=test_molecule)
@@ -962,7 +962,7 @@ class ForceSetTest(PymatgenTest):
         assert test_forceset.molecule == test_molecule
 
 
-class PESScanSetTest(PymatgenTest):
+class TestPESScanSet(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pes_scan.qin")).molecule
 
@@ -1045,7 +1045,7 @@ class PESScanSetTest(PymatgenTest):
         assert test_pes_scan.molecule == test_molecule
 
 
-class FreqSetTest(PymatgenTest):
+class TestFreqSet(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_FreqSet = FreqSet(molecule=test_molecule)

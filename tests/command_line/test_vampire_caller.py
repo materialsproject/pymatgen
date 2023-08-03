@@ -16,7 +16,7 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings")
 
 
 @unittest.skipIf(not which("vampire-serial"), "vampire executable not present")
-class VampireCallerTest(unittest.TestCase):
+class TestVampireCaller(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         print("Testing with: ", which("vampire-serial"))

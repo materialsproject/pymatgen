@@ -24,7 +24,7 @@ except ImportError:
     pybtex = None
 
 
-class CifBlockTest(PymatgenTest):
+class TestCifBlock(PymatgenTest):
     def test_to_string(self):
         with open(f"{self.TEST_FILES_DIR}/Graphite.cif") as file:
             cif_str = file.read()
@@ -163,7 +163,7 @@ loop_
         assert str(CifBlock(data, loops, "test")) == cif_str
 
 
-class CifIOTest(PymatgenTest):
+class TestCifIO(PymatgenTest):
     def test_CifParser(self):
         parser = CifParser(f"{self.TEST_FILES_DIR}/LiFePO4.cif")
         for s in parser.get_structures(True):
@@ -916,7 +916,7 @@ Si1 Si 0 0 0 1 0.0
             parser.get_structures()
 
 
-class MagCifTest(PymatgenTest):
+class TestMagCif(PymatgenTest):
     def setUp(self):
         warnings.filterwarnings("ignore")
         self.mcif = CifParser(f"{self.TEST_FILES_DIR}/magnetic.example.NiO.mcif")

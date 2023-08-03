@@ -30,7 +30,7 @@ except ModuleNotFoundError:
 __author__ = "waroquiers"
 
 
-class ConnectedComponentTest(PymatgenTest):
+class TestConnectedComponent(PymatgenTest):
     def test_init(self):
         # Generic connected component not using EnvironmentNodes
         # (as_dict won't work on such a ConnectedComponent instance)

@@ -8,7 +8,7 @@ from pymatgen.io.prismatic import Prismatic
 from pymatgen.util.testing import PymatgenTest
 
 
-class PrismaticTest(unittest.TestCase):
+class TestPrismatic(unittest.TestCase):
     def test_to_string(self):
         structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "CuCl.cif"))
         prismatic = Prismatic(structure)

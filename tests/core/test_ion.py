@@ -10,7 +10,7 @@ from pymatgen.core.ion import Ion
 from pymatgen.core.periodic_table import Element
 
 
-class IonTest(unittest.TestCase):
+class TestIon(unittest.TestCase):
     def setUp(self):
         self.comp = []
         self.comp.append(Ion.from_formula("Li+"))

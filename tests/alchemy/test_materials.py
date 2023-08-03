@@ -19,7 +19,7 @@ from pymatgen.util.provenance import StructureNL
 from pymatgen.util.testing import PymatgenTest
 
 
-class TransformedStructureTest(PymatgenTest):
+class TestTransformedStructure(PymatgenTest):
     def setUp(self):
         structure = PymatgenTest.get_structure("LiFePO4")
         self.structure = structure

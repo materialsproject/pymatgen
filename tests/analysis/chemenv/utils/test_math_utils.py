@@ -20,7 +20,7 @@ from pymatgen.util.testing import PymatgenTest
 __author__ = "waroquiers"
 
 
-class MathUtilsTest(PymatgenTest):
+class TestMathUtils(PymatgenTest):
     def test_list_cartesian_product(self):
         list_of_lists = [[0, 1], [2, 5, 4], [5]]
         assert _cartesian_product(lists=list_of_lists) == [

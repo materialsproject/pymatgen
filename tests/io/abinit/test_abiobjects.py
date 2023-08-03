@@ -24,7 +24,7 @@ from pymatgen.io.abinit.abiobjects import (
 from pymatgen.util.testing import PymatgenTest
 
 
-class LatticeFromAbivarsTest(PymatgenTest):
+class TestLatticeFromAbivars(PymatgenTest):
     def test_rprim_acell(self):
         l1 = lattice_from_abivars(acell=3 * [10], rprim=np.eye(3))
         assert l1.volume == approx(bohr_to_ang**3 * 1000)
@@ -109,7 +109,7 @@ class LatticeFromAbivarsTest(PymatgenTest):
             structure_to_abivars(gan, enforce_znucl=enforce_znucl, enforce_typat=None)
 
 
-class SpinModeTest(PymatgenTest):
+class TestSpinMode(PymatgenTest):
     def test_base(self):
         polarized = SpinMode.as_spinmode("polarized")
         other_polarized = SpinMode.as_spinmode("polarized")
@@ -129,7 +129,7 @@ class SpinModeTest(PymatgenTest):
         self.assert_msonable(unpolarized)
 
 
-class SmearingTest(PymatgenTest):
+class TestSmearing(PymatgenTest):
     def test_base(self):
         fd1ev = Smearing.as_smearing("fermi_dirac:1 eV")
         fd1ev.to_abivars()
@@ -157,7 +157,7 @@ class SmearingTest(PymatgenTest):
         self.assert_msonable(fd1ev)
 
 
-class ElectronsAlgorithmTest(PymatgenTest):
+class TestElectronsAlgorithm(PymatgenTest):
     def test_base(self):
         algo = ElectronsAlgorithm(nstep=70)
         _ = algo.to_abivars()
@@ -169,7 +169,7 @@ class ElectronsAlgorithmTest(PymatgenTest):
         self.assert_msonable(algo)
 
 
-class ElectronsTest(PymatgenTest):
+class TestElectrons(PymatgenTest):
     def test_base(self):
         default_electrons = Electrons()
         assert default_electrons.nsppol == 2
@@ -196,7 +196,7 @@ class ElectronsTest(PymatgenTest):
         self.assert_msonable(custom_electrons)
 
 
-class KSamplingTest(PymatgenTest):
+class TestKSampling(PymatgenTest):
     def test_base(self):
         monkhorst = KSampling.monkhorst((3, 3, 3), (0.5, 0.5, 0.5), 0, False, False)
         gamma_centered = KSampling.gamma_centered((3, 3, 3), False, False)
@@ -208,7 +208,7 @@ class KSamplingTest(PymatgenTest):
         self.assert_msonable(gamma_centered)
 
 
-class RelaxationTest(PymatgenTest):
+class TestRelaxation(PymatgenTest):
     def test_base(self):
         atoms_and_cell = RelaxationMethod.atoms_and_cell()
         atoms_only = RelaxationMethod.atoms_only()
@@ -221,7 +221,7 @@ class RelaxationTest(PymatgenTest):
         self.assert_msonable(atoms_only)
 
 
-class PPModelTest(PymatgenTest):
+class TestPPModel(PymatgenTest):
     def test_base(self):
         godby = PPModel.as_ppmodel("godby:12 eV")
         godby.to_abivars()

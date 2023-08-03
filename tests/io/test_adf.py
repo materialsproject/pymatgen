@@ -96,7 +96,7 @@ def readfile(file_object):
     raise ValueError("``file_object`` must be a string or a file object!")
 
 
-class AdfKeyTest:
+class TestAdfKey:
     def test_simple(self):
         unrestricted = AdfKey("unrestricted")
         assert str(unrestricted).strip() == "UNRESTRICTED"
@@ -208,7 +208,7 @@ END
 """
 
 
-class AdfTaskTest:
+class TestAdfTask:
     def test_energy(self):
         task = AdfTask()
         assert str(task) == energy_task
@@ -255,7 +255,7 @@ rhb18 = {
 }
 
 
-class AdfInputTest:
+class TestAdfInput:
     def setUp(self):
         self.tempfile = "./adf.temp"
 
@@ -273,7 +273,7 @@ class AdfInputTest:
             os.remove(self.tempfile)
 
 
-class AdfOutputTest:
+class TestAdfOutput:
     def test_analytical_freq(self):
         filename = join(test_dir, "adf", "analytical_freq", "adf.out")
         o = AdfOutput(filename)

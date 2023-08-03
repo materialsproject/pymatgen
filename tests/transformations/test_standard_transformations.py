@@ -43,7 +43,7 @@ from pymatgen.util.testing import PymatgenTest
 enumlib_present = which("enum.x") and which("makestr.x")
 
 
-class RotationTransformationsTest(unittest.TestCase):
+class TestRotationTransformations(unittest.TestCase):
     def setUp(self):
         coords = []
         coords.append([0, 0, 0])
@@ -69,7 +69,7 @@ class RotationTransformationsTest(unittest.TestCase):
         assert (abs(s1.lattice.matrix - self.struct.lattice.matrix) < 1e-8).all()
 
 
-class RemoveSpeciesTransformationTest(unittest.TestCase):
+class TestRemoveSpeciesTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = RemoveSpeciesTransformation(["Li+"])
         coords = []
@@ -92,7 +92,7 @@ class RemoveSpeciesTransformationTest(unittest.TestCase):
         assert isinstance(RemoveSpeciesTransformation.from_dict(d), RemoveSpeciesTransformation)
 
 
-class SubstitutionTransformationTest(unittest.TestCase):
+class TestSubstitutionTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = SubstitutionTransformation({"Li+": "Na+", "O2-": "S2-"})
         coords = []
@@ -132,7 +132,7 @@ class SubstitutionTransformationTest(unittest.TestCase):
         assert s.composition.formula == "Na2 Se1 S1"
 
 
-class SupercellTransformationTest(unittest.TestCase):
+class TestSupercellTransformation(unittest.TestCase):
     def setUp(self):
         coords = []
         coords.append([0, 0, 0])
@@ -160,7 +160,7 @@ class SupercellTransformationTest(unittest.TestCase):
         assert s.num_sites == 4 * functools.reduce(lambda a, b: a * b, scale_factors)
 
 
-class OxidationStateDecorationTransformationTest(unittest.TestCase):
+class TestOxidationStateDecorationTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = OxidationStateDecorationTransformation({"Li": 1, "O": -2})
         coords = []
@@ -183,7 +183,7 @@ class OxidationStateDecorationTransformationTest(unittest.TestCase):
         assert isinstance(OxidationStateDecorationTransformation.from_dict(d), OxidationStateDecorationTransformation)
 
 
-class AutoOxiStateDecorationTransformationTest(unittest.TestCase):
+class TestAutoOxiStateDecorationTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         trafo = AutoOxiStateDecorationTransformation()
@@ -199,7 +199,7 @@ class AutoOxiStateDecorationTransformationTest(unittest.TestCase):
         assert trafo.analyzer.dist_scale_factor == 1.015
 
 
-class OxidationStateRemovalTransformationTest(unittest.TestCase):
+class TestOxidationStateRemovalTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = OxidationStateRemovalTransformation()
         coords = []
@@ -224,7 +224,7 @@ class OxidationStateRemovalTransformationTest(unittest.TestCase):
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
-class PartialRemoveSpecieTransformationTest(unittest.TestCase):
+class TestPartialRemoveSpecieTransformation(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -283,7 +283,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         assert len(trafo.apply_transformation(struct)) == 26
 
 
-class OrderDisorderedStructureTransformationTest(unittest.TestCase):
+class TestOrderDisorderedStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = OrderDisorderedStructureTransformation()
         coords = []
@@ -415,7 +415,7 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         assert output[0]["energy"] == approx(-234.57813667648315, abs=1e-4)
 
 
-class PrimitiveCellTransformationTest(unittest.TestCase):
+class TestPrimitiveCellTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = PrimitiveCellTransformation()
         coords = []
@@ -448,7 +448,7 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
         assert isinstance(PrimitiveCellTransformation.from_dict(d), PrimitiveCellTransformation)
 
 
-class ConventionalCellTransformationTest(unittest.TestCase):
+class TestConventionalCellTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = ConventionalCellTransformation()
         coords = []
@@ -468,7 +468,7 @@ class ConventionalCellTransformationTest(unittest.TestCase):
         assert conventional_struct.lattice.alpha == 90
 
 
-class PerturbStructureTransformationTest(unittest.TestCase):
+class TestPerturbStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = PerturbStructureTransformation(0.05)
         coords = []
@@ -504,7 +504,7 @@ class PerturbStructureTransformationTest(unittest.TestCase):
         assert isinstance(PerturbStructureTransformation.from_dict(d), PerturbStructureTransformation)
 
 
-class DeformStructureTransformationTest(unittest.TestCase):
+class TestDeformStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = DeformStructureTransformation([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.05, 1.0]])
         coords = []
@@ -532,7 +532,7 @@ class DeformStructureTransformationTest(unittest.TestCase):
         assert isinstance(DeformStructureTransformation.from_dict(d), DeformStructureTransformation)
 
 
-class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
+class TestDiscretizeOccupanciesTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         latt = Lattice.cubic(4)
         s_orig = Structure(
@@ -568,7 +568,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
             dot.apply_transformation(s_orig_2)
 
 
-class ChargedCellTransformationTest(unittest.TestCase):
+class TestChargedCellTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         lattice = Lattice.cubic(4)
         s_orig = Structure(
@@ -581,7 +581,7 @@ class ChargedCellTransformationTest(unittest.TestCase):
         assert s.charge == 3
 
 
-class ScaleToRelaxedTransformationTest(unittest.TestCase):
+class TestScaleToRelaxedTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         # Test on slab relaxation where volume is fixed
         f = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests")

@@ -14,7 +14,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import PymatgenTest
 
 
-class VoltageProfilePlotterTest(unittest.TestCase):
+class TestVoltageProfilePlotter(unittest.TestCase):
     def setUp(self):
         entry_Li = ComputedEntry("Li", -1.90753119)
 

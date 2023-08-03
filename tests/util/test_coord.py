@@ -11,7 +11,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.util import coord
 
 
-class CoordUtilsTest:
+class TestCoordUtils:
     def test_get_linear_interpolated_value(self):
         x_vals = [0, 1, 2, 3, 4, 5]
         y_vals = [3, 6, 7, 8, 10, 12]
@@ -242,7 +242,7 @@ class CoordUtilsTest:
         assert coord.get_angle(v1, v2, units="radians") == approx(0.9553166181245092)
 
 
-class SimplexTest:
+class TestSimplex:
     def setUp(self):
         coords = []
         coords.append([0, 0, 0])

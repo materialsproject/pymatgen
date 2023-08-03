@@ -20,7 +20,7 @@ from pymatgen.util.testing import PymatgenTest
 module_dir = Path(__file__).absolute().parent
 
 
-class ChemicalPotentialDiagramTest(PymatgenTest):
+class TestChemicalPotentialDiagram(PymatgenTest):
     def setUp(self):
         self.entries = EntrySet.from_csv(str(module_dir / "pd_entries_test.csv"))
         self.cpd_ternary = ChemicalPotentialDiagram(entries=self.entries, default_min_limit=-25, formal_chempots=False)

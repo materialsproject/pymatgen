@@ -170,7 +170,7 @@ class PseudoTestCase(PymatgenTest):
         assert pb.supports_soc
 
 
-class PseudoTableTest(PymatgenTest):
+class TestPseudoTable(PymatgenTest):
     def test_methods(self):
         """Test PseudoTable methods."""
         table = PseudoTable(ref_files("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi"))

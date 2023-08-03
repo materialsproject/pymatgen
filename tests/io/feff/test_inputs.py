@@ -26,7 +26,7 @@ TITLE sites: 4
 * 4 O     0.333333     0.666667     0.378675"""
 
 
-class HeaderTest(unittest.TestCase):
+class TestHeader(unittest.TestCase):
     def test_init(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "HEADER")
         header = Header.header_string_from_file(filepath)
@@ -56,7 +56,7 @@ class HeaderTest(unittest.TestCase):
         assert str(header) == str(header2), "Header failed to and from dict test"
 
 
-class FeffAtomsTest(unittest.TestCase):
+class TestFeffAtoms(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         r = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "CoO19128.cif"))
@@ -138,7 +138,7 @@ class FeffAtomsTest(unittest.TestCase):
         os.remove("ATOMS_test")
 
 
-class FeffTagsTest(unittest.TestCase):
+class TestFeffTags(unittest.TestCase):
     def test_init(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "PARAMETERS")
         parameters = Tags.from_file(filepath)
@@ -203,7 +203,7 @@ class FeffTagsTest(unittest.TestCase):
         assert dict(tags_2) == ans_1
 
 
-class FeffPotTest(unittest.TestCase):
+class TestFeffPot(unittest.TestCase):
     def test_init(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POTENTIALS")
         feffpot = Potential.pot_string_from_file(filepath)
@@ -235,7 +235,7 @@ class FeffPotTest(unittest.TestCase):
         assert str(pot) == str(pot2), "Potential to and from dict does not match"
 
 
-class PathsTest(unittest.TestCase):
+class TestPaths(unittest.TestCase):
     def setUp(self):
         feo = Structure.from_dict(
             {

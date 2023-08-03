@@ -40,7 +40,7 @@ except ImportError as exc:
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "phonopy")
 
 
-class PhonopyParserTest(PymatgenTest):
+class TestPhonopyParser(PymatgenTest):
     def test_get_ph_bs(self):
         ph_bs = get_ph_bs_symm_line(os.path.join(test_dir, "NaCl_band.yaml"), has_nac=True)
 
@@ -96,7 +96,7 @@ class PhonopyParserTest(PymatgenTest):
 
 
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
-class StructureConversionTest(PymatgenTest):
+class TestStructureConversion(PymatgenTest):
     def test_structure_conversion(self):
         s_pmg = PymatgenTest.get_structure("LiFePO4")
         s_ph = get_phonopy_structure(s_pmg)
@@ -117,7 +117,7 @@ class StructureConversionTest(PymatgenTest):
 
 
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
-class GetDisplacedStructuresTest(PymatgenTest):
+class TestGetDisplacedStructures(PymatgenTest):
     def test_get_displaced_structures(self):
         pmg_s = Structure.from_file(os.path.join(test_dir, "POSCAR-unitcell"), False)
         supercell_matrix = [[2, 0, 0], [0, 1, 0], [0, 0, 2]]

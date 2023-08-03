@@ -32,7 +32,7 @@ def get_path(path_str):
     return os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
 
 
-class SlabTest(PymatgenTest):
+class TestSlab(PymatgenTest):
     def setUp(self):
         zno1 = Structure.from_file(get_path("ZnO-wz.cif"), primitive=False)
         zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False, center_slab=False).get_slab()
@@ -349,7 +349,7 @@ class SlabTest(PymatgenTest):
         assert slab == Slab.from_dict(d)
 
 
-class SlabGeneratorTest(PymatgenTest):
+class TestSlabGenerator(PymatgenTest):
     def setUp(self):
         lattice = Lattice.cubic(3.010)
         frac_coords = [

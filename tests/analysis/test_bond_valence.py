@@ -11,7 +11,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 
-class BVAnalyzerTest(PymatgenTest):
+class TestBVAnalyzer(PymatgenTest):
     def setUp(self):
         self.analyzer = BVAnalyzer()
 
@@ -38,7 +38,7 @@ class BVAnalyzerTest(PymatgenTest):
         assert Species("Mn", 4) in news.composition.elements
 
 
-class BondValenceSumTest(PymatgenTest):
+class TestBondValenceSum(PymatgenTest):
     def test_calculate_bv_sum(self):
         struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiMn2O4.json"))
         neighbors = struct.get_neighbors(struct[0], 3.0)

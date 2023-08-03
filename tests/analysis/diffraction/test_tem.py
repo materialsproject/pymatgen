@@ -20,7 +20,7 @@ __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
 __date__ = "2/20/20"
 
 
-class TEMCalculatorTest(PymatgenTest):
+class TestTEMCalculator(PymatgenTest):
     def test_wavelength_rel(self):
         # Test that the relativistic wavelength formula (for 200kv electron beam) is correct
         c = TEMCalculator()

@@ -23,7 +23,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
 
 
-class LammpsBoxTest(PymatgenTest):
+class TestLammpsBox(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         cls.peptide = LammpsBox(
@@ -77,7 +77,7 @@ class LammpsBoxTest(PymatgenTest):
         )
 
 
-class LammpsDataTest(unittest.TestCase):
+class TestLammpsData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.peptide = LammpsData.from_file(filename=os.path.join(test_dir, "data.peptide"))
@@ -542,7 +542,7 @@ class LammpsDataTest(unittest.TestCase):
                 os.remove(t)
 
 
-class TopologyTest(unittest.TestCase):
+class TestTopology(unittest.TestCase):
     def test_init(self):
         inner_charge = np.random.rand(10) - 0.5
         outer_charge = np.random.rand(10) - 0.5
@@ -663,7 +663,7 @@ class TopologyTest(unittest.TestCase):
         assert "Dihedrals" not in topo_etoh2.topologies
 
 
-class ForceFieldTest(unittest.TestCase):
+class TestForceField(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         mass_info = [
@@ -782,7 +782,7 @@ class ForceFieldTest(unittest.TestCase):
             os.remove("ff_test.yaml")
 
 
-class FuncTest(unittest.TestCase):
+class TestFunc(unittest.TestCase):
     def test_lattice_2_lmpbox(self):
         matrix = np.diag(np.random.randint(5, 14, size=(3,))) + np.random.rand(3, 3) * 0.2 - 0.1
         init_latt = Lattice(matrix)
@@ -814,7 +814,7 @@ class FuncTest(unittest.TestCase):
         )
 
 
-class CombinedDataTest(unittest.TestCase):
+class TestCombinedData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.ec = LammpsData.from_file(filename=os.path.join(test_dir, "ec.data.gz"))

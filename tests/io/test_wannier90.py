@@ -10,7 +10,7 @@ from pymatgen.io.wannier90 import Unk
 from pymatgen.util.testing import PymatgenTest
 
 
-class UnkTest(PymatgenTest):
+class TestUnk(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):

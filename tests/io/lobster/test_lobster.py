@@ -43,7 +43,7 @@ test_dir_doscar = PymatgenTest.TEST_FILES_DIR
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-class CohpcarTest(PymatgenTest):
+class TestCohpcar(PymatgenTest):
     def setUp(self):
         self.cohp_bise = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.BiSe.gz")
         self.coop_bise = Cohpcar(
@@ -406,7 +406,7 @@ class CohpcarTest(PymatgenTest):
         assert np.allclose(tot_Na2UO4, icohp_Na2UO4, atol=1e-3)
 
 
-class IcohplistTest(unittest.TestCase):
+class TestIcohplist(unittest.TestCase):
     def setUp(self):
         self.icohp_bise = Icohplist(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOHPLIST.lobster.BiSe")
         self.icoop_bise = Icohplist(
@@ -671,7 +671,7 @@ class IcohplistTest(unittest.TestCase):
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["orbitals"]["2s-6s"]["icohp"][Spin.up] == 0.0247
 
 
-class DoscarTest(unittest.TestCase):
+class TestDoscar(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
         doscar = os.path.join(test_dir_doscar, "DOSCAR.lobster.spin")
@@ -841,7 +841,7 @@ class DoscarTest(unittest.TestCase):
         assert not self.DOSCAR_nonspin_pol.is_spin_polarized
 
 
-class ChargeTest(PymatgenTest):
+class TestCharge(PymatgenTest):
     def setUp(self):
         self.charge2 = Charge(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/CHARGE.lobster.MnO")
         # gzipped file
@@ -899,7 +899,7 @@ class ChargeTest(PymatgenTest):
         assert s2 == self.charge2.get_structure_with_charges(PymatgenTest.TEST_FILES_DIR / "POSCAR.MnO")
 
 
-class LobsteroutTest(PymatgenTest):
+class TestLobsterout(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.lobsterout_normal = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.normal")
@@ -1355,7 +1355,7 @@ class LobsteroutTest(PymatgenTest):
                     assert item == comparedict[key]
 
 
-class FatbandTest(PymatgenTest):
+class TestFatband(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.fatband_SiO2_p_x = Fatband(
@@ -1561,7 +1561,7 @@ class FatbandTest(PymatgenTest):
         assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064), abs=1e-2)
 
 
-class LobsterinTest(unittest.TestCase):
+class TestLobsterin(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.Lobsterinfromfile = Lobsterin.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterin.1"))
@@ -2019,7 +2019,7 @@ class LobsterinTest(unittest.TestCase):
         warnings.simplefilter("default")
 
 
-class BandoverlapsTest(unittest.TestCase):
+class TestBandoverlaps(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
         # test spin polarlized calc and non spinpolarized calc
@@ -2175,7 +2175,7 @@ class BandoverlapsTest(unittest.TestCase):
         )
 
 
-class GrosspopTest(unittest.TestCase):
+class TestGrosspop(unittest.TestCase):
     def setUp(self):
         self.grosspop1 = Grosspop(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "GROSSPOP.lobster"))
 
@@ -2349,7 +2349,7 @@ class TestUtils(PymatgenTest):
         ]
 
 
-class WavefunctionTest(PymatgenTest):
+class TestWavefunction(PymatgenTest):
     def test_parse_file(self):
         grid, points, real, imaginary, distance = Wavefunction._parse_file(
             os.path.join(
@@ -2438,7 +2438,7 @@ class WavefunctionTest(PymatgenTest):
         warnings.simplefilter("default")
 
 
-class SitePotentialsTest(PymatgenTest):
+class TestSitePotentials(PymatgenTest):
     def setUp(self) -> None:
         self.sitepotential = SitePotential(filename=f"{test_dir_doscar}/cohp/SitePotentials.lobster.perovskite")
 
@@ -2460,7 +2460,7 @@ class SitePotentialsTest(PymatgenTest):
         assert structure.site_properties["Mulliken Site Potentials (eV)"] == [-11.38, -19.62, 11.18, 11.18, 10.09]
 
 
-class MadelungEnergiesTest(PymatgenTest):
+class TestMadelungEnergies(PymatgenTest):
     def setUp(self) -> None:
         self.madelungenergies = MadelungEnergies(filename=f"{test_dir_doscar}/cohp/MadelungEnergies.lobster.perovskite")
 

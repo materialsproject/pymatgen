@@ -10,7 +10,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
 
 
-class LammpsMinimizationTest(PymatgenTest):
+class TestLammpsMinimization(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         cls.filename = os.path.join(test_dir, "lgps.in")

@@ -14,7 +14,7 @@ except requests.exceptions.ConnectionError:
     website_down = True
 
 
-class OptimadeTest(PymatgenTest):
+class TestOptimade(PymatgenTest):
     @unittest.skipIf(
         not SETTINGS.get("PMG_MAPI_KEY") or website_down,
         "PMG_MAPI_KEY environment variable not set or MP is down.",

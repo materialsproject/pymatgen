@@ -10,7 +10,7 @@ from pymatgen.core.tensors import Tensor
 from pymatgen.util.testing import PymatgenTest
 
 
-class DeformationTest(PymatgenTest):
+class TestDeformation(PymatgenTest):
     def setUp(self):
         self.norm_defo = Deformation.from_index_amount((0, 0), 0.02)
         self.ind_defo = Deformation.from_index_amount((0, 1), 0.02)
@@ -82,7 +82,7 @@ class DeformationTest(PymatgenTest):
             assert np.allclose(new_coord, defo_coord)
 
 
-class StrainTest(PymatgenTest):
+class TestStrain(PymatgenTest):
     def setUp(self):
         self.norm_str = Strain.from_deformation([[1.02, 0, 0], [0, 1, 0], [0, 0, 1]])
         self.ind_str = Strain.from_deformation([[1, 0.02, 0], [0, 1, 0], [0, 0, 1]])
@@ -142,7 +142,7 @@ class StrainTest(PymatgenTest):
             assert np.allclose(defo.green_lagrange_strain, strain)
 
 
-class DeformedStructureSetTest(PymatgenTest):
+class TestDeformedStructureSet(PymatgenTest):
     def setUp(self):
         self.structure = self.get_structure("Sn")
         self.default_dss = DeformedStructureSet(self.structure)

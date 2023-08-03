@@ -68,7 +68,7 @@ class FakeNodeWithEqMethodWrongSortable:
         return self.isite % 2 < other.isite % 2
 
 
-class GraphUtilsTest(PymatgenTest):
+class TestGraphUtils(PymatgenTest):
     def test_get_delta(self):
         n1 = FakeNode(3)
         n2 = FakeNode(7)
@@ -638,7 +638,7 @@ class GraphUtilsTest(PymatgenTest):
             assert mgc.edge_indices == edges_ref, f"Edges not equal for inodes = ({str_nodes})"
 
 
-class EnvironmentNodesGraphUtilsTest(PymatgenTest):
+class TestEnvironmentNodesGraphUtils(PymatgenTest):
     def test_cycle(self):
         e1 = EnvironmentNode(central_site="Si", i_central_site=0, ce_symbol="T:4")
         e2 = EnvironmentNode(central_site="Si", i_central_site=3, ce_symbol="T:4")

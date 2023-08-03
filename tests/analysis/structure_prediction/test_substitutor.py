@@ -24,7 +24,7 @@ def get_table():
         return json.load(f)
 
 
-class SubstitutorTest(PymatgenTest):
+class TestSubstitutor(PymatgenTest):
     def setUp(self):
         self.s = Substitutor(threshold=1e-3, lambda_table=get_table(), alpha=-5.0)
 

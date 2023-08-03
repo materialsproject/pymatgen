@@ -20,7 +20,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 
-class ContainsSpecieFilterTest(PymatgenTest):
+class TestContainsSpecieFilter(PymatgenTest):
     def test_filtering(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
@@ -55,7 +55,7 @@ class ContainsSpecieFilterTest(PymatgenTest):
         assert isinstance(ContainsSpecieFilter.from_dict(d), ContainsSpecieFilter)
 
 
-class SpecieProximityFilterTest(PymatgenTest):
+class TestSpecieProximityFilter(PymatgenTest):
     def test_filter(self):
         struct = self.get_structure("Li10GeP2S12")
         sf = SpecieProximityFilter({"Li": 1})
@@ -73,7 +73,7 @@ class SpecieProximityFilterTest(PymatgenTest):
         assert isinstance(SpecieProximityFilter.from_dict(d), SpecieProximityFilter)
 
 
-class RemoveDuplicatesFilterTest(unittest.TestCase):
+class TestRemoveDuplicatesFilter(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json")) as file:
             entries = json.load(file, cls=MontyDecoder)
@@ -92,7 +92,7 @@ class RemoveDuplicatesFilterTest(unittest.TestCase):
         assert isinstance(RemoveDuplicatesFilter().from_dict(d), RemoveDuplicatesFilter)
 
 
-class RemoveExistingFilterTest(unittest.TestCase):
+class TestRemoveExistingFilter(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json")) as fp:
             entries = json.load(fp, cls=MontyDecoder)

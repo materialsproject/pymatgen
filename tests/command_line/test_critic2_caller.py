@@ -19,7 +19,7 @@ __date__ = "July 2017"
 
 
 @unittest.skipIf(not which("critic2"), "critic2 executable not present")
-class Critic2CallerTest(unittest.TestCase):
+class TestCritic2Caller(unittest.TestCase):
     def test_from_path(self):
         # uses chgcars
         test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader")
@@ -73,7 +73,7 @@ class Critic2CallerTest(unittest.TestCase):
         assert len(c2c._stdout) >= 500
 
 
-class Critic2AnalysisTest(unittest.TestCase):
+class TestCritic2Analysis(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):

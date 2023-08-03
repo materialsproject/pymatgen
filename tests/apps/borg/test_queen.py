@@ -19,7 +19,7 @@ __email__ = "shyue@mit.edu"
 __date__ = "Mar 18, 2012"
 
 
-class BorgQueenTest(unittest.TestCase):
+class TestBorgQueen(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 

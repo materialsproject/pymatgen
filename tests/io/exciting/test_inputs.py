@@ -22,7 +22,7 @@ __email__ = "vorwerk@physik.hu-berlin.de"
 __date__ = "Dec 01, 2016"
 
 
-class ExcitingInputTest(PymatgenTest):
+class TestExcitingInput(PymatgenTest):
     def test_fromfile(self):
         # Test for the import of a structure directly from an exciting
         # input file

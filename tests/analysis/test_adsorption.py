@@ -10,7 +10,7 @@ from pymatgen.util.coord import in_coord_list
 from pymatgen.util.testing import PymatgenTest
 
 
-class AdsorbateSiteFinderTest(PymatgenTest):
+class TestAdsorbateSiteFinder(PymatgenTest):
     def setUp(self):
         self.structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.5), ["Ni"], [[0, 0, 0]])
         lattice = Lattice.cubic(3.010)

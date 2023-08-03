@@ -20,7 +20,7 @@ __email__ = "resnant@outlook.jp"
 __date__ = "4/19/18"
 
 
-class NDCalculatorTest(PymatgenTest):
+class TestNDCalculator(PymatgenTest):
     def test_get_pattern(self):
         struct = self.get_structure("CsCl")
         c = NDCalculator(wavelength=1.54184)  # CuKa radiation

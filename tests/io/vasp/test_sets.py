@@ -85,7 +85,7 @@ def test_Yb_2_warning(input_set: VaspInputSet) -> None:
     assert expected in str(record[0].message)
 
 
-class SetChangeCheckTest(PymatgenTest):
+class TestSetChangeCheck(PymatgenTest):
     def test_sets_changed(self):
         msg = (
             "WARNING! These tests will fail when you change an input set. They are included "
@@ -119,7 +119,7 @@ class SetChangeCheckTest(PymatgenTest):
             assert hashes[input_set] == known_hashes[input_set], msg
 
 
-class DictSetTest(PymatgenTest):
+class TestDictSet(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         filepath = f"{cls.TEST_FILES_DIR}/POSCAR"
@@ -139,7 +139,7 @@ class DictSetTest(PymatgenTest):
         assert dict_set.potcar_functional == dict_set.user_potcar_functional
 
 
-class MITMPRelaxSetTest(PymatgenTest):
+class TestMITMPRelaxSet(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         cls.monkeypatch = MonkeyPatch()
@@ -614,7 +614,7 @@ class MITMPRelaxSetTest(PymatgenTest):
             vis.incar.items()
 
 
-class MPStaticSetTest(PymatgenTest):
+class TestMPStaticSet(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         warnings.simplefilter("ignore")
@@ -755,7 +755,7 @@ class MPStaticSetTest(PymatgenTest):
         warnings.simplefilter("default")
 
 
-class MPNonSCFSetTest(PymatgenTest):
+class TestMPNonSCFSet(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         warnings.simplefilter("ignore")
@@ -912,7 +912,7 @@ class MPNonSCFSetTest(PymatgenTest):
         warnings.simplefilter("default")
 
 
-class MagmomLdauTest(PymatgenTest):
+class TestMagmomLdau(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -953,7 +953,7 @@ class MagmomLdauTest(PymatgenTest):
             assert vis.incar["MAGMOM"] == magmom_ans
 
 
-class MITMDSetTest(PymatgenTest):
+class TestMITMDSet(PymatgenTest):
     def setUp(self):
         filepath = f"{self.TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath)
@@ -984,7 +984,7 @@ class MITMDSetTest(PymatgenTest):
 
 
 @skip_if_no_psp_dir
-class MVLNPTMDSetTest(PymatgenTest):
+class TestMVLNPTMDSet(PymatgenTest):
     def setUp(self):
         file_path = f"{self.TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(file_path)
@@ -1025,7 +1025,7 @@ class MVLNPTMDSetTest(PymatgenTest):
         assert v._config_dict["INCAR"]["NSW"] == 1000
 
 
-class MITNEBSetTest(PymatgenTest):
+class TestMITNEBSet(PymatgenTest):
     def setUp(self):
         c1 = [[0.5] * 3, [0.9] * 3]
         c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
@@ -1079,7 +1079,7 @@ class MITNEBSetTest(PymatgenTest):
             os.remove(f)
 
 
-class MPSOCSetTest(PymatgenTest):
+class TestMPSOCSet(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -1119,7 +1119,7 @@ class MPSOCSetTest(PymatgenTest):
         assert vis.incar["SIGMA"] == 0.025
 
 
-class MPNMRSetTest(PymatgenTest):
+class TestMPNMRSet(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -1147,7 +1147,7 @@ class MPNMRSetTest(PymatgenTest):
 
 
 @skip_if_no_psp_dir
-class MVLSlabSetTest(PymatgenTest):
+class TestMVLSlabSet(PymatgenTest):
     def setUp(self):
         struct = self.get_structure("Li2O")
         gen = SlabGenerator(struct, (1, 0, 0), 10, 10)
@@ -1220,7 +1220,7 @@ class MVLSlabSetTest(PymatgenTest):
         MVLSlabSet.from_dict(vis_dict)
 
 
-class MVLElasticSetTest(PymatgenTest):
+class TestMVLElasticSet(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -1237,7 +1237,7 @@ class MVLElasticSetTest(PymatgenTest):
 
 
 @skip_if_no_psp_dir
-class MVLGWSetTest(PymatgenTest):
+class TestMVLGWSet(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         self.struct = PymatgenTest.get_structure("Li2O")
@@ -1313,7 +1313,7 @@ class MVLGWSetTest(PymatgenTest):
         assert mvlgwgbse1.incar["ALGO"] == "BSE"
 
 
-class MPHSEBSTest(PymatgenTest):
+class TestMPHSEBS(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         warnings.simplefilter("ignore")
@@ -1363,7 +1363,7 @@ class MPHSEBSTest(PymatgenTest):
         assert len(vis.kpoints.kpts) == 180
 
 
-class MVLScanRelaxSetTest(PymatgenTest):
+class TestMVLScanRelaxSet(PymatgenTest):
     def setUp(self):
         file_path = f"{self.TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(file_path)
@@ -1422,7 +1422,7 @@ class MVLScanRelaxSetTest(PymatgenTest):
         assert v.user_incar_settings["NSW"] == 500
 
 
-class MPScanRelaxSetTest(PymatgenTest):
+class TestMPScanRelaxSet(PymatgenTest):
     def setUp(self):
         file_path = f"{self.TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(file_path)
@@ -1543,7 +1543,7 @@ class MPScanRelaxSetTest(PymatgenTest):
             os.remove(f)
 
 
-class MPScanStaticSetTest(PymatgenTest):
+class TestMPScanStaticSet(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         warnings.simplefilter("ignore")
@@ -1647,7 +1647,7 @@ class MPScanStaticSetTest(PymatgenTest):
         warnings.simplefilter("default")
 
 
-class FuncTest(PymatgenTest):
+class TestFunc(PymatgenTest):
     @skip_if_no_psp_dir
     def test_batch_write_input(self):
         structures = [
@@ -1663,7 +1663,7 @@ class FuncTest(PymatgenTest):
 
 
 @skip_if_no_psp_dir
-class MVLGBSetTest(PymatgenTest):
+class TestMVLGBSet(PymatgenTest):
     def setUp(self):
         filepath = f"{self.TEST_FILES_DIR}/Li.cif"
         self.struct = Structure.from_file(filepath)
@@ -1693,7 +1693,7 @@ class MVLGBSetTest(PymatgenTest):
         assert kpoints.kpts == [[k_a, k_b, 1]]
 
 
-class MVLRelax52SetTest(PymatgenTest):
+class TestMVLRelax52Set(PymatgenTest):
     def setUp(self):
         file_path = f"{self.TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(file_path)
@@ -1730,7 +1730,7 @@ class MVLRelax52SetTest(PymatgenTest):
         assert vasp_input.incar["NSW"] == 500
 
 
-class LobsterSetTest(PymatgenTest):
+class TestLobsterSet(PymatgenTest):
     def setUp(self):
         file_path = f"{self.TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(file_path)
@@ -1811,7 +1811,7 @@ class LobsterSetTest(PymatgenTest):
 
 
 @skip_if_no_psp_dir
-class MPAbsorptionSetTest(PymatgenTest):
+class TestMPAbsorptionSet(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         file_path = f"{self.TEST_FILES_DIR}/absorption/static/POSCAR"

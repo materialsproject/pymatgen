@@ -13,7 +13,7 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
 
 
-class EwaldSummationTest(unittest.TestCase):
+class TestEwaldSummation(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
@@ -87,7 +87,7 @@ class EwaldSummationTest(unittest.TestCase):
         assert ham.as_dict() == EwaldSummation.from_dict(d).as_dict()
 
 
-class EwaldMinimizerTest(unittest.TestCase):
+class TestEwaldMinimizer(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 

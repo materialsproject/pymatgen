@@ -20,7 +20,7 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs")
 
 
 @unittest.skipIf(not (which("mcsqs") and which("str2cif")), "mcsqs executable not present")
-class McsqsCallerTest(PymatgenTest):
+class TestMcsqsCaller(PymatgenTest):
     def setUp(self):
         self.pzt_structs = loadfn(os.path.join(test_dir, "pztstructs.json"))
         self.pzt_structs2 = loadfn(os.path.join(test_dir, "pztstructs2.json"))

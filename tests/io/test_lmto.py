@@ -24,7 +24,7 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp")
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-class CtrlTest(unittest.TestCase):
+class TestCtrl(unittest.TestCase):
     def setUp(self):
         os.chdir(test_dir)
         self.ctrl_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
@@ -48,7 +48,7 @@ class CtrlTest(unittest.TestCase):
         os.remove("CTRL.tmp")
 
 
-class CoplTest(PymatgenTest):
+class TestCopl(PymatgenTest):
     def setUp(self):
         os.chdir(test_dir)
         self.copl_bise = LMTOCopl("COPL.BiSe")

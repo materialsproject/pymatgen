@@ -14,7 +14,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 
-class GaussianInputTest(unittest.TestCase):
+class TestGaussianInput(unittest.TestCase):
     def setUp(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
@@ -252,7 +252,7 @@ H 0
         assert input_str == gau_str
 
 
-class GaussianOutputTest(unittest.TestCase):
+class TestGaussianOutput(unittest.TestCase):
     # TODO: Add unittest for PCM type output.
 
     def setUp(self):

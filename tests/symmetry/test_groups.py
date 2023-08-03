@@ -34,7 +34,7 @@ ORDERED_SYMBOLS = (
 ).split()
 
 
-class PointGroupTest(unittest.TestCase):
+class TestPointGroup(unittest.TestCase):
     def test_order(self):
         orders = {"mmm": 8, "432": 24, "-6m2": 12}
         for key, val in orders.items():
@@ -64,7 +64,7 @@ class PointGroupTest(unittest.TestCase):
         assert not pg_m3m.is_supergroup(pg_6mmm)
 
 
-class SpaceGroupTest(unittest.TestCase):
+class TestSpaceGroup(unittest.TestCase):
     def test_renamed_e_symbols(self):
         assert SpaceGroup.from_int_number(64).symbol == "Cmce"
 

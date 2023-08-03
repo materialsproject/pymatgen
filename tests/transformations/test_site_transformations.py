@@ -24,7 +24,7 @@ makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 enumlib_present = enum_cmd and makestr_cmd
 
 
-class TranslateSitesTransformationTest(PymatgenTest):
+class TestTranslateSitesTransformation(PymatgenTest):
     def setUp(self):
         coords = []
         coords.append([0, 0, 0])
@@ -79,7 +79,7 @@ class TranslateSitesTransformationTest(PymatgenTest):
         str(t2)
 
 
-class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
+class TestReplaceSiteSpeciesTransformation(unittest.TestCase):
     def setUp(self):
         coords = []
         coords.append([0, 0, 0])
@@ -112,7 +112,7 @@ class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
         assert s.formula == "Na1 Li3 O4"
 
 
-class RemoveSitesTransformationTest(unittest.TestCase):
+class TestRemoveSitesTransformation(unittest.TestCase):
     def setUp(self):
         coords = []
         coords.append([0, 0, 0])
@@ -145,7 +145,7 @@ class RemoveSitesTransformationTest(unittest.TestCase):
         assert s.formula == "Li2 O4"
 
 
-class InsertSitesTransformationTest(unittest.TestCase):
+class TestInsertSitesTransformation(unittest.TestCase):
     def setUp(self):
         coords = []
         coords.append([0, 0, 0])
@@ -183,7 +183,7 @@ class InsertSitesTransformationTest(unittest.TestCase):
         assert s.formula == "Li4 Mn1 Fe1 O4"
 
 
-class PartialRemoveSitesTransformationTest(unittest.TestCase):
+class TestPartialRemoveSitesTransformation(unittest.TestCase):
     def setUp(self):
         coords = []
         coords.append([0, 0, 0])
@@ -259,7 +259,7 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
         assert str(d) is not None
 
 
-class AddSitePropertyTransformationTest(PymatgenTest):
+class TestAddSitePropertyTransformation(PymatgenTest):
     def test_apply_transformation(self):
         struct = self.get_structure("Li2O2")
         sd = [[True, True, True] for _ in struct]
@@ -274,7 +274,7 @@ class AddSitePropertyTransformationTest(PymatgenTest):
             assert np.allclose(trans_set.site_properties[prop], manually_set.site_properties[prop])
 
 
-class RadialSiteDistortionTransformationTest(PymatgenTest):
+class TestRadialSiteDistortionTransformation(PymatgenTest):
     def setUp(self):
         self.molecule = Molecule(
             species=["C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],

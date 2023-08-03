@@ -8,7 +8,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 
-class OrderParameterTest(PymatgenTest):
+class TestOrderParameter(PymatgenTest):
     def test_compute_warren_cowley_parameters(self):
         struct = Structure.from_prototype("CsCl", ["Mo", "W"], a=4)
         aij = get_warren_cowley_parameters(struct, r=3.4, dr=0.3)

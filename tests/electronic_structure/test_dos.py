@@ -17,7 +17,7 @@ from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, Lobste
 from pymatgen.util.testing import PymatgenTest
 
 
-class DosTest(unittest.TestCase):
+class TestDos(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
@@ -52,7 +52,7 @@ class DosTest(unittest.TestCase):
         assert not isinstance(dos_dict["densities"]["1"][0], np.float64)
 
 
-class FermiDosTest(unittest.TestCase):
+class TestFermiDos(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
@@ -99,7 +99,7 @@ class FermiDosTest(unittest.TestCase):
         assert not isinstance(dos_dict["densities"]["1"][0], np.float64)
 
 
-class CompleteDosTest(unittest.TestCase):
+class TestCompleteDos(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
@@ -293,7 +293,7 @@ class CompleteDosTest(unittest.TestCase):
             self.dos.get_dos_fp(type="k", min_e=-10, max_e=0, n_bins=56, normalize=True)
 
 
-class DOSTest(PymatgenTest):
+class TestDOS(PymatgenTest):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as file:
             dct = json.load(file)
@@ -317,14 +317,14 @@ class DOSTest(PymatgenTest):
         assert np.allclose(dos.get_cbm_vbm(spin=Spin.down), (4.645, 1.8140000000000001))
 
 
-class SpinPolarizationTest(unittest.TestCase):
+class TestSpinPolarization(unittest.TestCase):
     def test_spin_polarization(self):
         dos_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "dos_spin_polarization_mp-865805.json")
         dos = loadfn(dos_path)
         assert dos.spin_polarization == approx(0.6460514663341762)
 
 
-class LobsterCompleteDosTest(unittest.TestCase):
+class TestLobsterCompleteDos(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_spin.json")) as f:
             data_spin = json.load(f)

@@ -12,7 +12,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 
-class EwaldElectrostaticModelTest(unittest.TestCase):
+class TestEwaldElectrostaticModel(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -45,7 +45,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
         assert isinstance(EwaldElectrostaticModel.from_dict(d), EwaldElectrostaticModel)
 
 
-class SymmetryModelTest(unittest.TestCase):
+class TestSymmetryModel(unittest.TestCase):
     def test_get_energy(self):
         m = SymmetryModel()
         s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
@@ -59,7 +59,7 @@ class SymmetryModelTest(unittest.TestCase):
         assert o.symprec == approx(0.2)
 
 
-class IsingModelTest(unittest.TestCase):
+class TestIsingModel(unittest.TestCase):
     def test_get_energy(self):
         m = IsingModel(5, 6)
         from pymatgen.core.periodic_table import Species

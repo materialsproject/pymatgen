@@ -31,7 +31,7 @@ def get_table():
         return json.load(f)
 
 
-class SubstitutionProbabilityTest(unittest.TestCase):
+class TestSubstitutionProbability(unittest.TestCase):
     def test_full_lambda_table(self):
         """
         This test tests specific values in the data folder. If the
@@ -63,7 +63,7 @@ class SubstitutionProbabilityTest(unittest.TestCase):
         assert prob == approx(0.00102673915742, abs=1e-5), "probability isn't correct"
 
 
-class SubstitutionPredictorTest(unittest.TestCase):
+class TestSubstitutionPredictor(unittest.TestCase):
     def test_prediction(self):
         sp = SubstitutionPredictor(threshold=8e-3)
         result = sp.list_prediction(["Na+", "Cl-"], to_this_composition=True)[5]

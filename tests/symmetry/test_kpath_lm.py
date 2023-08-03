@@ -15,7 +15,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir_structs = PymatgenTest.TEST_FILES_DIR
 
 
-class KPathLatimerMunroTest(PymatgenTest):
+class TestKPathLatimerMunro(PymatgenTest):
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = range(3, 16)

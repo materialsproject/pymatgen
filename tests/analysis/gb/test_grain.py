@@ -115,7 +115,7 @@ class TestGrainBoundary(PymatgenTest):
         assert np.allclose(Cu_GB2_new.lattice.matrix, self.Cu_GB2.lattice.matrix)
 
 
-class GrainBoundaryGeneratorTest(PymatgenTest):
+class TestGrainBoundaryGenerator(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         warnings.filterwarnings("ignore")

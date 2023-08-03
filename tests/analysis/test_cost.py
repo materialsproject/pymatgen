@@ -9,7 +9,7 @@ from pymatgen.analysis.cost import CostAnalyzer, CostDBCSV, CostDBElements
 from pymatgen.util.testing import PymatgenTest
 
 
-class CostAnalyzerTest(unittest.TestCase):
+class TestCostAnalyzer(unittest.TestCase):
     def setUp(self):
         self.ca1 = CostAnalyzer(CostDBCSV(os.path.join(PymatgenTest.TEST_FILES_DIR, "costdb_1.csv")))
         self.ca2 = CostAnalyzer(CostDBCSV(os.path.join(PymatgenTest.TEST_FILES_DIR, "costdb_2.csv")))
@@ -30,7 +30,7 @@ class CostAnalyzerTest(unittest.TestCase):
         assert self.ca1.get_cost_per_kg("Ag") == self.ca2.get_cost_per_kg("Ag")
 
 
-class CostDBTest(unittest.TestCase):
+class TestCostDB(unittest.TestCase):
     def test_sanity(self):
         ca = CostAnalyzer(CostDBElements())
         assert ca.get_cost_per_kg("PtO") > ca.get_cost_per_kg("MgO")

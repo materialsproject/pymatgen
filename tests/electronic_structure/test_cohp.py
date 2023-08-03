@@ -22,7 +22,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp")
 
 
-class CohpTest(unittest.TestCase):
+class TestCohp(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(test_dir, "cohp.json")) as file:
             self.cohp = Cohp.from_dict(json.load(file))
@@ -86,7 +86,7 @@ class CohpTest(unittest.TestCase):
         assert self.cohp.has_antibnd_states_below_efermi(spin=Spin.up, limit=0.5) == {Spin.up: False}
 
 
-class IcohpValueTest(unittest.TestCase):
+class TestIcohpValue(unittest.TestCase):
     def setUp(self):
         # without spin polarization
         label = "1"
@@ -166,7 +166,7 @@ class IcohpValueTest(unittest.TestCase):
         )
 
 
-class CombinedIcohpTest(unittest.TestCase):
+class TestCombinedIcohp(unittest.TestCase):
     def setUp(self):
         # without spin polarization:
         are_coops = False
@@ -794,7 +794,7 @@ class CombinedIcohpTest(unittest.TestCase):
         assert self.icoopcollection_Fe.extremum_icohpvalue(summed_spin_channels=False, spin=Spin.down) == -0.05756
 
 
-class CompleteCohpTest(PymatgenTest):
+class TestCompleteCohp(PymatgenTest):
     def setUp(self):
         filepath = os.path.join(test_dir, "complete_cohp_lobster.json")
         with open(filepath) as f:
@@ -1197,7 +1197,7 @@ class CompleteCohpTest(PymatgenTest):
         ).are_coops
 
 
-class MethodTest(unittest.TestCase):
+class TestMethod(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(test_dir, "COHPCAR.lobster.gz")
         structure = os.path.join(test_dir, "POSCAR")

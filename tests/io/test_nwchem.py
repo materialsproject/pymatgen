@@ -23,7 +23,7 @@ coords = [
 mol = Molecule(["C", "H", "H", "H", "H"], coords)
 
 
-class NwTaskTest(unittest.TestCase):
+class TestNwTask(unittest.TestCase):
     def setUp(self):
         self.task = NwTask(
             0,
@@ -137,7 +137,7 @@ task esp """
         assert str(task) == answer
 
 
-class NwInputTest(unittest.TestCase):
+class TestNwInput(unittest.TestCase):
     def setUp(self):
         tasks = [
             NwTask.dft_task(mol, operation="optimize", xc="b3lyp", basis_set="6-31++G*"),
@@ -397,7 +397,7 @@ task dft energy
         assert nwi_symm.tasks[-1].basis_set["C"] == "6-311++G**"
 
 
-class NwOutputTest(unittest.TestCase):
+class TestNwOutput(unittest.TestCase):
     def test_read(self):
         nwo = NwOutput(os.path.join(test_dir, "CH4.nwout"))
         nwo_cosmo = NwOutput(os.path.join(test_dir, "N2O4.nwout"))

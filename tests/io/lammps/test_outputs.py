@@ -14,7 +14,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
 
 
-class LammpsDumpTest(unittest.TestCase):
+class TestLammpsDump(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         with open(os.path.join(test_dir, "dump.rdx_wc.100")) as f:
@@ -54,7 +54,7 @@ class LammpsDumpTest(unittest.TestCase):
         pd.testing.assert_frame_equal(rdx.data, self.rdx.data)
 
 
-class FuncTest(unittest.TestCase):
+class TestFunc(unittest.TestCase):
     def test_parse_lammps_dumps(self):
         # gzipped
         rdx_10_pattern = os.path.join(test_dir, "dump.rdx.gz")

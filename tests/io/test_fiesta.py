@@ -4,10 +4,11 @@ import os
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.fiesta import FiestaInput, FiestaOutput
+from pymatgen.util.testing import PymatgenTest
 
 
-class FiestaInputTest:
-    def setUp(self):
+class TestFiestaInput:
+    def setup(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
             [0.000000, 0.000000, 1.089000],
@@ -68,9 +69,9 @@ class FiestaInputTest:
         assert cellin.COHSEX_options["eigMethod"] == "C"
 
 
-class FiestaOutputTest:
-    def setUp(self, TEST_FILES_DIR):
-        self.logfiesta = FiestaOutput(os.path.join(TEST_FILES_DIR, "log_fiesta"))
+class TestFiestaOutput:
+    def setup(self):
+        self.logfiesta = FiestaOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "log_fiesta"))
 
     def test_props(self):
         out = self.logfiesta

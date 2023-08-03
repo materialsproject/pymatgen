@@ -15,7 +15,7 @@ from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.util.testing import PymatgenTest
 
 
-class VaspToComputedEntryDroneTest(unittest.TestCase):
+class TestVaspToComputedEntryDrone(unittest.TestCase):
     def setUp(self):
         self.drone = VaspToComputedEntryDrone(data=["efermi"])
         self.structure_drone = VaspToComputedEntryDrone(True)
@@ -48,7 +48,7 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
         assert isinstance(drone, VaspToComputedEntryDrone)
 
 
-class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
+class TestSimpleVaspToComputedEntryDrone(unittest.TestCase):
     def setUp(self):
         self.drone = SimpleVaspToComputedEntryDrone()
         self.structure_drone = SimpleVaspToComputedEntryDrone(True)
@@ -68,7 +68,7 @@ class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
         assert isinstance(drone, SimpleVaspToComputedEntryDrone)
 
 
-class GaussianToComputedEntryDroneTest(unittest.TestCase):
+class TestGaussianToComputedEntryDrone(unittest.TestCase):
     def setUp(self):
         self.drone = GaussianToComputedEntryDrone(data=["corrections"])
         self.structure_drone = GaussianToComputedEntryDrone(True)

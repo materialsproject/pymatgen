@@ -15,7 +15,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / "test_files"
 
 
-class FuncTest(unittest.TestCase):
+class TestFunc(unittest.TestCase):
     def test_group_entries_by_structure(self):
         entries = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json"))
         groups = group_entries_by_structure(entries)
@@ -45,7 +45,7 @@ class FuncTest(unittest.TestCase):
             assert g == sorted(g, key=lambda e: e.energy_per_atom)
 
 
-class EntrySetTest(unittest.TestCase):
+class TestEntrySet(unittest.TestCase):
     def setUp(self):
         entries = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li-Fe-P-O_entries.json"))
         self.entry_set = EntrySet(entries)

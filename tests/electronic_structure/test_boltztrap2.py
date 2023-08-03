@@ -42,7 +42,7 @@ bzttransp_fn = os.path.join(test_dir, "bztTranspProps.json.gz")
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
-class VasprunBSLoaderTest(unittest.TestCase):
+class TestVasprunBSLoader(unittest.TestCase):
     def setUp(self):
         self.loader = VasprunBSLoader(vrun)
         assert self.loader is not None
@@ -89,7 +89,7 @@ class VasprunBSLoaderTest(unittest.TestCase):
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
-class BandstructureLoaderTest(unittest.TestCase):
+class TestBandstructureLoader(unittest.TestCase):
     def setUp(self):
         self.loader = BandstructureLoader(bs, vrun.structures[-1])
         assert self.loader is not None
@@ -123,7 +123,7 @@ class BandstructureLoaderTest(unittest.TestCase):
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
-class VasprunLoaderTest(unittest.TestCase):
+class TestVasprunLoader(unittest.TestCase):
     def setUp(self):
         self.loader = VasprunLoader(vrun)
         assert self.loader.proj.shape == (120, 20, 2, 9)
@@ -147,7 +147,7 @@ class VasprunLoaderTest(unittest.TestCase):
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
-class BztInterpolatorTest(unittest.TestCase):
+class TestBztInterpolator(unittest.TestCase):
     def setUp(self):
         self.loader = VasprunBSLoader(vrun)
         self.bztInterp = BztInterpolator(self.loader, lpfac=2)
@@ -231,7 +231,7 @@ class BztInterpolatorTest(unittest.TestCase):
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
-class BztTransportPropertiesTest(unittest.TestCase):
+class TestBztTransportProperties(unittest.TestCase):
     def setUp(self):
         loader = VasprunBSLoader(vrun)
         bztInterp = BztInterpolator(loader, lpfac=2)
@@ -342,7 +342,7 @@ class BztTransportPropertiesTest(unittest.TestCase):
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
-class BztPlotterTest(unittest.TestCase):
+class TestBztPlotter(unittest.TestCase):
     def test_plot(self):
         loader = VasprunBSLoader(vrun)
         bztInterp = BztInterpolator(loader, lpfac=2)

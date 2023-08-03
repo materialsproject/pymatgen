@@ -23,7 +23,7 @@ from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import PymatgenTest
 
 
-class StructureMatcherTest(PymatgenTest):
+class TestStructureMatcher(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):

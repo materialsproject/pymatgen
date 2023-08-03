@@ -19,7 +19,7 @@ from pymatgen.util.testing import PymatgenTest
 logger = logging.getLogger(__name__)
 
 
-class PourbaixEntryTest(PymatgenTest):
+class TestPourbaixEntry(PymatgenTest):
     _multiprocess_shared_ = True
     """
     Test all functions using a fictitious entry
@@ -95,7 +95,7 @@ class PourbaixEntryTest(PymatgenTest):
         assert pb_entry.get_element_fraction("Mn") == approx(0.4)
 
 
-class PourbaixDiagramTest(unittest.TestCase):
+class TestPourbaixDiagram(unittest.TestCase):
     _multiprocess_shared_ = True
 
     @classmethod
@@ -287,7 +287,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         assert len(pd_binary.stable_entries) == len(new_binary.stable_entries)
 
 
-class PourbaixPlotterTest(unittest.TestCase):
+class TestPourbaixPlotter(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "pourbaix_test_data.json"))

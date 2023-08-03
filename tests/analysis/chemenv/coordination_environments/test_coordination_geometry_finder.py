@@ -24,7 +24,7 @@ json_files_dir = os.path.join(
 )
 
 
-class CoordinationGeometryFinderTest(PymatgenTest):
+class TestCoordinationGeometryFinder(PymatgenTest):
     def setUp(self):
         self.lgf = LocalGeometryFinder()
         self.lgf.setup_parameters(

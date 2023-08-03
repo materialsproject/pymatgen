@@ -15,7 +15,7 @@ from pymatgen.util.testing import PymatgenTest
 __author__ = "waroquiers"
 
 
-class StrategyOptionsTest(PymatgenTest):
+class TestStrategyOptions(PymatgenTest):
     def test_options(self):
         # DistanceCutoffFloat
         with pytest.raises(ValueError, match=r"Distance cutoff should be between 1 and \+infinity"):

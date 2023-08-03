@@ -17,7 +17,7 @@ from pymatgen.core.periodic_table import DummySpecies, Element, Species
 from pymatgen.util.testing import PymatgenTest
 
 
-class CompositionTest(PymatgenTest):
+class TestComposition(PymatgenTest):
     def setUp(self):
         self.comps = [
             Composition("Li3Fe2(PO4)3"),
@@ -698,7 +698,7 @@ class CompositionTest(PymatgenTest):
         assert c_new_4 == Composition("Mg2O2").add_charges_from_oxi_state_guesses()
 
 
-class ChemicalPotentialTest(unittest.TestCase):
+class TestChemicalPotential(unittest.TestCase):
     def test_init(self):
         dct = {"Fe": 1, Element("Fe"): 1}
         with pytest.raises(ValueError, match="Duplicate potential specified"):

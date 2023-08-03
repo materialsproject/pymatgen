@@ -15,7 +15,7 @@ except requests.exceptions.ConnectionError:
 
 
 @unittest.skipIf(website_down, "www.crystallography.net is down.")
-class CODTest(unittest.TestCase):
+class TestCOD(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):

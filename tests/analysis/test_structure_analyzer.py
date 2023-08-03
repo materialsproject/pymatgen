@@ -24,7 +24,7 @@ from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import PymatgenTest
 
 
-class VoronoiAnalyzerTest(PymatgenTest):
+class TestVoronoiAnalyzer(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
@@ -42,7 +42,7 @@ class VoronoiAnalyzerTest(PymatgenTest):
         assert ("[1 3 4 7 1 0 0 0]", 3) in ensemble, "Cannot find the right polyhedron in ensemble."
 
 
-class RelaxationAnalyzerTest(unittest.TestCase):
+class TestRelaxationAnalyzer(unittest.TestCase):
     def setUp(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Li2O"), check_for_POTCAR=False)
         s1 = p.structure
@@ -66,7 +66,7 @@ class RelaxationAnalyzerTest(unittest.TestCase):
                 assert approx(v2) == -0.009204092115527862
 
 
-class VoronoiConnectivityTest(PymatgenTest):
+class TestVoronoiConnectivity(PymatgenTest):
     def test_connectivity_array(self):
         vc = VoronoiConnectivity(self.get_structure("LiFePO4"))
         ca = vc.connectivity_array
@@ -82,7 +82,7 @@ class VoronoiConnectivityTest(PymatgenTest):
         assert np.allclose(site.frac_coords, expected)
 
 
-class MiscFunctionTest(PymatgenTest):
+class TestMiscFunction(PymatgenTest):
     def test_average_coordination_number(self):
         xdatcar = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "XDATCAR.MD"))
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)

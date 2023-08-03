@@ -11,9 +11,12 @@ import pytest
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
 from pymatgen.core import Molecule
 from pymatgen.io.packmol import PackmolBoxGen
-from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "packmol")
+
+@pytest.fixture(autouse=True)
+def test_dir(TEST_FILES_DIR):
+    return os.path.join(TEST_FILES_DIR, "packmol")
+
 
 if which("packmol") is None:
     pytest.skip("packmol executable not present", allow_module_level=True)
@@ -45,7 +48,7 @@ water_atoms = ["H", "H", "O"]
 water = Molecule(water_atoms, water_coords)
 
 
-class TestPackmolSet(PymatgenTest):
+class TestPackmolSet:
     def test_packmol_with_molecule(self):
         """Test coords input as Molecule."""
         pw = PackmolBoxGen().get_input_set(

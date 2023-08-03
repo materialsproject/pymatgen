@@ -9,7 +9,7 @@ __author__ = "waroquiers"
 config_file_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/config"
 
 
-class ChemenvConfigTest(PymatgenTest):
+class TestChemenvConfig(PymatgenTest):
     def test_chemenv_config(self):
         config = ChemEnvConfig()
 

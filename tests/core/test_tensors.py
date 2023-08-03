@@ -15,7 +15,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
 
-class TensorTest(PymatgenTest):
+class TestTensor(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
@@ -377,7 +377,7 @@ class TensorTest(PymatgenTest):
         assert isinstance(rounded, Tensor)
 
 
-class TensorCollectionTest(PymatgenTest):
+class TestTensorCollection(PymatgenTest):
     def setUp(self):
         self.seq_tc = list(np.arange(4 * 3**3).reshape((4, 3, 3, 3)))
         self.seq_tc = TensorCollection(self.seq_tc)
@@ -473,7 +473,7 @@ class TensorCollectionTest(PymatgenTest):
             assert np.allclose(t, t_new)
 
 
-class SquareTensorTest(PymatgenTest):
+class TestSquareTensor(PymatgenTest):
     def setUp(self):
         self.rand_sqtensor = SquareTensor(np.random.randn(3, 3))
         self.symm_sqtensor = SquareTensor([[0.1, 0.3, 0.4], [0.3, 0.5, 0.2], [0.4, 0.2, 0.6]])

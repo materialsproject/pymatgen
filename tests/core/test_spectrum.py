@@ -8,7 +8,7 @@ from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.testing import PymatgenTest
 
 
-class SpectrumTest(PymatgenTest):
+class TestSpectrum(PymatgenTest):
     def setUp(self):
         self.spec1 = Spectrum(np.arange(0, 10, 0.1), np.random.randn(100))
         self.spec2 = Spectrum(np.arange(0, 10, 0.1), np.random.randn(100))

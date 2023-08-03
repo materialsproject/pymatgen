@@ -13,7 +13,7 @@ from pymatgen.util.testing import PymatgenTest
 module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 
-class RLSVolumePredictorTest(PymatgenTest):
+class TestRLSVolumePredictor(PymatgenTest):
     def setUp(self):
         warnings.filterwarnings("ignore")
 
@@ -83,7 +83,7 @@ class RLSVolumePredictorTest(PymatgenTest):
         assert vol_pred.predict(cs_cl, na_cl) == approx(342.84905395082535)
 
 
-class DLSVolumePredictorTest(PymatgenTest):
+class TestDLSVolumePredictor(PymatgenTest):
     def test_predict(self):
         vol_pred = DLSVolumePredictor()
         p_fast = DLSVolumePredictor(cutoff=0.0)  # for speed on compressed cells

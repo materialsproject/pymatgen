@@ -9,7 +9,7 @@ from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
 
 
-class StressTest(PymatgenTest):
+class TestStress(PymatgenTest):
     def setUp(self):
         self.rand_stress = Stress(np.random.randn(3, 3))
         self.symm_stress = Stress([[0.51, 2.29, 2.42], [2.29, 5.14, 5.07], [2.42, 5.07, 5.33]])

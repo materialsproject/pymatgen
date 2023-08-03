@@ -33,7 +33,7 @@ __date__ = "4/23/19"
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "piezo_sensitivity")
 
 
-class PiezoSensitivityTest(PymatgenTest):
+class TestPiezoSensitivity(PymatgenTest):
     def setUp(self):
         self.piezo_struc = self.get_structure("Pb2TiZrO6")
         self.IST = np.load(os.path.join(test_dir, "pztist.npy"), allow_pickle=True)

@@ -6,7 +6,7 @@ from pymatgen.io.xcrysden import XSF
 from pymatgen.util.testing import PymatgenTest
 
 
-class XSFTest(PymatgenTest):
+class TestXSF(PymatgenTest):
     def test_xsf(self):
         coords = []
         coords.append([0, 0, 0])

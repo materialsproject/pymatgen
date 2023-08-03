@@ -33,7 +33,7 @@ from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEn
 from pymatgen.util.testing import PymatgenTest
 
 
-class CorrectionSpecificityTest(unittest.TestCase):
+class TestCorrectionSpecificity(unittest.TestCase):
     """Make sure corrections are only applied to GGA or GGA+U entries."""
 
     def setUp(self):
@@ -176,7 +176,7 @@ def test_overlapping_adjustments():
     assert len(processed) == 0
 
 
-class MaterialsProjectCompatibilityTest(unittest.TestCase):
+class TestMaterialsProjectCompatibility(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.entry1 = ComputedEntry(
@@ -487,7 +487,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         assert isinstance(temp_compat, MaterialsProjectCompatibility)
 
 
-class MaterialsProjectCompatibility2020Test(unittest.TestCase):
+class TestMaterialsProjectCompatibility2020(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.entry1 = ComputedEntry(
@@ -1024,7 +1024,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         assert len(processed_entry.energy_adjustments) == 2
 
 
-class MITCompatibilityTest(unittest.TestCase):
+class TestMITCompatibility(unittest.TestCase):
     def tearDown(self):
         warnings.simplefilter("default")
 
@@ -1308,7 +1308,7 @@ class MITCompatibilityTest(unittest.TestCase):
         assert isinstance(temp_compat, MITCompatibility)
 
 
-class OxideTypeCorrectionTest(unittest.TestCase):
+class TestOxideTypeCorrection(unittest.TestCase):
     def setUp(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
 
@@ -1448,7 +1448,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         assert li2o_entry_corrected.energy == approx(-3.0 - 0.66975)
 
 
-class SulfideTypeCorrection2020Test(unittest.TestCase):
+class TestSulfideTypeCorrection2020(unittest.TestCase):
     def setUp(self):
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
 
@@ -1609,7 +1609,7 @@ class SulfideTypeCorrection2020Test(unittest.TestCase):
         assert struct_corrected.correction == approx(nostruct_corrected.correction)
 
 
-class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
+class TestOxideTypeCorrectionNoPeroxideCorr(unittest.TestCase):
     def setUp(self):
         self.compat = MITCompatibility(correct_peroxide=False)
 
@@ -1840,7 +1840,7 @@ class TestMaterialsProjectAqueousCompatibility:
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
 
-class AqueousCorrectionTest(unittest.TestCase):
+class TestAqueousCorrection(unittest.TestCase):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
@@ -1868,7 +1868,7 @@ class AqueousCorrectionTest(unittest.TestCase):
         assert entry.energy == approx(-24.344373)
 
 
-class MITAqueousCompatibilityTest(unittest.TestCase):
+class TestMITAqueousCompatibility(unittest.TestCase):
     def setUp(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.aqcompat = MITAqueousCompatibility(check_potcar_hash=True)
@@ -1961,7 +1961,7 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
         assert self.compat.process_entry(entry) is None
 
 
-class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
+class TestCorrectionErrors2020Compatibility(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.compat = MaterialsProject2020Compatibility()

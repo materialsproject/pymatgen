@@ -18,7 +18,7 @@ from pymatgen.phonon.plotter import GruneisenPhononBandStructureSymmLine, Grunei
 from pymatgen.util.testing import PymatgenTest
 
 
-class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
+class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
     def setUp(self) -> None:
         self.bs_symm_line = get_gruneisen_ph_bs_symm_line(
             gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_eq_plus_minus_InP.yaml"),
@@ -40,7 +40,7 @@ class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
 
 
 @unittest.skipIf(TotalDos is None, "Phonopy not present")
-class GruneisenParameterTest(PymatgenTest):
+class TestGruneisenParameter(PymatgenTest):
     def setUp(self) -> None:
         self.gruneisen_obj = get_gruneisenparameter(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_InP.yaml"),

@@ -14,7 +14,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
-class ReactionTest(unittest.TestCase):
+class TestReaction(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -294,7 +294,7 @@ class ReactionTest(unittest.TestCase):
         assert str(rxn) == "LiMnCl3 + 3 LiCl + MnCl2 -> 2 Li2MnCl4"
 
 
-class BalancedReactionTest(unittest.TestCase):
+class TestBalancedReaction(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -346,7 +346,7 @@ class BalancedReactionTest(unittest.TestCase):
         assert Composition("Na") not in rxn.all_comp
 
 
-class ComputedReactionTest(unittest.TestCase):
+class TestComputedReaction(unittest.TestCase):
     def setUp(self):
         d = [
             {

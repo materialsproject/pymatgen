@@ -29,7 +29,7 @@ with open(os.path.join(test_dir, "site2_k_xanes.json")) as fp:
     site2_xanes_dict = json.load(fp, cls=MontyDecoder)
 
 
-class XASTest(PymatgenTest):
+class TestXAS(PymatgenTest):
     def setUp(self):
         self.k_xanes = XAS.from_dict(k_xanes_dict)
         self.k_exafs = XAS.from_dict(k_exafs_dict)

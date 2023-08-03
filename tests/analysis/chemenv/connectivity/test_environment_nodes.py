@@ -19,7 +19,7 @@ json_files_dir = os.path.join(
 )
 
 
-class EnvironmentNodesTest(PymatgenTest):
+class TestEnvironmentNodes(PymatgenTest):
     def test_equal(self):
         struct = self.get_structure("SiO2")
         en = EnvironmentNode(central_site=struct[0], i_central_site=0, ce_symbol="T:4")

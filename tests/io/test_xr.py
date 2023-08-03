@@ -14,7 +14,7 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __date__ = "June 23, 2016"
 
 
-class XrTest:
+class TestXr:
     def setUp(self, TEST_FILES_DIR):
         filepath = os.path.join(TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)

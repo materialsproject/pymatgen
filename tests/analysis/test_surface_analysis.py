@@ -23,7 +23,7 @@ def get_path(path_str):
     return os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
 
 
-class SlabEntryTest(PymatgenTest):
+class TestSlabEntry(PymatgenTest):
     def setUp(self):
         with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
@@ -119,7 +119,7 @@ class SlabEntryTest(PymatgenTest):
                         assert s.composition.reduced_composition == clean.composition.reduced_composition
 
 
-class SurfaceEnergyPlotterTest(PymatgenTest):
+class TestSurfaceEnergyPlotter(PymatgenTest):
     def setUp(self):
         entry_dict = get_entry_dict(os.path.join(get_path(""), "Cu_entries.txt"))
         self.Cu_entry_dict = entry_dict
@@ -291,7 +291,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
     #             plt = analyzer.chempot_vs_gamma_facet(hkl)
 
 
-class WorkfunctionAnalyzerTest(PymatgenTest):
+class TestWorkfunctionAnalyzer(PymatgenTest):
     def setUp(self):
         self.kwargs = {
             "poscar_filename": get_path("CONTCAR.relax1.gz"),
@@ -308,7 +308,7 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
         assert self.wf_analyzer.is_converged()
 
 
-class NanoscaleStabilityTest(PymatgenTest):
+class TestNanoscaleStability(PymatgenTest):
     def setUp(self):
         # Load all entries
         La_hcp_entry_dict = get_entry_dict(os.path.join(get_path(""), "La_hcp_entries.txt"))

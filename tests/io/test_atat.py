@@ -12,7 +12,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs")
 
 
-class AtatTest(PymatgenTest):
+class TestAtat(PymatgenTest):
     def test_mcsqs_import(self):
         test_string = """1.000000 0.000000 0.000000
 0.000000 1.000000 0.000000

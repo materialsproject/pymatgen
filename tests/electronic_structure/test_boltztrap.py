@@ -28,7 +28,7 @@ x_trans = which("x_trans")
 
 
 @unittest.skipIf(not x_trans, "No x_trans.")
-class BoltztrapAnalyzerTest(unittest.TestCase):
+class TestBoltztrapAnalyzer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.bz = BoltztrapAnalyzer.from_files(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/transp/"))

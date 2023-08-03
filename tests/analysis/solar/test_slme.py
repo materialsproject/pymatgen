@@ -9,7 +9,7 @@ from pymatgen.analysis.solar.slme import optics, slme
 from pymatgen.util.testing import PymatgenTest
 
 
-class SolarTest(PymatgenTest):
+class TestSolar(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):

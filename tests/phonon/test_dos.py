@@ -10,7 +10,7 @@ from pymatgen.phonon.dos import CompletePhononDos, PhononDos
 from pymatgen.util.testing import PymatgenTest
 
 
-class DosTest(PymatgenTest):
+class TestDos(PymatgenTest):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_ph_dos.json")) as f:
             self.dos = PhononDos.from_dict(json.load(f))
@@ -43,7 +43,7 @@ class DosTest(PymatgenTest):
         assert self.dos.zero_point_energy(structure=self.structure) == approx(4847.462485708741, abs=1e-4)
 
 
-class CompleteDosTest(PymatgenTest):
+class TestCompleteDos(PymatgenTest):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
             self.cdos = CompletePhononDos.from_dict(json.load(f))

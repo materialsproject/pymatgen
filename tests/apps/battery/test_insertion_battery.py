@@ -12,7 +12,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import PymatgenTest
 
 
-class InsertionElectrodeTest(unittest.TestCase):
+class TestInsertionElectrode(unittest.TestCase):
     def setUp(self):
         self.entry_Li = ComputedEntry("Li", -1.90753119)
         self.entry_Ca = ComputedEntry("Ca", -1.99689568)

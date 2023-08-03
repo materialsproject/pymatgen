@@ -13,7 +13,7 @@ from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Structure
 
 
-class DopantPredictionTest(unittest.TestCase):
+class TestDopantPrediction(unittest.TestCase):
     def setUp(self):
         self.tin_dioxide = Structure(
             [3.24, 0, 0, 0, 4.83, 0, 0, 0, 4.84],

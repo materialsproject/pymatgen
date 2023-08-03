@@ -43,7 +43,7 @@ enum_cmd = which("enum.x") or which("multienum.x")
 mcsqs_cmd = which("mcsqs")
 
 
-class NeighborTest(PymatgenTest):
+class TestNeighbor(PymatgenTest):
     def test_msonable(self):
         struct = PymatgenTest.get_structure("Li2O")
         nn = struct.get_neighbors(struct[0], r=3)
@@ -62,7 +62,7 @@ class NeighborTest(PymatgenTest):
             assert p_neighbor.label == label if label is not None else "C"
 
 
-class IStructureTest(PymatgenTest):
+class TestIStructure(PymatgenTest):
     def setUp(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         self.lattice = Lattice(
@@ -773,7 +773,7 @@ Direct
         assert struct.sites == new_sites
 
 
-class StructureTest(PymatgenTest):
+class TestStructure(PymatgenTest):
     def setUp(self):
         coords = []
         coords.append([0, 0, 0])
@@ -1572,7 +1572,7 @@ Sites (8)
             assert struct.lattice.is_orthogonal
 
 
-class IMoleculeTest(PymatgenTest):
+class TestIMolecule(PymatgenTest):
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -1828,7 +1828,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         os.remove("CH4_testing.yaml")
 
 
-class MoleculeTest(PymatgenTest):
+class TestMolecule(PymatgenTest):
     def setUp(self):
         coords = [
             [0, 0, 0],

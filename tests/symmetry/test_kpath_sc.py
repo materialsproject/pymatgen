@@ -12,7 +12,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir_structs = os.path.join(PymatgenTest.TEST_FILES_DIR, "space_group_structs")
 
 
-class BandStructureSCTest(PymatgenTest):
+class TestBandStructureSC(PymatgenTest):
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = range(3, 16)

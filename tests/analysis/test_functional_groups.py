@@ -26,7 +26,7 @@ __date__ = "July 2018"
 __credit__ = "Peiyuan Yu"
 
 
-class FunctionalGroupExtractorTest(unittest.TestCase):
+class TestFunctionalGroupExtractor(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 

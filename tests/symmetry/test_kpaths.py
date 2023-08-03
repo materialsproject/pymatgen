@@ -16,7 +16,7 @@ except ImportError:
     get_path = None
 
 
-class HighSymmKpathTest(PymatgenTest):
+class TestHighSymmKpath(PymatgenTest):
     @unittest.skipIf(get_path is None, "No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]

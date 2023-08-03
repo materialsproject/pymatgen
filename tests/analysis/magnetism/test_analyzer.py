@@ -25,7 +25,7 @@ makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 enumlib_present = enum_cmd and makestr_cmd
 
 
-class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
+class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
     def setUp(self):
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe.cif"))
         self.Fe = parser.get_structures()[0]
@@ -250,7 +250,7 @@ Magmoms Sites
         assert msa.structure.site_properties["magmom"] == [-5, 5, 0, 0]
 
 
-class MagneticStructureEnumeratorTest(unittest.TestCase):
+class TestMagneticStructureEnumerator(unittest.TestCase):
     @unittest.skipIf(not enumlib_present, "enumlib not present")
     def test_ordering_enumeration(self):
         # simple afm
@@ -289,7 +289,7 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
         assert enumerator.input_origin == "afm_by_motif_2a"
 
 
-class MagneticDeformationTest(unittest.TestCase):
+class TestMagneticDeformation(unittest.TestCase):
     def test_magnetic_deformation(self):
         test_structs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_deformation.json"))
         mag_def = magnetic_deformation(test_structs[0], test_structs[1])

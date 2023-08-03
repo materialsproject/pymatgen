@@ -22,7 +22,7 @@ from pymatgen.core.units import (
 from pymatgen.util.testing import PymatgenTest
 
 
-class UnitTest(PymatgenTest):
+class TestUnit(PymatgenTest):
     def test_init(self):
         u1 = Unit((("m", 1), ("s", -1)))
         assert str(u1) == "m s^-1"
@@ -38,7 +38,7 @@ class UnitTest(PymatgenTest):
         assert str(newton * Unit("m")) == "N m"
 
 
-class FloatWithUnitTest(PymatgenTest):
+class TestFloatWithUnit(PymatgenTest):
     def test_energy(self):
         a = Energy(1.1, "eV")
         b = a.to("Ha")
@@ -155,7 +155,7 @@ class FloatWithUnitTest(PymatgenTest):
         assert FloatWithUnit(5000000, "Pa") == x.as_base_units
 
 
-class ArrayWithFloatWithUnitTest(PymatgenTest):
+class TestArrayWithFloatWithUnit(PymatgenTest):
     def test_energy(self):
         """
         Similar to FloatWithUnitTest.test_energy.
@@ -262,7 +262,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         assert_array_equal(ArrayWithUnit([5000000, 10000000], "Pa"), x.as_base_units)
 
 
-class DataPersistenceTest(PymatgenTest):
+class TestDataPersistence(PymatgenTest):
     def test_pickle(self):
         """Test whether FloatWithUnit and ArrayWithUnit support pickle."""
         for cls in [FloatWithUnit, ArrayWithUnit]:

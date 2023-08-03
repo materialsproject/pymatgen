@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 test_dir = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files"
 
 
-class UtilTest(PymatgenTest):
+class TestUtil(PymatgenTest):
     """test utils."""
 
     def test_lower_and_check_unique(self):

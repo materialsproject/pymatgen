@@ -4,7 +4,7 @@ from pymatgen.core.xcfunc import XcFunc
 from pymatgen.util.testing import PymatgenTest
 
 
-class LibxcFuncTest(PymatgenTest):
+class TestLibxcFunc(PymatgenTest):
     def test_xcfunc_api(self):
         """Testing XcFunc API."""
         # Aliases should be unique

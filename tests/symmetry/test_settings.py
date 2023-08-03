@@ -15,7 +15,7 @@ __status__ = "Development"
 __date__ = "Apr 2017"
 
 
-class JonesFaithfulTransformationTest(unittest.TestCase):
+class TestJonesFaithfulTransformation(unittest.TestCase):
     def setUp(self):
         self.test_strings = [
             "a,b,c;0,0,0",  # identity

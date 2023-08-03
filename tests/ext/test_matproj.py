@@ -47,7 +47,7 @@ if os.getenv("CI") and PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
     website_down or not PMG_MAPI_KEY,
     reason="PMG_MAPI_KEY environment variable not set or MP API is down.",
 )
-class MPResterOldTest(PymatgenTest):
+class TestMPResterOld(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):

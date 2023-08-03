@@ -32,7 +32,7 @@ __date__ = "Aug 2, 2013"
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
-class ZeoCssrTest(unittest.TestCase):
+class TestZeoCssr(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
@@ -76,7 +76,7 @@ class ZeoCssrTest(unittest.TestCase):
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
-class ZeoCssrOxiTest(unittest.TestCase):
+class TestZeoCssrOxi(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
@@ -121,7 +121,7 @@ class ZeoCssrOxiTest(unittest.TestCase):
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
-class ZeoVoronoiXYZTest(unittest.TestCase):
+class TestZeoVoronoiXYZ(unittest.TestCase):
     def setUp(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
@@ -152,7 +152,7 @@ H -0.363000 -0.513360 0.889165 0.200000"""
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
-class GetVoronoiNodesTest(unittest.TestCase):
+class TestGetVoronoiNodes(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
@@ -177,7 +177,7 @@ class GetVoronoiNodesTest(unittest.TestCase):
 
 
 @unittest.skip("file free_sph.cif not present")
-class GetFreeSphereParamsTest(unittest.TestCase):
+class TestGetFreeSphereParams(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "free_sph.cif")
         self.structure = Structure.from_file(filepath)
@@ -199,7 +199,7 @@ class GetFreeSphereParamsTest(unittest.TestCase):
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
-class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
+class TestGetHighAccuracyVoronoiNodes(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         poscar = Poscar.from_file(filepath)
@@ -220,7 +220,7 @@ class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
-class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
+class TestGetVoronoiNodesMultiOxi(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)

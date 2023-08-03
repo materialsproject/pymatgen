@@ -6,7 +6,7 @@ from pymatgen.command_line.chargemol_caller import ChargemolAnalysis
 from pymatgen.util.testing import PymatgenTest
 
 
-class ChargemolAnalysisTest(unittest.TestCase):
+class TestChargemolAnalysis(unittest.TestCase):
     def test_parse_chargemol(self):
         ca = ChargemolAnalysis(path=f"{PymatgenTest.TEST_FILES_DIR}/chargemol/spin_unpolarized", run_chargemol=False)
         assert ca.ddec_charges == [0.8432, -0.8432]

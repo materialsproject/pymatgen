@@ -9,7 +9,7 @@ from pymatgen.util.testing import PymatgenTest
 __author__ = "Michiel van Setten"
 
 
-class ConvergenceTest(PymatgenTest):
+class TestConvergence(PymatgenTest):
     def test_determine_convergence(self):
         self.maxDiff = None
         xs = [1, 2, 3, 4, 5, 6]

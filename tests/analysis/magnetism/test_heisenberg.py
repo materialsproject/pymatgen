@@ -13,7 +13,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = f"{PymatgenTest.TEST_FILES_DIR}/magnetic_orderings"
 
 
-class HeisenbergMapperTest(unittest.TestCase):
+class TestHeisenbergMapper(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.df = pd.read_json(os.path.join(test_dir, "mag_orderings_test_cases.json"))

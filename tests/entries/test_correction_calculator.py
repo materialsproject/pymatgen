@@ -9,7 +9,7 @@ from pymatgen.entries.correction_calculator import CorrectionCalculator
 from pymatgen.util.testing import PymatgenTest
 
 
-class CorrectionCalculatorTest(unittest.TestCase):
+class TestCorrectionCalculator(unittest.TestCase):
     def setUp(self):
         self.exclude_polyanions = ["SO4", "CO3", "NO3", "OCl3", "SiO4", "SeO3", "TiO3", "TiO4"]
 

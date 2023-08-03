@@ -16,7 +16,7 @@ from pymatgen.core.composition import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
-class InterfaceReactionTest(unittest.TestCase):
+class TestInterfaceReaction(unittest.TestCase):
     def setUp(self):
         self.entries = [
             ComputedEntry(Composition("Li"), 0),

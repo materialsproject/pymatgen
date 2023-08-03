@@ -8,7 +8,7 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
 
 
-class JarvisAtomsAdaptorTest(unittest.TestCase):
+class TestJarvisAtomsAdaptor(unittest.TestCase):
     @unittest.skipIf(not jio.Atoms, "JARVIS-tools not loaded.")
     def test_get_atoms_from_structure(self):
         structure = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")).structure

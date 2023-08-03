@@ -91,7 +91,7 @@ def test_temp_energy_adjustment():
     assert str(ea_dct) == str(ea2.as_dict())
 
 
-class ComputedEntryTest(unittest.TestCase):
+class TestComputedEntry(unittest.TestCase):
     def setUp(self):
         self.entry = ComputedEntry(
             vasp_run.final_structure.composition,
@@ -234,7 +234,7 @@ class ComputedEntryTest(unittest.TestCase):
             assert str(entry) == str(copy)
 
 
-class ComputedStructureEntryTest(unittest.TestCase):
+class TestComputedStructureEntry(unittest.TestCase):
     def setUp(self):
         self.entry = ComputedStructureEntry(vasp_run.final_structure, vasp_run.final_energy, parameters=vasp_run.incar)
 
@@ -427,7 +427,7 @@ class ComputedStructureEntryTest(unittest.TestCase):
         assert copy3 != copy1
 
 
-class GibbsComputedStructureEntryTest(unittest.TestCase):
+class TestGibbsComputedStructureEntry(unittest.TestCase):
     def setUp(self):
         self.temps = [300, 600, 900, 1200, 1500, 1800]
         self.struct = vasp_run.final_structure

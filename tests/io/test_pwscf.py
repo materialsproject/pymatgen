@@ -10,7 +10,7 @@ from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import PymatgenTest
 
 
-class PWInputTest(PymatgenTest):
+class TestPWInput(PymatgenTest):
     def test_init(self):
         struct = self.get_structure("Li2O")
         with pytest.raises(PWInputError, match="Missing O2- in pseudo specification"):
@@ -379,7 +379,7 @@ CELL_PARAMETERS angstrom
         assert pwin.sections["system"]["smearing"] == "cold"
 
 
-class PWOuputTest(PymatgenTest):
+class TestPWOuput(PymatgenTest):
     def setUp(self):
         self.pwout = PWOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.pwscf.out"))
 

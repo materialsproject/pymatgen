@@ -21,7 +21,7 @@ enumlib_present = enum_cmd and makestr_cmd
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
-class EnumlibAdaptorTest(PymatgenTest):
+class TestEnumlibAdaptor(PymatgenTest):
     _multiprocess_shared_ = True
 
     def test_init(self):

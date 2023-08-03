@@ -47,7 +47,7 @@ except ImportError:
     h5py = None
 
 
-class VasprunTest(PymatgenTest):
+class TestVasprun(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
@@ -712,7 +712,7 @@ class VasprunTest(PymatgenTest):
         assert props[3][1]
 
 
-class OutcarTest(PymatgenTest):
+class TestOutcar(PymatgenTest):
     _multiprocess_shared_ = True
 
     def test_init(self):
@@ -1398,7 +1398,7 @@ class OutcarTest(PymatgenTest):
             )
 
 
-class BSVasprunTest(PymatgenTest):
+class TestBSVasprun(PymatgenTest):
     _multiprocess_shared_ = True
 
     def test_get_band_structure(self):
@@ -1419,7 +1419,7 @@ class BSVasprunTest(PymatgenTest):
         assert "eigenvalues" in d["output"]
 
 
-class OszicarTest(PymatgenTest):
+class TestOszicar(PymatgenTest):
     def test_init(self):
         filepath = f"{self.TEST_FILES_DIR}/OSZICAR"
         oszicar = Oszicar(filepath)
@@ -1428,7 +1428,7 @@ class OszicarTest(PymatgenTest):
         assert oszicar.final_energy == approx(-526.63928)
 
 
-class LocpotTest(PymatgenTest):
+class TestLocpot(PymatgenTest):
     def test_init(self):
         filepath = f"{self.TEST_FILES_DIR}/LOCPOT"
         locpot = Locpot.from_file(filepath)
@@ -1438,7 +1438,7 @@ class LocpotTest(PymatgenTest):
         assert locpot.get_axis_grid(2)[-1] == approx(2.87629, abs=1e-2)
 
 
-class ChgcarTest(PymatgenTest):
+class TestChgcar(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         filepath = f"{cls.TEST_FILES_DIR}/CHGCAR.nospin"
@@ -1557,7 +1557,7 @@ class ChgcarTest(PymatgenTest):
         )
 
 
-class ElfcarTest(PymatgenTest):
+class TestElfcar(PymatgenTest):
     def test_init(self):
         elfcar = Elfcar.from_file(f"{self.TEST_FILES_DIR}/ELFCAR.gz")
         assert approx(np.mean(elfcar.data["total"])) == 0.19076207645194002
@@ -1577,7 +1577,7 @@ class ElfcarTest(PymatgenTest):
         assert len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])) == 100
 
 
-class ProcarTest(PymatgenTest):
+class TestProcar(PymatgenTest):
     _multiprocess_shared_ = True
 
     def test_init(self):
@@ -1621,7 +1621,7 @@ class ProcarTest(PymatgenTest):
         assert p.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.13 + 0.199j)
 
 
-class XdatcarTest(PymatgenTest):
+class TestXdatcar(PymatgenTest):
     def test_init(self):
         filepath = f"{self.TEST_FILES_DIR}/XDATCAR_4"
         x = Xdatcar(filepath)
@@ -1648,7 +1648,7 @@ class XdatcarTest(PymatgenTest):
         assert structures[0].lattice != structures[-1].lattice
 
 
-class DynmatTest(PymatgenTest):
+class TestDynmat(PymatgenTest):
     def test_init(self):
         filepath = f"{self.TEST_FILES_DIR}/DYNMAT"
         d = Dynmat(filepath)
@@ -1663,7 +1663,7 @@ class DynmatTest(PymatgenTest):
         # TODO: test get_phonon_frequencies once cross-checked
 
 
-class WavecarTest(PymatgenTest):
+class TestWavecar(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
@@ -1937,7 +1937,7 @@ class WavecarTest(PymatgenTest):
         assert unk == unk_ncl
 
 
-class EigenvalTest(PymatgenTest):
+class TestEigenval(PymatgenTest):
     _multiprocess_shared_ = True
 
     def test_init(self):
@@ -1979,7 +1979,7 @@ class EigenvalTest(PymatgenTest):
         assert props[3][1]
 
 
-class WavederTest(PymatgenTest):
+class TestWaveder(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
@@ -2019,7 +2019,7 @@ class WavederTest(PymatgenTest):
         _check(wderf)
 
 
-class WSWQTest(PymatgenTest):
+class TestWSWQ(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):

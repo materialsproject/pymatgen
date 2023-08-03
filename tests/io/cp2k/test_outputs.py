@@ -8,7 +8,7 @@ from pytest import approx
 from pymatgen.io.cp2k.outputs import Cp2kOutput
 
 
-class SetTest:
+class TestSet:
     def setUp(self, TEST_FILES_DIR):
         self.TEST_FILES_DIR = Path.joinpath(TEST_FILES_DIR, "cp2k")
         self.out = Cp2kOutput(Path.joinpath(TEST_FILES_DIR, "cp2k.out"), auto_load=True)

@@ -23,7 +23,7 @@ from pymatgen.io.vasp import BSVasprun
 from pymatgen.util.testing import PymatgenTest
 
 
-class KpointTest(unittest.TestCase):
+class TestKpoint(unittest.TestCase):
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
@@ -59,7 +59,7 @@ class KpointTest(unittest.TestCase):
         assert kpoint.label == "X"
 
 
-class BandStructureSymmLineTest(PymatgenTest):
+class TestBandStructureSymmLine(PymatgenTest):
     def setUp(self):
         self.bs: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/Cu2O_361_bandstructure.json")
         self.bs2: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/CaO_2605_bandstructure.json")
@@ -252,7 +252,7 @@ class BandStructureSymmLineTest(PymatgenTest):
         assert bs_scissored.efermi != approx(orig_efermi)
 
 
-class ReconstructBandStructureTest(PymatgenTest):
+class TestReconstructBandStructure(PymatgenTest):
     def setUp(self):
         self.bs_cu: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/Cu_30_bandstructure.json")
         self.bs_cu2: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/Cu_30_bandstructure.json")
@@ -277,7 +277,7 @@ class ReconstructBandStructureTest(PymatgenTest):
         bs.get_projection_on_elements()
 
 
-class LobsterBandStructureSymmLineTest(PymatgenTest):
+class TestLobsterBandStructureSymmLine(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
         with open(

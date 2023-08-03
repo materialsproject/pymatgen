@@ -22,7 +22,7 @@ __email__ = "zix009@eng.ucsd.edu"
 __date__ = "May 05 2016"
 
 
-class WulffShapeTest(PymatgenTest):
+class TestWulffShape(PymatgenTest):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "surface_samples.json")) as data_file:

@@ -559,7 +559,7 @@ class DummySpeciesTestCase(unittest.TestCase):
         assert sp.spin == 5
 
 
-class FuncTest(unittest.TestCase):
+class TestFunc(unittest.TestCase):
     def test_get_el_sp(self):
         assert get_el_sp("Fe2+") == Species("Fe", 2)
         assert get_el_sp("3") == Element.Li

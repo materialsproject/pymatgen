@@ -4,7 +4,7 @@ from pymatgen.core.libxcfunc import LibxcFunc
 from pymatgen.util.testing import PymatgenTest
 
 
-class LibxcFuncTest(PymatgenTest):
+class TestLibxcFunc(PymatgenTest):
     def test_libxcfunc_api(self):
         """Testing libxcfunc_api."""
         # LDA correlation: Hedin & Lundqvist

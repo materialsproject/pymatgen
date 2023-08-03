@@ -45,7 +45,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "fragmenter_files")
 
 
-class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
+class TestValenceIonicRadiusEvaluator(PymatgenTest):
     def setUp(self):
         """Setup MgO rocksalt structure for testing Vacancy."""
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
@@ -78,7 +78,7 @@ class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
         del self._mgo_valrad_evaluator
 
 
-class VoronoiNNTest(PymatgenTest):
+class TestVoronoiNN(PymatgenTest):
     def setUp(self):
         self.struct = self.get_structure("LiFePO4")
         self.nn = VoronoiNN(targets=[Element("O")])
@@ -255,7 +255,7 @@ class VoronoiNNTest(PymatgenTest):
         del self.nn
 
 
-class JmolNNTest(PymatgenTest):
+class TestJmolNN(PymatgenTest):
     def setUp(self):
         self.jmol = JmolNN()
         self.jmol_update = JmolNN(el_radius_updates={"Li": 1})
@@ -300,7 +300,7 @@ class TestIsayevNN(PymatgenTest):
         assert len(inn.get_nn(struct, 0)) == 2
 
 
-class OpenBabelNNTest(PymatgenTest):
+class TestOpenBabelNN(PymatgenTest):
     def setUp(self):
         pytest.importorskip("openbabel")
         self.benzene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "benzene.xyz"))
@@ -336,7 +336,7 @@ class OpenBabelNNTest(PymatgenTest):
         del self.acetylene
 
 
-class CovalentBondNNTest(PymatgenTest):
+class TestCovalentBondNN(PymatgenTest):
     def setUp(self):
         self.benzene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "benzene.xyz"))
         self.acetylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
@@ -379,7 +379,7 @@ class CovalentBondNNTest(PymatgenTest):
         del self.acetylene
 
 
-class MiniDistNNTest(PymatgenTest):
+class TestMiniDistNN(PymatgenTest):
     def setUp(self):
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
@@ -485,7 +485,7 @@ class MiniDistNNTest(PymatgenTest):
         assert ops["octahedral"] == approx(0.9999995266669)
 
 
-class MotifIdentificationTest(PymatgenTest):
+class TestMotifIdentification(PymatgenTest):
     def setUp(self):
         self.silicon = Structure(
             Lattice.cubic(5.47),
@@ -589,7 +589,7 @@ class MotifIdentificationTest(PymatgenTest):
         del self.cscl
 
 
-class NearNeighborTest(PymatgenTest):
+class TestNearNeighbor(PymatgenTest):
     def setUp(self):
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
@@ -626,7 +626,7 @@ class NearNeighborTest(PymatgenTest):
         del self.diamond
 
 
-class LocalStructOrderParamsTest(PymatgenTest):
+class TestLocalStructOrderParams(PymatgenTest):
     def setUp(self):
         self.single_bond = Structure(
             Lattice.cubic(10),
@@ -1213,7 +1213,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
         del self.see_saw_rect
 
 
-class CrystalNNTest(PymatgenTest):
+class TestCrystalNN(PymatgenTest):
     def setUp(self):
         self.lifepo4 = self.get_structure("LiFePO4")
         self.lifepo4.add_oxidation_state_by_guess()
@@ -1363,7 +1363,7 @@ class CrystalNNTest(PymatgenTest):
             cnn.get_bonded_structure(self.disordered_struct, 0, on_disorder="error")
 
 
-class CutOffDictNNTest(PymatgenTest):
+class TestCutOffDictNN(PymatgenTest):
     def setUp(self):
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
@@ -1394,7 +1394,7 @@ class CutOffDictNNTest(PymatgenTest):
 
 
 @unittest.skipIf(not which("critic2"), "critic2 executable not present")
-class Critic2NNTest(PymatgenTest):
+class TestCritic2NN(PymatgenTest):
     def setUp(self):
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
@@ -1413,7 +1413,7 @@ class Critic2NNTest(PymatgenTest):
         # assert nn.get_cn(self.diamond, 0) == 4
 
 
-class MetalEdgeExtenderTest(PymatgenTest):
+class TestMetalEdgeExtender(PymatgenTest):
     def setUp(self):
         self.LiEC = Molecule.from_file(os.path.join(test_dir, "LiEC.xyz"))
         self.phsh = Molecule.from_file(os.path.join(test_dir, "phsh.xyz"))

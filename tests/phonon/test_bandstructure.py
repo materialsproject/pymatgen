@@ -11,7 +11,7 @@ from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.util.testing import PymatgenTest
 
 
-class PhononBandStructureSymmLineTest(PymatgenTest):
+class TestPhononBandStructureSymmLine(PymatgenTest):
     def setUp(self):
         with open(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json"),

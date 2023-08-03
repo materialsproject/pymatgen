@@ -18,7 +18,7 @@ from pymatgen.util.testing import PymatgenTest
 pybel = pytest.importorskip("openbabel.pybel")
 
 
-class BabelMolAdaptorTest(unittest.TestCase):
+class TestBabelMolAdaptor(unittest.TestCase):
     def setUp(self):
         coords = [
             [0.000000, 0.000000, 0.000000],

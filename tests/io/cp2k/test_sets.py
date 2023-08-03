@@ -15,7 +15,7 @@ Si_structure = Structure(
 molecule = Molecule(species=["Si"], coords=[[0, 0, 0]])
 
 
-class SetTest(PymatgenTest):
+class TestSet(PymatgenTest):
     def setUp(self) -> None:
         SETTINGS["PMG_CP2K_DATA_DIR"] = f"{self.TEST_FILES_DIR}/cp2k"
         self.setkwargs = {
