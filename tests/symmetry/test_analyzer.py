@@ -90,9 +90,9 @@ class SpacegroupAnalyzerTest(PymatgenTest):
             for fop, op, pgop in zip(frac_symm_ops, symm_ops, pg_ops):
                 # translation vector values should all be 0 or 0.5
                 t = fop.translation_vector * 2
-                self.assert_all_close(t - np.round(t), 0)
+                assert np.allclose(t - np.round(t), 0)
 
-                self.assert_all_close(fop.rotation_matrix, pgop.rotation_matrix)
+                assert np.allclose(fop.rotation_matrix, pgop.rotation_matrix)
                 for site in structure:
                     new_frac = fop.operate(site.frac_coords)
                     new_cart = op.operate(site.coords)
