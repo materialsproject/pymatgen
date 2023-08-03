@@ -11,8 +11,6 @@ of everyone on this page! This goes from the smallest bug fix to years of contri
 
 If you've contributed but your name is missing from this list, please let us know by filling out [this form](https://forms.gle/JnisFb38QDR8QTFTA) so you can be credited appropriately. An always-up-to-date list of `pymatgen` developers can also be found [on GitHub](https://github.com/materialsproject/pymatgen/graphs/contributors).
 
-<iframe src="/assets/team-map.html" width="100%" height="500"></iframe>
-
 ## Lead Maintainers
 
 | Name             | Position                                                       | 💻 GitHub                                                                           | 🔬 ORCID                                                      | 🌐 Web                                                        |
@@ -20,6 +18,8 @@ If you've contributed but your name is missing from this list, please let us kno
 | Shyue Ping Ong   | Lead developer, Professor, Department of NanoEngineering, UCSD | [shyuep](https://github.com/shyuep)                                                | [0000-0001-7777-8871](https://orcid.org/0000-0001-5726-2587) | [materialsvirtuallab.org](https://materialsvirtuallab.org)   |
 | Matthew Horton   | Senior Software Engineer @ Microsoft Research                  | [mkhorton](https://github.com/mkhorton)                                            | [0000-0001-7777-8871](https://orcid.org/0000-0001-7777-8871) | [linkedin.com/in/mkhorton](https://linkedin.com/in/mkhorton) |
 | Janosh Riebesell | University of Cambridge, Materials Project Staff               | [janosh](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:janosh) | [0000-0001-5233-3462](https://orcid.org/0000-0001-5233-3462) | [janosh.dev](https://janosh.dev)                             |
+
+<iframe src="/assets/team-map.html" width="100%" height="500"></iframe>
 
 ## List of Developers (A–Z)
 
