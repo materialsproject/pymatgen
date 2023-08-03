@@ -15,25 +15,25 @@ be available on `PyPI <http://pypi.python.org>`_.
 Optional libraries that are required if you need certain features.
 
 1. sympy: For defect generation and analysis.
-2. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
+2. VTK with Python bindings 5.8+ (<http://www.vtk.org/>): For visualization of
    crystal structures using the pymatgen.vis package. Note that the VTK
    package is incompatible with Python 3.x at the moment.
 3. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
-   the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
+   the Atoms object used by ASE. Get it at <https://wiki.fysik.dtu.dk/ase/>.
    Note that the ASE package is compatible with Python 3.5+ at the moment.
-4. OpenBabel with Python bindings (http://openbabel.org): Required for the
+4. OpenBabel with Python bindings (<http://openbabel.org>): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
 5. networkx: For graph analysis associated with critic2 topological analysis
    of electron charge densities, pygraphviz is also required for visualization.
 6. pytest - For unittesting. Not optional for developers.
-7. numba: Optionally can be installed for faster evaluation of certain 
-   functionality, such as the SubstrateAnalyzer. It incurrs an initial 
-   slowdown the first time the relevant function is called, as it is 
-   compiled, for dramatically faster subsequent evaluations. Note that 
-   numba places additional constraints on the versions of numpy and 
+7. numba: Optionally can be installed for faster evaluation of certain
+   functionality, such as the SubstrateAnalyzer. It incurrs an initial
+   slowdown the first time the relevant function is called, as it is
+   compiled, for dramatically faster subsequent evaluations. Note that
+   numba places additional constraints on the versions of numpy and
    Python that may be used.
 
 ## Optional non-Python programs
@@ -42,7 +42,7 @@ Optional non-python libraries (because no good python alternative exists at
 the moment) required only for certain features:
 
 1. ffmpeg: For generation of movies in structure_vtk.py. The executable ffmpeg
-   must be in the path. Get it at http://www.ffmpeg.org.
+   must be in the path. Get it at <http://www.ffmpeg.org>.
 2. enum: For the use of
    `pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation`
    and `pymatgen.command_line.enumlib_caller` module. This library by Gus
@@ -51,24 +51,24 @@ the moment) required only for certain features:
    of disordered structures via EnumerateStructureTransformation. Many other
    advanced transformations (e.g., MagOrderingTransformation) use
    EnumerateStructureTransformation. The enum.x and makestr.x
-   executables must be in the path. Get it at http://github.com/msg-byu/enumlib and
+   executables must be in the path. Get it at <http://github.com/msg-byu/enumlib> and
    follow the instructions to compile enum.x and makestr.x.
 3. bader: For use with :class:`pymatgen.command_line.bader_caller.BaderAnalysis`.
    This library by Henkelmann et al. provides a robust way to calculate the
    Bader analysis from a CHGCAR. The bader executable must be in the path.
-   Get it at http://theory.cm.utexas.edu/bader.
+   Get it at <http://theory.cm.utexas.edu/bader>.
 4. gulp: For use with :mod:`pymatgen.command_line.gulp_caller`,
    which is in turn used extensively by :mod:`pymatgen.analysis.defects` to
    compute empirical defect energies.
 5. aconvasp: For use with the :mod:`pymatgen.command_line.aconvasp_caller`.
-6. Zeo++ (http://zeoplusplus.org): For defect structure
+6. Zeo++ (<http://zeoplusplus.org>): For defect structure
    generation. This is required in addition to installing the zeo Python
    package.
-7. critic2 (https://github.com/aoterodelaroza/critic2): For topological
+7. critic2 (<https://github.com/aoterodelaroza/critic2>): For topological
    analysis of critical points from electronic charge density. Provides
    more detailed information compared to bader. For use with
    :class:`pymatgen.command_line.critic2_caller.Critic2Caller`.
-8. graphviz (http://graphviz.org): For visualization of graphs generated
+8. graphviz (<http://graphviz.org>): For visualization of graphs generated
    using critic2.
 
 ## Conda-based install
@@ -82,7 +82,7 @@ programs may require you to compile those programs from source.
 ### Step 1: Install conda
 
 Download and install the version of conda for your operating system from
-http://conda.pydata.org/miniconda.html. For Windows, **make sure it is the
+<http://conda.pydata.org/miniconda.html>. For Windows, **make sure it is the
 Miniconda3 installer**, and simply double-click the exe file. For Linux or Mac,
 run:
 
@@ -175,7 +175,6 @@ or:
  |||-...
 ```
 
-
 and follow the instructions. If you have done it correctly, you should get a
 resources directory with the following directory structure::
 
@@ -266,7 +265,7 @@ We welcome any developers interested in expanding our PyPy support.
       xcode-select --install
 
 2. (Optional) Install gfortran. Get an installer at
-   http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
+   <http://gcc.gnu.org/wiki/GFortranBinaries#MacOS>.
 
 #### Linux
 
@@ -276,7 +275,7 @@ We welcome any developers interested in expanding our PyPy support.
 ### Step 2: Install pymatgen in developmental mode
 
 1. Make sure you have git and `git-lfs <https://git-lfs.github.com/>`_ installed.
-   Clone the repo at https://github.com/materialsproject/pymatgen.
+   Clone the repo at <https://github.com/materialsproject/pymatgen>.
 
 2. Run `git lfs install` in the cloned repo first.
 
@@ -306,7 +305,7 @@ gcc and other compilers (e.g., Xcode on Macs) already installed.
 ### VTK on Mac OS X (tested on v7.0)
 
 The easiest is to install cmake from
-http://cmake.org/cmake/resources/software.html.
+<http://cmake.org/cmake/resources/software.html>.
 
 Type the following::
 
@@ -357,22 +356,22 @@ able to install openbabel with a single command::
 Openbabel must be compiled with python bindings for integration with pymatgen.
 Here are the steps that I took to make it work:
 
-1. Install cmake from http://cmake.org/cmake/resources/software.html.
+1. Install cmake from <http://cmake.org/cmake/resources/software.html>.
 
 2. Install pcre-8.33 from
    ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.33.tar.gz.
 
 3. Install pkg-config-0.28 using MacPorts or from
-   http://pkgconfig.freedesktop.org/releases/pkg-config-0.28.tar.gz.
+   <http://pkgconfig.freedesktop.org/releases/pkg-config-0.28.tar.gz>.
 
 4. Install SWIG from
-   http://prdownloads.sourceforge.net/swig/swig-2.0.10.tar.gz.
+   <http://prdownloads.sourceforge.net/swig/swig-2.0.10.tar.gz>.
 
 5. Download openbabel 2.3.2 *source code* from
-   https://sourceforge.net/projects/openbabel/files/openbabel/2.3.2/.
+   <https://sourceforge.net/projects/openbabel/files/openbabel/2.3.2/>.
 
 6. Download Eigen version 3.1.2 from
-   http://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz.
+   <http://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz>.
 
 7. Extract your Eigen and openbabel source distributions::
 
@@ -436,4 +435,4 @@ Here are the steps that I took to make it work:
 
 If you use the defects analysis package, you will need to install Zeo++.
 
-The download and installation instructions for Zeo++ can be found here: http://www.zeoplusplus.org/
+The download and installation instructions for Zeo++ can be found here: <http://www.zeoplusplus.org/>

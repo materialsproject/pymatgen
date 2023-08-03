@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Team
+title: Development Team
 nav_order: 8
 ---
 

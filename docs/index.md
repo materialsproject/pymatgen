@@ -16,13 +16,13 @@ nav_order: 1
 [![Requires Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 [![arXiv](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue)](https://doi.org/10.1016/j.commatsci.2012.10.028)
 
-Pymatgen (Python Materials Genomics) is a robust, open-source Python library for materials analysis. These are some 
+Pymatgen (Python Materials Genomics) is a robust, open-source Python library for materials analysis. These are some
 of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule, Structure objects.
 2. Extensive input/output support, including support for [VASP](http://cms.mpi.univie.ac.at/vasp/),
    [ABINIT](http://www.abinit.org/), CIF, Gaussian, XYZ, and many other file formats.
-3. Powerful analysis tools, including generation of phase diagrams, Pourbaix diagrams, diffusion analyses, 
+3. Powerful analysis tools, including generation of phase diagrams, Pourbaix diagrams, diffusion analyses,
    reactions, etc.
 4. Electronic structure analyses, such as density of states and band structure.
 5. Integration with the Materials Project REST API, Crystallography Open Database and other external data sources.
@@ -39,30 +39,30 @@ reports. The following are resources for pymatgen:
 - [Official documentation](https://pymatgen.org)
 - Bug reports or feature requests: Please submit an issue on [Github Issues].
 - Code contributions via pull requests are welcome.
-- For questions that are not bugs or feature requests, please use the [pymatgen MatSci forum] or open a [GitHub 
+- For questions that are not bugs or feature requests, please use the [pymatgen MatSci forum] or open a [GitHub
   discussion].
 - [matgenb] provides some example Jupyter notebooks that demonstrate how to use pymatgen functionality.
 - Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
 
 ## Why use pymatgen?
 
-1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers and is the analysis code powering the 
-   [Materials Project]. The analysis it produces survives rigorous scrutiny every single day. Bugs tend to be found 
-   and corrected quickly. Pymatgen also uses Github Actions for continuous integration, which ensures that every new 
+1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers and is the analysis code powering the
+   [Materials Project]. The analysis it produces survives rigorous scrutiny every single day. Bugs tend to be found
+   and corrected quickly. Pymatgen also uses Github Actions for continuous integration, which ensures that every new
    code passes a comprehensive suite of unit tests.
-2. **It is well documented.** A fairly comprehensive documentation has been written to help you get to grips with it 
+2. **It is well documented.** A fairly comprehensive documentation has been written to help you get to grips with it
    quickly.
-3. **It is open.** You are free to use and contribute to pymatgen. It also means that pymatgen is continuously 
-   being improved. We will attribute any code you contribute to any publication you specify. Contributing to 
+3. **It is open.** You are free to use and contribute to pymatgen. It also means that pymatgen is continuously
+   being improved. We will attribute any code you contribute to any publication you specify. Contributing to
    pymatgen means your research becomes more visible, which translates to greater impact.
-4. **It is fast.** Many of the core numerical methods in pymatgen have been optimized by vectorizing in 
-   `numpy`/`scipy`. This means that coordinate manipulations are fast. Pymatgen also comes with a complete system 
+4. **It is fast.** Many of the core numerical methods in pymatgen have been optimized by vectorizing in
+   `numpy`/`scipy`. This means that coordinate manipulations are fast. Pymatgen also comes with a complete system
    for handling periodic boundary conditions.
-5. **It will be around.** Pymatgen is not a pet research project. It is used in the well-established Materials 
-   Project. It is also actively being developed and maintained by the [Materials Virtual Lab], the ABINIT group and 
+5. **It will be around.** Pymatgen is not a pet research project. It is used in the well-established Materials
+   Project. It is also actively being developed and maintained by the [Materials Virtual Lab], the ABINIT group and
    many other research groups.
-6. **A growing ecosystem of developers and add-ons**. Pymatgen has contributions from materials scientists all over 
-   the world. We also now have an architecture to support add-ons that expand pymatgen's functionality even 
+6. **A growing ecosystem of developers and add-ons**. Pymatgen has contributions from materials scientists all over
+   the world. We also now have an architecture to support add-ons that expand pymatgen's functionality even
    further. Check out the [contributing page](/contributing) and [add-ons page](/addons) for details and examples.
 
     *The code is mightier than the pen.*
@@ -70,7 +70,7 @@ reports. The following are resources for pymatgen:
 ## Matgenie & Examples
 
 The [Materials Virtual Lab] has developed a [matgenie web app](http://matgenie.materialsvirtuallab.org) which
-demonstrates some of the basic functionality of pymatgen, as well as a [matgenb] repository of Jupyter notebooks for 
+demonstrates some of the basic functionality of pymatgen, as well as a [matgenb] repository of Jupyter notebooks for
 common and advanced use cases. One of the ways you can contribute is to fork the matgenb repo and add your own examples.
 
 Below are a quick look at some of the graphical output possible.
@@ -119,7 +119,7 @@ any system is to use pip:
 
 ```shell
 pip install pymatgen
-```    
+```
 
 Wheels for Mac and Windows have been built for convenience. Similarly, you might
 need to ensure you have a relatively recent version of gcc.
@@ -131,7 +131,7 @@ pip install --upgrade pymatgen
 ```
 
 The bleeding edge developmental version is at the pymatgen [Github repo]. The developmental
-version is likely to be more buggy, but may contain new features. The Github version include complete test files. 
+version is likely to be more buggy, but may contain new features. The Github version include complete test files.
 After cloning the source, you can type in the root of the repo:
 
 ```shell
@@ -144,7 +144,7 @@ or to install the package in developmental mode:
 pip install -e .
 ```
 
-Detailed installation instructions, including installation of optional dependencies, set up for POTCAR generation, 
+Detailed installation instructions, including installation of optional dependencies, set up for POTCAR generation,
 Materials Project REST interface usage, setup for developers, etc. are given on this [page](/installation).
 
 For some extras, you can also install the optional dependencies using:
@@ -340,7 +340,7 @@ pmg. The typical usage of pmg is:
 pmg {setup, config, analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 ```
 
-At any time, you can use `pmg --help` or `pmg subcommand --help` to bring up a useful help message on how to use 
+At any time, you can use `pmg --help` or `pmg subcommand --help` to bring up a useful help message on how to use
 these subcommands. Here are a few examples of typical usages:
 
 ```bash
@@ -407,13 +407,13 @@ publications) in pymatgen.
 
 ### Reporting bugs
 
-A simple way that anyone can contribute is simply to report bugs and issues to the developing team. Please report 
-any bugs and issues at pymatgen's [Github Issues]. For help with any pymatgen issue, consult [Stack Overflow](https://stackoverflow.com/questions/tagged/pymatgen) 
+A simple way that anyone can contribute is simply to report bugs and issues to the developing team. Please report
+any bugs and issues at pymatgen's [Github Issues]. For help with any pymatgen issue, consult [Stack Overflow](https://stackoverflow.com/questions/tagged/pymatgen)
 and if you cannot find an answer, please post a question on the [pymatgen MatSci forum].
 
 ### Developing new functionality
 
-Another way to contribute is to submit new code/bugfixes to pymatgen. The best way for anyone to develop pymatgen is 
+Another way to contribute is to submit new code/bugfixes to pymatgen. The best way for anyone to develop pymatgen is
 by adopting the collaborative Github workflow (see [contributing page](/contributing).
 
 ## Citing pymatgen
