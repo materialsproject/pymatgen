@@ -9,10 +9,9 @@ from pytest import approx
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.util import coord
-from pymatgen.util.testing import PymatgenTest
 
 
-class CoordUtilsTest(PymatgenTest):
+class CoordUtilsTest:
     def test_get_linear_interpolated_value(self):
         x_vals = [0, 1, 2, 3, 4, 5]
         y_vals = [3, 6, 7, 8, 10, 12]
@@ -85,17 +84,17 @@ class CoordUtilsTest(PymatgenTest):
         coords1 = [[0, 0, 0], [0.5, 0.5, 0.5]]
         coords2 = [[1, 2, -1], [1, 0, 0], [1, 0, 0]]
         result = [[2.44948974, 1, 1], [2.17944947, 0.8660254, 0.8660254]]
-        self.assert_all_close(coord.all_distances(coords1, coords2), result, 4)
+        assert np.allclose(coord.all_distances(coords1, coords2), result, 4)
 
     def test_pbc_diff(self):
-        self.assert_all_close(coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]), [-0.2, -0.4, 0.2])
-        self.assert_all_close(coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]), [-0.4, -0.4, 0.11])
-        self.assert_all_close(coord.pbc_diff([0.1, 0.6, 1.01], [0.6, 0.1, 0.9]), [-0.5, 0.5, 0.11])
-        self.assert_all_close(coord.pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]), [-0.3, -0.3, -0.3])
-        self.assert_all_close(
+        assert np.allclose(coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]), [-0.2, -0.4, 0.2])
+        assert np.allclose(coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]), [-0.4, -0.4, 0.11])
+        assert np.allclose(coord.pbc_diff([0.1, 0.6, 1.01], [0.6, 0.1, 0.9]), [-0.5, 0.5, 0.11])
+        assert np.allclose(coord.pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]), [-0.3, -0.3, -0.3])
+        assert np.allclose(
             coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9], pbc=(True, True, False)), [-0.2, -0.4, -0.8]
         )
-        self.assert_all_close(
+        assert np.allclose(
             coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9], pbc=(True, True, False)), [-0.4, -0.4, 0.11]
         )
 
@@ -212,14 +211,14 @@ class CoordUtilsTest(PymatgenTest):
 
         vectors = coord.pbc_shortest_vectors(lattice, frac_coords[:-1], frac_coords)
         dists = np.sum(vectors**2, axis=-1) ** 0.5
-        self.assert_all_close(dists, expected, 3)
+        assert np.allclose(dists, expected, 3)
 
         prev_threshold = coord.LOOP_THRESHOLD
         coord.LOOP_THRESHOLD = 0
 
         vectors = coord.pbc_shortest_vectors(lattice, frac_coords[:-1], frac_coords)
         dists = np.sum(vectors**2, axis=-1) ** 0.5
-        self.assert_all_close(dists, expected, 3)
+        assert np.allclose(dists, expected, 3)
 
         coord.LOOP_THRESHOLD = prev_threshold
 
@@ -234,7 +233,7 @@ class CoordUtilsTest(PymatgenTest):
         )
         vectors = coord.pbc_shortest_vectors(lattice_pbc, frac_coords[:-1], frac_coords)
         dists = np.sum(vectors**2, axis=-1) ** 0.5
-        self.assert_all_close(dists, expected_pbc, 3)
+        assert np.allclose(dists, expected_pbc, 3)
 
     def test_get_angle(self):
         v1 = (1, 0, 0)
@@ -243,7 +242,7 @@ class CoordUtilsTest(PymatgenTest):
         assert coord.get_angle(v1, v2, units="radians") == approx(0.9553166181245092)
 
 
-class SimplexTest(PymatgenTest):
+class SimplexTest:
     def setUp(self):
         coords = []
         coords.append([0, 0, 0])
@@ -266,10 +265,10 @@ class SimplexTest(PymatgenTest):
 
     def test_2dtriangle(self):
         simplex = coord.Simplex([[0, 1], [1, 1], [1, 0]])
-        self.assert_all_close(simplex.bary_coords([0.5, 0.5]), [0.5, 0, 0.5])
-        self.assert_all_close(simplex.bary_coords([0.5, 1]), [0.5, 0.5, 0])
-        self.assert_all_close(simplex.bary_coords([0.5, 0.75]), [0.5, 0.25, 0.25])
-        self.assert_all_close(simplex.bary_coords([0.75, 0.75]), [0.25, 0.5, 0.25])
+        assert np.allclose(simplex.bary_coords([0.5, 0.5]), [0.5, 0, 0.5])
+        assert np.allclose(simplex.bary_coords([0.5, 1]), [0.5, 0.5, 0])
+        assert np.allclose(simplex.bary_coords([0.5, 0.75]), [0.5, 0.25, 0.25])
+        assert np.allclose(simplex.bary_coords([0.75, 0.75]), [0.25, 0.5, 0.25])
 
         simplex = coord.Simplex([[1, 1], [1, 0]])
         with pytest.raises(ValueError, match="Simplex is not full-dimensional"):
@@ -287,9 +286,9 @@ class SimplexTest(PymatgenTest):
         s = coord.Simplex([[0, 2], [3, 1], [1, 0]])
         point = [0.7, 0.5]
         bc = s.bary_coords(point)
-        self.assert_all_close(bc, [0.26, -0.02, 0.76])
+        assert np.allclose(bc, [0.26, -0.02, 0.76])
         new_point = s.point_from_bary_coords(bc)
-        self.assert_all_close(point, new_point)
+        assert np.allclose(point, new_point)
 
     def test_intersection(self):
         # simple test, with 2 intersections at faces
@@ -298,62 +297,56 @@ class SimplexTest(PymatgenTest):
         point2 = [0.5, 0.7]
         intersections = s.line_intersection(point1, point2)
         expected = np.array([[1.13333333, 0.06666667], [0.8, 0.4]])
-        self.assert_all_close(intersections, expected)
+        assert np.allclose(intersections, expected)
 
         # intersection through point and face
         point1 = [0, 2]  # simplex point
         point2 = [1, 1]  # inside simplex
         expected = np.array([[1.66666667, 0.33333333], [0, 2]])
         intersections = s.line_intersection(point1, point2)
-        self.assert_all_close(intersections, expected)
+        assert np.allclose(intersections, expected)
 
         # intersection through point only
         point1 = [0, 2]  # simplex point
         point2 = [0.5, 0.7]
         expected = np.array([[0, 2]])
         intersections = s.line_intersection(point1, point2)
-        self.assert_all_close(intersections, expected)
+        assert np.allclose(intersections, expected)
 
         # 3d intersection through edge and face
         point1 = [0.5, 0, 0]  # edge point
         point2 = [0.5, 0.5, 0.5]  # in simplex
         expected = np.array([[0.5, 0.25, 0.25], [0.5, 0.0, 0.0]])
         intersections = self.simplex.line_intersection(point1, point2)
-        self.assert_all_close(intersections, expected)
+        assert np.allclose(intersections, expected)
 
         # 3d intersection through edge only
         point1 = [0.5, 0, 0]  # edge point
         point2 = [0.5, 0.5, -0.5]  # outside simplex
         expected = np.array([[0.5, 0.0, 0.0]])
         intersections = self.simplex.line_intersection(point1, point2)
-        self.assert_all_close(intersections, expected)
+        assert np.allclose(intersections, expected)
 
         # coplanar to face (no intersection)
         point1 = [-1, 2]
         point2 = [0, 0]
         expected = np.array([])
         intersections = s.line_intersection(point1, point2)
-        self.assert_all_close(intersections, expected)
+        assert np.allclose(intersections, expected)
 
         # coplanar to face (with intersection line)
         point1 = [0, 2]  # simplex point
         point2 = [1, 0]
         expected = np.array([[1, 0], [0, 2]])
         intersections = s.line_intersection(point1, point2)
-        self.assert_all_close(intersections, expected)
+        assert np.allclose(intersections, expected)
 
         # coplanar to face (with intersection points)
         point1 = [0.1, 2]
         point2 = [1.1, 0]
         expected = np.array([[1.08, 0.04], [0.12, 1.96]])
         intersections = s.line_intersection(point1, point2)
-        self.assert_all_close(intersections, expected)
+        assert np.allclose(intersections, expected)
 
     def test_to_json(self):
         assert isinstance(self.simplex.to_json(), str)
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()
