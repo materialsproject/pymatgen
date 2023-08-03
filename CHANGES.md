@@ -4,7 +4,7 @@ title: Change Log
 nav_order: 4
 ---
 
-# Change log
+# Changelog
 
 ## v2023.7.20
 

@@ -24,12 +24,12 @@ _test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "abinit")
 
 
 def abiref_file(filename):
-    """Return absolute path to filename in ~pymatgen/test_files/abinit."""
+    """Return absolute path to filename in ~pymatgen/tests/files/abinit."""
     return os.path.join(_test_dir, filename)
 
 
 def abiref_files(*filenames):
-    """Return list of absolute paths to filenames in ~pymatgen/test_files/abinit."""
+    """Return list of absolute paths to filenames in ~pymatgen/tests/files/abinit."""
     return [os.path.join(_test_dir, f) for f in filenames]
 
 

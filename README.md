@@ -1,7 +1,7 @@
 <h1 align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/assets/pymatgen-white.svg">
-    <img alt="Logo" src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/assets/pymatgen.svg"
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/materialsproject/pymatgen/raw/master/docs/assets/pymatgen-white.svg">
+    <img alt="Logo" src="https://github.com/materialsproject/pymatgen/raw/master/docs/assets/pymatgen.svg"
 height="70">
   </picture>
 </h1>

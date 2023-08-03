@@ -93,11 +93,11 @@ jobs:
           python -m pip install numpy cython packaging
           python -m pip install -e '.[dev,optional]'
       - name: pytest split ${{ matrix.split }}
-        # to update the test durations, run
-        # pytest --store-durations --durations-path test_files/.pytest-split-durations
+        # to update the test durations, do pip install pytest-split and run
+        # pytest --store-durations --durations-path tests/files/.pytest-split-durations
         # and commit the results (requires pip install pytest-split)
         run: |
-          pytest --cov=pymatgen --cov-report=xml --splits 10 --group ${{ matrix.split }} --durations-path test_files/.pytest-split-durations tests
+          pytest --cov=pymatgen --cov-report=xml --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
       - name: Upload coverage
         uses: actions/upload-artifact@v3
         with:
