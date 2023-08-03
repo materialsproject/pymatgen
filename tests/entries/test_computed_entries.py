@@ -11,6 +11,7 @@ from monty.json import MontyDecoder
 from pytest import approx
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import (
     CompositionEnergyAdjustment,
     ComputedEntry,
@@ -35,6 +36,17 @@ def test_energy_adjustment():
     ea_dct = ea.as_dict()
     ea2 = EnergyAdjustment.from_dict(ea_dct)
     assert str(ea_dct) == str(ea2.as_dict())
+
+
+def test_energy_adjustment_repr():
+    comp_cls = MaterialsProject2020Compatibility()
+    cls_name = type(comp_cls).__name__
+    for cls, label in ((None, "unknown"), (comp_cls, cls_name), ({"@class": cls_name}, cls_name)):
+        ea = EnergyAdjustment(10, cls=cls)
+        assert (
+            repr(ea) == "EnergyAdjustment(name='Manual adjustment', value=10.0, uncertainty=nan, description=, "
+            f"generated_by='{label}')"
+        )
 
 
 def test_manual_energy_adjustment():
