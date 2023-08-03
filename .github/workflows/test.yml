@@ -115,6 +115,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           directory: .coverage
+          files: ./coverage-1.xml,./coverage-2.xml,./coverage-3.xml,./coverage-4.xml,./coverage-5.xml,./coverage-6.xml,./coverage-7.xml,./coverage-8.xml,./coverage-9.xml,./coverage-10.xml
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
