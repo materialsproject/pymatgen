@@ -19,7 +19,7 @@ If you've contributed but your name is missing from this list, please let us kno
 | Matthew Horton   | Senior Software Engineer @ Microsoft Research                  | [mkhorton](https://github.com/mkhorton)                                            | [0000-0001-7777-8871](https://orcid.org/0000-0001-7777-8871) | [linkedin.com/in/mkhorton](https://linkedin.com/in/mkhorton) |
 | Janosh Riebesell | University of Cambridge, Materials Project Staff               | [janosh](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:janosh) | [0000-0001-5233-3462](https://orcid.org/0000-0001-5233-3462) | [janosh.dev](https://janosh.dev)                             |
 
-<iframe src="/assets/team-map.html" width="100%" height="500"></iframe>
+<iframe src="/assets/team-map.html" width="100%" height="500" frameborder="0"></iframe>
 
 ## List of Developers (A–Z)
 

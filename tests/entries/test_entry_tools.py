@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import unittest
-from pathlib import Path
 
 import pytest
 from monty.serialization import dumpfn, loadfn
@@ -11,8 +10,6 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet, group_entries_by_composition, group_entries_by_structure
 from pymatgen.util.testing import PymatgenTest
-
-test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / "test_files"
 
 
 class TestFunc(unittest.TestCase):
