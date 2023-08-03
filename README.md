@@ -7,6 +7,7 @@ height="70">
 </h1>
 
 [![CI Status](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml)
+[![Linting](https://github.com/materialsproject/pymatgen/actions/workflows/lint.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/lint.yml)
 [![Coveralls](https://img.shields.io/coveralls/github/materialsproject/pymatgen?logo=coveralls&label=Coverage)](https://coveralls.io/github/materialsproject/pymatgen?branch=master)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
