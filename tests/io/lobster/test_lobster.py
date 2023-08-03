@@ -364,12 +364,12 @@ class CohpcarTest(PymatgenTest):
             [self.orb.orb_res_cohp["1"][orbs]["COHP"][Spin.up] for orbs in self.orb.orb_res_cohp["1"]],
             axis=0,
         )
-        self.assert_all_close(tot, cohp, decimal=3)
+        assert np.allclose(tot, cohp, atol=1e-3)
         tot = np.sum(
             [self.orb.orb_res_cohp["1"][orbs]["ICOHP"][Spin.up] for orbs in self.orb.orb_res_cohp["1"]],
             axis=0,
         )
-        self.assert_all_close(tot, icohp, decimal=3)
+        assert np.allclose(tot, icohp, atol=1e-3)
 
         # Lobster 3.1
         cohp_KF = self.cohp_KF.cohp_data["1"]["COHP"][Spin.up]
@@ -378,12 +378,12 @@ class CohpcarTest(PymatgenTest):
             [self.cohp_KF.orb_res_cohp["1"][orbs]["COHP"][Spin.up] for orbs in self.cohp_KF.orb_res_cohp["1"]],
             axis=0,
         )
-        self.assert_all_close(tot_KF, cohp_KF, decimal=3)
+        assert np.allclose(tot_KF, cohp_KF, atol=1e-3)
         tot_KF = np.sum(
             [self.cohp_KF.orb_res_cohp["1"][orbs]["ICOHP"][Spin.up] for orbs in self.cohp_KF.orb_res_cohp["1"]],
             axis=0,
         )
-        self.assert_all_close(tot_KF, icohp_KF, decimal=3)
+        assert np.allclose(tot_KF, icohp_KF, atol=1e-3)
 
         # d and f orbitals
         cohp_Na2UO4 = self.cohp_Na2UO4.cohp_data["49"]["COHP"][Spin.up]
@@ -395,7 +395,7 @@ class CohpcarTest(PymatgenTest):
             ],
             axis=0,
         )
-        self.assert_all_close(tot_Na2UO4, cohp_Na2UO4, decimal=3)
+        assert np.allclose(tot_Na2UO4, cohp_Na2UO4, atol=1e-3)
         tot_Na2UO4 = np.sum(
             [
                 self.cohp_Na2UO4.orb_res_cohp["49"][orbs]["ICOHP"][Spin.up]
@@ -403,7 +403,7 @@ class CohpcarTest(PymatgenTest):
             ],
             axis=0,
         )
-        self.assert_all_close(tot_Na2UO4, icohp_Na2UO4, decimal=3)
+        assert np.allclose(tot_Na2UO4, icohp_Na2UO4, atol=1e-3)
 
 
 class IcohplistTest(unittest.TestCase):

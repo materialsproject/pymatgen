@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 
+import numpy as np
 from pytest import approx
 
 from pymatgen.core.structure import Structure
@@ -94,10 +95,10 @@ class AtatTest(PymatgenTest):
         struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.out"))
 
         assert struc_from_cif.matches(struc_from_out)
-        self.assert_all_close(
+        assert np.allclose(
             struc_from_out.lattice.parameters,
             struc_from_cif.lattice.parameters,
-            decimal=4,
+            atol=1e-4,
         )
 
     def test_mcsqs_cif_pzt(self):
@@ -108,8 +109,8 @@ class AtatTest(PymatgenTest):
         struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.out"))
 
         assert struc_from_cif.matches(struc_from_out)
-        self.assert_all_close(
+        assert np.allclose(
             struc_from_out.lattice.parameters,
             struc_from_cif.lattice.parameters,
-            decimal=4,
+            atol=1e-4,
         )

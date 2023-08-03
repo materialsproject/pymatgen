@@ -1,18 +1,21 @@
 from __future__ import annotations
 
 import os
-import unittest
 from os.path import join
 
+import pytest
 from pytest import approx
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.adf import AdfInput, AdfKey, AdfOutput, AdfTask
-from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
+
+@pytest.fixture(autouse=True)
+def test_dir(TEST_FILES_DIR):
+    return os.path.join(TEST_FILES_DIR, "molecules")
+
 
 geometry_string = """GEOMETRY
 smooth conservepoints
@@ -93,7 +96,7 @@ def readfile(file_object):
     raise ValueError("``file_object`` must be a string or a file object!")
 
 
-class AdfKeyTest(unittest.TestCase):
+class AdfKeyTest:
     def test_simple(self):
         unrestricted = AdfKey("unrestricted")
         assert str(unrestricted).strip() == "UNRESTRICTED"
@@ -205,7 +208,7 @@ END
 """
 
 
-class AdfTaskTest(unittest.TestCase):
+class AdfTaskTest:
     def test_energy(self):
         task = AdfTask()
         assert str(task) == energy_task
@@ -252,7 +255,7 @@ rhb18 = {
 }
 
 
-class AdfInputTest(unittest.TestCase):
+class AdfInputTest:
     def setUp(self):
         self.tempfile = "./adf.temp"
 
@@ -270,7 +273,7 @@ class AdfInputTest(unittest.TestCase):
             os.remove(self.tempfile)
 
 
-class AdfOutputTest(unittest.TestCase):
+class AdfOutputTest:
     def test_analytical_freq(self):
         filename = join(test_dir, "adf", "analytical_freq", "adf.out")
         o = AdfOutput(filename)

@@ -477,7 +477,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         assert incar["ISMEAR"] == 1
         assert incar["SIGMA"] == 0.2
         kpoints = mp_metal_set.kpoints
-        self.assert_all_close(kpoints.kpts[0], [5, 5, 5])
+        assert np.allclose(kpoints.kpts[0], [5, 5, 5])
 
     def test_as_from_dict(self):
         mit_set = MITRelaxSet(self.structure)
@@ -1200,7 +1200,7 @@ class MVLSlabSetTest(PymatgenTest):
         # Test auto-dipole
         dipole_incar = self.d_dipole["INCAR"]
         assert dipole_incar["LDIPOL"]
-        self.assert_all_close(dipole_incar["DIPOL"], [0.2323, 0.2323, 0.2165], decimal=4)
+        assert np.allclose(dipole_incar["DIPOL"], [0.2323, 0.2323, 0.2165], decimal=4)
         assert dipole_incar["IDIPOL"] == 3
 
     def test_kpoints(self):

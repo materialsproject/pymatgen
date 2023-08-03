@@ -104,7 +104,7 @@ class BasisAndPotentialTest(PymatgenTest):
         # Basis file can read from strings
         bf = BasisFile.from_str(basis)
         for obj in [mol_opt, bf.objects[0]]:
-            self.assert_all_close(
+            assert np.allclose(
                 obj.exponents[0],
                 [
                     11.478000339908,
@@ -133,7 +133,7 @@ class BasisAndPotentialTest(PymatgenTest):
         assert pot.potential == "Pseudopotential"
         assert pot.r_loc == approx(0.2)
         assert pot.nexp_ppl == approx(2)
-        self.assert_all_close(pot.c_exp_ppl, [-4.17890044, 0.72446331])
+        assert np.allclose(pot.c_exp_ppl, [-4.17890044, 0.72446331])
 
         # Basis file can read from strings
         pf = PotentialFile.from_str(pot_H)
