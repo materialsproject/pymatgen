@@ -243,7 +243,7 @@ class TestCoordUtils:
 
 
 class TestSimplex:
-    def setUp(self):
+    def setup(self):
         coords = []
         coords.append([0, 0, 0])
         coords.append([0, 1, 0])
