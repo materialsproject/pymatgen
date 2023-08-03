@@ -101,8 +101,8 @@ jobs:
       - name: Upload coverage
         uses: actions/upload-artifact@v3
         with:
-          name: backend-coverage
-          path: coverage.xml
+          name: coverage-${{ matrix.split }}
+          path: .coverage
 
   coverage:
     needs: test
@@ -113,8 +113,10 @@ jobs:
         uses: actions/download-artifact@v3
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          directory: .coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
 
   build_sdist:
     if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
