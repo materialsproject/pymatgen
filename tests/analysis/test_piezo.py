@@ -41,7 +41,7 @@ class PiezoTest(PymatgenTest):
 
     def test_new(self):
         pt = PiezoTensor(self.full_tensor_array)
-        self.assert_all_close(pt, self.full_tensor_array)
+        assert np.allclose(pt, self.full_tensor_array)
         bad_dim_array = np.zeros((3, 3))
         with pytest.raises(ValueError, match="PiezoTensor input must be rank 3"):
             PiezoTensor(bad_dim_array)
