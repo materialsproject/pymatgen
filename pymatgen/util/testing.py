@@ -32,8 +32,6 @@ class PymatgenTest(unittest.TestCase):
     TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / ".." / "tests" / "files"))
 
     TEST_STRUCTURES: ClassVar[dict[str, Structure]] = {}  # Dict for test structures to aid testing.
-    for fn in STRUCTURES_DIR.iterdir():
-        TEST_STRUCTURES[fn.name.rsplit(".", 1)[0]] = loadfn(str(fn))
 
     @pytest.fixture(autouse=True)  # make all tests run a in a temporary directory accessible via self.tmp_path
     def _tmp_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -52,6 +50,8 @@ class PymatgenTest(unittest.TestCase):
         Returns:
             Structure
         """
+        if name not in cls.TEST_STRUCTURES:
+            cls.TEST_STRUCTURES[name] = loadfn(cls.STRUCTURES_DIR / f"{name}.json")
         return cls.TEST_STRUCTURES[name].copy()
 
     @staticmethod
