@@ -43,7 +43,7 @@ class SpectrumTest(PymatgenTest):
 
         scaled_spect = 3 * self.multi_spec1 + self.multi_spec2
         assert np.allclose(scaled_spect.y, 3 * self.multi_spec1.y + self.multi_spec2.y)
-        self.assert_all_close(
+        assert np.allclose(
             self.multi_spec1.get_interpolated_value(0.05),
             (self.multi_spec1.y[0, :] + self.multi_spec1.y[1, :]) / 2,
         )
@@ -71,7 +71,7 @@ class SpectrumTest(PymatgenTest):
         y = np.array(self.multi_spec1.y)
         self.multi_spec1.smear(0.2)
         assert not np.allclose(y, self.multi_spec1.y)
-        self.assert_all_close(np.sum(y, axis=0), np.sum(self.multi_spec1.y, axis=0))
+        assert np.allclose(np.sum(y, axis=0), np.sum(self.multi_spec1.y, axis=0))
 
     def test_str(self):
         # Just make sure that these methods work.

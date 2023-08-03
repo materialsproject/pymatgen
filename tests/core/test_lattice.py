@@ -78,8 +78,8 @@ class LatticeTestCase(PymatgenTest):
 
     def test_get_cartesian_or_frac_coord(self):
         coord = self.lattice.get_cartesian_coords([0.15, 0.3, 0.4])
-        self.assert_all_close(coord, [1.5, 3.0, 4.0])
-        self.assert_all_close(
+        assert np.allclose(coord, [1.5, 3.0, 4.0])
+        assert np.allclose(
             self.tetragonal.get_fractional_coords([12.12312, 45.2134, 1.3434]),
             [1.212312, 4.52134, 0.06717],
         )
@@ -88,7 +88,7 @@ class LatticeTestCase(PymatgenTest):
         rand_coord = np.random.random_sample(3)
         coord = self.tetragonal.get_cartesian_coords(rand_coord)
         fcoord = self.tetragonal.get_fractional_coords(coord)
-        self.assert_all_close(fcoord, rand_coord)
+        assert np.allclose(fcoord, rand_coord)
 
     def test_get_vector_along_lattice_directions(self):
         lattice_mat = np.array([[0.5, 0.0, 0.0], [0.5, np.sqrt(3) / 2.0, 0.0], [0.0, 0.0, 1.0]])
@@ -96,8 +96,8 @@ class LatticeTestCase(PymatgenTest):
         cart_coord = np.array([0.5, np.sqrt(3) / 4.0, 0.5])
         latt_coord = np.array([0.25, 0.5, 0.5])
         from_direct = lattice.get_fractional_coords(cart_coord) * lattice.lengths
-        self.assert_all_close(lattice.get_vector_along_lattice_directions(cart_coord), from_direct)
-        self.assert_all_close(lattice.get_vector_along_lattice_directions(cart_coord), latt_coord)
+        assert np.allclose(lattice.get_vector_along_lattice_directions(cart_coord), from_direct)
+        assert np.allclose(lattice.get_vector_along_lattice_directions(cart_coord), latt_coord)
         assert_array_equal(
             lattice.get_vector_along_lattice_directions(cart_coord).shape,
             [
@@ -117,8 +117,8 @@ class LatticeTestCase(PymatgenTest):
 
     def test_reciprocal_lattice(self):
         recip_latt = self.lattice.reciprocal_lattice
-        self.assert_all_close(recip_latt.matrix, 0.628319 * np.eye(3), 5)
-        self.assert_all_close(
+        assert np.allclose(recip_latt.matrix, 0.628319 * np.eye(3), 5)
+        assert np.allclose(
             self.tetragonal.reciprocal_lattice.matrix,
             [[0.628319, 0.0, 0.0], [0.0, 0.628319, 0], [0.0, 0.0, 0.3141590]],
             5,
@@ -126,7 +126,7 @@ class LatticeTestCase(PymatgenTest):
 
         # Test the crystallographic version.
         recip_latt_xtal = self.lattice.reciprocal_lattice_crystallographic
-        self.assert_all_close(recip_latt.matrix, recip_latt_xtal.matrix * 2 * np.pi, 5)
+        assert np.allclose(recip_latt.matrix, recip_latt_xtal.matrix * 2 * np.pi, 5)
 
     def test_static_methods(self):
         expected_lengths = [3.840198, 3.84019885, 3.8401976]
@@ -180,13 +180,13 @@ class LatticeTestCase(PymatgenTest):
 
         expected = Lattice([[0, 1, 0], [1, 0, 1], [-2, 0, 1]])
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
-        self.assert_all_close(sorted(reduced_latt.abc), sorted(expected.abc))
+        assert np.allclose(sorted(reduced_latt.abc), sorted(expected.abc))
         assert reduced_latt.volume == approx(lattice.volume)
         latt = [7.164750, 2.481942, 0.000000, -4.298850, 2.481942, 0.000000, 0.000000, 0.000000, 14.253000]
         expected = Lattice([-4.298850, 2.481942, 0.000000, 2.865900, 4.963884, 0.000000, 0.000000, 0.000000, 14.253000])
         reduced_latt = Lattice(latt).get_lll_reduced_lattice()
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
-        self.assert_all_close(sorted(reduced_latt.abc), sorted(expected.abc))
+        assert np.allclose(sorted(reduced_latt.abc), sorted(expected.abc))
 
         expected = Lattice([0.0, 10.0, 10.0, 10.0, 10.0, 0.0, 30.0, -30.0, 40.0])
 
@@ -195,7 +195,7 @@ class LatticeTestCase(PymatgenTest):
         lattice = Lattice(lattice.T)
         reduced_latt = lattice.get_lll_reduced_lattice()
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
-        self.assert_all_close(sorted(reduced_latt.abc), sorted(expected.abc))
+        assert np.allclose(sorted(reduced_latt.abc), sorted(expected.abc))
 
         random_latt = Lattice(np.random.random((3, 3)))
         if np.linalg.det(random_latt.matrix) > 1e-8:
@@ -222,7 +222,7 @@ class LatticeTestCase(PymatgenTest):
             [-2.8659, 0.0, 0.0],
             [-1.43295, -0.827314, -4.751],
         ]
-        self.assert_all_close(latt.get_niggli_reduced_lattice().matrix, expected)
+        assert np.allclose(latt.get_niggli_reduced_lattice().matrix, expected)
 
         latt = Lattice.from_parameters(7.365450, 6.199506, 5.353878, 75.542191, 81.181757, 156.396627)
         expected = [
@@ -230,7 +230,7 @@ class LatticeTestCase(PymatgenTest):
             [-0.831059, 2.067413, 1.547813],
             [-0.458407, -2.480895, 1.129126],
         ]
-        self.assert_all_close(latt.get_niggli_reduced_lattice().matrix, np.array(expected), 5)
+        assert np.allclose(latt.get_niggli_reduced_lattice().matrix, np.array(expected), atol=1e-5)
 
     def test_find_mapping(self):
         m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
@@ -246,9 +246,9 @@ class LatticeTestCase(PymatgenTest):
 
         rotated = SymmOp.from_rotation_and_translation(rot_out).operate_multi(latt.matrix)
 
-        self.assert_all_close(rotated, aligned_out.matrix)
-        self.assert_all_close(np.dot(scale_out, latt2.matrix), aligned_out.matrix)
-        self.assert_all_close(aligned_out.parameters, latt.parameters)
+        assert np.allclose(rotated, aligned_out.matrix)
+        assert np.allclose(np.dot(scale_out, latt2.matrix), aligned_out.matrix)
+        assert np.allclose(aligned_out.parameters, latt.parameters)
         assert not np.allclose(aligned_out.parameters, latt2.parameters)
 
     def test_find_all_mappings(self):
@@ -262,9 +262,9 @@ class LatticeTestCase(PymatgenTest):
         latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
 
         for aligned_out, rot_out, scale_out in lattice.find_all_mappings(latt2):
-            self.assert_all_close(np.inner(latt2.matrix, rot_out), aligned_out.matrix, 5)
-            self.assert_all_close(np.dot(scale_out, lattice.matrix), aligned_out.matrix)
-            self.assert_all_close(aligned_out.parameters, latt2.parameters)
+            assert np.allclose(np.inner(latt2.matrix, rot_out), aligned_out.matrix, 5)
+            assert np.allclose(np.dot(scale_out, lattice.matrix), aligned_out.matrix)
+            assert np.allclose(aligned_out.parameters, latt2.parameters)
             assert not np.allclose(aligned_out.parameters, lattice.parameters)
 
         lattice = Lattice.orthorhombic(9, 9, 5)
@@ -303,7 +303,7 @@ class LatticeTestCase(PymatgenTest):
         for lattice in self.families.values():
             new_lattice = lattice.scale(new_volume)
             assert new_lattice.volume == approx(new_volume)
-            self.assert_all_close(new_lattice.angles, lattice.angles)
+            assert np.allclose(new_lattice.angles, lattice.angles)
 
     def test_get_wigner_seitz_cell(self):
         ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]]).get_wigner_seitz_cell()
@@ -315,11 +315,11 @@ class LatticeTestCase(PymatgenTest):
         frac_basis = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 
         for lattice in self.families.values():
-            self.assert_all_close(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)
-            self.assert_all_close(lattice.norm(frac_basis), lattice.abc, 5)
+            assert np.allclose(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)
+            assert np.allclose(lattice.norm(frac_basis), lattice.abc, 5)
             for i, vec in enumerate(frac_basis):
                 length = lattice.norm(vec)
-                self.assert_all_close(length[0], lattice.abc[i], 5)
+                assert np.allclose(length[0], lattice.abc[i], 5)
                 # We always get a ndarray.
                 assert hasattr(length, "shape")
 
@@ -381,10 +381,10 @@ class LatticeTestCase(PymatgenTest):
             ]
         )
         output = lattice.get_all_distances(fcoords, fcoords)
-        self.assert_all_close(output, expected, 3)
+        assert np.allclose(output, expected, 3)
         # test just one input point
         output2 = lattice.get_all_distances(fcoords[0], fcoords)
-        self.assert_all_close(output2, [expected[0]], 2)
+        assert np.allclose(output2, [expected[0]], 2)
         # test distance when initial points are not in unit cell
         f1 = [0, 0, 17]
         f2 = [0, 0, 10]
@@ -401,7 +401,7 @@ class LatticeTestCase(PymatgenTest):
             ]
         )
         output3 = lattice_pbc.get_all_distances(fcoords[:-1], fcoords)
-        self.assert_all_close(output3, expected_pbc, 3)
+        assert np.allclose(output3, expected_pbc, 3)
 
     def test_monoclinic(self):
         assert self.monoclinic.angles == approx([90, 66, 90])
@@ -418,7 +418,7 @@ class LatticeTestCase(PymatgenTest):
     def test_get_distance_and_image(self):
         dist, image = self.cubic.get_distance_and_image([0, 0, 0.1], [0, 0.0, 0.9])
         assert dist == approx(2)
-        self.assert_all_close(image, [0, 0, -1])
+        assert np.allclose(image, [0, 0, -1])
 
     def test_get_distance_and_image_strict(self):
         for _ in range(10):
@@ -440,7 +440,7 @@ class LatticeTestCase(PymatgenTest):
             pmg_result = lattice.get_distance_and_image(f1, f2)
             assert min_image_dist[0] + 1e-7 >= pmg_result[0]
             if abs(min_image_dist[0] - pmg_result[0]) < 1e-12:
-                self.assert_all_close(min_image_dist[1], pmg_result[1])
+                assert np.allclose(min_image_dist[1], pmg_result[1])
 
     def test_lll_basis(self):
         a = np.array([1.0, 0.1, 0.0])
@@ -454,17 +454,17 @@ class LatticeTestCase(PymatgenTest):
         l1_fcoords = l1.get_fractional_coords(ccoords)
         l2_fcoords = l2.get_fractional_coords(ccoords)
 
-        self.assert_all_close(l1.matrix, l2.lll_matrix)
-        self.assert_all_close(np.dot(l2.lll_mapping, l2.matrix), l1.matrix)
+        assert np.allclose(l1.matrix, l2.lll_matrix)
+        assert np.allclose(np.dot(l2.lll_mapping, l2.matrix), l1.matrix)
 
-        self.assert_all_close(np.dot(l2_fcoords, l2.matrix), np.dot(l1_fcoords, l1.matrix))
+        assert np.allclose(np.dot(l2_fcoords, l2.matrix), np.dot(l1_fcoords, l1.matrix))
 
         lll_fcoords = l2.get_lll_frac_coords(l2_fcoords)
 
-        self.assert_all_close(lll_fcoords, l1_fcoords)
-        self.assert_all_close(l1.get_cartesian_coords(lll_fcoords), np.dot(lll_fcoords, l2.lll_matrix))
+        assert np.allclose(lll_fcoords, l1_fcoords)
+        assert np.allclose(l1.get_cartesian_coords(lll_fcoords), np.dot(lll_fcoords, l2.lll_matrix))
 
-        self.assert_all_close(l2.get_frac_coords_from_lll(lll_fcoords), l2_fcoords)
+        assert np.allclose(l2.get_frac_coords_from_lll(lll_fcoords), l2_fcoords)
 
     def test_get_miller_index_from_sites(self):
         # test on a cubic system

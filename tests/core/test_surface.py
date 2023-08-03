@@ -110,9 +110,9 @@ class SlabTest(PymatgenTest):
             coords_are_cartesian=True,
             reorient_lattice=True,
         )
-        self.assert_all_close(zno_slab.frac_coords, zno_slab_cart.frac_coords)
+        assert np.allclose(zno_slab.frac_coords, zno_slab_cart.frac_coords)
         c = zno_slab_cart.lattice.matrix[2]
-        self.assert_all_close([0, 0, np.linalg.norm(c)], c)
+        assert np.allclose([0, 0, np.linalg.norm(c)], c)
 
     def test_add_adsorbate_atom(self):
         zno_slab = Slab(
@@ -149,7 +149,7 @@ class SlabTest(PymatgenTest):
         assert obj.miller_index == (1, 0, 0)
 
     def test_dipole_and_is_polar(self):
-        self.assert_all_close(self.zno55.dipole, [0, 0, 0])
+        assert np.allclose(self.zno55.dipole, [0, 0, 0])
         assert not self.zno55.is_polar()
         cscl = self.get_structure("CsCl")
         cscl.add_oxidation_state_by_element({"Cs": 1, "Cl": -1})
@@ -162,7 +162,7 @@ class SlabTest(PymatgenTest):
             lll_reduce=False,
             center_slab=False,
         ).get_slab()
-        self.assert_all_close(slab.dipole, [-4.209, 0, 0])
+        assert np.allclose(slab.dipole, [-4.209, 0, 0])
         assert slab.is_polar()
 
     def test_surface_sites_and_symmetry(self):
@@ -188,7 +188,7 @@ class SlabTest(PymatgenTest):
             surf_sites_dict = slab.get_surface_sites()
             total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict)
             r2 = total_surf_sites / (2 * slab.surface_area)
-            self.assert_all_close(r1, r2)
+            assert np.allclose(r1, r2)
 
     def test_symmetrization(self):
         # Restricted to primitive_elemental materials due to the risk of

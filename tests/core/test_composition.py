@@ -8,6 +8,7 @@ from __future__ import annotations
 import random
 import unittest
 
+import numpy as np
 import pytest
 from pytest import approx
 
@@ -312,7 +313,7 @@ class CompositionTest(PymatgenTest):
             82.41634,
         ]
         all_weights = [c.weight for c in self.comps]
-        self.assert_all_close(all_weights, correct_weights, 5)
+        assert np.allclose(all_weights, correct_weights, 5)
 
     def test_get_atomic_fraction(self):
         correct_at_frac = {"Li": 0.15, "Fe": 0.1, "P": 0.15, "O": 0.6}
