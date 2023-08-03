@@ -147,8 +147,8 @@ class TestBasisAndPotential(PymatgenTest):
 
 
 class TestInput(PymatgenTest):
-    def setUp(self, TEST_FILES_DIR):
-        self.TEST_FILES_DIR = Path.joinpath(self.TEST_FILES_DIR, "cp2k")
+    def setUp(self):
+        self.TEST_FILES_DIR = Path.joinpath(PymatgenTest.TEST_FILES_DIR, "cp2k")
         self.ci = Cp2kInput.from_file(Path.joinpath(self.TEST_FILES_DIR, "cp2k.inp"))
 
     def test_basic_sections(self):
