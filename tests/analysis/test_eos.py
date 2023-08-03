@@ -128,7 +128,7 @@ class EOSTest(PymatgenTest):
             for param in ("b0", "b1", "e0", "b0"):
                 # TODO: solutions only stable to 2 decimal places
                 # between different machines, this seems far too low?
-                assert np.allclose(_.results[param], test_output[eos_name][param], decimal=1)
+                assert np.allclose(_.results[param], test_output[eos_name][param], atol=1e-1)
 
     def test_fitting(self):
         # courtesy of @katherinelatimer2013
