@@ -78,7 +78,7 @@ Removal of deprecated functions. [#2405](https://github.com/materialsproject/pym
 
 ### v2022.01.08
 
-Dropped Python 3.7 support for compatibility with the latest numpy. 
+Dropped Python 3.7 support for compatibility with the latest numpy.
 
 ### v2022.0.0
 
