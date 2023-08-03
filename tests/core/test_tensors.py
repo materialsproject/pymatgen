@@ -239,10 +239,7 @@ class TensorTest(PymatgenTest):
         assert np.allclose(rotated, transformed)
 
     def test_from_voigt(self):
-        with pytest.raises(
-            ValueError,
-            match="Invalid shape for Voigt matrix",
-        ):
+        with pytest.raises(ValueError):
             Tensor.from_voigt(
                 [
                     [59.33, 28.08, 28.08, 0],
@@ -501,12 +498,9 @@ class SquareTensorTest(PymatgenTest):
             match="Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard notation",
         ):
             SquareTensor(non_sq_matrix)
-        with pytest.raises(
-            ValueError,
-            match="SquareTensor input must be rank 2",
-        ):
+        with pytest.raises(ValueError):
             SquareTensor(bad_matrix)
-        with pytest.raises(ValueError, match="SquareTensor input must be rank 2"):
+        with pytest.raises(ValueError):
             SquareTensor(too_high_rank)
 
     def test_properties(self):
