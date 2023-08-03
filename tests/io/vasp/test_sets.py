@@ -99,7 +99,8 @@ class SetChangeCheckTest(PymatgenTest):
         for input_set in input_sets:
             with open(input_set) as file:
                 text = file.read().encode("utf-8")
-                hashes[input_set.split("/")[-1]] = hashlib.sha1(text).hexdigest()
+                name = os.path.basename(input_set)
+                hashes[name] = hashlib.sha1(text).hexdigest()
 
         known_hashes = {
             "MVLGWSet.yaml": "104ae93c3b3be19a13b0ee46ebdd0f40ceb96597",
