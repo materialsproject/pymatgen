@@ -5,6 +5,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
+import pytest
 from pytest import approx
 
 from pymatgen.core.structure import Molecule
@@ -16,9 +17,9 @@ from pymatgen.util.testing import PymatgenTest
 class XYZTest(unittest.TestCase):
     def setUp(self):
         coords = [
-            [0.000000, 0.000000, 0.000000],
-            [0.000000, 0.000000, 1.089000],
-            [1.026719, 0.000000, -0.363000],
+            [0, 0, 0],
+            [0, 0, 1.089000],
+            [1.026719, 0, -0.363000],
             [-0.513360, -0.889165, -0.363000],
             [-0.513360, 0.889165, -0.363000],
         ]
@@ -169,9 +170,9 @@ O 9.960184 1.516793 1.393875"""
 
     def test_as_dataframe(self):
         coords = [
-            [0.000000, 0.000000, 0.000000],
-            [0.000000, 0.000000, 1.089000],
-            [1.026719, 0.000000, -0.363000],
+            [0, 0, 0],
+            [0, 0, 1.089000],
+            [1.026719, 0, -0.363000],
             [-0.513360, -0.889165, -0.363000],
             [-0.513360, 0.889165, -0.363000],
         ]
@@ -179,9 +180,9 @@ O 9.960184 1.516793 1.393875"""
         test_df.insert(0, "atom", ["C", "H", "H", "H", "H"])
         test_df.index += 1
         coords2 = [
-            [0.000000, 0.000000, 0.000000],
-            [0.000000, 0.000000, 1.089000],
-            [1.026719, 0.000000, 0.363000],
+            [0, 0, 0],
+            [0, 0, 1.089000],
+            [1.026719, 0, 0.363000],
             [0.513360, 0.889165, 0.363000],
             [0.513360, 0.889165, 0.363000],
         ]
@@ -196,3 +197,23 @@ O 9.960184 1.516793 1.393875"""
         # index tests
         np.testing.assert_array_equal(mol_df.columns, test_df.columns)
         np.testing.assert_array_equal(mol_df.index, test_df.index)
+
+    def test_invalid_coord_precision(self):
+        with pytest.raises(ValueError, match="Format specifier missing precision"):
+            XYZ(self.mol, coord_precision="foo")._frame_str(self.mol)
+
+    def test_zero_atoms(self):
+        empty_mol = Molecule([], [])
+        xyz = XYZ(empty_mol)
+        assert str(xyz) == "0\n"
+
+    def test_one_atom(self):
+        mol = Molecule(["C"], [[0, 0, 0]])
+        xyz = XYZ(mol)
+        assert str(xyz) == "1\nC1\nC 0.000000 0.000000 0.000000"
+
+    def test_negative_coords(self):
+        coords = [[-0.5, -0.5, -0.5]]
+        mol = Molecule(["C"], coords)
+        xyz = XYZ(mol)
+        assert str(xyz) == "1\nC1\nC -0.500000 -0.500000 -0.500000"

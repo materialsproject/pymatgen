@@ -583,9 +583,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Args:
             **kwargs: parameters to pass into oxi_state_guesses()
         """
-        oxid_guess = self.composition.oxi_state_guesses(**kwargs)
-        oxid_guess = oxid_guess or [{e.symbol: 0 for e in self.composition}]
-        self.add_oxidation_state_by_element(oxid_guess[0])
+        oxi_guess = self.composition.oxi_state_guesses(**kwargs)
+        oxi_guess = oxi_guess or [{e.symbol: 0 for e in self.composition}]
+        self.add_oxidation_state_by_element(oxi_guess[0])
 
     def add_spin_by_element(self, spins: dict[str, float]) -> None:
         """
