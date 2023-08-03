@@ -4,6 +4,7 @@ import json
 import os
 import unittest
 
+import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -900,7 +901,7 @@ class CompleteCohpTest(PymatgenTest):
         # test to fail
         cohp_lmto_dict = self.cohp_lmto.as_dict()
         for key in ["COHP", "ICOHP"]:
-            self.assert_all_close(
+            assert np.allclose(
                 cohp_lmto_dict[key]["average"]["1"],
                 self.cohp_lmto_dict.as_dict()[key]["average"]["1"],
                 5,
@@ -1135,15 +1136,15 @@ class CompleteCohpTest(PymatgenTest):
         # the total COHP calculated by LOBSTER. Due to numerical errors in
         # the LOBSTER calculation, the precision is not very high though.
 
-        self.assert_all_close(
+        assert np.allclose(
             self.cohp_orb.all_cohps["1"].cohp[Spin.up],
             self.cohp_notot.all_cohps["1"].cohp[Spin.up],
-            decimal=3,
+            atol=1e-3,
         )
-        self.assert_all_close(
+        assert np.allclose(
             self.cohp_orb.all_cohps["1"].icohp[Spin.up],
             self.cohp_notot.all_cohps["1"].icohp[Spin.up],
-            decimal=3,
+            atol=1e-3,
         )
 
         # Tests different methods for getting orbital-resolved COHPs

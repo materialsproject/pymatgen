@@ -533,8 +533,8 @@ class CohpPlotterTest(PymatgenTest):
         cohp_fe_fe = self.cohp.all_cohps["1"]
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            self.assert_all_close(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
-            self.assert_all_close(lines.get_ydata(), self.cohp.energies)
+            assert np.allclose(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
+            assert np.allclose(lines.get_ydata(), self.cohp.energies)
             assert lines.get_linestyle() == linestyles[spin]
         plt_cohp.close()
 
@@ -544,8 +544,8 @@ class CohpPlotterTest(PymatgenTest):
         assert ax_cohp.get_ylabel() == "COHP"
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            self.assert_all_close(lines.get_xdata(), self.cohp.energies)
-            self.assert_all_close(lines.get_ydata(), cohp_fe_fe.cohp[spin])
+            assert np.allclose(lines.get_xdata(), self.cohp.energies)
+            assert np.allclose(lines.get_ydata(), cohp_fe_fe.cohp[spin])
         plt_cohp.close()
 
         plt_cohp = self.cohp_plot.get_plot(integrated=True)
@@ -553,7 +553,7 @@ class CohpPlotterTest(PymatgenTest):
         assert ax_cohp.get_xlabel() == "-ICOHP (eV)"
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            self.assert_all_close(lines.get_xdata(), -cohp_fe_fe.icohp[spin])
+            assert np.allclose(lines.get_xdata(), -cohp_fe_fe.icohp[spin])
 
         coop_dict = {"Bi5-Bi6": self.coop.all_cohps["10"]}
         self.coop_plot.add_cohp_dict(coop_dict)
@@ -562,9 +562,9 @@ class CohpPlotterTest(PymatgenTest):
         assert ax_coop.get_xlabel() == "COOP"
         assert ax_coop.get_ylabel() == "$E - E_f$ (eV)"
         lines_coop = ax_coop.get_lines()[0]
-        self.assert_all_close(lines_coop.get_ydata(), self.coop.energies - self.coop.efermi)
+        assert np.allclose(lines_coop.get_ydata(), self.coop.energies - self.coop.efermi)
         coop_bi_bi = self.coop.all_cohps["10"].cohp[Spin.up]
-        self.assert_all_close(lines_coop.get_xdata(), coop_bi_bi)
+        assert np.allclose(lines_coop.get_xdata(), coop_bi_bi)
 
         # Cleanup.
         plt_cohp.close()
