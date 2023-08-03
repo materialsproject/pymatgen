@@ -53,5 +53,5 @@ repos:
         # MD013: line too long
         # MD033: no inline HTML
         # MD041: first line in a file should be a top-level heading
-        args: [--disable, MD013, MD033, MD041, "--"]
-        exclude: ^(CHANGES.md)
+        # MD025: single title
+        args: [--disable, MD013, MD025, MD033, MD041, "--"]
