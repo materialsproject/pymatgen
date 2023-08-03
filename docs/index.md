@@ -16,19 +16,16 @@ nav_order: 1
 [![Requires Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 [![arXiv](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue)](https://doi.org/10.1016/j.commatsci.2012.10.028)
 
-Pymatgen (Python Materials Genomics) is a robust, open-source Python library
-for materials analysis. These are some of the main features:
+Pymatgen (Python Materials Genomics) is a robust, open-source Python library for materials analysis. These are some 
+of the main features:
 
-1. Highly flexible classes for the representation of Element, Site, Molecule,
-   Structure objects.
+1. Highly flexible classes for the representation of Element, Site, Molecule, Structure objects.
 2. Extensive input/output support, including support for [VASP](http://cms.mpi.univie.ac.at/vasp/),
-   [ABINIT](http://www.abinit.org/), CIF,
-   Gaussian, XYZ, and many other file formats.
-3. Powerful analysis tools, including generation of phase diagrams, Pourbaix
-   diagrams, diffusion analyses, reactions, etc.
+   [ABINIT](http://www.abinit.org/), CIF, Gaussian, XYZ, and many other file formats.
+3. Powerful analysis tools, including generation of phase diagrams, Pourbaix diagrams, diffusion analyses, 
+   reactions, etc.
 4. Electronic structure analyses, such as density of states and band structure.
-5. Integration with the Materials Project REST API, Crystallography Open
-   Database and other external data sources.
+5. Integration with the Materials Project REST API, Crystallography Open Database and other external data sources.
 
 As of 2022, pymatgen only supports Python 3.8 and above. Our support schedule follows closely that of the Scientific
 Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
@@ -40,15 +37,12 @@ These contributions can be in the form of additional tools or modules you develo
 reports. The following are resources for pymatgen:
 
 - [Official documentation](https://pymatgen.org)
-- Bug reports or feature requests: Please submit a Github Issue.
+- Bug reports or feature requests: Please submit an issue on [Github Issues].
 - Code contributions via pull requests are welcome.
-- For questions that are not bugs or feature requests, please use the pymatgen [MatSci forum](https://matsci.org/pymatgen) or open a [GitHub discussion].
+- For questions that are not bugs or feature requests, please use the [pymatgen MatSci forum] or open a [GitHub 
+  discussion].
 - [matgenb] provides some example Jupyter notebooks that demonstrate how to use pymatgen functionality.
 - Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
-
-[pull request]: https://github.com/materialsproject/pymatgen/pulls
-[github issue]: https://github.com/materialsproject/pymatgen/issues
-[github discussion]: https://github.com/materialsproject/pymatgen/discussions
 
 ## Why use pymatgen?
 
@@ -413,18 +407,14 @@ publications) in pymatgen.
 
 ### Reporting bugs
 
-A simple way that anyone can contribute is simply to report bugs and issues
-to the developing team. Please report any bugs and issues at pymatgen's
-`Github Issues page <https://github.com/materialsproject/pymatgen/issues>`*.
-For help with any pymatgen issue, consult `Stack Overflow
-<https://stackoverflow.com/questions/tagged/pymatgen>`* and if
-you cannot find an answer, please post a question with the tag pymatgen.
+A simple way that anyone can contribute is simply to report bugs and issues to the developing team. Please report 
+any bugs and issues at pymatgen's [Github Issues]. For help with any pymatgen issue, consult [Stack Overflow](https://stackoverflow.com/questions/tagged/pymatgen) 
+and if you cannot find an answer, please post a question on the [pymatgen MatSci forum].
 
 ### Developing new functionality
 
-Another way to contribute is to submit new code/bugfixes to pymatgen. The
-best way for anyone to develop pymatgen is by adopting the collaborative
-Github workflow (see [contributing page](/contributing).
+Another way to contribute is to submit new code/bugfixes to pymatgen. The best way for anyone to develop pymatgen is 
+by adopting the collaborative Github workflow (see [contributing page](/contributing).
 
 ## Citing pymatgen
 
@@ -475,3 +465,6 @@ they commit the change to one of the pymatgen repositories.
 [pymatgen docs]: https://pymatgen.org
 [pymatgen development team]: https://pymatgen.org/team
 [matgenb]: https://matgenb.materialsvirtuallab.org/
+[pymatgen MatSci forum]: https://matsci.org/pymatgen
+[Github Issues]: https://github.com/materialsproject/pymatgen/issues
+[github discussion]: https://github.com/materialsproject/pymatgen/discussions
