@@ -11,6 +11,7 @@ from monty.json import MontyDecoder
 from pytest import approx
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import (
     CompositionEnergyAdjustment,
     ComputedEntry,
@@ -32,9 +33,20 @@ def test_energy_adjustment():
     ea = EnergyAdjustment(10)
     assert ea.name == "Manual adjustment"
     assert not ea.cls
-    ead = ea.as_dict()
-    ea2 = EnergyAdjustment.from_dict(ead)
-    assert str(ead) == str(ea2.as_dict())
+    ea_dct = ea.as_dict()
+    ea2 = EnergyAdjustment.from_dict(ea_dct)
+    assert str(ea_dct) == str(ea2.as_dict())
+
+
+def test_energy_adjustment_repr():
+    comp_cls = MaterialsProject2020Compatibility()
+    cls_name = type(comp_cls).__name__
+    for cls, label in ((None, "unknown"), (comp_cls, cls_name), ({"@class": cls_name}, cls_name)):
+        ea = EnergyAdjustment(10, cls=cls)
+        assert (
+            repr(ea) == "EnergyAdjustment(name='Manual adjustment', value=10.0, uncertainty=nan, description=, "
+            f"generated_by='{label}')"
+        )
 
 
 def test_manual_energy_adjustment():
@@ -42,9 +54,9 @@ def test_manual_energy_adjustment():
     assert ea.name == "Manual energy adjustment"
     assert ea.value == 10
     assert ea.explain == "Manual energy adjustment (10.000 eV)"
-    ead = ea.as_dict()
-    ea2 = ManualEnergyAdjustment.from_dict(ead)
-    assert str(ead) == str(ea2.as_dict())
+    ea_dct = ea.as_dict()
+    ea2 = ManualEnergyAdjustment.from_dict(ea_dct)
+    assert str(ea_dct) == str(ea2.as_dict())
 
 
 def test_constant_energy_adjustment():
@@ -52,9 +64,9 @@ def test_constant_energy_adjustment():
     assert ea.name == "Constant energy adjustment"
     assert ea.value == 8
     assert ea.explain == "Constant energy adjustment (8.000 eV)"
-    ead = ea.as_dict()
-    ea2 = ConstantEnergyAdjustment.from_dict(ead)
-    assert str(ead) == str(ea2.as_dict())
+    ea_dct = ea.as_dict()
+    ea2 = ConstantEnergyAdjustment.from_dict(ea_dct)
+    assert str(ea_dct) == str(ea2.as_dict())
 
 
 def test_composition_energy_adjustment():
@@ -62,9 +74,9 @@ def test_composition_energy_adjustment():
     assert ea.name == "H"
     assert ea.value == 4
     assert ea.explain == "Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
-    ead = ea.as_dict()
-    ea2 = CompositionEnergyAdjustment.from_dict(ead)
-    assert str(ead) == str(ea2.as_dict())
+    ea_dct = ea.as_dict()
+    ea2 = CompositionEnergyAdjustment.from_dict(ea_dct)
+    assert str(ea_dct) == str(ea2.as_dict())
 
 
 def test_temp_energy_adjustment():
@@ -74,9 +86,9 @@ def test_temp_energy_adjustment():
     assert ea.n_atoms == 5
     assert ea.temp == 298
     assert ea.explain == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
-    ead = ea.as_dict()
-    ea2 = TemperatureEnergyAdjustment.from_dict(ead)
-    assert str(ead) == str(ea2.as_dict())
+    ea_dct = ea.as_dict()
+    ea2 = TemperatureEnergyAdjustment.from_dict(ea_dct)
+    assert str(ea_dct) == str(ea2.as_dict())
 
 
 class ComputedEntryTest(unittest.TestCase):
@@ -134,13 +146,13 @@ class ComputedEntryTest(unittest.TestCase):
         assert entry_atom.energy_adjustments[0].value == approx(1 / 15)
 
     def test_normalize_energy_adjustments(self):
-        ealist = [
+        ene_adj_list = [
             ManualEnergyAdjustment(5),
             ConstantEnergyAdjustment(5),
             CompositionEnergyAdjustment(1, 5, uncertainty_per_atom=0, name="Na"),
             TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_deg=0),
         ]
-        entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ealist)
+        entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ene_adj_list)
         assert entry.correction == 20
         normed_entry = entry.normalize()
         assert normed_entry.correction == 4
@@ -148,24 +160,24 @@ class ComputedEntryTest(unittest.TestCase):
             assert ea.value == 1
 
     def test_to_from_dict(self):
-        d = self.entry.as_dict()
-        e = ComputedEntry.from_dict(d)
-        assert self.entry == e
-        assert e.energy == approx(-269.38319884)
+        dct = self.entry.as_dict()
+        entry = ComputedEntry.from_dict(dct)
+        assert self.entry == entry
+        assert entry.energy == approx(-269.38319884)
 
     def test_to_from_dict_with_adjustment(self):
         """Legacy case where adjustment was provided manually."""
-        d = self.entry6.as_dict()
-        e = ComputedEntry.from_dict(d)
-        assert e.uncorrected_energy == approx(6.9)
-        assert e.energy_adjustments[0].value == self.entry6.energy_adjustments[0].value
+        dct = self.entry6.as_dict()
+        entry = ComputedEntry.from_dict(dct)
+        assert entry.uncorrected_energy == approx(6.9)
+        assert entry.energy_adjustments[0].value == self.entry6.energy_adjustments[0].value
 
     def test_to_from_dict_with_adjustment_2(self):
         """Modern case where correction was provided manually."""
-        d = self.entry7.as_dict()
-        e = ComputedEntry.from_dict(d)
-        assert e.uncorrected_energy == approx(6.9)
-        assert e.energy_adjustments[0].value == self.entry7.energy_adjustments[0].value
+        dct = self.entry7.as_dict()
+        entry = ComputedEntry.from_dict(dct)
+        assert entry.uncorrected_energy == approx(6.9)
+        assert entry.energy_adjustments[0].value == self.entry7.energy_adjustments[0].value
 
     def test_to_from_dict_with_adjustment_3(self):
         """
@@ -173,7 +185,7 @@ class ComputedEntryTest(unittest.TestCase):
         attribute was part of ComputedEntry.
         """
         # same as entry6
-        d = {
+        dct = {
             "@module": "pymatgen.entries.computed_entries",
             "@class": "ComputedEntry",
             "energy": 6.9,
@@ -183,10 +195,10 @@ class ComputedEntryTest(unittest.TestCase):
             "entry_id": None,
             "correction": -10,
         }
-        e = ComputedEntry.from_dict(d)
-        assert e.uncorrected_energy == approx(6.9)
-        assert e.correction == approx(-10)
-        assert len(e.energy_adjustments) == 1
+        entry = ComputedEntry.from_dict(dct)
+        assert entry.uncorrected_energy == approx(6.9)
+        assert entry.correction == approx(-10)
+        assert len(entry.energy_adjustments) == 1
 
     def test_conflicting_correction_adjustment(self):
         """
@@ -235,10 +247,10 @@ class ComputedStructureEntryTest(unittest.TestCase):
         assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
 
     def test_to_from_dict(self):
-        d = self.entry.as_dict()
-        e = ComputedStructureEntry.from_dict(d)
-        assert self.entry == e
-        assert e.energy == approx(-269.38319884)
+        dct = self.entry.as_dict()
+        entry = ComputedStructureEntry.from_dict(dct)
+        assert self.entry == entry
+        assert entry.energy == approx(-269.38319884)
 
     def test_str(self):
         assert str(self.entry) is not None
@@ -250,7 +262,7 @@ class ComputedStructureEntryTest(unittest.TestCase):
         """
         # ComputedStructureEntry for Oxygen, mp-12957, as of April 2020
         # with an arbitrary 1 eV correction added
-        d = {
+        dct = {
             "@module": "pymatgen.entries.computed_entries",
             "@class": "ComputedStructureEntry",
             "energy": -39.42116819,
@@ -380,11 +392,11 @@ class ComputedStructureEntryTest(unittest.TestCase):
                 ],
             },
         }
-        e = ComputedEntry.from_dict(d)
-        assert e.uncorrected_energy == approx(-39.42116819)
-        assert e.energy == approx(-38.42116819)
-        assert e.correction == approx(1)
-        assert len(e.energy_adjustments) == 1
+        entry = ComputedEntry.from_dict(dct)
+        assert entry.uncorrected_energy == approx(-39.42116819)
+        assert entry.energy == approx(-38.42116819)
+        assert entry.correction == approx(1)
+        assert len(entry.energy_adjustments) == 1
 
     def test_copy(self):
         copy = self.entry.copy()
@@ -453,8 +465,8 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
 
     def test_interpolation(self):
         temp = 450
-        e = GibbsComputedStructureEntry(self.struct, -2.436, temp=temp)
-        assert e.energy == approx(-53.7243542548528)
+        entry = GibbsComputedStructureEntry(self.struct, -2.436, temp=temp)
+        assert entry.energy == approx(-53.7243542548528)
 
     def test_expt_gas_entry(self):
         co2_entry = GibbsComputedStructureEntry(self.co2_struct, 0, temp=900)
@@ -472,16 +484,16 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
 
     def test_to_from_dict(self):
         test_entry = self.entries_with_temps[300]
-        d = test_entry.as_dict()
-        e = GibbsComputedStructureEntry.from_dict(d)
-        assert test_entry == e
-        assert e.energy == approx(test_entry.energy)
+        dct = test_entry.as_dict()
+        entry = GibbsComputedStructureEntry.from_dict(dct)
+        assert test_entry == entry
+        assert entry.energy == approx(test_entry.energy)
 
     def test_str(self):
         assert str(self.entries_with_temps[300]) is not None
 
     def test_normalize(self):
-        for e in self.entries_with_temps.values():
-            entry = copy.deepcopy(e)
+        for entry in self.entries_with_temps.values():
+            entry = copy.deepcopy(entry)
             normed_entry = entry.normalize(mode="atom")
             assert entry.uncorrected_energy == approx(normed_entry.uncorrected_energy * self.num_atoms)
