@@ -112,7 +112,6 @@ jobs:
         continue-on-error: true
         uses: actions/download-artifact@v3
         with:
-          name: coverage-*
           path: .coverage
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
