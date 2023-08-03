@@ -55,12 +55,12 @@ class EnergyAdjustment(MSONable):
     ):
         """
         Args:
-            value: float, value of the energy adjustment in eV
-            uncertainty: float, uncertainty of the energy adjustment in eV. Default: np.nan
-            name: str, human-readable name of the energy adjustment.
+            value (float): value of the energy adjustment in eV
+            uncertainty (float): uncertainty of the energy adjustment in eV. Default: np.nan
+            name (str): human-readable name of the energy adjustment.
                 (Default: Manual adjustment)
-            cls: dict, Serialized Compatibility class used to generate the energy adjustment. (Default: None)
-            description: str, human-readable explanation of the energy adjustment.
+            cls (dict): Serialized Compatibility class used to generate the energy adjustment. Defaults to {}.
+            description (str): human-readable explanation of the energy adjustment.
         """
         self.name = name
         self.cls = cls or {}
