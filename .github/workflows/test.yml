@@ -99,6 +99,8 @@ jobs:
         run: |
           pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
       - name: Upload coverage
+        # Only upload coverage for ubuntu py3.11 runs.
+        if: matrix.os == 'ubuntu' && matrix.python-version == "3.11"
         uses: actions/upload-artifact@v3
         with:
           name: coverage-${{ matrix.split }}
@@ -117,10 +119,6 @@ jobs:
           find . -name "*.pyc" -delete
           for i in {1..10}; do mv coverage-$i/.coverage .coverage.$i; rm -rf coverage-$i; done
           coverage combine
-          coverage xml -i
-          ls -lah .
-          cat coverage.xml
-          sed -i'' 's|pymatgen/pymatgen/pymatgen|pymatgen/pymatgen|g' coverage.xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:
