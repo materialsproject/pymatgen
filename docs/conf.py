@@ -13,6 +13,8 @@ serve to show the default.
 
 from __future__ import annotations
 
+import sys
+
 from pymatgen.core import __author__, __file__, __version__
 
 project = "pymatgen"
