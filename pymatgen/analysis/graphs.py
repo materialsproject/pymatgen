@@ -96,38 +96,34 @@ def _isomorphic(frag1, frag2):
 
 class StructureGraph(MSONable):
     """
-    This is a class for annotating a Structure with
-    bond information, stored in the form of a graph. A "bond" does
-    not necessarily have to be a chemical bond, but can store any
-    kind of information that connects two Sites.
+    This is a class for annotating a Structure with bond information, stored in the form
+    of a graph. A "bond" does not necessarily have to be a chemical bond, but can store
+    any kind of information that connects two Sites.
     """
 
     def __init__(self, structure: Structure, graph_data=None):
         """
-        If constructing this class manually, use the `with_empty_graph`
-        method or `with_local_env_strategy` method (using an algorithm
-        provided by the `local_env` module, such as O'Keeffe).
+        If constructing this class manually, use the with_empty_graph method or
+        with_local_env_strategy method (using an algorithm provided by the local_env
+        module, such as O'Keeffe).
 
-        This class that contains connection information:
-        relationships between sites represented by a Graph structure,
-        and an associated structure object.
+        This class that contains connection information: relationships between sites
+        represented by a Graph structure, and an associated structure object.
 
-        This class uses the NetworkX package to store and operate
-        on the graph itself, but contains a lot of helper methods
-        to make associating a graph with a given crystallographic
-        structure easier.
+        This class uses the NetworkX package to store and operate on the graph itself, but
+        contains a lot of helper methods to make associating a graph with a given
+        crystallographic structure easier.
 
-        Use cases for this include storing bonding information,
-        NMR J-couplings, Heisenberg exchange parameters, etc.
+        Use cases for this include storing bonding information, NMR J-couplings,
+        Heisenberg exchange parameters, etc.
 
-        For periodic graphs, class stores information on the graph
-        edges of what lattice image the edge belongs to.
+        For periodic graphs, class stores information on the graph edges of what lattice
+        image the edge belongs to.
 
-        :param structure: a Structure object
-
-        :param graph_data: dict containing graph information in
-            dict format (not intended to be constructed manually,
-        see as_dict method for format)
+        Args:
+            structure (Structure): Structure object to be analyzed.
+            graph_data (dict): Dictionary containing graph information. Not intended to be
+                constructed manually see as_dict method for format.
         """
         if isinstance(structure, StructureGraph):
             # just make a copy from input
@@ -136,46 +132,43 @@ class StructureGraph(MSONable):
         self.structure = structure
         self.graph = nx.readwrite.json_graph.adjacency_graph(graph_data)
 
-        # tidy up edge attr dicts, reading to/from json duplicates
-        # information
-        for _, _, _, d in self.graph.edges(keys=True, data=True):
+        # tidy up edge attr dicts, reading to/from json duplicates information
+        for _, _, _, dct in self.graph.edges(keys=True, data=True):
             for key in ("id", "key"):
-                d.pop(key, None)
-            # ensure images are tuples (conversion to lists happens
-            # when serializing back from json), it's important images
-            # are hashable/immutable
-            if "to_jimage" in d:
-                d["to_jimage"] = tuple(d["to_jimage"])
-            if "from_jimage" in d:
-                d["from_jimage"] = tuple(d["from_jimage"])
+                dct.pop(key, None)
+            # ensure images are tuples (conversion to lists happens when serializing back
+            # from json), it's important images are hashable/immutable
+            if to_jimage := dct.get("to_jimage"):
+                dct["to_jimage"] = tuple(to_jimage)
+            if from_jimage := dct.get("from_jimage"):
+                dct["from_jimage"] = tuple(from_jimage)
 
     @classmethod
     def with_empty_graph(
         cls,
         structure: Structure,
-        name="bonds",
-        edge_weight_name=None,
-        edge_weight_units=None,
-    ):
+        name: str = "bonds",
+        edge_weight_name: str | None = None,
+        edge_weight_units: str | None = None,
+    ) -> StructureGraph:
         """
-        Constructor for StructureGraph, returns a StructureGraph
-        object with an empty graph (no edges, only nodes defined
-        that correspond to Sites in Structure).
+        Constructor for an empty StructureGraph, i.e. no edges, containing only nodes corresponding
+        to sites in Structure.
 
-        :param structure (Structure):
-        :param name (str): name of graph, e.g. "bonds"
-        :param edge_weight_name (str): name of edge weights,
-            e.g. "bond_length" or "exchange_constant"
-        :param edge_weight_units (str): name of edge weight units
-            e.g. "Å" or "eV"
-        :return (StructureGraph):
+        Args:
+            structure: A pymatgen Structure object.
+            name: Name of the graph, e.g. "bonds".
+            edge_weight_name: Name of the edge weights, e.g. "bond_length" or "exchange_constant".
+            edge_weight_units: Name of the edge weight units, e.g. "Å" or "eV".
+
+        Returns:
+            StructureGraph: an empty graph with no edges, only nodes defined
+                that correspond to sites in Structure.
         """
         if edge_weight_name and (edge_weight_units is None):
             raise ValueError(
-                "Please specify units associated "
-                "with your edge weights. Can be "
-                "empty string if arbitrary or "
-                "dimensionless."
+                "Please specify units associated with your edge weights. Can be "
+                "empty string if arbitrary or dimensionless."
             )
 
         # construct graph with one node per site
@@ -244,7 +237,7 @@ class StructureGraph(MSONable):
         return sg
 
     @staticmethod
-    def with_local_env_strategy(structure, strategy, weights=False, edge_properties=False):
+    def with_local_env_strategy(structure, strategy, weights=False, edge_properties=False) -> StructureGraph:
         """
         Constructor for StructureGraph, using a strategy
         from :class:`pymatgen.analysis.local_env`.
@@ -262,7 +255,7 @@ class StructureGraph(MSONable):
 
         sg = StructureGraph.with_empty_graph(structure, name="bonds")
 
-        for n, neighbors in enumerate(strategy.get_all_nn_info(structure)):
+        for idx, neighbors in enumerate(strategy.get_all_nn_info(structure)):
             for neighbor in neighbors:
                 # local_env will always try to add two edges
                 # for any one bond, one from site u to site v
@@ -270,7 +263,7 @@ class StructureGraph(MSONable):
                 # harmless, so warn_duplicates=False
                 if edge_properties:
                     sg.add_edge(
-                        from_index=n,
+                        from_index=idx,
                         from_jimage=(0, 0, 0),
                         to_index=neighbor["site_index"],
                         to_jimage=neighbor["image"],
@@ -280,7 +273,7 @@ class StructureGraph(MSONable):
                     )
                 else:
                     sg.add_edge(
-                        from_index=n,
+                        from_index=idx,
                         from_jimage=(0, 0, 0),
                         to_index=neighbor["site_index"],
                         to_jimage=neighbor["image"],
@@ -292,8 +285,8 @@ class StructureGraph(MSONable):
         return sg
 
     @property
-    def name(self):
-        """:return: Name of graph"""
+    def name(self) -> str:
+        """Name of graph"""
         return self.graph.graph["name"]
 
     @property
