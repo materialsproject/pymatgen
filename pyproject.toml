@@ -99,6 +99,7 @@ source = [
 ]
 omit = ["pymatgen/cli"]
 relative_files = true
+skip_empty = true
 
 [tool.coverage.report]
 exclude_lines = [
