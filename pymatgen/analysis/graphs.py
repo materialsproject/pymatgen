@@ -70,7 +70,7 @@ def _isomorphic(frag1, frag2):
     if len(f1_nodes) != len(f2_nodes):
         return False
     f2_edges = frag2.edges()
-    if len(f2_edges) != len(f2_edges):
+    if len(f1_edges) != len(f2_edges):
         return False
     f1_comp_dict = {}
     f2_comp_dict = {}
