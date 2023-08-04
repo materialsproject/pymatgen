@@ -100,7 +100,7 @@ jobs:
           pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
       - name: Upload coverage
         # Only upload coverage for ubuntu py3.11 runs.
-        if: matrix.os == 'ubuntu' && matrix.python-version == '3.11'
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
         uses: actions/upload-artifact@v3
         with:
           name: coverage-${{ matrix.split }}
