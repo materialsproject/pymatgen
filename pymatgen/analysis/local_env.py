@@ -183,7 +183,7 @@ class ValenceIonicRadiusEvaluator:
                     else:
                         valences.append(0)
                 if sum(valences):
-                    valences = [0] * self._structure.num_sites
+                    valences = [0] * len(self._structure)
                 else:
                     self._structure.add_oxidation_state_by_site(valences)
                 # raise

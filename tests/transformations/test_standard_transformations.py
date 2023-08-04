@@ -150,14 +150,14 @@ class TestSupercellTransformation(unittest.TestCase):
 
     def test_apply_transformation(self):
         trafo = SupercellTransformation([[2, 1, 0], [0, 2, 0], [1, 0, 2]])
-        s = trafo.apply_transformation(self.struct)
-        assert s.composition.formula == "Li16 O16"
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.composition.formula == "Li16 O16"
 
     def test_from_scaling_factors(self):
         scale_factors = [random.randint(1, 5) for i in range(3)]
         trafo = SupercellTransformation.from_scaling_factors(*scale_factors)
-        s = trafo.apply_transformation(self.struct)
-        assert s.num_sites == 4 * functools.reduce(lambda a, b: a * b, scale_factors)
+        struct = trafo.apply_transformation(self.struct)
+        assert len(struct) == 4 * functools.reduce(lambda a, b: a * b, scale_factors)
 
 
 class TestOxidationStateDecorationTransformation(unittest.TestCase):

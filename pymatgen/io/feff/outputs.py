@@ -56,7 +56,7 @@ class LDos(MSONable):
         header_str = Header.header_string_from_file(feff_inp_file)
         header = Header.from_str(header_str)
         structure = header.struct
-        nsites = structure.num_sites
+        n_sites = len(structure)
         parameters = Tags.from_file(feff_inp_file)
 
         if "RECIPROCAL" in parameters:
@@ -114,7 +114,7 @@ class LDos(MSONable):
 
         dlength = len(ldos[1])
 
-        for i in range(nsites):
+        for i in range(n_sites):
             pot_index = pot_dict[structure.species[i].symbol]
             all_pdos.append(defaultdict(dict))
             for k, v in vorb.items():
@@ -133,7 +133,7 @@ class LDos(MSONable):
         forb = {"s": 0, "p": 1, "d": 2, "f": 3}
 
         tdos = [0] * dlength
-        for i in range(nsites):
+        for i in range(n_sites):
             pot_index = pot_dict[structure.species[i].symbol]
             for v in forb.values():
                 density = [ldos[pot_index][j][v + 1] for j in range(dlength)]

@@ -263,7 +263,7 @@ class TestAddSitePropertyTransformation(PymatgenTest):
     def test_apply_transformation(self):
         struct = self.get_structure("Li2O2")
         sd = [[True, True, True] for _ in struct]
-        bader = np.random.random(struct.num_sites).tolist()
+        bader = np.random.random(len(struct)).tolist()
         site_props = {"selective_dynamics": sd, "bader": bader}
         trans = AddSitePropertyTransformation(site_props)
         manually_set = struct.copy()

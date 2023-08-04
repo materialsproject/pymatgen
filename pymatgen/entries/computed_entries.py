@@ -808,7 +808,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
             gibbs_energy = energy * factor
         else:
-            num_atoms = self.structure.num_sites
+            num_atoms = len(self.structure)
             vol_per_atom = self.structure.volume / num_atoms
             reduced_mass = self._reduced_mass(self.structure)
 

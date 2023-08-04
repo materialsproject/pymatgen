@@ -73,7 +73,7 @@ class TestMcsqsCaller(PymatgenTest):
         assert any(matches)
 
     def test_mcsqs_perfect_match_error(self):
-        scale = 32 / self.perfect_match_zzn_rs.num_sites
+        scale = 32 / len(self.perfect_match_zzn_rs)
         sqs = run_mcsqs(
             self.perfect_match_zzn_rs,
             {2: 6, 3: 4},
@@ -85,7 +85,7 @@ class TestMcsqsCaller(PymatgenTest):
         assert sqs.objective_function == "Perfect_match"
 
     def test_mcsqs_perfect_match_error_parallel(self):
-        scale = 32 / self.perfect_match_zzn_rs.num_sites
+        scale = 32 / len(self.perfect_match_zzn_rs)
         sqs = run_mcsqs(
             self.perfect_match_zzn_rs,
             {2: 6, 3: 4},

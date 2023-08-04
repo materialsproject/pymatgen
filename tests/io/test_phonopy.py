@@ -112,8 +112,8 @@ class TestStructureConversion(PymatgenTest):
         assert symbols_pmg == symbols_pmg2
         assert np.allclose(coords_ph[3], s_pmg.frac_coords[3])
         assert np.allclose(s_pmg.frac_coords[3], s_pmg2.frac_coords[3])
-        assert s_ph.get_number_of_atoms() == s_pmg.num_sites
-        assert s_pmg.num_sites == s_pmg2.num_sites
+        assert s_ph.get_number_of_atoms() == len(s_pmg)
+        assert len(s_pmg) == len(s_pmg2)
 
 
 @unittest.skipIf(Phonopy is None, "Phonopy not present")

@@ -77,16 +77,16 @@ class TestGrainBoundary(PymatgenTest):
         assert self.Cu_GB2.sigma == approx(9)
 
     def test_top_grain(self):
-        assert self.Cu_GB1.num_sites == approx(self.Cu_GB1.top_grain.num_sites * 2)
+        assert len(self.Cu_GB1) == approx(len(self.Cu_GB1.top_grain) * 2)
         assert np.allclose(self.Cu_GB1.lattice.matrix, self.Cu_GB1.top_grain.lattice.matrix)
 
     def test_bottom_grain(self):
-        assert self.Cu_GB1.num_sites == approx(self.Cu_GB1.bottom_grain.num_sites * 2)
+        assert len(self.Cu_GB1) == approx(len(self.Cu_GB1.bottom_grain) * 2)
         assert np.allclose(self.Cu_GB1.lattice.matrix, self.Cu_GB1.bottom_grain.lattice.matrix)
 
     def test_coincidents(self):
-        assert self.Cu_GB1.num_sites / self.Cu_GB1.sigma == approx(len(self.Cu_GB1.coincidents))
-        assert self.Cu_GB2.num_sites / self.Cu_GB2.sigma == approx(len(self.Cu_GB2.coincidents))
+        assert len(self.Cu_GB1) / self.Cu_GB1.sigma == approx(len(self.Cu_GB1.coincidents))
+        assert len(self.Cu_GB2) / self.Cu_GB2.sigma == approx(len(self.Cu_GB2.coincidents))
 
     def test_as_dict_and_from_dict(self):
         d1 = self.Cu_GB1.as_dict()

@@ -361,7 +361,7 @@ class Header(MSONable):
                 f"TITLE angles:{' '.join([to_s(i).rjust(10) for i in self.struct.lattice.angles])}",
             ]
 
-        output.append(f"TITLE sites: {self.struct.num_sites}")
+        output.append(f"TITLE sites: {len(self.struct)}")
 
         for i, site in enumerate(self.struct):
             if isinstance(self.struct, Structure):
