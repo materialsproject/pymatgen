@@ -116,6 +116,10 @@ jobs:
           find . -name "*.pyc" -delete
           for i in {1..10}; do mv coverage-$i/.coverage .coverage.$i; rm -rf coverage-$i; done
           coverage combine
+          coverage xml -i
+          ls -lah .
+          cat coverage.xml
+          sed -i'' 's|pymatgen/pymatgen/pymatgen|pymatgen/pymatgen|g' coverage.xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:
