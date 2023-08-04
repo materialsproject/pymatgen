@@ -8,7 +8,7 @@ height="70">
 
 [![CI Status](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml)
 [![Linting](https://github.com/materialsproject/pymatgen/actions/workflows/lint.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/lint.yml)
-[![Coveralls](https://img.shields.io/coveralls/github/materialsproject/pymatgen?logo=coveralls&label=Coverage)](https://coveralls.io/github/materialsproject/pymatgen?branch=master)
+[![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/master/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
 [![Requires Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
