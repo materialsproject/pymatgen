@@ -97,12 +97,12 @@ jobs:
         # pytest --store-durations --durations-path tests/files/.pytest-split-durations
         # and commit the results (requires pip install pytest-split)
         run: |
-          pytest --cov=pymatgen --cov-report=xml --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
+          pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
       - name: Upload coverage
         uses: actions/upload-artifact@v3
         with:
           name: coverage-${{ matrix.split }}
-          path: coverage.xml
+          path: .coverage
 
   coverage:
     needs: test
@@ -110,6 +110,11 @@ jobs:
     steps:
       - name: Download coverage artifacts
         uses: actions/download-artifact@v3
+      - name: Combine coverage
+        run: |
+          pip install coverage
+          for i in {1..10}; do mv coverage-$i/.coverage .coverage.$i; rm -rf coverage-$i; done
+          coverage combine
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:
