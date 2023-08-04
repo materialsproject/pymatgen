@@ -459,11 +459,11 @@ class NumericalEOS(PolynomialEOS):
         # sort by volume
         e_v = sorted(e_v, key=lambda x: x[1])
         # index of minimum energy tuple in the volume sorted list
-        emin_idx = e_v.index(e_min)
+        e_min_idx = e_v.index(e_min)
         # the volume lower than the volume corresponding to minimum energy
-        v_before = e_v[emin_idx - 1][1]
+        v_before = e_v[e_min_idx - 1][1]
         # the volume higher than the volume corresponding to minimum energy
-        v_after = e_v[emin_idx + 1][1]
+        v_after = e_v[e_min_idx + 1][1]
         e_v_work = deepcopy(e_v)
 
         # loop over the data points.
@@ -472,18 +472,18 @@ class NumericalEOS(PolynomialEOS):
             e = [ei[0] for ei in e_v_work]
             v = [ei[1] for ei in e_v_work]
             # loop over polynomial order
-            for i in range(min_poly_order, max_poly_order + 1):
-                coeffs = np.polyfit(v, e, i)
+            for idx in range(min_poly_order, max_poly_order + 1):
+                coeffs = np.polyfit(v, e, idx)
                 pder = np.polyder(coeffs)
                 a = np.poly1d(pder)(v_before)
                 b = np.poly1d(pder)(v_after)
                 if a * b < 0:
                     rms = get_rms(e, np.poly1d(coeffs)(v))
-                    rms_min = min(rms_min, rms * i / ndata_fit)
-                    all_coeffs[(i, ndata_fit)] = [coeffs.tolist(), rms]
+                    rms_min = min(rms_min, rms * idx / ndata_fit)
+                    all_coeffs[(idx, ndata_fit)] = [coeffs.tolist(), rms]
                     # store the fit coefficients small to large,
                     # i.e a0, a1, .. an
-                    all_coeffs[(i, ndata_fit)][0].reverse()
+                    all_coeffs[(idx, ndata_fit)][0].reverse()
             # remove 1 data point from each end.
             e_v_work.pop()
             e_v_work.pop(0)

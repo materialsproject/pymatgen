@@ -4,6 +4,7 @@ import copy
 import os
 import unittest
 import warnings
+from glob import glob
 from shutil import which
 
 import networkx as nx
@@ -350,36 +351,37 @@ from    to  to_image
     @unittest.skipIf(pygraphviz is None or not (which("neato") and which("fdp")), "graphviz executables not present")
     def test_draw(self):
         # draw MoS2 graph
-        self.mos2_sg.draw_graph_to_file("MoS2_single.pdf", image_labels=True, hide_image_edges=False)
+        self.mos2_sg.draw_graph_to_file(f"{self.tmp_path}/MoS2_single.pdf", image_labels=True, hide_image_edges=False)
         mos2_sg = self.mos2_sg * (9, 9, 1)
-        mos2_sg.draw_graph_to_file("MoS2.pdf", algo="neato")
+        mos2_sg.draw_graph_to_file(f"{self.tmp_path}/MoS2.pdf", algo="neato")
 
         # draw MoS2 graph that's been successively multiplied
         mos2_sg_2 = self.mos2_sg * (3, 3, 1)
         mos2_sg_2 = mos2_sg_2 * (3, 3, 1)
-        mos2_sg_2.draw_graph_to_file("MoS2_twice_mul.pdf", algo="neato", hide_image_edges=True)
+        mos2_sg_2.draw_graph_to_file(f"{self.tmp_path}/MoS2_twice_mul.pdf", algo="neato", hide_image_edges=True)
 
         # draw MoS2 graph that's generated from a pre-multiplied Structure
         mos2_sg_premul = StructureGraph.with_local_env_strategy(self.structure * (3, 3, 1), MinimumDistanceNN())
-        mos2_sg_premul.draw_graph_to_file("MoS2_premul.pdf", algo="neato", hide_image_edges=True)
+        mos2_sg_premul.draw_graph_to_file(f"{self.tmp_path}/MoS2_premul.pdf", algo="neato", hide_image_edges=True)
 
         # draw graph for a square lattice
-        self.square_sg.draw_graph_to_file("square_single.pdf", hide_image_edges=False)
+        self.square_sg.draw_graph_to_file(f"{self.tmp_path}/square_single.pdf", hide_image_edges=False)
         square_sg = self.square_sg * (5, 5, 1)
-        square_sg.draw_graph_to_file("square.pdf", algo="neato", image_labels=True, node_labels=False)
+        square_sg.draw_graph_to_file(f"{self.tmp_path}/square.pdf", algo="neato", image_labels=True, node_labels=False)
 
         # draw graph for a body-centered square lattice
-        self.bc_square_sg.draw_graph_to_file("bc_square_single.pdf", hide_image_edges=False)
+        self.bc_square_sg.draw_graph_to_file(f"{self.tmp_path}/bc_square_single.pdf", hide_image_edges=False)
         bc_square_sg = self.bc_square_sg * (9, 9, 1)
-        bc_square_sg.draw_graph_to_file("bc_square.pdf", algo="neato", image_labels=False)
+        bc_square_sg.draw_graph_to_file(f"{self.tmp_path}/bc_square.pdf", algo="neato", image_labels=False)
 
         # draw graph for a body-centered square lattice defined in an alternative way
-        self.bc_square_sg_r.draw_graph_to_file("bc_square_r_single.pdf", hide_image_edges=False)
+        self.bc_square_sg_r.draw_graph_to_file(f"{self.tmp_path}/bc_square_r_single.pdf", hide_image_edges=False)
         bc_square_sg_r = self.bc_square_sg_r * (9, 9, 1)
-        bc_square_sg_r.draw_graph_to_file("bc_square_r.pdf", algo="neato", image_labels=False)
+        bc_square_sg_r.draw_graph_to_file(f"{self.tmp_path}/bc_square_r.pdf", algo="neato", image_labels=False)
 
-        # delete generated test files
-        test_files = (
+        # ensure PDF files were created
+        pdfs = {path.split("/") for path in glob(f"{self.tmp_path}/*.pdf")}
+        expected_pdfs = {
             "bc_square_r_single.pdf",
             "bc_square_r.pdf",
             "bc_square_single.pdf",
@@ -390,9 +392,8 @@ from    to  to_image
             "MoS2.pdf",
             "square_single.pdf",
             "square.pdf",
-        )
-        for test_file in test_files:
-            os.remove(test_file)
+        }
+        assert pdfs == expected_pdfs
 
     def test_to_from_dict(self):
         d = self.mos2_sg.as_dict()

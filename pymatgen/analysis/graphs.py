@@ -683,8 +683,8 @@ class StructureGraph(MSONable):
             atoms = len(grp) - 1
             offset = len(self.structure) - atoms
 
-            for i in range(atoms):
-                grp_map[i] = i + offset
+            for idx in range(atoms):
+                grp_map[idx] = idx + offset
 
             return grp_map
 
