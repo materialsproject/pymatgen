@@ -488,7 +488,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
         def sort_func(s):
             return (
                 s["energy"] / s["num_sites"]
-                if self.sort_criteria.startswith("m3gnet")
+                if callable(self.sort_criteria)
+                or self.sort_criteria.startswith("m3gnet")
                 or (contains_oxidation_state and self.sort_criteria == "ewald")
                 else s["num_sites"]
             )
