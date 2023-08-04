@@ -475,10 +475,10 @@ def find_clusters(struct, connected_matrix):
                 atom_cluster = visit(new_atom, atom_cluster)
         return atom_cluster
 
-    for i in range(n_atoms):
-        if not visited[i]:
+    for idx in range(n_atoms):
+        if not visited[idx]:
             atom_cluster = set()
-            cluster = visit(i, atom_cluster)
+            cluster = visit(idx, atom_cluster)
             clusters.append(cluster)
             cluster_sizes.append(len(cluster))
 
