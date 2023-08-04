@@ -33,7 +33,8 @@ def make_doc(ctx):
     with cd("docs"):
         ctx.run("touch index.rst")
         ctx.run("rm pymatgen.*.rst", warn=True)
-        ctx.run("sphinx-apidoc --implicit-namespaces --separate -P -M -d 7 -o . -f ../pymatgen ../**/tests/*")
+        ctx.run("rm pymatgen.*.md", warn=True)
+        ctx.run("sphinx-apidoc --implicit-namespaces -P -M -d 7 -o . -f ../pymatgen ../**/tests/*")
         # ctx.run("rm pymatgen*.html", warn=True)
         # ctx.run("sphinx-build -b html . ../docs")  # HTML building.
         ctx.run("sphinx-build -M markdown . .")
@@ -46,25 +47,15 @@ def make_doc(ctx):
             if fn == "pymatgen.md":
                 preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 6", "---", ""]
             else:
-                preamble = ["---", "layout: default", "title: " + fn, "nav_exclude: true", "---", ""]
+                preamble = ["---", "layout: default", "title: " + fn, "nav_exclude: true", "---", "",
+                            "1. TOC", "{:toc}", ""]
             with open(fn, "w") as f:
                 f.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
         # ctx.run("cp ../README.md index.md")
         ctx.run("cp ../CHANGES.md CHANGES.md")
-        ctx.run("rm -rf *.orig doctrees", warn=True)
+        ctx.run("rm -rf doctrees", warn=True)
 
-        # with open("index.md") as f:
-        #     contents = f.read()
-        # with open("index.md", "w") as f:
-        #     contents = re.sub(
-        #         r"\n## Official Documentation[^#]*",
-        #         "{: .no_toc }\n\n## Table of contents\n{: .no_toc .text-delta }\n* TOC\n{:toc}\n\n",
-        #         contents
-        #     )
-        #     contents = "---\nlayout: default\ntitle: Home\nnav_order: 1\n---\n\n" + contents
-        #
-        #     f.write(contents)
 
 @task
 def make_dash(ctx):

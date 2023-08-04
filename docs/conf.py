@@ -22,7 +22,7 @@ from pymatgen.core import __author__
 
 
 project = "pymatgen"
-copyright = "2022, Materials Virtual Lab"
+copyright = "2011, Materials Project"
 author = __author__
 
 
@@ -32,7 +32,7 @@ author = __author__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 # Napoleon is necessary to parse Google style docstrings. Markdown builder allows the generation of markdown output.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "myst_parser", "sphinx_markdown_builder"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "myst_parser", "sphinx_markdown_builder", "sphinx.ext.linkcode"]
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 autoclass_content = "both"
@@ -58,3 +58,12 @@ html_static_path = ["_static"]
 myst_heading_anchors = 3
 
 autodoc_default_options = {"private-members": False}
+
+
+def linkcode_resolve(domain, info):
+    if domain != 'py':
+        return None
+    if not info['module']:
+        return None
+    filename = info['module'].replace('.', '/')
+    return "https://github.com/materialsproject/pymatgen/tree/master/%s.py" % filename

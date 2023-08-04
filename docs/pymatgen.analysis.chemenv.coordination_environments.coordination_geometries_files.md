@@ -4,6 +4,9 @@ title: pymatgen.analysis.chemenv.coordination_environments.coordination_geometri
 nav_exclude: true
 ---
 
+1. TOC
+{:toc}
+
 # pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files package
 
 Coordination geometry files.

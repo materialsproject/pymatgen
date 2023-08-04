@@ -4,47 +4,240 @@ title: pymatgen.io.exciting.md
 nav_exclude: true
 ---
 
+1. TOC
+{:toc}
+
 # pymatgen.io.exciting package
 
 This package contains classes to parse input files from the exciting
 code package.
 
 
+## pymatgen.io.exciting.inputs module
 
-* [pymatgen.io.exciting.inputs module](pymatgen.io.exciting.inputs.md)
-
-
-    * [`ExcitingInput`](pymatgen.io.exciting.inputs.md#pymatgen.io.exciting.inputs.ExcitingInput)
+Classes for reading/manipulating/writing exciting input files.
 
 
-        * [`ExcitingInput.structure`](pymatgen.io.exciting.inputs.md#pymatgen.io.exciting.inputs.ExcitingInput.structure)
+### _class_ pymatgen.io.exciting.inputs.ExcitingInput(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), title=None, lockxyz=None)
+Bases: `MSONable`
+
+Object for representing the data stored in the structure part of the
+exciting input.
 
 
-        * [`ExcitingInput.title`](pymatgen.io.exciting.inputs.md#pymatgen.io.exciting.inputs.ExcitingInput.title)
+#### structure()
+Associated Structure.
 
 
-        * [`ExcitingInput.lockxyz`](pymatgen.io.exciting.inputs.md#pymatgen.io.exciting.inputs.ExcitingInput.lockxyz)
+#### title()
+Optional title string.
 
 
-        * [`ExcitingInput.bohr2ang`](pymatgen.io.exciting.inputs.md#pymatgen.io.exciting.inputs.ExcitingInput.bohr2ang)
+#### lockxyz()
+Lockxyz attribute for each site if available. A Nx3 array of
+booleans.
 
 
-        * [`ExcitingInput.from_file()`](pymatgen.io.exciting.inputs.md#pymatgen.io.exciting.inputs.ExcitingInput.from_file)
+* **Parameters**
 
 
-        * [`ExcitingInput.from_str()`](pymatgen.io.exciting.inputs.md#pymatgen.io.exciting.inputs.ExcitingInput.from_str)
+    * **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Structure object.
 
 
-        * [`ExcitingInput.from_string()`](pymatgen.io.exciting.inputs.md#pymatgen.io.exciting.inputs.ExcitingInput.from_string)
+    * **title** (*str*) – Optional title for exciting input. Defaults to unit
+    cell formula of structure. Defaults to None.
 
 
-        * [`ExcitingInput.lockxyz`](pymatgen.io.exciting.inputs.md#id0)
+    * **lockxyz** (*Nx3 array*) – bool values for selective dynamics,
+    where N is number of sites. Defaults to None.
 
 
-        * [`ExcitingInput.write_etree()`](pymatgen.io.exciting.inputs.md#pymatgen.io.exciting.inputs.ExcitingInput.write_etree)
+
+#### bohr2ang(_ = 0.529169299821967_ )
+
+#### _static_ from_file(filename)
+
+* **Parameters**
+
+    **filename** – Filename
 
 
-        * [`ExcitingInput.write_file()`](pymatgen.io.exciting.inputs.md#pymatgen.io.exciting.inputs.ExcitingInput.write_file)
+
+* **Returns**
+
+    ExcitingInput
 
 
-        * [`ExcitingInput.write_string()`](pymatgen.io.exciting.inputs.md#pymatgen.io.exciting.inputs.ExcitingInput.write_string)
+
+#### _static_ from_str(data)
+Reads the exciting input from a string.
+
+
+#### _classmethod_ from_string(\*args, \*\*kwds)
+from_string is deprecated!
+Use from_str instead
+
+
+#### _property_ lockxyz()
+Selective dynamics site properties.
+
+
+* **Type**
+
+    return
+
+
+
+#### write_etree(celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, \*\*kwargs)
+Writes the exciting input parameters to an xml object.
+
+
+* **Parameters**
+
+
+    * **celltype** (*str*) – Choice of unit cell. Can be either the unit cell
+
+
+    * **self.structure** (*from*) –
+
+
+    * **(****"conventional"****)** (*"primitive"*) –
+
+
+    * **cell** (*or the primitive unit*) –
+
+
+    * **cartesian** (*bool*) – Whether the atomic positions are provided in
+
+
+    * **False.** (*celltype is set to "primitive". Default is*) –
+
+
+    * **bandstr** (*bool*) – Whether the bandstructure path along the
+
+
+    * **the** (*HighSymmKpath is included in the input file. Only supported if*) –
+
+
+    * **False.** –
+
+
+    * **symprec** (*float*) – Tolerance for the symmetry finding. Default is 0.4.
+
+
+    * **angle_tolerance** (*float*) – Angle tolerance for the symmetry finding.
+
+
+    * **5.** (*Default is*) –
+
+
+    * **\*\*kwargs** – Additional parameters for the input file.
+
+
+
+* **Returns**
+
+    ET.Element containing the input XML structure
+
+
+
+#### write_file(celltype, filename, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, \*\*kwargs)
+Writes exciting input file.
+
+
+* **Parameters**
+
+
+    * **celltype** (*str*) – Choice of unit cell. Can be either the unit cell
+
+
+    * **self.structure** (*from*) –
+
+
+    * **(****"conventional"****)** (*"primitive"*) –
+
+
+    * **cell** (*or the primitive unit*) –
+
+
+    * **filename** (*str*) – Filename for exciting input.
+
+
+    * **cartesian** (*bool*) – Whether the atomic positions are provided in
+
+
+    * **False.** (*celltype is set to "primitive". Default is*) –
+
+
+    * **bandstr** (*bool*) – Whether the bandstructure path along the
+
+
+    * **the** (*HighSymmKpath is included in the input file. Only supported if*) –
+
+
+    * **False.** –
+
+
+    * **symprec** (*float*) – Tolerance for the symmetry finding. Default is 0.4.
+
+
+    * **angle_tolerance** (*float*) – Angle tolerance for the symmetry finding.
+
+
+    * **5.** (*Default is*) –
+
+
+    * **\*\*kwargs** – Additional parameters for the input file.
+
+
+
+#### write_string(celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, \*\*kwargs)
+Writes exciting input.xml as a string.
+
+
+* **Parameters**
+
+
+    * **celltype** (*str*) – Choice of unit cell. Can be either the unit cell
+
+
+    * **self.structure** (*from*) –
+
+
+    * **(****"conventional"****)** (*"primitive"*) –
+
+
+    * **cell** (*or the primitive unit*) –
+
+
+    * **cartesian** (*bool*) – Whether the atomic positions are provided in
+
+
+    * **False.** (*celltype is set to "primitive". Default is*) –
+
+
+    * **bandstr** (*bool*) – Whether the bandstructure path along the
+
+
+    * **the** (*HighSymmKpath is included in the input file. Only supported if*) –
+
+
+    * **False.** –
+
+
+    * **symprec** (*float*) – Tolerance for the symmetry finding. Default is 0.4.
+
+
+    * **angle_tolerance** (*float*) – Angle tolerance for the symmetry finding.
+
+
+    * **5.** (*Default is*) –
+
+
+    * **\*\*kwargs** – Additional parameters for the input file.
+
+
+
+* **Returns**
+
+    String

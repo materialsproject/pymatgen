@@ -113,6 +113,7 @@ jobs:
       - name: Combine coverage
         run: |
           pip install coverage
+          find . -name "*.pyc" -delete
           for i in {1..10}; do mv coverage-$i/.coverage .coverage.$i; rm -rf coverage-$i; done
           coverage combine
       - name: Upload coverage reports to Codecov
