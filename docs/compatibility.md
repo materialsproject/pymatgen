@@ -3,13 +3,14 @@ layout: default
 title: Compatibility
 nav_order: 3
 ---
+
 # Compatibility
 
 Pymatgen is a tool used for academic research and is actively developed by
 a large community of people. As such, releases are frequent, and new features
 and capabilities are constantly being added.
 
-However, pymatgen is also used as a library by other tools, and as such breaking
+However, `pymatgen` is also used as a library by other tools, and as such breaking
 changes such as the removal or renaming of existing functionality, or substantive
 changes in the output of existing code, are tried to be kept to a minimum. This is
 especially true of all classes contained in the `pymatgen.core` module.
@@ -21,47 +22,47 @@ please post on the GitHub Issues page to see if it can be resolved.
 
 ## Depending on Pymatgen
 
-Pymatgen uses [calendar versioning](http://calver.org/) based on a YYYY-MM-DD format.
-This has generally worked well since changes to core pymatgen functionality that most
+Pymatgen uses [calendar versioning](http://calver.org) with a YYYY-MM-DD format.
+This has generally worked well since changes to core `pymatgen` functionality that most
 other codes depend on are rare. There have been only two instances in recent memory that
 breaking changes have been made.
 
-* v2021.3.4 - Reorganization of pymatgen into namespace packages, which required the removal
+* v2021.3.4 - Reorganization of `pymatgen` into namespace packages, which required the removal
   of root-level imports.
 * v2019.3.13 - Renaming of `Site.species_and_occu` to `Site.species`.
 
-Where at all possible, the pymatgen maintainers try to allow for a reasonable deprecation
+Where at all possible, the `pymatgen` maintainers try to allow for a reasonable deprecation
 schedule. For example, the `Site.species` change had a deprecation schedule of about 9 months.
-However, some changes such as the recent reorganization of pymatgen into namespace packages
+However, some changes such as the recent reorganization of `pymatgen` into namespace packages
 cannot be easily done via a deprecation schedule.
 
-As a compromise solution, pymatgen has adopted **temporary** semantic versioning. A v2021.3.5
+As a compromise solution, `pymatgen` has adopted **temporary** semantic versioning. A v2021.3.5
 was released after v2021.3.4 to reverse the changes made, and new versions v2022.0.x were
 released that contains the breaking change (removal of root imports). We will continue to release
 critical updates to 2021.x.x versions. This allows end users to continue using 2021.x.x versions
 without having to deal with the breaking changes. However, it is recommended that users make the
-move to be compatible with 2022.0.x before Jan 1 2022, during which pymatgen will only support the
+move to be compatible with 2022.0.x before Jan 1 2022, during which `pymatgen` will only support the
 new namespace architecture and the versioning scheme will go back to calendar versioning.
 
-As the developer of a tool that depends on Pymatgen, you can prevent upgrades of the major
+As the developer of a tool that depends on `pymatgen`, you can prevent upgrades of the major
 Pymatgen version by specifying a version range like `pymatgen>=2021.1,<2022` or, more
 succinctly, using the
 [compatible release operator](https://www.python.org/dev/peps/pep-0440/#compatible-release)
 `pymatgen~=2021.1`. This will prevent `pip` (and other package managers) from
-pulling in Pymatgen versions with breaking changes that may end up breaking
+pulling in `Pymatgen` versions with breaking changes that may end up breaking
 your tool.
 
-An even more conservative approach is to pin the Pymatgen dependency to a fixed version, for
-example `pymatgen==2021.3.3`. While this will always install the same version of pymatgen,
+An even more conservative approach is to pin the `Pymatgen` dependency to a fixed version, for
+example `pymatgen==2021.3.3`. While this will always install the same version of `pymatgen`,
 it can lead to unnecessary dependency conflicts with other tools that depend on (a different
-version of) Pymatgen.
+version of) `pymatgen`.
 
 ## Minimum Python Version
 
-As a rule of thumb, pymatgen will support whatever versions of Python the latest
+As a rule of thumb, `pymatgen` will support whatever versions of Python the latest
 version of numpy supports (at the time of writing, this is Python 3.8+). You can
 also check what versions of Python are being tested automatically as part of our
-continuous integration testing on GitHub. We currently test pymatgen on Mac,
+continuous integration testing on GitHub. We currently test `pymatgen` on Mac,
 Windows and Linux.
 
 ## Recent Breaking Changes
