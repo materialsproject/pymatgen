@@ -87,6 +87,19 @@ jobs:
           tar xvzf bader_lnx_64.tar.gz
           sudo mv bader /usr/local/bin/
         continue-on-error: true
+      - name: Install Enumlib
+        if: runner.os == 'Linux'
+        run: |
+          git clone --recursive https://github.com/msg-byu/enumlib.git
+          cd enumlib/symlib/src
+          export F90=gfortran
+          make
+          cd ../../src
+          make enum.x
+          sudo mv enum.x /usr/local/bin/
+          cd ..
+          sudo cp aux_src/makeStr.py /usr/local/bin/
+        continue-on-error: true
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
