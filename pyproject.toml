@@ -91,7 +91,6 @@ addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mod
 
 [tool.coverage.run]
 branch = true
-skip_empty = true
 
 [tool.coverage.report]
 exclude_lines = [
