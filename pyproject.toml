@@ -100,9 +100,6 @@ source = [
 omit = ["pymatgen/cli"]
 relative_files = true
 
-[tool.coverage.paths]
-source = ["pymatgen"]
-
 [tool.coverage.report]
 exclude_lines = [
   "@deprecated",
