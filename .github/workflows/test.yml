@@ -115,7 +115,7 @@ jobs:
         uses: actions/download-artifact@v3
       - name: Combine coverage
         run: |
-          pip install coverage
+          pip install coverage[toml]
           find . -name "*.pyc" -delete
           for i in {1..10}; do mv coverage-$i/.coverage .coverage.$i; rm -rf coverage-$i; done
           coverage combine
