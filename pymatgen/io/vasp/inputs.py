@@ -1320,18 +1320,13 @@ class Kpoints(MSONable):
         comment = f"k-point density of {length_densities}/[a, b, c]"
         lattice = structure.lattice
         abc = lattice.abc
-        num_div = [
-            np.ceil(length_densities[0] / abc[0]),
-            np.ceil(length_densities[1] / abc[1]),
-            np.ceil(length_densities[2] / abc[2]),
-        ]
+        num_div = [np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities)]
         is_hexagonal = lattice.is_hexagonal()
-        has_odd = any(i % 2 == 1 for i in num_div)
+        has_odd = any(idx % 2 == 1 for idx in num_div)
         if has_odd or is_hexagonal or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
             style = Kpoints.supported_modes.Monkhorst
-        style = Kpoints.supported_modes.Gamma
 
         return Kpoints(comment, 0, style, [num_div], (0, 0, 0))
 
