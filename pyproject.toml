@@ -91,12 +91,6 @@ addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mod
 
 [tool.coverage.run]
 branch = true
-source = [
-    "pymatgen",
-    "pymatgen/io",
-    "pymatgen/analysis",
-    "pymatgen/ext"
-]
 omit = ["pymatgen/cli"]
 relative_files = true
 skip_empty = true
