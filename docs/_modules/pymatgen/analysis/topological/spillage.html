@@ -1,0 +1,331 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.topological.spillage &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.topological.spillage</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.topological.spillage</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Code to calculate spin-orbit spillage.</span>
+<span class="sd">Modified from JARVIS-Tools</span>
+<span class="sd">https://www.nature.com/articles/s41598-019-45028-y</span>
+<span class="sd">https://www.nature.com/articles/s41524-020-0319-4</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="kn">import</span> <span class="n">Wavecar</span> 
+
+<span class="c1"># from jarvis.io.vasp.outputs import Wavecar</span>
+
+
+<div class="viewcode-block" id="SOCSpillage"><a class="viewcode-back" href="../../../../pymatgen.analysis.topological.spillage.html#pymatgen.analysis.topological.spillage.SOCSpillage">[docs]</a><span class="k">class</span> <span class="nc">SOCSpillage</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Spin-orbit spillage criteria to predict whether a material is topologically non-trival.</span>
+<span class="sd">    The spillage criteria physically signifies number of band-inverted electrons.</span>
+<span class="sd">    A non-zero, high value (generally &gt;0.5) suggests non-trivial behavior</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wf_noso</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">wf_so</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Requires path to WAVECAR files with and without LSORBIT = .TRUE. </span>
+<span class="sd">        Args:</span>
+<span class="sd">            wf_noso : WAVECAR without spin-orbit coupling</span>
+<span class="sd">            wf_so : WAVECAR with spin-orbit coupling</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wf_noso</span> <span class="o">=</span> <span class="n">wf_noso</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wf_so</span> <span class="o">=</span> <span class="n">wf_so</span>
+
+<div class="viewcode-block" id="SOCSpillage.isclose"><a class="viewcode-back" href="../../../../pymatgen.analysis.topological.spillage.html#pymatgen.analysis.topological.spillage.SOCSpillage.isclose">[docs]</a>    <span class="k">def</span> <span class="nf">isclose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checking if the numbers are close enoung</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">n1</span> <span class="o">-</span> <span class="n">n2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">rel_tol</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="SOCSpillage.orth"><a class="viewcode-back" href="../../../../pymatgen.analysis.topological.spillage.html#pymatgen.analysis.topological.spillage.SOCSpillage.orth">[docs]</a>    <span class="k">def</span> <span class="nf">orth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to create orthonormal basis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">vh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">M</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">tol</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="n">eps</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">u</span><span class="p">[:,</span> <span class="p">:</span><span class="n">num</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Q</span><span class="p">,</span> <span class="n">num</span></div>
+
+<div class="viewcode-block" id="SOCSpillage.overlap_so_spinpol"><a class="viewcode-back" href="../../../../pymatgen.analysis.topological.spillage.html#pymatgen.analysis.topological.spillage.SOCSpillage.overlap_so_spinpol">[docs]</a>    <span class="k">def</span> <span class="nf">overlap_so_spinpol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Main function to calculate SOC spillage</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">noso</span> <span class="o">=</span> <span class="n">Wavecar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wf_noso</span><span class="p">)</span>
+        <span class="n">so</span> <span class="o">=</span> <span class="n">Wavecar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wf_so</span><span class="p">)</span>
+
+        <span class="n">bcell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">noso</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">noso</span><span class="o">.</span><span class="n">kpoints</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">bcell</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">noso_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">tmp</span><span class="p">)))</span>
+        <span class="n">noso_bands</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">noso</span><span class="o">.</span><span class="n">band_energy</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">noso_kvecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">noso</span><span class="o">.</span><span class="n">kpoints</span><span class="p">)</span>
+        <span class="n">noso_occs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">noso</span><span class="o">.</span><span class="n">band_energy</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">noso_nkpts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">noso_k</span><span class="p">)</span>
+
+        <span class="n">bcell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">so</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">so</span><span class="o">.</span><span class="n">kpoints</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">bcell</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">so_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">tmp</span><span class="p">)))</span>
+        <span class="n">so_bands</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">so</span><span class="o">.</span><span class="n">band_energy</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]])</span>
+        <span class="n">so_kvecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">so</span><span class="o">.</span><span class="n">kpoints</span><span class="p">)</span>
+        <span class="c1"># so_occs = np.array([np.array(so.band_energy)[:, :, 2]])</span>
+        <span class="n">so_nkpts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">so_k</span><span class="p">)</span>
+
+        <span class="n">nelec_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">nk1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">noso_nkpts</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>  <span class="c1"># no spin orbit kpoints loop</span>
+            <span class="n">knoso</span> <span class="o">=</span> <span class="n">noso_kvecs</span><span class="p">[</span><span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="k">for</span> <span class="n">nk2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">so_nkpts</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>  <span class="c1"># spin orbit</span>
+                <span class="n">kso</span> <span class="o">=</span> <span class="n">so_kvecs</span><span class="p">[</span><span class="n">nk2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">kso</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">knoso</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">kso</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">knoso</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">kso</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">knoso</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="p">):</span>  <span class="c1"># do kpoints match?</span>
+                    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">noso_occs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]):</span>
+                        <span class="k">if</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                            <span class="n">cup</span> <span class="o">=</span> <span class="n">c</span>
+                            <span class="k">break</span>
+                    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">noso_occs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]):</span>
+                        <span class="k">if</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                            <span class="n">cdn</span> <span class="o">=</span> <span class="n">c</span>
+                            <span class="k">break</span>
+
+                    <span class="n">nelec_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">cup</span><span class="p">,</span> <span class="n">cdn</span><span class="p">,</span> <span class="n">cup</span> <span class="o">+</span> <span class="n">cdn</span><span class="p">])</span>
+        <span class="n">n_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nelec_list</span><span class="p">)</span>
+
+        <span class="n">n_up</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">n_arr</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])))</span>
+        <span class="n">n_dn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">n_arr</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])))</span>
+        <span class="n">n_tot</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">n_arr</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])))</span>
+
+        <span class="n">nelec</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_tot</span><span class="p">)</span>
+
+        <span class="c1"># noso_homo_up = np.max(noso_bands[0, :, n_up - 1])</span>
+        <span class="c1"># noso_lumo_up = np.min(noso_bands[0, :, n_up])</span>
+
+        <span class="c1"># noso_homo_dn = np.max(noso_bands[1, :, n_dn - 1])</span>
+        <span class="c1"># noso_lumo_dn = np.min(noso_bands[1, :, n_dn])</span>
+
+        <span class="n">so_homo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">so_bands</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="n">nelec</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">so_lumo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">so_bands</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="n">nelec</span><span class="p">])</span>
+
+        <span class="c1"># noso_direct_up = np.min(noso_bands[0, :, n_up] - noso_bands[0, :, n_up - 1])</span>
+        <span class="c1"># noso_direct_dn = np.min(noso_bands[1, :, n_dn] - noso_bands[1, :, n_dn - 1])</span>
+
+        <span class="n">so_direct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">so_bands</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="n">nelec</span><span class="p">]</span> <span class="o">-</span> <span class="n">so_bands</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="n">nelec</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">noso_direct</span> <span class="o">=</span> <span class="mf">1000000.0</span>
+        <span class="n">noso_homo</span> <span class="o">=</span> <span class="o">-</span><span class="mf">10000000.0</span>
+        <span class="n">noso_lumo</span> <span class="o">=</span> <span class="mf">100000000.0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noso_bands</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">homo_k</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">noso_bands</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">n_up</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">noso_bands</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">n_dn</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">lumo_k</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">noso_bands</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">n_up</span><span class="p">],</span> <span class="n">noso_bands</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">n_dn</span><span class="p">])</span>
+            <span class="n">noso_direct</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">noso_direct</span><span class="p">,</span> <span class="n">lumo_k</span> <span class="o">-</span> <span class="n">homo_k</span><span class="p">)</span>
+
+            <span class="n">noso_homo</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">noso_homo</span><span class="p">,</span> <span class="n">homo_k</span><span class="p">)</span>
+            <span class="n">noso_lumo</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">noso_lumo</span><span class="p">,</span> <span class="n">lumo_k</span><span class="p">)</span>
+
+        <span class="n">gamma_k</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">kpoints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">nelec_tot</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">nk1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">noso_nkpts</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>  <span class="c1"># no spin orbit kpoints loop</span>
+            <span class="n">knoso</span> <span class="o">=</span> <span class="n">noso_kvecs</span><span class="p">[</span><span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="k">for</span> <span class="n">nk2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">so_nkpts</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>  <span class="c1"># spin orbit</span>
+                <span class="n">kso</span> <span class="o">=</span> <span class="n">so_kvecs</span><span class="p">[</span><span class="n">nk2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">kso</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">knoso</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">kso</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">knoso</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">kso</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">knoso</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="p">):</span>  <span class="c1"># do kpoints match?</span>
+
+                    <span class="c1"># changes section 2</span>
+                    <span class="n">nelec_up</span> <span class="o">=</span> <span class="n">n_arr</span><span class="p">[</span><span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                    <span class="n">nelec_dn</span> <span class="o">=</span> <span class="n">n_arr</span><span class="p">[</span><span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">nelec_tot</span> <span class="o">=</span> <span class="n">n_arr</span><span class="p">[</span><span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+                    <span class="n">kpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kso</span><span class="p">)</span>
+                    <span class="n">Mmn</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="n">vnoso</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                        <span class="n">noso</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">)</span>  <span class="c1"># noso.readBandCoeff(ispin=1, ikpt=nk1, iband=1, norm=False)</span>
+                    <span class="n">n_noso1</span> <span class="o">=</span> <span class="n">vnoso</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">vnoso</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                        <span class="n">noso</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">)</span>  <span class="c1"># noso.readBandCoeff(ispin=2, ikpt=nk1, iband=1, norm=False)</span>
+                    <span class="c1"># n_noso2 = vnoso.shape[0]</span>
+                    <span class="n">vso</span> <span class="o">=</span> <span class="n">so</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span>
+                        <span class="mi">0</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>  <span class="c1"># so.readBandCoeff(ispin=1, ikpt=nk2, iband=1, norm=False)</span>
+                    <span class="n">n_so</span> <span class="o">=</span> <span class="n">vso</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="n">vs</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_noso1</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n_so</span><span class="p">)</span>
+                    <span class="n">Vnoso</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">vs</span><span class="p">,</span> <span class="n">nelec_tot</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+                    <span class="n">Vso</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">vs</span><span class="p">,</span> <span class="n">nelec_tot</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">noso</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">vs</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="c1"># if nk1==10 and nk2==10:</span>
+                        <span class="c1"># print (np.array(noso.coeffs[1][nk1-1]).shape[1], )</span>
+                        <span class="c1"># prepare matricies</span>
+                        <span class="k">for</span> <span class="n">n1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nelec_up</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="n">Vnoso</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">vs</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                                <span class="n">noso</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">n1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                            <span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="n">vs</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">n1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nelec_dn</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="n">Vnoso</span><span class="p">[</span><span class="n">vs</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span><span class="n">vs</span><span class="p">,</span> <span class="n">n1</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">nelec_up</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                                <span class="n">noso</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">nk1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">n1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                            <span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="n">vs</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">n1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nelec_tot</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="n">t</span> <span class="o">=</span> <span class="n">so</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">nk2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">n1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                            <span class="n">Vso</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">vs</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">vs</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+                            <span class="n">Vso</span><span class="p">[</span><span class="n">vs</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span><span class="n">vs</span><span class="p">,</span> <span class="n">n1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span>
+                                <span class="n">n_so</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span><span class="n">n_so</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">vs</span> <span class="o">//</span> <span class="mi">2</span>
+                            <span class="p">]</span>
+                        <span class="n">Qnoso</span><span class="p">,</span> <span class="n">num_noso</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orth</span><span class="p">(</span><span class="n">Vnoso</span><span class="p">)</span>  <span class="c1"># make orthonormal basis?</span>
+
+                        <span class="n">Qso</span><span class="p">,</span> <span class="n">num_so</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orth</span><span class="p">(</span><span class="n">Vso</span><span class="p">)</span>
+
+                        <span class="n">gamma_k</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nelec_tot</span><span class="p">)</span>
+                        <span class="n">a</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">for</span> <span class="n">n1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nelec_tot</span><span class="p">):</span>  <span class="c1"># noso occupied bands</span>
+                            <span class="n">v1</span> <span class="o">=</span> <span class="n">Qnoso</span><span class="p">[:,</span> <span class="n">n1</span><span class="p">]</span>
+                            <span class="n">aa</span> <span class="o">=</span> <span class="mf">0.0</span>
+                            <span class="k">for</span> <span class="n">n2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nelec_tot</span><span class="p">):</span>  <span class="c1"># so occupied bands</span>
+                                <span class="n">v2</span> <span class="o">=</span> <span class="n">Qso</span><span class="p">[:,</span> <span class="n">n2</span><span class="p">]</span>
+
+                                <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">v1</span><span class="p">),</span> <span class="n">v2</span><span class="p">)</span>
+                                <span class="n">Mmn</span> <span class="o">+=</span> <span class="n">t</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+                                <span class="n">aa</span> <span class="o">+=</span> <span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span><span class="o">.</span><span class="n">real</span>
+                            <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span>
+                        <span class="n">gamma_k</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">Mmn</span>  <span class="c1"># eq 4 in prb 90 125133</span>
+                        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kso</span><span class="p">)</span>
+                        <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">gamma_k</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                        <span class="k">if</span> <span class="n">gamma_k</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span>
+                                <span class="s2">&quot;nk1 nk2 kpoint gamma_k &quot;</span><span class="p">,</span>
+                                <span class="n">nk1</span><span class="p">,</span>
+                                <span class="n">nk2</span><span class="p">,</span>
+                                <span class="n">kso</span><span class="p">,</span>
+                                <span class="n">knoso</span><span class="p">,</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">gamma_k</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+                                <span class="s2">&quot;!!!!!!!!!!&quot;</span><span class="p">,</span>
+                            <span class="p">)</span>
+
+        <span class="n">gmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">gamma_k</span><span class="p">))</span>
+        <span class="n">nkmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">gamma_k</span><span class="p">))</span>
+        <span class="n">kmax</span> <span class="o">=</span> <span class="n">kpoints</span><span class="p">[</span><span class="n">nkmax</span><span class="p">]</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;------------------------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;                   INDIRECT DIRECT      HOMO/LUMO (eV)&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;no spin-orbit gaps&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">{:+.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">noso_lumo</span> <span class="o">-</span> <span class="n">noso_homo</span><span class="p">)),</span>
+            <span class="s2">&quot;</span><span class="si">{:+.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">noso_direct</span><span class="p">),</span>
+            <span class="s2">&quot;   &quot;</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">noso_homo</span><span class="p">,</span> <span class="n">noso_lumo</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;spin-orbit gaps   &quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">{:+.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">so_lumo</span> <span class="o">-</span> <span class="n">so_homo</span><span class="p">)),</span>
+            <span class="s2">&quot;</span><span class="si">{:+.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">so_direct</span><span class="p">),</span>
+            <span class="s2">&quot;   &quot;</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">so_homo</span><span class="p">,</span> <span class="n">so_lumo</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;gamma max&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">gmax</span><span class="p">),</span> <span class="s2">&quot; at k =  &quot;</span><span class="p">,</span> <span class="n">kmax</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gmax</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.topological.spillage</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

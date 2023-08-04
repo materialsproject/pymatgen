@@ -1,0 +1,586 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.io.pwscf &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.pwscf</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.pwscf</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements input and output processing from PWSCF.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
+
+<span class="kn">from</span> <span class="nn">monty.re</span> <span class="kn">import</span> <span class="n">regrep</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.io_utils</span> <span class="kn">import</span> <span class="n">clean_lines</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Virtual Lab&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ongsp@ucsd.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;3/27/15&quot;</span>
+
+
+<div class="viewcode-block" id="PWInput"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWInput">[docs]</a><span class="k">class</span> <span class="nc">PWInput</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base input file class. Right now, only supports no symmetry and is</span>
+<span class="sd">    very basic.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">pseudo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">control</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">electrons</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kpoints_mode</span><span class="o">=</span><span class="s2">&quot;automatic&quot;</span><span class="p">,</span>
+                 <span class="n">kpoints_grid</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">kpoints_shift</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a PWSCF input file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input structure. For spin-polarized calculation,</span>
+<span class="sd">                properties (e.g. {&quot;starting_magnetization&quot;: -0.5,</span>
+<span class="sd">                &quot;pseudo&quot;: &quot;Mn.pbe-sp-van.UPF&quot;}) on each site is needed instead of</span>
+<span class="sd">                pseudo (dict).</span>
+<span class="sd">            pseudo (dict): A dict of the pseudopotentials to use. Default to None.</span>
+<span class="sd">            control (dict): Control parameters. Refer to official PWSCF doc</span>
+<span class="sd">                on supported parameters. Default to {&quot;calculation&quot;: &quot;scf&quot;}</span>
+<span class="sd">            system (dict): System parameters. Refer to official PWSCF doc</span>
+<span class="sd">                on supported parameters. Default to None, which means {}.</span>
+<span class="sd">            electrons (dict): Electron parameters. Refer to official PWSCF doc</span>
+<span class="sd">                on supported parameters. Default to None, which means {}.</span>
+<span class="sd">            ions (dict): Ions parameters. Refer to official PWSCF doc</span>
+<span class="sd">                on supported parameters. Default to None, which means {}.</span>
+<span class="sd">            cell (dict): Cell parameters. Refer to official PWSCF doc</span>
+<span class="sd">                on supported parameters. Default to None, which means {}.</span>
+<span class="sd">            kpoints_mode (str): Kpoints generation mode. Default to automatic.</span>
+<span class="sd">            kpoints_grid (sequence): The kpoint grid. Default to (1, 1, 1).</span>
+<span class="sd">            kpoints_shift (sequence): The shift for the kpoints. Defaults to</span>
+<span class="sd">                (0, 0, 0).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="n">sections</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">sections</span><span class="p">[</span><span class="s2">&quot;control&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">control</span> <span class="ow">or</span> <span class="p">{</span><span class="s2">&quot;calculation&quot;</span><span class="p">:</span> <span class="s2">&quot;scf&quot;</span><span class="p">}</span>
+        <span class="n">sections</span><span class="p">[</span><span class="s2">&quot;system&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">system</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">sections</span><span class="p">[</span><span class="s2">&quot;electrons&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">electrons</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">sections</span><span class="p">[</span><span class="s2">&quot;ions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ions</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">sections</span><span class="p">[</span><span class="s2">&quot;cell&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cell</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">pseudo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;pseudo&#39;</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PWInputError</span><span class="p">(</span><span class="s2">&quot;Missing </span><span class="si">%s</span><span class="s2"> in pseudo specification!&quot;</span>
+                                       <span class="o">%</span> <span class="n">site</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">species</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">species</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pseudo</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PWInputError</span><span class="p">(</span><span class="s2">&quot;Missing </span><span class="si">%s</span><span class="s2"> in pseudo specification!&quot;</span>
+                                       <span class="o">%</span> <span class="n">species</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pseudo</span> <span class="o">=</span> <span class="n">pseudo</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sections</span> <span class="o">=</span> <span class="n">sections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_mode</span> <span class="o">=</span> <span class="n">kpoints_mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_grid</span> <span class="o">=</span> <span class="n">kpoints_grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_shift</span> <span class="o">=</span> <span class="n">kpoints_shift</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">site_descriptions</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">site_descriptions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudo</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">site_descriptions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span> <span class="o">==</span> <span class="n">v</span><span class="p">:</span>
+                        <span class="n">name</span> <span class="o">=</span> <span class="n">k</span>
+
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                    <span class="n">site_descriptions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span>
+                    <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">def</span> <span class="nf">to_str</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">return</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">v</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+                <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;.TRUE.&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;.FALSE.&quot;</span>
+            <span class="k">return</span> <span class="n">v</span>
+
+        <span class="k">for</span> <span class="n">k1</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;control&quot;</span><span class="p">,</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;electrons&quot;</span><span class="p">,</span> <span class="s2">&quot;ions&quot;</span><span class="p">,</span> <span class="s2">&quot;cell&quot;</span><span class="p">]:</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">k1</span><span class="p">]</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&amp;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">k1</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+            <span class="n">sub</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">k2</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v1</span><span class="p">[</span><span class="n">k2</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">v1</span><span class="p">[</span><span class="n">k2</span><span class="p">][:</span><span class="nb">len</span><span class="p">(</span><span class="n">site_descriptions</span><span class="p">)]:</span>
+                        <span class="n">sub</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s</span><span class="s2">(</span><span class="si">%d</span><span class="s2">) = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">to_str</span><span class="p">(</span><span class="n">v1</span><span class="p">[</span><span class="n">k2</span><span class="p">][</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])))</span>
+                        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sub</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="n">to_str</span><span class="p">(</span><span class="n">v1</span><span class="p">[</span><span class="n">k2</span><span class="p">])))</span>
+            <span class="k">if</span> <span class="n">k1</span> <span class="o">==</span> <span class="s2">&quot;system&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;ibrav&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">k1</span><span class="p">]:</span>
+                    <span class="n">sub</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  ibrav = 0&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;nat&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">k1</span><span class="p">]:</span>
+                    <span class="n">sub</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  nat = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">))</span>
+                <span class="k">if</span> <span class="s1">&#39;ntyp&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">k1</span><span class="p">]:</span>
+                    <span class="n">sub</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  ntyp = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">site_descriptions</span><span class="p">))</span>
+            <span class="n">sub</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;,</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sub</span><span class="p">))</span>
+
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ATOMIC_SPECIES&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">site_descriptions</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[A-Z][a-z]?&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;pseudo&#39;</span><span class="p">]</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s</span><span class="s2">  </span><span class="si">%.4f</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">Element</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">atomic_mass</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ATOMIC_POSITIONS crystal&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> </span><span class="si">%.6f</span><span class="s2"> </span><span class="si">%.6f</span><span class="s2"> </span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">a</span><span class="p">,</span>
+                                                    <span class="n">site</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">c</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">site_descriptions</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+                                   <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+                        <span class="n">name</span> <span class="o">=</span> <span class="n">k</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s</span><span class="s2"> </span><span class="si">%.6f</span><span class="s2"> </span><span class="si">%.6f</span><span class="s2"> </span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">c</span><span class="p">))</span>
+
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;K_POINTS </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_mode</span><span class="p">)</span>
+        <span class="n">kpt_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_grid</span><span class="p">]</span>
+        <span class="n">kpt_str</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_shift</span><span class="p">])</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kpt_str</span><span class="p">))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;CELL_PARAMETERS angstrom&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vec</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PWInput.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWInput.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a dictionary representation of a PWInput object</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pwinput_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;structure&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                        <span class="s1">&#39;pseudo&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudo</span><span class="p">,</span>
+                        <span class="s1">&#39;sections&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span>
+                        <span class="s1">&#39;kpoints_mode&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_mode</span><span class="p">,</span>
+                        <span class="s1">&#39;kpoints_grid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_grid</span><span class="p">,</span>
+                        <span class="s1">&#39;kpoints_shift&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_shift</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">pwinput_dict</span></div>
+
+<div class="viewcode-block" id="PWInput.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWInput.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pwinput_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a PWInput object from a dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pwinput_dict (dict): dictionary with PWInput data</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PWInput object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pwinput</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">]),</span>
+                      <span class="n">pseudo</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;pseudo&#39;</span><span class="p">],</span>
+                      <span class="n">control</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;sections&#39;</span><span class="p">][</span><span class="s1">&#39;control&#39;</span><span class="p">],</span>
+                      <span class="n">system</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;sections&#39;</span><span class="p">][</span><span class="s1">&#39;system&#39;</span><span class="p">],</span>
+                      <span class="n">electrons</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;sections&#39;</span><span class="p">][</span><span class="s1">&#39;electrons&#39;</span><span class="p">],</span>
+                      <span class="n">ions</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;sections&#39;</span><span class="p">][</span><span class="s1">&#39;ions&#39;</span><span class="p">],</span>
+                      <span class="n">cell</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;sections&#39;</span><span class="p">][</span><span class="s1">&#39;cell&#39;</span><span class="p">],</span>
+                      <span class="n">kpoints_mode</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;kpoints_mode&#39;</span><span class="p">],</span>
+                      <span class="n">kpoints_grid</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;kpoints_grid&#39;</span><span class="p">],</span>
+                      <span class="n">kpoints_shift</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;kpoints_shift&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">pwinput</span></div>
+
+<div class="viewcode-block" id="PWInput.write_file"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWInput.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the PWSCF input file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): The string filename to output to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="PWInput.from_file"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWInput.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads an PWInput object from a file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): Filename for file</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PWInput object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PWInput</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="PWInput.from_string"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWInput.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads an PWInput object from a string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            string (str): PWInput string</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PWInput object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">clean_lines</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()))</span>
+
+        <span class="k">def</span> <span class="nf">input_mode</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;sections&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="s2">&quot;ATOMIC_SPECIES&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;pseudo&quot;</span><span class="p">,)</span>
+            <span class="k">elif</span> <span class="s2">&quot;K_POINTS&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;kpoints&quot;</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;{&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="s2">&quot;CELL_PARAMETERS&quot;</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="s2">&quot;ATOMIC_POSITIONS&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;structure&quot;</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;{&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">line</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">mode</span>
+
+        <span class="n">sections</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;control&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;system&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;electrons&quot;</span><span class="p">:</span> <span class="p">{},</span>
+                    <span class="s2">&quot;ions&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;cell&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">pseudo</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">pseudo_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">site_properties</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pseudo&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">input_mode</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">elif</span> <span class="n">mode</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;sections&quot;</span><span class="p">:</span>
+                <span class="n">section</span> <span class="o">=</span> <span class="n">mode</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\w+)\(?(\d*?)\)?\s*=\s*(.*)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="n">key_</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">key_</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">sections</span><span class="p">[</span><span class="n">section</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">val_</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">20</span>  <span class="c1"># MAX NTYP DEFINITION</span>
+                            <span class="n">val_</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">key_</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">PWInput</span><span class="o">.</span><span class="n">proc_val</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+                            <span class="n">sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val_</span>
+
+                            <span class="n">site_properties</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">key_</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">PWInput</span><span class="o">.</span><span class="n">proc_val</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sections</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">PWInput</span><span class="o">.</span><span class="n">proc_val</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">mode</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pseudo&quot;</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\w+)\s+(\d*.\d*)\s+(.*)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="n">pseudo</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="n">pseudo</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()][</span><span class="s2">&quot;index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudo_index</span>
+                    <span class="n">pseudo</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()][</span><span class="s2">&quot;pseudopot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="n">pseudo_index</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">mode</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;kpoints&quot;</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="n">kpoints_grid</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span>
+                    <span class="n">kpoints_shift</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">6</span><span class="p">)))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">kpoints_mode</span> <span class="o">=</span> <span class="n">mode</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">mode</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;structure&quot;</span><span class="p">:</span>
+                <span class="n">m_l</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="n">m_p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\w+)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m_l</span><span class="p">:</span>
+                    <span class="n">lattice</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">m_l</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">m_l</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">m_l</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))]</span>
+                <span class="k">elif</span> <span class="n">m_p</span><span class="p">:</span>
+                    <span class="n">site_properties</span><span class="p">[</span><span class="s2">&quot;pseudo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pseudo</span><span class="p">[</span><span class="n">m_p</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)][</span><span class="s2">&quot;pseudopot&quot;</span><span class="p">])</span>
+                    <span class="n">species</span> <span class="o">+=</span> <span class="p">[</span><span class="n">pseudo</span><span class="p">[</span><span class="n">m_p</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)][</span><span class="s2">&quot;pseudopot&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+                    <span class="n">coords</span> <span class="o">+=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">m_p</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">m_p</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">m_p</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">))]]</span>
+
+                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">site_properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;pseudo&quot;</span><span class="p">:</span>
+                            <span class="n">site_properties</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sections</span><span class="p">[</span><span class="s1">&#39;system&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">][</span><span class="n">pseudo</span><span class="p">[</span><span class="n">m_p</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)][</span><span class="s2">&quot;index&quot;</span><span class="p">]])</span>
+                <span class="k">if</span> <span class="n">mode</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;angstrom&quot;</span><span class="p">:</span>
+                    <span class="n">coords_are_cartesian</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="n">mode</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;crystal&quot;</span><span class="p">:</span>
+                    <span class="n">coords_are_cartesian</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="p">(</span><span class="n">lattice</span><span class="p">),</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span>
+                              <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="n">coords_are_cartesian</span><span class="p">,</span>
+                              <span class="n">site_properties</span><span class="o">=</span><span class="n">site_properties</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PWInput</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">control</span><span class="o">=</span><span class="n">sections</span><span class="p">[</span><span class="s2">&quot;control&quot;</span><span class="p">],</span>
+                       <span class="n">system</span><span class="o">=</span><span class="n">sections</span><span class="p">[</span><span class="s2">&quot;system&quot;</span><span class="p">],</span> <span class="n">electrons</span><span class="o">=</span><span class="n">sections</span><span class="p">[</span><span class="s2">&quot;electrons&quot;</span><span class="p">],</span>
+                       <span class="n">ions</span><span class="o">=</span><span class="n">sections</span><span class="p">[</span><span class="s2">&quot;ions&quot;</span><span class="p">],</span> <span class="n">cell</span><span class="o">=</span><span class="n">sections</span><span class="p">[</span><span class="s2">&quot;cell&quot;</span><span class="p">],</span> <span class="n">kpoints_mode</span><span class="o">=</span><span class="n">kpoints_mode</span><span class="p">,</span>
+                       <span class="n">kpoints_grid</span><span class="o">=</span><span class="n">kpoints_grid</span><span class="p">,</span> <span class="n">kpoints_shift</span><span class="o">=</span><span class="n">kpoints_shift</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PWInput.proc_val"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWInput.proc_val">[docs]</a>    <span class="k">def</span> <span class="nf">proc_val</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Static helper method to convert PWINPUT parameters to proper type, e.g.,</span>
+<span class="sd">        integers, floats, etc.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key: PWINPUT parameter key</span>
+<span class="sd">            val: Actual value of PWINPUT parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">float_keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;etot_conv_thr&#39;</span><span class="p">,</span> <span class="s1">&#39;forc_conv_thr&#39;</span><span class="p">,</span> <span class="s1">&#39;conv_thr&#39;</span><span class="p">,</span> <span class="s1">&#39;Hubbard_U&#39;</span><span class="p">,</span> <span class="s1">&#39;Hubbard_J0&#39;</span><span class="p">,</span> <span class="s1">&#39;defauss&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;starting_magnetization&#39;</span><span class="p">,)</span>
+
+        <span class="n">int_keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;nstep&#39;</span><span class="p">,</span> <span class="s1">&#39;iprint&#39;</span><span class="p">,</span> <span class="s1">&#39;nberrycyc&#39;</span><span class="p">,</span> <span class="s1">&#39;gdir&#39;</span><span class="p">,</span> <span class="s1">&#39;nppstr&#39;</span><span class="p">,</span> <span class="s1">&#39;ibrav&#39;</span><span class="p">,</span> <span class="s1">&#39;nat&#39;</span><span class="p">,</span> <span class="s1">&#39;ntyp&#39;</span><span class="p">,</span> <span class="s1">&#39;nbnd&#39;</span><span class="p">,</span> <span class="s1">&#39;nr1&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;nr2&#39;</span><span class="p">,</span> <span class="s1">&#39;nr3&#39;</span><span class="p">,</span> <span class="s1">&#39;nr1s&#39;</span><span class="p">,</span> <span class="s1">&#39;nr2s&#39;</span><span class="p">,</span> <span class="s1">&#39;nr3s&#39;</span><span class="p">,</span> <span class="s1">&#39;nspin&#39;</span><span class="p">,</span> <span class="s1">&#39;nqx1&#39;</span><span class="p">,</span> <span class="s1">&#39;nqx2&#39;</span><span class="p">,</span> <span class="s1">&#39;nqx3&#39;</span><span class="p">,</span> <span class="s1">&#39;lda_plus_u_kind&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;edir&#39;</span><span class="p">,</span> <span class="s1">&#39;report&#39;</span><span class="p">,</span> <span class="s1">&#39;esm_nfit&#39;</span><span class="p">,</span> <span class="s1">&#39;space_group&#39;</span><span class="p">,</span> <span class="s1">&#39;origin_choice&#39;</span><span class="p">,</span> <span class="s1">&#39;electron_maxstep&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;mixing_ndim&#39;</span><span class="p">,</span> <span class="s1">&#39;mixing_fixed_ns&#39;</span><span class="p">,</span> <span class="s1">&#39;ortho_para&#39;</span><span class="p">,</span> <span class="s1">&#39;diago_cg_maxiter&#39;</span><span class="p">,</span> <span class="s1">&#39;diago_david_ndim&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;nraise&#39;</span><span class="p">,</span> <span class="s1">&#39;bfgs_ndim&#39;</span><span class="p">,</span> <span class="s1">&#39;if_pos&#39;</span><span class="p">,</span> <span class="s1">&#39;nks&#39;</span><span class="p">,</span> <span class="s1">&#39;nk1&#39;</span><span class="p">,</span> <span class="s1">&#39;nk2&#39;</span><span class="p">,</span> <span class="s1">&#39;nk3&#39;</span><span class="p">,</span> <span class="s1">&#39;sk1&#39;</span><span class="p">,</span> <span class="s1">&#39;sk2&#39;</span><span class="p">,</span> <span class="s1">&#39;sk3&#39;</span><span class="p">,</span> <span class="s1">&#39;nconstr&#39;</span><span class="p">)</span>
+
+        <span class="n">bool_keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;wf_collect&#39;</span><span class="p">,</span> <span class="s1">&#39;tstress&#39;</span><span class="p">,</span> <span class="s1">&#39;tprnfor&#39;</span><span class="p">,</span> <span class="s1">&#39;lkpoint_dir&#39;</span><span class="p">,</span> <span class="s1">&#39;tefield&#39;</span><span class="p">,</span> <span class="s1">&#39;dipfield&#39;</span><span class="p">,</span> <span class="s1">&#39;lelfield&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;lorbm&#39;</span><span class="p">,</span> <span class="s1">&#39;lberry&#39;</span><span class="p">,</span> <span class="s1">&#39;lfcpopt&#39;</span><span class="p">,</span> <span class="s1">&#39;monopole&#39;</span><span class="p">,</span> <span class="s1">&#39;nosym&#39;</span><span class="p">,</span> <span class="s1">&#39;nosym_evc&#39;</span><span class="p">,</span> <span class="s1">&#39;noinv&#39;</span><span class="p">,</span> <span class="s1">&#39;no_t_rev&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;force_symmorphic&#39;</span><span class="p">,</span> <span class="s1">&#39;use_all_frac&#39;</span><span class="p">,</span> <span class="s1">&#39;one_atom_occupations&#39;</span><span class="p">,</span> <span class="s1">&#39;starting_spin_angle&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;noncolin&#39;</span><span class="p">,</span> <span class="s1">&#39;x_gamma_extrapolation&#39;</span><span class="p">,</span> <span class="s1">&#39;lda_plus_u&#39;</span><span class="p">,</span> <span class="s1">&#39;lspinorb&#39;</span><span class="p">,</span> <span class="s1">&#39;london&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;ts_vdw_isolated&#39;</span><span class="p">,</span> <span class="s1">&#39;xdm&#39;</span><span class="p">,</span> <span class="s1">&#39;uniqueb&#39;</span><span class="p">,</span> <span class="s1">&#39;rhombohedral&#39;</span><span class="p">,</span> <span class="s1">&#39;realxz&#39;</span><span class="p">,</span> <span class="s1">&#39;block&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;scf_must_converge&#39;</span><span class="p">,</span> <span class="s1">&#39;adaptive_thr&#39;</span><span class="p">,</span> <span class="s1">&#39;diago_full_acc&#39;</span><span class="p">,</span> <span class="s1">&#39;tqr&#39;</span><span class="p">,</span> <span class="s1">&#39;remove_rigid_rot&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;refold_pos&#39;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">smart_int_or_float</span><span class="p">(</span><span class="n">numstr</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">numstr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">numstr</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">numstr</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">numstr</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bool_keys</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;.true.&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="n">val</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;.false.&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot; should be a boolean type!&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">float_keys</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^-?\d*\.?\d*d?-?\d*&quot;</span><span class="p">,</span> <span class="n">val</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;e&quot;</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">int_keys</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^-?[0-9]+&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;e&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">smart_int_or_float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="s2">&quot;true&quot;</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="s2">&quot;false&quot;</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[</span><span class="se">\&quot;</span><span class="s2">|&#39;](.+)[</span><span class="se">\&quot;</span><span class="s2">|&#39;]$&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PWInputError"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWInputError">[docs]</a><span class="k">class</span> <span class="nc">PWInputError</span><span class="p">(</span><span class="ne">BaseException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Error for PWInput</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="PWOutput"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWOutput">[docs]</a><span class="k">class</span> <span class="nc">PWOutput</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parser for PWSCF output file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;energies&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;total energy\s+=\s+([\d\.\-]+)\sRy&#39;</span><span class="p">,</span>
+        <span class="s2">&quot;ecut&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry&#39;</span><span class="p">,</span>
+        <span class="s2">&quot;lattice_type&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;bravais\-lattice index\s+=\s+(\d+)&#39;</span><span class="p">,</span>
+        <span class="s2">&quot;celldm1&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;celldm\(1\)=\s+([\d\.]+)\s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;celldm2&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;celldm\(2\)=\s+([\d\.]+)\s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;celldm3&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;celldm\(3\)=\s+([\d\.]+)\s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;celldm4&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;celldm\(4\)=\s+([\d\.]+)\s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;celldm5&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;celldm\(5\)=\s+([\d\.]+)\s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;celldm6&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;celldm\(6\)=\s+([\d\.]+)\s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nkpts&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;number of k points=\s+([\d]+)&quot;</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): Filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">(</span><span class="n">PWOutput</span><span class="o">.</span><span class="n">patterns</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;energies&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;lattice_type&quot;</span><span class="p">,</span> <span class="s2">&quot;nkpts&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+<div class="viewcode-block" id="PWOutput.read_pattern"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWOutput.read_pattern">[docs]</a>    <span class="k">def</span> <span class="nf">read_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patterns</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">postprocess</span><span class="o">=</span><span class="nb">str</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        General pattern reading. Uses monty&#39;s regrep method. Takes the same</span>
+<span class="sd">        arguments.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            patterns (dict): A dict of patterns, e.g.,</span>
+<span class="sd">                {&quot;energy&quot;: r&quot;energy\\(sigma-&gt;0\\)\\s+=\\s+([\\d\\-.]+)&quot;}.</span>
+<span class="sd">            reverse (bool): Read files in reverse. Defaults to false. Useful for</span>
+<span class="sd">                large files, esp OUTCARs, especially when used with</span>
+<span class="sd">                terminate_on_match.</span>
+<span class="sd">            terminate_on_match (bool): Whether to terminate when there is at</span>
+<span class="sd">                least one match in each key in pattern.</span>
+<span class="sd">            postprocess (callable): A post processing function to convert all</span>
+<span class="sd">                matches. Defaults to str, i.e., no change.</span>
+
+<span class="sd">        Renders accessible:</span>
+<span class="sd">            Any attribute in patterns. For example,</span>
+<span class="sd">            {&quot;energy&quot;: r&quot;energy\\(sigma-&gt;0\\)\\s+=\\s+([\\d\\-.]+)&quot;} will set the</span>
+<span class="sd">            value of self.data[&quot;energy&quot;] = [[-1234], [-3453], ...], to the</span>
+<span class="sd">            results from regex and postprocess. Note that the returned</span>
+<span class="sd">            values are lists of lists, because you can grep multiple</span>
+<span class="sd">            items on one line.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">regrep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">patterns</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">,</span>
+                         <span class="n">terminate_on_match</span><span class="o">=</span><span class="n">terminate_on_match</span><span class="p">,</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="n">postprocess</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PWOutput.get_celldm"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWOutput.get_celldm">[docs]</a>    <span class="k">def</span> <span class="nf">get_celldm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            i (int): index</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Cell dimension along index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;celldm</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">final_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Final energy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;energies&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lattice_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Lattice type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;lattice_type&quot;</span><span class="p">]</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.pwscf</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

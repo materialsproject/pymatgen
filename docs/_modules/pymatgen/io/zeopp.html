@@ -1,0 +1,591 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.io.zeopp &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.zeopp</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.zeopp</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module implementing classes and functions to use Zeo++.</span>
+
+<span class="sd">Zeo++ Installation Steps:</span>
+<span class="sd">========================</span>
+<span class="sd">1) Zeo++ requires Voro++. Download Voro++ from code.lbl.gov using</span>
+<span class="sd">   subversion:</span>
+<span class="sd">   &quot;svn checkout --username anonsvn https://code.lbl.gov/svn/voro/trunk</span>
+<span class="sd">   Password is anonsvn.</span>
+<span class="sd">2) Stable version of Zeo++ can be obtained from</span>
+<span class="sd">   http://www.maciejharanczyk.info/Zeopp/</span>
+<span class="sd">   Alternatively it can be obtained from code.lbl.gov. Replace voro</span>
+<span class="sd">   with zeo.</span>
+<span class="sd">3) (Optional) Install cython from pip</span>
+<span class="sd">Mac OS X:</span>
+<span class="sd">4) (a) Edit the Voro++/voro/trunk/config.mk file to suit your environment</span>
+<span class="sd">   (compiler, linker).</span>
+<span class="sd">   (b) Run make command</span>
+<span class="sd">5) (a) Edit the Zeo++/trunk/cython_wrapper/setup.py to correctly point to</span>
+<span class="sd">   Voro++ directory.</span>
+<span class="sd">   (b) Run &quot;python setup.py develop&quot; to install Zeo++ python bindings.</span>
+<span class="sd">   Be patient, it will take a while.</span>
+<span class="sd">Linux:</span>
+<span class="sd">4) (a) Edit the Voro++/voro/trunk/config.mk file to suit your environment.</span>
+<span class="sd">   (b) Also add -fPIC option to CFLAGS variable in config.mk file.</span>
+<span class="sd">   (c) Run make command</span>
+<span class="sd">5) (a) Go to Zeo++/zeo/trunk folder and compile zeo++ library using the</span>
+<span class="sd">   command &quot;make dylib&quot;.</span>
+<span class="sd">   (b) Edit the Zeo++/trunk/cython_wrapper/setup_alt.py to correctly</span>
+<span class="sd">   point to Voro++ directory.</span>
+<span class="sd">   (c) Run &quot;python setup_alt.py develop&quot; to install Zeo++ python bindings.</span>
+
+<span class="sd">Zeo++ Post-Installation Checking:</span>
+<span class="sd">==============================</span>
+<span class="sd">1) Go to pymatgen/io/tests and run &quot;python test_zeoio.py&quot;</span>
+<span class="sd">   If Zeo++ python bindings are properly installed, the tests should</span>
+<span class="sd">   pass. One or two tests will be skipped.</span>
+<span class="sd">b) Go to pymatgen/analysis/defects/tests and run</span>
+<span class="sd">   &quot;python test_point_defects.py&quot;. Lots of tests will be skipped if GULP</span>
+<span class="sd">   is not installed. But there should be no errors.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="kn">import</span> <span class="n">ScratchDir</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.cssr</span> <span class="kn">import</span> <span class="n">Cssr</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.xyz</span> <span class="kn">import</span> <span class="n">XYZ</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">zeo.netstorage</span> <span class="kn">import</span> <span class="n">AtomNetwork</span>
+    <span class="kn">from</span> <span class="nn">zeo.area_volume</span> <span class="kn">import</span> <span class="n">volume</span><span class="p">,</span> <span class="n">surface_area</span>
+    <span class="kn">from</span> <span class="nn">zeo.cluster</span> <span class="kn">import</span> <span class="n">prune_voronoi_network_close_node</span>
+
+    <span class="n">zeo_found</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">zeo_found</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Bharat Medasani&quot;</span>
+<span class="n">__copyright</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2013, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Bharat Medasani&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;mbkumar@gmail.com&quot;</span>
+<span class="n">__data__</span> <span class="o">=</span> <span class="s2">&quot;Aug 2, 2013&quot;</span>
+
+
+<div class="viewcode-block" id="ZeoCssr"><a class="viewcode-back" href="../../../pymatgen.io.zeopp.html#pymatgen.io.zeopp.ZeoCssr">[docs]</a><span class="k">class</span> <span class="nc">ZeoCssr</span><span class="p">(</span><span class="n">Cssr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ZeoCssr adds extra fields to CSSR sites to conform with Zeo++</span>
+<span class="sd">    input CSSR format. The coordinate system is rorated from xyz to zyx.</span>
+<span class="sd">    This change aligns the pivot axis of pymatgen (z-axis) to pivot axis</span>
+<span class="sd">    of Zeo++ (x-axis) for structurural modifications.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: A structure to create ZeoCssr object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        CSSR.__str__ method is modified to padd 0&#39;s to the CSSR site data.</span>
+<span class="sd">        The padding is to conform with the CSSR format supported Zeo++.</span>
+<span class="sd">        The oxidation state is stripped from site.specie</span>
+<span class="sd">        Also coordinate system is rotated from xyz to zxy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;</span><span class="si">{:.4f}</span><span class="s2"> </span><span class="si">{:.4f}</span><span class="s2"> </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">b</span><span class="p">),</span>
+            <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2"> </span><span class="si">{:.2f}</span><span class="s2"> </span><span class="si">{:.2f}</span><span class="s2"> SPGR =  1 P 1    OPT = 1&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">gamma</span><span class="p">,</span>
+                                                                   <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
+                                                                   <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">beta</span><span class="p">),</span>
+            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> 0&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)),</span>
+            <span class="s2">&quot;0 </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">formula</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">):</span>
+            <span class="c1"># if not hasattr(site, &#39;charge&#39;):</span>
+            <span class="c1">#    charge = 0</span>
+            <span class="c1"># else:</span>
+            <span class="c1">#    charge = site.charge</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">charge</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="s1">&#39;charge&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="c1"># specie = site.specie.symbol</span>
+            <span class="n">specie</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">species_string</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{:.4f}</span><span class="s2"> </span><span class="si">{:.4f}</span><span class="s2"> </span><span class="si">{:.4f}</span><span class="s2"> 0 0 0 0 0 0 0 0 </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">charge</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ZeoCssr.from_string"><a class="viewcode-back" href="../../../pymatgen.io.zeopp.html#pymatgen.io.zeopp.ZeoCssr.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads a string representation to a ZeoCssr object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            string: A string representation of a ZeoCSSR.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ZeoCssr object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">]</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]]</span>
+        <span class="c1"># Zeo++ takes x-axis along a and pymatgen takes z-axis along c</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">lengths</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">lengths</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">angles</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">angles</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+        <span class="n">latt</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">*</span><span class="n">lengths</span><span class="p">,</span> <span class="o">*</span><span class="n">angles</span><span class="p">)</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">chrg</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">4</span><span class="p">:]:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+&#39;</span> <span class="o">+</span>
+                         <span class="sa">r</span><span class="s1">&#39;([0-9\-\.]+)\s+(?:0\s+)</span><span class="si">{8}</span><span class="s1">([0-9\-\.]+)&#39;</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                <span class="n">sp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                <span class="c1"># coords.append([float(m.group(i)) for i in xrange(2, 5)])</span>
+                <span class="c1"># Zeo++ takes x-axis along a and pymatgen takes z-axis along c</span>
+                <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+                <span class="n">chrg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ZeoCssr</span><span class="p">(</span>
+            <span class="n">Structure</span><span class="p">(</span><span class="n">latt</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;charge&#39;</span><span class="p">:</span> <span class="n">chrg</span><span class="p">})</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ZeoCssr.from_file"><a class="viewcode-back" href="../../../pymatgen.io.zeopp.html#pymatgen.io.zeopp.ZeoCssr.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads a CSSR file to a ZeoCssr object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename to read from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ZeoCssr object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ZeoCssr</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div></div>
+
+
+<div class="viewcode-block" id="ZeoVoronoiXYZ"><a class="viewcode-back" href="../../../pymatgen.io.zeopp.html#pymatgen.io.zeopp.ZeoVoronoiXYZ">[docs]</a><span class="k">class</span> <span class="nc">ZeoVoronoiXYZ</span><span class="p">(</span><span class="n">XYZ</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to read Voronoi Nodes from XYZ file written by Zeo++.</span>
+<span class="sd">    The sites have an additional column representing the voronoi node radius.</span>
+<span class="sd">    The voronoi node radius is represented by the site property voronoi_radius.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol: Input molecule holding the voronoi node information</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ZeoVoronoiXYZ.from_string"><a class="viewcode-back" href="../../../pymatgen.io.zeopp.html#pymatgen.io.zeopp.ZeoVoronoiXYZ.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">contents</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates Zeo++ Voronoi XYZ object from a string.</span>
+<span class="sd">        from_string method of XYZ class is being redefined.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            contents: String representing Zeo++ Voronoi XYZ file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ZeoVoronoiXYZ object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">contents</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">num_sites</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">prop</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coord_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+&quot;</span> <span class="o">+</span>
+            <span class="sa">r</span><span class="s2">&quot;([0-9\-\.]+)&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">num_sites</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">coord_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                <span class="n">sp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>  <span class="c1"># this is 1-indexed</span>
+                <span class="c1"># coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed</span>
+                <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+                               <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]])</span>
+                <span class="n">prop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">5</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">ZeoVoronoiXYZ</span><span class="p">(</span>
+            <span class="n">Molecule</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;voronoi_radius&#39;</span><span class="p">:</span> <span class="n">prop</span><span class="p">})</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ZeoVoronoiXYZ.from_file"><a class="viewcode-back" href="../../../pymatgen.io.zeopp.html#pymatgen.io.zeopp.ZeoVoronoiXYZ.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates XYZ object from a file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: XYZ filename</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            XYZ object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ZeoVoronoiXYZ</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mols</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">formula</span><span class="p">]</span>
+        <span class="n">fmtstr</span> <span class="o">=</span> <span class="s2">&quot;{{}} {{:.</span><span class="si">{0}</span><span class="s2">f}} {{:.</span><span class="si">{0}</span><span class="s2">f}} {{:.</span><span class="si">{0}</span><span class="s2">f}} {{:.</span><span class="si">{0}</span><span class="s2">f}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">precision</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mols</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fmtstr</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;voronoi_radius&#39;</span><span class="p">]</span>
+            <span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_voronoi_nodes"><a class="viewcode-back" href="../../../pymatgen.io.zeopp.html#pymatgen.io.zeopp.get_voronoi_nodes">[docs]</a><span class="nd">@requires</span><span class="p">(</span><span class="n">zeo_found</span><span class="p">,</span>
+          <span class="s2">&quot;get_voronoi_nodes requires Zeo++ cython extension to be &quot;</span>
+          <span class="s2">&quot;installed. Please contact developers of Zeo++ to obtain it.&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_voronoi_nodes</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">rad_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">probe_rad</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyze the void space in the input structure using voronoi decomposition</span>
+<span class="sd">    Calls Zeo++ for Voronoi decomposition.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure: pymatgen.core.structure.Structure</span>
+<span class="sd">        rad_dict (optional): Dictionary of radii of elements in structure.</span>
+<span class="sd">            If not given, Zeo++ default values are used.</span>
+<span class="sd">            Note: Zeo++ uses atomic radii of elements.</span>
+<span class="sd">            For ionic structures, pass rad_dict with ionic radii</span>
+<span class="sd">        probe_rad (optional): Sampling probe radius in Angstroms. Default is</span>
+<span class="sd">            0.1 A</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        voronoi nodes as pymatgen.core.structure.Strucutre within the</span>
+<span class="sd">        unit cell defined by the lattice of input structure</span>
+<span class="sd">        voronoi face centers as pymatgen.core.structure.Strucutre within the</span>
+<span class="sd">        unit cell defined by the lattice of input structure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">ScratchDir</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;temp_zeo1&quot;</span>
+        <span class="n">zeo_inp_filename</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.cssr&quot;</span>
+        <span class="n">ZeoCssr</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">zeo_inp_filename</span><span class="p">)</span>
+        <span class="n">rad_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">rad_flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">rad_dict</span><span class="p">:</span>
+            <span class="n">rad_file</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.rad&quot;</span>
+            <span class="n">rad_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">rad_file</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">rad_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">rad_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">))</span>
+
+        <span class="n">atmnet</span> <span class="o">=</span> <span class="n">AtomNetwork</span><span class="o">.</span><span class="n">read_from_CSSR</span><span class="p">(</span>
+            <span class="n">zeo_inp_filename</span><span class="p">,</span> <span class="n">rad_flag</span><span class="o">=</span><span class="n">rad_flag</span><span class="p">,</span> <span class="n">rad_file</span><span class="o">=</span><span class="n">rad_file</span><span class="p">)</span>
+        <span class="n">vornet</span><span class="p">,</span> <span class="n">vor_edge_centers</span><span class="p">,</span> <span class="n">vor_face_centers</span> <span class="o">=</span> \
+            <span class="n">atmnet</span><span class="o">.</span><span class="n">perform_voronoi_decomposition</span><span class="p">()</span>
+        <span class="n">vornet</span><span class="o">.</span><span class="n">analyze_writeto_XYZ</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">probe_rad</span><span class="p">,</span> <span class="n">atmnet</span><span class="p">)</span>
+        <span class="n">voro_out_filename</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_voro.xyz&#39;</span>
+        <span class="n">voro_node_mol</span> <span class="o">=</span> <span class="n">ZeoVoronoiXYZ</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">voro_out_filename</span><span class="p">)</span><span class="o">.</span><span class="n">molecule</span>
+
+    <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">voro_node_mol</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">prop</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">voro_node_mol</span><span class="o">.</span><span class="n">sites</span><span class="p">:</span>
+        <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">))</span>
+        <span class="n">prop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;voronoi_radius&#39;</span><span class="p">])</span>
+
+    <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">*</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+    <span class="n">vor_node_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span>
+        <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;voronoi_radius&quot;</span><span class="p">:</span> <span class="n">prop</span><span class="p">})</span>
+
+    <span class="c1"># PMG-Zeo c&lt;-&gt;a transformation for voronoi face centers</span>
+    <span class="n">rot_face_centers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">center</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">center</span> <span class="ow">in</span>
+                        <span class="n">vor_face_centers</span><span class="p">]</span>
+    <span class="n">rot_edge_centers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">center</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">center</span> <span class="ow">in</span>
+                        <span class="n">vor_edge_centers</span><span class="p">]</span>
+
+    <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">rot_face_centers</span><span class="p">)</span>
+    <span class="n">prop</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">rot_face_centers</span><span class="p">)</span>  <span class="c1"># Vor radius not evaluated for fc</span>
+    <span class="n">vor_facecenter_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span>
+        <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">rot_face_centers</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;voronoi_radius&quot;</span><span class="p">:</span> <span class="n">prop</span><span class="p">})</span>
+
+    <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">rot_edge_centers</span><span class="p">)</span>
+    <span class="n">prop</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">rot_edge_centers</span><span class="p">)</span>  <span class="c1"># Vor radius not evaluated for fc</span>
+    <span class="n">vor_edgecenter_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span>
+        <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">rot_edge_centers</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;voronoi_radius&quot;</span><span class="p">:</span> <span class="n">prop</span><span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">vor_node_struct</span><span class="p">,</span> <span class="n">vor_edgecenter_struct</span><span class="p">,</span> <span class="n">vor_facecenter_struct</span></div>
+
+
+<div class="viewcode-block" id="get_high_accuracy_voronoi_nodes"><a class="viewcode-back" href="../../../pymatgen.io.zeopp.html#pymatgen.io.zeopp.get_high_accuracy_voronoi_nodes">[docs]</a><span class="k">def</span> <span class="nf">get_high_accuracy_voronoi_nodes</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">rad_dict</span><span class="p">,</span> <span class="n">probe_rad</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyze the void space in the input structure using high accuracy</span>
+<span class="sd">    voronoi decomposition.</span>
+<span class="sd">    Calls Zeo++ for Voronoi decomposition.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure: pymatgen.core.structure.Structure</span>
+<span class="sd">        rad_dict (optional): Dictionary of radii of elements in structure.</span>
+<span class="sd">            If not given, Zeo++ default values are used.</span>
+<span class="sd">            Note: Zeo++ uses atomic radii of elements.</span>
+<span class="sd">            For ionic structures, pass rad_dict with ionic radii</span>
+<span class="sd">        probe_rad (optional): Sampling probe radius in Angstroms.</span>
+<span class="sd">            Default is 0.1 A</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        voronoi nodes as pymatgen.core.structure.Strucutre within the</span>
+<span class="sd">        unit cell defined by the lattice of input structure</span>
+<span class="sd">        voronoi face centers as pymatgen.core.structure.Strucutre within the</span>
+<span class="sd">        unit cell defined by the lattice of input structure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">ScratchDir</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;temp_zeo1&quot;</span>
+        <span class="n">zeo_inp_filename</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.cssr&quot;</span>
+        <span class="n">ZeoCssr</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">zeo_inp_filename</span><span class="p">)</span>
+        <span class="n">rad_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">rad_file</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.rad&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">rad_file</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">rad_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">rad_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">fp</span><span class="p">)</span>
+
+        <span class="n">atmnet</span> <span class="o">=</span> <span class="n">AtomNetwork</span><span class="o">.</span><span class="n">read_from_CSSR</span><span class="p">(</span>
+            <span class="n">zeo_inp_filename</span><span class="p">,</span> <span class="n">rad_flag</span><span class="o">=</span><span class="n">rad_flag</span><span class="p">,</span> <span class="n">rad_file</span><span class="o">=</span><span class="n">rad_file</span><span class="p">)</span>
+        <span class="c1"># vornet, vor_edge_centers, vor_face_centers = \</span>
+        <span class="c1">#        atmnet.perform_voronoi_decomposition()</span>
+        <span class="n">red_ha_vornet</span> <span class="o">=</span> \
+            <span class="n">prune_voronoi_network_close_node</span><span class="p">(</span><span class="n">atmnet</span><span class="p">)</span>
+        <span class="c1"># generate_simplified_highaccuracy_voronoi_network(atmnet)</span>
+        <span class="c1"># get_nearest_largest_diameter_highaccuracy_vornode(atmnet)</span>
+        <span class="n">red_ha_vornet</span><span class="o">.</span><span class="n">analyze_writeto_XYZ</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">probe_rad</span><span class="p">,</span> <span class="n">atmnet</span><span class="p">)</span>
+        <span class="n">voro_out_filename</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_voro.xyz&#39;</span>
+        <span class="n">voro_node_mol</span> <span class="o">=</span> <span class="n">ZeoVoronoiXYZ</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">voro_out_filename</span><span class="p">)</span><span class="o">.</span><span class="n">molecule</span>
+
+    <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">voro_node_mol</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">prop</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">voro_node_mol</span><span class="o">.</span><span class="n">sites</span><span class="p">:</span>
+        <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">))</span>
+        <span class="n">prop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;voronoi_radius&#39;</span><span class="p">])</span>
+
+    <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">*</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+    <span class="n">vor_node_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span>
+        <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;voronoi_radius&quot;</span><span class="p">:</span> <span class="n">prop</span><span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">vor_node_struct</span></div>
+
+
+<div class="viewcode-block" id="get_free_sphere_params"><a class="viewcode-back" href="../../../pymatgen.io.zeopp.html#pymatgen.io.zeopp.get_free_sphere_params">[docs]</a><span class="nd">@requires</span><span class="p">(</span><span class="n">zeo_found</span><span class="p">,</span>
+          <span class="s2">&quot;get_voronoi_nodes requires Zeo++ cython extension to be &quot;</span>
+          <span class="s2">&quot;installed. Please contact developers of Zeo++ to obtain it.&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_free_sphere_params</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">rad_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">probe_rad</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyze the void space in the input structure using voronoi decomposition</span>
+<span class="sd">    Calls Zeo++ for Voronoi decomposition.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure: pymatgen.core.structure.Structure</span>
+<span class="sd">        rad_dict (optional): Dictionary of radii of elements in structure.</span>
+<span class="sd">            If not given, Zeo++ default values are used.</span>
+<span class="sd">            Note: Zeo++ uses atomic radii of elements.</span>
+<span class="sd">            For ionic structures, pass rad_dict with ionic radii</span>
+<span class="sd">        probe_rad (optional): Sampling probe radius in Angstroms. Default is</span>
+<span class="sd">            0.1 A</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        voronoi nodes as pymatgen.core.structure.Strucutre within the</span>
+<span class="sd">        unit cell defined by the lattice of input structure</span>
+<span class="sd">        voronoi face centers as pymatgen.core.structure.Strucutre within the</span>
+<span class="sd">        unit cell defined by the lattice of input structure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">ScratchDir</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;temp_zeo1&quot;</span>
+        <span class="n">zeo_inp_filename</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.cssr&quot;</span>
+        <span class="n">ZeoCssr</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">zeo_inp_filename</span><span class="p">)</span>
+        <span class="n">rad_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">rad_flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">rad_dict</span><span class="p">:</span>
+            <span class="n">rad_file</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.rad&quot;</span>
+            <span class="n">rad_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">rad_file</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">rad_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">rad_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">))</span>
+
+        <span class="n">atmnet</span> <span class="o">=</span> <span class="n">AtomNetwork</span><span class="o">.</span><span class="n">read_from_CSSR</span><span class="p">(</span>
+            <span class="n">zeo_inp_filename</span><span class="p">,</span> <span class="n">rad_flag</span><span class="o">=</span><span class="n">rad_flag</span><span class="p">,</span> <span class="n">rad_file</span><span class="o">=</span><span class="n">rad_file</span><span class="p">)</span>
+        <span class="n">out_file</span> <span class="o">=</span> <span class="s2">&quot;temp.res&quot;</span>
+        <span class="n">atmnet</span><span class="o">.</span><span class="n">calculate_free_sphere_parameters</span><span class="p">(</span><span class="n">out_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">out_file</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">out_file</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">split</span><span class="p">()][</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">field</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">]</span>
+        <span class="n">free_sphere_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;inc_sph_max_dia&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                              <span class="s1">&#39;free_sph_max_dia&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                              <span class="s1">&#39;inc_sph_along_free_sph_path_max_dia&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="p">[</span><span class="mi">2</span><span class="p">]}</span>
+    <span class="k">return</span> <span class="n">free_sphere_params</span></div>
+
+
+<span class="c1"># Deprecated. Not needed anymore</span>
+<div class="viewcode-block" id="get_void_volume_surfarea"><a class="viewcode-back" href="../../../pymatgen.io.zeopp.html#pymatgen.io.zeopp.get_void_volume_surfarea">[docs]</a><span class="k">def</span> <span class="nf">get_void_volume_surfarea</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">rad_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chan_rad</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+                             <span class="n">probe_rad</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the volume and surface area of isolated void using Zeo++.</span>
+<span class="sd">    Useful to compute the volume and surface area of vacant site.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure: pymatgen Structure containing vacancy</span>
+<span class="sd">        rad_dict(optional): Dictionary with short name of elements and their</span>
+<span class="sd">            radii.</span>
+<span class="sd">        chan_rad(optional): Minimum channel Radius.</span>
+<span class="sd">        probe_rad(optional): Probe radius for Monte Carlo sampling.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        volume: floating number representing the volume of void</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">ScratchDir</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;temp_zeo&quot;</span>
+        <span class="n">zeo_inp_filename</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.cssr&quot;</span>
+        <span class="n">ZeoCssr</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">zeo_inp_filename</span><span class="p">)</span>
+
+        <span class="n">rad_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">rad_dict</span><span class="p">:</span>
+            <span class="n">rad_file</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.rad&quot;</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">rad_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">rad_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">     </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">rad_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]))</span>
+
+        <span class="n">atmnet</span> <span class="o">=</span> <span class="n">AtomNetwork</span><span class="o">.</span><span class="n">read_from_CSSR</span><span class="p">(</span><span class="n">zeo_inp_filename</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">rad_file</span><span class="p">)</span>
+        <span class="n">vol_str</span> <span class="o">=</span> <span class="n">volume</span><span class="p">(</span><span class="n">atmnet</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">probe_rad</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+        <span class="n">sa_str</span> <span class="o">=</span> <span class="n">surface_area</span><span class="p">(</span><span class="n">atmnet</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">probe_rad</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+        <span class="n">vol</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">sa</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">vol_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;Number_of_pockets&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">fields</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">vol</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">vol</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+                    <span class="k">break</span>
+                <span class="n">vol</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">sa_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;Number_of_pockets&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">fields</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># raise ValueError(&quot;Too many voids&quot;)</span>
+                    <span class="n">sa</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">sa</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+                    <span class="k">break</span>
+                <span class="n">sa</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">vol</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">sa</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error in zeo++ output stream&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vol</span><span class="p">,</span> <span class="n">sa</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.zeopp</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

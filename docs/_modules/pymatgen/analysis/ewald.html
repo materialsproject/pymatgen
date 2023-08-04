@@ -1,0 +1,768 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.ewald &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.ewald</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.ewald</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes for calculating the ewald sum of a structure.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span><span class="p">,</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+<span class="kn">import</span> <span class="nn">bisect</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">erfc</span><span class="p">,</span> <span class="n">comb</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">constants</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, William Davidson Richard&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Christopher Fischer&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Aug 1 2012&quot;</span>
+
+
+<div class="viewcode-block" id="EwaldSummation"><a class="viewcode-back" href="../../../pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldSummation">[docs]</a><span class="k">class</span> <span class="nc">EwaldSummation</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the electrostatic energy of a periodic array of charges using</span>
+<span class="sd">    the Ewald technique.</span>
+
+
+<span class="sd">    Ref:</span>
+<span class="sd">    Ewald summation techniques in perspective: a survey</span>
+<span class="sd">    Abdulnour Y. Toukmaji and John A. Board Jr.</span>
+<span class="sd">    DOI: 10.1016/0010-4655(96)00016-1</span>
+<span class="sd">    URL: http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html</span>
+
+<span class="sd">    This matrix can be used to do fast calculations of ewald sums after species</span>
+<span class="sd">    removal.</span>
+
+<span class="sd">    E = E_recip + E_real + E_point</span>
+
+<span class="sd">    Atomic units used in the code, then converted to eV.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Converts unit of q*q/r into eV</span>
+    <span class="n">CONV_FACT</span> <span class="o">=</span> <span class="mf">1e10</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">e</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">epsilon_0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">real_space_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">recip_space_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">acc_factor</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">compute_forces</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes and calculates the Ewald sum. Default convergence</span>
+<span class="sd">        parameters have been specified, but you can override them if you wish.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input structure that must have proper</span>
+<span class="sd">                Specie on all sites, i.e. Element with oxidation state. Use</span>
+<span class="sd">                Structure.add_oxidation_state... for example.</span>
+<span class="sd">            real_space_cut (float): Real space cutoff radius dictating how</span>
+<span class="sd">                many terms are used in the real space sum. Defaults to None,</span>
+<span class="sd">                which means determine automagically using the formula given</span>
+<span class="sd">                in gulp 3.1 documentation.</span>
+<span class="sd">            recip_space_cut (float): Reciprocal space cutoff radius.</span>
+<span class="sd">                Defaults to None, which means determine automagically using</span>
+<span class="sd">                the formula given in gulp 3.1 documentation.</span>
+<span class="sd">            eta (float): The screening parameter. Defaults to None, which means</span>
+<span class="sd">                determine automatically.</span>
+<span class="sd">            acc_factor (float): No. of significant figures each sum is</span>
+<span class="sd">                converged to.</span>
+<span class="sd">            w (float): Weight parameter, w, has been included that represents</span>
+<span class="sd">                the relative computational expense of calculating a term in</span>
+<span class="sd">                real and reciprocal space. Default of 0.7 reproduces result</span>
+<span class="sd">                similar to GULP 4.2. This has little effect on the total</span>
+<span class="sd">                energy, but may influence speed of computation in large</span>
+<span class="sd">                systems. Note that this parameter is used only when the</span>
+<span class="sd">                cutoffs are set to None.</span>
+<span class="sd">            compute_forces (bool): Whether to compute forces. False by</span>
+<span class="sd">                default since it is usually not needed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_s</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_charged</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-8</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vol</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">volume</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_forces</span> <span class="o">=</span> <span class="n">compute_forces</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_acc_factor</span> <span class="o">=</span> <span class="n">acc_factor</span>
+        <span class="c1"># set screening length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span> <span class="o">=</span> <span class="n">eta</span> <span class="k">if</span> <span class="n">eta</span> \
+            <span class="k">else</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vol</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">pi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sqrt_eta</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_eta</span><span class="p">)</span>
+
+        <span class="c1"># acc factor used to automatically determine the optimal real and</span>
+        <span class="c1"># reciprocal space cutoff radii</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accf</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="n">acc_factor</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rmax</span> <span class="o">=</span> <span class="n">real_space_cut</span> <span class="k">if</span> <span class="n">real_space_cut</span> \
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accf</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sqrt_eta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gmax</span> <span class="o">=</span> <span class="n">recip_space_cut</span> <span class="k">if</span> <span class="n">recip_space_cut</span> \
+            <span class="k">else</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sqrt_eta</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accf</span>
+
+        <span class="c1"># The next few lines pre-compute certain quantities and store them.</span>
+        <span class="c1"># Ewald summation is rather expensive, and these shortcuts are</span>
+        <span class="c1"># necessary to obtain several factors of improvement in speedup.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_oxi_states</span> <span class="o">=</span> <span class="p">[</span><span class="n">compute_average_oxidation_state</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">)</span>
+
+        <span class="c1"># Now we call the relevant private methods to calculate the reciprocal</span>
+        <span class="c1"># and real space terms.</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recip</span><span class="p">,</span> <span class="n">recip_forces</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_recip</span><span class="p">()</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_real</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">,</span> <span class="n">real_point_forces</span><span class="p">)</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_calc_real_and_point</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_forces</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_forces</span> <span class="o">=</span> <span class="n">recip_forces</span> <span class="o">+</span> <span class="n">real_point_forces</span>
+
+        <span class="c1"># Compute the correction for a charged cell</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_charged_cell_energy</span> <span class="o">=</span> <span class="o">-</span> <span class="n">EwaldSummation</span><span class="o">.</span><span class="n">CONV_FACT</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> \
+            <span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span> <span class="o">*</span> <span class="n">structure</span><span class="o">.</span><span class="n">charge</span> <span class="o">**</span> <span class="mi">2</span>
+
+<div class="viewcode-block" id="EwaldSummation.compute_partial_energy"><a class="viewcode-back" href="../../../pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldSummation.compute_partial_energy">[docs]</a>    <span class="k">def</span> <span class="nf">compute_partial_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">removed_indices</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives total ewald energy for certain sites being removed, i.e. zeroed</span>
+<span class="sd">        out.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">total_energy_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_energy_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">removed_indices</span><span class="p">:</span>
+            <span class="n">total_energy_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">total_energy_matrix</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">total_energy_matrix</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="EwaldSummation.compute_sub_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldSummation.compute_sub_structure">[docs]</a>    <span class="k">def</span> <span class="nf">compute_sub_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub_structure</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives total ewald energy for an sub structure in the same</span>
+<span class="sd">        lattice. The sub_structure must be a subset of the original</span>
+<span class="sd">        structure, with possible different charges.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            substructure (Structure): Substructure to compute Ewald sum for.</span>
+<span class="sd">            tol (float): Tolerance for site matching in fractional coordinates.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Ewald sum of substructure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">total_energy_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_energy_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">find_match</span><span class="p">(</span><span class="n">site</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">test_site</span> <span class="ow">in</span> <span class="n">sub_structure</span><span class="p">:</span>
+                <span class="n">frac_diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+                                <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">))</span> <span class="o">%</span> <span class="mi">1</span>
+                <span class="n">frac_diff</span> <span class="o">=</span> <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span> <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">tol</span>
+                             <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">frac_diff</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">frac_diff</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">test_site</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="p">):</span>
+            <span class="n">matching_site</span> <span class="o">=</span> <span class="n">find_match</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">matching_site</span><span class="p">:</span>
+                <span class="n">new_charge</span> <span class="o">=</span> <span class="n">compute_average_oxidation_state</span><span class="p">(</span><span class="n">matching_site</span><span class="p">)</span>
+                <span class="n">old_charge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oxi_states</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">scaling_factor</span> <span class="o">=</span> <span class="n">new_charge</span> <span class="o">/</span> <span class="n">old_charge</span>
+                <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matching_site</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">scaling_factor</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">total_energy_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="n">scaling_factor</span>
+            <span class="n">total_energy_matrix</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">*=</span> <span class="n">scaling_factor</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_structure</span><span class="p">):</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Missing sites.&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sub_structure</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">site</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+                    <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;unmatched = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">site</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">total_energy_matrix</span><span class="p">))</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reciprocal_space_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The reciprocal space energy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recip</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reciprocal_space_energy_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The reciprocal space energy matrix. Each matrix element (i, j)</span>
+<span class="sd">        corresponds to the interaction energy between site i and site j in</span>
+<span class="sd">        reciprocal space.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recip</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">real_space_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The real space space energy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_real</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">real_space_energy_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The real space energy matrix. Each matrix element (i, j) corresponds to</span>
+<span class="sd">        the interaction energy between site i and site j in real space.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_real</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">point_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The point energy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">point_energy_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The point space matrix. A diagonal matrix with the point terms for each</span>
+<span class="sd">        site in the diagonal elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The total energy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recip</span><span class="p">))</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_real</span><span class="p">))</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charged_cell_energy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_energy_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The total energy matrix. Each matrix element (i, j) corresponds to the</span>
+<span class="sd">        total interaction energy between site i and site j.</span>
+
+<span class="sd">        Note that this does not include the charged-cell energy, which is only important</span>
+<span class="sd">        when the simulation cell is not charge balanced.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">totalenergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recip</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_real</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">)):</span>
+            <span class="n">totalenergy</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">totalenergy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">forces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The forces on each site as a Nx3 matrix. Each row corresponds to a</span>
+<span class="sd">        site.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_forces</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;Forces are available only if compute_forces is True!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forces</span>
+
+<div class="viewcode-block" id="EwaldSummation.get_site_energy"><a class="viewcode-back" href="../../../pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldSummation.get_site_energy">[docs]</a>    <span class="k">def</span> <span class="nf">get_site_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute the energy for a single site in the structure</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site_index (int): Index of site</span>
+<span class="sd">        ReturnS:</span>
+<span class="sd">            (float) - Energy of that site&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charged</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Per atom energies for charged structures not supported in EwaldSummation&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recip</span><span class="p">[:,</span> <span class="n">site_index</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_real</span><span class="p">[:,</span> <span class="n">site_index</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point</span><span class="p">[</span><span class="n">site_index</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_calc_recip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform the reciprocal space summation. Calculates the quantity</span>
+<span class="sd">        E_recip = 1/(2PiV) sum_{G &lt; Gmax} exp(-(G.G/4/eta))/(G.G) S(G)S(-G)</span>
+<span class="sd">        where</span>
+<span class="sd">        S(G) = sum_{k=1,N} q_k exp(-i G.r_k)</span>
+<span class="sd">        S(G)S(-G) = |S(G)|**2</span>
+
+<span class="sd">        This method is heavily vectorized to utilize numpy&#39;s C backend for</span>
+<span class="sd">        speed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">numsites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">num_sites</span>
+        <span class="n">prefactor</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vol</span>
+        <span class="n">erecip</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numsites</span><span class="p">,</span> <span class="n">numsites</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="n">forces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numsites</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span>
+        <span class="n">rcp_latt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span>
+        <span class="n">recip_nn</span> <span class="o">=</span> <span class="n">rcp_latt</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                                                 <span class="bp">self</span><span class="o">.</span><span class="n">_gmax</span><span class="p">)</span>
+
+        <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">fcoords</span> <span class="k">for</span> <span class="p">(</span><span class="n">fcoords</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span> <span class="ow">in</span> <span class="n">recip_nn</span> <span class="k">if</span> <span class="n">dist</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">gs</span> <span class="o">=</span> <span class="n">rcp_latt</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="n">g2s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gs</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">expvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">g2s</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span><span class="p">))</span>
+        <span class="n">grs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gs</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:],</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">oxistates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_oxi_states</span><span class="p">)</span>
+
+        <span class="c1"># create array where q_2[i,j] is qi * qj</span>
+        <span class="n">qiqj</span> <span class="o">=</span> <span class="n">oxistates</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">oxistates</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+        <span class="c1"># calculate the structure factor</span>
+        <span class="n">sreals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">oxistates</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">grs</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">simags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">oxistates</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">grs</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">g</span><span class="p">,</span> <span class="n">g2</span><span class="p">,</span> <span class="n">gr</span><span class="p">,</span> <span class="n">expval</span><span class="p">,</span> <span class="n">sreal</span><span class="p">,</span> <span class="n">simag</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">g2s</span><span class="p">,</span> <span class="n">grs</span><span class="p">,</span> <span class="n">expvals</span><span class="p">,</span>
+                                                   <span class="n">sreals</span><span class="p">,</span> <span class="n">simags</span><span class="p">):</span>
+
+            <span class="c1"># Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="n">gr</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-</span> <span class="n">gr</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">*=</span> <span class="n">expval</span> <span class="o">/</span> <span class="n">g2</span>
+
+            <span class="n">erecip</span> <span class="o">+=</span> <span class="n">m</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_forces</span><span class="p">:</span>
+                <span class="n">pref</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">expval</span> <span class="o">/</span> <span class="n">g2</span> <span class="o">*</span> <span class="n">oxistates</span>
+                <span class="n">factor</span> <span class="o">=</span> <span class="n">prefactor</span> <span class="o">*</span> <span class="n">pref</span> <span class="o">*</span> <span class="p">(</span>
+                        <span class="n">sreal</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">gr</span><span class="p">)</span> <span class="o">-</span> <span class="n">simag</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">gr</span><span class="p">))</span>
+
+                <span class="n">forces</span> <span class="o">+=</span> <span class="n">factor</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">g</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="n">forces</span> <span class="o">*=</span> <span class="n">EwaldSummation</span><span class="o">.</span><span class="n">CONV_FACT</span>
+        <span class="n">erecip</span> <span class="o">*=</span> <span class="n">prefactor</span> <span class="o">*</span> <span class="n">EwaldSummation</span><span class="o">.</span><span class="n">CONV_FACT</span> <span class="o">*</span> <span class="n">qiqj</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">**</span> <span class="mf">0.5</span>
+        <span class="k">return</span> <span class="n">erecip</span><span class="p">,</span> <span class="n">forces</span>
+
+    <span class="k">def</span> <span class="nf">_calc_real_and_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fcoords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">frac_coords</span>
+        <span class="n">forcepf</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sqrt_eta</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span>
+        <span class="n">numsites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">num_sites</span>
+        <span class="n">ereal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">numsites</span><span class="p">,</span> <span class="n">numsites</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+        <span class="n">forces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numsites</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_oxi_states</span><span class="p">)</span>
+
+        <span class="n">epoint</span> <span class="o">=</span> <span class="o">-</span> <span class="n">qs</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_eta</span> <span class="o">/</span> <span class="n">pi</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">):</span>
+            <span class="n">nfcoords</span><span class="p">,</span> <span class="n">rij</span><span class="p">,</span> <span class="n">js</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">(</span><span class="n">fcoords</span><span class="p">,</span>
+                                                                        <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rmax</span><span class="p">,</span> <span class="n">zip_results</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># remove the rii term</span>
+            <span class="n">inds</span> <span class="o">=</span> <span class="n">rij</span> <span class="o">&gt;</span> <span class="mf">1e-8</span>
+            <span class="n">js</span> <span class="o">=</span> <span class="n">js</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">rij</span> <span class="o">=</span> <span class="n">rij</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">nfcoords</span> <span class="o">=</span> <span class="n">nfcoords</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+
+            <span class="n">qi</span> <span class="o">=</span> <span class="n">qs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">qj</span> <span class="o">=</span> <span class="n">qs</span><span class="p">[</span><span class="n">js</span><span class="p">]</span>
+
+            <span class="n">erfcval</span> <span class="o">=</span> <span class="n">erfc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sqrt_eta</span> <span class="o">*</span> <span class="n">rij</span><span class="p">)</span>
+            <span class="n">new_ereals</span> <span class="o">=</span> <span class="n">erfcval</span> <span class="o">*</span> <span class="n">qi</span> <span class="o">*</span> <span class="n">qj</span> <span class="o">/</span> <span class="n">rij</span>
+
+            <span class="c1"># insert new_ereals</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">):</span>
+                <span class="n">ereal</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">new_ereals</span><span class="p">[</span><span class="n">js</span> <span class="o">==</span> <span class="n">k</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_forces</span><span class="p">:</span>
+                <span class="n">nccoords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">nfcoords</span><span class="p">)</span>
+
+                <span class="n">fijpf</span> <span class="o">=</span> <span class="n">qj</span> <span class="o">/</span> <span class="n">rij</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="n">erfcval</span> <span class="o">+</span> <span class="n">forcepf</span> <span class="o">*</span> <span class="n">rij</span> <span class="o">*</span>
+                                         <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_eta</span> <span class="o">*</span> <span class="n">rij</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+                <span class="n">forces</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">fijpf</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span>
+                                    <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span> <span class="o">-</span> <span class="n">nccoords</span><span class="p">)</span> <span class="o">*</span>
+                                    <span class="n">qi</span> <span class="o">*</span> <span class="n">EwaldSummation</span><span class="o">.</span><span class="n">CONV_FACT</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">ereal</span> <span class="o">*=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">EwaldSummation</span><span class="o">.</span><span class="n">CONV_FACT</span>
+        <span class="n">epoint</span> <span class="o">*=</span> <span class="n">EwaldSummation</span><span class="o">.</span><span class="n">CONV_FACT</span>
+        <span class="k">return</span> <span class="n">ereal</span><span class="p">,</span> <span class="n">epoint</span><span class="p">,</span> <span class="n">forces</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">eta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: eta value used in Ewald summation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_forces</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Real = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_space_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Reciprocal = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_space_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Point = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">point_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Total = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Forces:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">)</span>
+                      <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Real = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_space_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Reciprocal = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_space_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Point = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">point_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Total = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_energy</span><span class="p">),</span>
+                      <span class="s2">&quot;Forces were not computed&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EwaldMinimizer"><a class="viewcode-back" href="../../../pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldMinimizer">[docs]</a><span class="k">class</span> <span class="nc">EwaldMinimizer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class determines the manipulations that will minimize an ewald matrix,</span>
+<span class="sd">    given a list of possible manipulations. This class does not perform the</span>
+<span class="sd">    manipulations on a structure, but will return the list of manipulations</span>
+<span class="sd">    that should be done on one to produce the minimal structure. It returns the</span>
+<span class="sd">    manipulations for the n lowest energy orderings. This class should be used</span>
+<span class="sd">    to perform fractional species substitution or fractional species removal to</span>
+<span class="sd">    produce a new structure. These manipulations create large numbers of</span>
+<span class="sd">    candidate structures, and this class can be used to pick out those with the</span>
+<span class="sd">    lowest ewald sum.</span>
+
+<span class="sd">    An alternative (possibly more intuitive) interface to this class is the</span>
+<span class="sd">    order disordered structure transformation.</span>
+
+<span class="sd">    Author - Will Richards</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ALGO_FAST</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ALGO_COMPLETE</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ALGO_BEST_FIRST</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ALGO_TIME_LIMIT: Slowly increases the speed (with the cost of decreasing</span>
+<span class="sd">    accuracy) as the minimizer runs. Attempts to limit the run time to</span>
+<span class="sd">    approximately 30 minutes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ALGO_TIME_LIMIT</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">m_list</span><span class="p">,</span> <span class="n">num_to_return</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="n">ALGO_FAST</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            matrix: A matrix of the ewald sum interaction energies. This is stored</span>
+<span class="sd">                in the class as a diagonally symmetric array and so</span>
+<span class="sd">                self._matrix will not be the same as the input matrix.</span>
+<span class="sd">            m_list: list of manipulations. each item is of the form</span>
+<span class="sd">                (multiplication fraction, number_of_indices, indices, species)</span>
+<span class="sd">                These are sorted such that the first manipulation contains the</span>
+<span class="sd">                most permutations. this is actually evaluated last in the</span>
+<span class="sd">                recursion since I&#39;m using pop.</span>
+<span class="sd">            num_to_return: The minimizer will find the number_returned lowest</span>
+<span class="sd">                energy structures. This is likely to return a number of duplicate</span>
+<span class="sd">                structures so it may be necessary to overestimate and then</span>
+<span class="sd">                remove the duplicates later. (duplicate checking in this</span>
+<span class="sd">                process is extremely expensive)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Setup and checking of inputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+        <span class="c1"># Make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">)):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># sort the m_list based on number of permutations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_m_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">m_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">comb</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                              <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">mlist</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mlist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;multiplication fractions must be &lt;= 1&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_minimum</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_to_return</span> <span class="o">=</span> <span class="n">num_to_return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_algo</span> <span class="o">=</span> <span class="n">algo</span>
+        <span class="k">if</span> <span class="n">algo</span> <span class="o">==</span> <span class="n">EwaldMinimizer</span><span class="o">.</span><span class="n">ALGO_COMPLETE</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Complete algo not yet implemented for &#39;</span>
+                                      <span class="s1">&#39;EwaldMinimizer&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Tag that the recurse function looks at at each level. If a method</span>
+        <span class="c1"># sets this to true it breaks the recursion and stops the search.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_finished</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimize_matrix</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_best_m_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_minimized_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="EwaldMinimizer.minimize_matrix"><a class="viewcode-back" href="../../../pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldMinimizer.minimize_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">minimize_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method finds and returns the permutations that produce the lowest</span>
+<span class="sd">        ewald sum calls recursive function to iterate through permutations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algo</span> <span class="o">==</span> <span class="n">EwaldMinimizer</span><span class="o">.</span><span class="n">ALGO_FAST</span> <span class="ow">or</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">_algo</span> <span class="o">==</span> <span class="n">EwaldMinimizer</span><span class="o">.</span><span class="n">ALGO_BEST_FIRST</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recurse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m_list</span><span class="p">,</span>
+                                 <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">))))</span></div>
+
+<div class="viewcode-block" id="EwaldMinimizer.add_m_list"><a class="viewcode-back" href="../../../pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldMinimizer.add_m_list">[docs]</a>    <span class="k">def</span> <span class="nf">add_m_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix_sum</span><span class="p">,</span> <span class="n">m_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This adds an m_list to the output_lists and updates the current</span>
+<span class="sd">        minimum if the list is full.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span> <span class="o">=</span> <span class="p">[[</span><span class="n">matrix_sum</span><span class="p">,</span> <span class="n">m_list</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bisect</span><span class="o">.</span><span class="n">insort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="p">,</span> <span class="p">[</span><span class="n">matrix_sum</span><span class="p">,</span> <span class="n">m_list</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algo</span> <span class="o">==</span> <span class="n">EwaldMinimizer</span><span class="o">.</span><span class="n">ALGO_BEST_FIRST</span> <span class="ow">and</span> \
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_to_return</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_finished</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_to_return</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_to_return</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_minimum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="EwaldMinimizer.best_case"><a class="viewcode-back" href="../../../pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldMinimizer.best_case">[docs]</a>    <span class="k">def</span> <span class="nf">best_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">m_list</span><span class="p">,</span> <span class="n">indices_left</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes a best case given a matrix and manipulation list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            matrix: the current matrix (with some permutations already</span>
+<span class="sd">                performed)</span>
+<span class="sd">            m_list: [(multiplication fraction, number_of_indices, indices,</span>
+<span class="sd">                species)] describing the manipulation</span>
+<span class="sd">            indices: Set of indices which haven&#39;t had a permutation</span>
+<span class="sd">                performed on them.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m_indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">fraction_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">m_list</span><span class="p">:</span>
+            <span class="n">m_indices</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">fraction_list</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">*</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">indices_left</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">m_indices</span><span class="p">))</span>
+
+        <span class="n">interaction_matrix</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">indices</span><span class="p">]</span>
+
+        <span class="n">fractions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">interaction_matrix</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">fractions</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">fraction_list</span><span class="p">)]</span> <span class="o">=</span> <span class="n">fraction_list</span>
+        <span class="n">fractions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">fractions</span><span class="p">)</span>
+
+        <span class="c1"># Sum associated with each index (disregarding interactions between</span>
+        <span class="c1"># indices)</span>
+        <span class="n">sums</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">indices</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">sums</span><span class="p">)</span>
+
+        <span class="c1"># Interaction corrections. Can be reduced to (1-x)(1-y) for x,y in</span>
+        <span class="c1"># fractions each element in a column gets multiplied by (1-x), and then</span>
+        <span class="c1"># the sum of the columns gets multiplied by (1-y) since fractions are</span>
+        <span class="c1"># less than 1, there is no effect of one choice on the other</span>
+        <span class="n">step1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">interaction_matrix</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fractions</span><span class="p">)</span>
+        <span class="n">step2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">step1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">step3</span> <span class="o">=</span> <span class="n">step2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fractions</span><span class="p">)</span>
+        <span class="n">interaction_correction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">step3</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALGO_TIME_LIMIT</span><span class="p">:</span>
+            <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span>
+            <span class="n">speedup_parameter</span> <span class="o">=</span> <span class="n">elapsed_time</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mi">1800</span>
+            <span class="n">avg_int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">interaction_matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">avg_frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fractions</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">fractions</span><span class="p">))</span>
+            <span class="n">average_correction</span> <span class="o">=</span> <span class="n">avg_int</span> <span class="o">*</span> <span class="n">avg_frac</span>
+
+            <span class="n">interaction_correction</span> <span class="o">=</span> <span class="n">average_correction</span> <span class="o">*</span> <span class="n">speedup_parameter</span> \
+                <span class="o">+</span> <span class="n">interaction_correction</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">speedup_parameter</span><span class="p">)</span>
+
+        <span class="n">best_case</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">sums</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">fractions</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">interaction_correction</span>
+
+        <span class="k">return</span> <span class="n">best_case</span></div>
+
+<div class="viewcode-block" id="EwaldMinimizer.get_next_index"><a class="viewcode-back" href="../../../pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.EwaldMinimizer.get_next_index">[docs]</a>    <span class="k">def</span> <span class="nf">get_next_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">manipulation</span><span class="p">,</span> <span class="n">indices_left</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an index that should have the most negative effect on the</span>
+<span class="sd">        matrix sum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">manipulation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">indices_left</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">manipulation</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="n">sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">indices</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">next_index</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="n">sums</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">next_index</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="n">sums</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">next_index</span></div>
+
+    <span class="k">def</span> <span class="nf">_recurse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">m_list</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">output_m_list</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method recursively finds the minimal permutations using a binary</span>
+<span class="sd">        tree search strategy.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            matrix: The current matrix (with some permutations already</span>
+<span class="sd">                performed).</span>
+<span class="sd">            m_list: The list of permutations still to be performed</span>
+<span class="sd">            indices: Set of indices which haven&#39;t had a permutation</span>
+<span class="sd">                performed on them.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check to see if we&#39;ve found all the solutions that we need</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_finished</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># if we&#39;re done with the current manipulation, pop it off.</span>
+        <span class="k">while</span> <span class="n">m_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">m_list</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">m_list</span><span class="p">)</span>
+            <span class="n">m_list</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="c1"># if there are no more manipulations left to do check the value</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">m_list</span><span class="p">:</span>
+                <span class="n">matrix_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">matrix_sum</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_minimum</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_m_list</span><span class="p">(</span><span class="n">matrix_sum</span><span class="p">,</span> <span class="n">output_m_list</span><span class="p">)</span>
+                <span class="k">return</span>
+
+        <span class="c1"># if we wont have enough indices left, return</span>
+        <span class="k">if</span> <span class="n">m_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">m_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">])):</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">m_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">m_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_case</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">m_list</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_minimum</span><span class="p">:</span>
+                <span class="k">return</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_index</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">m_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">indices</span><span class="p">)</span>
+
+        <span class="n">m_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="c1"># Make the matrix and new m_list where we do the manipulation to the</span>
+        <span class="c1"># index that we just got</span>
+        <span class="n">matrix2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+        <span class="n">m_list2</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">m_list</span><span class="p">)</span>
+        <span class="n">output_m_list2</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">output_m_list</span><span class="p">)</span>
+
+        <span class="n">matrix2</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="n">m_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">matrix2</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span> <span class="o">*=</span> <span class="n">m_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">output_m_list2</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">index</span><span class="p">,</span> <span class="n">m_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">3</span><span class="p">]])</span>
+        <span class="n">indices2</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+        <span class="n">indices2</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">m_list2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="c1"># recurse through both the modified and unmodified matrices</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_recurse</span><span class="p">(</span><span class="n">matrix2</span><span class="p">,</span> <span class="n">m_list2</span><span class="p">,</span> <span class="n">indices2</span><span class="p">,</span> <span class="n">output_m_list2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_recurse</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">m_list</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">output_m_list</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">best_m_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Best m_list found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_best_m_list</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">minimized_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Minimized sum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minimized_sum</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">output_lists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: output lists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span></div>
+
+
+<div class="viewcode-block" id="compute_average_oxidation_state"><a class="viewcode-back" href="../../../pymatgen.analysis.ewald.html#pymatgen.analysis.ewald.compute_average_oxidation_state">[docs]</a><span class="k">def</span> <span class="nf">compute_average_oxidation_state</span><span class="p">(</span><span class="n">site</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the average oxidation state of a site</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        site: Site to compute average oxidation state</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Average oxidation state of site.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">avg_oxi</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">sp</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">*</span> <span class="n">occu</span>
+                       <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">occu</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                       <span class="k">if</span> <span class="n">sp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">avg_oxi</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">site</span><span class="o">.</span><span class="n">charge</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Ewald summation can only be performed on structures &quot;</span>
+                         <span class="s2">&quot;that are either oxidation state decorated or have &quot;</span>
+                         <span class="s2">&quot;site charges.&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.ewald</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

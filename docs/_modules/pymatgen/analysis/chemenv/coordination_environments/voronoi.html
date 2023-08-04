@@ -1,0 +1,971 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.chemenv.coordination_environments.voronoi &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.chemenv.coordination_environments.voronoi</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.chemenv.coordination_environments.voronoi</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;David Waroquiers&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Geoffroy Hautier&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;David Waroquiers&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;david.waroquiers@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 20, 2016&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">Voronoi</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="kn">import</span> <span class="n">my_solid_angle</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="kn">import</span> <span class="n">get_lower_and_upper_f</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="kn">import</span> <span class="n">rectangle_surface_intersection</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.defs_utils</span> <span class="kn">import</span> <span class="n">AdditionalConditions</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.math_utils</span> <span class="kn">import</span> <span class="n">normal_cdf_step</span>
+
+
+<div class="viewcode-block" id="from_bson_voronoi_list2"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list2">[docs]</a><span class="k">def</span> <span class="nf">from_bson_voronoi_list2</span><span class="p">(</span><span class="n">bson_nb_voro_list2</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the voronoi_list needed for the VoronoiContainer object from a bson-encoded voronoi_list.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bson_nb_voro_list2: List of periodic sites involved in the Voronoi.</span>
+<span class="sd">        structure: Structure object.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The voronoi_list needed for the VoronoiContainer (with PeriodicSites as keys of the dictionary - not</span>
+<span class="sd">        allowed in the BSON format).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">voronoi_list</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">bson_nb_voro_list2</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">isite</span><span class="p">,</span> <span class="n">voro</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bson_nb_voro_list2</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">voro</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">voro</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">voronoi_list</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">psd</span><span class="p">,</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">voro</span><span class="p">:</span>
+            <span class="n">struct_site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]]</span>
+            <span class="n">periodic_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">struct_site</span><span class="o">.</span><span class="n">_species</span><span class="p">,</span> <span class="n">struct_site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">+</span> <span class="n">psd</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                         <span class="n">struct_site</span><span class="o">.</span><span class="n">_lattice</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="n">struct_site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+            <span class="n">dd</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">periodic_site</span>
+            <span class="n">voronoi_list</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dd</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">voronoi_list</span></div>
+
+
+<div class="viewcode-block" id="DetailedVoronoiContainer"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer">[docs]</a><span class="k">class</span> <span class="nc">DetailedVoronoiContainer</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class used to store the full Voronoi of a given structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">AC</span> <span class="o">=</span> <span class="n">AdditionalConditions</span><span class="p">()</span>
+    <span class="n">default_voronoi_cutoff</span> <span class="o">=</span> <span class="mf">10.0</span>
+    <span class="n">default_normalized_distance_tolerance</span> <span class="o">=</span> <span class="mf">1e-5</span>
+    <span class="n">default_normalized_angle_tolerance</span> <span class="o">=</span> <span class="mf">1e-3</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">voronoi_list2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">voronoi_cutoff</span><span class="o">=</span><span class="n">default_voronoi_cutoff</span><span class="p">,</span> <span class="n">isites</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">normalized_distance_tolerance</span><span class="o">=</span><span class="n">default_normalized_distance_tolerance</span><span class="p">,</span>
+                 <span class="n">normalized_angle_tolerance</span><span class="o">=</span><span class="n">default_normalized_angle_tolerance</span><span class="p">,</span>
+                 <span class="n">additional_conditions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">valences</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">maximum_distance_factor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minimum_angle_factor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the VoronoiContainer object. Either a structure is given, in which case the Voronoi is</span>
+<span class="sd">        computed, or the different components of the VoronoiContainer are given (used in the from_dict method).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Structure for which the Voronoi is computed.</span>
+<span class="sd">            voronoi_list2: List of voronoi polyhedrons for each site.</span>
+<span class="sd">            voronoi_cutoff: cutoff used for the voronoi.</span>
+<span class="sd">            isites: indices of sites for which the Voronoi has to be computed.</span>
+<span class="sd">            normalized_distance_tolerance: Tolerance for two normalized distances to be considered equal.</span>
+<span class="sd">            normalized_angle_tolerance:Tolerance for two normalized angles to be considered equal.</span>
+<span class="sd">            additional_conditions: Additional conditions to be used.</span>
+<span class="sd">            valences: Valences of all the sites in the structure (used when additional conditions require it).</span>
+<span class="sd">            maximum_distance_factor: The maximum distance factor to be considered.</span>
+<span class="sd">            minimum_angle_factor: The minimum angle factor to be considered.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError if the Voronoi cannot be constructed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_distance_tolerance</span> <span class="o">=</span> <span class="n">normalized_distance_tolerance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_angle_tolerance</span> <span class="o">=</span> <span class="n">normalized_angle_tolerance</span>
+        <span class="k">if</span> <span class="n">additional_conditions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">additional_conditions</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">additional_conditions</span> <span class="o">=</span> <span class="n">additional_conditions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valences</span> <span class="o">=</span> <span class="n">valences</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_distance_factor</span> <span class="o">=</span> <span class="n">maximum_distance_factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimum_angle_factor</span> <span class="o">=</span> <span class="n">minimum_angle_factor</span>
+        <span class="k">if</span> <span class="n">isites</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">isites</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Setting Voronoi list&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">voronoi_list2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span> <span class="o">=</span> <span class="n">voronoi_list2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setup_voronoi_list</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span> <span class="n">voronoi_cutoff</span><span class="o">=</span><span class="n">voronoi_cutoff</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Setting neighbors distances and angles&#39;</span><span class="p">)</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_neighbors_distances_and_angles</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">)</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Neighbors distances and angles set up in </span><span class="si">{:.2f}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">))</span>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.setup_voronoi_list"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_voronoi_list">[docs]</a>    <span class="k">def</span> <span class="nf">setup_voronoi_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">voronoi_cutoff</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set up of the voronoi list of neighbours by calling qhull.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            indices: indices of the sites for which the Voronoi is needed.</span>
+<span class="sd">            voronoi_cutoff: Voronoi cutoff for the search of neighbours.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If an infinite vertex is found in the voronoi construction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list_coords</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Getting all neighbors in structure&#39;</span><span class="p">)</span>
+        <span class="n">struct_neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">get_all_neighbors</span><span class="p">(</span><span class="n">voronoi_cutoff</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Setting up Voronoi list :&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">jj</span><span class="p">,</span> <span class="n">isite</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  - Voronoi analysis for site #</span><span class="si">{:d}</span><span class="s1"> (</span><span class="si">{:d}</span><span class="s1">/</span><span class="si">{:d}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">jj</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)))</span>
+            <span class="n">site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span>
+            <span class="n">neighbors1</span> <span class="o">=</span> <span class="p">[(</span><span class="n">site</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">isite</span><span class="p">)]</span>
+            <span class="n">neighbors1</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">struct_neighbors</span><span class="p">[</span><span class="n">isite</span><span class="p">])</span>
+            <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">neighbors1</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">neighbors1</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+            <span class="n">qvoronoi_input</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">]</span>
+            <span class="n">voro</span> <span class="o">=</span> <span class="n">Voronoi</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">qvoronoi_input</span><span class="p">,</span> <span class="n">qhull_options</span><span class="o">=</span><span class="s2">&quot;o Fv&quot;</span><span class="p">)</span>
+            <span class="n">all_vertices</span> <span class="o">=</span> <span class="n">voro</span><span class="o">.</span><span class="n">vertices</span>
+
+            <span class="n">results2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">maxangle</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">mindist</span> <span class="o">=</span> <span class="mf">10000.0</span>
+            <span class="k">for</span> <span class="n">iridge</span><span class="p">,</span> <span class="n">ridge_points</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">voro</span><span class="o">.</span><span class="n">ridge_points</span><span class="p">):</span>
+                <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">ridge_points</span><span class="p">:</span>
+                    <span class="n">ridge_vertices_indices</span> <span class="o">=</span> <span class="n">voro</span><span class="o">.</span><span class="n">ridge_vertices</span><span class="p">[</span><span class="n">iridge</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">in</span> <span class="n">ridge_vertices_indices</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;This structure is pathological,&quot;</span>
+                                           <span class="s2">&quot; infinite vertex in the voronoi &quot;</span>
+                                           <span class="s2">&quot;construction&quot;</span><span class="p">)</span>
+
+                    <span class="n">ridge_point2</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ridge_points</span><span class="p">)</span>
+                    <span class="n">facets</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_vertices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ridge_vertices_indices</span><span class="p">]</span>
+                    <span class="n">sa</span> <span class="o">=</span> <span class="n">my_solid_angle</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">facets</span><span class="p">)</span>
+                    <span class="n">maxangle</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">sa</span><span class="p">,</span> <span class="n">maxangle</span><span class="p">])</span>
+
+                    <span class="n">mindist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">mindist</span><span class="p">,</span> <span class="n">distances</span><span class="p">[</span><span class="n">ridge_point2</span><span class="p">]])</span>
+                    <span class="k">for</span> <span class="n">iii</span><span class="p">,</span> <span class="n">sss</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">neighbors</span><span class="p">[</span><span class="n">ridge_point2</span><span class="p">]</span><span class="o">.</span><span class="n">is_periodic_image</span><span class="p">(</span><span class="n">sss</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1.0e-6</span><span class="p">):</span>
+                            <span class="n">myindex</span> <span class="o">=</span> <span class="n">iii</span>
+                            <span class="k">break</span>
+                    <span class="n">results2</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">neighbors</span><span class="p">[</span><span class="n">ridge_point2</span><span class="p">],</span>
+                                     <span class="s1">&#39;angle&#39;</span><span class="p">:</span> <span class="n">sa</span><span class="p">,</span>
+                                     <span class="s1">&#39;distance&#39;</span><span class="p">:</span> <span class="n">distances</span><span class="p">[</span><span class="n">ridge_point2</span><span class="p">],</span>
+                                     <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="n">myindex</span><span class="p">})</span>
+            <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">results2</span><span class="p">:</span>
+                <span class="n">dd</span><span class="p">[</span><span class="s1">&#39;normalized_angle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dd</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">maxangle</span>
+                <span class="n">dd</span><span class="p">[</span><span class="s1">&#39;normalized_distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dd</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">mindist</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="o">=</span> <span class="n">results2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list_coords</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">results2</span><span class="p">])</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">process_time</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Voronoi list set up in </span><span class="si">{:.2f}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.setup_neighbors_distances_and_angles"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_neighbors_distances_and_angles">[docs]</a>    <span class="k">def</span> <span class="nf">setup_neighbors_distances_and_angles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the angle and distance separations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            indices: Indices of the sites for which the Voronoi is needed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># Initializes neighbors distances and normalized distances groups</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">normalized_distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">nb_dict</span><span class="p">[</span><span class="s1">&#39;normalized_distance&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">nb_dict</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+            <span class="n">isorted_distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">normalized_distances</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">normalized_distances</span><span class="p">[</span><span class="n">isorted_distances</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                                                               <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">normalized_distances</span><span class="p">[</span><span class="n">isorted_distances</span><span class="p">[</span><span class="mi">0</span><span class="p">]]})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="n">isorted_distances</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s1">&#39;distance&#39;</span><span class="p">],</span>
+                                                    <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="n">isorted_distances</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s1">&#39;distance&#39;</span><span class="p">]})</span>
+            <span class="n">icurrent</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">nb_indices</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">isorted_distances</span><span class="p">[</span><span class="mi">0</span><span class="p">])}</span>
+            <span class="n">dnb_indices</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">isorted_distances</span><span class="p">[</span><span class="mi">0</span><span class="p">])}</span>
+            <span class="k">for</span> <span class="n">idist</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="n">isorted_distances</span><span class="p">):</span>
+                <span class="n">wd</span> <span class="o">=</span> <span class="n">normalized_distances</span><span class="p">[</span><span class="n">idist</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_distance_factor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">wd</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_distance_factor</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;nb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_indices</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;nb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_indices</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnb_indices</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnb_indices</span><span class="p">)</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">wd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;max&#39;</span><span class="p">],</span>
+                              <span class="n">rtol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_distance_tolerance</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wd</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">idist</span><span class="p">][</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span>
+                    <span class="n">dnb_indices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">idist</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;nb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_indices</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;nb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_indices</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnb_indices</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnb_indices</span><span class="p">)</span>
+                    <span class="n">dnb_indices</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">idist</span><span class="p">)}</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">wd</span><span class="p">,</span>
+                                                                       <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">wd</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="n">idist</span><span class="p">][</span><span class="s1">&#39;distance&#39;</span><span class="p">],</span>
+                                                            <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="n">idist</span><span class="p">][</span><span class="s1">&#39;distance&#39;</span><span class="p">]})</span>
+                    <span class="n">icurrent</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">nb_indices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">idist</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;nb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_indices</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;nb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_indices</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnb_indices</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnb_indices</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">idist</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">dist_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">idist</span><span class="p">]</span>
+                <span class="n">dist_dict_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">idist</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">dist_dict</span><span class="p">[</span><span class="s1">&#39;next&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist_dict_next</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">]</span>
+                <span class="n">ndist_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">idist</span><span class="p">]</span>
+                <span class="n">ndist_dict_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">idist</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">ndist_dict</span><span class="p">[</span><span class="s1">&#39;next&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndist_dict_next</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_distance_factor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">dfact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_distance_factor</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dfact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_voronoi_cutoff</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;min&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;next&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfact</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;next&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dfact</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;min&#39;</span><span class="p">]</span>
+            <span class="c1"># Initializes neighbors angles and normalized angles groups</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">normalized_angles</span> <span class="o">=</span> <span class="p">[</span><span class="n">nb_dict</span><span class="p">[</span><span class="s1">&#39;normalized_angle&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">nb_dict</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+            <span class="n">isorted_angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">normalized_angles</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">normalized_angles</span><span class="p">[</span><span class="n">isorted_angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                                                            <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">normalized_angles</span><span class="p">[</span><span class="n">isorted_angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]]})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="n">isorted_angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s1">&#39;angle&#39;</span><span class="p">],</span>
+                                                 <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="n">isorted_angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s1">&#39;angle&#39;</span><span class="p">]})</span>
+            <span class="n">icurrent</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">nb_indices</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">isorted_angles</span><span class="p">[</span><span class="mi">0</span><span class="p">])}</span>
+            <span class="n">dnb_indices</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">isorted_angles</span><span class="p">[</span><span class="mi">0</span><span class="p">])}</span>
+            <span class="k">for</span> <span class="n">iang</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="n">isorted_angles</span><span class="p">):</span>
+                <span class="n">wa</span> <span class="o">=</span> <span class="n">normalized_angles</span><span class="p">[</span><span class="n">iang</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_angle_factor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">wa</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_angle_factor</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;nb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_indices</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;nb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_indices</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnb_indices</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnb_indices</span><span class="p">)</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">wa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;min&#39;</span><span class="p">],</span>
+                              <span class="n">rtol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_angle_tolerance</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wa</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">iang</span><span class="p">][</span><span class="s1">&#39;angle&#39;</span><span class="p">]</span>
+                    <span class="n">dnb_indices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">iang</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;nb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_indices</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;nb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_indices</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnb_indices</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnb_indices</span><span class="p">)</span>
+                    <span class="n">dnb_indices</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">iang</span><span class="p">)}</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">wa</span><span class="p">,</span>
+                                                                    <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">wa</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="n">iang</span><span class="p">][</span><span class="s1">&#39;angle&#39;</span><span class="p">],</span>
+                                                         <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="n">iang</span><span class="p">][</span><span class="s1">&#39;angle&#39;</span><span class="p">]})</span>
+                    <span class="n">icurrent</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">nb_indices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">iang</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;nb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_indices</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;nb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_indices</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnb_indices</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">icurrent</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dnb_indices</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">iang</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">ang_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">iang</span><span class="p">]</span>
+                <span class="n">ang_dict_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">iang</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">ang_dict</span><span class="p">[</span><span class="s1">&#39;next&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ang_dict_next</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">]</span>
+                <span class="n">nang_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">iang</span><span class="p">]</span>
+                <span class="n">nang_dict_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">iang</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">nang_dict</span><span class="p">[</span><span class="s1">&#39;next&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nang_dict_next</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_angle_factor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">afact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_angle_factor</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">afact</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;next&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">afact</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;next&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">afact</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;max&#39;</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_precompute_additional_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ivoronoi</span><span class="p">,</span> <span class="n">voronoi</span><span class="p">,</span> <span class="n">valences</span><span class="p">):</span>
+        <span class="n">additional_conditions</span> <span class="o">=</span> <span class="p">{</span><span class="n">ac</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">ac</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_conditions</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">ips</span><span class="p">,</span> <span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">voronoi</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">ac</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_conditions</span><span class="p">:</span>
+                <span class="n">additional_conditions</span><span class="p">[</span><span class="n">ac</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">check_condition</span><span class="p">(</span><span class="n">condition</span><span class="o">=</span><span class="n">ac</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
+                                                                         <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;valences&#39;</span><span class="p">:</span> <span class="n">valences</span><span class="p">,</span>
+                                                                                     <span class="s1">&#39;neighbor_index&#39;</span><span class="p">:</span> <span class="n">vals</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">],</span>
+                                                                                     <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="n">ivoronoi</span><span class="p">}))</span>
+        <span class="k">return</span> <span class="n">additional_conditions</span>
+
+    <span class="k">def</span> <span class="nf">_precompute_distance_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ivoronoi</span><span class="p">,</span> <span class="n">voronoi</span><span class="p">):</span>
+        <span class="n">distance_conditions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idp</span><span class="p">,</span> <span class="n">dp_dict</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">ivoronoi</span><span class="p">]):</span>
+            <span class="n">distance_conditions</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="n">dp</span> <span class="o">=</span> <span class="n">dp_dict</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">ips</span><span class="p">,</span> <span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">voronoi</span><span class="p">):</span>
+                <span class="n">distance_conditions</span><span class="p">[</span><span class="n">idp</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="s1">&#39;normalized_distance&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">dp</span> <span class="ow">or</span>
+                                                <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="s1">&#39;normalized_distance&#39;</span><span class="p">],</span> <span class="n">dp</span><span class="p">,</span>
+                                                           <span class="n">rtol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_distance_tolerance</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">distance_conditions</span>
+
+    <span class="k">def</span> <span class="nf">_precompute_angle_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ivoronoi</span><span class="p">,</span> <span class="n">voronoi</span><span class="p">):</span>
+        <span class="n">angle_conditions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">iap</span><span class="p">,</span> <span class="n">ap_dict</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">ivoronoi</span><span class="p">]):</span>
+            <span class="n">angle_conditions</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="n">ap</span> <span class="o">=</span> <span class="n">ap_dict</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">ips</span><span class="p">,</span> <span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">voronoi</span><span class="p">):</span>
+                <span class="n">angle_conditions</span><span class="p">[</span><span class="n">iap</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="s1">&#39;normalized_angle&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">ap</span> <span class="ow">or</span>
+                                             <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="s1">&#39;normalized_angle&#39;</span><span class="p">],</span> <span class="n">ap</span><span class="p">,</span>
+                                                        <span class="n">rtol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_angle_tolerance</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">angle_conditions</span>
+
+    <span class="c1"># def neighbors_map(self, isite, distfactor, angfactor, additional_condition):</span>
+    <span class="c1">#     if self.neighbors_normalized_distances[isite] is None:</span>
+    <span class="c1">#         return None</span>
+    <span class="c1">#     dist_where = np.argwhere(</span>
+    <span class="c1">#         np.array([wd[&#39;min&#39;] for wd in self.neighbors_normalized_distances[isite]]) &lt;= distfactor)</span>
+    <span class="c1">#     if len(dist_where) == 0:</span>
+    <span class="c1">#         return None</span>
+    <span class="c1">#     idist = dist_where[-1][0]</span>
+    <span class="c1">#     ang_where = np.argwhere(np.array([wa[&#39;max&#39;] for wa in self.neighbors_normalized_angles[isite]]) &gt;= angfactor)</span>
+    <span class="c1">#     if len(ang_where) == 0:</span>
+    <span class="c1">#         return None</span>
+    <span class="c1">#     iang = ang_where[0][0]</span>
+    <span class="c1">#     if self.additional_conditions.count(additional_condition) != 1:</span>
+    <span class="c1">#         return None</span>
+    <span class="c1">#     i_additional_condition = self.additional_conditions.index(additional_condition)</span>
+    <span class="c1">#     return {&#39;i_distfactor&#39;: idist, &#39;i_angfactor&#39;: iang, &#39;i_additional_condition&#39;: i_additional_condition}</span>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.neighbors_surfaces"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces">[docs]</a>    <span class="k">def</span> <span class="nf">neighbors_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">surface_calculation_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_dist</span><span class="o">=</span><span class="mf">2.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the different surfaces corresponding to the different distance-angle cutoffs for a given site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            isite: Index of the site</span>
+<span class="sd">            surface_calculation_type: How to compute the surface.</span>
+<span class="sd">            max_dist: The maximum distance factor to be considered.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Surfaces for each distance-angle cutoff.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">bounds_and_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_parameters_bounds_and_limits</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">surface_calculation_type</span><span class="p">,</span> <span class="n">max_dist</span><span class="p">)</span>
+        <span class="n">distance_bounds</span> <span class="o">=</span> <span class="n">bounds_and_limits</span><span class="p">[</span><span class="s1">&#39;distance_bounds&#39;</span><span class="p">]</span>
+        <span class="n">angle_bounds</span> <span class="o">=</span> <span class="n">bounds_and_limits</span><span class="p">[</span><span class="s1">&#39;angle_bounds&#39;</span><span class="p">]</span>
+        <span class="n">surfaces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">distance_bounds</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_bounds</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">distance_bounds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">this_dist_plateau</span> <span class="o">=</span> <span class="n">distance_bounds</span><span class="p">[</span><span class="n">idp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">distance_bounds</span><span class="p">[</span><span class="n">idp</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">iap</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">angle_bounds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">this_ang_plateau</span> <span class="o">=</span> <span class="n">angle_bounds</span><span class="p">[</span><span class="n">iap</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">angle_bounds</span><span class="p">[</span><span class="n">iap</span><span class="p">]</span>
+                <span class="n">surfaces</span><span class="p">[</span><span class="n">idp</span><span class="p">][</span><span class="n">iap</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">this_dist_plateau</span> <span class="o">*</span> <span class="n">this_ang_plateau</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">surfaces</span></div>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.neighbors_surfaces_bounded"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces_bounded">[docs]</a>    <span class="k">def</span> <span class="nf">neighbors_surfaces_bounded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">surface_calculation_options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the different surfaces (using boundaries) corresponding to the different distance-angle cutoffs</span>
+<span class="sd">        for a given site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            isite: Index of the site.</span>
+<span class="sd">            surface_calculation_options: Options for the boundaries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Surfaces for each distance-angle cutoff.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">surface_calculation_options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">surface_calculation_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;standard_elliptic&#39;</span><span class="p">,</span>
+                                           <span class="s1">&#39;distance_bounds&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;lower&#39;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s1">&#39;upper&#39;</span><span class="p">:</span> <span class="mf">1.8</span><span class="p">},</span>
+                                           <span class="s1">&#39;angle_bounds&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;lower&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;upper&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">}}</span>
+        <span class="k">if</span> <span class="n">surface_calculation_options</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;standard_elliptic&#39;</span><span class="p">,</span> <span class="s1">&#39;standard_diamond&#39;</span><span class="p">,</span> <span class="s1">&#39;standard_spline&#39;</span><span class="p">]:</span>
+            <span class="n">plot_type</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;distance_parameter&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;initial_normalized&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                         <span class="s1">&#39;angle_parameter&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;initial_normalized&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Type &quot;</span><span class="si">{}</span><span class="s1">&quot; for the surface calculation in DetailedVoronoiContainer &#39;</span>
+                             <span class="s1">&#39;is invalid&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">surface_calculation_options</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]))</span>
+        <span class="n">max_dist</span> <span class="o">=</span> <span class="n">surface_calculation_options</span><span class="p">[</span><span class="s1">&#39;distance_bounds&#39;</span><span class="p">][</span><span class="s1">&#39;upper&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.1</span>
+        <span class="n">bounds_and_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_parameters_bounds_and_limits</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span>
+                                                                      <span class="n">plot_type</span><span class="o">=</span><span class="n">plot_type</span><span class="p">,</span>
+                                                                      <span class="n">max_dist</span><span class="o">=</span><span class="n">max_dist</span><span class="p">)</span>
+
+        <span class="n">distance_bounds</span> <span class="o">=</span> <span class="n">bounds_and_limits</span><span class="p">[</span><span class="s1">&#39;distance_bounds&#39;</span><span class="p">]</span>
+        <span class="n">angle_bounds</span> <span class="o">=</span> <span class="n">bounds_and_limits</span><span class="p">[</span><span class="s1">&#39;angle_bounds&#39;</span><span class="p">]</span>
+        <span class="n">lower_and_upper_functions</span> <span class="o">=</span> <span class="n">get_lower_and_upper_f</span><span class="p">(</span><span class="n">surface_calculation_options</span><span class="o">=</span><span class="n">surface_calculation_options</span><span class="p">)</span>
+        <span class="n">mindist</span> <span class="o">=</span> <span class="n">surface_calculation_options</span><span class="p">[</span><span class="s1">&#39;distance_bounds&#39;</span><span class="p">][</span><span class="s1">&#39;lower&#39;</span><span class="p">]</span>
+        <span class="n">maxdist</span> <span class="o">=</span> <span class="n">surface_calculation_options</span><span class="p">[</span><span class="s1">&#39;distance_bounds&#39;</span><span class="p">][</span><span class="s1">&#39;upper&#39;</span><span class="p">]</span>
+        <span class="n">minang</span> <span class="o">=</span> <span class="n">surface_calculation_options</span><span class="p">[</span><span class="s1">&#39;angle_bounds&#39;</span><span class="p">][</span><span class="s1">&#39;lower&#39;</span><span class="p">]</span>
+        <span class="n">maxang</span> <span class="o">=</span> <span class="n">surface_calculation_options</span><span class="p">[</span><span class="s1">&#39;angle_bounds&#39;</span><span class="p">][</span><span class="s1">&#39;upper&#39;</span><span class="p">]</span>
+
+        <span class="n">f_lower</span> <span class="o">=</span> <span class="n">lower_and_upper_functions</span><span class="p">[</span><span class="s1">&#39;lower&#39;</span><span class="p">]</span>
+        <span class="n">f_upper</span> <span class="o">=</span> <span class="n">lower_and_upper_functions</span><span class="p">[</span><span class="s1">&#39;upper&#39;</span><span class="p">]</span>
+        <span class="n">surfaces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">distance_bounds</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">angle_bounds</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">distance_bounds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">dp1</span> <span class="o">=</span> <span class="n">distance_bounds</span><span class="p">[</span><span class="n">idp</span><span class="p">]</span>
+            <span class="n">dp2</span> <span class="o">=</span> <span class="n">distance_bounds</span><span class="p">[</span><span class="n">idp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">dp2</span> <span class="o">&lt;</span> <span class="n">mindist</span> <span class="ow">or</span> <span class="n">dp1</span> <span class="o">&gt;</span> <span class="n">maxdist</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">dp1</span> <span class="o">&lt;</span> <span class="n">mindist</span><span class="p">:</span>
+                <span class="n">d1</span> <span class="o">=</span> <span class="n">mindist</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d1</span> <span class="o">=</span> <span class="n">dp1</span>
+            <span class="k">if</span> <span class="n">dp2</span> <span class="o">&gt;</span> <span class="n">maxdist</span><span class="p">:</span>
+                <span class="n">d2</span> <span class="o">=</span> <span class="n">maxdist</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d2</span> <span class="o">=</span> <span class="n">dp2</span>
+            <span class="k">for</span> <span class="n">iap</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">angle_bounds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">ap1</span> <span class="o">=</span> <span class="n">angle_bounds</span><span class="p">[</span><span class="n">iap</span><span class="p">]</span>
+                <span class="n">ap2</span> <span class="o">=</span> <span class="n">angle_bounds</span><span class="p">[</span><span class="n">iap</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">ap1</span> <span class="o">&gt;</span> <span class="n">ap2</span><span class="p">:</span>
+                    <span class="n">ap1</span> <span class="o">=</span> <span class="n">angle_bounds</span><span class="p">[</span><span class="n">iap</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">ap2</span> <span class="o">=</span> <span class="n">angle_bounds</span><span class="p">[</span><span class="n">iap</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">ap2</span> <span class="o">&lt;</span> <span class="n">minang</span> <span class="ow">or</span> <span class="n">ap1</span> <span class="o">&gt;</span> <span class="n">maxang</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">intersection</span><span class="p">,</span> <span class="n">interror</span> <span class="o">=</span> <span class="n">rectangle_surface_intersection</span><span class="p">(</span><span class="n">rectangle</span><span class="o">=</span><span class="p">((</span><span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">),</span>
+                                                                                   <span class="p">(</span><span class="n">ap1</span><span class="p">,</span> <span class="n">ap2</span><span class="p">)),</span>
+                                                                        <span class="n">f_lower</span><span class="o">=</span><span class="n">f_lower</span><span class="p">,</span>
+                                                                        <span class="n">f_upper</span><span class="o">=</span><span class="n">f_upper</span><span class="p">,</span>
+                                                                        <span class="n">bounds_lower</span><span class="o">=</span><span class="p">[</span><span class="n">mindist</span><span class="p">,</span> <span class="n">maxdist</span><span class="p">],</span>
+                                                                        <span class="n">bounds_upper</span><span class="o">=</span><span class="p">[</span><span class="n">mindist</span><span class="p">,</span> <span class="n">maxdist</span><span class="p">],</span>
+                                                                        <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">surfaces</span><span class="p">[</span><span class="n">idp</span><span class="p">][</span><span class="n">iap</span><span class="p">]</span> <span class="o">=</span> <span class="n">intersection</span>
+        <span class="k">return</span> <span class="n">surfaces</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_vertices_dist_ang_indices</span><span class="p">(</span><span class="n">parameter_indices_list</span><span class="p">):</span>
+        <span class="n">pp0</span> <span class="o">=</span> <span class="p">[</span><span class="n">pp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">parameter_indices_list</span><span class="p">]</span>
+        <span class="n">pp1</span> <span class="o">=</span> <span class="p">[</span><span class="n">pp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">parameter_indices_list</span><span class="p">]</span>
+        <span class="n">min_idist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pp0</span><span class="p">)</span>
+        <span class="n">min_iang</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pp1</span><span class="p">)</span>
+        <span class="n">max_idist</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pp0</span><span class="p">)</span>
+        <span class="n">max_iang</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pp1</span><span class="p">)</span>
+        <span class="n">i_min_angs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pp1</span><span class="p">)</span> <span class="o">==</span> <span class="n">min_iang</span><span class="p">)</span>
+        <span class="n">i_max_dists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pp0</span><span class="p">)</span> <span class="o">==</span> <span class="n">max_idist</span><span class="p">)</span>
+        <span class="n">pp0_at_min_iang</span> <span class="o">=</span> <span class="p">[</span><span class="n">pp0</span><span class="p">[</span><span class="n">ii</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">i_min_angs</span><span class="p">]</span>
+        <span class="n">pp1_at_max_idist</span> <span class="o">=</span> <span class="p">[</span><span class="n">pp1</span><span class="p">[</span><span class="n">ii</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">i_max_dists</span><span class="p">]</span>
+        <span class="n">max_idist_at_min_iang</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pp0_at_min_iang</span><span class="p">)</span>
+        <span class="n">min_iang_at_max_idist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pp1_at_max_idist</span><span class="p">)</span>
+
+        <span class="n">p1</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_idist</span><span class="p">,</span> <span class="n">min_iang</span><span class="p">)</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_idist_at_min_iang</span><span class="p">,</span> <span class="n">min_iang</span><span class="p">)</span>
+        <span class="n">p3</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_idist_at_min_iang</span><span class="p">,</span> <span class="n">min_iang_at_max_idist</span><span class="p">)</span>
+        <span class="n">p4</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_idist</span><span class="p">,</span> <span class="n">min_iang_at_max_idist</span><span class="p">)</span>
+        <span class="n">p5</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_idist</span><span class="p">,</span> <span class="n">max_iang</span><span class="p">)</span>
+        <span class="n">p6</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_idist</span><span class="p">,</span> <span class="n">max_iang</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p4</span><span class="p">,</span> <span class="n">p5</span><span class="p">,</span> <span class="n">p6</span><span class="p">]</span>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.maps_and_surfaces"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces">[docs]</a>    <span class="k">def</span> <span class="nf">maps_and_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">surface_calculation_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_dist</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">additional_conditions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the different surfaces and their cn_map corresponding to the different distance-angle cutoffs</span>
+<span class="sd">        for a given site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            isite: Index of the site</span>
+<span class="sd">            surface_calculation_type: How to compute the surface.</span>
+<span class="sd">            max_dist: The maximum distance factor to be considered.</span>
+<span class="sd">            additional_conditions: If additional conditions have to be considered.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Surfaces and cn_map&#39;s for each distance-angle cutoff.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">additional_conditions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">additional_conditions</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">]</span>
+        <span class="n">surfaces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_surfaces</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">surface_calculation_type</span><span class="o">=</span><span class="n">surface_calculation_type</span><span class="p">,</span>
+                                           <span class="n">max_dist</span><span class="o">=</span><span class="n">max_dist</span><span class="p">)</span>
+        <span class="n">maps_and_surfaces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unique_coordinated_neighbors_parameters_indices</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">imap</span><span class="p">,</span> <span class="n">list_parameters_indices</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="n">thissurf</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">idp</span><span class="p">,</span> <span class="n">iap</span><span class="p">,</span> <span class="n">iacb</span><span class="p">)</span> <span class="ow">in</span> <span class="n">list_parameters_indices</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">iacb</span> <span class="ow">in</span> <span class="n">additional_conditions</span><span class="p">:</span>
+                        <span class="n">thissurf</span> <span class="o">+=</span> <span class="n">surfaces</span><span class="p">[</span><span class="n">idp</span><span class="p">,</span> <span class="n">iap</span><span class="p">]</span>
+                <span class="n">maps_and_surfaces</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;map&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">cn</span><span class="p">,</span> <span class="n">imap</span><span class="p">),</span> <span class="s1">&#39;surface&#39;</span><span class="p">:</span> <span class="n">thissurf</span><span class="p">,</span>
+                                          <span class="s1">&#39;parameters_indices&#39;</span><span class="p">:</span> <span class="n">list_parameters_indices</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">maps_and_surfaces</span></div>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.maps_and_surfaces_bounded"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces_bounded">[docs]</a>    <span class="k">def</span> <span class="nf">maps_and_surfaces_bounded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">surface_calculation_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">additional_conditions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the different surfaces (using boundaries) and their cn_map corresponding to the different</span>
+<span class="sd">        distance-angle cutoffs for a given site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            isite: Index of the site</span>
+<span class="sd">            surface_calculation_options: Options for the boundaries.</span>
+<span class="sd">            additional_conditions: If additional conditions have to be considered.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Surfaces and cn_map&#39;s for each distance-angle cutoff.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">additional_conditions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">additional_conditions</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">]</span>
+        <span class="n">surfaces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_surfaces_bounded</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">surface_calculation_options</span><span class="o">=</span><span class="n">surface_calculation_options</span><span class="p">)</span>
+        <span class="n">maps_and_surfaces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unique_coordinated_neighbors_parameters_indices</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">imap</span><span class="p">,</span> <span class="n">list_parameters_indices</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="n">thissurf</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">idp</span><span class="p">,</span> <span class="n">iap</span><span class="p">,</span> <span class="n">iacb</span><span class="p">)</span> <span class="ow">in</span> <span class="n">list_parameters_indices</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">iacb</span> <span class="ow">in</span> <span class="n">additional_conditions</span><span class="p">:</span>
+                        <span class="n">thissurf</span> <span class="o">+=</span> <span class="n">surfaces</span><span class="p">[</span><span class="n">idp</span><span class="p">,</span> <span class="n">iap</span><span class="p">]</span>
+                <span class="n">maps_and_surfaces</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;map&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">cn</span><span class="p">,</span> <span class="n">imap</span><span class="p">),</span> <span class="s1">&#39;surface&#39;</span><span class="p">:</span> <span class="n">thissurf</span><span class="p">,</span>
+                                          <span class="s1">&#39;parameters_indices&#39;</span><span class="p">:</span> <span class="n">list_parameters_indices</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">maps_and_surfaces</span></div>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.neighbors"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">distfactor</span><span class="p">,</span> <span class="n">angfactor</span><span class="p">,</span> <span class="n">additional_condition</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the neighbors of a given site corresponding to a given distance and angle factor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            isite: Index of the site.</span>
+<span class="sd">            distfactor: Distance factor.</span>
+<span class="sd">            angfactor: Angle factor.</span>
+<span class="sd">            additional_condition: Additional condition to be used (currently not implemented).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of neighbors of the given site for the given distance and angle factors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">idist</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">dfact</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">iwd</span><span class="p">,</span> <span class="n">wd</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">distfactor</span> <span class="o">&gt;=</span> <span class="n">wd</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">]:</span>
+                <span class="n">idist</span> <span class="o">=</span> <span class="n">iwd</span>
+                <span class="n">dfact</span> <span class="o">=</span> <span class="n">wd</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">iang</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">afact</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">iwa</span><span class="p">,</span> <span class="n">wa</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">angfactor</span> <span class="o">&lt;=</span> <span class="n">wa</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">]:</span>
+                <span class="n">iang</span> <span class="o">=</span> <span class="n">iwa</span>
+                <span class="n">afact</span> <span class="o">=</span> <span class="n">wa</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">idist</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">iang</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Distance or angle parameter not found ...&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">nb</span> <span class="k">for</span> <span class="n">nb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="k">if</span>
+                <span class="n">nb</span><span class="p">[</span><span class="s1">&#39;normalized_distance&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">dfact</span> <span class="ow">and</span> <span class="n">nb</span><span class="p">[</span><span class="s1">&#39;normalized_angle&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">afact</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits">[docs]</a>    <span class="k">def</span> <span class="nf">voronoi_parameters_bounds_and_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">plot_type</span><span class="p">,</span> <span class="n">max_dist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the different boundaries and limits of the distance and angle factors for the given site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            isite: Index of the site.</span>
+<span class="sd">            plot_type: Types of distance/angle parameters to get.</span>
+<span class="sd">            max_dist: Maximum distance factor.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Distance and angle bounds and limits.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Initializes the distance and angle parameters</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">plot_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plot_type</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;distance_parameter&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;initial_inverse_opposite&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                         <span class="s1">&#39;angle_parameter&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;initial_opposite&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)}</span>
+        <span class="n">dd</span> <span class="o">=</span> <span class="p">[</span><span class="n">dist</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">]]</span>
+        <span class="n">dd</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">plot_type</span><span class="p">[</span><span class="s1">&#39;distance_parameter&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;initial_normalized&#39;</span><span class="p">:</span>
+            <span class="n">dd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">max_dist</span><span class="p">)</span>
+            <span class="n">distance_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dd</span><span class="p">)</span>
+            <span class="n">dist_limits</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">max_dist</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">plot_type</span><span class="p">[</span><span class="s1">&#39;distance_parameter&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;initial_inverse_opposite&#39;</span><span class="p">:</span>
+            <span class="n">ddinv</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">dist</span> <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">dd</span><span class="p">]</span>
+            <span class="n">ddinv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+            <span class="n">distance_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">invdist</span> <span class="k">for</span> <span class="n">invdist</span> <span class="ow">in</span> <span class="n">ddinv</span><span class="p">])</span>
+            <span class="n">dist_limits</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">plot_type</span><span class="p">[</span><span class="s1">&#39;distance_parameter&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;initial_inverse3_opposite&#39;</span><span class="p">:</span>
+            <span class="n">ddinv</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">dist</span> <span class="o">**</span> <span class="mf">3.0</span> <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">dd</span><span class="p">]</span>
+            <span class="n">ddinv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+            <span class="n">distance_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">invdist</span> <span class="k">for</span> <span class="n">invdist</span> <span class="ow">in</span> <span class="n">ddinv</span><span class="p">])</span>
+            <span class="n">dist_limits</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Plotting type &quot;</span><span class="si">{}</span><span class="s1">&quot; &#39;</span>
+                                      <span class="s1">&#39;for the distance is not implemented&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plot_type</span><span class="p">[</span><span class="s1">&#39;distance_parameter&#39;</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">plot_type</span><span class="p">[</span><span class="s1">&#39;angle_parameter&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;initial_normalized&#39;</span><span class="p">:</span>
+            <span class="n">aa</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+            <span class="n">aa</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">ang</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ang</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">]])</span>
+            <span class="n">angle_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">plot_type</span><span class="p">[</span><span class="s1">&#39;angle_parameter&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;initial_opposite&#39;</span><span class="p">:</span>
+            <span class="n">aa</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+            <span class="n">aa</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">ang</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ang</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">]])</span>
+            <span class="n">aa</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">ang</span> <span class="k">for</span> <span class="n">ang</span> <span class="ow">in</span> <span class="n">aa</span><span class="p">]</span>
+            <span class="n">angle_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Plotting type &quot;</span><span class="si">{}</span><span class="s1">&quot; &#39;</span>
+                                      <span class="s1">&#39;for the angle is not implemented&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plot_type</span><span class="p">[</span><span class="s1">&#39;angle_parameter&#39;</span><span class="p">]))</span>
+        <span class="n">ang_limits</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;distance_bounds&#39;</span><span class="p">:</span> <span class="n">distance_bounds</span><span class="p">,</span> <span class="s1">&#39;distance_limits&#39;</span><span class="p">:</span> <span class="n">dist_limits</span><span class="p">,</span>
+                <span class="s1">&#39;angle_bounds&#39;</span><span class="p">:</span> <span class="n">angle_bounds</span><span class="p">,</span> <span class="s1">&#39;angle_limits&#39;</span><span class="p">:</span> <span class="n">ang_limits</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.is_close_to"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.is_close_to">[docs]</a>    <span class="k">def</span> <span class="nf">is_close_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Whether two DetailedVoronoiContainer objects are close to each other.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: Another DetailedVoronoiContainer to be compared with.</span>
+<span class="sd">            rtol: Relative tolerance to compare values.</span>
+<span class="sd">            atol: Absolute tolerance to compare values.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if the two DetailedVoronoiContainer are close to each other.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">isclose</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_angle_tolerance</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">normalized_angle_tolerance</span><span class="p">,</span>
+                              <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span> <span class="ow">and</span>
+                   <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_distance_tolerance</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">normalized_distance_tolerance</span><span class="p">,</span>
+                              <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span> <span class="ow">and</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">additional_conditions</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">additional_conditions</span> <span class="ow">and</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">valences</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">valences</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isclose</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">isclose</span>
+        <span class="k">for</span> <span class="n">isite</span><span class="p">,</span> <span class="n">site_voronoi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">):</span>
+            <span class="n">self_to_other_nbs</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">inb</span><span class="p">,</span> <span class="n">nb</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">site_voronoi</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">nb</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                <span class="n">nb_other</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">inb2</span><span class="p">,</span> <span class="n">nb2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">[</span><span class="n">isite</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">nb</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">nb2</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]:</span>
+                        <span class="n">self_to_other_nbs</span><span class="p">[</span><span class="n">inb</span><span class="p">]</span> <span class="o">=</span> <span class="n">inb2</span>
+                        <span class="n">nb_other</span> <span class="o">=</span> <span class="n">nb2</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="n">nb_other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">nb</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">],</span> <span class="n">nb_other</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">],</span>
+                                  <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">nb</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">],</span> <span class="n">nb_other</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">],</span>
+                                  <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">nb</span><span class="p">[</span><span class="s1">&#39;normalized_distance&#39;</span><span class="p">],</span> <span class="n">nb_other</span><span class="p">[</span><span class="s1">&#39;normalized_distance&#39;</span><span class="p">],</span>
+                                  <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">nb</span><span class="p">[</span><span class="s1">&#39;normalized_angle&#39;</span><span class="p">],</span> <span class="n">nb_other</span><span class="p">[</span><span class="s1">&#39;normalized_angle&#39;</span><span class="p">],</span>
+                                  <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">nb</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nb_other</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">nb</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nb_other</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.get_rdf_figure"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_rdf_figure">[docs]</a>    <span class="k">def</span> <span class="nf">get_rdf_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">step_function</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the Radial Distribution Figure for a given site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            isite: Index of the site.</span>
+<span class="sd">            normalized: Whether to normalize distances.</span>
+<span class="sd">            figsize: Size of the figure.</span>
+<span class="sd">            step_function: Type of step function to be used for the RDF.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Matplotlib figure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">dp_func</span><span class="p">(</span><span class="n">dp</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>
+
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="k">if</span> <span class="n">step_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">step_function</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;normal_cdf&#39;</span><span class="p">,</span> <span class="s1">&#39;scale&#39;</span><span class="p">:</span> <span class="mf">0.0001</span><span class="p">}</span>
+
+        <span class="c1"># Initializes the figure</span>
+        <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+        <span class="n">subplot</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">normalized</span><span class="p">:</span>
+            <span class="n">dists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_distances</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">step_function</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;step_function&#39;</span><span class="p">:</span>
+            <span class="n">isorted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">([</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">dists</span><span class="p">])</span>
+            <span class="n">sorted_dists</span> <span class="o">=</span> <span class="p">[</span><span class="n">dists</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;min&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">isorted</span><span class="p">]</span>
+            <span class="n">dnb_dists</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">dists</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">isorted</span><span class="p">]</span>
+            <span class="n">xx</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+            <span class="n">yy</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">idist</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sorted_dists</span><span class="p">):</span>
+                <span class="n">xx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+                <span class="n">xx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+                <span class="n">yy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">yy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dnb_dists</span><span class="p">[</span><span class="n">idist</span><span class="p">])</span>
+            <span class="n">xx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.1</span> <span class="o">*</span> <span class="n">xx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">yy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">step_function</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;normal_cdf&#39;</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">step_function</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span>
+            <span class="n">mydists</span> <span class="o">=</span> <span class="p">[</span><span class="n">dp_func</span><span class="p">(</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">dists</span><span class="p">]</span>
+            <span class="n">mydcns</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">dists</span><span class="p">]</span>
+            <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">mydists</span><span class="p">),</span> <span class="n">num</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+            <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">xx</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">idist</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mydists</span><span class="p">):</span>
+                <span class="n">yy</span> <span class="o">+=</span> <span class="n">mydcns</span><span class="p">[</span><span class="n">idist</span><span class="p">]</span> <span class="o">*</span> <span class="n">normal_cdf_step</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">dist</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Step function of type &quot;</span><span class="si">{}</span><span class="s1">&quot; is not allowed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step_function</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]))</span>
+        <span class="n">subplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.get_sadf_figure"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_sadf_figure">[docs]</a>    <span class="k">def</span> <span class="nf">get_sadf_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">step_function</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the Solid Angle Distribution Figure for a given site.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            isite: Index of the site.</span>
+<span class="sd">            normalized: Whether to normalize angles.</span>
+<span class="sd">            figsize: Size of the figure.</span>
+<span class="sd">            step_function: Type of step function to be used for the SADF.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Matplotlib figure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">ap_func</span><span class="p">(</span><span class="n">ap</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">)</span>
+
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="k">if</span> <span class="n">step_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">step_function</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;step_function&#39;</span><span class="p">,</span> <span class="s1">&#39;scale&#39;</span><span class="p">:</span> <span class="mf">0.0001</span><span class="p">}</span>
+
+        <span class="c1"># Initializes the figure</span>
+        <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+        <span class="n">subplot</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">normalized</span><span class="p">:</span>
+            <span class="n">angs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_normalized_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">angs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_angles</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">step_function</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;step_function&#39;</span><span class="p">:</span>
+            <span class="n">isorted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">([</span><span class="n">ap_func</span><span class="p">(</span><span class="n">aa</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">angs</span><span class="p">])</span>
+            <span class="n">sorted_angs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ap_func</span><span class="p">(</span><span class="n">angs</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;min&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">isorted</span><span class="p">]</span>
+            <span class="n">dnb_angs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">angs</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">isorted</span><span class="p">]</span>
+            <span class="n">xx</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+            <span class="n">yy</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">iang</span><span class="p">,</span> <span class="n">ang</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sorted_angs</span><span class="p">):</span>
+                <span class="n">xx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ang</span><span class="p">)</span>
+                <span class="n">xx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ang</span><span class="p">)</span>
+                <span class="n">yy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">yy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dnb_angs</span><span class="p">[</span><span class="n">iang</span><span class="p">])</span>
+            <span class="n">xx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.1</span> <span class="o">*</span> <span class="n">xx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">yy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">step_function</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;normal_cdf&#39;</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">step_function</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span>
+            <span class="n">myangs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ap_func</span><span class="p">(</span><span class="n">aa</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">angs</span><span class="p">]</span>
+            <span class="n">mydcns</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;dnb_indices&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">angs</span><span class="p">]</span>
+            <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">myangs</span><span class="p">),</span> <span class="n">num</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+            <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">xx</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">iang</span><span class="p">,</span> <span class="n">ang</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">myangs</span><span class="p">):</span>
+                <span class="n">yy</span> <span class="o">+=</span> <span class="n">mydcns</span><span class="p">[</span><span class="n">iang</span><span class="p">]</span> <span class="o">*</span> <span class="n">normal_cdf_step</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">ang</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Step function of type &quot;</span><span class="si">{}</span><span class="s1">&quot; is not allowed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step_function</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]))</span>
+        <span class="n">subplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_angle_tolerance</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">normalized_angle_tolerance</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">normalized_distance_tolerance</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">normalized_distance_tolerance</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">additional_conditions</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">additional_conditions</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">valences</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">valences</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">voronoi_list2</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.to_bson_voronoi_list2"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.to_bson_voronoi_list2">[docs]</a>    <span class="k">def</span> <span class="nf">to_bson_voronoi_list2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms the voronoi_list into a vlist + bson_nb_voro_list, that are BSON-encodable.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [vlist, bson_nb_voro_list], to be used in the as_dict method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bson_nb_voro_list2</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ivoro</span><span class="p">,</span> <span class="n">voro</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">voro</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">voro</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">site_voro</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># {&#39;site&#39;: neighbors[nn[1]],</span>
+            <span class="c1">#  &#39;angle&#39;: sa,</span>
+            <span class="c1">#  &#39;distance&#39;: distances[nn[1]],</span>
+            <span class="c1">#  &#39;index&#39;: myindex}</span>
+            <span class="k">for</span> <span class="n">nb_dict</span> <span class="ow">in</span> <span class="n">voro</span><span class="p">:</span>
+                <span class="n">site</span> <span class="o">=</span> <span class="n">nb_dict</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span>
+                <span class="n">site_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">nb_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]}</span>
+                <span class="c1"># site_voro.append([ps.as_dict(), dd]) [float(c) for c in self.frac_coords]</span>
+                <span class="n">diff</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">nb_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">frac_coords</span>
+                <span class="n">site_voro</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="n">nb_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">],</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">diff</span><span class="p">]],</span>
+                                  <span class="n">site_dict</span><span class="p">])</span>
+            <span class="n">bson_nb_voro_list2</span><span class="p">[</span><span class="n">ivoro</span><span class="p">]</span> <span class="o">=</span> <span class="n">site_voro</span>
+        <span class="k">return</span> <span class="n">bson_nb_voro_list2</span></div>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Bson-serializable dict representation of the VoronoiContainer.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dictionary that is BSON-encodable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bson_nb_voro_list2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_bson_voronoi_list2</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;bson_nb_voro_list2&quot;</span><span class="p">:</span> <span class="n">bson_nb_voro_list2</span><span class="p">,</span>
+                <span class="c1"># &quot;neighbors_lists&quot;: self.neighbors_lists,</span>
+                <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                <span class="s2">&quot;normalized_angle_tolerance&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized_angle_tolerance</span><span class="p">,</span>
+                <span class="s2">&quot;normalized_distance_tolerance&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized_distance_tolerance</span><span class="p">,</span>
+                <span class="s2">&quot;additional_conditions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_conditions</span><span class="p">,</span>
+                <span class="s2">&quot;valences&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">valences</span><span class="p">,</span>
+                <span class="s2">&quot;maximum_distance_factor&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_distance_factor</span><span class="p">,</span>
+                <span class="s2">&quot;minimum_angle_factor&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_angle_factor</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="DetailedVoronoiContainer.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reconstructs the VoronoiContainer object from a dict representation of the VoronoiContainer created using</span>
+<span class="sd">        the as_dict method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            d: dict representation of the VoronoiContainer object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            VoronoiContainer object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">])</span>
+        <span class="n">voronoi_list2</span> <span class="o">=</span> <span class="n">from_bson_voronoi_list2</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;bson_nb_voro_list2&#39;</span><span class="p">],</span> <span class="n">structure</span><span class="p">)</span>
+        <span class="n">maximum_distance_factor</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;maximum_distance_factor&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;maximum_distance_factor&#39;</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">minimum_angle_factor</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;minimum_angle_factor&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;minimum_angle_factor&#39;</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">voronoi_list2</span><span class="o">=</span><span class="n">voronoi_list2</span><span class="p">,</span>
+                   <span class="c1"># neighbors_lists=neighbors_lists,</span>
+                   <span class="n">normalized_angle_tolerance</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;normalized_angle_tolerance&#39;</span><span class="p">],</span>
+                   <span class="n">normalized_distance_tolerance</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;normalized_distance_tolerance&#39;</span><span class="p">],</span>
+                   <span class="n">additional_conditions</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;additional_conditions&#39;</span><span class="p">],</span>
+                   <span class="n">valences</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;valences&#39;</span><span class="p">],</span>
+                   <span class="n">maximum_distance_factor</span><span class="o">=</span><span class="n">maximum_distance_factor</span><span class="p">,</span>
+                   <span class="n">minimum_angle_factor</span><span class="o">=</span><span class="n">minimum_angle_factor</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.chemenv.coordination_environments.voronoi</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

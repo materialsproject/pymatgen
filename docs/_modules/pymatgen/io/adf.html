@@ -1,0 +1,1075 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.io.adf &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.adf</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.adf</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">IO for ADF files.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">monty.itertools</span> <span class="kn">import</span> <span class="n">chunks</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">reverse_readline</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Xin Chen, chenxin13@mails.tsinghua.edu.cn&#39;</span>
+
+
+<div class="viewcode-block" id="is_numeric"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.is_numeric">[docs]</a><span class="k">def</span> <span class="nf">is_numeric</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return True is the string ``s`` is a numeric string.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s : str</span>
+<span class="sd">        A string.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : bool</span>
+<span class="sd">        If True, ``s`` is a numeric string and can be converted to an int or a</span>
+<span class="sd">        float. Otherwise False will be returned.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="iterlines"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.iterlines">[docs]</a><span class="k">def</span> <span class="nf">iterlines</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A generator form of s.split(&#39;\n&#39;) for reducing memory overhead.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s : str</span>
+<span class="sd">        A multi-line string.</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    ------</span>
+<span class="sd">    line : str</span>
+<span class="sd">        A string.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prevnl</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">nextnl</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">prevnl</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nextnl</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">s</span><span class="p">[(</span><span class="n">prevnl</span><span class="o">+</span><span class="mi">1</span><span class="p">):]</span>
+            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">s</span><span class="p">[(</span><span class="n">prevnl</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span><span class="n">nextnl</span><span class="p">]</span>
+            <span class="n">prevnl</span> <span class="o">=</span> <span class="n">nextnl</span></div>
+
+
+<div class="viewcode-block" id="AdfInputError"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfInputError">[docs]</a><span class="k">class</span> <span class="nc">AdfInputError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The default error class for ADF.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="AdfOutputError"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfOutputError">[docs]</a><span class="k">class</span> <span class="nc">AdfOutputError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The default error class for errors raised by ``AdfOutput``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="AdfKey"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfKey">[docs]</a><span class="k">class</span> <span class="nc">AdfKey</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The basic input unit for ADF. A key is a string of characters that does not</span>
+<span class="sd">    contain a delimiter (blank, comma or equal sign). A key may have multiple</span>
+<span class="sd">    subkeys and a set of options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">block_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SCF&quot;</span><span class="p">,</span> <span class="s2">&quot;GEOMETRY&quot;</span><span class="p">,</span> <span class="s2">&quot;XC&quot;</span><span class="p">,</span> <span class="s2">&quot;UNITS&quot;</span><span class="p">,</span> <span class="s2">&quot;ATOMS&quot;</span><span class="p">,</span> <span class="s2">&quot;CHARGE&quot;</span><span class="p">,</span> <span class="s2">&quot;BASIS&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;SYMMETRY&quot;</span><span class="p">,</span> <span class="s2">&quot;RELATIVISTIC&quot;</span><span class="p">,</span> <span class="s2">&quot;OCCUPATIONS&quot;</span><span class="p">,</span> <span class="s2">&quot;SAVE&quot;</span><span class="p">,</span> <span class="s2">&quot;A1FIT&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;INTEGRATION&quot;</span><span class="p">,</span> <span class="s2">&quot;UNRESTRICTED&quot;</span><span class="p">,</span> <span class="s2">&quot;ZLMFIT&quot;</span><span class="p">,</span> <span class="s2">&quot;TITLE&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;EXACTDENSITY&quot;</span><span class="p">,</span> <span class="s2">&quot;TOTALENERGY&quot;</span><span class="p">,</span> <span class="s2">&quot;ANALYTICALFREQ&quot;</span><span class="p">}</span>
+    <span class="n">sub_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;AtomDepQuality&quot;</span><span class="p">}</span>
+
+    <span class="c1"># Full blocks are blocks that must have an &#39;END&#39;.</span>
+    <span class="n">_full_blocks</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;GEOMETRY&quot;</span><span class="p">,</span> <span class="s2">&quot;SCF&quot;</span><span class="p">,</span> <span class="s2">&quot;UNITS&quot;</span><span class="p">,</span> <span class="s2">&quot;BASIS&quot;</span><span class="p">,</span> <span class="s2">&quot;ANALYTICALFREQ&quot;</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subkeys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of this key.</span>
+<span class="sd">        options : Sized</span>
+<span class="sd">            The options for this key. Each element can be a primitive object or</span>
+<span class="sd">            a tuple/list with two elements: the first is the name and the second</span>
+<span class="sd">            is a primitive object.</span>
+<span class="sd">        subkeys : Sized</span>
+<span class="sd">            The subkeys for this key.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If elements in ``subkeys`` are not ``AdfKey`` objects.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span> <span class="o">=</span> <span class="n">subkeys</span> <span class="k">if</span> <span class="n">subkeys</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">subkeys</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">AdfKey</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all subkeys are ``AdfKey`` objects!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sized_op</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sized_op</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_options_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the option string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sized_op</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{:s}</span><span class="s2">=</span><span class="si">{:s}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">op</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{:s}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">op</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+<div class="viewcode-block" id="AdfKey.is_block_key"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfKey.is_block_key">[docs]</a>    <span class="k">def</span> <span class="nf">is_block_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return True if this key is a block key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_keys</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the name of this key. If this is a block key, the name will be</span>
+<span class="sd">        converted to upper cases.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_block_key</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the string representation of this ``AdfKey``.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        If this key is &#39;Atoms&#39; and the coordinates are in Cartesian form, a</span>
+<span class="sd">        different string format will be used.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot; </span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options_string</span><span class="p">())</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;atoms&#39;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">subkey</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{:2s}</span><span class="s2">  </span><span class="si">{: 14.8f}</span><span class="s2">    </span><span class="si">{: 14.8f}</span><span class="s2">    </span><span class="si">{: 14.8f}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">subkey</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">subkey</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">subkey</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">subkey</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_block_key</span><span class="p">():</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;END</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;subend</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_full_blocks</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;END</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">AdfKey</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AdfKey.has_subkey"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfKey.has_subkey">[docs]</a>    <span class="k">def</span> <span class="nf">has_subkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subkey</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return True if this AdfKey contains the given subkey.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subkey : str or AdfKey</span>
+<span class="sd">            A key name or an AdfKey object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        has : bool</span>
+<span class="sd">            True if this key contains the given key. Otherwise False.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subkey</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">subkey</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subkey</span><span class="p">,</span> <span class="n">AdfKey</span><span class="p">):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">subkey</span><span class="o">.</span><span class="n">key</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The subkey should be an AdfKey or a string!&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="AdfKey.add_subkey"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfKey.add_subkey">[docs]</a>    <span class="k">def</span> <span class="nf">add_subkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subkey</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new subkey to this key.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subkey : AdfKey</span>
+<span class="sd">            A new subkey.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Duplicate check will not be performed if this is an &#39;Atoms&#39; block.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;atoms&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_subkey</span><span class="p">(</span><span class="n">subkey</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subkey</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdfKey.remove_subkey"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfKey.remove_subkey">[docs]</a>    <span class="k">def</span> <span class="nf">remove_subkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subkey</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove the given subkey, if existed, from this AdfKey.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subkey : str or AdfKey</span>
+<span class="sd">            The subkey to remove.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">subkey</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subkey</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">subkey</span><span class="o">.</span><span class="n">key</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">key</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="k">break</span></div>
+
+<div class="viewcode-block" id="AdfKey.add_option"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfKey.add_option">[docs]</a>    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new option to this key.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        option : Sized or str or int or float</span>
+<span class="sd">            A new option to add. This must have the same format with exsiting</span>
+<span class="sd">            options.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the format of the given ``option`` is different.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sized_op</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sized_op</span> <span class="o">!=</span> <span class="n">sized_op</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Option type is mismatched!&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">option</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdfKey.remove_option"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfKey.remove_option">[docs]</a>    <span class="k">def</span> <span class="nf">remove_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove an option.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        option : str or int</span>
+<span class="sd">            The name (str) or index (int) of the option to remove.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option has a wrong type.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sized_op</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;``option`` should be a name string!&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">option</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                        <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;``option`` should be an integer index!&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">option</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdfKey.has_option"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfKey.has_option">[docs]</a>    <span class="k">def</span> <span class="nf">has_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return True if the option is included in this key.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        option : str</span>
+<span class="sd">            The option.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        has : bool</span>
+<span class="sd">            True if the option can be found. Otherwise False will be returned.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sized_op</span> <span class="ow">and</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">option</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">op</span> <span class="o">==</span> <span class="n">option</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="AdfKey.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfKey.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A JSON serializable dict representation of self.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">}</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">subkeys</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">subkey</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subkeys</span><span class="p">:</span>
+                <span class="n">subkeys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subkey</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;subkeys&quot;</span><span class="p">:</span> <span class="n">subkeys</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="AdfKey.to_json"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfKey.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a json string representation of the MSONable AdfKey object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AdfKey.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfKey.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a MSONable AdfKey object from the JSON dict.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        d : dict</span>
+<span class="sd">            A dict of saved attributes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        adfkey : AdfKey</span>
+<span class="sd">            An AdfKey object recovered from the JSON dict ``d``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;options&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">subkey_list</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subkeys&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subkey_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">subkeys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">subkey_list</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">subkeys</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">subkeys</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdfKey.from_string"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfKey.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct an AdfKey object from the string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        string : str</span>
+<span class="sd">            A string.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        adfkey : AdfKey</span>
+<span class="sd">            An AdfKey object recovered from the string.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Currently nested subkeys are not supported. If ``subend`` was found</span>
+<span class="sd">            a ValueError would be raised.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Only the first block key will be returned.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">is_float</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">s</span> <span class="ow">or</span> <span class="s1">&#39;E&#39;</span> <span class="ow">in</span> <span class="n">s</span> <span class="ow">or</span> <span class="s1">&#39;e&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">el</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">options</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">),</span> <span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">options</span> <span class="o">=</span> <span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">op</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_numeric</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                        <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">is_float</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">elif</span> <span class="n">is_numeric</span><span class="p">(</span><span class="n">op</span><span class="p">):</span>
+                        <span class="n">options</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="k">if</span> <span class="n">is_float</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">options</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">AdfKey</span><span class="p">(</span><span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">options</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;subend&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Nested subkeys are not supported!&quot;</span><span class="p">)</span>
+
+        <span class="n">key</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">iterlines</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">el</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">block_keys</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">key</span>
+            <span class="k">elif</span> <span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;END&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">key</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">key</span><span class="o">.</span><span class="n">add_subkey</span><span class="p">(</span><span class="n">AdfKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;IncompleteKey: &#39;END&#39; is missing!&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AdfTask"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask">[docs]</a><span class="k">class</span> <span class="nc">AdfTask</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Basic task for ADF. All settings in this class are independent of molecules.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Unlike other quantum chemistry packages (NWChem, Gaussian, ...), ADF does</span>
+<span class="sd">    not support calculating force/gradient.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">operations</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="s2">&quot;Evaluate the single point energy.&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;optimize&quot;</span><span class="p">:</span> <span class="s2">&quot;Minimize the energy by varying the molecular &quot;</span>
+                              <span class="s2">&quot;structure.&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;frequencies&quot;</span><span class="p">:</span> <span class="s2">&quot;Compute second derivatives and print out an &quot;</span>
+                                 <span class="s2">&quot;analysis of molecular vibrations.&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;freq&quot;</span><span class="p">:</span> <span class="s2">&quot;Same as frequencies.&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;numerical_frequencies&quot;</span><span class="p">:</span> <span class="s2">&quot;Compute molecular frequencies using&quot;</span>
+                                           <span class="s2">&quot; numerical method.&quot;</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;energy&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">title</span><span class="o">=</span><span class="s2">&quot;ADF_RUN&quot;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">geo_subkeys</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">other_directives</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        operation : str</span>
+<span class="sd">            The target operation.</span>
+<span class="sd">        basis_set : AdfKey</span>
+<span class="sd">            The basis set definitions for this task. Defaults to &#39;DZ/Large&#39;.</span>
+<span class="sd">        xc : AdfKey</span>
+<span class="sd">            The exchange-correlation functionals. Defaults to PBE.</span>
+<span class="sd">        title : str</span>
+<span class="sd">            The title of this ADF task.</span>
+<span class="sd">        units : AdfKey</span>
+<span class="sd">            The units. Defaults to Angstroms/Degree.</span>
+<span class="sd">        geo_subkeys : Sized</span>
+<span class="sd">            The subkeys for the block key &#39;GEOMETRY&#39;.</span>
+<span class="sd">        scf : AdfKey</span>
+<span class="sd">            The scf options.</span>
+<span class="sd">        other_directives : Sized</span>
+<span class="sd">            User-defined directives.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">operation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">AdfInputError</span><span class="p">(</span><span class="s2">&quot;Invalid ADF task </span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operation</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">operation</span> <span class="o">=</span> <span class="n">operation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">basis_set</span> <span class="k">if</span> <span class="n">basis_set</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_default_basis_set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xc</span> <span class="o">=</span> <span class="n">xc</span> <span class="k">if</span> <span class="n">xc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_xc</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">units</span> <span class="k">if</span> <span class="n">units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_units</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scf</span> <span class="o">=</span> <span class="n">scf</span> <span class="k">if</span> <span class="n">scf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_scf</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">other_directives</span> <span class="o">=</span> <span class="n">other_directives</span> \
+            <span class="k">if</span> <span class="n">other_directives</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_task</span><span class="p">(</span><span class="n">geo_subkeys</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AdfTask.get_default_basis_set"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.get_default_basis_set">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_default_basis_set</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Default basis set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;Basis</span><span class="se">\n</span><span class="s2">type DZ</span><span class="se">\n</span><span class="s2">core small</span><span class="se">\n</span><span class="s2">END&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdfTask.get_default_scf"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.get_default_scf">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_default_scf</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: ADF using default SCF.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;SCF</span><span class="se">\n</span><span class="s2">iterations 300</span><span class="se">\n</span><span class="s2">END&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdfTask.get_default_geo"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.get_default_geo">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_default_geo</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: ADFKey using default geometry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;GEOMETRY SinglePoint</span><span class="se">\n</span><span class="s2">END&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdfTask.get_default_xc"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.get_default_xc">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_default_xc</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: ADFKey using default XC.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;XC</span><span class="se">\n</span><span class="s2">GGA PBE</span><span class="se">\n</span><span class="s2">END&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdfTask.get_default_units"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.get_default_units">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_default_units</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Default units.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;Units</span><span class="se">\n</span><span class="s2">length angstrom</span><span class="se">\n</span><span class="s2">angle degree</span><span class="se">\n</span><span class="s2">End&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_setup_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geo_subkeys</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup the block &#39;Geometry&#39; given subkeys and the task.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        geo_subkeys : Sized</span>
+<span class="sd">            User-defined subkeys for the block &#39;Geometry&#39;.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Most of the run types of ADF are specified in the Geometry block except</span>
+<span class="sd">        the &#39;AnalyticFreq&#39;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geo</span> <span class="o">=</span> <span class="n">AdfKey</span><span class="p">(</span><span class="s2">&quot;Geometry&quot;</span><span class="p">,</span> <span class="n">subkeys</span><span class="o">=</span><span class="n">geo_subkeys</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;energy&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;SinglePoint&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">has_subkey</span><span class="p">(</span><span class="s2">&quot;Frequencies&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">remove_subkey</span><span class="p">(</span><span class="s2">&quot;Frequencies&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;optimize&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;GeometryOptimization&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">has_subkey</span><span class="p">(</span><span class="s2">&quot;Frequencies&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">remove_subkey</span><span class="p">(</span><span class="s2">&quot;Frequencies&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;numerical_frequencies&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">add_subkey</span><span class="p">(</span><span class="n">AdfKey</span><span class="p">(</span><span class="s2">&quot;Frequencies&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">other_directives</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AdfKey</span><span class="p">(</span><span class="s2">&quot;AnalyticalFreq&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">has_subkey</span><span class="p">(</span><span class="s2">&quot;Frequencies&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">remove_subkey</span><span class="p">(</span><span class="s2">&quot;Frequencies&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;TITLE </span><span class="si">{title}</span><span class="se">\n</span><span class="s2"></span>
+<span class="si">{units}</span><span class="s2"></span>
+<span class="si">{xc}</span><span class="s2"></span>
+<span class="si">{basis_set}</span><span class="s2"></span>
+<span class="si">{scf}</span><span class="s2"></span>
+<span class="si">{geo}</span><span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">),</span> <span class="n">xc</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xc</span><span class="p">),</span>
+            <span class="n">basis_set</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">),</span> <span class="n">scf</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scf</span><span class="p">),</span> <span class="n">geo</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">block_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_directives</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block_key</span><span class="p">,</span> <span class="n">AdfKey</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> is not an AdfKey!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">block_key</span><span class="p">)))</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">block_key</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+<div class="viewcode-block" id="AdfTask.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A JSON serializable dict representation of self.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;operation&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+                <span class="s2">&quot;xc&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="s2">&quot;basis_set&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="s2">&quot;scf&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">scf</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                <span class="s2">&quot;geo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                <span class="s2">&quot;others&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_directives</span><span class="p">]}</span></div>
+
+<div class="viewcode-block" id="AdfTask.to_json"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a json string representation of the MSONable AdfTask object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AdfTask.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a MSONable AdfTask object from the JSON dict.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        d : dict</span>
+<span class="sd">            A dict of saved attributes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        task : AdfTask</span>
+<span class="sd">            An AdfTask object recovered from the JSON dict ``d``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">_from_dict</span><span class="p">(</span><span class="n">_d</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">_d</span><span class="p">)</span> <span class="k">if</span> <span class="n">_d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">operation</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation&quot;</span><span class="p">)</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">)</span>
+        <span class="n">basis_set</span> <span class="o">=</span> <span class="n">_from_dict</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basis_set&quot;</span><span class="p">))</span>
+        <span class="n">xc</span> <span class="o">=</span> <span class="n">_from_dict</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;xc&quot;</span><span class="p">))</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">_from_dict</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;units&quot;</span><span class="p">))</span>
+        <span class="n">scf</span> <span class="o">=</span> <span class="n">_from_dict</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scf&quot;</span><span class="p">))</span>
+        <span class="n">others</span> <span class="o">=</span> <span class="p">[</span><span class="n">AdfKey</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;others&quot;</span><span class="p">,</span> <span class="p">[])]</span>
+        <span class="n">geo</span> <span class="o">=</span> <span class="n">_from_dict</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;geo&quot;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">,</span> <span class="n">xc</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">geo</span><span class="o">.</span><span class="n">subkeys</span><span class="p">,</span> <span class="n">scf</span><span class="p">,</span>
+                   <span class="n">others</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AdfInput"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfInput">[docs]</a><span class="k">class</span> <span class="nc">AdfInput</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A basic ADF input file writer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        task : AdfTask</span>
+<span class="sd">            An ADF task.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="n">task</span>
+
+<div class="viewcode-block" id="AdfInput.write_file"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfInput.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">inpfile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write an ADF input file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        molecule : Molecule</span>
+<span class="sd">            The molecule for this task.</span>
+<span class="sd">        inpfile : str</span>
+<span class="sd">            The name where the input file will be saved.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">mol_blocks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">atom_block</span> <span class="o">=</span> <span class="n">AdfKey</span><span class="p">(</span><span class="s2">&quot;Atoms&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cartesian&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">molecule</span><span class="p">:</span>
+            <span class="n">atom_block</span><span class="o">.</span><span class="n">add_subkey</span><span class="p">(</span><span class="n">AdfKey</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">)))</span>
+        <span class="n">mol_blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom_block</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">molecule</span><span class="o">.</span><span class="n">charge</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">netq</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">charge</span>
+            <span class="n">ab</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">spin_multiplicity</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">charge_block</span> <span class="o">=</span> <span class="n">AdfKey</span><span class="p">(</span><span class="s2">&quot;Charge&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">netq</span><span class="p">,</span> <span class="n">ab</span><span class="p">])</span>
+            <span class="n">mol_blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">charge_block</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ab</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">unres_block</span> <span class="o">=</span> <span class="n">AdfKey</span><span class="p">(</span><span class="s2">&quot;Unrestricted&quot;</span><span class="p">)</span>
+                <span class="n">mol_blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unres_block</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">inpfile</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">mol_blocks</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">block</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;END INPUT&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AdfOutput"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfOutput">[docs]</a><span class="k">class</span> <span class="nc">AdfOutput</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A basic ADF output file parser.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    is_failed : bool</span>
+<span class="sd">        True is the ADF job is terminated without success. Otherwise False.</span>
+<span class="sd">    is_internal_crash : bool</span>
+<span class="sd">        True if the job is terminated with internal crash. Please read &#39;TAPE13&#39;</span>
+<span class="sd">        of the ADF manual for more detail.</span>
+<span class="sd">    error : str</span>
+<span class="sd">        The error description.</span>
+<span class="sd">    run_type : str</span>
+<span class="sd">        The RunType of this ADF job. Possible options are: &#39;SinglePoint&#39;,</span>
+<span class="sd">        &#39;GeometryOptimization&#39;, &#39;AnalyticalFreq&#39; and &#39;NUmericalFreq&#39;.</span>
+<span class="sd">    final_energy : float</span>
+<span class="sd">        The final molecule energy (a.u).</span>
+<span class="sd">    final_structure : GMolecule</span>
+<span class="sd">        The final structure of the molecule.</span>
+<span class="sd">    energies : Sized</span>
+<span class="sd">        The energy of each cycle.</span>
+<span class="sd">    structures : Sized</span>
+<span class="sd">        The structure of each cycle If geometry optimization is performed.</span>
+<span class="sd">    frequencies : array_like</span>
+<span class="sd">        The frequencies of the molecule.</span>
+<span class="sd">    normal_modes : array_like</span>
+<span class="sd">        The normal modes of the molecule.</span>
+<span class="sd">    freq_type : str</span>
+<span class="sd">        Either &#39;Analytical&#39; or &#39;Numerical&#39;.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            The ADF output file to parse.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the ADF outputs. There are two files: one is &#39;logfile&#39;, the other</span>
+<span class="sd">        is the ADF output file. The final energy and structures are parsed from</span>
+<span class="sd">        the &#39;logfile&#39;. Frequencies and normal modes are parsed from the ADF</span>
+<span class="sd">        output file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">workdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">logfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;logfile&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">logfile</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;The ADF logfile can not be accessed!&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_failed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normal_modes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq_type</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_internal_crash</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_logfile</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_failed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">!=</span> <span class="s2">&quot;SinglePoint&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parse_adf_output</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_sites_to_mol</span><span class="p">(</span><span class="n">sites</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a ``Molecule`` object given a list of sites.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sites : list</span>
+<span class="sd">            A list of sites.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        mol : Molecule</span>
+<span class="sd">            A ``Molecule`` object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Molecule</span><span class="p">([</span><span class="n">site</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">],</span>
+                        <span class="p">[</span><span class="n">site</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_parse_logfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logfile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the formatted logfile.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">cycle_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Coordinates\sin\sGeometry\sCycle\s(\d+)&quot;</span><span class="p">)</span>
+        <span class="n">coord_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+([0-9]+)\.([A-Za-z]+)&quot;</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="sa">r</span><span class="s2">&quot;\s+([-\.0-9]+)&quot;</span><span class="p">)</span>
+        <span class="n">energy_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;.*&gt;\s&lt;.*&gt;\s+current\senergy\s+([-\.0-9]+)\s&quot;</span>
+                                 <span class="s2">&quot;Hartree&quot;</span><span class="p">)</span>
+        <span class="n">final_energy_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;&lt;.*&gt;\s&lt;.*&gt;\s+Bond\sEnergy\s+([-\.0-9]+)\sa\.u\.&quot;</span><span class="p">)</span>
+        <span class="n">error_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;.*&gt;\s&lt;.*&gt;\s+ERROR\sDETECTED:\s(.*)&quot;</span><span class="p">)</span>
+        <span class="n">runtype_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;.*&gt;\s&lt;.*&gt;\s+RunType\s+:\s(.*)&quot;</span><span class="p">)</span>
+        <span class="n">end_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;.*&gt;\s&lt;.*&gt;\s+END&quot;</span><span class="p">)</span>
+        <span class="n">parse_cycle</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">last_cycle</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">parse_final</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Stop parsing the logfile is this job is not terminated successfully.</span>
+        <span class="c1"># The last non-empty line of the logfile must match the end pattern.</span>
+        <span class="c1"># Otherwise the job has some internal failure. The TAPE13 part of the</span>
+        <span class="c1"># ADF manual has a detailed explanantion.</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">reverse_readline</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">end_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">is_internal_crash</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="s2">&quot;Internal crash. TAPE13 is generated!&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">is_failed</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">return</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">error_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">is_failed</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="k">break</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">runtype_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;FREQUENCIES&#39;</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">freq_type</span> <span class="o">=</span> <span class="s2">&quot;Numerical&quot;</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">=</span> <span class="s2">&quot;NumericalFreq&quot;</span>
+                        <span class="k">elif</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;GEOMETRY OPTIMIZATION&#39;</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">=</span> <span class="s2">&quot;GeometryOptimization&quot;</span>
+                        <span class="k">elif</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;CREATE&#39;</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="k">elif</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;SINGLE POINT&#39;</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">=</span> <span class="s1">&#39;SinglePoint&#39;</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="n">AdfOutputError</span><span class="p">(</span><span class="s2">&quot;Undefined Runtype!&quot;</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">==</span> <span class="s1">&#39;SinglePoint&#39;</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">coord_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                        <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span>
+                                      <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">2</span><span class="p">:]))])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">final_energy_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites_to_mol</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">==</span> <span class="s1">&#39;GeometryOptimization&#39;</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">cycle_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                        <span class="n">cycle</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">cycle</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="n">AdfOutputError</span><span class="p">(</span><span class="s2">&quot;Wrong cycle </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">cycle</span> <span class="o">&gt;</span> <span class="n">last_cycle</span><span class="p">:</span>
+                            <span class="n">parse_cycle</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="n">last_cycle</span> <span class="o">=</span> <span class="n">cycle</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">parse_final</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">elif</span> <span class="n">parse_cycle</span><span class="p">:</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">coord_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                            <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span>
+                                          <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">2</span><span class="p">:]))])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">m</span> <span class="o">=</span> <span class="n">energy_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+                                <span class="n">mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites_to_mol</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                                <span class="n">parse_cycle</span> <span class="o">=</span> <span class="kc">False</span>
+                                <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">elif</span> <span class="n">parse_final</span><span class="p">:</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">final_energy_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">==</span> <span class="s2">&quot;NumericalFreq&quot;</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_failed</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">==</span> <span class="s2">&quot;GeometryOptimization&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_energy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">AdfOutputError</span><span class="p">(</span><span class="s2">&quot;The final energy can not be read!&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">==</span> <span class="s2">&quot;SinglePoint&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">AdfOutputError</span><span class="p">(</span><span class="s2">&quot;The final structure is missing!&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_energy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">AdfOutputError</span><span class="p">(</span><span class="s2">&quot;The final energy can not be read!&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_adf_output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the standard ADF output file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">numerical_freq_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sI\sE\sS\s+\*&quot;</span><span class="p">)</span>
+        <span class="n">analytic_freq_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sY\s+A\sN\sA\sL\sY\sS\sI\sS\s+\*&quot;</span><span class="p">)</span>
+        <span class="n">freq_on_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Vibrations\sand\sNormal\sModes\s+\*+.*\*+&quot;</span><span class="p">)</span>
+        <span class="n">freq_off_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;List\sof\sAll\sFrequencies:&quot;</span><span class="p">)</span>
+        <span class="n">mode_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+(\d+)\.([A-Za-z]+)\s+(.*)&quot;</span><span class="p">)</span>
+        <span class="n">coord_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+(\d+)\s+([A-Za-z]+)&quot;</span> <span class="o">+</span> <span class="mi">6</span> <span class="o">*</span> <span class="sa">r</span><span class="s2">&quot;\s+([0-9\.-]+)&quot;</span><span class="p">)</span>
+        <span class="n">coord_on_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+\*\s+R\sU\sN\s+T\sY\sP\sE\s:\sFREQUENCIES\s+\*&quot;</span><span class="p">)</span>
+        <span class="n">parse_freq</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">parse_mode</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">nnext</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">nstrike</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normal_modes</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">find_structure</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">parse_coord</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">natoms</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">find_structure</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">parse_coord</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">natoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">num_sites</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">==</span> <span class="s2">&quot;NumericalFreq&quot;</span> <span class="ow">and</span> <span class="n">find_structure</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">parse_coord</span><span class="p">:</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">coord_on_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                            <span class="n">parse_coord</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">coord_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                            <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">2</span><span class="p">:</span><span class="mi">5</span><span class="p">]))])</span>
+                            <span class="n">nstrike</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">elif</span> <span class="n">nstrike</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">find_structure</span> <span class="o">=</span> <span class="kc">False</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites_to_mol</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+                            <span class="n">natoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">num_sites</span>
+
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">numerical_freq_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">freq_type</span> <span class="o">=</span> <span class="s2">&quot;Numerical&quot;</span>
+                    <span class="k">elif</span> <span class="n">analytic_freq_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">freq_type</span> <span class="o">=</span> <span class="s2">&quot;Analytical&quot;</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="o">=</span> <span class="s2">&quot;AnalyticalFreq&quot;</span>
+
+                <span class="k">elif</span> <span class="n">freq_on_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                    <span class="n">parse_freq</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="k">elif</span> <span class="n">parse_freq</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">freq_off_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="k">break</span>
+                    <span class="n">el</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">nnext</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+                        <span class="n">parse_mode</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">parse_freq</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">el</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nnext</span><span class="p">):</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">normal_modes</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+
+                <span class="k">elif</span> <span class="n">parse_mode</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">mode_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                        <span class="n">v</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chunks</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()),</span> <span class="mi">3</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="n">nnext</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="n">AdfOutputError</span><span class="p">(</span><span class="s2">&quot;Odd Error!&quot;</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">nnext</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">normal_modes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="n">natoms</span><span class="p">:</span>
+                            <span class="n">parse_freq</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="n">parse_mode</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites_to_mol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normal_modes</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">AdfOutputError</span><span class="p">(</span><span class="s2">&quot;The number of normal modes is wrong!&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normal_modes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="n">natoms</span> <span class="o">*</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">AdfOutputError</span><span class="p">(</span><span class="s2">&quot;The dimensions of the modes are wrong!&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.adf</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

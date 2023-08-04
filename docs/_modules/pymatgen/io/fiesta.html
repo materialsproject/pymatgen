@@ -1,0 +1,949 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.io.fiesta &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.fiesta</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.fiesta</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements input and output for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).</span>
+
+<span class="sd">and</span>
+
+<span class="sd">-Nwchem2Fiesta class: to create the input files needed for a Fiesta run</span>
+<span class="sd">-Fiesta_run: run gw_fiesta and bse_fiesta</span>
+<span class="sd">-Localised Basis set reader</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Molecule</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ndardenne&#39;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;n.dardenne@uclouvain.be&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;24/5/15&quot;</span>
+
+
+<div class="viewcode-block" id="Nwchem2Fiesta"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Nwchem2Fiesta">[docs]</a><span class="k">class</span> <span class="nc">Nwchem2Fiesta</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    To run NWCHEM2FIESTA inside python:</span>
+
+<span class="sd">    If nwchem.nw is the input, nwchem.out the output, and structure.movecs the</span>
+<span class="sd">    &quot;movecs&quot; file, the syntax to run NWCHEM2FIESTA is: NWCHEM2FIESTA</span>
+<span class="sd">    nwchem.nw  nwchem.nwout  structure.movecs &gt; log_n2f</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;nwchem&quot;</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="s2">&quot;log_n2f&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        folder: where are stored the nwchem</span>
+<span class="sd">        filename: name of nwchem files read by NWCHEM2FIESTA (filename.nw, filename.nwout and filename.movecs)</span>
+<span class="sd">        logfile: logfile of NWCHEM2FIESTA</span>
+
+<span class="sd">        the run method launchs NWCHEM2FIESTA</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="n">log_file</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_NWCHEM2FIESTA_cmd</span> <span class="o">=</span> <span class="s2">&quot;NWCHEM2FIESTA&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nwcheminput_fn</span> <span class="o">=</span> <span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.nw&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nwchemoutput_fn</span> <span class="o">=</span> <span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.nwout&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nwchemmovecs_fn</span> <span class="o">=</span> <span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.movecs&quot;</span>
+
+<div class="viewcode-block" id="Nwchem2Fiesta.run"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Nwchem2Fiesta.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs actual NWCHEM2FIESTA run</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">init_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_NWCHEM2FIESTA_cmd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nwcheminput_fn</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">_nwchemoutput_fn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nwchemmovecs_fn</span><span class="p">],</span>
+                            <span class="n">stdout</span><span class="o">=</span><span class="n">fout</span><span class="p">)</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">init_folder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nwchem2Fiesta.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Nwchem2Fiesta.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
+                <span class="s2">&quot;folder&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="Nwchem2Fiesta.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.Nwchem2Fiesta.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation.</span>
+<span class="sd">        :return: Nwchem2Fiesta</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Nwchem2Fiesta</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">],</span> <span class="n">filename</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="FiestaRun"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun">[docs]</a><span class="k">class</span> <span class="nc">FiestaRun</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    To run FIESTA inside python:</span>
+<span class="sd">        if grid is [x,x] then bse runs</span>
+<span class="sd">        if grid is [x,x,y] the fiesta(gw) runs</span>
+<span class="sd">        otherwise it breaks</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">grid</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">log_file</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            folder: Folder to look for runs.</span>
+<span class="sd">            grid:</span>
+<span class="sd">            log_file: logfile of Fiesta</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="n">log_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span>
+
+<div class="viewcode-block" id="FiestaRun.run"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs FIESTA (gw) run.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gw_run</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bse_run</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Wrong grid size: must be [nrow, ncolumn, nslice] for gw of [nrow, nslice] for bse&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_gw_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs FIESTA (gw) run</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">():</span>
+            <span class="n">init_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s2">&quot;mpirun&quot;</span><span class="p">,</span> <span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="p">),</span> <span class="s2">&quot;fiesta&quot;</span><span class="p">,</span>
+                             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">2</span><span class="p">])],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">fout</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">():</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">init_folder</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FiestaRun.bse_run"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun.bse_run">[docs]</a>    <span class="k">def</span> <span class="nf">bse_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs BSE run</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">():</span>
+            <span class="n">init_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;mpirun&quot;</span><span class="p">,</span> <span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_procs</span><span class="p">),</span> <span class="s2">&quot;bse&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                 <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">fout</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">():</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">init_folder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FiestaRun.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;log_file&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">,</span>
+                <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+                <span class="s2">&quot;folder&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="FiestaRun.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaRun.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: FiestaRun</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">FiestaRun</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">],</span> <span class="n">grid</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">],</span>
+                         <span class="n">log_file</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;log_file&#39;</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="BasisSetReader"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.BasisSetReader">[docs]</a><span class="k">class</span> <span class="nc">BasisSetReader</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A basis set reader.</span>
+<span class="sd">    Basis set are stored in data as a dict:</span>
+<span class="sd">    :key l_zeta_ng for each nl orbitals which contain list of tuple (alpha, coef) for each of the ng gaussians</span>
+<span class="sd">    in l_zeta orbital</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename to read.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">basis_set</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_file</span><span class="p">(</span><span class="n">basis_set</span><span class="p">)</span>
+        <span class="c1"># compute the number of nlm orbitals per atom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">n_nlmo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">set_n_nlmo</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_parse_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+
+        <span class="n">lmax_nnlo_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s* (\d+) \s+ (\d+) \s+ \# .* &quot;</span><span class="p">,</span>
+                                    <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
+
+        <span class="n">nl_orbital_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s* (\d+) \s+ (\d+) \s+ (\d+) \s+ \# .* &quot;</span><span class="p">,</span>
+                                     <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
+
+        <span class="n">coef_alpha_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s* ([-\d.\D]+) \s+ ([-\d.\D]+) \s* &quot;</span><span class="p">,</span>
+                                     <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
+
+        <span class="n">preamble</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">basis_set</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">parse_preamble</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">parse_lmax_nnlo</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">parse_nl_orbital</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">input</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">parse_nl_orbital</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">nl_orbital_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">coef_alpha_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="n">l</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">zeta</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">ng</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="n">basis_set</span><span class="p">[</span><span class="n">l</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">zeta</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">ng</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">elif</span> <span class="n">n</span><span class="p">:</span>
+                    <span class="n">alpha</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">coef</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">basis_set</span><span class="p">[</span><span class="n">l</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">zeta</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">ng</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">alpha</span><span class="p">,</span> <span class="n">coef</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">parse_lmax_nnlo</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">lmax_nnlo_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="n">lmax</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">nnlo</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">parse_lmax_nnlo</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">parse_nl_orbital</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">parse_preamble</span><span class="p">:</span>
+                <span class="n">preamble</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;&lt;/preamble&gt;&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">parse_preamble</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">parse_lmax_nnlo</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;&lt;preamble&gt;&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">parse_preamble</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">basis_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span> <span class="n">n_nlo</span><span class="o">=</span><span class="n">nnlo</span><span class="p">,</span> <span class="n">preamble</span><span class="o">=</span><span class="n">preamble</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">basis_set</span>
+
+<div class="viewcode-block" id="BasisSetReader.set_n_nlmo"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.BasisSetReader.set_n_nlmo">[docs]</a>    <span class="k">def</span> <span class="nf">set_n_nlmo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: the number of nlm orbitals for the basis set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nnlmo</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">data_tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">data_tmp</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;lmax&#39;</span><span class="p">)</span>
+        <span class="n">data_tmp</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;n_nlo&#39;</span><span class="p">)</span>
+        <span class="n">data_tmp</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;preamble&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">l_zeta_ng</span> <span class="ow">in</span> <span class="n">data_tmp</span><span class="p">:</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">l_zeta_ng</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">nnlmo</span> <span class="o">=</span> <span class="n">nnlmo</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">nnlmo</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BasisSetReader.infos_on_basis_set"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.BasisSetReader.infos_on_basis_set">[docs]</a>    <span class="k">def</span> <span class="nf">infos_on_basis_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        infos on the basis set as in Fiesta log</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">o</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;=========================================&quot;</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Reading basis set:&quot;</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Basis set for </span><span class="si">{}</span><span class="s2"> atom &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)))</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Maximum angular momentum = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;lmax&#39;</span><span class="p">]))</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Number of atomics orbitals = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;n_nlo&#39;</span><span class="p">]))</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Number of nlm orbitals = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;n_nlmo&#39;</span><span class="p">]))</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;=========================================&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="FiestaInput"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput">[docs]</a><span class="k">class</span> <span class="nc">FiestaInput</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Input File for Fiesta called &quot;cell.in&quot; by default (mandatory in Fiesta for now)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span>
+                 <span class="n">correlation_grid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;dE_grid&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;0.500&#39;</span><span class="p">,</span> <span class="s1">&#39;n_grid&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;14&#39;</span><span class="p">},</span>
+                 <span class="n">Exc_DFT_option</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;rdVxcpsi&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;1&#39;</span><span class="p">},</span>
+                 <span class="n">COHSEX_options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;eigMethod&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;mix_cohsex&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;0.500&#39;</span><span class="p">,</span>
+                                 <span class="s1">&#39;nc_cohsex&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;nit_cohsex&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                                 <span class="s1">&#39;nv_cohsex&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;resMethod&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;V&#39;</span><span class="p">,</span>
+                                 <span class="s1">&#39;scf_cohsex_wf&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;0&#39;</span><span class="p">},</span>
+                 <span class="n">GW_options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;nc_corr&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;10&#39;</span><span class="p">,</span> <span class="s1">&#39;nit_gw&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;3&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;nv_corr&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;10&#39;</span><span class="p">},</span>
+                 <span class="n">BSE_TDDFT_options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;do_bse&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;do_tddft&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                                    <span class="s1">&#39;nc_bse&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;382&#39;</span><span class="p">,</span> <span class="s1">&#39;nit_bse&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;50&#39;</span><span class="p">,</span>
+                                    <span class="s1">&#39;npsi_bse&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;nv_bse&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;21&#39;</span><span class="p">}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param mol: pymatgen mol</span>
+<span class="sd">        :param correlation_grid: dict</span>
+<span class="sd">        :param Exc_DFT_option: dict</span>
+<span class="sd">        :param COHSEX_options: dict</span>
+<span class="sd">        :param GW_options: dict</span>
+<span class="sd">        :param BSE_TDDFT_options: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span> <span class="o">=</span> <span class="n">mol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correlation_grid</span> <span class="o">=</span> <span class="n">correlation_grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Exc_DFT_option</span> <span class="o">=</span> <span class="n">Exc_DFT_option</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span> <span class="o">=</span> <span class="n">COHSEX_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GW_options</span> <span class="o">=</span> <span class="n">GW_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span> <span class="o">=</span> <span class="n">BSE_TDDFT_options</span>
+
+<div class="viewcode-block" id="FiestaInput.set_auxiliary_basis_set"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.set_auxiliary_basis_set">[docs]</a>    <span class="k">def</span> <span class="nf">set_auxiliary_basis_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">auxiliary_folder</span><span class="p">,</span>
+                                <span class="n">auxiliary_basis_set_type</span><span class="o">=</span><span class="s2">&quot;aug_cc_pvtz&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        copy in the desired folder the needed auxiliary basis set &quot;X2.ion&quot; where X is a specie.</span>
+<span class="sd">        :param auxiliary_folder: folder where the auxiliary basis sets are stored</span>
+<span class="sd">        :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must</span>
+<span class="sd">            be in lower case). ex: C2.ion_aug_cc_pvtz_RI_Weigend find &quot;aug_cc_pvtz&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">list_files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">auxiliary_folder</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">specie</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">symbol_set</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">list_files</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                        <span class="n">specie</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;2&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">auxiliary_basis_set_type</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">auxiliary_folder</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">,</span>
+                                    <span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">specie</span> <span class="o">+</span> <span class="s2">&quot;2.ion&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FiestaInput.set_GW_options"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.set_GW_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_GW_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nv_band</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">nc_band</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">n_iteration</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_grid</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+                       <span class="n">dE_grid</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set parameters in cell.in for a GW computation</span>
+<span class="sd">        :param nv__band: number of valence bands to correct with GW</span>
+<span class="sd">        :param nc_band: number of conduction bands to correct with GW</span>
+<span class="sd">        :param n_iteration: number of iteration</span>
+<span class="sd">        :param n_grid and dE_grid:: number of points and spacing in eV for correlation grid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">GW_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">nv_corr</span><span class="o">=</span><span class="n">nv_band</span><span class="p">,</span> <span class="n">nc_corr</span><span class="o">=</span><span class="n">nc_band</span><span class="p">,</span>
+                               <span class="n">nit_gw</span><span class="o">=</span><span class="n">n_iteration</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correlation_grid</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dE_grid</span><span class="o">=</span><span class="n">dE_grid</span><span class="p">,</span> <span class="n">n_grid</span><span class="o">=</span><span class="n">n_grid</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FiestaInput.make_FULL_BSE_Densities_folder"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.make_FULL_BSE_Densities_folder">[docs]</a>    <span class="k">def</span> <span class="nf">make_FULL_BSE_Densities_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        mkdir &quot;FULL_BSE_Densities&quot; folder (needed for bse run) in the desired folder</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;/FULL_BSE_Densities&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;FULL_BSE_Densities folder already exists&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;/FULL_BSE_Densities&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;makedirs FULL_BSE_Densities folder&quot;</span></div>
+
+<div class="viewcode-block" id="FiestaInput.set_BSE_options"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.set_BSE_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_BSE_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_excitations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">nit_bse</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set parameters in cell.in for a BSE computation</span>
+<span class="sd">        :param nv_bse: number of valence bands</span>
+<span class="sd">        :param nc_bse: number of conduction bands</span>
+<span class="sd">        :param n_excitations: number of excitations</span>
+<span class="sd">        :param nit_bse: number of iterations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">npsi_bse</span><span class="o">=</span><span class="n">n_excitations</span><span class="p">,</span> <span class="n">nit_bse</span><span class="o">=</span><span class="n">nit_bse</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FiestaInput.dump_BSE_data_in_GW_run"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.dump_BSE_data_in_GW_run">[docs]</a>    <span class="k">def</span> <span class="nf">dump_BSE_data_in_GW_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">BSE_dump</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param BSE_dump: boolean</span>
+<span class="sd">        :return: set the &quot;do_bse&quot; variable to one in cell.in</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">BSE_dump</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">do_bse</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">do_tddft</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">do_bse</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">do_tddft</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FiestaInput.dump_TDDFT_data_in_GW_run"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.dump_TDDFT_data_in_GW_run">[docs]</a>    <span class="k">def</span> <span class="nf">dump_TDDFT_data_in_GW_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TDDFT_dump</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param TDDFT_dump: boolen</span>
+<span class="sd">        :return: set the do_tddft variable to one in cell.in</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">TDDFT_dump</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">do_bse</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">do_tddft</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">do_bse</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">do_tddft</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">infos_on_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns infos on initial parameters as in the log file of Fiesta</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">o</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;=========================================&quot;</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Reading infos on system:&quot;</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Number of atoms = </span><span class="si">{}</span><span class="s2"> ; number of species = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">symbol_set</span><span class="p">)))</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Number of valence bands = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">nelectrons</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)))</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Sigma grid specs: n_grid = </span><span class="si">{}</span><span class="s2"> ;  dE_grid = </span><span class="si">{}</span><span class="s2"> (eV)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">correlation_grid</span><span class="p">[</span><span class="s1">&#39;n_grid&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">correlation_grid</span><span class="p">[</span><span class="s1">&#39;dE_grid&#39;</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Exc_DFT_option</span><span class="p">[</span><span class="s1">&#39;rdVxcpsi&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Exchange and correlation energy read from Vxcpsi.mat&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Exc_DFT_option</span><span class="p">[</span><span class="s1">&#39;rdVxcpsi&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Exchange and correlation energy re-computed&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;eigMethod&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot; Correcting  </span><span class="si">{}</span><span class="s2"> valence bands and   </span><span class="si">{}</span><span class="s2"> conduction bands at COHSEX level&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;nv_cohsex&#39;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;nc_cohsex&#39;</span><span class="p">]))</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Performing   </span><span class="si">{}</span><span class="s2"> diagonal COHSEX iterations&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;nit_cohsex&#39;</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;eigMethod&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;HF&quot;</span><span class="p">:</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot; Correcting  </span><span class="si">{}</span><span class="s2"> valence bands and   </span><span class="si">{}</span><span class="s2"> conduction bands at HF level&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;nv_cohsex&#39;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;nc_cohsex&#39;</span><span class="p">]))</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Performing   </span><span class="si">{}</span><span class="s2"> diagonal HF iterations&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;nit_cohsex&#39;</span><span class="p">]))</span>
+
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Using resolution of identity : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;resMethod&#39;</span><span class="p">]))</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">&quot; Correcting  </span><span class="si">{}</span><span class="s2"> valence bands and  </span><span class="si">{}</span><span class="s2"> conduction bands at GW level&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">GW_options</span><span class="p">[</span><span class="s1">&#39;nv_corr&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">GW_options</span><span class="p">[</span><span class="s1">&#39;nc_corr&#39;</span><span class="p">]))</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">&quot; Performing   </span><span class="si">{}</span><span class="s2"> GW iterations&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GW_options</span><span class="p">[</span><span class="s1">&#39;nit_gw&#39;</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;do_bse&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Dumping data for BSE treatment&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;do_tddft&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Dumping data for TD-DFT treatment&quot;</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; Atoms in cell cartesian A:&quot;</span><span class="p">)</span>
+        <span class="n">symbols</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">syb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">symbol_set</span><span class="p">:</span>
+            <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">syb</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">:</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                                           <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">symbols</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">o</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;=========================================&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns molecule associated with this FiestaInput.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">symbols</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">syb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">symbol_set</span><span class="p">:</span>
+            <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">syb</span><span class="p">)</span>
+
+        <span class="n">geometry</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">:</span>
+            <span class="n">geometry</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                                                  <span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">symbols</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">t</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;# number of atoms and species</span>
+<span class="s2">   $nat    $nsp</span>
+<span class="s2"># number of valence bands</span>
+<span class="s2">    $nvbands</span>
+<span class="s2"># number of points and spacing in eV for correlation grid</span>
+<span class="s2">    $n_grid    $dE_grid</span>
+<span class="s2"># relire=1 ou recalculer=0 Exc DFT</span>
+<span class="s2">    $rdVxcpsi</span>
+<span class="s2"># number of COHSEX corrected occp and unoccp bands: C=COHSEX  H=HF</span>
+<span class="s2">    $nv_cohsex    $nc_cohsex   $eigMethod</span>
+<span class="s2"># number of COHSEX iter, scf on wfns, mixing coeff; V=RI-V  I=RI-D</span>
+<span class="s2">    $nit_cohsex   $resMethod       $scf_cohsex_wf       $mix_cohsex</span>
+<span class="s2"># number of GW corrected occp and unoccp bands</span>
+<span class="s2">   $nv_corr   $nc_corr</span>
+<span class="s2"># number of GW iterations</span>
+<span class="s2">    $nit_gw</span>
+<span class="s2"># dumping for BSE and TDDFT</span>
+<span class="s2">    $do_bse    $do_tddft</span>
+<span class="s2"># number of occp. and virtual bands fo BSE: nocore and up to 40 eVs</span>
+<span class="s2">    $nv_bse   $nc_bse</span>
+<span class="s2"># number of excitations needed and number of iterations</span>
+<span class="s2">    $npsi_bse   $nit_bse</span>
+<span class="s2"># list of symbols in order</span>
+<span class="s2">$symbols</span>
+<span class="s2"># scaling factor</span>
+<span class="s2">    1.000</span>
+<span class="s2"># atoms x,y,z cartesian .. will be multiplied by scale</span>
+<span class="s2">$geometry</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">nat</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span><span class="p">),</span>
+                            <span class="n">nsp</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">symbol_set</span><span class="p">),</span>
+                            <span class="n">nvbands</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">nelectrons</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+                            <span class="n">n_grid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">correlation_grid</span><span class="p">[</span><span class="s1">&#39;n_grid&#39;</span><span class="p">],</span>
+                            <span class="n">dE_grid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">correlation_grid</span><span class="p">[</span><span class="s1">&#39;dE_grid&#39;</span><span class="p">],</span>
+                            <span class="n">rdVxcpsi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Exc_DFT_option</span><span class="p">[</span><span class="s1">&#39;rdVxcpsi&#39;</span><span class="p">],</span>
+                            <span class="n">nv_cohsex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;nv_cohsex&#39;</span><span class="p">],</span>
+                            <span class="n">nc_cohsex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;nc_cohsex&#39;</span><span class="p">],</span>
+                            <span class="n">eigMethod</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;eigMethod&#39;</span><span class="p">],</span>
+                            <span class="n">nit_cohsex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;nit_cohsex&#39;</span><span class="p">],</span>
+                            <span class="n">resMethod</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;resMethod&#39;</span><span class="p">],</span>
+                            <span class="n">scf_cohsex_wf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;scf_cohsex_wf&#39;</span><span class="p">],</span>
+                            <span class="n">mix_cohsex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;mix_cohsex&#39;</span><span class="p">],</span>
+                            <span class="n">nv_corr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">GW_options</span><span class="p">[</span><span class="s1">&#39;nv_corr&#39;</span><span class="p">],</span>
+                            <span class="n">nc_corr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">GW_options</span><span class="p">[</span><span class="s1">&#39;nc_corr&#39;</span><span class="p">],</span>
+                            <span class="n">nit_gw</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">GW_options</span><span class="p">[</span><span class="s1">&#39;nit_gw&#39;</span><span class="p">],</span>
+                            <span class="n">do_bse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;do_bse&#39;</span><span class="p">],</span>
+                            <span class="n">do_tddft</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;do_tddft&#39;</span><span class="p">],</span>
+                            <span class="n">nv_bse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;nv_bse&#39;</span><span class="p">],</span>
+                            <span class="n">nc_bse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;nc_bse&#39;</span><span class="p">],</span>
+                            <span class="n">npsi_bse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;npsi_bse&#39;</span><span class="p">],</span>
+                            <span class="n">nit_bse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;nit_bse&#39;</span><span class="p">],</span>
+                            <span class="n">symbols</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">symbols</span><span class="p">),</span>
+                            <span class="n">geometry</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">geometry</span><span class="p">))</span>
+
+<div class="viewcode-block" id="FiestaInput.write_file"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write FiestaInput to a file</span>
+<span class="sd">        :param filename: Filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="FiestaInput.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;mol&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+            <span class="s2">&quot;correlation_grid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">correlation_grid</span><span class="p">,</span>
+            <span class="s2">&quot;Exc_DFT_option&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">Exc_DFT_option</span><span class="p">,</span>
+            <span class="s2">&quot;COHSEX_options&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">COHSEX_options</span><span class="p">,</span>
+            <span class="s2">&quot;GW_options&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">GW_options</span><span class="p">,</span>
+            <span class="s2">&quot;BSE_TDDFT_options&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">BSE_TDDFT_options</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="FiestaInput.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: FiestaInput</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">FiestaInput</span><span class="p">(</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;mol&quot;</span><span class="p">]),</span>
+                           <span class="n">correlation_grid</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;correlation_grid&quot;</span><span class="p">],</span>
+                           <span class="n">Exc_DFT_option</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;Exc_DFT_option&quot;</span><span class="p">],</span>
+                           <span class="n">COHSEX_options</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;geometry_options&quot;</span><span class="p">],</span>
+                           <span class="n">GW_options</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;symmetry_options&quot;</span><span class="p">],</span>
+                           <span class="n">BSE_TDDFT_options</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;memory_options&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FiestaInput.from_string"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string_input</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read an FiestaInput from a string. Currently tested to work with</span>
+<span class="sd">        files generated from this class itself.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            string_input: string_input to parse.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            FiestaInput object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">correlation_grid</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">Exc_DFT_option</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">COHSEX_options</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">GW_options</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">BSE_TDDFT_options</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">string_input</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># number of atoms and species</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">nat</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">nsp</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># number of valence bands</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+        <span class="c1"># correlation_grid</span>
+        <span class="c1"># number of points and spacing in eV for correlation grid</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">correlation_grid</span><span class="p">[</span><span class="s1">&#39;n_grid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">correlation_grid</span><span class="p">[</span><span class="s1">&#39;dE_grid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Exc DFT</span>
+        <span class="c1"># relire=1 ou recalculer=0 Exc DFT</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">Exc_DFT_option</span><span class="p">[</span><span class="s1">&#39;rdVxcpsi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># COHSEX</span>
+        <span class="c1"># number of COHSEX corrected occp and unoccp bands: C=COHSEX  H=HF</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;nv_cohsex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;nc_cohsex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;eigMethod&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># number of COHSEX iter, scf on wfns, mixing coeff; V=RI-V  I=RI-D</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;nit_cohsex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;resMethod&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;scf_cohsex_wf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">COHSEX_options</span><span class="p">[</span><span class="s1">&#39;mix_cohsex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="c1"># GW</span>
+        <span class="c1"># number of GW corrected occp and unoccp bands</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">GW_options</span><span class="p">[</span><span class="s1">&#39;nv_corr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">GW_options</span><span class="p">[</span><span class="s1">&#39;nc_corr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># number of GW iterations</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">GW_options</span><span class="p">[</span><span class="s1">&#39;nit_gw&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># BSE</span>
+        <span class="c1"># dumping for BSE and TDDFT</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;do_bse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;do_tddft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># number of occp. and virtual bands fo BSE: nocore and up to 40 eVs</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;nv_bse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;nc_bse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># number of excitations needed and number of iterations</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;npsi_bse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">BSE_TDDFT_options</span><span class="p">[</span><span class="s1">&#39;nit_bse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Molecule</span>
+        <span class="c1"># list of symbols in order</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">atname</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nsp</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">atname</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">i</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="c1"># scaling factor</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="c1"># atoms x,y,z cartesian .. will be multiplied by scale</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Parse geometry</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nat</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]])</span>
+            <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atname</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">i</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="n">mol</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FiestaInput</span><span class="p">(</span><span class="n">mol</span><span class="o">=</span><span class="n">mol</span><span class="p">,</span> <span class="n">correlation_grid</span><span class="o">=</span><span class="n">correlation_grid</span><span class="p">,</span>
+                           <span class="n">Exc_DFT_option</span><span class="o">=</span><span class="n">Exc_DFT_option</span><span class="p">,</span>
+                           <span class="n">COHSEX_options</span><span class="o">=</span><span class="n">COHSEX_options</span><span class="p">,</span>
+                           <span class="n">GW_options</span><span class="o">=</span><span class="n">GW_options</span><span class="p">,</span>
+                           <span class="n">BSE_TDDFT_options</span><span class="o">=</span><span class="n">BSE_TDDFT_options</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FiestaInput.from_file"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read an Fiesta input from a file. Currently tested to work with</span>
+<span class="sd">        files generated from this class itself.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename to parse.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            FiestaInput object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div></div>
+
+
+<div class="viewcode-block" id="FiestaOutput"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaOutput">[docs]</a><span class="k">class</span> <span class="nc">FiestaOutput</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Fiesta output file parser.</span>
+
+<span class="sd">    All energies are in eV.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename to read.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;GW Driver iteration&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+        <span class="c1"># preamble: everything before the first GW Driver iteration</span>
+        <span class="n">chunks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># self.job_info = self._parse_preamble(preamble)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_parse_job</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_parse_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+
+        <span class="n">GW_BANDS_results_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;^&lt;it.*  \| \s+ (\D+\d*) \s+ \| \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \| &quot;</span>
+            <span class="sa">r</span><span class="s2">&quot; \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \|&quot;</span>
+            <span class="sa">r</span><span class="s2">&quot; \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ &quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
+
+        <span class="n">GW_GAPS_results_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;^&lt;it.*  \| \s+ Egap_KS \s+ = \s+ ([-\d.]+) \s+ \| \s+ Egap_QP \s+ = \s+ ([-\d.]+) \s+ \| &quot;</span>
+            <span class="sa">r</span><span class="s2">&quot; \s+ Egap_QP \s+ = \s+ ([-\d.]+) \s+ \|&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
+
+        <span class="n">end_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s*program returned normally\s*&quot;</span><span class="p">)</span>
+
+        <span class="n">total_time_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s*total \s+ time: \s+  ([\d.]+) .*&quot;</span><span class="p">,</span>
+                                     <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
+
+        <span class="n">GW_results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">parse_gw_results</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">parse_total_time</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">parse_total_time</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">end_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="n">GW_results</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">end_normally</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">m</span> <span class="o">=</span> <span class="n">total_time_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="n">GW_results</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">total_time</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">parse_gw_results</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;Dumping eigen energies&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">parse_total_time</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">parse_gw_results</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">GW_BANDS_results_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">band</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">eKS</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+                                 <span class="n">eXX</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">eQP_old</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+                                 <span class="n">z</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="n">sigma_c_Linear</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span>
+                                 <span class="n">eQP_Linear</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span>
+                                 <span class="n">sigma_c_SCF</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span> <span class="n">eQP_SCF</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">9</span><span class="p">))</span>
+                        <span class="n">GW_results</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="n">d</span>
+
+                    <span class="n">n</span> <span class="o">=</span> <span class="n">GW_GAPS_results_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">n</span><span class="p">:</span>
+                        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">Egap_KS</span><span class="o">=</span><span class="n">n</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">Egap_QP_Linear</span><span class="o">=</span><span class="n">n</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+                                 <span class="n">Egap_QP_SCF</span><span class="o">=</span><span class="n">n</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+                        <span class="n">GW_results</span><span class="p">[</span><span class="s2">&quot;Gaps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+
+            <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;GW Results&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">parse_gw_results</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">GW_results</span></div>
+
+
+<div class="viewcode-block" id="BSEOutput"><a class="viewcode-back" href="../../../pymatgen.io.fiesta.html#pymatgen.io.fiesta.BSEOutput">[docs]</a><span class="k">class</span> <span class="nc">BSEOutput</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A bse output file parser. The start...</span>
+
+<span class="sd">    All energies are in eV.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: Filename to read.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">log_bse</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="c1"># self.job_info = self._parse_preamble(preamble)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exiton</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_job</span><span class="p">(</span><span class="n">log_bse</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+
+        <span class="n">BSE_exitons_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;^exiton \s+ (\d+)  : \s+  ([\d.]+) \( \s+ ([-\d.]+) \) \s+ \| .*  &quot;</span><span class="p">,</span>
+            <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
+
+        <span class="n">end_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s*program returned normally\s*&quot;</span><span class="p">)</span>
+
+        <span class="n">total_time_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s*total \s+ time: \s+  ([\d.]+) .*&quot;</span><span class="p">,</span>
+                                     <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
+
+        <span class="n">BSE_results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">parse_BSE_results</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">parse_total_time</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">parse_total_time</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">end_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="n">BSE_results</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">end_normally</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">m</span> <span class="o">=</span> <span class="n">total_time_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="n">BSE_results</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">total_time</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">parse_BSE_results</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                        <span class="s2">&quot;FULL BSE main valence -&gt; conduction transitions weight:&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">parse_total_time</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">parse_BSE_results</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">BSE_exitons_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">bse_eig</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">osc_strength</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+                        <span class="n">BSE_results</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())]</span> <span class="o">=</span> <span class="n">d</span>
+
+            <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;FULL BSE eig.(eV), osc. strength and dipoles:&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">parse_BSE_results</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">BSE_results</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.fiesta</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

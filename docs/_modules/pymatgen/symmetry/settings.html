@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.symmetry.settings &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.symmetry.settings</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.symmetry.settings</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes for non-standard space-group settings</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">transformation_to_string</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">MagSymmOp</span><span class="p">,</span> <span class="n">SymmOp</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;mkhorton@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Apr 2017&quot;</span>
+
+
+<div class="viewcode-block" id="JonesFaithfulTransformation"><a class="viewcode-back" href="../../../pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation">[docs]</a><span class="k">class</span> <span class="nc">JonesFaithfulTransformation</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transformation for space-groups defined in a non-standard setting</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform between settings using matrix P and origin shift vector p,</span>
+<span class="sd">        using same notation as reference.</span>
+
+<span class="sd">        Should initialize using `from_transformation_string` in Jones</span>
+<span class="sd">        faithful notation, given by a string specifying both a</span>
+<span class="sd">        transformation matrix and an origin shift, with parts delimited</span>
+<span class="sd">        by a semi-colon. Best shown by example:</span>
+
+<span class="sd">        * `a,b,c;0,0,0` is the identity (no change)</span>
+<span class="sd">        * `-b+c,a+c,-a+b+c;0,0,0` is R3:r to R3:h (rhombohedral to</span>
+<span class="sd">          hexagonal setting)</span>
+<span class="sd">        * `a,b,c;-1/4,-1/4,-1/4` is Pnnn:1 to Pnnn:2 (change in origin</span>
+<span class="sd">          choice)</span>
+<span class="sd">        * `b,c,a;-1/2,-1/2,-1/2` is Bbab:1 to Ccca:2 (change settin</span>
+<span class="sd">          and origin)</span>
+
+<span class="sd">        Can transform points (coords), lattices and symmetry operations.</span>
+
+<span class="sd">        Used for transforming magnetic space groups since these are</span>
+<span class="sd">        commonly used in multiple settings, due to needing to transform</span>
+<span class="sd">        between magnetic and non-magnetic settings.</span>
+
+<span class="sd">        See: International Tables for Crystallography (2016). Vol. A,</span>
+<span class="sd">        Chapter 1.5, pp. 75–106.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># using capital letters in violation of PEP8 to</span>
+        <span class="c1"># be consistent with variables in supplied reference,</span>
+        <span class="c1"># for easier debugging in future</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_P</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_p</span> <span class="o">=</span> <span class="n">P</span><span class="p">,</span> <span class="n">p</span>
+
+<div class="viewcode-block" id="JonesFaithfulTransformation.from_transformation_string"><a class="viewcode-back" href="../../../pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.from_transformation_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_transformation_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">transformation_string</span><span class="o">=</span><span class="s2">&quot;a,b,c;0,0,0&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct SpaceGroupTransformation from its transformation string.</span>
+<span class="sd">        :param P: matrix</span>
+<span class="sd">        :param p: origin shift vector</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">P</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">JonesFaithfulTransformation</span><span class="o">.</span><span class="n">parse_transformation_string</span><span class="p">(</span>
+            <span class="n">transformation_string</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="JonesFaithfulTransformation.from_origin_shift"><a class="viewcode-back" href="../../../pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.from_origin_shift">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_origin_shift</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">origin_shift</span><span class="o">=</span><span class="s2">&quot;0,0,0&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct SpaceGroupTransformation from its origin shift string.</span>
+<span class="sd">        :param p: origin shift vector</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">Fraction</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">origin_shift</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="JonesFaithfulTransformation.parse_transformation_string"><a class="viewcode-back" href="../../../pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.parse_transformation_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_transformation_string</span><span class="p">(</span><span class="n">transformation_string</span><span class="o">=</span><span class="s2">&quot;a,b,c;0,0,0&quot;</span><span class="p">):</span>
+        <span class="c1"># type: (str) -&gt; Tuple[List[List[float]], List[float]]</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: transformation matrix &amp; vector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">b_change</span><span class="p">,</span> <span class="n">o_shift</span> <span class="o">=</span> <span class="n">transformation_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+            <span class="n">basis_change</span> <span class="o">=</span> <span class="n">b_change</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="n">origin_shift</span> <span class="o">=</span> <span class="n">o_shift</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="c1"># add implicit multiplication symbols</span>
+            <span class="n">basis_change</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s1">&#39;(?&lt;=\w|\))(?=\() | (?&lt;=\))(?=\w) | (?&lt;=(\d|a|b|c))(?=([abc]))&#39;</span><span class="p">,</span>
+                <span class="sa">r</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">basis_change</span><span class="p">]</span>
+            <span class="c1"># should be fine to use eval here but be mindful for security</span>
+            <span class="c1"># reasons</span>
+            <span class="c1"># see http://lybniz2.sourceforge.net/safeeval.html</span>
+            <span class="c1"># could replace with regex? or sympy expression?</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">eval</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;__builtins__&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+                               <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="n">b</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="n">c</span><span class="p">})</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">basis_change</span><span class="p">])</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>  <span class="c1"># by convention</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">Fraction</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">origin_shift</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Failed to parse transformation string.&quot;</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">P</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: transformation matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_P</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :return: translation vector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_p</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;JonesFaithfulTransformation&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :return: JonesFaithfulTransformation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">JonesFaithfulTransformation</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transformation_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: transformation string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_transformation_string_from_Pp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_transformation_string_from_Pp</span><span class="p">(</span><span class="n">P</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">p</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">P</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="n">P_string</span> <span class="o">=</span> <span class="n">transformation_to_string</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">))</span>
+        <span class="n">p_string</span> <span class="o">=</span> <span class="n">transformation_to_string</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span> <span class="n">p</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">P_string</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span> <span class="o">+</span> <span class="n">p_string</span>
+
+<div class="viewcode-block" id="JonesFaithfulTransformation.transform_symmop"><a class="viewcode-back" href="../../../pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_symmop">[docs]</a>    <span class="k">def</span> <span class="nf">transform_symmop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmop</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">SymmOp</span><span class="p">,</span> <span class="n">MagSymmOp</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">SymmOp</span><span class="p">,</span> <span class="n">MagSymmOp</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes a symmetry operation and transforms it.</span>
+<span class="sd">        :param symmop: SymmOp or MagSymmOp</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">W</span> <span class="o">=</span> <span class="n">symmop</span><span class="o">.</span><span class="n">rotation_matrix</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">symmop</span><span class="o">.</span><span class="n">translation_vector</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">)</span>
+        <span class="n">W_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">)</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">w_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="p">(</span><span class="n">w</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">W</span> <span class="o">-</span> <span class="n">I</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)))</span>
+        <span class="n">w_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">w_</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">symmop</span><span class="p">,</span> <span class="n">MagSymmOp</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">MagSymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation_and_time_reversal</span><span class="p">(</span>
+                <span class="n">rotation_matrix</span><span class="o">=</span><span class="n">W_</span><span class="p">,</span> <span class="n">translation_vec</span><span class="o">=</span><span class="n">w_</span><span class="p">,</span>
+                <span class="n">time_reversal</span><span class="o">=</span><span class="n">symmop</span><span class="o">.</span><span class="n">time_reversal</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">symmop</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">symmop</span><span class="p">,</span> <span class="n">SymmOp</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span>
+                <span class="n">rotation_matrix</span><span class="o">=</span><span class="n">W_</span><span class="p">,</span> <span class="n">translation_vec</span><span class="o">=</span><span class="n">w_</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">symmop</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span></div>
+
+<div class="viewcode-block" id="JonesFaithfulTransformation.transform_coords"><a class="viewcode-back" href="../../../pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_coords">[docs]</a>    <span class="k">def</span> <span class="nf">transform_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes a list of co-ordinates and transforms them.</span>
+<span class="sd">        :param coords: List of coords</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">)</span>
+            <span class="n">x_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+            <span class="n">new_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">new_coords</span></div>
+
+<div class="viewcode-block" id="JonesFaithfulTransformation.transform_lattice"><a class="viewcode-back" href="../../../pymatgen.symmetry.settings.html#pymatgen.symmetry.settings.JonesFaithfulTransformation.transform_lattice">[docs]</a>    <span class="k">def</span> <span class="nf">transform_lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
+        <span class="c1"># type: (Lattice) -&gt; Lattice</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes a Lattice object and transforms it.</span>
+<span class="sd">        :param lattice: Lattice</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">P</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">JonesFaithfulTransformation</span><span class="o">.</span><span class="n">transformation_string</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;JonesFaithfulTransformation with P:</span><span class="se">\n</span><span class="si">{0}</span><span class="se">\n</span><span class="s2">and p:</span><span class="se">\n</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.symmetry.settings</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

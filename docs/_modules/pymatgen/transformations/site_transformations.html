@@ -1,0 +1,696 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.transformations.site_transformations &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.transformations.site_transformations</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.transformations.site_transformations</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines site transformations which transforms a structure into</span>
+<span class="sd">another structure. Site transformations differ from standard transformations</span>
+<span class="sd">in that they operate in a site-specific manner.</span>
+<span class="sd">All transformations should inherit the AbstractTransformation ABC.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.transformation_abc</span> <span class="kn">import</span> <span class="n">AbstractTransformation</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.ewald</span> <span class="kn">import</span> <span class="n">EwaldSummation</span><span class="p">,</span> <span class="n">EwaldMinimizer</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Will Richards&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.2&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 23, 2011&quot;</span>
+
+
+<div class="viewcode-block" id="InsertSitesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.InsertSitesTransformation">[docs]</a><span class="k">class</span> <span class="nc">InsertSitesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This transformation substitutes certain sites with certain species.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            species: A list of species. e.g., [&quot;Li&quot;, &quot;Fe&quot;]</span>
+<span class="sd">            coords: A list of coords corresponding to those species. e.g.,</span>
+<span class="sd">                [[0,0,0],[0.5,0.5,0.5]].</span>
+<span class="sd">            coords_are_cartesian (bool): Set to True if coords are given in</span>
+<span class="sd">                cartesian coords. Defaults to False.</span>
+<span class="sd">            validate_proximity (bool): Set to False if you do not wish to ensure</span>
+<span class="sd">                that added sites are not too close to other sites. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">species</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Species and coords must be the same length!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords_are_cartesian</span> <span class="o">=</span> <span class="n">coords_are_cartesian</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_proximity</span> <span class="o">=</span> <span class="n">validate_proximity</span>
+
+<div class="viewcode-block" id="InsertSitesTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.InsertSitesTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Arg:</span>
+<span class="sd">            structure (Structure): A structurally similar structure in</span>
+<span class="sd">                regards to crystal and site positions.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            Returns a copy of structure with sites inserted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                     <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coords_are_cartesian</span><span class="p">,</span>
+                     <span class="n">validate_proximity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validate_proximity</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;InsertSiteTransformation : &quot;</span> <span class="o">+</span> \
+            <span class="s2">&quot;species </span><span class="si">{}</span><span class="s2">, coords </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return: None&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return: False&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="ReplaceSiteSpeciesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation">[docs]</a><span class="k">class</span> <span class="nc">ReplaceSiteSpeciesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This transformation substitutes certain sites with certain species.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices_species_map</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            indices_species_map: A dict containing the species mapping in</span>
+<span class="sd">                int-string pairs. E.g., { 1:&quot;Na&quot;} or {2:&quot;Mn2+&quot;}. Multiple</span>
+<span class="sd">                substitutions can be done. Overloaded to accept sp_and_occu</span>
+<span class="sd">                dictionary. E.g. {1: {&quot;Ge&quot;:0.75, &quot;C&quot;:0.25} }, which</span>
+<span class="sd">                substitutes a single species with multiple species to generate a</span>
+<span class="sd">                disordered structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices_species_map</span> <span class="o">=</span> <span class="n">indices_species_map</span>
+
+<div class="viewcode-block" id="ReplaceSiteSpeciesTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Arg:</span>
+<span class="sd">            structure (Structure): A structurally similar structure in</span>
+<span class="sd">                regards to crystal and site positions.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            Returns a copy of structure with sites replaced.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices_species_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">s</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">sp</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;ReplaceSiteSpeciesTransformation :&quot;</span> <span class="o">+</span> \
+            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-&gt;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">indices_species_map</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return: None&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return: False&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="RemoveSitesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RemoveSitesTransformation">[docs]</a><span class="k">class</span> <span class="nc">RemoveSitesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove certain sites in a structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices_to_remove</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            indices_to_remove: List of indices to remove. E.g., [0, 1, 2]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices_to_remove</span> <span class="o">=</span> <span class="n">indices_to_remove</span>
+
+<div class="viewcode-block" id="RemoveSitesTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RemoveSitesTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Arg:</span>
+<span class="sd">            structure (Structure): A structurally similar structure in</span>
+<span class="sd">                regards to crystal and site positions.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            Returns a copy of structure with sites removed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices_to_remove</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;RemoveSitesTransformation :&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices_to_remove</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return: None&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return: False&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="TranslateSitesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation">[docs]</a><span class="k">class</span> <span class="nc">TranslateSitesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class translates a set of sites by a certain vector.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices_to_move</span><span class="p">,</span> <span class="n">translation_vector</span><span class="p">,</span>
+                 <span class="n">vector_in_frac_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            indices_to_move: The indices of the sites to move</span>
+<span class="sd">            translation_vector: Vector to move the sites. If a list of list or numpy</span>
+<span class="sd">                array of shape, (len(indices_to_move), 3), is provided then each</span>
+<span class="sd">                translation vector is applied to the corresponding site in the</span>
+<span class="sd">                indices_to_move.</span>
+<span class="sd">            vector_in_frac_coords: Set to True if the translation vector is in</span>
+<span class="sd">                fractional coordinates, and False if it is in cartesian</span>
+<span class="sd">                coordinations. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices_to_move</span> <span class="o">=</span> <span class="n">indices_to_move</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translation_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">translation_vector</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vector_in_frac_coords</span> <span class="o">=</span> <span class="n">vector_in_frac_coords</span>
+
+<div class="viewcode-block" id="TranslateSitesTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Arg:</span>
+<span class="sd">            structure (Structure): A structurally similar structure in</span>
+<span class="sd">                regards to crystal and site positions.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            Returns a copy of structure with sites translated.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation_vector</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices_to_move</span><span class="p">),</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices_to_move</span><span class="p">):</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation_vector</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">vector_in_frac_coords</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices_to_move</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation_vector</span><span class="p">,</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">vector_in_frac_coords</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;TranslateSitesTransformation for indices &quot;</span> <span class="o">+</span> \
+            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, vect </span><span class="si">{}</span><span class="s2"> and vect_in_frac_coords = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">indices_to_move</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation_vector</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vector_in_frac_coords</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            TranslateSitesTranformation with the reverse translation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">TranslateSitesTransformation</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">indices_to_move</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">translation_vector</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vector_in_frac_coords</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return: False&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="TranslateSitesTransformation.as_dict"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Json-serializable dict representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">MSONable</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;translation_vector&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation_vector</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">d</span></div></div>
+
+
+<div class="viewcode-block" id="PartialRemoveSitesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation">[docs]</a><span class="k">class</span> <span class="nc">PartialRemoveSitesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove fraction of specie from a structure.</span>
+<span class="sd">    Requires an oxidation state decorated structure for ewald sum to be</span>
+<span class="sd">    computed.</span>
+
+<span class="sd">    Given that the solution to selecting the right removals is NP-hard, there</span>
+<span class="sd">    are several algorithms provided with varying degrees of accuracy and speed.</span>
+<span class="sd">    The options are as follows:</span>
+
+<span class="sd">    ALGO_FAST:</span>
+<span class="sd">        This is a highly optimized algorithm to quickly go through the search</span>
+<span class="sd">        tree. It is guaranteed to find the optimal solution, but will return</span>
+<span class="sd">        only a single lowest energy structure. Typically, you will want to use</span>
+<span class="sd">        this.</span>
+
+<span class="sd">    ALGO_COMPLETE:</span>
+<span class="sd">        The complete algo ensures that you get all symmetrically distinct</span>
+<span class="sd">        orderings, ranked by the estimated Ewald energy. But this can be an</span>
+<span class="sd">        extremely time-consuming process if the number of possible orderings is</span>
+<span class="sd">        very large. Use this if you really want all possible orderings. If you</span>
+<span class="sd">        want just the lowest energy ordering, ALGO_FAST is accurate and faster.</span>
+
+<span class="sd">    ALGO_BEST_FIRST:</span>
+<span class="sd">        This algorithm is for ordering the really large cells that defeats even</span>
+<span class="sd">        ALGO_FAST.  For example, if you have 48 sites of which you want to</span>
+<span class="sd">        remove 16 of them, the number of possible orderings is around</span>
+<span class="sd">        2 x 10^12. ALGO_BEST_FIRST shortcircuits the entire search tree by</span>
+<span class="sd">        removing the highest energy site first, then followed by the next</span>
+<span class="sd">        highest energy site, and so on. It is guaranteed to find a solution</span>
+<span class="sd">        in a reasonable time, but it is also likely to be highly inaccurate.</span>
+
+<span class="sd">    ALGO_ENUMERATE:</span>
+<span class="sd">        This algorithm uses the EnumerateStructureTransformation to perform</span>
+<span class="sd">        ordering. This algo returns *complete* orderings up to a single unit</span>
+<span class="sd">        cell size. It is more robust than the ALGO_COMPLETE, but requires</span>
+<span class="sd">        Gus Hart&#39;s enumlib to be installed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ALGO_FAST</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ALGO_COMPLETE</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ALGO_BEST_FIRST</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">ALGO_ENUMERATE</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">fractions</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="n">ALGO_COMPLETE</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            indices:</span>
+<span class="sd">                A list of list of indices.</span>
+<span class="sd">                e.g. [[0, 1], [2, 3, 4, 5]]</span>
+<span class="sd">            fractions:</span>
+<span class="sd">                The corresponding fractions to remove. Must be same length as</span>
+<span class="sd">                indices. e.g., [0.5, 0.25]</span>
+<span class="sd">            algo:</span>
+<span class="sd">                This parameter allows you to choose the algorithm to perform</span>
+<span class="sd">                ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*</span>
+<span class="sd">                variables to set the algo.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fractions</span> <span class="o">=</span> <span class="n">fractions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algo</span> <span class="o">=</span> <span class="n">algo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_best_first_ordering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">num_remove_dict</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing best first ordering&quot;</span><span class="p">)</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing initial ewald sum...&quot;</span><span class="p">)</span>
+        <span class="n">ewaldsum</span> <span class="o">=</span> <span class="n">EwaldSummation</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Ewald sum took </span><span class="si">{}</span><span class="s2"> seconds.&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span><span class="p">))</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="n">ematrix</span> <span class="o">=</span> <span class="n">ewaldsum</span><span class="o">.</span><span class="n">total_energy_matrix</span>
+        <span class="n">to_delete</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">totalremovals</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">num_remove_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">removed</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">num_remove_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">totalremovals</span><span class="p">):</span>
+            <span class="n">maxindex</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">maxe</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">)</span>
+            <span class="n">maxindices</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">num_remove_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">removed</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">num_remove_dict</span><span class="p">[</span><span class="n">indices</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">ind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">to_delete</span><span class="p">:</span>
+                            <span class="n">energy</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ematrix</span><span class="p">[:,</span> <span class="n">ind</span><span class="p">])</span> <span class="o">+</span> \
+                                <span class="nb">sum</span><span class="p">(</span><span class="n">ematrix</span><span class="p">[:,</span> <span class="n">ind</span><span class="p">])</span> <span class="o">-</span> <span class="n">ematrix</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span> <span class="n">ind</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">energy</span> <span class="o">&gt;</span> <span class="n">maxe</span><span class="p">:</span>
+                                <span class="n">maxindex</span> <span class="o">=</span> <span class="n">ind</span>
+                                <span class="n">maxe</span> <span class="o">=</span> <span class="n">energy</span>
+                                <span class="n">maxindices</span> <span class="o">=</span> <span class="n">indices</span>
+            <span class="n">removed</span><span class="p">[</span><span class="n">maxindices</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">to_delete</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">maxindex</span><span class="p">)</span>
+            <span class="n">ematrix</span><span class="p">[:,</span> <span class="n">maxindex</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">ematrix</span><span class="p">[</span><span class="n">maxindex</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="n">to_delete</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Minimizing Ewald took </span><span class="si">{}</span><span class="s2"> seconds.&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">ematrix</span><span class="p">)),</span>
+                 <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()}]</span>
+
+    <span class="k">def</span> <span class="nf">_complete_ordering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">num_remove_dict</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing complete ordering...&quot;</span><span class="p">)</span>
+        <span class="n">all_structures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">symprec</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Symmetry of structure is determined to be </span><span class="si">{}</span><span class="s2">.&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">()))</span>
+        <span class="n">sg</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_space_group_operations</span><span class="p">()</span>
+        <span class="n">tested_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing initial ewald sum...&quot;</span><span class="p">)</span>
+        <span class="n">ewaldsum</span> <span class="o">=</span> <span class="n">EwaldSummation</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Ewald sum took </span><span class="si">{}</span><span class="s2"> seconds.&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span><span class="p">))</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="n">allcombis</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">num_remove_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">allcombis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">num</span><span class="p">))</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">allindices</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">allcombis</span><span class="p">):</span>
+            <span class="n">sites_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">indices_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">allindices</span><span class="p">:</span>
+                <span class="n">sites_to_remove</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">structure</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">])</span>
+                <span class="n">indices_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+            <span class="n">s_new</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">s_new</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="n">indices_list</span><span class="p">)</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">ewaldsum</span><span class="o">.</span><span class="n">compute_partial_energy</span><span class="p">(</span><span class="n">indices_list</span><span class="p">)</span>
+            <span class="n">already_tested</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tsites</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tested_sites</span><span class="p">):</span>
+                <span class="n">tenergy</span> <span class="o">=</span> <span class="n">all_structures</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">abs</span><span class="p">((</span><span class="n">energy</span> <span class="o">-</span> <span class="n">tenergy</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">s_new</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">1e-5</span> <span class="ow">and</span> \
+                        <span class="n">sg</span><span class="o">.</span><span class="n">are_symmetrically_equivalent</span><span class="p">(</span><span class="n">sites_to_remove</span><span class="p">,</span>
+                                                        <span class="n">tsites</span><span class="p">,</span>
+                                                        <span class="n">symm_prec</span><span class="o">=</span><span class="n">symprec</span><span class="p">):</span>
+                    <span class="n">already_tested</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">already_tested</span><span class="p">:</span>
+                <span class="n">tested_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sites_to_remove</span><span class="p">)</span>
+                <span class="n">all_structures</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">s_new</span><span class="p">,</span> <span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="n">energy</span><span class="p">})</span>
+
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">timenow</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> structures, </span><span class="si">{:.2f}</span><span class="s2"> seconds.&quot;</span>
+                                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">timenow</span> <span class="o">-</span> <span class="n">starttime</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Average time per combi = </span><span class="si">{}</span><span class="s2"> seconds&quot;</span>
+                                  <span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">timenow</span> <span class="o">-</span> <span class="n">starttime</span><span class="p">)</span> <span class="o">/</span> <span class="n">count</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> symmetrically distinct structures found.&quot;</span>
+                                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_structures</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Total symmetrically distinct structures found = </span><span class="si">{}</span><span class="s2">&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_structures</span><span class="p">)))</span>
+        <span class="n">all_structures</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">all_structures</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">all_structures</span>
+
+    <span class="k">def</span> <span class="nf">_fast_ordering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">num_remove_dict</span><span class="p">,</span> <span class="n">num_to_return</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method uses the matrix form of ewaldsum to calculate the ewald</span>
+<span class="sd">        sums of the potential structures. This is on the order of 4 orders of</span>
+<span class="sd">        magnitude faster when there are large numbers of permutations to</span>
+<span class="sd">        consider. There are further optimizations possible (doing a smarter</span>
+<span class="sd">        search of permutations for example), but this wont make a difference</span>
+<span class="sd">        until the number of permutations is on the order of 30,000.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing fast ordering&quot;</span><span class="p">)</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing initial ewald sum...&quot;</span><span class="p">)</span>
+
+        <span class="n">ewaldmatrix</span> <span class="o">=</span> <span class="n">EwaldSummation</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">total_energy_matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Ewald sum took </span><span class="si">{}</span><span class="s2"> seconds.&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span><span class="p">))</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">m_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">indices</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">num_remove_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">m_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span> <span class="kc">None</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Calling EwaldMinimizer...&quot;</span><span class="p">)</span>
+        <span class="n">minimizer</span> <span class="o">=</span> <span class="n">EwaldMinimizer</span><span class="p">(</span><span class="n">ewaldmatrix</span><span class="p">,</span> <span class="n">m_list</span><span class="p">,</span> <span class="n">num_to_return</span><span class="p">,</span>
+                                   <span class="n">PartialRemoveSitesTransformation</span><span class="o">.</span><span class="n">ALGO_FAST</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Minimizing Ewald took </span><span class="si">{}</span><span class="s2"> seconds.&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span><span class="p">))</span>
+
+        <span class="n">all_structures</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">lowest_energy</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">output_lists</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">num_atoms</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">output_lists</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">del_indices</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">manipulation</span> <span class="ow">in</span> <span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">manipulation</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">del_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">manipulation</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">manipulation</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">manipulation</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="n">del_indices</span><span class="p">)</span>
+            <span class="n">struct</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
+            <span class="n">all_structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                 <span class="s2">&quot;energy_above_minimum&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">lowest_energy</span><span class="p">)</span>
+                    <span class="o">/</span> <span class="n">num_atoms</span><span class="p">,</span>
+                 <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">struct</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">all_structures</span>
+
+    <span class="k">def</span> <span class="nf">_enumerate_ordering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="c1"># Generate the disordered structure first.</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">indices</span><span class="p">,</span> <span class="n">fraction</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fractions</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+                <span class="n">new_sp</span> <span class="o">=</span> <span class="p">{</span><span class="n">sp</span><span class="p">:</span> <span class="n">occu</span> <span class="o">*</span> <span class="n">fraction</span>
+                          <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">occu</span>
+                          <span class="ow">in</span> <span class="n">structure</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                <span class="n">s</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_sp</span>
+        <span class="c1"># Perform enumeration</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.transformations.advanced_transformations</span> <span class="kn">import</span> \
+            <span class="n">EnumerateStructureTransformation</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">EnumerateStructureTransformation</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">trans</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PartialRemoveSitesTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: input structure</span>
+<span class="sd">            return_ranked_list (bool): Whether or not multiple structures are</span>
+<span class="sd">                returned. If return_ranked_list is a number, that number of</span>
+<span class="sd">                structures is returned.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Depending on returned_ranked list, either a transformed structure</span>
+<span class="sd">            or a list of dictionaries, where each dictionary is of the form</span>
+<span class="sd">            {&quot;structure&quot; = .... , &quot;other_arguments&quot;}</span>
+<span class="sd">            the key &quot;transformation&quot; is reserved for the transformation that</span>
+<span class="sd">            was actually applied to the structure.</span>
+<span class="sd">            This transformation is parsed by the alchemy classes for generating</span>
+<span class="sd">            a more specific transformation history. Any other information will</span>
+<span class="sd">            be stored in the transformation_parameters dictionary in the</span>
+<span class="sd">            transmuted structure class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">num_remove_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">total_combis</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">indices</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fractions</span><span class="p">):</span>
+            <span class="n">num_to_remove</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">*</span> <span class="n">frac</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">num_to_remove</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">num_to_remove</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mf">1e-3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Fraction to remove must be consistent with &quot;</span>
+                                 <span class="s2">&quot;integer amounts in structure.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">num_to_remove</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">num_to_remove</span><span class="p">))</span>
+            <span class="n">num_remove_dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">indices</span><span class="p">)]</span> <span class="o">=</span> <span class="n">num_to_remove</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+            <span class="n">total_combis</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span>
+                                      <span class="n">math</span><span class="o">.</span><span class="n">factorial</span><span class="p">(</span><span class="n">num_to_remove</span><span class="p">)</span> <span class="o">/</span>
+                                      <span class="n">math</span><span class="o">.</span><span class="n">factorial</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">num_to_remove</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Total combinations = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">total_combis</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">num_to_return</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">return_ranked_list</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">num_to_return</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">num_to_return</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_to_return</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Will return </span><span class="si">{}</span><span class="s2"> best structures.&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_to_return</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">algo</span> <span class="o">==</span> <span class="n">PartialRemoveSitesTransformation</span><span class="o">.</span><span class="n">ALGO_FAST</span><span class="p">:</span>
+            <span class="n">all_structures</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fast_ordering</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">num_remove_dict</span><span class="p">,</span>
+                                                 <span class="n">num_to_return</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">algo</span> <span class="o">==</span> <span class="n">PartialRemoveSitesTransformation</span><span class="o">.</span><span class="n">ALGO_COMPLETE</span><span class="p">:</span>
+            <span class="n">all_structures</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_complete_ordering</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">num_remove_dict</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">algo</span> <span class="o">==</span> <span class="n">PartialRemoveSitesTransformation</span><span class="o">.</span><span class="n">ALGO_BEST_FIRST</span><span class="p">:</span>
+            <span class="n">all_structures</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_best_first_ordering</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
+                                                       <span class="n">num_remove_dict</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">algo</span> <span class="o">==</span> <span class="n">PartialRemoveSitesTransformation</span><span class="o">.</span><span class="n">ALGO_ENUMERATE</span><span class="p">:</span>
+            <span class="n">all_structures</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enumerate_ordering</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid algo.&quot;</span><span class="p">)</span>
+
+        <span class="n">opt_s</span> <span class="o">=</span> <span class="n">all_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">opt_s</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">return_ranked_list</span> \
+            <span class="k">else</span> <span class="n">all_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">num_to_return</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;PartialRemoveSitesTransformation : Indices and fraction&quot;</span> <span class="o">+</span> \
+               <span class="s2">&quot; to remove = </span><span class="si">{}</span><span class="s2">, ALGO = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">algo</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return: None&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return: True&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="AddSitePropertyTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation">[docs]</a><span class="k">class</span> <span class="nc">AddSitePropertyTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple transformation to add site properties to a given structure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_properties</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            site_properties (dict): site properties to be added to a structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span> <span class="o">=</span> <span class="n">site_properties</span>
+
+<div class="viewcode-block" id="AddSitePropertyTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Arg:</span>
+<span class="sd">            structure (Structure): A structurally similar structure in</span>
+<span class="sd">                regards to crystal and site positions.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            Returns a copy of structure with sites properties added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">new_structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="n">prop</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">new_structure</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return: None&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return: False&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.transformations.site_transformations</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

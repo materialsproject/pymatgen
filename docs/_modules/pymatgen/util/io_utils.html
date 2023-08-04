@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.util.io_utils &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.util.io_utils</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.util.io_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides utility classes for io operations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">errno</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 23, 2011&quot;</span>
+
+
+<div class="viewcode-block" id="ask_yesno"><a class="viewcode-back" href="../../../pymatgen.util.io_utils.html#pymatgen.util.io_utils.ask_yesno">[docs]</a><span class="k">def</span> <span class="nf">ask_yesno</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        question ():</span>
+<span class="sd">        default ():</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">answer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">EOFError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">default</span></div>
+
+
+<div class="viewcode-block" id="clean_lines"><a class="viewcode-back" href="../../../pymatgen.util.io_utils.html#pymatgen.util.io_utils.clean_lines">[docs]</a><span class="k">def</span> <span class="nf">clean_lines</span><span class="p">(</span><span class="n">string_list</span><span class="p">,</span> <span class="n">remove_empty_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Strips whitespace, carriage returns and empty lines from a list of strings.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        string_list: List of strings</span>
+<span class="sd">        remove_empty_lines: Set to True to skip lines which are empty after</span>
+<span class="sd">            stripping.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of clean strings with no whitespaces.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">string_list</span><span class="p">:</span>
+        <span class="n">clean_s</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="k">if</span> <span class="s1">&#39;#&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+            <span class="n">clean_s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[:</span><span class="n">ind</span><span class="p">]</span>
+        <span class="n">clean_s</span> <span class="o">=</span> <span class="n">clean_s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">remove_empty_lines</span><span class="p">)</span> <span class="ow">or</span> <span class="n">clean_s</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">clean_s</span></div>
+
+
+<div class="viewcode-block" id="micro_pyawk"><a class="viewcode-back" href="../../../pymatgen.util.io_utils.html#pymatgen.util.io_utils.micro_pyawk">[docs]</a><span class="k">def</span> <span class="nf">micro_pyawk</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">search</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">postdebug</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Small awk-mimicking search routine.</span>
+
+<span class="sd">    &#39;file&#39; is file to search through.</span>
+<span class="sd">    &#39;search&#39; is the &quot;search program&quot;, a list of lists/tuples with 3 elements;</span>
+<span class="sd">    i.e. [[regex,test,run],[regex,test,run],...]</span>
+<span class="sd">    &#39;results&#39; is a an object that your search program will have access to for</span>
+<span class="sd">    storing results.</span>
+
+<span class="sd">    Here regex is either as a Regex object, or a string that we compile into a</span>
+<span class="sd">    Regex. test and run are callable objects.</span>
+
+<span class="sd">    This function goes through each line in filename, and if regex matches that</span>
+<span class="sd">    line *and* test(results,line)==True (or test is None) we execute</span>
+<span class="sd">    run(results,match),where match is the match object from running</span>
+<span class="sd">    Regex.match.</span>
+
+<span class="sd">    The default results is an empty dictionary. Passing a results object let</span>
+<span class="sd">    you interact with it in run() and test(). Hence, in many occasions it is</span>
+<span class="sd">    thus clever to use results=self.</span>
+
+<span class="sd">    Author: Rickard Armiento, Ioannis Petousis</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        results</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Compile strings into regexs</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">search</span><span class="p">:</span>
+        <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">search</span><span class="p">:</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+                              <span class="ow">or</span> <span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">](</span><span class="n">results</span><span class="p">,</span> <span class="n">line</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">debug</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">debug</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span>
+                    <span class="n">entry</span><span class="p">[</span><span class="mi">2</span><span class="p">](</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">postdebug</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">postdebug</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+<span class="n">umask</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">umask</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">umask</span><span class="p">(</span><span class="n">umask</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_maketemp</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">createmode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a temporary file with the filename similar the given ``name``.</span>
+<span class="sd">    The permission bits are copied from the original file or ``createmode``.</span>
+<span class="sd">    Returns: the name of the temporary file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span><span class="p">,</span> <span class="n">fn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">fd</span><span class="p">,</span> <span class="n">tempname</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.</span><span class="si">%s</span><span class="s2">-&quot;</span> <span class="o">%</span> <span class="n">fn</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+
+    <span class="c1"># Temporary files are created with mode 0600, which is usually not</span>
+    <span class="c1"># what we want. If the original file already exists, just copy its mode.</span>
+    <span class="c1"># Otherwise, manually obey umask.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">st_mode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">lstat</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">st_mode</span> <span class="o">&amp;</span> <span class="mo">0o777</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="n">st_mode</span> <span class="o">=</span> <span class="n">createmode</span>
+        <span class="k">if</span> <span class="n">st_mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">st_mode</span> <span class="o">=</span> <span class="o">~</span><span class="n">umask</span>
+        <span class="n">st_mode</span> <span class="o">&amp;=</span> <span class="mo">0o666</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">tempname</span><span class="p">,</span> <span class="n">st_mode</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">tempname</span>
+
+
+<div class="viewcode-block" id="AtomicFile"><a class="viewcode-back" href="../../../pymatgen.util.io_utils.html#pymatgen.util.io_utils.AtomicFile">[docs]</a><span class="k">class</span> <span class="nc">AtomicFile</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a straight port of Alexander Saltanov&#39;s atomicfile package.</span>
+
+<span class="sd">    Writeable file object that atomically writes a file.</span>
+<span class="sd">    All writes will go to a temporary file.</span>
+<span class="sd">    Call ``close()`` when you are done writing, and AtomicFile will rename</span>
+<span class="sd">    the temporary copy to the original name, making the changes visible.</span>
+<span class="sd">    If the object is destroyed without being closed, all your writes are</span>
+<span class="sd">    discarded.</span>
+<span class="sd">    If an ``encoding`` argument is specified, codecs.open will be called to open</span>
+<span class="sd">    the file in the wanted encoding.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w+b&quot;</span><span class="p">,</span> <span class="n">createmode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            name ():</span>
+<span class="sd">            mode ():</span>
+<span class="sd">            createmode ():</span>
+<span class="sd">            encoding ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>  <span class="c1"># permanent name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tempname</span> <span class="o">=</span> <span class="n">_maketemp</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">createmode</span><span class="o">=</span><span class="n">createmode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">encoding</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tempname</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tempname</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+        <span class="c1"># delegated methods</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span><span class="o">.</span><span class="n">write</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fileno</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span><span class="o">.</span><span class="n">fileno</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">exc_type</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AtomicFile.close"><a class="viewcode-back" href="../../../pymatgen.util.io_utils.html#pymatgen.util.io_utils.AtomicFile.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Close the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="c1"># This to avoid:</span>
+            <span class="c1">#   FileExistsError: [WinError 183] Cannot create a file when that file already exists:</span>
+            <span class="c1"># On Windows, if dst already exists, OSError will be raised even if it is a file;</span>
+            <span class="c1"># there may be no way to implement an atomic rename when dst names an existing file.</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__name</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__name</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tempname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AtomicFile.discard"><a class="viewcode-back" href="../../../pymatgen.util.io_utils.html#pymatgen.util.io_utils.AtomicFile.discard">[docs]</a>    <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Discard the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tempname</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_fp&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># constructor actually did something</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">discard</span><span class="p">()</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.util.io_utils</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

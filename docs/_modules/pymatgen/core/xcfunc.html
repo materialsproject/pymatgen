@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.core.xcfunc &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.xcfunc</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.core.xcfunc</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span><span class="p">,</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">monty.string</span> <span class="kn">import</span> <span class="n">is_string</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>  <span class="c1"># , MontyEncoder</span>
+<span class="kn">from</span> <span class="nn">monty.functools</span> <span class="kn">import</span> <span class="n">lazy_property</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.libxcfunc</span> <span class="kn">import</span> <span class="n">LibxcFunc</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matteo Giantomassi&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2016, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;3.0.0&quot;</span>  <span class="c1"># The libxc version used to generate this file!</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Matteo Giantomassi&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gmatteo@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;May 16, 2016&quot;</span>
+
+
+<div class="viewcode-block" id="XcFunc"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc">[docs]</a><span class="k">class</span> <span class="nc">XcFunc</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This object stores information about the XC correlation functional.</span>
+<span class="sd">    Client code usually creates the object by calling the class methods:</span>
+
+<span class="sd">        - from_name</span>
+<span class="sd">        - from_type_name</span>
+
+<span class="sd">    or code-specific methods such as:</span>
+
+<span class="sd">        - from_abinit_ixc</span>
+
+<span class="sd">    Ax XcFunc instance is hashable and can therefore be used as key in dictionaries.</span>
+
+<span class="sd">    The implementation is based on the libxc conventions</span>
+<span class="sd">    and is inspired to the XML specification for atomic PAW datasets documented at:</span>
+
+<span class="sd">        https://wiki.fysik.dtu.dk/gpaw/setups/pawxml.html</span>
+
+<span class="sd">    For convenience, part of the pawxml documentation is reported here.</span>
+
+<span class="sd">    The xc_functional element defines the exchange-correlation functional used for</span>
+<span class="sd">    generating the dataset. It has the two attributes type and name.</span>
+
+<span class="sd">    The type attribute can be LDA, GGA, MGGA or HYB.</span>
+<span class="sd">    The name attribute designates the exchange-correlation functional</span>
+<span class="sd">    and can be specified in the following ways:</span>
+
+<span class="sd">    [1] Taking the names from the LibXC library. The correlation and exchange names</span>
+<span class="sd">        are stripped from their XC_ part and combined with a + sign.</span>
+<span class="sd">        Here is an example for an LDA functional:</span>
+
+<span class="sd">        &lt;xc_functional type=&quot;LDA&quot;, name=&quot;LDA_X+LDA_C_PW&quot;/&gt;</span>
+
+<span class="sd">        and this is what PBE will look like:</span>
+
+<span class="sd">        &lt;xc_functional type=&quot;GGA&quot;, name=&quot;GGA_X_PBE+GGA_C_PBE&quot;/&gt;</span>
+
+<span class="sd">    [2] Using one of the following pre-defined aliases:</span>
+
+<span class="sd">    type    name    LibXC equivalent             Reference</span>
+<span class="sd">    LDA     PW      LDA_X+LDA_C_PW               LDA exchange; Perdew, Wang, PRB 45, 13244 (1992)</span>
+<span class="sd">    GGA     PW91    GGA_X_PW91+GGA_C_PW91        Perdew et al PRB 46, 6671 (1992)</span>
+<span class="sd">    GGA     PBE     GGA_X_PBE+GGA_C_PBE          Perdew, Burke, Ernzerhof, PRL 77, 3865 (1996)</span>
+<span class="sd">    GGA     RPBE    GGA_X_RPBE+GGA_C_PBE         Hammer, Hansen, Nørskov, PRB 59, 7413 (1999)</span>
+<span class="sd">    GGA     revPBE  GGA_X_PBE_R+GGA_C_PBE        Zhang, Yang, PRL 80, 890 (1998)</span>
+<span class="sd">    GGA     PBEsol  GGA_X_PBE_SOL+GGA_C_PBE_SOL  Perdew et al, PRL 100, 136406 (2008)</span>
+<span class="sd">    GGA     AM05    GGA_X_AM05+GGA_C_AM05        Armiento, Mattsson, PRB 72, 085108 (2005)</span>
+<span class="sd">    GGA     BLYP    GGA_X_B88+GGA_C_LYP          Becke, PRA 38, 3098 (1988); Lee, Yang, Parr, PRB 37, 785</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;type_name&quot;</span><span class="p">,</span> <span class="s2">&quot;type, name&quot;</span><span class="p">)</span>
+
+    <span class="n">xcf</span> <span class="o">=</span> <span class="n">LibxcFunc</span>
+    <span class="n">defined_aliases</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>  <span class="c1"># (x, c) --&gt; type_name</span>
+        <span class="c1"># LDAs</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_X</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">LDA_C_PW</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;LDA&quot;</span><span class="p">,</span> <span class="s2">&quot;PW&quot;</span><span class="p">)),</span>  <span class="c1"># ixc 7</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_X</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">LDA_C_PW_MOD</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;LDA&quot;</span><span class="p">,</span> <span class="s2">&quot;PW_MOD&quot;</span><span class="p">)),</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_X</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">LDA_C_PZ</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;LDA&quot;</span><span class="p">,</span> <span class="s2">&quot;PZ&quot;</span><span class="p">)),</span>  <span class="c1"># ixc 2</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_X</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">LDA_C_WIGNER</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;LDA&quot;</span><span class="p">,</span> <span class="s2">&quot;W&quot;</span><span class="p">)),</span>  <span class="c1"># ixc 4</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_X</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">LDA_C_HL</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;LDA&quot;</span><span class="p">,</span> <span class="s2">&quot;HL&quot;</span><span class="p">)),</span>  <span class="c1"># ixc 5</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_X</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">LDA_C_GL</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;LDA&quot;</span><span class="p">,</span> <span class="s2">&quot;GL&quot;</span><span class="p">)),</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_X</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">LDA_C_VWN</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;LDA&quot;</span><span class="p">,</span> <span class="s2">&quot;VWN&quot;</span><span class="p">)),</span>
+        <span class="c1"># GGAs</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_X_PW91</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">GGA_C_PW91</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;PW91&quot;</span><span class="p">)),</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_X_PBE</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">GGA_C_PBE</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;PBE&quot;</span><span class="p">)),</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_X_RPBE</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">GGA_C_PBE</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;RPBE&quot;</span><span class="p">)),</span>  <span class="c1"># ixc 15</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_X_PBE_R</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">GGA_C_PBE</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;revPBE&quot;</span><span class="p">)),</span>  <span class="c1"># ixc 14</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_X_PBE_SOL</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">GGA_C_PBE_SOL</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;PBEsol&quot;</span><span class="p">)),</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_X_AM05</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">GGA_C_AM05</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;AM05&quot;</span><span class="p">)),</span>
+        <span class="p">((</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_X_B88</span><span class="p">,</span> <span class="n">xcf</span><span class="o">.</span><span class="n">GGA_C_LYP</span><span class="p">),</span> <span class="n">type_name</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;BLYP&quot;</span><span class="p">)),</span>
+    <span class="p">])</span>
+    <span class="k">del</span> <span class="n">type_name</span>
+
+    <span class="c1"># Correspondence between Abinit ixc notation and libxc notation.</span>
+    <span class="c1"># see: http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#ixc</span>
+    <span class="c1"># and 42_libpaw/m_pawpsp.F90 for the implementation.</span>
+    <span class="c1"># Fortunately, all the other cases are handled with libxc.</span>
+    <span class="n">abinitixc_to_libxc</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">xc</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_XC_TETER93</span><span class="p">),</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_X</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_C_PZ</span><span class="p">),</span>  <span class="c1"># PZ  001009</span>
+        <span class="mi">4</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_X</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_C_WIGNER</span><span class="p">),</span>  <span class="c1"># W</span>
+        <span class="mi">5</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_X</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_C_HL</span><span class="p">),</span>  <span class="c1"># HL</span>
+        <span class="mi">7</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_X</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">LDA_C_PW</span><span class="p">),</span>  <span class="c1"># PW 001012</span>
+        <span class="mi">11</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_X_PBE</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_C_PBE</span><span class="p">),</span>  <span class="c1"># PBE</span>
+        <span class="mi">14</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_X_PBE_R</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_C_PBE</span><span class="p">),</span>  <span class="c1"># revPBE</span>
+        <span class="mi">15</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_X_RPBE</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">xcf</span><span class="o">.</span><span class="n">GGA_C_PBE</span><span class="p">),</span>  <span class="c1"># RPBE</span>
+    <span class="p">}</span>
+    <span class="k">del</span> <span class="n">xcf</span>
+
+<div class="viewcode-block" id="XcFunc.aliases"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.aliases">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">aliases</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of registered names.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">nt</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">nt</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">defined_aliases</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="XcFunc.asxc"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.asxc">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">asxc</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert object into Xcfunc.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span>
+        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to convert &lt;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&gt; to Xcfunc&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="XcFunc.from_abinit_ixc"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.from_abinit_ixc">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_abinit_ixc</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ixc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build the object from Abinit ixc (integer)&quot;&quot;&quot;</span>
+        <span class="n">ixc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ixc</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ixc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">ixc</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">abinitixc_to_libxc</span><span class="p">[</span><span class="n">ixc</span><span class="p">])</span>
+
+        <span class="c1"># libxc notation employed in Abinit: a six-digit number in the form XXXCCC or CCCXXX</span>
+        <span class="c1"># ixc = str(ixc)</span>
+        <span class="c1"># assert len(ixc[1:]) == 6</span>
+        <span class="c1"># first, last = ixc[1:4], ixc[4:]</span>
+        <span class="n">ixc</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ixc</span><span class="p">)</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">ixc</span> <span class="o">//</span> <span class="mi">1000</span>
+        <span class="n">last</span> <span class="o">=</span> <span class="n">ixc</span> <span class="o">-</span> <span class="n">first</span> <span class="o">*</span> <span class="mi">1000</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">LibxcFunc</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">first</span><span class="p">)),</span> <span class="n">LibxcFunc</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">last</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">is_x_kind</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="p">,</span> <span class="n">x</span>  <span class="c1"># Swap</span>
+        <span class="k">assert</span> <span class="n">x</span><span class="o">.</span><span class="n">is_x_kind</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">is_c_kind</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="XcFunc.from_name"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.from_name">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build the object from one of the registered names&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_type_name</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="XcFunc.from_type_name"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.from_type_name">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_type_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">typ</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build the object from (type, name).&quot;&quot;&quot;</span>
+        <span class="c1"># Try aliases first.</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">nt</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">defined_aliases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">typ</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">typ</span> <span class="o">!=</span> <span class="n">nt</span><span class="o">.</span><span class="n">type</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># print(name, nt.name)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">nt</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">xc</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong key: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
+
+        <span class="c1"># At this point, we should have something in the form</span>
+        <span class="c1"># name=&quot;GGA_X_PBE+GGA_C_PBE&quot; or  name=&quot;&quot;LDA_XC_TETER93&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;+&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+            <span class="c1"># if typ is not None: raise ValueError(&quot;typ: `%s` but name: `%s`&quot; % (typ, name))</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">))</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">LibxcFunc</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">LibxcFunc</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
+        <span class="c1"># if typ is not None: raise ValueError(&quot;typ: `%s` but name: `%s`&quot; % (typ, name))</span>
+        <span class="n">xc</span> <span class="o">=</span> <span class="n">LibxcFunc</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">xc</span><span class="o">=</span><span class="n">xc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="XcFunc.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">xc</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;xc&quot;</span><span class="p">),</span> <span class="n">x</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="XcFunc.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span>
+        <span class="c1"># print(&quot;in as_dict&quot;, type(self.x), type(self.c), type(self.xc))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;xc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+    <span class="c1"># def to_json(self):</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    Returns a json string representation of the MSONable object.</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    return json.dumps(self.as_dict()) #, cls=MontyEncoder)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            xc: LibxcFunc for XC functional.</span>
+<span class="sd">            x, c: LibxcFunc for exchange and correlation part. Mutually exclusive with xc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Consistency check</span>
+        <span class="k">if</span> <span class="n">xc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x or c must be specified when xc is None&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x and c should be None when xc is specified&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">xc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">xc</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">c</span>
+
+<div class="viewcode-block" id="XcFunc.type"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.type">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The type of the functional.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defined_aliases</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defined_aliases</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xc</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>
+        <span class="n">xc</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">xc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defined_aliases</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defined_aliases</span><span class="p">[</span><span class="n">xc</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>
+
+        <span class="c1"># If self is not in defined_aliases, use LibxcFunc family</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc</span><span class="o">.</span><span class="n">family</span>
+        <span class="k">return</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">family</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="XcFunc.name"><a class="viewcode-back" href="../../../pymatgen.core.xcfunc.html#pymatgen.core.xcfunc.XcFunc.name">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The name of the functional. If the functional is not found in the aliases,</span>
+<span class="sd">        the string has the form X_NAME+C_NAME</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defined_aliases</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defined_aliases</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xc</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">xc</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">xc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defined_aliases</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defined_aliases</span><span class="p">[</span><span class="n">xc</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">return</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="p">])</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">XcFunc</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
+        <span class="c1"># assume other is a string</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span></div>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def refs(self):</span>
+
+    <span class="c1"># def info_dict()</span>
+    <span class="c1">#    if self.xc is not None:</span>
+    <span class="c1">#        return {&quot;xc&quot;, self.xc.info_dict}</span>
+    <span class="c1">#    else:</span>
+    <span class="c1">#        return {&quot;x&quot;, self.x.info_dict, &quot;c&quot;, self.c.info_dict}</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.xcfunc</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

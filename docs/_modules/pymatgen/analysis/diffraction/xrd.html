@@ -1,0 +1,387 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.diffraction.xrd &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffraction.xrd</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.diffraction.xrd</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements an XRD pattern calculator.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sin</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">asin</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">degrees</span><span class="p">,</span> <span class="n">radians</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">DiffractionPattern</span><span class="p">,</span> <span class="n">AbstractDiffractionPatternCalculator</span><span class="p">,</span> \
+    <span class="n">get_unique_families</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ongsp@ucsd.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;5/22/14&quot;</span>
+
+
+<span class="c1"># XRD wavelengths in angstroms</span>
+<span class="n">WAVELENGTHS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;CuKa&quot;</span><span class="p">:</span> <span class="mf">1.54184</span><span class="p">,</span>
+    <span class="s2">&quot;CuKa2&quot;</span><span class="p">:</span> <span class="mf">1.54439</span><span class="p">,</span>
+    <span class="s2">&quot;CuKa1&quot;</span><span class="p">:</span> <span class="mf">1.54056</span><span class="p">,</span>
+    <span class="s2">&quot;CuKb1&quot;</span><span class="p">:</span> <span class="mf">1.39222</span><span class="p">,</span>
+    <span class="s2">&quot;MoKa&quot;</span><span class="p">:</span> <span class="mf">0.71073</span><span class="p">,</span>
+    <span class="s2">&quot;MoKa2&quot;</span><span class="p">:</span> <span class="mf">0.71359</span><span class="p">,</span>
+    <span class="s2">&quot;MoKa1&quot;</span><span class="p">:</span> <span class="mf">0.70930</span><span class="p">,</span>
+    <span class="s2">&quot;MoKb1&quot;</span><span class="p">:</span> <span class="mf">0.63229</span><span class="p">,</span>
+    <span class="s2">&quot;CrKa&quot;</span><span class="p">:</span> <span class="mf">2.29100</span><span class="p">,</span>
+    <span class="s2">&quot;CrKa2&quot;</span><span class="p">:</span> <span class="mf">2.29361</span><span class="p">,</span>
+    <span class="s2">&quot;CrKa1&quot;</span><span class="p">:</span> <span class="mf">2.28970</span><span class="p">,</span>
+    <span class="s2">&quot;CrKb1&quot;</span><span class="p">:</span> <span class="mf">2.08487</span><span class="p">,</span>
+    <span class="s2">&quot;FeKa&quot;</span><span class="p">:</span> <span class="mf">1.93735</span><span class="p">,</span>
+    <span class="s2">&quot;FeKa2&quot;</span><span class="p">:</span> <span class="mf">1.93998</span><span class="p">,</span>
+    <span class="s2">&quot;FeKa1&quot;</span><span class="p">:</span> <span class="mf">1.93604</span><span class="p">,</span>
+    <span class="s2">&quot;FeKb1&quot;</span><span class="p">:</span> <span class="mf">1.75661</span><span class="p">,</span>
+    <span class="s2">&quot;CoKa&quot;</span><span class="p">:</span> <span class="mf">1.79026</span><span class="p">,</span>
+    <span class="s2">&quot;CoKa2&quot;</span><span class="p">:</span> <span class="mf">1.79285</span><span class="p">,</span>
+    <span class="s2">&quot;CoKa1&quot;</span><span class="p">:</span> <span class="mf">1.78896</span><span class="p">,</span>
+    <span class="s2">&quot;CoKb1&quot;</span><span class="p">:</span> <span class="mf">1.63079</span><span class="p">,</span>
+    <span class="s2">&quot;AgKa&quot;</span><span class="p">:</span> <span class="mf">0.560885</span><span class="p">,</span>
+    <span class="s2">&quot;AgKa2&quot;</span><span class="p">:</span> <span class="mf">0.563813</span><span class="p">,</span>
+    <span class="s2">&quot;AgKa1&quot;</span><span class="p">:</span> <span class="mf">0.559421</span><span class="p">,</span>
+    <span class="s2">&quot;AgKb1&quot;</span><span class="p">:</span> <span class="mf">0.497082</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
+                       <span class="s2">&quot;atomic_scattering_params.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">ATOMIC_SCATTERING_PARAMS</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="XRDCalculator"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.xrd.html#pymatgen.analysis.diffraction.xrd.XRDCalculator">[docs]</a><span class="k">class</span> <span class="nc">XRDCalculator</span><span class="p">(</span><span class="n">AbstractDiffractionPatternCalculator</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the XRD pattern of a crystal structure.</span>
+
+<span class="sd">    This code is implemented by Shyue Ping Ong as part of UCSD&#39;s NANO106 -</span>
+<span class="sd">    Crystallography of Materials. The formalism for this code is based on</span>
+<span class="sd">    that given in Chapters 11 and 12 of Structure of Materials by Marc De</span>
+<span class="sd">    Graef and Michael E. McHenry. This takes into account the atomic</span>
+<span class="sd">    scattering factors and the Lorentz polarization factor, but not</span>
+<span class="sd">    the Debye-Waller (temperature) factor (for which data is typically not</span>
+<span class="sd">    available). Note that the multiplicity correction is not needed since</span>
+<span class="sd">    this code simply goes through all reciprocal points within the limiting</span>
+<span class="sd">    sphere, which includes all symmetrically equivalent facets. The algorithm</span>
+<span class="sd">    is as follows</span>
+
+<span class="sd">    1. Calculate reciprocal lattice of structure. Find all reciprocal points</span>
+<span class="sd">       within the limiting sphere given by :math:`\\frac{2}{\\lambda}`.</span>
+
+<span class="sd">    2. For each reciprocal point :math:`\\mathbf{g_{hkl}}` corresponding to</span>
+<span class="sd">       lattice plane :math:`(hkl)`, compute the Bragg condition</span>
+<span class="sd">       :math:`\\sin(\\theta) = \\frac{\\lambda}{2d_{hkl}}`</span>
+
+<span class="sd">    3. Compute the structure factor as the sum of the atomic scattering</span>
+<span class="sd">       factors. The atomic scattering factors are given by</span>
+
+<span class="sd">       .. math::</span>
+
+<span class="sd">           f(s) = Z - 41.78214 \\times s^2 \\times \\sum\\limits_{i=1}^n a_i \</span>
+<span class="sd">           \\exp(-b_is^2)</span>
+
+<span class="sd">       where :math:`s = \\frac{\\sin(\\theta)}{\\lambda}` and :math:`a_i`</span>
+<span class="sd">       and :math:`b_i` are the fitted parameters for each element. The</span>
+<span class="sd">       structure factor is then given by</span>
+
+<span class="sd">       .. math::</span>
+
+<span class="sd">           F_{hkl} = \\sum\\limits_{j=1}^N f_j \\exp(2\\pi i \\mathbf{g_{hkl}}</span>
+<span class="sd">           \\cdot \\mathbf{r})</span>
+
+<span class="sd">    4. The intensity is then given by the modulus square of the structure</span>
+<span class="sd">       factor.</span>
+
+<span class="sd">       .. math::</span>
+
+<span class="sd">           I_{hkl} = F_{hkl}F_{hkl}^*</span>
+
+<span class="sd">    5. Finally, the Lorentz polarization correction factor is applied. This</span>
+<span class="sd">       factor is given by:</span>
+
+<span class="sd">       .. math::</span>
+
+<span class="sd">           P(\\theta) = \\frac{1 + \\cos^2(2\\theta)}</span>
+<span class="sd">           {\\sin^2(\\theta)\\cos(\\theta)}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Tuple of available radiation keywords.</span>
+    <span class="n">AVAILABLE_RADIATION</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">WAVELENGTHS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="s2">&quot;CuKa&quot;</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">debye_waller_factors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the XRD calculator with a given radiation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            wavelength (str/float): The wavelength can be specified as either a</span>
+<span class="sd">                float or a string. If it is a string, it must be one of the</span>
+<span class="sd">                supported definitions in the AVAILABLE_RADIATION class</span>
+<span class="sd">                variable, which provides useful commonly used wavelengths.</span>
+<span class="sd">                If it is a float, it is interpreted as a wavelength in</span>
+<span class="sd">                angstroms. Defaults to &quot;CuKa&quot;, i.e, Cu K_alpha radiation.</span>
+<span class="sd">            symprec (float): Symmetry precision for structure refinement. If</span>
+<span class="sd">                set to 0, no refinement is done. Otherwise, refinement is</span>
+<span class="sd">                performed using spglib with provided precision.</span>
+<span class="sd">            debye_waller_factors ({element symbol: float}): Allows the</span>
+<span class="sd">                specification of Debye-Waller factors. Note that these</span>
+<span class="sd">                factors are temperature dependent.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span> <span class="o">=</span> <span class="n">wavelength</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">radiation</span> <span class="o">=</span> <span class="n">wavelength</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span> <span class="o">=</span> <span class="n">WAVELENGTHS</span><span class="p">[</span><span class="n">wavelength</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span> <span class="o">=</span> <span class="n">symprec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debye_waller_factors</span> <span class="o">=</span> <span class="n">debye_waller_factors</span> <span class="ow">or</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="XRDCalculator.get_pattern"><a class="viewcode-back" href="../../../../pymatgen.analysis.diffraction.xrd.html#pymatgen.analysis.diffraction.xrd.XRDCalculator.get_pattern">[docs]</a>    <span class="k">def</span> <span class="nf">get_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">scaled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">two_theta_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the diffraction pattern for a structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input structure</span>
+<span class="sd">            scaled (bool): Whether to return scaled intensities. The maximum</span>
+<span class="sd">                peak is set to a value of 100. Defaults to True. Use False if</span>
+<span class="sd">                you need the absolute values to combine XRD plots.</span>
+<span class="sd">            two_theta_range ([float of length 2]): Tuple for range of</span>
+<span class="sd">                two_thetas to calculate in degrees. Defaults to (0, 90). Set to</span>
+<span class="sd">                None if you want all diffracted beams within the limiting</span>
+<span class="sd">                sphere of radius 2 / wavelength.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (XRDPattern)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span><span class="p">:</span>
+            <span class="n">finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symprec</span><span class="p">)</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">finder</span><span class="o">.</span><span class="n">get_refined_structure</span><span class="p">()</span>
+
+        <span class="n">wavelength</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span>
+        <span class="n">latt</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="n">is_hex</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">is_hexagonal</span><span class="p">()</span>
+
+        <span class="c1"># Obtained from Bragg condition. Note that reciprocal lattice</span>
+        <span class="c1"># vector length is 1 / d_hkl.</span>
+        <span class="n">min_r</span><span class="p">,</span> <span class="n">max_r</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">wavelength</span><span class="p">)</span> <span class="k">if</span> <span class="n">two_theta_range</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> \
+            <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="n">radians</span><span class="p">(</span><span class="n">t</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="n">wavelength</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">two_theta_range</span><span class="p">]</span>
+
+        <span class="c1"># Obtain crystallographic reciprocal lattice points within range</span>
+        <span class="n">recip_latt</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">reciprocal_lattice_crystallographic</span>
+        <span class="n">recip_pts</span> <span class="o">=</span> <span class="n">recip_latt</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">(</span>
+            <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">max_r</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">min_r</span><span class="p">:</span>
+            <span class="n">recip_pts</span> <span class="o">=</span> <span class="p">[</span><span class="n">pt</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">recip_pts</span> <span class="k">if</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_r</span><span class="p">]</span>
+
+        <span class="c1"># Create a flattened array of zs, coeffs, fcoords and occus. This is</span>
+        <span class="c1"># used to perform vectorized computation of atomic scattering factors</span>
+        <span class="c1"># later. Note that these are not necessarily the same size as the</span>
+        <span class="c1"># structure as each partially occupied specie occupies its own</span>
+        <span class="c1"># position in the flattened array.</span>
+        <span class="n">zs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">fcoords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">occus</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dwfactors</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">occu</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">zs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">ATOMIC_SCATTERING_PARAMS</span><span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to calculate XRD pattern as &quot;</span>
+                                     <span class="s2">&quot;there is no scattering coefficients for&quot;</span>
+                                     <span class="s2">&quot; </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+                <span class="n">coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                <span class="n">dwfactors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">debye_waller_factors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="n">fcoords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+                <span class="n">occus</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">occu</span><span class="p">)</span>
+
+        <span class="n">zs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">zs</span><span class="p">)</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
+        <span class="n">fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fcoords</span><span class="p">)</span>
+        <span class="n">occus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">occus</span><span class="p">)</span>
+        <span class="n">dwfactors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dwfactors</span><span class="p">)</span>
+        <span class="n">peaks</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">two_thetas</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">hkl</span><span class="p">,</span> <span class="n">g_hkl</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">recip_pts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">])):</span>
+            <span class="c1"># Force miller indices to be integers.</span>
+            <span class="n">hkl</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">hkl</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">g_hkl</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+
+                <span class="n">d_hkl</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">g_hkl</span>
+
+                <span class="c1"># Bragg condition</span>
+                <span class="n">theta</span> <span class="o">=</span> <span class="n">asin</span><span class="p">(</span><span class="n">wavelength</span> <span class="o">*</span> <span class="n">g_hkl</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+                <span class="c1"># s = sin(theta) / wavelength = 1 / 2d = |ghkl| / 2 (d =</span>
+                <span class="c1"># 1/|ghkl|)</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">g_hkl</span> <span class="o">/</span> <span class="mi">2</span>
+
+                <span class="c1"># Store s^2 since we are using it a few times.</span>
+                <span class="n">s2</span> <span class="o">=</span> <span class="n">s</span> <span class="o">**</span> <span class="mi">2</span>
+
+                <span class="c1"># Vectorized computation of g.r for all fractional coords and</span>
+                <span class="c1"># hkl.</span>
+                <span class="n">g_dot_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">fcoords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">([</span><span class="n">hkl</span><span class="p">]))</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="c1"># Highly vectorized computation of atomic scattering factors.</span>
+                <span class="c1"># Equivalent non-vectorized code is::</span>
+                <span class="c1">#</span>
+                <span class="c1">#   for site in structure:</span>
+                <span class="c1">#      el = site.specie</span>
+                <span class="c1">#      coeff = ATOMIC_SCATTERING_PARAMS[el.symbol]</span>
+                <span class="c1">#      fs = el.Z - 41.78214 * s2 * sum(</span>
+                <span class="c1">#          [d[0] * exp(-d[1] * s2) for d in coeff])</span>
+                <span class="n">fs</span> <span class="o">=</span> <span class="n">zs</span> <span class="o">-</span> <span class="mf">41.78214</span> <span class="o">*</span> <span class="n">s2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                    <span class="n">coeffs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">coeffs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">s2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="n">dw_correction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">dwfactors</span> <span class="o">*</span> <span class="n">s2</span><span class="p">)</span>
+
+                <span class="c1"># Structure factor = sum of atomic scattering factors (with</span>
+                <span class="c1"># position factor exp(2j * pi * g.r and occupancies).</span>
+                <span class="c1"># Vectorized computation.</span>
+                <span class="n">f_hkl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fs</span> <span class="o">*</span> <span class="n">occus</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="n">j</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">g_dot_r</span><span class="p">)</span>
+                               <span class="o">*</span> <span class="n">dw_correction</span><span class="p">)</span>
+
+                <span class="c1"># Lorentz polarization correction for hkl</span>
+                <span class="n">lorentz_factor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> \
+                    <span class="p">(</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">))</span>
+
+                <span class="c1"># Intensity for hkl is modulus square of structure factor.</span>
+                <span class="n">i_hkl</span> <span class="o">=</span> <span class="p">(</span><span class="n">f_hkl</span> <span class="o">*</span> <span class="n">f_hkl</span><span class="o">.</span><span class="n">conjugate</span><span class="p">())</span><span class="o">.</span><span class="n">real</span>
+
+                <span class="n">two_theta</span> <span class="o">=</span> <span class="n">degrees</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">is_hex</span><span class="p">:</span>
+                    <span class="c1"># Use Miller-Bravais indices for hexagonal lattices.</span>
+                    <span class="n">hkl</span> <span class="o">=</span> <span class="p">(</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="c1"># Deal with floating point precision issues.</span>
+                <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">two_thetas</span><span class="p">,</span> <span class="n">two_theta</span><span class="p">))</span> <span class="o">&lt;</span>
+                               <span class="n">AbstractDiffractionPatternCalculator</span><span class="o">.</span><span class="n">TWO_THETA_TOL</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">peaks</span><span class="p">[</span><span class="n">two_thetas</span><span class="p">[</span><span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">i_hkl</span> <span class="o">*</span> <span class="n">lorentz_factor</span>
+                    <span class="n">peaks</span><span class="p">[</span><span class="n">two_thetas</span><span class="p">[</span><span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">hkl</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">peaks</span><span class="p">[</span><span class="n">two_theta</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i_hkl</span> <span class="o">*</span> <span class="n">lorentz_factor</span><span class="p">,</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">hkl</span><span class="p">)],</span>
+                                        <span class="n">d_hkl</span><span class="p">]</span>
+                    <span class="n">two_thetas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">two_theta</span><span class="p">)</span>
+
+        <span class="c1"># Scale intensities so that the max intensity is 100.</span>
+        <span class="n">max_intensity</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">peaks</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">hkls</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">d_hkls</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">peaks</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">peaks</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">fam</span> <span class="o">=</span> <span class="n">get_unique_families</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_intensity</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">&gt;</span> <span class="n">AbstractDiffractionPatternCalculator</span><span class="o">.</span><span class="n">SCALED_INTENSITY_TOL</span><span class="p">:</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">hkls</span><span class="o">.</span><span class="n">append</span><span class="p">([{</span><span class="s2">&quot;hkl&quot;</span><span class="p">:</span> <span class="n">hkl</span><span class="p">,</span> <span class="s2">&quot;multiplicity&quot;</span><span class="p">:</span> <span class="n">mult</span><span class="p">}</span>
+                             <span class="k">for</span> <span class="n">hkl</span><span class="p">,</span> <span class="n">mult</span> <span class="ow">in</span> <span class="n">fam</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+                <span class="n">d_hkls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">xrd</span> <span class="o">=</span> <span class="n">DiffractionPattern</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">hkls</span><span class="p">,</span> <span class="n">d_hkls</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">scaled</span><span class="p">:</span>
+            <span class="n">xrd</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xrd</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.diffraction.xrd</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

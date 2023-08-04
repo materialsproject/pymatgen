@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.molecule_structure_comparator &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.molecule_structure_comparator</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.molecule_structure_comparator</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes to comparsion the structures of the two</span>
+<span class="sd">molecule. As long as the two molecule have the same bond connection tables,</span>
+<span class="sd">the molecules are deemed to be same. The atom in the two molecule must be</span>
+<span class="sd">paired accordingly.</span>
+<span class="sd">This module is supposed to perform rough comparisons with the atom order</span>
+<span class="sd">correspondence prerequisite, while molecule_matcher is supposed to do exact</span>
+<span class="sd">comparisons without the atom order correspondence prerequisite.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Xiaohui Qu&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Xiaohui Qu&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;xhqu1981@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Experimental&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Jan 22, 2014&quot;</span>
+
+
+<div class="viewcode-block" id="CovalentRadius"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.CovalentRadius">[docs]</a><span class="k">class</span> <span class="nc">CovalentRadius</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Covalent Radius of the elements.</span>
+
+<span class="sd">    Beatriz C. et al. Dalton Trans. 2008, 2832-2838. DOI: 10.1039/b801115j</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">radius</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="mf">0.31</span><span class="p">,</span> <span class="s1">&#39;He&#39;</span><span class="p">:</span> <span class="mf">0.28</span><span class="p">,</span> <span class="s1">&#39;Li&#39;</span><span class="p">:</span> <span class="mf">1.28</span><span class="p">,</span> <span class="s1">&#39;Be&#39;</span><span class="p">:</span> <span class="mf">0.96</span><span class="p">,</span>
+              <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="mf">0.84</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="mf">0.73</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="mf">0.71</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span> <span class="mf">0.66</span><span class="p">,</span>
+              <span class="s1">&#39;F&#39;</span><span class="p">:</span> <span class="mf">0.57</span><span class="p">,</span> <span class="s1">&#39;Ne&#39;</span><span class="p">:</span> <span class="mf">0.58</span><span class="p">,</span> <span class="s1">&#39;Na&#39;</span><span class="p">:</span> <span class="mf">1.66</span><span class="p">,</span> <span class="s1">&#39;Mg&#39;</span><span class="p">:</span> <span class="mf">1.41</span><span class="p">,</span>
+              <span class="s1">&#39;Al&#39;</span><span class="p">:</span> <span class="mf">1.21</span><span class="p">,</span> <span class="s1">&#39;Si&#39;</span><span class="p">:</span> <span class="mf">1.11</span><span class="p">,</span> <span class="s1">&#39;P&#39;</span><span class="p">:</span> <span class="mf">1.07</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">:</span> <span class="mf">1.05</span><span class="p">,</span>
+              <span class="s1">&#39;Cl&#39;</span><span class="p">:</span> <span class="mf">1.02</span><span class="p">,</span> <span class="s1">&#39;Ar&#39;</span><span class="p">:</span> <span class="mf">1.06</span><span class="p">,</span> <span class="s1">&#39;K&#39;</span><span class="p">:</span> <span class="mf">2.03</span><span class="p">,</span> <span class="s1">&#39;Ca&#39;</span><span class="p">:</span> <span class="mf">1.76</span><span class="p">,</span>
+              <span class="s1">&#39;Sc&#39;</span><span class="p">:</span> <span class="mf">1.70</span><span class="p">,</span> <span class="s1">&#39;Ti&#39;</span><span class="p">:</span> <span class="mf">1.60</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">:</span> <span class="mf">1.53</span><span class="p">,</span> <span class="s1">&#39;Cr&#39;</span><span class="p">:</span> <span class="mf">1.39</span><span class="p">,</span>
+              <span class="s1">&#39;Mn&#39;</span><span class="p">:</span> <span class="mf">1.50</span><span class="p">,</span> <span class="s1">&#39;Fe&#39;</span><span class="p">:</span> <span class="mf">1.42</span><span class="p">,</span> <span class="s1">&#39;Co&#39;</span><span class="p">:</span> <span class="mf">1.38</span><span class="p">,</span> <span class="s1">&#39;Ni&#39;</span><span class="p">:</span> <span class="mf">1.24</span><span class="p">,</span>
+              <span class="s1">&#39;Cu&#39;</span><span class="p">:</span> <span class="mf">1.32</span><span class="p">,</span> <span class="s1">&#39;Zn&#39;</span><span class="p">:</span> <span class="mf">1.22</span><span class="p">,</span> <span class="s1">&#39;Ga&#39;</span><span class="p">:</span> <span class="mf">1.22</span><span class="p">,</span> <span class="s1">&#39;Ge&#39;</span><span class="p">:</span> <span class="mf">1.20</span><span class="p">,</span>
+              <span class="s1">&#39;As&#39;</span><span class="p">:</span> <span class="mf">1.19</span><span class="p">,</span> <span class="s1">&#39;Se&#39;</span><span class="p">:</span> <span class="mf">1.20</span><span class="p">,</span> <span class="s1">&#39;Br&#39;</span><span class="p">:</span> <span class="mf">1.20</span><span class="p">,</span> <span class="s1">&#39;Kr&#39;</span><span class="p">:</span> <span class="mf">1.16</span><span class="p">,</span>
+              <span class="s1">&#39;Rb&#39;</span><span class="p">:</span> <span class="mf">2.20</span><span class="p">,</span> <span class="s1">&#39;Sr&#39;</span><span class="p">:</span> <span class="mf">1.95</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="mf">1.90</span><span class="p">,</span> <span class="s1">&#39;Zr&#39;</span><span class="p">:</span> <span class="mf">1.75</span><span class="p">,</span>
+              <span class="s1">&#39;Nb&#39;</span><span class="p">:</span> <span class="mf">1.64</span><span class="p">,</span> <span class="s1">&#39;Mo&#39;</span><span class="p">:</span> <span class="mf">1.54</span><span class="p">,</span> <span class="s1">&#39;Tc&#39;</span><span class="p">:</span> <span class="mf">1.47</span><span class="p">,</span> <span class="s1">&#39;Ru&#39;</span><span class="p">:</span> <span class="mf">1.46</span><span class="p">,</span>
+              <span class="s1">&#39;Rh&#39;</span><span class="p">:</span> <span class="mf">1.42</span><span class="p">,</span> <span class="s1">&#39;Pd&#39;</span><span class="p">:</span> <span class="mf">1.39</span><span class="p">,</span> <span class="s1">&#39;Ag&#39;</span><span class="p">:</span> <span class="mf">1.45</span><span class="p">,</span> <span class="s1">&#39;Cd&#39;</span><span class="p">:</span> <span class="mf">1.44</span><span class="p">,</span>
+              <span class="s1">&#39;In&#39;</span><span class="p">:</span> <span class="mf">1.42</span><span class="p">,</span> <span class="s1">&#39;Sn&#39;</span><span class="p">:</span> <span class="mf">1.39</span><span class="p">,</span> <span class="s1">&#39;Sb&#39;</span><span class="p">:</span> <span class="mf">1.39</span><span class="p">,</span> <span class="s1">&#39;Te&#39;</span><span class="p">:</span> <span class="mf">1.38</span><span class="p">,</span>
+              <span class="s1">&#39;I&#39;</span><span class="p">:</span> <span class="mf">1.39</span><span class="p">,</span> <span class="s1">&#39;Xe&#39;</span><span class="p">:</span> <span class="mf">1.40</span><span class="p">,</span> <span class="s1">&#39;Cs&#39;</span><span class="p">:</span> <span class="mf">2.44</span><span class="p">,</span> <span class="s1">&#39;Ba&#39;</span><span class="p">:</span> <span class="mf">2.15</span><span class="p">,</span>
+              <span class="s1">&#39;La&#39;</span><span class="p">:</span> <span class="mf">2.07</span><span class="p">,</span> <span class="s1">&#39;Ce&#39;</span><span class="p">:</span> <span class="mf">2.04</span><span class="p">,</span> <span class="s1">&#39;Pr&#39;</span><span class="p">:</span> <span class="mf">2.03</span><span class="p">,</span> <span class="s1">&#39;Nd&#39;</span><span class="p">:</span> <span class="mf">2.01</span><span class="p">,</span>
+              <span class="s1">&#39;Pm&#39;</span><span class="p">:</span> <span class="mf">1.99</span><span class="p">,</span> <span class="s1">&#39;Sm&#39;</span><span class="p">:</span> <span class="mf">1.98</span><span class="p">,</span> <span class="s1">&#39;Eu&#39;</span><span class="p">:</span> <span class="mf">1.98</span><span class="p">,</span> <span class="s1">&#39;Gd&#39;</span><span class="p">:</span> <span class="mf">1.96</span><span class="p">,</span>
+              <span class="s1">&#39;Tb&#39;</span><span class="p">:</span> <span class="mf">1.94</span><span class="p">,</span> <span class="s1">&#39;Dy&#39;</span><span class="p">:</span> <span class="mf">1.92</span><span class="p">,</span> <span class="s1">&#39;Ho&#39;</span><span class="p">:</span> <span class="mf">1.92</span><span class="p">,</span> <span class="s1">&#39;Er&#39;</span><span class="p">:</span> <span class="mf">1.89</span><span class="p">,</span>
+              <span class="s1">&#39;Tm&#39;</span><span class="p">:</span> <span class="mf">1.90</span><span class="p">,</span> <span class="s1">&#39;Yb&#39;</span><span class="p">:</span> <span class="mf">1.87</span><span class="p">,</span> <span class="s1">&#39;Lu&#39;</span><span class="p">:</span> <span class="mf">1.87</span><span class="p">,</span> <span class="s1">&#39;Hf&#39;</span><span class="p">:</span> <span class="mf">1.75</span><span class="p">,</span>
+              <span class="s1">&#39;Ta&#39;</span><span class="p">:</span> <span class="mf">1.70</span><span class="p">,</span> <span class="s1">&#39;W&#39;</span><span class="p">:</span> <span class="mf">1.62</span><span class="p">,</span> <span class="s1">&#39;Re&#39;</span><span class="p">:</span> <span class="mf">1.51</span><span class="p">,</span> <span class="s1">&#39;Os&#39;</span><span class="p">:</span> <span class="mf">1.44</span><span class="p">,</span>
+              <span class="s1">&#39;Ir&#39;</span><span class="p">:</span> <span class="mf">1.41</span><span class="p">,</span> <span class="s1">&#39;Pt&#39;</span><span class="p">:</span> <span class="mf">1.36</span><span class="p">,</span> <span class="s1">&#39;Au&#39;</span><span class="p">:</span> <span class="mf">1.36</span><span class="p">,</span> <span class="s1">&#39;Hg&#39;</span><span class="p">:</span> <span class="mf">1.32</span><span class="p">,</span>
+              <span class="s1">&#39;Tl&#39;</span><span class="p">:</span> <span class="mf">1.45</span><span class="p">,</span> <span class="s1">&#39;Pb&#39;</span><span class="p">:</span> <span class="mf">1.46</span><span class="p">,</span> <span class="s1">&#39;Bi&#39;</span><span class="p">:</span> <span class="mf">1.48</span><span class="p">,</span> <span class="s1">&#39;Po&#39;</span><span class="p">:</span> <span class="mf">1.40</span><span class="p">,</span>
+              <span class="s1">&#39;At&#39;</span><span class="p">:</span> <span class="mf">1.50</span><span class="p">,</span> <span class="s1">&#39;Rn&#39;</span><span class="p">:</span> <span class="mf">1.50</span><span class="p">,</span> <span class="s1">&#39;Fr&#39;</span><span class="p">:</span> <span class="mf">2.60</span><span class="p">,</span> <span class="s1">&#39;Ra&#39;</span><span class="p">:</span> <span class="mf">2.21</span><span class="p">,</span>
+              <span class="s1">&#39;Ac&#39;</span><span class="p">:</span> <span class="mf">2.15</span><span class="p">,</span> <span class="s1">&#39;Th&#39;</span><span class="p">:</span> <span class="mf">2.06</span><span class="p">,</span> <span class="s1">&#39;Pa&#39;</span><span class="p">:</span> <span class="mf">2.00</span><span class="p">,</span> <span class="s1">&#39;U&#39;</span><span class="p">:</span> <span class="mf">1.96</span><span class="p">,</span>
+              <span class="s1">&#39;Np&#39;</span><span class="p">:</span> <span class="mf">1.90</span><span class="p">,</span> <span class="s1">&#39;Pu&#39;</span><span class="p">:</span> <span class="mf">1.87</span><span class="p">,</span> <span class="s1">&#39;Am&#39;</span><span class="p">:</span> <span class="mf">1.80</span><span class="p">,</span> <span class="s1">&#39;Cm&#39;</span><span class="p">:</span> <span class="mf">1.69</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="MoleculeStructureComparator"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator">[docs]</a><span class="k">class</span> <span class="nc">MoleculeStructureComparator</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to check whether the connection tables of the two molecules are the</span>
+<span class="sd">    same. The atom in the two molecule must be paired accordingly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ionic_element_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Na&#39;</span><span class="p">,</span> <span class="s1">&#39;Mg&#39;</span><span class="p">,</span> <span class="s1">&#39;Al&#39;</span><span class="p">,</span> <span class="s1">&#39;Sc&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;Cr&#39;</span><span class="p">,</span> <span class="s2">&quot;Mn&quot;</span><span class="p">,</span> <span class="s1">&#39;Fe&#39;</span><span class="p">,</span> <span class="s1">&#39;Co&#39;</span><span class="p">,</span> <span class="s1">&#39;Ni&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;Cu&#39;</span><span class="p">,</span> <span class="s1">&#39;Zn&#39;</span><span class="p">,</span> <span class="s1">&#39;Ga&#39;</span><span class="p">,</span> <span class="s1">&#39;Rb&#39;</span><span class="p">,</span> <span class="s1">&#39;Sr&#39;</span><span class="p">]</span>
+    <span class="n">halogen_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;Cl&#39;</span><span class="p">,</span> <span class="s1">&#39;Br&#39;</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bond_length_cap</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+                 <span class="n">covalent_radius</span><span class="o">=</span><span class="n">CovalentRadius</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span>
+                 <span class="n">priority_bonds</span><span class="o">=</span><span class="p">(),</span>
+                 <span class="n">priority_cap</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                 <span class="n">ignore_ionic_bond</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">bond_13_cap</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            bond_length_cap: The ratio of the elongation of the bond to be</span>
+<span class="sd">                acknowledged. If the distance between two atoms is less than (</span>
+<span class="sd">                empirical covalent bond length) X (1 + bond_length_cap), the bond</span>
+<span class="sd">                between the two atoms will be acknowledged.</span>
+<span class="sd">            covalent_radius: The covalent radius of the atoms.</span>
+<span class="sd">                dict (element symbol -&gt; radius)</span>
+<span class="sd">            priority_bonds: The bonds that are known to be existed in the initial</span>
+<span class="sd">                molecule. Such bonds will be acknowledged in a loose criteria.</span>
+<span class="sd">                The index should start from 0.</span>
+<span class="sd">            priority_cap: The ratio of the elongation of the bond to be</span>
+<span class="sd">                acknowledged for the priority bonds.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bond_length_cap</span> <span class="o">=</span> <span class="n">bond_length_cap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">covalent_radius</span> <span class="o">=</span> <span class="n">covalent_radius</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">priority_bonds</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">priority_bonds</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">priority_cap</span> <span class="o">=</span> <span class="n">priority_cap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_ionic_bond</span> <span class="o">=</span> <span class="n">ignore_ionic_bond</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_halogen_self_bond</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bond_13_cap</span> <span class="o">=</span> <span class="n">bond_13_cap</span>
+
+<div class="viewcode-block" id="MoleculeStructureComparator.are_equal"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.are_equal">[docs]</a>    <span class="k">def</span> <span class="nf">are_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol1</span><span class="p">,</span> <span class="n">mol2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compare the bond table of the two molecules.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mol1: first molecule. pymatgen Molecule object.</span>
+<span class="sd">            mol2: second moleculs. pymatgen Molecule objec.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">b1</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_bonds</span><span class="p">(</span><span class="n">mol1</span><span class="p">))</span>
+        <span class="n">b2</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_bonds</span><span class="p">(</span><span class="n">mol2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">b1</span> <span class="o">==</span> <span class="n">b2</span></div>
+
+<div class="viewcode-block" id="MoleculeStructureComparator.get_13_bonds"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.get_13_bonds">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_13_bonds</span><span class="p">(</span><span class="n">priority_bonds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            priority_bonds ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_bond_pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">priority_bonds</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">all_2_bond_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">(</span><span class="n">b1</span><span class="o">+</span><span class="n">b2</span><span class="p">)</span> <span class="k">for</span> <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span> <span class="ow">in</span> <span class="n">all_bond_pairs</span><span class="p">]</span>
+        <span class="n">all_13_bond_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">all_2_bond_atoms</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">all_2_and_13_bonds</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+                                  <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span>
+                                  <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+                                                         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">all_13_bond_atoms</span><span class="p">]))])</span>
+        <span class="n">bonds_13</span> <span class="o">=</span> <span class="n">all_2_and_13_bonds</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">priority_bonds</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">bonds_13</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find all the bond in a molcule</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mol: the molecule. pymatgen Molecule object</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of tuple. Each tuple correspond to a bond represented by the</span>
+<span class="sd">            id of the two end atoms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">num_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+        <span class="c1"># index starting from 0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_ionic_bond</span><span class="p">:</span>
+            <span class="n">covalent_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_atoms</span><span class="p">)</span> <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ionic_element_list</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">covalent_atoms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_atoms</span><span class="p">))</span>
+        <span class="n">all_pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">covalent_atoms</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">pair_dists</span> <span class="o">=</span> <span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">all_pairs</span><span class="p">]</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">unavailable_elements</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">-</span>
+                                    <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">covalent_radius</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unavailable_elements</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The covalent radius for element </span><span class="si">{}</span><span class="s2"> is not &quot;</span>
+                             <span class="s2">&quot;available&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">unavailable_elements</span><span class="p">))</span>
+        <span class="n">bond_13</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_13_bonds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priority_bonds</span><span class="p">)</span>
+        <span class="n">max_length</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">covalent_radius</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span> <span class="o">+</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">covalent_radius</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">])</span> <span class="o">*</span>
+                      <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priority_cap</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">priority_bonds</span>
+                            <span class="k">else</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bond_length_cap</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bond_13</span>
+                                  <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">bond_13_cap</span><span class="p">)))</span> <span class="o">*</span>
+                      <span class="p">(</span><span class="mf">0.1</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_halogen_self_bond</span> <span class="ow">and</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">priority_bonds</span> <span class="ow">and</span>
+                               <span class="n">mol</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">halogen_list</span> <span class="ow">and</span>
+                               <span class="n">mol</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">halogen_list</span><span class="p">)</span>
+                       <span class="k">else</span> <span class="mf">1.0</span><span class="p">)</span>
+                      <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">all_pairs</span><span class="p">]</span>
+
+        <span class="n">bonds</span> <span class="o">=</span> <span class="p">[</span><span class="n">bond</span>
+                 <span class="k">for</span> <span class="n">bond</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">cap</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">all_pairs</span><span class="p">,</span> <span class="n">pair_dists</span><span class="p">,</span> <span class="n">max_length</span><span class="p">)</span>
+                 <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="n">cap</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">bonds</span>
+
+<div class="viewcode-block" id="MoleculeStructureComparator.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span> <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;bond_length_cap&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bond_length_cap</span><span class="p">,</span>
+                <span class="s2">&quot;covalent_radius&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">covalent_radius</span><span class="p">,</span>
+                <span class="s2">&quot;priority_bonds&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">priority_bonds</span><span class="p">,</span>
+                <span class="s2">&quot;priority_cap&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">priority_cap</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="MoleculeStructureComparator.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_structure_comparator.html#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d (dict): Dict representation</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MoleculeStructureComparator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">MoleculeStructureComparator</span><span class="p">(</span>
+            <span class="n">bond_length_cap</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;bond_length_cap&quot;</span><span class="p">],</span>
+            <span class="n">covalent_radius</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;covalent_radius&quot;</span><span class="p">],</span>
+            <span class="n">priority_bonds</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;priority_bonds&quot;</span><span class="p">],</span>
+            <span class="n">priority_cap</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;priority_cap&quot;</span><span class="p">])</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.molecule_structure_comparator</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

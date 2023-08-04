@@ -1,0 +1,370 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.chemenv.utils.math_utils &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.chemenv.utils.math_utils</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.chemenv.utils.math_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains some math utils that are used in the chemenv package.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;David Waroquiers&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Geoffroy Hautier&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;David Waroquiers&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;david.waroquiers@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 20, 2016&quot;</span>
+
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sqrt</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">erf</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+
+
+<span class="c1">##############################################################</span>
+<span class="c1"># cartesian product of lists ##################################</span>
+<span class="c1">##############################################################</span>
+
+<span class="k">def</span> <span class="nf">_append_es2sequences</span><span class="p">(</span><span class="n">sequences</span><span class="p">,</span> <span class="n">es</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sequences</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">es</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">e</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">es</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="p">[</span><span class="n">seq</span> <span class="o">+</span> <span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span> <span class="nf">_cartesian_product</span><span class="p">(</span><span class="n">lists</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    given a list of lists,</span>
+<span class="sd">    returns all the possible combinations taking one element from each list</span>
+<span class="sd">    The list does not have to be of equal length</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">_append_es2sequences</span><span class="p">,</span> <span class="n">lists</span><span class="p">,</span> <span class="p">[])</span>
+
+
+<div class="viewcode-block" id="prime_factors"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.prime_factors">[docs]</a><span class="k">def</span> <span class="nf">prime_factors</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Lists prime factors of a given natural integer, from greatest to smallest</span>
+<span class="sd">    :param n: Natural integer</span>
+<span class="sd">    :rtype : list of all prime factors of the given natural n</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">prime_factors</span><span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">i</span><span class="p">)</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">l</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">n</span><span class="p">]</span>  <span class="c1"># n is prime</span></div>
+
+
+<span class="k">def</span> <span class="nf">_factor_generator</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    From a given natural integer, returns the prime factors and their multiplicity</span>
+<span class="sd">    :param n: Natural integer</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">prime_factors</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">factors</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">p1</span> <span class="ow">in</span> <span class="n">p</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">factors</span><span class="p">[</span><span class="n">p1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">factors</span><span class="p">[</span><span class="n">p1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">factors</span>
+
+
+<div class="viewcode-block" id="divisors"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.divisors">[docs]</a><span class="k">def</span> <span class="nf">divisors</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    From a given natural integer, returns the list of divisors in ascending order</span>
+<span class="sd">    :param n: Natural integer</span>
+<span class="sd">    :return: List of divisors of n in ascending order</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">factors</span> <span class="o">=</span> <span class="n">_factor_generator</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">_divisors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">listexponents</span> <span class="o">=</span> <span class="p">[[</span><span class="n">k</span> <span class="o">**</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">factors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">factors</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+    <span class="n">listfactors</span> <span class="o">=</span> <span class="n">_cartesian_product</span><span class="p">(</span><span class="n">listexponents</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">listfactors</span><span class="p">:</span>
+        <span class="n">_divisors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">_divisors</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_divisors</span></div>
+
+
+<div class="viewcode-block" id="get_center_of_arc"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.get_center_of_arc">[docs]</a><span class="k">def</span> <span class="nf">get_center_of_arc</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">radius</span><span class="p">):</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">dd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dx</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">dy</span><span class="p">)</span>
+    <span class="n">radical</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">((</span><span class="n">radius</span> <span class="o">/</span> <span class="n">dd</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.25</span>
+    <span class="k">if</span> <span class="n">radical</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Impossible to find center of arc because the arc is ill-defined&quot;</span><span class="p">)</span>
+    <span class="n">tt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">radical</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">radius</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">tt</span> <span class="o">=</span> <span class="o">-</span><span class="n">tt</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">tt</span> <span class="o">*</span> <span class="n">dy</span><span class="p">,</span> <span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">tt</span> <span class="o">*</span> <span class="n">dx</span></div>
+
+
+<div class="viewcode-block" id="get_linearly_independent_vectors"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.get_linearly_independent_vectors">[docs]</a><span class="k">def</span> <span class="nf">get_linearly_independent_vectors</span><span class="p">(</span><span class="n">vectors_list</span><span class="p">):</span>
+    <span class="n">independent_vectors_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="n">vectors_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">vector</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">independent_vectors_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">independent_vectors_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vector</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">independent_vectors_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">independent_vectors_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vector</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]))</span>
+                <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">independent_vectors_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vector</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">independent_vectors_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">mm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">independent_vectors_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">independent_vectors_list</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vector</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">independent_vectors_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vector</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">independent_vectors_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">independent_vectors_list</span></div>
+
+
+<div class="viewcode-block" id="scale_and_clamp"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.scale_and_clamp">[docs]</a><span class="k">def</span> <span class="nf">scale_and_clamp</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edge0</span><span class="p">,</span> <span class="n">edge1</span><span class="p">,</span> <span class="n">clamp0</span><span class="p">,</span> <span class="n">clamp1</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">xx</span> <span class="o">-</span> <span class="n">edge0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">edge1</span> <span class="o">-</span> <span class="n">edge0</span><span class="p">),</span> <span class="n">clamp0</span><span class="p">,</span> <span class="n">clamp1</span><span class="p">)</span></div>
+
+
+<span class="c1"># Step function based on the cumulative distribution function of the normal law</span>
+<div class="viewcode-block" id="normal_cdf_step"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.normal_cdf_step">[docs]</a><span class="k">def</span> <span class="nf">normal_cdf_step</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">erf</span><span class="p">((</span><span class="n">xx</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)))</span></div>
+
+
+<span class="c1"># SMOOTH STEP FUNCTIONS</span>
+<span class="c1"># Set of smooth step functions that allow to smoothly go from y = 0.0 (1.0) to y = 1.0 (0.0) by changing x</span>
+<span class="c1"># from 0.0 to 1.0 respectively when inverse is False (True).</span>
+<span class="c1"># (except if edges is given in which case a the values are first scaled and clamped to the interval given by edges)</span>
+<span class="c1"># The derivative at x = 0.0 and x = 1.0 have to be 0.0</span>
+
+<div class="viewcode-block" id="smoothstep"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.smoothstep">[docs]</a><span class="k">def</span> <span class="nf">smoothstep</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">xx_clipped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">xx_clipped</span> <span class="o">*</span> <span class="n">xx_clipped</span> <span class="o">*</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">xx_clipped</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">xx_clipped</span> <span class="o">*</span> <span class="n">xx_clipped</span> <span class="o">*</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">xx_clipped</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xx_scaled_and_clamped</span> <span class="o">=</span> <span class="n">scale_and_clamp</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">smoothstep</span><span class="p">(</span><span class="n">xx_scaled_and_clamped</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="n">inverse</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="smootherstep"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.smootherstep">[docs]</a><span class="k">def</span> <span class="nf">smootherstep</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">xx_clipped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">xx_clipped</span> <span class="o">*</span> <span class="n">xx_clipped</span> <span class="o">*</span> <span class="n">xx_clipped</span> <span class="o">*</span> <span class="p">(</span><span class="n">xx_clipped</span> <span class="o">*</span> <span class="p">(</span><span class="n">xx_clipped</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">-</span> <span class="mi">15</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">xx_clipped</span> <span class="o">*</span> <span class="n">xx_clipped</span> <span class="o">*</span> <span class="n">xx_clipped</span> <span class="o">*</span> <span class="p">(</span><span class="n">xx_clipped</span> <span class="o">*</span> <span class="p">(</span><span class="n">xx_clipped</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">-</span> <span class="mi">15</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xx_scaled_and_clamped</span> <span class="o">=</span> <span class="n">scale_and_clamp</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">smootherstep</span><span class="p">(</span><span class="n">xx_scaled_and_clamped</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="n">inverse</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cosinus_step"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.cosinus_step">[docs]</a><span class="k">def</span> <span class="nf">cosinus_step</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">xx_clipped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">xx_clipped</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">xx_clipped</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xx_scaled_and_clamped</span> <span class="o">=</span> <span class="n">scale_and_clamp</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cosinus_step</span><span class="p">(</span><span class="n">xx_scaled_and_clamped</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="n">inverse</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="power3_step"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.power3_step">[docs]</a><span class="k">def</span> <span class="nf">power3_step</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">smoothstep</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="n">inverse</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="powern_parts_step"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.powern_parts_step">[docs]</a><span class="k">def</span> <span class="nf">powern_parts_step</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">aa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">nn</span><span class="p">)</span>
+        <span class="n">xx_clipped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">xx_clipped</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx_clipped</span><span class="p">,</span> <span class="n">nn</span><span class="p">),</span>
+                                      <span class="mf">1.0</span> <span class="o">-</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx_clipped</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">nn</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">xx_clipped</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx_clipped</span><span class="p">,</span> <span class="n">nn</span><span class="p">),</span>
+                                <span class="mf">1.0</span> <span class="o">-</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx_clipped</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">nn</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">xx_clipped</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx_clipped</span><span class="p">,</span> <span class="n">nn</span><span class="p">),</span>
+                                      <span class="mf">1.0</span> <span class="o">+</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx_clipped</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">nn</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">xx_clipped</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx_clipped</span><span class="p">,</span> <span class="n">nn</span><span class="p">),</span>
+                                <span class="mf">1.0</span> <span class="o">+</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx_clipped</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">nn</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xx_scaled_and_clamped</span> <span class="o">=</span> <span class="n">scale_and_clamp</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">powern_parts_step</span><span class="p">(</span><span class="n">xx_scaled_and_clamped</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="n">inverse</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="n">nn</span><span class="p">)</span></div>
+
+
+<span class="c1"># FINITE DECREASING FUNCTIONS</span>
+<span class="c1"># Set of decreasing functions that allow to smoothly go from y = 1.0 to y = 0.0 by changing x from 0.0 to 1.0</span>
+<span class="c1"># The derivative at x = 1.0 has to be 0.0</span>
+
+
+<div class="viewcode-block" id="powern_decreasing"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.powern_decreasing">[docs]</a><span class="k">def</span> <span class="nf">powern_decreasing</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">aa</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">nn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">nn</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xx_scaled_and_clamped</span> <span class="o">=</span> <span class="n">scale_and_clamp</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">powern_decreasing</span><span class="p">(</span><span class="n">xx_scaled_and_clamped</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="n">nn</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="power2_decreasing_exp"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.power2_decreasing_exp">[docs]</a><span class="k">def</span> <span class="nf">power2_decreasing_exp</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">aa</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">xx</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xx_scaled_and_clamped</span> <span class="o">=</span> <span class="n">scale_and_clamp</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">power2_decreasing_exp</span><span class="p">(</span><span class="n">xx_scaled_and_clamped</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span></div>
+
+
+<span class="c1"># INFINITE TO FINITE DECREASING FUNCTIONS</span>
+<span class="c1"># Set of decreasing functions that allow to smoothly go from y = + Inf to y = 0.0 by changing x from 0.0 to 1.0</span>
+<span class="c1"># The derivative at x = 1.0 has to be 0.0</span>
+
+
+<div class="viewcode-block" id="power2_tangent_decreasing"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.power2_tangent_decreasing">[docs]</a><span class="k">def</span> <span class="nf">power2_tangent_decreasing</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefactor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">prefactor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">aa</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">aa</span> <span class="o">=</span> <span class="n">prefactor</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">tan</span><span class="p">((</span><span class="n">xx</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xx_scaled_and_clamped</span> <span class="o">=</span> <span class="n">scale_and_clamp</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">power2_tangent_decreasing</span><span class="p">(</span><span class="n">xx_scaled_and_clamped</span><span class="p">,</span> <span class="n">prefactor</span><span class="o">=</span><span class="n">prefactor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="power2_inverse_decreasing"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_decreasing">[docs]</a><span class="k">def</span> <span class="nf">power2_inverse_decreasing</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefactor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">prefactor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">aa</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">aa</span> <span class="o">=</span> <span class="n">prefactor</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">aa</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">xx</span><span class="p">)</span>
+        <span class="c1"># return aa * np.power(xx-1.0, 2) / xx if xx != 0 else aa * float(&quot;inf&quot;)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xx_scaled_and_clamped</span> <span class="o">=</span> <span class="n">scale_and_clamp</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">power2_inverse_decreasing</span><span class="p">(</span><span class="n">xx_scaled_and_clamped</span><span class="p">,</span> <span class="n">prefactor</span><span class="o">=</span><span class="n">prefactor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="power2_inverse_power2_decreasing"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_power2_decreasing">[docs]</a><span class="k">def</span> <span class="nf">power2_inverse_power2_decreasing</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefactor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">prefactor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">aa</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">aa</span> <span class="o">=</span> <span class="n">prefactor</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">aa</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">xx</span> <span class="o">**</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xx_scaled_and_clamped</span> <span class="o">=</span> <span class="n">scale_and_clamp</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">power2_inverse_power2_decreasing</span><span class="p">(</span><span class="n">xx_scaled_and_clamped</span><span class="p">,</span> <span class="n">prefactor</span><span class="o">=</span><span class="n">prefactor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="power2_inverse_powern_decreasing"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.math_utils.html#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_powern_decreasing">[docs]</a><span class="k">def</span> <span class="nf">power2_inverse_powern_decreasing</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefactor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">powern</span><span class="o">=</span><span class="mf">2.0</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">prefactor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">aa</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">aa</span> <span class="o">=</span> <span class="n">prefactor</span>
+        <span class="k">return</span> <span class="n">aa</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">xx</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">xx</span> <span class="o">**</span> <span class="n">powern</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xx_scaled_and_clamped</span> <span class="o">=</span> <span class="n">scale_and_clamp</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">power2_inverse_powern_decreasing</span><span class="p">(</span><span class="n">xx_scaled_and_clamped</span><span class="p">,</span> <span class="n">prefactor</span><span class="o">=</span><span class="n">prefactor</span><span class="p">,</span> <span class="n">powern</span><span class="o">=</span><span class="n">powern</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.chemenv.utils.math_utils</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,511 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.command_line.enumlib_caller &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.enumlib_caller</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.command_line.enumlib_caller</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements an interface to enumlib, Gus Hart&quot;s excellent Fortran</span>
+<span class="sd">code for enumerating derivative structures.</span>
+
+<span class="sd">This module depends on a compiled enumlib with the executables enum.x and</span>
+<span class="sd">makestr.x available in the path. Please download the library at</span>
+<span class="sd">https://github.com/msg-byu/enumlib and follow the instructions in the README to</span>
+<span class="sd">compile these two executables accordingly.</span>
+
+<span class="sd">If you use this module, please cite the following:</span>
+
+<span class="sd">Gus L. W. Hart and Rodney W. Forcade, &quot;Algorithm for generating derivative</span>
+<span class="sd">structures,&quot; Phys. Rev. B 77 224115 (26 June 2008)</span>
+
+<span class="sd">Gus L. W. Hart and Rodney W. Forcade, &quot;Generating derivative structures from</span>
+<span class="sd">multilattices: Application to hcp alloys,&quot; Phys. Rev. B 80 014120 (July 2009)</span>
+
+<span class="sd">Gus L. W. Hart, Lance J. Nelson, and Rodney W. Forcade, &quot;Generating</span>
+<span class="sd">derivative structures at a fixed concentration,&quot; Comp. Mat. Sci. 59</span>
+<span class="sd">101-107 (March 2012)</span>
+
+<span class="sd">Wiley S. Morgan, Gus L. W. Hart, Rodney W. Forcade, &quot;Generating derivative</span>
+<span class="sd">superstructures for systems with high configurational freedom,&quot; Comp. Mat.</span>
+<span class="sd">Sci. 136 144-149 (May 2017)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="kn">import</span> <span class="n">lcm</span>
+<span class="kn">import</span> <span class="nn">fractions</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="kn">import</span> <span class="n">Poscar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">DummySpecie</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="kn">import</span> <span class="n">which</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="kn">import</span> <span class="n">ScratchDir</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Timer</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Jul 16, 2012&quot;</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># Favor the use of the newer &quot;enum.x&quot; by Gus Hart instead of the older</span>
+<span class="c1"># &quot;multienum.x&quot;</span>
+<span class="n">enum_cmd</span> <span class="o">=</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;enum.x&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;multienum.x&#39;</span><span class="p">)</span>
+<span class="c1"># prefer makestr.x at present</span>
+<span class="n">makestr_cmd</span> <span class="o">=</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makestr.x&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makeStr.x&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makeStr.py&#39;</span><span class="p">)</span>
+
+
+<span class="nd">@requires</span><span class="p">(</span><span class="n">enum_cmd</span> <span class="ow">and</span> <span class="n">makestr_cmd</span><span class="p">,</span>
+          <span class="s2">&quot;EnumlibAdaptor requires the executables &#39;enum.x&#39; or &#39;multienum.x&#39; &quot;</span>
+          <span class="s2">&quot;and &#39;makestr.x&#39; or &#39;makeStr.py&#39; to be in the path. Please download the &quot;</span>
+          <span class="s2">&quot;library at https://github.com/msg-byu/enumlib and follow the instructions &quot;</span>
+          <span class="s2">&quot;in the README to compile these two executables accordingly.&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">EnumlibAdaptor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An adaptor for enumlib.</span>
+
+<span class="sd">    .. attribute:: structures</span>
+
+<span class="sd">        List of all enumerated structures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">amount_tol</span> <span class="o">=</span> <span class="mf">1e-5</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">min_cell_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_cell_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">symm_prec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">enum_precision_parameter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+                 <span class="n">refine_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_ordered_symmetry</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the adapter with a structure and some parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: An input structure.</span>
+<span class="sd">            min_cell_size (int): The minimum cell size wanted. Defaults to 1.</span>
+<span class="sd">            max_cell_size (int): The maximum cell size wanted. Defaults to 1.</span>
+<span class="sd">            symm_prec (float): Symmetry precision. Defaults to 0.1.</span>
+<span class="sd">            enum_precision_parameter (float): Finite precision parameter for</span>
+<span class="sd">                enumlib. Default of 0.001 is usually ok, but you might need to</span>
+<span class="sd">                tweak it for certain cells.</span>
+<span class="sd">            refine_structure (bool): If you are starting from a structure that</span>
+<span class="sd">                has been relaxed via some electronic structure code,</span>
+<span class="sd">                it is usually much better to start with symmetry determination</span>
+<span class="sd">                and then obtain a refined structure. The refined structure have</span>
+<span class="sd">                cell parameters and atomic positions shifted to the expected</span>
+<span class="sd">                symmetry positions, which makes it much less sensitive precision</span>
+<span class="sd">                issues in enumlib. If you are already starting from an</span>
+<span class="sd">                experimental cif, refinement should have already been done and</span>
+<span class="sd">                it is not necessary. Defaults to False.</span>
+<span class="sd">            check_ordered_symmetry (bool): Whether to check the symmetry of</span>
+<span class="sd">                the ordered sites. If the symmetry of the ordered sites is</span>
+<span class="sd">                lower, the lowest symmetry ordered sites is included in the</span>
+<span class="sd">                enumeration. This is important if the ordered sites break</span>
+<span class="sd">                symmetry in a way that is important getting possible</span>
+<span class="sd">                structures. But sometimes including ordered sites</span>
+<span class="sd">                slows down enumeration to the point that it cannot be</span>
+<span class="sd">                completed. Switch to False in those cases. Defaults to True.</span>
+<span class="sd">            timeout (float): If specified, will kill enumlib after specified</span>
+<span class="sd">                time in minutes. This can be useful for gracefully handling</span>
+<span class="sd">                enumerations in a high-throughput context, for some enumerations</span>
+<span class="sd">                which will not terminate in a realistic length of time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">refine_structure</span><span class="p">:</span>
+            <span class="n">finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symm_prec</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">finder</span><span class="o">.</span><span class="n">get_refined_structure</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_cell_size</span> <span class="o">=</span> <span class="n">min_cell_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_cell_size</span> <span class="o">=</span> <span class="n">max_cell_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symm_prec</span> <span class="o">=</span> <span class="n">symm_prec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enum_precision_parameter</span> <span class="o">=</span> <span class="n">enum_precision_parameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_ordered_symmetry</span> <span class="o">=</span> <span class="n">check_ordered_symmetry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the enumeration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create a temporary directory for working.</span>
+        <span class="k">with</span> <span class="n">ScratchDir</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Temp dir : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+            <span class="c1"># Generate input files</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gen_input_file</span><span class="p">()</span>
+            <span class="c1"># Perform the actual enumeration</span>
+            <span class="n">num_structs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_multienum</span><span class="p">()</span>
+            <span class="c1"># Read in the enumeration output as structures.</span>
+            <span class="k">if</span> <span class="n">num_structs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_structures</span><span class="p">(</span><span class="n">num_structs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">EnumError</span><span class="p">(</span><span class="s2">&quot;Unable to enumerate structure.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_gen_input_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate the necessary struct_enum.in file for enumlib. See enumlib</span>
+<span class="sd">        documentation for details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coord_format</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:.6f}</span><span class="s2"> </span><span class="si">{:.6f}</span><span class="s2"> </span><span class="si">{:.6f}</span><span class="s2">&quot;</span>
+        <span class="c1"># Using symmetry finder, get the symmetrically distinct sites.</span>
+        <span class="n">fitter</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_prec</span><span class="p">)</span>
+        <span class="n">symmetrized_structure</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Spacegroup </span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2">) with </span><span class="si">{}</span><span class="s2"> distinct sites&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">fitter</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">(),</span>
+            <span class="n">fitter</span><span class="o">.</span><span class="n">get_space_group_number</span><span class="p">(),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">symmetrized_structure</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">))</span>
+        <span class="p">)</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enumlib doesn&quot;t work when the number of species get too large. To</span>
+<span class="sd">        simplify matters, we generate the input file only with disordered sites</span>
+<span class="sd">        and exclude the ordered sites from the enumeration. The fact that</span>
+<span class="sd">        different disordered sites with the exact same species may belong to</span>
+<span class="sd">        different equivalent sites is dealt with by having determined the</span>
+<span class="sd">        spacegroup earlier and labelling the species differently.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># index_species and index_amounts store mappings between the indices</span>
+        <span class="c1"># used in the enum input file, and the actual species and amounts.</span>
+        <span class="n">index_species</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">index_amounts</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Stores the ordered sites, which are not enumerated.</span>
+        <span class="n">ordered_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">disordered_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coord_str</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sites</span> <span class="ow">in</span> <span class="n">symmetrized_structure</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+                <span class="n">ordered_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sp_label</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">species</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">species</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">EnumlibAdaptor</span><span class="o">.</span><span class="n">amount_tol</span><span class="p">:</span>
+                    <span class="c1"># Let us first make add a dummy element for every single</span>
+                    <span class="c1"># site whose total occupancies don&#39;t sum to 1.</span>
+                    <span class="n">species</span><span class="p">[</span><span class="n">DummySpecie</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">species</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">species</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">sp</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">index_species</span><span class="p">:</span>
+                        <span class="n">index_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+                        <span class="n">sp_label</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">index_species</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="n">index_amounts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">species</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">ind</span> <span class="o">=</span> <span class="n">index_species</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+                        <span class="n">sp_label</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+                        <span class="n">index_amounts</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">+=</span> <span class="n">species</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+                <span class="n">sp_label</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sp_label</span><span class="p">)])</span>
+                <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">:</span>
+                    <span class="n">coord_str</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">coord_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">),</span>
+                        <span class="n">sp_label</span><span class="p">))</span>
+                <span class="n">disordered_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">get_sg_info</span><span class="p">(</span><span class="n">ss</span><span class="p">):</span>
+            <span class="n">finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">ss</span><span class="p">),</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">symm_prec</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">finder</span><span class="o">.</span><span class="n">get_space_group_number</span><span class="p">()</span>
+
+        <span class="n">target_sgnum</span> <span class="o">=</span> <span class="n">get_sg_info</span><span class="p">(</span><span class="n">symmetrized_structure</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
+        <span class="n">curr_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">disordered_sites</span><span class="p">))</span>
+        <span class="n">sgnum</span> <span class="o">=</span> <span class="n">get_sg_info</span><span class="p">(</span><span class="n">curr_sites</span><span class="p">)</span>
+        <span class="n">ordered_sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ordered_sites</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">sites</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Disordered sites has sg # </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sgnum</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># progressively add ordered sites to our disordered sites</span>
+        <span class="c1"># until we match the symmetry of our input structure</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_ordered_symmetry</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">sgnum</span> <span class="o">!=</span> <span class="n">target_sgnum</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ordered_sites</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">sites</span> <span class="o">=</span> <span class="n">ordered_sites</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">temp_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">curr_sites</span><span class="p">)</span> <span class="o">+</span> <span class="n">sites</span>
+                <span class="n">new_sgnum</span> <span class="o">=</span> <span class="n">get_sg_info</span><span class="p">(</span><span class="n">temp_sites</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">sgnum</span> <span class="o">!=</span> <span class="n">new_sgnum</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding </span><span class="si">%s</span><span class="s2"> in enum. New sg # </span><span class="si">%d</span><span class="s2">&quot;</span>
+                                 <span class="o">%</span> <span class="p">(</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">new_sgnum</span><span class="p">))</span>
+                    <span class="n">index_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span>
+                    <span class="n">index_amounts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">))</span>
+                    <span class="n">sp_label</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">index_species</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+                    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">:</span>
+                        <span class="n">coord_str</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">coord_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">),</span>
+                            <span class="n">sp_label</span><span class="p">))</span>
+                    <span class="n">disordered_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+                    <span class="n">curr_sites</span> <span class="o">=</span> <span class="n">temp_sites</span>
+                    <span class="n">sgnum</span> <span class="o">=</span> <span class="n">new_sgnum</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">sites</span> <span class="ow">in</span> <span class="n">ordered_sites</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_species</span> <span class="o">=</span> <span class="n">index_species</span>
+
+        <span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">formula</span><span class="p">,</span> <span class="s2">&quot;bulk&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">:</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">vec</span><span class="p">))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">index_species</span><span class="p">))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">coord_str</span><span class="p">))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">coord_str</span><span class="p">)</span>
+
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_cell_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_cell_size</span><span class="p">))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">enum_precision_parameter</span><span class="p">))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;full&quot;</span><span class="p">)</span>
+
+        <span class="n">ndisordered</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">disordered_sites</span><span class="p">])</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ndisordered</span><span class="o">*</span><span class="n">lcm</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(</span><span class="n">ndisordered</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_cell_size</span><span class="p">)</span><span class="o">.</span><span class="n">denominator</span>
+                                     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">fractions</span><span class="o">.</span><span class="n">Fraction</span><span class="p">,</span> <span class="n">index_amounts</span><span class="p">)]))</span>
+
+        <span class="c1"># This multiplicative factor of 10 is to prevent having too small bases</span>
+        <span class="c1"># which can lead to rounding issues in the next step.</span>
+        <span class="c1"># An old bug was that a base was set to 8, with a conc of 0.4:0.6. That</span>
+        <span class="c1"># resulted in a range that overlaps and a conc of 0.5 satisfying this</span>
+        <span class="c1"># enumeration. See Cu7Te5.cif test file.</span>
+        <span class="n">base</span> <span class="o">*=</span> <span class="mi">10</span>
+
+        <span class="c1"># base = ndisordered #10 ** int(math.ceil(math.log10(ndisordered)))</span>
+        <span class="c1"># To get a reasonable number of structures, we fix concentrations to the</span>
+        <span class="c1"># range expected in the original structure.</span>
+        <span class="n">total_amounts</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">index_amounts</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">amt</span> <span class="ow">in</span> <span class="n">index_amounts</span><span class="p">:</span>
+            <span class="n">conc</span> <span class="o">=</span> <span class="n">amt</span> <span class="o">/</span> <span class="n">total_amounts</span>
+
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">conc</span> <span class="o">*</span> <span class="n">base</span> <span class="o">-</span> <span class="nb">round</span><span class="p">(</span><span class="n">conc</span> <span class="o">*</span> <span class="n">base</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">1e-5</span><span class="p">:</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">conc</span> <span class="o">*</span> <span class="n">base</span><span class="p">)),</span>
+                                                <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">conc</span> <span class="o">*</span> <span class="n">base</span><span class="p">)),</span>
+                                                <span class="n">base</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">min_conc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">conc</span> <span class="o">*</span> <span class="n">base</span><span class="p">))</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">min_conc</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">min_conc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                                <span class="n">base</span><span class="p">))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generated input file:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;struct_enum.in&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_run_multienum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">enum_cmd</span><span class="p">],</span>
+                             <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                             <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">close_fds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span>
+
+            <span class="n">timed_out</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="o">*</span><span class="mi">60</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">kill</span><span class="p">(),</span> <span class="p">[</span><span class="n">p</span><span class="p">])</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">timer</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+                    <span class="n">timed_out</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">timer</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">timed_out</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">(</span><span class="s1">&#39;Enumeration took too long.&#39;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">output</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">start_count</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;RunTot&quot;</span><span class="p">):</span>
+                <span class="n">start_count</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">start_count</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+\s+.*&quot;</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Enumeration resulted in </span><span class="si">{}</span><span class="s2"> structures&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">count</span>
+
+    <span class="k">def</span> <span class="nf">_get_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_structs</span><span class="p">):</span>
+        <span class="n">structs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;.py&quot;</span> <span class="ow">in</span> <span class="n">makestr_cmd</span><span class="p">:</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-input&quot;</span><span class="p">,</span> <span class="s2">&quot;struct_enum.out&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_structs</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;struct_enum.out&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_structs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+
+        <span class="n">rs</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">makestr_cmd</span><span class="p">]</span> <span class="o">+</span> <span class="n">options</span><span class="p">,</span>
+                              <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                              <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">close_fds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">stderr</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">stderr</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+
+        <span class="c1"># sites retrieved from enumlib will lack site properties</span>
+        <span class="c1"># to ensure consistency, we keep track of what site properties</span>
+        <span class="c1"># are missing and set them to None</span>
+        <span class="c1"># TODO: improve this by mapping ordered structure to original</span>
+        <span class="c1"># disorded structure, and retrieving correct site properties</span>
+        <span class="n">disordered_site_properties</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">original_latt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span>
+            <span class="c1"># Need to strip sites of site_properties, which would otherwise</span>
+            <span class="c1"># result in an index error. Hence Structure is reconstructed in</span>
+            <span class="c1"># the next step.</span>
+            <span class="n">site_properties</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">disordered_site_properties</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">site_properties</span><span class="p">:</span>
+                        <span class="n">site_properties</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">site_properties</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span>
+            <span class="n">ordered_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span>
+                <span class="n">original_latt</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">],</span>
+                <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">],</span>
+                <span class="n">site_properties</span><span class="o">=</span><span class="n">site_properties</span>
+            <span class="p">)</span>
+            <span class="n">inv_org_latt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">original_latt</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;vasp.*&#39;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;scale factor&#39;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)-(\d+)&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\1 -\2&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                <span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_species</span><span class="p">)</span>
+                <span class="n">sub_structure</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span>
+                <span class="c1"># Enumeration may have resulted in a super lattice. We need to</span>
+                <span class="c1"># find the mapping from the new lattice to the old lattice, and</span>
+                <span class="c1"># perform supercell construction if necessary.</span>
+                <span class="n">new_latt</span> <span class="o">=</span> <span class="n">sub_structure</span><span class="o">.</span><span class="n">lattice</span>
+
+                <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordered_sites</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">transformation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">new_latt</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">inv_org_latt</span><span class="p">)</span>
+                    <span class="n">transformation</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">cell</span><span class="p">))</span> <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span>
+                                      <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">transformation</span><span class="p">]</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Supercell matrix: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">transformation</span><span class="p">))</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">ordered_structure</span> <span class="o">*</span> <span class="n">transformation</span>
+                    <span class="n">sites</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">to_unit_cell</span><span class="p">()</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span>
+                    <span class="n">super_latt</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">super_latt</span> <span class="o">=</span> <span class="n">new_latt</span>
+
+                <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sub_structure</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="o">!=</span> <span class="s2">&quot;X&quot;</span><span class="p">:</span>  <span class="c1"># We exclude vacancies.</span>
+                        <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="p">,</span>
+                                         <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                                         <span class="n">super_latt</span><span class="p">,</span>
+                                         <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                         <span class="n">properties</span><span class="o">=</span><span class="n">disordered_site_properties</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Skipping sites that include species X.&quot;</span><span class="p">)</span>
+                <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">sites</span><span class="p">)))</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Read in a total of </span><span class="si">{}</span><span class="s2"> structures.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_structs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">structs</span>
+
+
+<div class="viewcode-block" id="EnumError"><a class="viewcode-back" href="../../../pymatgen.command_line.enumlib_caller.html#pymatgen.command_line.enumlib_caller.EnumError">[docs]</a><span class="k">class</span> <span class="nc">EnumError</span><span class="p">(</span><span class="ne">BaseException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Error subclass for enumeration errors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.enumlib_caller</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

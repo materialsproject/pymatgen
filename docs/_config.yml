@@ -18,6 +18,7 @@ color_scheme: pmg
 favicon_ico: /assets/favicon.ico
 
 aux_links:
+  API docs: [/pymatgen]
   GitHub: [https://github.com/materialsproject/pymatgen]
   Issues: [https://github.com/materialsproject/pymatgen/issues]
   Discourse: [https://matsci.org/pymatgen]

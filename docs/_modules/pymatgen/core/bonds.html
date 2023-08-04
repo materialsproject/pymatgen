@@ -1,0 +1,314 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.core.bonds &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.bonds</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.core.bonds</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This class implements definitions for various kinds of bonds. Typically used in</span>
+<span class="sd">Molecule analysis.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_load_bond_length_data</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Loads bond length data from json file&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
+                           <span class="s2">&quot;bond_lengths.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+            <span class="n">els</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;elements&#39;</span><span class="p">])</span>
+            <span class="n">data</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">els</span><span class="p">)][</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;bond_order&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="n">bond_lengths</span> <span class="o">=</span> <span class="n">_load_bond_length_data</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="CovalentBond"><a class="viewcode-back" href="../../../pymatgen.core.bonds.html#pymatgen.core.bonds.CovalentBond">[docs]</a><span class="k">class</span> <span class="nc">CovalentBond</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines a covalent bond between two sites.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site1</span><span class="p">,</span> <span class="n">site2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a covalent bond between two sites.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site1 (Site): First site.</span>
+<span class="sd">            site2 (Site): Second site.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site1</span> <span class="o">=</span> <span class="n">site1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site2</span> <span class="o">=</span> <span class="n">site2</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Length of the bond.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">site1</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site2</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CovalentBond.get_bond_order"><a class="viewcode-back" href="../../../pymatgen.core.bonds.html#pymatgen.core.bonds.CovalentBond.get_bond_order">[docs]</a>    <span class="k">def</span> <span class="nf">get_bond_order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">default_bl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The bond order according the distance between the two sites</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): Relative tolerance to test.</span>
+<span class="sd">                (1 + tol) * the longest bond distance is considered</span>
+<span class="sd">                to be the threshold length for a bond to exist.</span>
+<span class="sd">                (1 - tol) * the shortest bond distance is considered</span>
+<span class="sd">                to be the shortest possible bond length</span>
+<span class="sd">                Defaults to 0.2.</span>
+<span class="sd">            default_bl: If a particular type of bond does not exist,</span>
+<span class="sd">                use this bond length as a default value</span>
+<span class="sd">                (bond order = 1). If None, a ValueError will be thrown.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Float value of bond order. For example, for C-C bond in</span>
+<span class="sd">            benzene, return 1.7.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sp1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site1</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">sp2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site2</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site1</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_bond_order</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">tol</span><span class="p">,</span> <span class="n">default_bl</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CovalentBond.is_bonded"><a class="viewcode-back" href="../../../pymatgen.core.bonds.html#pymatgen.core.bonds.CovalentBond.is_bonded">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_bonded</span><span class="p">(</span><span class="n">site1</span><span class="p">,</span> <span class="n">site2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_bl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test if two sites are bonded, up to a certain limit.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            site1 (Site): First site</span>
+<span class="sd">            site2 (Site): Second site</span>
+<span class="sd">            tol (float): Relative tolerance to test. Basically, the code</span>
+<span class="sd">                checks if the distance between the sites is less than (1 +</span>
+<span class="sd">                tol) * typical bond distances. Defaults to 0.2, i.e.,</span>
+<span class="sd">                20% longer.</span>
+<span class="sd">            bond_order: Bond order to test. If None, the code simply checks</span>
+<span class="sd">                against all possible bond data. Defaults to None.</span>
+<span class="sd">            default_bl: If a particular type of bond does not exist, use this</span>
+<span class="sd">                bond length. If None, a ValueError will be thrown.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Boolean indicating whether two sites are bonded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sp1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">site1</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">sp2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">site2</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">site1</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site2</span><span class="p">)</span>
+        <span class="n">syms</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">sp1</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">sp2</span><span class="o">.</span><span class="n">symbol</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">syms</span> <span class="ow">in</span> <span class="n">bond_lengths</span><span class="p">:</span>
+            <span class="n">all_lengths</span> <span class="o">=</span> <span class="n">bond_lengths</span><span class="p">[</span><span class="n">syms</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">bond_order</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">all_lengths</span><span class="p">[</span><span class="n">bond_order</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">all_lengths</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">default_bl</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">default_bl</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No bond data for elements </span><span class="si">{}</span><span class="s2"> - </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">syms</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Covalent bond between </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site1</span><span class="p">,</span>
+                                                        <span class="bp">self</span><span class="o">.</span><span class="n">site2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="obtain_all_bond_lengths"><a class="viewcode-back" href="../../../pymatgen.core.bonds.html#pymatgen.core.bonds.obtain_all_bond_lengths">[docs]</a><span class="k">def</span> <span class="nf">obtain_all_bond_lengths</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">default_bl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtain bond lengths for all bond orders from bond length database</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sp1 (Specie): First specie.</span>
+<span class="sd">        sp2 (Specie): Second specie.</span>
+<span class="sd">        default_bl: If a particular type of bond does not exist, use this</span>
+<span class="sd">            bond length as a default value (bond order = 1).</span>
+<span class="sd">            If None, a ValueError will be thrown.</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        A dict mapping bond order to bond length in angstrom</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">Element</span><span class="p">):</span>
+        <span class="n">sp1</span> <span class="o">=</span> <span class="n">sp1</span><span class="o">.</span><span class="n">symbol</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sp2</span><span class="p">,</span> <span class="n">Element</span><span class="p">):</span>
+        <span class="n">sp2</span> <span class="o">=</span> <span class="n">sp2</span><span class="o">.</span><span class="n">symbol</span>
+    <span class="n">syms</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="n">syms</span> <span class="ow">in</span> <span class="n">bond_lengths</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">bond_lengths</span><span class="p">[</span><span class="n">syms</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">default_bl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="n">default_bl</span><span class="p">}</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No bond data for elements </span><span class="si">{}</span><span class="s2"> - </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">syms</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="get_bond_order"><a class="viewcode-back" href="../../../pymatgen.core.bonds.html#pymatgen.core.bonds.get_bond_order">[docs]</a><span class="k">def</span> <span class="nf">get_bond_order</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">default_bl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the bond order given the distance of 2 species</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sp1 (Specie): First specie.</span>
+<span class="sd">        sp2 (Specie): Second specie.</span>
+<span class="sd">        dist: Their distance in angstrom</span>
+<span class="sd">        tol (float): Relative tolerance to test. Basically, the code</span>
+<span class="sd">            checks if the distance between the sites is larger than</span>
+<span class="sd">            (1 + tol) * the longest bond distance or smaller than</span>
+<span class="sd">            (1 - tol) * the shortest bond distance to determine if</span>
+<span class="sd">            they are bonded or the distance is too short.</span>
+<span class="sd">            Defaults to 0.2.</span>
+<span class="sd">        default_bl: If a particular type of bond does not exist, use this</span>
+<span class="sd">            bond length (bond order = 1). If None, a ValueError will be thrown.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Float value of bond order. For example, for C-C bond in benzene,</span>
+<span class="sd">        return 1.7.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">all_lengths</span> <span class="o">=</span> <span class="n">obtain_all_bond_lengths</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">default_bl</span><span class="p">)</span>
+    <span class="c1"># Transform bond lengths dict to list assuming bond data is successive</span>
+    <span class="c1"># and add an imaginary bond 0 length</span>
+    <span class="n">lengths_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">tol</span><span class="p">)]</span> <span class="o">+</span> \
+                   <span class="p">[</span><span class="n">all_lengths</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_lengths</span><span class="p">))]</span>
+    <span class="n">trial_bond_order</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">trial_bond_order</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lengths_list</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">lengths_list</span><span class="p">[</span><span class="n">trial_bond_order</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dist</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">trial_bond_order</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">trial_bond_order</span>
+            <span class="n">low_bl</span> <span class="o">=</span> <span class="n">lengths_list</span><span class="p">[</span><span class="n">trial_bond_order</span><span class="p">]</span>
+            <span class="n">high_bl</span> <span class="o">=</span> <span class="n">lengths_list</span><span class="p">[</span><span class="n">trial_bond_order</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">trial_bond_order</span> <span class="o">-</span> <span class="p">(</span><span class="n">dist</span> <span class="o">-</span> <span class="n">low_bl</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">high_bl</span> <span class="o">-</span> <span class="n">low_bl</span><span class="p">)</span>
+        <span class="n">trial_bond_order</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="c1"># Distance shorter than the shortest bond length stored,</span>
+    <span class="c1"># check if the distance is too short</span>
+    <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">lengths_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">tol</span><span class="p">):</span>  <span class="c1"># too short</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1"> angstrom distance is too short for </span><span class="si">%s</span><span class="s1"> and </span><span class="si">%s</span><span class="s1">&#39;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">))</span>
+    <span class="c1"># return the highest bond order</span>
+    <span class="k">return</span> <span class="n">trial_bond_order</span> <span class="o">-</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="get_bond_length"><a class="viewcode-back" href="../../../pymatgen.core.bonds.html#pymatgen.core.bonds.get_bond_length">[docs]</a><span class="k">def</span> <span class="nf">get_bond_length</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the bond length between two species.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sp1 (Specie): First specie.</span>
+<span class="sd">        sp2 (Specie): Second specie.</span>
+<span class="sd">        bond_order: For species with different possible bond orders,</span>
+<span class="sd">            this allows one to obtain the bond length for a particular bond</span>
+<span class="sd">            order. For example, to get the C=C bond length instead of the</span>
+<span class="sd">            C-C bond length, this should be set to 2. Defaults to 1.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Bond length in Angstrom. If no data is available, the sum of the atomic</span>
+<span class="sd">        radius is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sp1</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">sp1</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">sp1</span>
+    <span class="n">sp2</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">sp2</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sp2</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">sp2</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">all_lengths</span> <span class="o">=</span> <span class="n">obtain_all_bond_lengths</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_lengths</span><span class="p">[</span><span class="n">bond_order</span><span class="p">]</span>
+    <span class="c1"># The ValueError is raised in `obtain_all_bond_lengths` where no bond</span>
+    <span class="c1"># data for both elements is found. The KeyError is raised in</span>
+    <span class="c1"># `__getitem__` method of `dict` builtin class where although bond data</span>
+    <span class="c1"># for both elements is found, the data for specified bond order does</span>
+    <span class="c1"># not exist. In both cases, sum of atomic radius is returned.</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No order </span><span class="si">%d</span><span class="s2"> bond lengths between </span><span class="si">%s</span><span class="s2"> and </span><span class="si">%s</span><span class="s2"> found in &quot;</span>
+                      <span class="s2">&quot;database. Returning sum of atomic radius.&quot;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="n">bond_order</span><span class="p">,</span> <span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">sp1</span><span class="o">.</span><span class="n">atomic_radius</span> <span class="o">+</span> <span class="n">sp2</span><span class="o">.</span><span class="n">atomic_radius</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.bonds</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

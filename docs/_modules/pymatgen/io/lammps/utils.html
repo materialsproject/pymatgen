@@ -1,0 +1,587 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.io.lammps.utils &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.lammps.utils</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.lammps.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines utility classes and functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="nb">open</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">openbabel</span> <span class="kn">import</span> <span class="n">pybel</span> <span class="k">as</span> <span class="n">pb</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">pb</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">SymmOp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">get_angle</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
+
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="kn">import</span> <span class="n">which</span>
+<span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="kn">import</span> <span class="n">ScratchDir</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Kiran Mathew, Brandon Wood, Michael Humbert&#39;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s1">&#39;kmathew@lbl.gov&#39;</span>
+
+
+<div class="viewcode-block" id="Polymer"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.utils.html#pymatgen.io.lammps.utils.Polymer">[docs]</a><span class="k">class</span> <span class="nc">Polymer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate polymer chain via Random walk. At each position there are</span>
+<span class="sd">    a total of 5 possible moves(excluding the previous direction).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_monomer</span><span class="p">,</span> <span class="n">s_head</span><span class="p">,</span> <span class="n">s_tail</span><span class="p">,</span>
+                 <span class="n">monomer</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">tail</span><span class="p">,</span>
+                 <span class="n">end_monomer</span><span class="p">,</span> <span class="n">e_head</span><span class="p">,</span> <span class="n">e_tail</span><span class="p">,</span>
+                 <span class="n">n_units</span><span class="p">,</span> <span class="n">link_distance</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">linear_chain</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            start_monomer (Molecule): Starting molecule</span>
+<span class="sd">            s_head (int): starting atom index of the start_monomer molecule</span>
+<span class="sd">            s_tail (int): tail atom index of the start_monomer</span>
+<span class="sd">            monomer (Molecule): The monomer</span>
+<span class="sd">            head (int): index of the atom in the monomer that forms the head</span>
+<span class="sd">            tail (int): tail atom index. monomers will be connected from</span>
+<span class="sd">                tail to head</span>
+<span class="sd">            end_monomer (Molecule): Terminal molecule</span>
+<span class="sd">            e_head (int): starting atom index of the end_monomer molecule</span>
+<span class="sd">            e_tail (int): tail atom index of the end_monomer</span>
+<span class="sd">            n_units (int): number of monomer units excluding the start and</span>
+<span class="sd">                terminal molecules</span>
+<span class="sd">            link_distance (float): distance between consecutive monomers</span>
+<span class="sd">            linear_chain (bool): linear or random walk polymer chain</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">s_head</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">s_tail</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">monomer</span> <span class="o">=</span> <span class="n">monomer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_units</span> <span class="o">=</span> <span class="n">n_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">link_distance</span> <span class="o">=</span> <span class="n">link_distance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear_chain</span> <span class="o">=</span> <span class="n">linear_chain</span>
+        <span class="c1"># translate monomers so that head atom is at the origin</span>
+        <span class="n">start_monomer</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">start_monomer</span><span class="p">)),</span>
+                                      <span class="o">-</span> <span class="n">monomer</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="n">s_head</span><span class="p">])</span>
+        <span class="n">monomer</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">monomer</span><span class="p">)),</span>
+                                <span class="o">-</span> <span class="n">monomer</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="n">head</span><span class="p">])</span>
+        <span class="n">end_monomer</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">end_monomer</span><span class="p">)),</span>
+                                    <span class="o">-</span> <span class="n">monomer</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="n">e_head</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mon_vector</span> <span class="o">=</span> <span class="n">monomer</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="n">tail</span><span class="p">]</span> <span class="o">-</span> <span class="n">monomer</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="n">head</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moves</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="mi">2</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="mi">3</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                      <span class="mi">4</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="mi">5</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="mi">6</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_move</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># places the start monomer at the beginning of the chain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">start_monomer</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># create the chain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monomer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mon_vector</span><span class="p">)</span>
+        <span class="c1"># terminate the chain with the end_monomer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_units</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">end_mon_vector</span> <span class="o">=</span> <span class="n">end_monomer</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="n">e_tail</span><span class="p">]</span> <span class="o">-</span> <span class="n">end_monomer</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="n">e_head</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create</span><span class="p">(</span><span class="n">end_monomer</span><span class="p">,</span> <span class="n">end_mon_vector</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">Molecule</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monomer</span><span class="p">,</span> <span class="n">mon_vector</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        create the polymer from the monomer</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            monomer (Molecule)</span>
+<span class="sd">            mon_vector (numpy.array): molecule vector that starts from the</span>
+<span class="sd">                start atom index to the end atom index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">!=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_units</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_chain</span><span class="p">:</span>
+                <span class="n">move_direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mon_vector</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">mon_vector</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">move_direction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_move_direction</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_monomer</span><span class="p">(</span><span class="n">monomer</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">mon_vector</span><span class="p">,</span> <span class="n">move_direction</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_next_move_direction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        pick a move at random from the list of moves</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nmoves</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moves</span><span class="p">)</span>
+        <span class="n">move</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmoves</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_move</span> <span class="o">==</span> <span class="p">(</span><span class="n">move</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">%</span> <span class="n">nmoves</span><span class="p">:</span>
+            <span class="n">move</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmoves</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_move</span> <span class="o">=</span> <span class="n">move</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moves</span><span class="p">[</span><span class="n">move</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_align_monomer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monomer</span><span class="p">,</span> <span class="n">mon_vector</span><span class="p">,</span> <span class="n">move_direction</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        rotate the monomer so that it is aligned along the move direction</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            monomer (Molecule)</span>
+<span class="sd">            mon_vector (numpy.array): molecule vector that starts from the</span>
+<span class="sd">                start atom index to the end atom index</span>
+<span class="sd">            move_direction (numpy.array): the direction of the polymer chain</span>
+<span class="sd">                extension</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">mon_vector</span><span class="p">,</span> <span class="n">move_direction</span><span class="p">)</span>
+        <span class="n">origin</span> <span class="o">=</span> <span class="n">monomer</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="n">get_angle</span><span class="p">(</span><span class="n">mon_vector</span><span class="p">,</span> <span class="n">move_direction</span><span class="p">)</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_origin_axis_angle</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+        <span class="n">monomer</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_add_monomer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monomer</span><span class="p">,</span> <span class="n">mon_vector</span><span class="p">,</span> <span class="n">move_direction</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        extend the polymer molecule by adding a monomer along mon_vector direction</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            monomer (Molecule): monomer molecule</span>
+<span class="sd">            mon_vector (numpy.array): monomer vector that points from head to tail.</span>
+<span class="sd">            move_direction (numpy.array): direction along which the monomer</span>
+<span class="sd">                will be positioned</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">translate_by</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">link_distance</span> <span class="o">*</span> <span class="n">move_direction</span>
+        <span class="n">monomer</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">monomer</span><span class="p">)),</span> <span class="n">translate_by</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_chain</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_align_monomer</span><span class="p">(</span><span class="n">monomer</span><span class="p">,</span> <span class="n">mon_vector</span><span class="p">,</span> <span class="n">move_direction</span><span class="p">)</span>
+        <span class="c1"># add monomer if there are no crossings</span>
+        <span class="n">does_cross</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">monomer</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">does_cross</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">polymer_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span>
+                    <span class="nb">range</span><span class="p">(</span><span class="n">polymer_length</span> <span class="o">-</span> <span class="n">i</span><span class="p">,</span> <span class="n">polymer_length</span><span class="p">))</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">does_cross</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monomer</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PackmolRunner"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.utils.html#pymatgen.io.lammps.utils.PackmolRunner">[docs]</a><span class="k">class</span> <span class="nc">PackmolRunner</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper for the Packmol software that can be used to pack various types of</span>
+<span class="sd">    molecules into a one single unit.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mols</span><span class="p">,</span> <span class="n">param_list</span><span class="p">,</span> <span class="n">input_file</span><span class="o">=</span><span class="s2">&quot;pack.inp&quot;</span><span class="p">,</span>
+                 <span class="n">tolerance</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">filetype</span><span class="o">=</span><span class="s2">&quot;xyz&quot;</span><span class="p">,</span>
+                 <span class="n">control_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;maxit&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;nloop&quot;</span><span class="p">:</span> <span class="mi">600</span><span class="p">},</span>
+                 <span class="n">auto_box</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="s2">&quot;packed.xyz&quot;</span><span class="p">,</span>
+                 <span class="nb">bin</span><span class="o">=</span><span class="s2">&quot;packmol&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">              mols:</span>
+<span class="sd">                   list of Molecules to pack</span>
+<span class="sd">              input_file:</span>
+<span class="sd">                        name of the packmol input file</span>
+<span class="sd">              tolerance:</span>
+<span class="sd">                        min distance between the atoms</span>
+<span class="sd">              filetype:</span>
+<span class="sd">                       input/output structure file type</span>
+<span class="sd">              control_params:</span>
+<span class="sd">                           packmol control parameters dictionary. Basically</span>
+<span class="sd">                           all parameters other than structure/atoms</span>
+<span class="sd">              param_list:</span>
+<span class="sd">                    list of parameters containing dicts for each molecule</span>
+<span class="sd">              auto_box:</span>
+<span class="sd">                    put the molecule assembly in a box</span>
+<span class="sd">              output_file:</span>
+<span class="sd">                    output file name. The extension will be adjusted</span>
+<span class="sd">                    according to the filetype</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">packmol_bin</span> <span class="o">=</span> <span class="nb">bin</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">which</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">packmol_bin</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;PackmolRunner requires the executable &#39;packmol&#39; to be in &quot;</span>
+                <span class="s2">&quot;the path. Please download packmol from &quot;</span>
+                <span class="s2">&quot;https://github.com/leandromartinez98/packmol &quot;</span>
+                <span class="s2">&quot;and follow the instructions in the README to compile. &quot;</span>
+                <span class="s2">&quot;Don&#39;t forget to add the packmol binary to your path&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mols</span> <span class="o">=</span> <span class="n">mols</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_list</span> <span class="o">=</span> <span class="n">param_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">input_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boxit</span> <span class="o">=</span> <span class="n">auto_box</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span> <span class="o">=</span> <span class="n">control_params</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tolerance&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;tolerance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tolerance</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;filetype&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filetype</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">boxit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_box</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_format_param_val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal method to format values in the packmol parameter dictionaries</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">              param_val:</span>
+<span class="sd">                   Some object to turn into String</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">               string representation of the object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_val</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">param_val</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">param_val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_box</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the box size for the molecular assembly</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">net_volume</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">mol</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mols</span><span class="p">):</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
+                          <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span> <span class="o">+</span> <span class="mf">2.0</span>
+            <span class="n">net_volume</span> <span class="o">+=</span> <span class="p">(</span><span class="n">length</span> <span class="o">**</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_list</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;number&#39;</span><span class="p">])</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">net_volume</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">mol</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mols</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param_list</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;inside box&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0.0 0.0 0.0 </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the packmol input file to the input directory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_dir (string): path to the input directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="p">),</span> <span class="s1">&#39;wt&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">inp</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">inp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_param_val</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
+            <span class="c1"># write the structures of the constituent molecules to file and set</span>
+            <span class="c1"># the molecule id and the corresponding filename in the packmol</span>
+            <span class="c1"># input file.</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">mol</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mols</span><span class="p">):</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">input_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">]))</span>
+                <span class="c1"># pdb</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pdb&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">write_pdb</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># all other filetypes</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">a</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+                    <span class="n">pm</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">openbabel_mol</span><span class="p">)</span>
+                    <span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">],</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                             <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">inp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">inp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                    <span class="s2">&quot;structure </span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">]))</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">inp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;  </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_param_val</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
+                <span class="n">inp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;end structure</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PackmolRunner.run"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.utils.html#pymatgen.io.lammps.utils.PackmolRunner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy_to_current_on_exit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">site_property</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the input file to the scratch directory, run packmol and return</span>
+<span class="sd">        the packed molecule.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            copy_to_current_on_exit (bool): Whether or not to copy the packmol</span>
+<span class="sd">                input/output files from the scratch directory to the current</span>
+<span class="sd">                directory.</span>
+<span class="sd">            site_property (str): if set then the specified site property</span>
+<span class="sd">                for the the final packed molecule will be restored.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">                Molecule object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scratch</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">ScratchDir</span><span class="p">(</span><span class="n">scratch</span><span class="p">,</span> <span class="n">copy_to_current_on_exit</span><span class="o">=</span><span class="n">copy_to_current_on_exit</span><span class="p">)</span> <span class="k">as</span> <span class="n">scratch_dir</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_input</span><span class="p">(</span><span class="n">input_dir</span><span class="o">=</span><span class="n">scratch_dir</span><span class="p">)</span>
+            <span class="n">packmol_input</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">scratch_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">packmol_bin</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">packmol_input</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">)</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">scratch_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">output_file</span><span class="p">):</span>
+                <span class="n">packed_mol</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span>
+                                                       <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">])</span>
+                <span class="n">packed_mol</span> <span class="o">=</span> <span class="n">packed_mol</span><span class="o">.</span><span class="n">pymatgen_mol</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;packed molecule written to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">site_property</span><span class="p">:</span>
+                    <span class="n">packed_mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">restore_site_properties</span><span class="p">(</span><span class="n">site_property</span><span class="o">=</span><span class="n">site_property</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">output_file</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">packed_mol</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Packmol execution failed&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="PackmolRunner.write_pdb"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.utils.html#pymatgen.io.lammps.utils.PackmolRunner.write_pdb">[docs]</a>    <span class="k">def</span> <span class="nf">write_pdb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        dump the molecule into pdb file with custom residue name and number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># ugly hack to get around the openbabel issues with inconsistent</span>
+        <span class="c1"># residue labelling.</span>
+        <span class="n">scratch</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">ScratchDir</span><span class="p">(</span><span class="n">scratch</span><span class="p">,</span> <span class="n">copy_to_current_on_exit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">_</span><span class="p">:</span>
+            <span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;pdb&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;tmp.pdb&quot;</span><span class="p">)</span>
+            <span class="n">bma</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;tmp.pdb&quot;</span><span class="p">,</span> <span class="s2">&quot;pdb&quot;</span><span class="p">)</span>
+
+        <span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="ow">or</span> <span class="mi">1</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;ml</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+
+        <span class="c1"># bma = BabelMolAdaptor(mol)</span>
+        <span class="n">pbm</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">bma</span><span class="o">.</span><span class="n">_obmol</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pbm</span><span class="o">.</span><span class="n">residues</span><span class="p">):</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">OBResidue</span><span class="o">.</span><span class="n">SetName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">OBResidue</span><span class="o">.</span><span class="n">SetNum</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+
+        <span class="n">pbm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;pdb&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_residue_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        map each residue to the corresponding molecule.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_residue_to_mol</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">lookup</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">mol</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mols</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">formula</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lookup</span><span class="p">:</span>
+                <span class="n">mol</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mol</span><span class="p">)),</span>
+                                    <span class="n">vector</span><span class="o">=-</span><span class="n">mol</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">)</span>
+                <span class="n">lookup</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">formula</span><span class="p">]</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">map_residue_to_mol</span><span class="p">[</span><span class="s2">&quot;ml</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">lookup</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">formula</span><span class="p">]</span>
+
+<div class="viewcode-block" id="PackmolRunner.convert_obatoms_to_molecule"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.utils.html#pymatgen.io.lammps.utils.PackmolRunner.convert_obatoms_to_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">convert_obatoms_to_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atoms</span><span class="p">,</span> <span class="n">residue_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">site_property</span><span class="o">=</span><span class="s2">&quot;ff_map&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert list of openbabel atoms to MOlecule.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            atoms ([OBAtom]): list of OBAtom objects</span>
+<span class="sd">            residue_name (str): the key in self.map_residue_to_mol. Usec to</span>
+<span class="sd">                restore the site properties in the final packed molecule.</span>
+<span class="sd">            site_property (str): the site property to be restored.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Molecule object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">restore_site_props</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">residue_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">restore_site_props</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;map_residue_to_mol&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_residue_map</span><span class="p">()</span>
+
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">zs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">atm</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">:</span>
+            <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">atm</span><span class="o">.</span><span class="n">coords</span><span class="p">))</span>
+            <span class="n">zs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atm</span><span class="o">.</span><span class="n">atomicnum</span><span class="p">)</span>
+
+        <span class="n">mol</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="n">zs</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">restore_site_props</span><span class="p">:</span>
+
+            <span class="n">props</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_residue_to_mol</span><span class="p">[</span><span class="n">residue_name</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="c1"># sanity check</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">ref</span><span class="o">.</span><span class="n">formula</span> <span class="o">==</span> <span class="n">mol</span><span class="o">.</span><span class="n">formula</span>
+
+            <span class="c1"># the packed molecules have the atoms in the same order..sigh!</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mol</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="n">ref</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span>
+                <span class="n">props</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">site_property</span><span class="p">))</span>
+
+            <span class="n">mol</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="n">site_property</span><span class="p">,</span> <span class="n">props</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mol</span></div>
+
+<div class="viewcode-block" id="PackmolRunner.restore_site_properties"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.utils.html#pymatgen.io.lammps.utils.PackmolRunner.restore_site_properties">[docs]</a>    <span class="k">def</span> <span class="nf">restore_site_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_property</span><span class="o">=</span><span class="s2">&quot;ff_map&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restore the site properties for the final packed molecule.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site_property (str):</span>
+<span class="sd">            filename (str): path to the final packed molecule.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Molecule</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># only for pdb</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pdb&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_params</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span>
+        <span class="n">bma</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;pdb&quot;</span><span class="p">)</span>
+        <span class="n">pbm</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">bma</span><span class="o">.</span><span class="n">_obmol</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pbm</span><span class="o">.</span><span class="n">residues</span><span class="p">)</span> <span class="o">==</span> <span class="nb">sum</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">]</span>
+                                         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_list</span><span class="p">])</span>
+
+        <span class="n">packed_mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_obatoms_to_molecule</span><span class="p">(</span>
+            <span class="n">pbm</span><span class="o">.</span><span class="n">residues</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">atoms</span><span class="p">,</span> <span class="n">residue_name</span><span class="o">=</span><span class="n">pbm</span><span class="o">.</span><span class="n">residues</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">site_property</span><span class="o">=</span><span class="n">site_property</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">resid</span> <span class="ow">in</span> <span class="n">pbm</span><span class="o">.</span><span class="n">residues</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_obatoms_to_molecule</span><span class="p">(</span>
+                <span class="n">resid</span><span class="o">.</span><span class="n">atoms</span><span class="p">,</span> <span class="n">residue_name</span><span class="o">=</span><span class="n">resid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">site_property</span><span class="o">=</span><span class="n">site_property</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">mol</span><span class="p">:</span>
+                <span class="n">packed_mol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                                  <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">packed_mol</span></div></div>
+
+
+<div class="viewcode-block" id="LammpsRunner"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.utils.html#pymatgen.io.lammps.utils.LammpsRunner">[docs]</a><span class="k">class</span> <span class="nc">LammpsRunner</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    LAMMPS wrapper</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_filename</span><span class="o">=</span><span class="s2">&quot;lammps.in&quot;</span><span class="p">,</span> <span class="nb">bin</span><span class="o">=</span><span class="s2">&quot;lammps&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            input_filename (string): input file name</span>
+<span class="sd">            bin (string): command to run, excluding the input file name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lammps_bin</span> <span class="o">=</span> <span class="nb">bin</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">which</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lammps_bin</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;LammpsRunner requires the executable </span><span class="si">{}</span><span class="s2"> to be in the path. &quot;</span>
+                <span class="s2">&quot;Please download and install LAMMPS from &quot;</span>
+                <span class="s2">&quot;http://lammps.sandia.gov. &quot;</span>
+                <span class="s2">&quot;Don&#39;t forget to add the binary to your path&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lammps_bin</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_filename</span> <span class="o">=</span> <span class="n">input_filename</span>
+
+<div class="viewcode-block" id="LammpsRunner.run"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.utils.html#pymatgen.io.lammps.utils.LammpsRunner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the input/data files and run LAMMPS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lammps_cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_bin</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;-in&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_filename</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lammps_cmd</span><span class="p">)))</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="n">lammps_cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">)</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">ethanol_coords</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.00720</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.56870</span><span class="p">,</span> <span class="mf">0.00000</span><span class="p">],</span>
+                      <span class="p">[</span><span class="o">-</span><span class="mf">1.28540</span><span class="p">,</span> <span class="mf">0.24990</span><span class="p">,</span> <span class="mf">0.00000</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mf">1.13040</span><span class="p">,</span> <span class="mf">0.31470</span><span class="p">,</span> <span class="mf">0.00000</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mf">0.03920</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.19720</span><span class="p">,</span> <span class="mf">0.89000</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mf">0.03920</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.19720</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.89000</span><span class="p">],</span>
+                      <span class="p">[</span><span class="o">-</span><span class="mf">1.31750</span><span class="p">,</span> <span class="mf">0.87840</span><span class="p">,</span> <span class="mf">0.89000</span><span class="p">],</span>
+                      <span class="p">[</span><span class="o">-</span><span class="mf">1.31750</span><span class="p">,</span> <span class="mf">0.87840</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.89000</span><span class="p">],</span>
+                      <span class="p">[</span><span class="o">-</span><span class="mf">2.14220</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.42390</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00000</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mf">1.98570</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.13650</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00000</span><span class="p">]]</span>
+    <span class="n">ethanol</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">([</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">],</span>
+                       <span class="n">ethanol_coords</span><span class="p">)</span>
+    <span class="n">water_coords</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">9.626</span><span class="p">,</span> <span class="mf">6.787</span><span class="p">,</span> <span class="mf">12.673</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mf">9.626</span><span class="p">,</span> <span class="mf">8.420</span><span class="p">,</span> <span class="mf">12.673</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mf">10.203</span><span class="p">,</span> <span class="mf">7.604</span><span class="p">,</span> <span class="mf">12.673</span><span class="p">]]</span>
+    <span class="n">water</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">([</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">],</span> <span class="n">water_coords</span><span class="p">)</span>
+    <span class="n">pmr</span> <span class="o">=</span> <span class="n">PackmolRunner</span><span class="p">([</span><span class="n">ethanol</span><span class="p">,</span> <span class="n">water</span><span class="p">],</span>
+                        <span class="p">[{</span><span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;fixed&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                          <span class="s2">&quot;centerofmass&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">},</span>
+                         <span class="p">{</span><span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s2">&quot;inside sphere&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">]}],</span>
+                        <span class="n">input_file</span><span class="o">=</span><span class="s2">&quot;packmol_input.inp&quot;</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+                        <span class="n">filetype</span><span class="o">=</span><span class="s2">&quot;xyz&quot;</span><span class="p">,</span>
+                        <span class="n">control_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;nloop&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">},</span>
+                        <span class="n">auto_box</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="s2">&quot;cocktail.xyz&quot;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">pmr</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.lammps.utils</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
