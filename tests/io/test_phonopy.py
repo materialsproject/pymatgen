@@ -112,8 +112,8 @@ class TestStructureConversion(PymatgenTest):
         assert symbols_pmg == symbols_pmg2
         assert np.allclose(coords_ph[3], s_pmg.frac_coords[3])
         assert np.allclose(s_pmg.frac_coords[3], s_pmg2.frac_coords[3])
-        assert s_ph.get_number_of_atoms() == s_pmg.num_sites
-        assert s_pmg.num_sites == s_pmg2.num_sites
+        assert s_ph.get_number_of_atoms() == len(s_pmg)
+        assert len(s_pmg) == len(s_pmg2)
 
 
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
@@ -134,8 +134,8 @@ class TestGetDisplacedStructures(PymatgenTest):
             np.array([0.89127318, 0.78130015, 0.37404715]),
             atol=1e-7,
         )
-        assert structures[0].num_sites == 128
-        assert structures[10].num_sites == 128
+        assert len(structures[0]) == 128
+        assert len(structures[10]) == 128
         assert np.allclose(structures[0].lattice._matrix, structures[8].lattice._matrix, atol=1e-8)
 
         # test writing output

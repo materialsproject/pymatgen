@@ -1224,7 +1224,7 @@ class Kpoints(MSONable):
             kppa += kppa * 0.01
         latt = structure.lattice
         lengths = latt.abc
-        ngrid = kppa / structure.num_sites
+        ngrid = kppa / len(structure)
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
         num_div = [int(math.floor(max(mult / length, 1))) for length in lengths]
@@ -1254,18 +1254,17 @@ class Kpoints(MSONable):
             kppa: Grid density
         """
         latt = structure.lattice
-        lengths = latt.abc
-        ngrid = kppa / structure.num_sites
+        a, b, c = latt.abc
+        ngrid = kppa / len(structure)
 
-        mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
-        num_div = [int(round(mult / length)) for length in lengths]
+        mult = (ngrid * a * b * c) ** (1 / 3)
+        num_div = [int(round(mult / length)) for length in latt.abc]
 
-        # ensure that numDiv[i] > 0
-        num_div = [i if i > 0 else 1 for i in num_div]
+        # ensure that all num_div[i] > 0
+        num_div = [idx if idx > 0 else 1 for idx in num_div]
 
-        # VASP documentation recommends to use even grids for n <= 8 and odd
-        # grids for n > 8.
-        num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
+        # VASP documentation recommends to use even grids for n <= 8 and odd grids for n > 8.
+        num_div = [idx + idx % 2 if idx <= 8 else idx - idx % 2 + 1 for idx in num_div]
 
         style = Kpoints.supported_modes.Gamma
 
@@ -1292,7 +1291,7 @@ class Kpoints(MSONable):
             Kpoints
         """
         vol = structure.lattice.reciprocal_lattice.volume
-        kppa = kppvol * vol * structure.num_sites
+        kppa = kppvol * vol * len(structure)
         return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
 
     @staticmethod

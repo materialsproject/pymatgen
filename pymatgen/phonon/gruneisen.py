@@ -199,7 +199,7 @@ class GruneisenParameter(MSONable):
         """
         # Use of phonopy classes to compute Debye frequency
         t = self.tdos
-        t.set_Debye_frequency(num_atoms=self.structure.num_sites, freq_max_fit=freq_max_fit)
+        t.set_Debye_frequency(num_atoms=len(self.structure), freq_max_fit=freq_max_fit)
         f_d = t.get_Debye_frequency()  # in THz
         # f_d in THz is converted in a temperature (K)
         return const.value("Planck constant") * f_d * const.tera / const.value("Boltzmann constant")
@@ -207,10 +207,10 @@ class GruneisenParameter(MSONable):
     @property
     def acoustic_debye_temp(self):
         """
-        Acoustic Debye temperature in K, i.e. the Debye temperature divided by nsites**(1/3).
+        Acoustic Debye temperature in K, i.e. the Debye temperature divided by n_sites**(1/3).
         Adapted from abipy.
         """
-        return self.debye_temp_limit / self.structure.num_sites ** (1 / 3)
+        return self.debye_temp_limit / len(self.structure) ** (1 / 3)
 
 
 class GruneisenPhononBandStructure(PhononBandStructure):

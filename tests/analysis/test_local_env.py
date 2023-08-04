@@ -264,19 +264,19 @@ class TestJmolNN(PymatgenTest):
         struct = self.get_structure("LiFePO4")
 
         # Test the default near-neighbor finder.
-        nsites_checked = 0
+        n_sites_checked = 0
 
         for site_idx, site in enumerate(struct):
             if site.specie == Element("Li"):
                 assert self.jmol.get_cn(struct, site_idx) == 0
-                nsites_checked += 1
+                n_sites_checked += 1
             elif site.specie == Element("Fe"):
                 assert self.jmol.get_cn(struct, site_idx) == 6
-                nsites_checked += 1
+                n_sites_checked += 1
             elif site.specie == Element("P"):
                 assert self.jmol.get_cn(struct, site_idx) == 4
-                nsites_checked += 1
-        assert nsites_checked == 12
+                n_sites_checked += 1
+        assert n_sites_checked == 12
 
         # Test a user override that would cause Li to show up as 2-coordinated
         assert self.jmol_update.get_cn(struct, 0) == 2
@@ -559,17 +559,17 @@ class TestMotifIdentification(PymatgenTest):
         )
 
     def test_site_is_of_motif_type(self):
-        for i in range(self.diamond.num_sites):
+        for i in range(len(self.diamond)):
             assert site_is_of_motif_type(self.diamond, i) == "tetrahedral"
-        for i in range(self.nacl.num_sites):
+        for i in range(len(self.nacl)):
             assert site_is_of_motif_type(self.nacl, i) == "octahedral"
-        for i in range(self.cscl.num_sites):
+        for i in range(len(self.cscl)):
             assert site_is_of_motif_type(self.cscl, i) == "bcc"
         assert site_is_of_motif_type(self.square_pyramid, 0) == "square pyramidal"
-        for i in range(1, self.square_pyramid.num_sites):
+        for i in range(1, len(self.square_pyramid)):
             assert site_is_of_motif_type(self.square_pyramid, i) == "unrecognized"
         assert site_is_of_motif_type(self.trigonal_bipyramid, 0) == "trigonal bipyramidal"
-        for i in range(1, self.trigonal_bipyramid.num_sites):
+        for i in range(1, len(self.trigonal_bipyramid)):
             assert site_is_of_motif_type(self.trigonal_bipyramid, i) == "unrecognized"
 
     def test_get_neighbors_of_site_with_index(self):

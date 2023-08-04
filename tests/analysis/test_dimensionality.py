@@ -75,14 +75,14 @@ class TestLarsenDimensionality(PymatgenTest):
         assert len(components) == 1
         assert components[0]["dimensionality"] == 3
         assert isinstance(components[0]["structure_graph"], StructureGraph)
-        assert components[0]["structure_graph"].structure.num_sites == 10
+        assert len(components[0]["structure_graph"]) == 10
 
         # test 2D structure and get orientation information
         components = get_structure_components(self.graphite, inc_orientation=True)
         assert len(components) == 2
         assert components[0]["dimensionality"] == 2
         assert isinstance(components[0]["structure_graph"], StructureGraph)
-        assert components[0]["structure_graph"].structure.num_sites == 2
+        assert len(components[0]["structure_graph"]) == 2
         assert components[0]["orientation"] == (0, 0, 1)
 
         # test getting component graphs
@@ -106,7 +106,7 @@ class TestLarsenDimensionality(PymatgenTest):
 
         assert mol_graph.get_connected_sites(0)[0].index == 1
         assert mol_graph.get_connected_sites(1)[1].index == 2
-        assert mol_graph.molecule.num_sites == 3
+        assert len(mol_graph.molecule) == 3
 
         # test catching non zero dimensionality graphs
         comp_graphs = [self.graphite.graph.subgraph(c) for c in nx.weakly_connected_components(self.graphite.graph)]
@@ -118,7 +118,7 @@ class TestLarsenDimensionality(PymatgenTest):
         bs = CrystalNN().get_bonded_structure(s)
         comp_graphs = [bs.graph.subgraph(c) for c in nx.weakly_connected_components(bs.graph)]
         mol_graph = zero_d_graph_to_molecule_graph(bs, comp_graphs[0])
-        assert mol_graph.molecule.num_sites == 12
+        assert len(mol_graph.molecule) == 12
 
 
 class TestCheonDimensionality(PymatgenTest):

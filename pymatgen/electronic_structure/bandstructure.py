@@ -265,7 +265,7 @@ class BandStructure:
             for i, j, k in itertools.product(
                 range(self.nb_bands),
                 range(len(self.kpoints)),
-                range(structure.num_sites),
+                range(len(structure)),
             ):
                 result[spin][i][j][str(structure[k].specie)] += np.sum(v[i, j, :, k])
         return result
@@ -299,7 +299,7 @@ class BandStructure:
             for i, j, k in itertools.product(
                 range(self.nb_bands),
                 range(len(self.kpoints)),
-                range(structure.num_sites),
+                range(len(structure)),
             ):
                 sp = structure[k].specie
                 for orb_i in range(len(v[i][j])):
