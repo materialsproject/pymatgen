@@ -860,6 +860,24 @@ direct
         kpoints = Kpoints.automatic_density(p.structure, 1000)
         assert np.allclose(kpoints.kpts[0], [10, 10, 10])
 
+    def test_automatic_density_by_lengths(self):
+        # Load a structure from a POSCAR file
+        filepath = f"{PymatgenTest.TEST_FILES_DIR}/POSCAR"
+        structure = Poscar.from_file(filepath).structure
+
+        # test different combos of length densities and expected kpoints
+        # TODO should test Monkhorst style case and force_gamma=True case
+        for length_densities, expected_kpts, expected_style in [
+            ([50, 50, 1], [[5, 9, 1]], Kpoints.supported_modes.Gamma),
+            ([25, 50, 3], [[3, 9, 1]], Kpoints.supported_modes.Gamma),
+            ([24, 48, 2], [[3, 8, 1]], Kpoints.supported_modes.Gamma),
+        ]:
+            kpoints = Kpoints.automatic_density_by_lengths(structure, length_densities)
+
+            assert kpoints.kpts == expected_kpts
+
+            assert kpoints.style == expected_style
+
 
 class TestPotcarSingle:
     _multiprocess_shared_ = True

@@ -1635,12 +1635,12 @@ class CubicSupercellTransformation(AbstractTransformation):
             # Get number of atoms
             st = SupercellTransformation(self.transformation_matrix)
             superstructure = st.apply_transformation(structure)
-            num_at = superstructure.num_sites
+            n_atoms = len(superstructure)
 
             # Check if constraints are satisfied
             if (
                 np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
-                and self.min_atoms <= num_at <= self.max_atoms
+                and self.min_atoms <= n_atoms <= self.max_atoms
             ) and (
                 not self.force_90_degrees
                 or np.all(np.absolute(np.array(superstructure.lattice.angles) - 90) < self.angle_tolerance)
@@ -1649,7 +1649,7 @@ class CubicSupercellTransformation(AbstractTransformation):
 
             # Increase threshold until proposed supercell meets requirements
             target_sc_size += 0.1
-            if num_at > self.max_atoms:
+            if n_atoms > self.max_atoms:
                 raise AttributeError(
                     "While trying to solve for the supercell, the max "
                     "number of atoms was exceeded. Try lowering the number"

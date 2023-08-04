@@ -288,7 +288,7 @@ class TestAdfOutput:
         filename = os.path.join(str(test_dir), "adf", "numerical_freq", "adf.out")
         o = AdfOutput(filename)
         assert o.freq_type == "Numerical"
-        assert o.final_structure.num_sites == 4
+        assert len(o.final_structure) == 4
         assert len(o.frequencies) == 6
         assert len(o.normal_modes) == 6
         assert o.frequencies[0] == approx(938.21)

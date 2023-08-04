@@ -508,7 +508,7 @@ class DictSet(VaspInputSet):
                         ]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
-                    incar["EDIFF"] = float(v) * structure.num_sites
+                    incar["EDIFF"] = float(v) * len(structure)
                 else:
                     incar["EDIFF"] = float(settings["EDIFF"])
             else:
@@ -2901,8 +2901,8 @@ def standardize_structure(structure, sym_prec=0.1, international_monoclinic=True
 
     # the primitive structure finding has had several bugs in the past
     # defend through validation
-    vpa_old = structure.volume / structure.num_sites
-    vpa_new = new_structure.volume / new_structure.num_sites
+    vpa_old = structure.volume / len(structure)
+    vpa_new = new_structure.volume / len(new_structure)
 
     if abs(vpa_old - vpa_new) / vpa_old > 0.02:
         raise ValueError(f"Standardizing cell failed! VPA old: {vpa_old}, VPA new: {vpa_new}")

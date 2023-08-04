@@ -1146,23 +1146,23 @@ class GaussianOutput:
     def as_dict(self):
         """JSON-serializable dict representation."""
         structure = self.final_structure
-        d = {
+        dct = {
             "has_gaussian_completed": self.properly_terminated,
             "nsites": len(structure),
         }
         comp = structure.composition
-        d["unit_cell_formula"] = comp.as_dict()
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        d["pretty_formula"] = comp.reduced_formula
-        d["is_pcm"] = self.is_pcm
-        d["errors"] = self.errors
-        d["Mulliken_charges"] = self.Mulliken_charges
+        dct["unit_cell_formula"] = comp.as_dict()
+        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
+        dct["pretty_formula"] = comp.reduced_formula
+        dct["is_pcm"] = self.is_pcm
+        dct["errors"] = self.errors
+        dct["Mulliken_charges"] = self.Mulliken_charges
 
-        unique_symbols = sorted(d["unit_cell_formula"])
-        d["elements"] = unique_symbols
-        d["nelements"] = len(unique_symbols)
-        d["charge"] = self.charge
-        d["spin_multiplicity"] = self.spin_multiplicity
+        unique_symbols = sorted(dct["unit_cell_formula"])
+        dct["elements"] = unique_symbols
+        dct["nelements"] = len(unique_symbols)
+        dct["charge"] = self.charge
+        dct["spin_multiplicity"] = self.spin_multiplicity
 
         vin = {
             "route": self.route_parameters,
@@ -1172,24 +1172,24 @@ class GaussianOutput:
             "pcm_parameters": self.pcm,
         }
 
-        d["input"] = vin
+        dct["input"] = vin
 
-        nsites = len(self.final_structure)
+        n_sites = len(self.final_structure)
 
         vout = {
             "energies": self.energies,
             "final_energy": self.final_energy,
-            "final_energy_per_atom": self.final_energy / nsites,
+            "final_energy_per_atom": self.final_energy / n_sites,
             "molecule": structure.as_dict(),
             "stationary_type": self.stationary_type,
             "corrections": self.corrections,
         }
 
-        d["output"] = vout
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
+        dct["output"] = vout
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
 
-        return d
+        return dct
 
     def read_scan(self):
         """

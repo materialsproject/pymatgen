@@ -210,7 +210,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
         rank1 = rank(seen | {candidate})
         return rank1 > rank0
 
-    connected_sites = {i: neighbors(i) for i in range(bonded_structure.structure.num_sites)}
+    connected_sites = {idx: neighbors(idx) for idx in range(len(bonded_structure))}
 
     seen_vertices = set()
     seen_comp_vertices = defaultdict(set)
