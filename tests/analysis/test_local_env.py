@@ -264,19 +264,19 @@ class TestJmolNN(PymatgenTest):
         struct = self.get_structure("LiFePO4")
 
         # Test the default near-neighbor finder.
-        nsites_checked = 0
+        n_sites_checked = 0
 
         for site_idx, site in enumerate(struct):
             if site.specie == Element("Li"):
                 assert self.jmol.get_cn(struct, site_idx) == 0
-                nsites_checked += 1
+                n_sites_checked += 1
             elif site.specie == Element("Fe"):
                 assert self.jmol.get_cn(struct, site_idx) == 6
-                nsites_checked += 1
+                n_sites_checked += 1
             elif site.specie == Element("P"):
                 assert self.jmol.get_cn(struct, site_idx) == 4
-                nsites_checked += 1
-        assert nsites_checked == 12
+                n_sites_checked += 1
+        assert n_sites_checked == 12
 
         # Test a user override that would cause Li to show up as 2-coordinated
         assert self.jmol_update.get_cn(struct, 0) == 2

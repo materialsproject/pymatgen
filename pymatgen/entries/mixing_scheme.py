@@ -560,11 +560,11 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                         )
                 else:
                     for group in self.structure_matcher.group_structures(l_pre_group):
-                        grp = list(group)
-                        idx = group[0].num_sites
+                        group = list(group)
+                        idx = len(group[0])
                         # StructureMatcher.group_structures returns a list of lists,
                         # so each group should be a list containing matched structures
-                        row_list.append(self._populate_df_row(grp, comp, sg, idx, pd_type_1, pd_type_2, all_entries))
+                        row_list.append(self._populate_df_row(group, comp, sg, idx, pd_type_1, pd_type_2, all_entries))
 
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
         return mixing_state_data.sort_values(["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True)

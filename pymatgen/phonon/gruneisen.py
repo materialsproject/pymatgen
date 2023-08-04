@@ -207,7 +207,7 @@ class GruneisenParameter(MSONable):
     @property
     def acoustic_debye_temp(self):
         """
-        Acoustic Debye temperature in K, i.e. the Debye temperature divided by nsites**(1/3).
+        Acoustic Debye temperature in K, i.e. the Debye temperature divided by n_sites**(1/3).
         Adapted from abipy.
         """
         return self.debye_temp_limit / len(self.structure) ** (1 / 3)
