@@ -14,6 +14,7 @@ dependencies/spglib*/build
 pymatgen/pymatgen.cfg
 dist
 _build
+_site
 build
 .project
 .pydevproject

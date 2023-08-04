@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING, Callable
 
 import numpy as np
 from numpy.linalg import norm
@@ -11,6 +12,9 @@ from scipy.interpolate import UnivariateSpline
 from scipy.spatial import ConvexHull
 
 from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -84,51 +88,49 @@ def function_comparison(f1, f2, x1, x2, numpoints_check=500):
     raise RuntimeError("Error in comparing functions f1 and f2 ...")
 
 
-def quarter_ellipsis_functions(xx, yy):
+def quarter_ellipsis_functions(xx: ArrayLike, yy: ArrayLike) -> dict[str, Callable]:
     """
     Method that creates two quarter-ellipse functions based on points xx and yy. The ellipsis is supposed to
     be aligned with the axes. The two ellipsis pass through the two points xx and yy.
 
     Args:
-        xx:
-            First point
-        yy:
-            Second point
+        xx: First point
+        yy: Second point
 
     Returns:
         A dictionary with the lower and upper quarter ellipsis functions.
     """
-    npxx = np.array(xx)
-    npyy = np.array(yy)
-    if np.any(npxx == npyy):
+    xx = np.asarray(xx)
+    yy = np.asarray(yy)
+    if np.any(xx == yy):
         raise RuntimeError("Invalid points for quarter_ellipsis_functions")
-    if np.all(npxx < npyy) or np.all(npxx > npyy):
-        if npxx[0] < npyy[0]:
-            p1 = npxx
-            p2 = npyy
+    if np.all(xx < yy) or np.all(xx > yy):
+        if xx[0] < yy[0]:
+            p1 = xx
+            p2 = yy
         else:
-            p1 = npyy
-            p2 = npxx
+            p1 = yy
+            p2 = xx
         c_lower = np.array([p1[0], p2[1]])
         c_upper = np.array([p2[0], p1[1]])
         b2 = (p2[1] - p1[1]) ** 2
     else:
-        if npxx[0] < npyy[0]:
-            p1 = npxx
-            p2 = npyy
+        if xx[0] < yy[0]:
+            p1 = xx
+            p2 = yy
         else:
-            p1 = npyy
-            p2 = npxx
+            p1 = yy
+            p2 = xx
         c_lower = np.array([p2[0], p1[1]])
         c_upper = np.array([p1[0], p2[1]])
         b2 = (p1[1] - p2[1]) ** 2
-    b2overa2 = b2 / (p2[0] - p1[0]) ** 2
+    b2_over_a2 = b2 / (p2[0] - p1[0]) ** 2
 
     def lower(x):
-        return c_lower[1] - np.sqrt(b2 - b2overa2 * (x - c_lower[0]) ** 2)
+        return c_lower[1] - np.sqrt(b2 - b2_over_a2 * (x - c_lower[0]) ** 2)
 
     def upper(x):
-        return c_upper[1] + np.sqrt(b2 - b2overa2 * (x - c_upper[0]) ** 2)
+        return c_upper[1] + np.sqrt(b2 - b2_over_a2 * (x - c_upper[0]) ** 2)
 
     return {"lower": lower, "upper": upper}
 
@@ -348,10 +350,9 @@ def rectangle_surface_intersection(
     return quad(diff, xmin, xmax)
 
 
-def my_solid_angle(center, coords):
+def solid_angle(center, coords):
     """
-    Helper method to calculate the solid angle of a set of coords from the
-    center.
+    Helper method to calculate the solid angle of a set of coords from the center.
 
     Args:
         center:
@@ -368,17 +369,17 @@ def my_solid_angle(center, coords):
     n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
     n.append(np.cross(r[1], r[0]))
     phi = 0.0
-    for i in range(len(n) - 1):
+    for idx in range(len(n) - 1):
         try:
-            value = math.acos(-np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1])))
+            value = math.acos(-np.dot(n[idx], n[idx + 1]) / (np.linalg.norm(n[idx]) * np.linalg.norm(n[idx + 1])))
         except ValueError:
-            mycos = -np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
-            if 0.999999999999 < mycos < 1.000000000001:
+            cos = -np.dot(n[idx], n[idx + 1]) / (np.linalg.norm(n[idx]) * np.linalg.norm(n[idx + 1]))
+            if 0.999999999999 < cos < 1.000000000001:
                 value = math.acos(1.0)
-            elif -0.999999999999 > mycos > -1.000000000001:
+            elif -0.999999999999 > cos > -1.000000000001:
                 value = math.acos(-1.0)
             else:
-                raise SolidAngleError(mycos)
+                raise SolidAngleError(cos)
         phi += value
     return phi + (3 - len(r)) * math.pi
 
@@ -603,11 +604,11 @@ class Plane:
         self.normal_vector = np.array([coefficients[0], coefficients[1], coefficients[2]], np.float_)
         normv = np.linalg.norm(self.normal_vector)
         self.normal_vector /= normv
-        nonzeros = np.argwhere(self.normal_vector != 0.0).flatten()
-        zeros = list(set(range(3)) - set(nonzeros))
-        if len(nonzeros) == 0:
+        non_zeros = np.argwhere(self.normal_vector != 0.0).flatten()
+        zeros = list(set(range(3)) - set(non_zeros))
+        if len(non_zeros) == 0:
             raise ValueError("Normal vector is equal to 0.0")
-        if self.normal_vector[nonzeros[0]] < 0.0:
+        if self.normal_vector[non_zeros[0]] < 0.0:
             self.normal_vector = -self.normal_vector
             dd = -np.float_(coefficients[3]) / normv
         else:
@@ -622,32 +623,32 @@ class Plane:
         self.p3 = p3
         # Initializes 3 points belonging to the plane (useful for some methods)
         if self.p1 is None:
-            self.init_3points(nonzeros, zeros)
+            self.init_3points(non_zeros, zeros)
         self.vector_to_origin = dd * self.normal_vector
         self.e1 = self.e2 = None
         self.e3 = self.normal_vector
 
-    def init_3points(self, nonzeros, zeros):
+    def init_3points(self, non_zeros, zeros):
         """Initialize three random points on this plane.
 
-        :param nonzeros: Indices of plane coefficients ([a, b, c]) that are not zero.
+        :param non_zeros: Indices of plane coefficients ([a, b, c]) that are not zero.
         :param zeros: Indices of plane coefficients ([a, b, c]) that are equal to zero.
         :return: None
         """
-        if len(nonzeros) == 3:
+        if len(non_zeros) == 3:
             self.p1 = np.array([-self.d / self.a, 0.0, 0.0], np.float_)
             self.p2 = np.array([0.0, -self.d / self.b, 0.0], np.float_)
             self.p3 = np.array([0.0, 0.0, -self.d / self.c], np.float_)
-        elif len(nonzeros) == 2:
+        elif len(non_zeros) == 2:
             self.p1 = np.zeros(3, np.float_)
-            self.p1[nonzeros[1]] = -self.d / self.coefficients[nonzeros[1]]
+            self.p1[non_zeros[1]] = -self.d / self.coefficients[non_zeros[1]]
             self.p2 = np.array(self.p1)
             self.p2[zeros[0]] = 1.0
             self.p3 = np.zeros(3, np.float_)
-            self.p3[nonzeros[0]] = -self.d / self.coefficients[nonzeros[0]]
-        elif len(nonzeros) == 1:
+            self.p3[non_zeros[0]] = -self.d / self.coefficients[non_zeros[0]]
+        elif len(non_zeros) == 1:
             self.p1 = np.zeros(3, np.float_)
-            self.p1[nonzeros[0]] = -self.d / self.coefficients[nonzeros[0]]
+            self.p1[non_zeros[0]] = -self.d / self.coefficients[non_zeros[0]]
             self.p2 = np.array(self.p1)
             self.p2[zeros[0]] = 1.0
             self.p3 = np.array(self.p1)
@@ -937,8 +938,8 @@ class Plane:
         """
         nn = np.cross(p1 - p3, p2 - p3)
         normal_vector = nn / norm(nn)
-        nonzeros = np.argwhere(normal_vector != 0.0)
-        if normal_vector[nonzeros[0, 0]] < 0.0:
+        non_zeros = np.argwhere(normal_vector != 0.0)
+        if normal_vector[non_zeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
         dd = -np.dot(normal_vector, p1)
         coefficients = np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float_)
@@ -980,8 +981,8 @@ class Plane:
         [UU, SS, Vt] = np.linalg.svd(AA)
         imin = np.argmin(SS)
         normal_vector = Vt[imin]
-        nonzeros = np.argwhere(normal_vector != 0.0)
-        if normal_vector[nonzeros[0, 0]] < 0.0:
+        non_zeros = np.argwhere(normal_vector != 0.0)
+        if normal_vector[non_zeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
         dd = -np.dot(normal_vector, mean_point)
         coefficients = np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float_)

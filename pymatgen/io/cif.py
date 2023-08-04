@@ -13,6 +13,7 @@ from inspect import getfullargspec as getargspec
 from io import StringIO
 from itertools import groupby
 from pathlib import Path
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.io import zopen
@@ -30,6 +31,9 @@ from pymatgen.symmetry.groups import SYMM_DATA, SpaceGroup
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
+
+if TYPE_CHECKING:
+    from pymatgen.core.trajectory import Vector3D
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
@@ -164,6 +168,7 @@ class CifBlock:
                     q.append(tuple(s))
         return q
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
@@ -232,6 +237,7 @@ class CifFile:
         out = "\n".join(map(str, self.data.values()))
         return f"{self.comment}\n{out}\n"
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
@@ -443,7 +449,7 @@ class CifParser:
 
                     for et, occu in els_occu.items():
                         # new atom site labels have 'fix' appended
-                        new_atom_site_label.append(et + "_fix" + str(len(new_atom_site_label)))
+                        new_atom_site_label.append(f"{et}_fix{len(new_atom_site_label)}")
                         new_atom_site_type_symbol.append(et)
                         new_atom_site_occupancy.append(str(occu))
                         new_fract_x.append(str(x))
@@ -549,17 +555,26 @@ class CifParser:
 
         return data
 
-    def _unique_coords(self, coords_in, magmoms_in=None, lattice=None):
+    def _unique_coords(
+        self,
+        coords: list[Vector3D],
+        magmoms: list[Magmom] | None = None,
+        lattice: Lattice | None = None,
+        labels: dict[Vector3D, str] | None = None,
+    ):
         """
         Generate unique coordinates using coord and symmetry positions
         and also their corresponding magnetic moments, if supplied.
         """
-        coords = []
-        if magmoms_in:
-            magmoms = []
-            if len(magmoms_in) != len(coords_in):
+        coords_out: list[np.ndarray] = []
+        labels_out = []
+        labels = labels or {}
+
+        if magmoms:
+            magmoms_out = []
+            if len(magmoms) != len(coords):
                 raise ValueError
-            for tmp_coord, tmp_magmom in zip(coords_in, magmoms_in):
+            for tmp_coord, tmp_magmom in zip(coords, magmoms):
                 for op in self.symmetry_operations:
                     coord = op.operate(tmp_coord)
                     coord = np.array([i - math.floor(i) for i in coord])
@@ -572,18 +587,22 @@ class CifParser:
                         )
                     else:
                         magmom = Magmom(tmp_magmom)
-                    if not in_coord_list_pbc(coords, coord, atol=self._site_tolerance):
-                        coords.append(coord)
-                        magmoms.append(magmom)
-            return coords, magmoms
+                    if not in_coord_list_pbc(coords_out, coord, atol=self._site_tolerance):
+                        coords_out.append(coord)
+                        magmoms_out.append(magmom)
+                        labels_out.append(labels.get(tmp_coord))
+            return coords_out, magmoms_out, labels_out
 
-        for tmp_coord in coords_in:
+        for tmp_coord in coords:
             for op in self.symmetry_operations:
                 coord = op.operate(tmp_coord)
                 coord = np.array([i - math.floor(i) for i in coord])
-                if not in_coord_list_pbc(coords, coord, atol=self._site_tolerance):
-                    coords.append(coord)
-        return coords, [Magmom(0)] * len(coords)  # return dummy magmoms
+                if not in_coord_list_pbc(coords_out, coord, atol=self._site_tolerance):
+                    coords_out.append(coord)
+                    labels_out.append(labels.get(tmp_coord))
+
+        dummy_magmoms = [Magmom(0)] * len(coords_out)
+        return coords_out, dummy_magmoms, labels_out
 
     def get_lattice(
         self,
@@ -885,8 +904,8 @@ class CifParser:
 
         return parsed_sym
 
-    def _get_structure(self, data, primitive, symmetrized):
-        """Generate structure from part of the cif."""
+    def _get_structure(self, data, primitive, symmetrized) -> Structure | None:
+        """Generate structure from part of the CIF."""
 
         def get_num_implicit_hydrogens(sym):
             num_h = {"Wat": 2, "wat": 2, "O-H": 1}
@@ -907,7 +926,7 @@ class CifParser:
 
         oxi_states = self.parse_oxi_states(data)
 
-        coord_to_species = {}
+        coord_to_species = {}  # type: ignore
         coord_to_magmoms = {}
         labels = {}
 
@@ -915,18 +934,15 @@ class CifParser:
             keys = list(coord_to_species)
             coords = np.array(keys)
             for op in self.symmetry_operations:
-                c = op.operate(coord)
-                inds = find_in_coord_list_pbc(coords, c, atol=self._site_tolerance)
-                # can't use if inds, because python is dumb and np.array([0]) evaluates
-                # to False
-                if len(inds) > 0:
-                    return keys[inds[0]]
+                frac_coord = op.operate(coord)
+                indices = find_in_coord_list_pbc(coords, frac_coord, atol=self._site_tolerance)
+                if len(indices) > 0:
+                    return keys[indices[0]]
             return False
 
         for idx, label in enumerate(data["_atom_site_label"]):
             try:
-                # If site type symbol exists, use it. Otherwise, we use the
-                # label.
+                # If site type symbol exists, use it. Otherwise, we use the label.
                 symbol = self._parse_symbol(data["_atom_site_type_symbol"][idx])
                 num_h = get_num_implicit_hydrogens(data["_atom_site_type_symbol"][idx])
             except KeyError:
@@ -946,7 +962,7 @@ class CifParser:
                 except Exception:
                     el = DummySpecies(symbol, o_s)
             else:
-                el = get_el_sp(symbol)
+                el = get_el_sp(symbol)  # type: ignore
 
             x = str2float(data["_atom_site_fract_x"][idx])
             y = str2float(data["_atom_site_fract_y"][idx])
@@ -963,7 +979,7 @@ class CifParser:
                 match = get_matching_coord(coord)
                 comp_d = {el: occu}
                 if num_h > 0:
-                    comp_d["H"] = num_h
+                    comp_d["H"] = num_h  # type: ignore
                     self.warnings.append(
                         "Structure has implicit hydrogens defined, "
                         "parsed structure unlikely to be suitable for use "
@@ -1022,9 +1038,11 @@ class CifParser:
                 tmp_magmom = [coord_to_magmoms[tmp_coord] for tmp_coord in tmp_coords]
 
                 if self.feature_flags["magcif"]:
-                    coords, magmoms = self._unique_coords(tmp_coords, magmoms_in=tmp_magmom, lattice=lattice)
+                    coords, magmoms, new_labels = self._unique_coords(
+                        tmp_coords, magmoms=tmp_magmom, labels=labels, lattice=lattice
+                    )
                 else:
-                    coords, magmoms = self._unique_coords(tmp_coords)
+                    coords, magmoms, new_labels = self._unique_coords(tmp_coords, labels=labels)
 
                 if set(comp.elements) == {Element("O"), Element("H")}:
                     # O with implicit hydrogens
@@ -1049,7 +1067,7 @@ class CifParser:
                 all_coords.extend(coords)
                 all_species.extend(len(coords) * [species])
                 all_magmoms.extend(magmoms)
-                all_labels.extend(len(coords) * [labels[tmp_coords[0]]])
+                all_labels.extend(new_labels)
 
             # rescale occupancies if necessary
             for idx, species in enumerate(all_species):
@@ -1067,12 +1085,12 @@ class CifParser:
                 site_properties["magmom"] = all_magmoms
 
             if len(site_properties) == 0:
-                site_properties = None
+                site_properties = None  # type: ignore
 
             if any(all_labels):
                 assert len(all_labels) == len(all_species)
             else:
-                all_labels = None
+                all_labels = None  # type: ignore
 
             struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
 
@@ -1099,10 +1117,10 @@ class CifParser:
             return struct
         return None
 
-    def get_structures(self, primitive=True, symmetrized=False):
-        """
-        Return list of structures in CIF file. primitive boolean sets whether a
-        conventional cell structure or primitive cell structure is returned.
+    def get_structures(
+        self, primitive: bool = True, symmetrized: bool = False, on_error: Literal["ignore", "warn", "raise"] = "warn"
+    ) -> list[Structure]:
+        """Return list of structures in CIF file.
 
         Args:
             primitive (bool): Set to False to return conventional unit cells.
@@ -1116,9 +1134,11 @@ class CifParser:
                 currently Wyckoff labels and space group labels or numbers are
                 not included in the generated SymmetrizedStructure, these will be
                 notated as "Not Parsed" or -1 respectively.
+            on_error ('ignore' | 'warn' | 'raise'): What to do in case of KeyError or ValueError
+                while parsing CIF file. Defaults to 'warn'.
 
         Returns:
-            List of Structures.
+            list[Structure]: All structures in CIF file.
         """
         if primitive and symmetrized:
             raise ValueError(
@@ -1127,24 +1147,28 @@ class CifParser:
             )
 
         structures = []
-        for i, d in enumerate(self._cif.data.values()):
+        for idx, dct in enumerate(self._cif.data.values()):
             try:
-                struct = self._get_structure(d, primitive, symmetrized)
+                struct = self._get_structure(dct, primitive, symmetrized)
                 if struct:
                     structures.append(struct)
             except (KeyError, ValueError) as exc:
-                # Warn the user (Errors should never pass silently)
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
-                self.warnings.append(str(exc))
-                warnings.warn(f"No structure parsed for {i + 1} structure in CIF. Section of CIF file below.")
-                warnings.warn(str(d))
-                warnings.warn(f"Error is {exc}.")
+                msg = f"No structure parsed for section {idx + 1} in CIF.\n{exc}"
+                if on_error == "raise":
+                    raise ValueError(msg) from exc
+                if on_error == "warn":
+                    warnings.warn(msg)
+                self.warnings.append(msg)
+                # continue silently if on_error == "ignore"
 
-        if self.warnings:
+        # if on_error == "raise" we don't get to here so no need to check
+        if self.warnings and on_error == "warn":
             warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))
+
         if len(structures) == 0:
-            raise ValueError("Invalid cif file with no structures!")
+            raise ValueError("Invalid CIF file with no structures!")
         return structures
 
     def get_bibtex_string(self):
@@ -1336,15 +1360,19 @@ class CifWriter:
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
                     atom_site_fract_z.append(format_str.format(site.c))
-                    atom_site_label.append(f"{sp.symbol}{count}")
                     atom_site_occupancy.append(str(occu))
+                    site_label = f"{sp.symbol}{count}"
 
                     if "magmom" in site.properties:
                         mag = site.properties["magmom"]
                     elif getattr(sp, "spin", None) is not None:
                         mag = sp.spin
                     else:
+                        # Use site label if available for regular sites
+                        site_label = site.label if site.label != site.species_string else site_label
                         mag = 0
+
+                    atom_site_label.append(site_label)
 
                     magmom = Magmom(mag)
                     if write_magmoms and abs(magmom) > 0:
@@ -1380,7 +1408,8 @@ class CifWriter:
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
                     atom_site_fract_z.append(format_str.format(site.c))
-                    atom_site_label.append(f"{sp.symbol}{count}")
+                    site_label = site.label if site.label != site.species_string else f"{sp.symbol}{count}"
+                    atom_site_label.append(site_label)
                     atom_site_occupancy.append(str(occu))
                     count += 1
 

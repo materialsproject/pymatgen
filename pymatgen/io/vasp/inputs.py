@@ -40,6 +40,7 @@ from pymatgen.util.string import str_delimited
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
+    from pymatgen.core.trajectory import Vector3D
     from pymatgen.util.typing import PathLike
 
 
@@ -761,6 +762,7 @@ class Incar(dict, MSONable):
         with zopen(filename, "rt") as f:
             return Incar.from_str(f.read())
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
@@ -1004,6 +1006,7 @@ class KpointsSupportedModes(Enum):
     def __str__(self):
         return str(self.name)
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
@@ -1032,7 +1035,7 @@ class Kpoints(MSONable):
         num_kpts: int = 0,
         style: KpointsSupportedModes = supported_modes.Gamma,
         kpts: Sequence[float | int | Sequence] = ((1, 1, 1),),
-        kpts_shift: tuple[float, float, float] = (0, 0, 0),
+        kpts_shift: Vector3D = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
         labels=None,
@@ -1153,7 +1156,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def gamma_automatic(kpts: tuple[int, int, int] = (1, 1, 1), shift: tuple[float, float, float] = (0, 0, 0)):
+    def gamma_automatic(kpts: tuple[int, int, int] = (1, 1, 1), shift: Vector3D = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Gamma centered Kpoint
         grid.
@@ -1175,7 +1178,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def monkhorst_automatic(kpts: tuple[int, int, int] = (2, 2, 2), shift: tuple[float, float, float] = (0, 0, 0)):
+    def monkhorst_automatic(kpts: tuple[int, int, int] = (2, 2, 2), shift: Vector3D = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint
         grid.
@@ -1221,7 +1224,7 @@ class Kpoints(MSONable):
             kppa += kppa * 0.01
         latt = structure.lattice
         lengths = latt.abc
-        ngrid = kppa / structure.num_sites
+        ngrid = kppa / len(structure)
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
         num_div = [int(math.floor(max(mult / length, 1))) for length in lengths]
@@ -1251,18 +1254,17 @@ class Kpoints(MSONable):
             kppa: Grid density
         """
         latt = structure.lattice
-        lengths = latt.abc
-        ngrid = kppa / structure.num_sites
+        a, b, c = latt.abc
+        ngrid = kppa / len(structure)
 
-        mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
-        num_div = [int(round(mult / length)) for length in lengths]
+        mult = (ngrid * a * b * c) ** (1 / 3)
+        num_div = [int(round(mult / length)) for length in latt.abc]
 
-        # ensure that numDiv[i] > 0
-        num_div = [i if i > 0 else 1 for i in num_div]
+        # ensure that all num_div[i] > 0
+        num_div = [idx if idx > 0 else 1 for idx in num_div]
 
-        # VASP documentation recommends to use even grids for n <= 8 and odd
-        # grids for n > 8.
-        num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
+        # VASP documentation recommends to use even grids for n <= 8 and odd grids for n > 8.
+        num_div = [idx + idx % 2 if idx <= 8 else idx - idx % 2 + 1 for idx in num_div]
 
         style = Kpoints.supported_modes.Gamma
 
@@ -1289,7 +1291,7 @@ class Kpoints(MSONable):
             Kpoints
         """
         vol = structure.lattice.reciprocal_lattice.volume
-        kppa = kppvol * vol * structure.num_sites
+        kppa = kppvol * vol * len(structure)
         return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
 
     @staticmethod
@@ -1317,18 +1319,13 @@ class Kpoints(MSONable):
         comment = f"k-point density of {length_densities}/[a, b, c]"
         lattice = structure.lattice
         abc = lattice.abc
-        num_div = [
-            np.ceil(length_densities[0] / abc[0]),
-            np.ceil(length_densities[1] / abc[1]),
-            np.ceil(length_densities[2] / abc[2]),
-        ]
+        num_div = [np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities)]
         is_hexagonal = lattice.is_hexagonal()
-        has_odd = any(i % 2 == 1 for i in num_div)
+        has_odd = any(idx % 2 == 1 for idx in num_div)
         if has_odd or is_hexagonal or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
             style = Kpoints.supported_modes.Monkhorst
-        style = Kpoints.supported_modes.Gamma
 
         return Kpoints(comment, 0, style, [num_div], (0, 0, 0))
 
@@ -1384,6 +1381,7 @@ class Kpoints(MSONable):
         with zopen(filename, "rt") as f:
             return Kpoints.from_str(f.read())
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)

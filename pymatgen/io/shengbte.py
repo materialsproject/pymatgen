@@ -220,7 +220,7 @@ class Control(MSONable, dict):
 
         control_dict = {
             "nelements": structure.ntypesp,
-            "natoms": structure.num_sites,
+            "natoms": len(structure),
             "norientations": 0,
             "lfactor": 0.1,
             "lattvec": structure.lattice.matrix.tolist(),

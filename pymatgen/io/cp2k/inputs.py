@@ -150,6 +150,7 @@ class Keyword(MSONable):
             verbose=d["verbose"],
         )
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
@@ -720,6 +721,7 @@ class Cp2kInput(Section):
             txt = preprocessor(f.read(), os.path.dirname(f.name))
             return Cp2kInput.from_str(txt)
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
@@ -2247,6 +2249,7 @@ class BasisInfo(MSONable):
         d2 = other.as_dict()
         return all(not (v is not None and v != d2[k]) for k, v in d1.items())
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
@@ -2551,6 +2554,7 @@ class PotentialInfo(MSONable):
         d2 = other.as_dict()
         return all(not (v is not None and v != d2[k]) for k, v in d1.items())
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
@@ -2692,6 +2696,7 @@ class GthPotential(AtomicMetadata):
                 out += "\n"
         return out
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
@@ -2781,6 +2786,7 @@ class DataFile(MSONable):
                 obj.filename = fn
             return data
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)

@@ -521,6 +521,7 @@ class LammpsInputFile(InputFile):
         with zopen(filename, "wt") as f:
             f.write(self.get_string(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)

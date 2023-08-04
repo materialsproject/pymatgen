@@ -5,22 +5,20 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pymatgen.analysis.ferroelectricity package &mdash; pymatgen 2023.7.17 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+      <link rel="stylesheet" href="assets/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.ferroelectricity.html"/>
   <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
+    <script src="assets/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/js/theme.js"></script>
+        <script data-url_root="./" id="documentation_options" src="assets/documentation_options.js?v=b3ba4146"></script>
+        <script src="assets/doctools.js?v=888ff710"></script>
+        <script src="assets/sphinx_highlight.js?v=4825356b"></script>
+    <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.analysis.gb package" href="pymatgen.analysis.gb.html" />
-    <link rel="prev" title="pymatgen.analysis.elasticity package" href="pymatgen.analysis.elasticity.html" />
  
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
@@ -49,44 +47,44 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
-<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen namespace</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext namespace</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io namespace</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">pymatgen.analysis.ferroelectricity package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.ferroelectricity.polarization">pymatgen.analysis.ferroelectricity.polarization module</a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend"><code class="docutils literal notranslate"><span class="pre">EnergyTrend</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.endpoints_minima"><code class="docutils literal notranslate"><span class="pre">EnergyTrend.endpoints_minima()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.max_spline_jump"><code class="docutils literal notranslate"><span class="pre">EnergyTrend.max_spline_jump()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.smoothness"><code class="docutils literal notranslate"><span class="pre">EnergyTrend.smoothness()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.spline"><code class="docutils literal notranslate"><span class="pre">EnergyTrend.spline()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen.dao">pymatgen.dao module</a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization"><code class="docutils literal notranslate"><span class="pre">Polarization</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.from_outcars_and_structures"><code class="docutils literal notranslate"><span class="pre">Polarization.from_outcars_and_structures()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_lattice_quanta"><code class="docutils literal notranslate"><span class="pre">Polarization.get_lattice_quanta()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_pelecs_and_pions"><code class="docutils literal notranslate"><span class="pre">Polarization.get_pelecs_and_pions()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change"><code class="docutils literal notranslate"><span class="pre">Polarization.get_polarization_change()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change_norm"><code class="docutils literal notranslate"><span class="pre">Polarization.get_polarization_change_norm()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_same_branch_polarization_data"><code class="docutils literal notranslate"><span class="pre">Polarization.get_same_branch_polarization_data()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.max_spline_jumps"><code class="docutils literal notranslate"><span class="pre">Polarization.max_spline_jumps()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.same_branch_splines"><code class="docutils literal notranslate"><span class="pre">Polarization.same_branch_splines()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.smoothness"><code class="docutils literal notranslate"><span class="pre">Polarization.smoothness()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice"><code class="docutils literal notranslate"><span class="pre">PolarizationLattice</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice._abc_impl"><code class="docutils literal notranslate"><span class="pre">PolarizationLattice._abc_impl</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice.get_nearest_site"><code class="docutils literal notranslate"><span class="pre">PolarizationLattice.get_nearest_site()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.calc_ionic"><code class="docutils literal notranslate"><span class="pre">calc_ionic()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.get_total_ionic_dipole"><code class="docutils literal notranslate"><span class="pre">get_total_ionic_dipole()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.ferroelectricity.polarization.zval_dict_from_potcar"><code class="docutils literal notranslate"><span class="pre">zval_dict_from_potcar()</span></code></a></li>
 </ul>
 </li>
 </ul>
-
+</li>
+</ul>
+</div>
         </div>
       </div>
     </nav>
@@ -101,9 +99,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
       <li class="breadcrumb-item active">pymatgen.analysis.ferroelectricity package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.ferroelectricity.rst" class="fa fa-github"> Edit on GitHub</a>
@@ -114,13 +109,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-analysis-ferroelectricity-package">
-<h1>pymatgen.analysis.ferroelectricity package<a class="headerlink" href="#pymatgen-analysis-ferroelectricity-package" title="Permalink to this heading"></a></h1>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
-<div class="toctree-wrapper compound">
-</div>
-</section>
+  <section id="module-pymatgen.analysis.ferroelectricity">
+<span id="pymatgen-analysis-ferroelectricity-package"></span><h1>pymatgen.analysis.ferroelectricity package<a class="headerlink" href="#module-pymatgen.analysis.ferroelectricity" title="Permalink to this heading"></a></h1>
+<p>Package for analyzing ferroelectricity.</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
@@ -165,7 +156,7 @@ of polarization can only be zero or 1/2. We use a nonpolar structure to help
 determine the spontaneous polarization because it serves as a reference point.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.EnergyTrend">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EnergyTrend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L424-L467"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EnergyTrend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for fitting trends to energies.</p>
 <dl class="field-list simple">
@@ -175,25 +166,25 @@ determine the spontaneous polarization because it serves as a reference point.</
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.endpoints_minima">
-<span class="sig-name descname"><span class="pre">endpoints_minima</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slope_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L454-L467"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.endpoints_minima" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">endpoints_minima</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slope_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.endpoints_minima" title="Permalink to this definition"></a></dt>
 <dd><p>Test if spline endpoints are at minima for a given slope cutoff.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.max_spline_jump">
-<span class="sig-name descname"><span class="pre">max_spline_jump</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L449-L452"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.max_spline_jump" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">max_spline_jump</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.max_spline_jump" title="Permalink to this definition"></a></dt>
 <dd><p>Get maximum difference between spline and energy trend.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.smoothness">
-<span class="sig-name descname"><span class="pre">smoothness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L437-L447"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.smoothness" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">smoothness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.smoothness" title="Permalink to this definition"></a></dt>
 <dd><p>Get rms average difference between spline and energy trend.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.spline">
-<span class="sig-name descname"><span class="pre">spline</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L431-L435"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.spline" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">spline</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.spline" title="Permalink to this definition"></a></dt>
 <dd><p>Fit spline to energy trend data.</p>
 </dd></dl>
 
@@ -201,7 +192,7 @@ determine the spontaneous polarization because it serves as a reference point.</
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.Polarization">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Polarization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_elecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_ions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_elecs_in_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_ions_in_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L132-L421"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Polarization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_elecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_ions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_elecs_in_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_ions_in_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for recovering the same branch polarization for a set of
 polarization calculations along the nonpolar - polar distortion
@@ -228,7 +219,7 @@ contribution to the polarization) uses lattice directions.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.Polarization.from_outcars_and_structures">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_outcars_and_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outcars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_ionic_from_zval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L180-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.from_outcars_and_structures" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_outcars_and_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outcars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_ionic_from_zval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.from_outcars_and_structures" title="Permalink to this definition"></a></dt>
 <dd><p>Create Polarization object from list of Outcars and Structures in order
 of nonpolar to polar.</p>
 <p>Note, we recommend calculating the ionic dipole moment using calc_ionic
@@ -238,14 +229,14 @@ calc_ionic_from_zval = True</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.Polarization.get_lattice_quanta">
-<span class="sig-name descname"><span class="pre">get_lattice_quanta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L321-L347"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_lattice_quanta" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_lattice_quanta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_lattice_quanta" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the dipole / polarization quanta along a, b, and c for
 all structures.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.Polarization.get_pelecs_and_pions">
-<span class="sig-name descname"><span class="pre">get_pelecs_and_pions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L201-L228"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_pelecs_and_pions" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_pelecs_and_pions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_pelecs_and_pions" title="Permalink to this definition"></a></dt>
 <dd><p>Get the electronic and ionic dipole moments / polarizations.</p>
 <dl class="simple">
 <dt>convert_to_muC_per_cm2: Convert from electron * Angstroms to microCoulomb</dt><dd><p>per centimeter**2</p>
@@ -255,20 +246,20 @@ all structures.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change">
-<span class="sig-name descname"><span class="pre">get_polarization_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L349-L356"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_polarization_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change" title="Permalink to this definition"></a></dt>
 <dd><p>Get difference between nonpolar and polar same branch polarization.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change_norm">
-<span class="sig-name descname"><span class="pre">get_polarization_change_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L358-L369"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change_norm" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_polarization_change_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change_norm" title="Permalink to this definition"></a></dt>
 <dd><p>Get magnitude of difference between nonpolar and polar same branch
 polarization.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.Polarization.get_same_branch_polarization_data">
-<span class="sig-name descname"><span class="pre">get_same_branch_polarization_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L230-L319"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_same_branch_polarization_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_same_branch_polarization_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_same_branch_polarization_data" title="Permalink to this definition"></a></dt>
 <dd><p>Get same branch dipole moment (convert_to_muC_per_cm2=False)
 or polarization for given polarization data (convert_to_muC_per_cm2=True).</p>
 <p>Polarization is a lattice vector, meaning it is only defined modulo the
@@ -305,20 +296,20 @@ polarization”.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.Polarization.max_spline_jumps">
-<span class="sig-name descname"><span class="pre">max_spline_jumps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L396-L406"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.max_spline_jumps" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">max_spline_jumps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.max_spline_jumps" title="Permalink to this definition"></a></dt>
 <dd><p>Get maximum difference between spline and same branch polarization data.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.Polarization.same_branch_splines">
-<span class="sig-name descname"><span class="pre">same_branch_splines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L371-L394"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.same_branch_splines" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">same_branch_splines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.same_branch_splines" title="Permalink to this definition"></a></dt>
 <dd><p>Fit splines to same branch polarization. This is used to assess any jumps
 in the same branch polarizaiton.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.Polarization.smoothness">
-<span class="sig-name descname"><span class="pre">smoothness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L408-L421"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.smoothness" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">smoothness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convert_to_muC_per_cm2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_in_polar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.smoothness" title="Permalink to this definition"></a></dt>
 <dd><p>Get rms average difference between spline and same branch polarization data.</p>
 </dd></dl>
 
@@ -326,7 +317,7 @@ in the same branch polarizaiton.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PolarizationLattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><span class="pre">Lattice</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">CompositionLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">ArrayLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_proximity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_unit_cell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L105-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PolarizationLattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><span class="pre">Lattice</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">CompositionLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">ArrayLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_proximity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_unit_cell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code></a></p>
 <p>Why is a Lattice inheriting a structure? This is ridiculous.</p>
 <p>Create a periodic structure.</p>
@@ -370,9 +361,14 @@ None for no labels.</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice._abc_impl" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice.get_nearest_site">
-<span class="sig-name descname"><span class="pre">get_nearest_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L108-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice.get_nearest_site" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_nearest_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice.get_nearest_site" title="Permalink to this definition"></a></dt>
 <dd><p>Given coords and a site, find closet site to coords.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -392,7 +388,7 @@ None for no labels.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.calc_ionic">
-<span class="sig-name descname"><span class="pre">calc_ionic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">zval</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L75-L86"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.calc_ionic" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calc_ionic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">zval</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.calc_ionic" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate the ionic dipole moment using ZVAL from pseudopotential.</p>
 <p>site: PeriodicSite
 structure: Structure
@@ -402,7 +398,7 @@ zval: Charge value for ion (ZVAL for VASP pseudopotential)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.get_total_ionic_dipole">
-<span class="sig-name descname"><span class="pre">get_total_ionic_dipole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zval_dict</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L89-L102"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.get_total_ionic_dipole" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_total_ionic_dipole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zval_dict</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.get_total_ionic_dipole" title="Permalink to this definition"></a></dt>
 <dd><p>Get the total ionic dipole moment for a structure.</p>
 <p>structure: pymatgen Structure
 zval_dict: specie, zval dictionary pairs
@@ -412,16 +408,12 @@ tiny (float) : tolerance for determining boundary of calculation.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.ferroelectricity.polarization.zval_dict_from_potcar">
-<span class="sig-name descname"><span class="pre">zval_dict_from_potcar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">potcar</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/ferroelectricity/polarization.py#L62-L72"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.zval_dict_from_potcar" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">zval_dict_from_potcar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">potcar</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/ferroelectricity/polarization.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.zval_dict_from_potcar" title="Permalink to this definition"></a></dt>
 <dd><p>Creates zval_dictionary for calculating the ionic polarization from
 Potcar object.</p>
 <p>potcar: Potcar object</p>
 </dd></dl>
 
-</section>
-<section id="module-pymatgen.analysis.ferroelectricity">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.analysis.ferroelectricity" title="Permalink to this heading"></a></h2>
-<p>Package for analyzing ferroelectricity.</p>
 </section>
 </section>
 

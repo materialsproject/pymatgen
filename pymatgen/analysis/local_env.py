@@ -183,7 +183,7 @@ class ValenceIonicRadiusEvaluator:
                     else:
                         valences.append(0)
                 if sum(valences):
-                    valences = [0] * self._structure.num_sites
+                    valences = [0] * len(self._structure)
                 else:
                     self._structure.add_oxidation_state_by_site(valences)
                 # raise
@@ -192,7 +192,6 @@ class ValenceIonicRadiusEvaluator:
         # el = [site.species_string for site in self._structure]
         # el = [site.specie for site in self._structure]
         # valence_dict = dict(zip(el, valences))
-        # print valence_dict
         return valences
 
 
@@ -208,8 +207,8 @@ def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
         raise ValueError(
             f"Generating StructureGraphs for disordered Structures is unsupported. Pass on_disorder='take "
             "majority' | 'take_max_species' | 'error'. 'take_majority_strict' considers only the majority species from "
-            "each site in the bonding algorithm and raises ValueError in case there is no majority (e.g. as in {{Fe: "
-            "0.4, O: 0.4, C: 0.2}}) whereas 'take_majority_drop' just ignores the site altogether when computing bonds "
+            "each site in the bonding algorithm and raises ValueError in case there is no majority (e.g. as in {Fe: "
+            "0.4, O: 0.4, C: 0.2}) whereas 'take_majority_drop' just ignores the site altogether when computing bonds "
             "as if it didn't exist. 'take_max_species' extracts the first max species on each site (Fe in prev. "
             "example since Fe and O have equal occupancy and Fe comes first). 'error' raises an error in case "
             f"of disordered structure. Offending {structure = }"
@@ -1459,15 +1458,15 @@ class OpenBabelNN(NearNeighbors):
         siw = []
 
         # Get only the atom of interest
-        site_atom = [
+        site_atom = next(
             a
             for i, a in enumerate(openbabel.OBMolAtomDFSIter(obmol))
             if [a.GetX(), a.GetY(), a.GetZ()] == list(structure[n].coords)
-        ][0]
+        )
 
         for neighbor in openbabel.OBAtomAtomIter(site_atom):
             coords = [neighbor.GetX(), neighbor.GetY(), neighbor.GetZ()]
-            site = [a for a in structure if list(a.coords) == coords][0]
+            site = next(a for a in structure if list(a.coords) == coords)
             index = structure.index(site)
 
             bond = site_atom.GetBond(neighbor)
@@ -3650,12 +3649,13 @@ class EconNN(NearNeighbors):
         site = structure[n]
         neighbors = structure.get_neighbors(site, self.cutoff)
 
-        if self.cation_anion and hasattr(site.specie, "oxi_state"):
+        oxi_state = getattr(site.specie, "oxi_state", None)
+        if self.cation_anion and oxi_state is not None:
             # filter out neighbor of like charge (except for neutral sites)
-            if site.specie.oxi_state >= 0:
+            if oxi_state >= 0:
                 neighbors = [n for n in neighbors if n.oxi_state <= 0]
-            elif site.specie.oxi_state <= 0:
-                neighbors = [n for n in neighbors if n.oxi_state >= 0]
+            elif oxi_state < 0:
+                neighbors = [nghbr for nghbr in neighbors if nghbr.oxi_state >= 0]
 
         if self.use_fictive_radius:
             # calculate fictive ionic radii
@@ -3883,7 +3883,8 @@ class CrystalNN(NearNeighbors):
             target = []
             m_oxi = structure[n].specie.oxi_state
             for site in structure:
-                if site.specie.oxi_state * m_oxi <= 0:  # opposite charge
+                oxi_state = getattr(site.specie, "oxi_state", None)
+                if oxi_state is not None and oxi_state * m_oxi <= 0:  # opposite charge
                     target.append(site.specie)
             if not target:
                 raise ValueError("No valid targets for site within cation_anion constraint!")

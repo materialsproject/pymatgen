@@ -290,10 +290,10 @@ class CompleteCohp(Cohp):
 
     def __str__(self):
         if self.are_coops:
-            return "Complete COOPs for " + str(self.structure)
+            return f"Complete COOPs for {self.structure}"
         if self.are_cobis:
-            return "Complete COBIs for " + str(self.structure)
-        return "Complete COHPs for " + str(self.structure)
+            return f"Complete COBIs for {self.structure}"
+        return f"Complete COHPs for {self.structure}"
 
     def as_dict(self):
         """JSON-serializable dict representation of CompleteCohp."""
@@ -745,7 +745,6 @@ class CompleteCohp(Cohp):
             # pylint: disable=E1133,E1136
             for label in orb_res_cohp:
                 if cohp_file.cohp_data[label]["COHP"] is None:
-                    # print(label)
                     cohp_data[label]["COHP"] = {
                         sp: np.sum(
                             [orb_res_cohp[label][orbs]["COHP"][sp] for orbs in orb_res_cohp[label]],
@@ -958,7 +957,7 @@ class IcohpValue(MSONable):
         if not self.is_spin_polarized and spin == Spin.down:
             raise ValueError("The calculation was not performed with spin polarization")
         if isinstance(orbitals, list):
-            orbitals = str(orbitals[0]) + "-" + str(orbitals[1])
+            orbitals = f"{orbitals[0]}-{orbitals[1]}"
         return self._orbitals[orbitals]["icohp"][spin]
 
     @property
@@ -1095,7 +1094,7 @@ class IcohpCollection(MSONable):
             return icohp_here.icohpvalue(spin)
 
         if isinstance(orbitals, list):
-            orbitals = str(orbitals[0]) + "-" + str(orbitals[1])
+            orbitals = f"{orbitals[0]}-{orbitals[1]}"
         if summed_spin_channels:
             return icohp_here.summed_orbital_icohp[orbitals]
 
@@ -1120,7 +1119,6 @@ class IcohpCollection(MSONable):
             icohp_here = self._icohplist[label]
             if icohp_here.num_bonds != 1:
                 warnings.warn("One of the ICOHP values is an average over bonds. This is currently not considered.")
-            # prints warning if num_bonds is not equal to 1
             if icohp_here._is_spin_polarized:
                 if summed_spin_channels:
                     sum_icohp = sum_icohp + icohp_here.summed_icohp

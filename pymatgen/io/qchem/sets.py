@@ -579,7 +579,7 @@ class QChemDictSet(QCInput):
                                 raise RuntimeError(
                                     "CMIRS is only parameterized for RHOISO values of 0.001 or 0.0005! Exiting..."
                                 )
-                            for k2, _v2 in mypcm_nonels.items():
+                            for k2 in mypcm_nonels:
                                 if CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2):  # type: ignore
                                     mypcm_nonels[k2] = CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2)  # type: ignore
                         if k == "idefesr":

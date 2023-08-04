@@ -441,9 +441,9 @@ def multi_reciprocal_extra(xs, ys, noise=False):
 def print_plot_line(function, popt, xs, ys, name, tol: float = 0.05, extra=""):
     """Print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters."""
     idp = id_generator()
-    with open("convdat." + str(idp), mode="w") as f:
+    with open(f"convdat.{idp}", mode="w") as f:
         for n in range(0, len(ys), 1):
-            f.write(str(xs[n]) + " " + str(ys[n]) + "\n")
+            f.write(f"{xs[n]} {ys[n]}\n")
     tol = abs(tol)
     line = f"plot 'convdat.{idp}' pointsize 4 lt 0, "
     line += f"{popt[0]} lt 3, {popt[0] - tol} lt 4, {popt[0] + tol} lt 4, "
@@ -467,7 +467,7 @@ def print_plot_line(function, popt, xs, ys, name, tol: float = 0.05, extra=""):
     with open("plot-fits", mode="a") as f:
         f.write('set title "' + name + " - " + extra + '"\n')
         f.write("set output '" + name + "-" + idp + ".gif'\n")
-        f.write("set yrange [" + str(popt[0] - 5 * tol) + ":" + str(popt[0] + 5 * tol) + "]\n")
+        f.write(f"set yrange [{popt[0] - 5 * tol}:{popt[0] + 5 * tol}]\n")
         f.write(line + "\n")
         f.write("pause -1 \n")
 

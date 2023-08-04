@@ -79,7 +79,7 @@ isort.split-on-trailing-comma = false
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
-"*/tests/*" = ["D"]
+"tests/**" = ["D"]
 "tasks.py" = ["D"]
 "pymatgen/analysis/*" = ["D"]
 "pymatgen/vis/*" = ["D"]
@@ -90,8 +90,7 @@ isort.split-on-trailing-comma = false
 addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mode=importlib"
 
 [tool.coverage.run]
-omit = ["pymatgen/cli"]
-relative_files = true
+branch = true
 
 [tool.coverage.report]
 exclude_lines = [

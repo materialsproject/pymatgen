@@ -187,9 +187,8 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
         enumpath = os.path.join(cwd, "enumlib", "src")
         os.chdir(enumpath)
         subprocess.call(["make"])
-        for f in ["enum.x", "makestr.x"]:
-            subprocess.call(["make", f])
-            shutil.copy(f, os.path.join("..", ".."))
+        subprocess.call(["make", "enum.x"])
+        shutil.copy("enum.x", os.path.join("..", ".."))
     except Exception as exc:
         print(exc)
         state = False

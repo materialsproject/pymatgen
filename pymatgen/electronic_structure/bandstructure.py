@@ -265,7 +265,7 @@ class BandStructure:
             for i, j, k in itertools.product(
                 range(self.nb_bands),
                 range(len(self.kpoints)),
-                range(structure.num_sites),
+                range(len(structure)),
             ):
                 result[spin][i][j][str(structure[k].specie)] += np.sum(v[i, j, :, k])
         return result
@@ -299,7 +299,7 @@ class BandStructure:
             for i, j, k in itertools.product(
                 range(self.nb_bands),
                 range(len(self.kpoints)),
-                range(structure.num_sites),
+                range(len(structure)),
             ):
                 sp = structure[k].specie
                 for orb_i in range(len(v[i][j])):
@@ -329,7 +329,7 @@ class BandStructure:
         Returns data about the VBM.
 
         Returns:
-            dict as {"band_index","kpoint_index","kpoint","energy"}
+            dict: With keys "band_index", "kpoint_index", "kpoint", "energy"
             - "band_index": A dict with spin keys pointing to a list of the
             indices of the band containing the VBM (please note that you
             can have several bands sharing the VBM) {Spin.up:[],
@@ -355,18 +355,18 @@ class BandStructure:
                 "projections": {},
             }
         max_tmp = -float("inf")
-        index = kpointvbm = None
+        index = kpoint_vbm = None
         for value in self.bands.values():
             for i, j in zip(*np.where(value < self.efermi)):
                 if value[i, j] > max_tmp:
                     max_tmp = float(value[i, j])
                     index = j
-                    kpointvbm = self.kpoints[j]
+                    kpoint_vbm = self.kpoints[j]
 
         list_ind_kpts = []
-        if kpointvbm.label is not None:
+        if kpoint_vbm.label is not None:
             for i, kpt in enumerate(self.kpoints):
-                if kpt.label == kpointvbm.label:
+                if kpt.label == kpoint_vbm.label:
                     list_ind_kpts.append(i)
         else:
             list_ind_kpts.append(index)
@@ -384,7 +384,7 @@ class BandStructure:
         return {
             "band_index": list_ind_band,
             "kpoint_index": list_ind_kpts,
-            "kpoint": kpointvbm,
+            "kpoint": kpoint_vbm,
             "energy": max_tmp,
             "projections": proj,
         }
@@ -421,18 +421,18 @@ class BandStructure:
             }
         max_tmp = float("inf")
 
-        index = kpointcbm = None
+        index = kpoint_cbm = None
         for value in self.bands.values():
             for i, j in zip(*np.where(value >= self.efermi)):
                 if value[i, j] < max_tmp:
                     max_tmp = float(value[i, j])
                     index = j
-                    kpointcbm = self.kpoints[j]
+                    kpoint_cbm = self.kpoints[j]
 
         list_index_kpoints = []
-        if kpointcbm.label is not None:
+        if kpoint_cbm.label is not None:
             for i, kpt in enumerate(self.kpoints):
-                if kpt.label == kpointcbm.label:
+                if kpt.label == kpoint_cbm.label:
                     list_index_kpoints.append(i)
         else:
             list_index_kpoints.append(index)
@@ -452,7 +452,7 @@ class BandStructure:
         return {
             "band_index": list_index_band,
             "kpoint_index": list_index_kpoints,
-            "kpoint": kpointcbm,
+            "kpoint": kpoint_cbm,
             "energy": max_tmp,
             "projections": proj,
         }
@@ -548,8 +548,8 @@ class BandStructure:
         if not self.structure:
             return None
         sg = SpacegroupAnalyzer(self.structure)
-        symmops = sg.get_point_group_operations(cartesian=cartesian)
-        points = np.dot(kpoint, [m.rotation_matrix for m in symmops])
+        symm_ops = sg.get_point_group_operations(cartesian=cartesian)
+        points = np.dot(kpoint, [m.rotation_matrix for m in symm_ops])
         rm_list = []
         # identify and remove duplicates from the list of equivalent k-points:
         for i in range(len(points) - 1):
@@ -635,7 +635,7 @@ class BandStructure:
         labels_dict = {k.strip(): v for k, v in dct["labels_dict"].items()}
         projections = {}
         structure = None
-        if isinstance(list(dct["bands"].values())[0], dict):
+        if isinstance(next(iter(dct["bands"].values())), dict):
             eigenvals = {Spin(int(k)): np.array(dct["bands"][k]["data"]) for k in dct["bands"]}
         else:
             eigenvals = {Spin(int(k)): dct["bands"][k] for k in dct["bands"]}
@@ -681,7 +681,7 @@ class BandStructure:
         labels_dict = {k.strip(): v for k, v in dct["labels_dict"].items()}
         projections = {}
         structure = None
-        if "projections" in dct and len(dct["projections"]) != 0:
+        if dct.get("projections"):
             structure = Structure.from_dict(dct["structure"])
             projections = {}
             for spin in dct["projections"]:
@@ -790,12 +790,12 @@ class BandStructureSymmLine(BandStructure, MSONable):
 
         if len(one_group) != 0:
             branches_tmp.append(one_group)
-        for b in branches_tmp:
+        for branch in branches_tmp:
             self.branches.append(
                 {
-                    "start_index": b[0],
-                    "end_index": b[-1],
-                    "name": str(self.kpoints[b[0]].label) + "-" + str(self.kpoints[b[-1]].label),
+                    "start_index": branch[0],
+                    "end_index": branch[-1],
+                    "name": f"{self.kpoints[branch[0]].label}-{self.kpoints[branch[-1]].label}",
                 }
             )
 

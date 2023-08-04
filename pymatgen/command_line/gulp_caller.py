@@ -445,7 +445,7 @@ class GulpIO:
             # Try lewis library next if element is not in bush
             # use_lewis = True
             if el != "O":  # For metals the key is "Metal_OxiState+"
-                k = el + "_" + str(int(val_dict[key])) + "+"
+                k = f"{el}_{int(val_dict[key])}+"
                 if k not in bpl.species_dict:
                     # use_lewis = False
                     raise GulpError(f"Element {k} not in library")
@@ -493,7 +493,7 @@ class GulpIO:
     @staticmethod
     def tersoff_potential(structure):
         """
-        Generate the species, tersoff potential lines for an oxide structure.
+        Generate the species, Tersoff potential lines for an oxide structure.
 
         Args:
             structure: pymatgen.core.structure.Structure
@@ -504,24 +504,24 @@ class GulpIO:
         el_val_dict = dict(zip(el, valences))
 
         gin = "species \n"
-        qerfstring = "qerfc\n"
+        qerf_str = "qerfc\n"
 
         for key, value in el_val_dict.items():
             if key != "O" and value % 1 != 0:
                 raise SystemError("Oxide has mixed valence on metal")
-            specie_string = key + " core " + str(value) + "\n"
-            gin += specie_string
-            qerfstring += key + " " + key + " 0.6000 10.0000 \n"
+            specie_str = f"{key} core {value}\n"
+            gin += specie_str
+            qerf_str += f"{key} {key} 0.6000 10.0000 \n"
 
         gin += "# noelectrostatics \n Morse \n"
         met_oxi_ters = TersoffPotential().data
         for key, value in el_val_dict.items():
             if key != "O":
-                metal = key + "(" + str(int(value)) + ")"
+                metal = f"{key}({int(value)})"
                 ters_pot_str = met_oxi_ters[metal]
                 gin += ters_pot_str
 
-        gin += qerfstring
+        gin += qerf_str
         return gin
 
     @staticmethod

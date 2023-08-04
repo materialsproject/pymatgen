@@ -1774,7 +1774,7 @@ class QCOutput(MSONable):
             },
         )
 
-        for key, _v in temp_dict.items():
+        for key in temp_dict:
             if temp_dict.get(key) is None:
                 self.data["solvent_data"]["isosvp"][key] = None
             elif len(temp_dict.get(key)) == 1:
@@ -1821,7 +1821,7 @@ class QCOutput(MSONable):
             },
         )
 
-        for key, _v in temp_dict.items():
+        for key in temp_dict:
             if temp_dict.get(key) is None:
                 self.data["solvent_data"]["cmirs"][key] = None
             elif len(temp_dict.get(key)) == 1:

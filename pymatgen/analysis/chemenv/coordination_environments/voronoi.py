@@ -11,8 +11,8 @@ from scipy.spatial import Voronoi
 
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
     get_lower_and_upper_f,
-    my_solid_angle,
     rectangle_surface_intersection,
+    solid_angle,
 )
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.analysis.chemenv.utils.math_utils import normal_cdf_step
@@ -141,7 +141,7 @@ class DetailedVoronoiContainer(MSONable):
         t1 = time.process_time()
         logging.debug("Setting up Voronoi list :")
         for jj, isite in enumerate(indices):
-            logging.debug(f"  - Voronoi analysis for site #{isite:d} ({jj + 1:d}/{len(indices):d})")
+            logging.debug(f"  - Voronoi analysis for site #{isite} ({jj + 1}/{len(indices)})")
             site = self.structure[isite]
             neighbors1 = [(site, 0.0, isite)]
             neighbors1.extend(struct_neighbors[isite])
@@ -164,7 +164,7 @@ class DetailedVoronoiContainer(MSONable):
 
                     ridge_point2 = max(ridge_points)
                     facets = [all_vertices[i] for i in ridge_vertices_indices]
-                    sa = my_solid_angle(site.coords, facets)
+                    sa = solid_angle(site.coords, facets)
                     maxangle = max([sa, maxangle])
 
                     mindist = min([mindist, distances[ridge_point2]])

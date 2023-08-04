@@ -607,7 +607,7 @@ class Vasprun(MSONable):
         """
         final_esteps = self.ionic_steps[-1]["electronic_steps"] if self.incar not in ["CHI"] else 0
         # In a response function run there is no ionic steps, there is no scf step
-        if "LEPSILON" in self.incar and self.incar["LEPSILON"]:
+        if self.incar.get("LEPSILON"):
             i = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
             while set(final_esteps[i]) == to_check:
@@ -1158,25 +1158,25 @@ class Vasprun(MSONable):
 
     def as_dict(self):
         """JSON-serializable dict representation."""
-        d = {
+        dct = {
             "vasp_version": self.vasp_version,
             "has_vasp_completed": self.converged,
             "nsites": len(self.final_structure),
         }
         comp = self.final_structure.composition
-        d["unit_cell_formula"] = comp.as_dict()
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        d["pretty_formula"] = comp.reduced_formula
+        dct["unit_cell_formula"] = comp.as_dict()
+        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
+        dct["pretty_formula"] = comp.reduced_formula
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split(r"_", s)[0] for s in symbols]
-        d["is_hubbard"] = self.is_hubbard
-        d["hubbards"] = self.hubbards
+        dct["is_hubbard"] = self.is_hubbard
+        dct["hubbards"] = self.hubbards
 
         unique_symbols = sorted(set(self.atomic_symbols))
-        d["elements"] = unique_symbols
-        d["nelements"] = len(unique_symbols)
+        dct["elements"] = unique_symbols
+        dct["nelements"] = len(unique_symbols)
 
-        d["run_type"] = self.run_type
+        dct["run_type"] = self.run_type
 
         vin = {
             "incar": dict(self.incar.items()),
@@ -1197,15 +1197,15 @@ class Vasprun(MSONable):
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
         vin["parameters"] = dict(self.parameters.items())
         vin["lattice_rec"] = self.final_structure.lattice.reciprocal_lattice.as_dict()
-        d["input"] = vin
+        dct["input"] = vin
 
-        nsites = len(self.final_structure)
+        n_sites = len(self.final_structure)
 
         try:
             vout = {
                 "ionic_steps": self.ionic_steps,
                 "final_energy": self.final_energy,
-                "final_energy_per_atom": self.final_energy / nsites,
+                "final_energy_per_atom": self.final_energy / n_sites,
                 "crystal": self.final_structure.as_dict(),
                 "efermi": self.efermi,
             }
@@ -1235,8 +1235,8 @@ class Vasprun(MSONable):
         vout["epsilon_static"] = self.epsilon_static
         vout["epsilon_static_wolfe"] = self.epsilon_static_wolfe
         vout["epsilon_ionic"] = self.epsilon_ionic
-        d["output"] = vout
-        return jsanitize(d, strict=True)
+        dct["output"] = vout
+        return jsanitize(dct, strict=True)
 
     def _parse_params(self, elem):
         params = {}
@@ -1582,23 +1582,23 @@ class BSVasprun(Vasprun):
 
     def as_dict(self):
         """JSON-serializable dict representation."""
-        d = {
+        dct = {
             "vasp_version": self.vasp_version,
             "has_vasp_completed": True,
             "nsites": len(self.final_structure),
         }
         comp = self.final_structure.composition
-        d["unit_cell_formula"] = comp.as_dict()
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        d["pretty_formula"] = comp.reduced_formula
-        d["is_hubbard"] = self.is_hubbard
-        d["hubbards"] = self.hubbards
+        dct["unit_cell_formula"] = comp.as_dict()
+        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
+        dct["pretty_formula"] = comp.reduced_formula
+        dct["is_hubbard"] = self.is_hubbard
+        dct["hubbards"] = self.hubbards
 
         unique_symbols = sorted(set(self.atomic_symbols))
-        d["elements"] = unique_symbols
-        d["nelements"] = len(unique_symbols)
+        dct["elements"] = unique_symbols
+        dct["nelements"] = len(unique_symbols)
 
-        d["run_type"] = self.run_type
+        dct["run_type"] = self.run_type
 
         vin = {
             "incar": dict(self.incar),
@@ -1618,7 +1618,7 @@ class BSVasprun(Vasprun):
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
         vin["parameters"] = dict(self.parameters)
         vin["lattice_rec"] = self.final_structure.lattice.reciprocal_lattice.as_dict()
-        d["input"] = vin
+        dct["input"] = vin
 
         vout = {"crystal": self.final_structure.as_dict(), "efermi": self.efermi}
 
@@ -1639,8 +1639,8 @@ class BSVasprun(Vasprun):
                             peigen[kpoint_index][str(spin)] = vv
                 vout["projected_eigenvalues"] = peigen
 
-        d["output"] = vout
-        return jsanitize(d, strict=True)
+        dct["output"] = vout
+        return jsanitize(dct, strict=True)
 
 
 class Outcar:
@@ -3641,14 +3641,14 @@ class Chgcar(VolumetricData):
         self._distance_matrix = {}
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename: str):
         """
-        Reads a CHGCAR file.
+        Read a CHGCAR file.
 
         :param filename: Filename
         :return: Chgcar
         """
-        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
+        poscar, data, data_aug = VolumetricData.parse_file(filename)
         return Chgcar(poscar, data, data_aug=data_aug)
 
     @property

@@ -1,5 +1,5 @@
 # declare HTML, rST and test files as vendored/docs to exclude them when calculating repo languages on GitHub
-**/test_files/**/* linguist-vendored
+tests/files/**/* linguist-vendored
 cmd_line/* linguist-vendored
 docs/**/* linguist-generated
 docs_rst/**/* linguist-documentation

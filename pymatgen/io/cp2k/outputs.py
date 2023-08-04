@@ -212,8 +212,8 @@ class Cp2kOutput:
     @property
     def is_hubbard(self) -> bool:
         """Returns True if hubbard +U correction was used."""
-        for v in self.data.get("atomic_kind_info", {}).values():
-            if "DFT_PLUS_U" in v and v.get("DFT_PLUS_U").get("U_MINUS_J") > 0:
+        for val in self.data.get("atomic_kind_info", {}).values():
+            if val.get("DFT_PLUS_U", {}).get("U_MINUS_J", 0) > 0:
                 return True
         return False
 

@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import re
 from io import StringIO
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 from monty.io import zopen
 
-from pymatgen.core.structure import Molecule
+from pymatgen.core import Molecule, Structure
+
+if TYPE_CHECKING:
+    from git import Sequence
 
 
 class XYZ:
@@ -24,41 +28,38 @@ class XYZ:
         lattice.
     """
 
-    def __init__(self, mol: Molecule, coord_precision: int = 6):
+    def __init__(self, mol: Molecule | Structure | Sequence[Molecule | Structure], coord_precision: int = 6) -> None:
         """
         Args:
-            mol: Input molecule or list of molecules
+            mol (Molecule | Structure): Input molecule or structure or list thereof.
             coord_precision: Precision to be used for coordinates.
         """
-        if isinstance(mol, Molecule) or not isinstance(mol, list):
-            self._mols = [mol]
-        else:
-            self._mols = mol
+        self._mols = mol if isinstance(mol, list) else [mol]
         self.precision = coord_precision
 
     @property
     def molecule(self) -> Molecule:
         """
-        Returns molecule associated with this XYZ. In case multiple frame
+        Returns molecule associated with this XYZ. In case of multi-frame
         XYZ, returns the last frame.
         """
         return self._mols[-1]
 
     @property
-    def all_molecules(self):
+    def all_molecules(self) -> list[Molecule]:
         """Returns all the frames of molecule associated with this XYZ."""
         return self._mols
 
     @staticmethod
-    def _from_frame_string(contents):
+    def _from_frame_string(contents) -> Molecule:
         """Convert a single frame XYZ string to a molecule."""
         lines = contents.split("\n")
         num_sites = int(lines[0])
         coords = []
         sp = []
-        coord_patt = re.compile(r"(\w+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)")
+        coord_pattern = re.compile(r"(\w+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)")
         for i in range(2, 2 + num_sites):
-            m = coord_patt.search(lines[i])
+            m = coord_pattern.search(lines[i])
             if m:
                 sp.append(m.group(1))  # this is 1-indexed
                 # this is 0-indexed
@@ -69,12 +70,13 @@ class XYZ:
                 coords.append([float(val) for val in xyz])
         return Molecule(sp, coords)
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
     @staticmethod
-    def from_str(contents):
+    def from_str(contents) -> XYZ:
         """
         Creates XYZ object from a string.
 
@@ -87,10 +89,10 @@ class XYZ:
         if contents[-1] != "\n":
             contents += "\n"
         white_space = r"[ \t\r\f\v]"
-        natoms_line = white_space + r"*\d+" + white_space + r"*\n"
+        n_atoms_line = white_space + r"*\d+" + white_space + r"*\n"
         comment_line = r"[^\n]*\n"
         coord_lines = r"(\s*\w+\s+[0-9\-\+\.*^eEdD]+\s+[0-9\-\+\.*^eEdD]+\s+[0-9\-\+\.*^eEdD]+.*\n)+"
-        frame_pattern_text = natoms_line + comment_line + coord_lines
+        frame_pattern_text = n_atoms_line + comment_line + coord_lines
         pat = re.compile(frame_pattern_text, re.MULTILINE)
         mols = []
         for xyz_match in pat.finditer(contents):
@@ -99,7 +101,7 @@ class XYZ:
         return XYZ(mols)
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename) -> XYZ:
         """
         Creates XYZ object from a file.
 
@@ -121,22 +123,17 @@ class XYZ:
             pandas.DataFrame
         """
         lines = str(self)
-
         sio = StringIO(lines)
         df_xyz = pd.read_csv(
-            sio,
-            header=None,
-            skiprows=[0, 1],
-            comment="#",
-            delim_whitespace=True,
-            names=["atom", "x", "y", "z"],
+            sio, header=None, skiprows=(0, 1), comment="#", delim_whitespace=True, names=("atom", "x", "y", "z")
         )
         df_xyz.index += 1
         return df_xyz
 
     def _frame_str(self, frame_mol):
         output = [str(len(frame_mol)), frame_mol.composition.formula]
-        fmt = f"{{}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}}"
+        prec = self.precision
+        fmt = f"{{}} {{:.{prec}f}} {{:.{prec}f}} {{:.{prec}f}}"
         for site in frame_mol:
             output.append(fmt.format(site.specie, site.x, site.y, site.z))
         return "\n".join(output)

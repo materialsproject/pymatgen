@@ -129,7 +129,7 @@ def get_structure_components(
     components = []
     for graph in comp_graphs:
         dimensionality, vertices = calculate_dimensionality_of_site(
-            bonded_structure, list(graph.nodes())[0], inc_vertices=True
+            bonded_structure, next(iter(graph.nodes())), inc_vertices=True
         )
 
         component = {"dimensionality": dimensionality}
@@ -210,7 +210,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
         rank1 = rank(seen | {candidate})
         return rank1 > rank0
 
-    connected_sites = {i: neighbors(i) for i in range(bonded_structure.structure.num_sites)}
+    connected_sites = {idx: neighbors(idx) for idx in range(len(bonded_structure))}
 
     seen_vertices = set()
     seen_comp_vertices = defaultdict(set)
@@ -267,7 +267,7 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
     seen_indices = []
     sites = []
 
-    start_index = list(graph.nodes())[0]
+    start_index = next(iter(graph.nodes()))
     queue = [(start_index, (0, 0, 0), bonded_structure.structure[start_index])]
     while len(queue) > 0:
         comp_i, image_i, site_i = queue.pop(0)
@@ -426,7 +426,6 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
             max_bond_length = ldict[species[ii]] + ldict[species[jj]] + tolerance
             frac_diff = fc_diff[jj] - fc_copy[ii]
             distance_ij = np.dot(struct.lattice.matrix.T, frac_diff)
-            # print(np.linalg.norm(distance_ij,axis=0))
             if sum(np.linalg.norm(distance_ij, axis=0) < max_bond_length) > 0:
                 connected_matrix[ii, jj] = 1
                 connected_matrix[jj, ii] = 1
@@ -476,10 +475,10 @@ def find_clusters(struct, connected_matrix):
                 atom_cluster = visit(new_atom, atom_cluster)
         return atom_cluster
 
-    for i in range(n_atoms):
-        if not visited[i]:
+    for idx in range(n_atoms):
+        if not visited[idx]:
             atom_cluster = set()
-            cluster = visit(i, atom_cluster)
+            cluster = visit(idx, atom_cluster)
             clusters.append(cluster)
             cluster_sizes.append(len(cluster))
 
