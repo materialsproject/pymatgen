@@ -104,7 +104,7 @@ jobs:
           wget -O packmol.tar.gz https://github.com/m3g/packmol/archive/refs/tags/v20.14.2.tar.gz
           tar xvzf packmol.tar.gz
           export F90=gfortran
-          cd packmol
+          cd packmol-20.14.2
           ./configure
           make
           sudo mv packmol /usr/local/bin/
