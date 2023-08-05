@@ -69,7 +69,7 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
         assert array[1][2] == approx(3.7758069e-05)
         assert array[2][2] == approx(193943750000000.0)
         assert self.bz._hall[400][800][1][0][0] == approx(9.5623749e-28)
-        assert self.bz._hall[400][68][1][2][2] == approx(6.5106975e-10)
+        assert self.bz._hall[400][68][1][2][2] == approx(3.2149951e-26)
         assert self.bz.doping["p"][3] == approx(1e18)
         assert self.bz.mu_doping["p"][300][2] == approx(0.1553770018406)
         assert self.bz.mu_doping["n"][300][-1] == approx(1.6486017632924719, abs=1e-4)

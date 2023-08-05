@@ -77,7 +77,8 @@ jobs:
         if: runner.os == 'Linux'
         # This is the way to update env variables in a way that persist for the entire job.
         run: |
-          for pkg in cmd_line/*; do sudo cp $pkg/Linux_64bit/* /usr/local/bin/; done
+          sudo cp cmd_line/gulp/Linux_64bit/* /usr/local/bin/
+          sudo cp cmd_line/packmol/Linux_64bit/* /usr/local/bin/
       - name: Install Bader
         if: runner.os == 'Linux'
         run: |
