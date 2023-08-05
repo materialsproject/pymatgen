@@ -138,9 +138,16 @@ class TestIStructure(PymatgenTest):
         IStructure(self.lattice, ["Si"] * 2, coords[:2], True)
         IStructure(self.lattice, ["Si"], coords[:1], True)
 
-    def test_volume_and_density(self):
+    def test_volume(self):
         assert self.struct.volume == approx(40.04, abs=1e-2), "Volume wrong!"
+
+    def test_density(self):
         assert self.struct.density == approx(2.33, abs=1e-2), "Incorrect density"
+
+    def test_formula(self):
+        assert self.struct.formula == "Si2"
+        assert self.labeled_structure.formula == "Si2"
+        assert self.propertied_structure.formula == "Si2"
 
     def test_specie_init(self):
         coords = []
