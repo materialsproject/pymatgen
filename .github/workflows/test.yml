@@ -116,6 +116,13 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install numpy cython packaging
           python -m pip install -e '.[dev,optional]'
+      - name: Install openbabel
+        if: runner.os == 'Linux'
+        run: |
+          apt-get update
+          apt install openbabel libopenbabel-dev
+          python -m pip install openbabel
+        continue-on-error: true
       - name: pytest split ${{ matrix.split }}
         # to update the test durations, do pip install pytest-split and run
         # pytest --store-durations --durations-path tests/files/.pytest-split-durations

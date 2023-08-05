@@ -98,6 +98,7 @@ omit = [
   "pymatgen/cli/pmg_plot.py",
   "pymatgen/cli/pmg_potcar.py",
   "pymatgen/cli/pmg_query.py",
+  "pymatgen/dao.py"
 ]
 
 [tool.coverage.report]
