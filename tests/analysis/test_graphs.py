@@ -837,33 +837,30 @@ class TestMoleculeGraph(unittest.TestCase):
     def test_isomorphic(self):
         ethyl_xyz_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/ethylene.xyz")
         ethylene = Molecule.from_file(ethyl_xyz_path)
-        # switch carbons
+        # swap carbons
         ethylene[0], ethylene[1] = ethylene[1], ethylene[0]
 
-        eth_copy = MoleculeGraph.with_edges(
-            ethylene,
-            {
-                (0, 1): {"weight": 2},
-                (1, 2): {"weight": 1},
-                (1, 3): {"weight": 1},
-                (0, 4): {"weight": 1},
-                (0, 5): {"weight": 1},
-            },
-        )
+        edges = {
+            (0, 1): {"weight": 2},
+            (1, 2): {"weight": 1},
+            (1, 3): {"weight": 1},
+            (0, 4): {"weight": 1},
+            (0, 5): {"weight": 1},
+        }
+
+        ethylene_graph = MoleculeGraph.with_edges(ethylene, edges)
         # If they are equal, they must also be isomorphic
-        eth_copy = copy.deepcopy(self.ethylene)
-        assert self.ethylene.isomorphic_to(eth_copy)
+        assert self.ethylene.isomorphic_to(ethylene_graph)
         assert not self.butadiene.isomorphic_to(self.ethylene)
 
         # check fix in https://github.com/materialsproject/pymatgen/pull/3221
-        # by setting nodes equal so we compare edges
-        ethylene = self.ethylene.copy()
-        ethylene.nodes = self.butadiene.nodes
-        assert not ethylene.isomorphic_to(self.butadiene)
+        # by comparing graph with equal nodes but different edges
+        edges[(1, 4)] = {"weight": 2}
+        assert not self.ethylene.isomorphic_to(MoleculeGraph.with_edges(ethylene, edges))
 
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]
-        molgraph = MoleculeGraph.with_edges(
+        mol_graph = MoleculeGraph.with_edges(
             molecule,
             {(0, 1): {"weight": 1}, (0, 2): {"weight": 1}, (0, 3): {"weight": 1}},
         )
@@ -885,7 +882,7 @@ class TestMoleculeGraph(unittest.TestCase):
 
         # Check that MoleculeGraph input is handled properly
         eth_graph.substitute_group(5, molecule, MinimumDistanceNN, graph_dict=graph_dict)
-        eth_mg.substitute_group(5, molgraph, MinimumDistanceNN)
+        eth_mg.substitute_group(5, mol_graph, MinimumDistanceNN)
         assert eth_graph.graph.get_edge_data(5, 6)[0]["weight"] == 1.0
         assert eth_mg == eth_graph
 

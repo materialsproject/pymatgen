@@ -60,7 +60,7 @@ def _igraph_from_nxgraph(graph):
     return new_igraph
 
 
-def _isomorphic(frag1, frag2):
+def _isomorphic(frag1: nx.Graph, frag2: nx.Graph) -> bool:
     """
     Internal function to check if two graph objects are isomorphic, using igraph if
     if is available and networkx if it is not.
@@ -1627,7 +1627,7 @@ class MoleculeGraph(MSONable):
         return cls(molecule, graph_data=graph_data)
 
     @staticmethod
-    def with_edges(molecule, edges):
+    def with_edges(molecule: Molecule, edges: dict[tuple[int, int], dict]):
         """
         Constructor for MoleculeGraph, using pre-existing or pre-defined edges
         with optional edge parameters.
@@ -1651,7 +1651,7 @@ class MoleculeGraph(MSONable):
             if props is not None:
                 weight = props.pop("weight", None)
                 if len(props.items()) == 0:
-                    props = None
+                    props = None  # type: ignore
             else:
                 weight = None
 
