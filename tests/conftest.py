@@ -1,6 +1,7 @@
 """
 Test fixes for pymatgen
 """
+
 from __future__ import annotations
 
 from pathlib import Path

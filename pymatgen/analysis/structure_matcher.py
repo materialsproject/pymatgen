@@ -1,4 +1,5 @@
 """This module provides classes to perform fitting of structures."""
+
 from __future__ import annotations
 
 import abc
