@@ -3014,6 +3014,15 @@ class IMolecule(SiteCollection, MSONable):
             total_weight += wt
         return center / total_weight
 
+    def copy(self) -> IMolecule | Molecule:
+        """
+        Convenience method to get a copy of the molecule.
+
+        Returns:
+            IMolecule | Molecule
+        """
+        return type(self).from_sites(self)
+
     @classmethod
     def from_sites(
         cls,
@@ -4649,15 +4658,6 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             return Site(site.species, new_cart, properties=site.properties, label=site.label)
 
         self.sites = [operate_site(site) for site in self]
-
-    def copy(self):
-        """
-        Convenience method to get a copy of the molecule.
-
-        Returns:
-            A copy of the Molecule.
-        """
-        return type(self).from_sites(self)
 
     def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1):
         """
