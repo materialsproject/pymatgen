@@ -1,4 +1,5 @@
 """Test for the piezo tensor class."""
+
 from __future__ import annotations
 
 import numpy as np

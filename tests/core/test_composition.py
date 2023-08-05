@@ -3,6 +3,7 @@ Created on Nov 10, 2012.
 
 @author: Shyue Ping Ong
 """
+
 from __future__ import annotations
 
 import random
