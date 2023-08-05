@@ -402,7 +402,7 @@ class StructureGraph(MSONable):
 
             # ensure that the first non-zero jimage index is positive
             # assumes that at least one non-zero index is present
-            is_positive = [idx for idx in to_jimage if idx != 0][0] > 0
+            is_positive = next(idx for idx in to_jimage if idx != 0) > 0
 
             if not is_positive:
                 # let's flip the jimage,
