@@ -351,20 +351,22 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def cart_coords(self) -> np.ndarray:
-        """
-        Returns an np.array of the Cartesian coordinates of sites in the
-        structure.
-        """
+        """Returns an np.array of the Cartesian coordinates of sites in the structure."""
         return np.array([site.coords for site in self])
 
     @property
     def formula(self) -> str:
-        """(str) Returns the formula."""
+        """Returns the formula as a string."""
         return self.composition.formula
 
     @property
+    def elements(self) -> list[Element | Species | DummySpecies]:
+        """Returns the elements in the structure as a list of Element objects."""
+        return self.composition.elements
+
+    @property
     def composition(self) -> Composition:
-        """(Composition) Returns the composition."""
+        """Returns the structure's corresponding Composition object."""
         elem_map: dict[Species, float] = collections.defaultdict(float)
         for site in self:
             for species, occu in site.species.items():
