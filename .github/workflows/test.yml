@@ -119,8 +119,8 @@ jobs:
       - name: Install openbabel
         if: runner.os == 'Linux'
         run: |
-          apt-get update
-          apt install openbabel libopenbabel-dev
+          sudo apt-get update
+          sudo apt install openbabel libopenbabel-dev
           python -m pip install openbabel
         continue-on-error: true
       - name: pytest split ${{ matrix.split }}
