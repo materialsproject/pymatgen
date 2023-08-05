@@ -210,39 +210,33 @@ class TestPhaseDiagram(PymatgenTest):
 
     def test_stable_entries(self):
         stable_formulas = [ent.composition.reduced_formula for ent in self.pd.stable_entries]
-        expected_stable = [
-            "Fe2O3",
-            "Li5FeO4",
-            "LiFeO2",
-            "Fe3O4",
-            "Li",
-            "Fe",
-            "Li2O",
-            "O2",
-            "FeO",
-        ]
+        expected_stable = "Fe2O3 Li5FeO4 LiFeO2 Fe3O4 Li Fe Li2O O2 FeO".split()
         for formula in expected_stable:
-            assert formula in stable_formulas, formula + " not in stable entries!"
+            assert formula in stable_formulas, f"{formula} not in stable entries!"
 
-    def test_get_formation_energy(self):
-        stable_formation_energies = {
-            ent.composition.reduced_formula: self.pd.get_form_energy(ent) for ent in self.pd.stable_entries
-        }
+    def test_get_form_energy(self):
         expected_formation_energies = {
-            "Li5FeO4": -164.8117344866667,
-            "Li2O2": -14.119232793333332,
-            "Fe2O3": -16.574164339999996,
-            "FeO": -5.7141519966666685,
+            "Li5FeO4": -164.8117344,
+            "Li2O2": -14.119232793,
+            "Fe2O3": -16.57416433,
+            "FeO": -5.71415199,
             "Li": 0.0,
-            "LiFeO2": -7.732752316666666,
-            "Li2O": -6.229303868333332,
+            "LiFeO2": -7.73275231,
+            "Li2O": -6.229303868,
             "Fe": 0.0,
-            "Fe3O4": -22.565714456666683,
-            "Li2FeO3": -45.67166036000002,
+            "Fe3O4": -22.56571445,
+            "Li2FeO3": -45.67166036,
             "O2": 0.0,
         }
-        for formula, energy in expected_formation_energies.items():
-            assert energy == approx(stable_formation_energies[formula])
+
+        for entry in self.pd.stable_entries:
+            formula = entry.composition.reduced_formula
+            expected = expected_formation_energies[formula]
+            n_atoms = entry.composition.num_atoms
+            # test get_form_energy
+            assert self.pd.get_form_energy(entry) == approx(expected), formula
+            # test get_form_energy_per_atom
+            assert self.pd.get_form_energy_per_atom(entry) == approx(expected / n_atoms), formula
 
     def test_all_entries_hulldata(self):
         assert len(self.pd.all_entries_hulldata) == 490
