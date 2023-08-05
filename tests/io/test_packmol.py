@@ -46,7 +46,7 @@ water_atoms = ["H", "H", "O"]
 water = Molecule(water_atoms, water_coords)
 
 
-class TestPackmolSet:
+class TestPackmolSet(PymatgenTest):
     def test_packmol_with_molecule(self):
         """Test coords input as Molecule."""
         pw = PackmolBoxGen().get_input_set(
