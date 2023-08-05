@@ -839,6 +839,24 @@ class TestStructure(PymatgenTest):
         assert struct[0].species_string == "Si"
         assert struct[1].species_string == "F"
 
+    def test_replace_species(self):
+        struct = self.struct
+        struct.replace_species({"Si": "Na"})
+        assert struct.formula == "Na2"
+
+        # test replacement with a dictionary
+        struct.replace_species({"Na": {"K": 0.75, "P": 0.25}})
+        assert struct.formula == "K1.5 P0.5"
+
+        # test replacement with species not present in structure
+        with pytest.warns(UserWarning, match="Some species to be substituted are not present in structure."):
+            struct.replace_species({"Li": "Na"})
+
+        # test in_place=False
+        new_struct = struct.replace_species({"K": "Li"}, in_place=False)
+        assert struct.formula == "K1.5 P0.5"
+        assert new_struct.formula == "Li1.5 P0.5"
+
     def test_append_insert_remove_replace_substitute(self):
         struct = self.struct
         struct.insert(1, "O", [0.5, 0.5, 0.5])
