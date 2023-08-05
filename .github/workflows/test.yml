@@ -64,6 +64,7 @@ jobs:
       MPLBACKEND: Agg # https://github.com/orgs/community/discussions/26434
       PMG_TEST_FILES_DIR: ${{ github.workspace }}/tests/files
       GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
+      PMG_VASP_PSP_DIR: ${{ github.workspace }}/tests/files
 
     steps:
       - uses: actions/checkout@v3
