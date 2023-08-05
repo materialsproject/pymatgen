@@ -149,6 +149,10 @@ class TestIStructure(PymatgenTest):
         assert self.labeled_structure.formula == "Si2"
         assert self.propertied_structure.formula == "Si2"
 
+    def test_elements(self):
+        assert self.struct.elements == [Element("Si")]
+        assert self.propertied_structure.elements == [Element("Si")]
+
     def test_specie_init(self):
         coords = []
         coords.append([0, 0, 0])
