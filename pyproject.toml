@@ -90,7 +90,6 @@ isort.split-on-trailing-comma = false
 addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mode=importlib"
 
 [tool.coverage.run]
-branch = true
 omit = [
   "pymatgen/cli/pmg_config.py",
   "pymatgen/cli/pmg_plot.py",
