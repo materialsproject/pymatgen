@@ -78,7 +78,6 @@ jobs:
         # This is the way to update env variables in a way that persist for the entire job.
         run: |
           sudo cp cmd_line/gulp/Linux_64bit/* /usr/local/bin/
-          sudo cp cmd_line/packmol/Linux_64bit/* /usr/local/bin/
       - name: Install Bader
         if: runner.os == 'Linux'
         run: |
@@ -98,6 +97,18 @@ jobs:
           sudo mv enum.x /usr/local/bin/
           cd ..
           sudo cp aux_src/makeStr.py /usr/local/bin/
+        continue-on-error: true
+      - name: Install Packmol
+        if: runner.os == 'Linux'
+        run: |
+          wget -O packmol.tar.gz https://github.com/m3g/packmol/archive/refs/tags/v20.14.2.tar.gz
+          tar xvzf packmol.tar.gz
+          export F90=gfortran
+          cd packmol
+          ./configure
+          make
+          sudo mv packmol /usr/local/bin/
+          cd ..
         continue-on-error: true
       - name: Install dependencies
         run: |
