@@ -543,15 +543,27 @@ class PhaseDiagram(MSONable):
         """
         return [e for e, s in zip(self._stable_entries, self._stable_spaces) if space.issuperset(s)]
 
-    def get_reference_energy_per_atom(self, comp: Composition) -> float:
-        """
+    def get_reference_energy(self, comp: Composition) -> float:
+        """Sum of elemental reference energies over all elements in a composition.
+
         Args:
             comp (Composition): Input composition.
 
         Returns:
-            Reference energy of the terminal species at a given composition.
+            float: Reference energy
         """
-        return sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements) / comp.num_atoms
+        return sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements)
+
+    def get_reference_energy_per_atom(self, comp: Composition) -> float:
+        """Sum of elemental reference energies over all elements in a composition.
+
+        Args:
+            comp (Composition): Input composition.
+
+        Returns:
+            float: Reference energy per atom
+        """
+        return self.get_reference_energy(comp) / comp.num_atoms
 
     def get_form_energy(self, entry: PDEntry) -> float:
         """
@@ -565,7 +577,7 @@ class PhaseDiagram(MSONable):
             float: Formation energy from the elemental references.
         """
         comp = entry.composition
-        return entry.energy - sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements)
+        return entry.energy - self.get_reference_energy(comp)
 
     def get_form_energy_per_atom(self, entry: PDEntry) -> float:
         """
