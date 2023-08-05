@@ -92,12 +92,12 @@ addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mod
 [tool.coverage.run]
 branch = true
 omit = [
+  "pymatgen/cli/feff_plot_cross_section.py",
+  "pymatgen/cli/feff_plot_dos.py",
   "pymatgen/cli/pmg_config.py",
   "pymatgen/cli/pmg_plot.py",
   "pymatgen/cli/pmg_potcar.py",
   "pymatgen/cli/pmg_query.py",
-  "pymatgen/cli/feff_plot_cross_section.py",
-  "pymatgen/cli/feff_plot_dos.py",
 ]
 
 [tool.coverage.report]
@@ -119,6 +119,7 @@ ignore_missing_imports = true
 namespace_packages = true
 explicit_package_bases = true
 no_implicit_optional = false
+disable_error_code = "annotation-unchecked"
 
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*"]
