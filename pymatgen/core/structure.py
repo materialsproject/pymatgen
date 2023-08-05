@@ -218,6 +218,14 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         self._sites = list(sites) if is_mutable else tuple(sites)
 
     @abstractmethod
+    def copy(self) -> SiteCollection:
+        """
+        Returns a copy of itself. Concrete subclasses should implement this
+        method.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def get_distance(self, i: int, j: int) -> float:
         """
         Returns distance between sites at index i and j.
