@@ -506,26 +506,31 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         for site in self:
             del site.properties[property_name]
 
-    def replace_species(self, species_mapping: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]]) -> None:
+    def replace_species(
+        self, species_mapping: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]], in_place: bool = True
+    ) -> SiteCollection:
         """
-        Swap species. Note that this method modifies the structure in place.
+        Swap species.
 
         Args:
             species_mapping (dict): dict of species to swap. Species can be elements too. E.g.,
                 {Element("Li"): Element("Na")} performs a Li for Na substitution. The second species can
                 be a sp_and_occu dict. For example, a site with 0.5 Si that is passed the mapping
                 {Element('Si): {Element('Ge'): 0.75, Element('C'): 0.25} } will have .375 Ge and .125 C.
+            in_place (bool): Whether to perform the substitution in place or modify a copy.
+                Defaults to True.
         """
+        site_coll = self if in_place else self.copy()
         sp_mapping = {get_el_sp(k): v for k, v in species_mapping.items()}
         sp_to_replace = set(sp_mapping)
         sp_in_structure = set(self.composition)
-        if not sp_in_structure.issuperset(sp_to_replace):
+        if not sp_in_structure >= sp_to_replace:
             warnings.warn(
                 "Some species to be substituted are not present in structure. Pls check your input. Species to be "
                 f"substituted = {sp_to_replace}; Species in structure = {sp_in_structure}"
             )
 
-        for site in self:
+        for site in site_coll:
             if sp_to_replace.intersection(site.species):
                 comp = Composition()
                 for sp, amt in site.species.items():
@@ -535,6 +540,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                     except Exception:
                         comp += {new_sp: amt}
                 site.species = comp
+
+        return site_coll
 
     def add_oxidation_state_by_element(self, oxidation_states: dict[str, float]) -> None:
         """
