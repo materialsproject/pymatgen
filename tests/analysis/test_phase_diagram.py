@@ -56,13 +56,17 @@ class TestPDEntry(unittest.TestCase):
         assert self.entry.name == "mp-757614"
         assert self.gpentry.name == "mp-757614"
 
-    def test_get_composition(self):
+    def test_composition(self):
         comp = self.entry.composition
         expected_comp = Composition("LiFeO2")
         assert comp == expected_comp
         comp = self.gpentry.composition
         expected_comp = Composition("LiFe")
         assert comp == expected_comp
+
+    def test_elements(self):
+        expected_elements = list(map(Element, ["Li", "Fe", "O"]))
+        assert self.entry.elements == expected_elements
 
     def test_is_element(self):
         assert not self.entry.is_element
@@ -123,10 +127,14 @@ class TestTransformedPDEntry(unittest.TestCase):
     def test_get_name(self):
         assert self.transformed_entry.name == "LiFeO2"
 
-    def test_get_composition(self):
+    def test_composition(self):
         comp = self.transformed_entry.composition
         expected_comp = Composition({DummySpecies("Xf"): 14 / 30, DummySpecies("Xg"): 1.0, DummySpecies("Xh"): 2 / 30})
         assert comp == expected_comp
+
+    def test_elements(self):
+        expected_elements = list(map(Element, ["Li", "Fe", "O"]))
+        assert self.transformed_entry.elements == expected_elements
 
     def test_is_element(self):
         assert self.transformed_entry.is_element is False
