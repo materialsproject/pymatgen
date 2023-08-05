@@ -146,6 +146,11 @@ class PourbaixEntry(MSONable, Stringify):
         """
         return self.energy / self.composition.num_atoms
 
+    @property
+    def elements(self):
+        """Returns elements in the entry."""
+        return self.entry.elements
+
     def energy_at_conditions(self, pH, V):
         """
         Get free energy for a given pH and V.
