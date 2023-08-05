@@ -61,48 +61,6 @@ def strictly_decreasing(values):
     return all(x > y for x, y in zip(values, values[1:]))
 
 
-def non_increasing(values):
-    """True if values are not increasing."""
-    return all(x >= y for x, y in zip(values, values[1:]))
-
-
-def non_decreasing(values):
-    """True if values are not decreasing."""
-    return all(x <= y for x, y in zip(values, values[1:]))
-
-
-def monotonic(values, mode="<", atol=1.0e-8):
-    """True if values are monotonically (decreasing|increasing).
-    mode is "<" for a decreasing sequence, ">" for an increasing sequence.
-    Two numbers are considered equal if they differ less than atol.
-
-    .. warning:
-        Not very efficient for large data sets.
-
-    >>> values = [1.2, 1.3, 1.4]
-    >>> monotonic(values, mode="<")
-    False
-    >>> monotonic(values, mode=">")
-    True
-    """
-    if len(values) == 1:
-        return True
-
-    if mode == ">":
-        for idx in range(len(values) - 1):
-            v, vp = values[idx], values[idx + 1]
-            if abs(vp - v) > atol and vp <= v:
-                return False
-
-    elif mode == "<":
-        for idx in range(len(values) - 1):
-            v, vp = values[idx], values[idx + 1]
-            if abs(vp - v) > atol and vp >= v:
-                return False
-
-    raise ValueError(f"Wrong {mode=}")
-
-
 def round_to_sigfigs(num, sig_figs):
     """
     Rounds a number rounded to a specific number of significant
