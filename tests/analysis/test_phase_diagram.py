@@ -238,6 +238,26 @@ class TestPhaseDiagram(PymatgenTest):
             # test get_form_energy_per_atom
             assert self.pd.get_form_energy_per_atom(entry) == approx(expected / n_atoms), formula
 
+    def test_get_reference_energy(self):
+        expected_ref_energies = {
+            "Li5FeO4": -265.5546721,
+            "Li2O2": -24.685172046,
+            "Fe2O3": -51.93425725,
+            "FeO": -21.70885048,
+            "Li": -1.91301487,
+            "LiFeO2": -17.02571825,
+            "Li2O": -8.084307881,
+            "Fe": -6.5961471,
+            "Fe3O4": -73.6431077,
+            "Li2FeO3": -92.78804506,
+            "O2": -25.54966885,
+        }
+        for entry in self.pd.stable_entries:
+            formula = entry.composition.reduced_formula
+            actual = self.pd.get_reference_energy(entry.composition)
+            expected = expected_ref_energies[formula]
+            assert actual == approx(expected), formula
+
     def test_all_entries_hulldata(self):
         assert len(self.pd.all_entries_hulldata) == 490
 
