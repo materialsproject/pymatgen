@@ -165,7 +165,7 @@ class TestPhaseDiagram(PymatgenTest):
         # Ensure that a bad set of entries raises a PD error. Remove all Li
         # from self.entries.
         entries = filter(
-            lambda e: (not e.composition.is_element) or e.composition.elements[0] != Element("Li"),
+            lambda e: (not e.composition.is_element) or e.elements[0] != Element("Li"),
             self.entries,
         )
         with pytest.raises(ValueError, match=r"Missing terminal entries for elements \['Fe', 'Li', 'O'\]"):
@@ -341,7 +341,7 @@ class TestPhaseDiagram(PymatgenTest):
                     self.pd.get_phase_separation_energy(entry) >= 0
                 ), "Unstable entries should have positive decomposition energy!"
             elif entry.is_element:
-                el_ref = self.pd.el_refs[entry.composition.elements[0]]
+                el_ref = self.pd.el_refs[entry.elements[0]]
                 e_d = entry.energy_per_atom - el_ref.energy_per_atom
                 assert self.pd.get_phase_separation_energy(entry) == approx(e_d)
             # NOTE the remaining materials would require explicit tests as they
@@ -866,7 +866,7 @@ class TestPDPlotter(unittest.TestCase):
     def setUp(self):
         entries = list(EntrySet.from_csv(os.path.join(module_dir, "pd_entries_test.csv")))
 
-        elemental_entries = [e for e in entries if e.composition.elements == [Element("Li")]]
+        elemental_entries = [e for e in entries if e.elements == [Element("Li")]]
         self.pd_unary = PhaseDiagram(elemental_entries)
         self.plotter_unary_plotly = PDPlotter(self.pd_unary, backend="plotly")
 

@@ -156,7 +156,7 @@ class TestMPResterOld(PymatgenTest):
         elements = {Element(sym) for sym in syms}
         for e in entries:
             assert isinstance(e, ComputedEntry)
-            assert set(e.composition.elements).issubset(elements)
+            assert set(e.elements).issubset(elements)
 
         e1 = {i.entry_id for i in entries}
         e2 = {i.entry_id for i in entries2}

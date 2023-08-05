@@ -72,7 +72,7 @@ class ConversionElectrode(AbstractElectrode):
         profile.reverse()
         if len(profile) < 2:
             return None
-        working_ion = working_ion_entry.composition.elements[0].symbol
+        working_ion = working_ion_entry.elements[0].symbol
         normalization_els = {}
         for el, amt in comp.items():
             if el != Element(working_ion):
@@ -298,7 +298,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
             framework_formula: Formula of the framework.
         """
         working_ion_entry = step1["element_reference"]
-        working_ion = working_ion_entry.composition.elements[0].symbol
+        working_ion = working_ion_entry.elements[0].symbol
         working_ion_valence = max(Element(working_ion).oxidation_states)
         voltage = (-step1["chempot"] + working_ion_entry.energy_per_atom) / working_ion_valence
         mAh = (

@@ -28,7 +28,7 @@ class TestCifTransmuter(PymatgenTest):
         assert len(tsc) == 2
         expected = {"Mn", "O", "Li", "P"}
         for s in tsc:
-            els = {el.symbol for el in s.final_structure.composition.elements}
+            els = {el.symbol for el in s.final_structure.elements}
             assert expected == els
 
 
@@ -42,7 +42,7 @@ class TestPoscarTransmuter(PymatgenTest):
         assert len(tsc) == 2
         expected = {"Mn", "O", "P"}
         for s in tsc:
-            els = {el.symbol for el in s.final_structure.composition.elements}
+            els = {el.symbol for el in s.final_structure.elements}
             assert expected == els
 
     def test_transmuter(self):

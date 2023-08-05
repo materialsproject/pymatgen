@@ -450,9 +450,7 @@ class PourbaixDiagram(MSONable):
         self.filter_solids = filter_solids
 
         # Get non-OH elements
-        self.pbx_elts = list(
-            set(itertools.chain.from_iterable([entry.composition.elements for entry in entries])) - ELEMENTS_HO
-        )
+        self.pbx_elts = list(set(itertools.chain.from_iterable([entry.elements for entry in entries])) - ELEMENTS_HO)
         self.dim = len(self.pbx_elts) - 1
 
         # Process multientry inputs
@@ -483,7 +481,7 @@ class PourbaixDiagram(MSONable):
 
             # If a conc_dict is specified, override individual entry concentrations
             for entry in ion_entries:
-                ion_elts = list(set(entry.composition.elements) - ELEMENTS_HO)
+                ion_elts = list(set(entry.elements) - ELEMENTS_HO)
                 # TODO: the logic here for ion concentration setting is in two
                 #       places, in PourbaixEntry and here, should be consolidated
                 if len(ion_elts) == 1:

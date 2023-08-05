@@ -362,7 +362,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     @property
     def elements(self) -> list[Element | Species | DummySpecies]:
         """Returns the elements in the structure as a list of Element objects."""
-        return self.composition.elements
+        return self.elements
 
     @property
     def composition(self) -> Composition:
