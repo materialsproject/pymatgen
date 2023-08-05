@@ -855,6 +855,12 @@ class TestMoleculeGraph(unittest.TestCase):
         assert self.ethylene.isomorphic_to(eth_copy)
         assert not self.butadiene.isomorphic_to(self.ethylene)
 
+        # check fix in https://github.com/materialsproject/pymatgen/pull/3221
+        # by setting nodes equal so we compare edges
+        ethylene = self.ethylene.copy()
+        ethylene.nodes = self.butadiene.nodes
+        assert not ethylene.isomorphic_to(self.butadiene)
+
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]
         molgraph = MoleculeGraph.with_edges(
