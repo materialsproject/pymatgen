@@ -112,6 +112,8 @@ exclude_also = [
   "raise AssertionError",
   "raise NotImplementedError",
   "show_plot",
+  "if TYPE_CHECKING:",
+  "if typing.TYPE_CHECKING:",
 ]
 
 [tool.mypy]
