@@ -1441,16 +1441,16 @@ class TestLocpot(PymatgenTest):
 class TestChgcar(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        filepath = f"{cls.TEST_FILES_DIR}/CHGCAR.nospin"
+        filepath = f"{TEST_FILES_DIR}/CHGCAR.nospin"
         cls.chgcar_no_spin = Chgcar.from_file(filepath)
 
-        filepath = f"{cls.TEST_FILES_DIR}/CHGCAR.spin"
+        filepath = f"{TEST_FILES_DIR}/CHGCAR.spin"
         cls.chgcar_spin = Chgcar.from_file(filepath)
 
-        filepath = f"{cls.TEST_FILES_DIR}/CHGCAR.Fe3O4"
+        filepath = f"{TEST_FILES_DIR}/CHGCAR.Fe3O4"
         cls.chgcar_fe3o4 = Chgcar.from_file(filepath)
 
-        filepath = f"{cls.TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz"
+        filepath = f"{TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz"
         cls.chgcar_NiO_SOC = Chgcar.from_file(filepath)
 
     def test_init(self):

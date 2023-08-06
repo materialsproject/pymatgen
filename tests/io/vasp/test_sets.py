@@ -122,7 +122,7 @@ class TestSetChangeCheck(PymatgenTest):
 class TestDictSet(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        filepath = f"{cls.TEST_FILES_DIR}/POSCAR"
+        filepath = f"{TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath)
         cls.structure = poscar.structure
 
@@ -144,7 +144,7 @@ class TestMITMPRelaxSet(PymatgenTest):
     def setUpClass(cls):
         cls.monkeypatch = MonkeyPatch()
 
-        filepath = f"{cls.TEST_FILES_DIR}/POSCAR"
+        filepath = f"{TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath)
         cls.structure = poscar.structure
         cls.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
