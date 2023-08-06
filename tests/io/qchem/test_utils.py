@@ -8,7 +8,7 @@ import pytest
 from monty.io import zopen
 
 from pymatgen.io.qchem.utils import lower_and_check_unique, process_parsed_HESS
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Ryan Kingsbury, Samuel Blau"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -16,7 +16,7 @@ __copyright__ = "Copyright 2018-2022, The Materials Project"
 logger = logging.getLogger(__name__)
 
 
-test_dir = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files"
+test_dir = f"{TEST_FILES_DIR}/molecules/new_qchem_files"
 
 
 class TestUtil(PymatgenTest):

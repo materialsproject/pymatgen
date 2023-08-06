@@ -11,7 +11,7 @@ from pymatgen.transformations.standard_transformations import (
     RemoveSpeciesTransformation,
     SubstitutionTransformation,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestCifTransmuter(PymatgenTest):
@@ -24,7 +24,7 @@ class TestCifTransmuter(PymatgenTest):
     def test_init(self):
         trans = []
         trans.append(SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"}))
-        tsc = CifTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "MultiStructure.cif")], trans)
+        tsc = CifTransmuter.from_filenames([os.path.join(TEST_FILES_DIR, "MultiStructure.cif")], trans)
         assert len(tsc) == 2
         expected = {"Mn", "O", "Li", "P"}
         for s in tsc:
@@ -37,7 +37,7 @@ class TestPoscarTransmuter(PymatgenTest):
         trans = []
         trans.append(SubstitutionTransformation({"Fe": "Mn"}))
         tsc = PoscarTransmuter.from_filenames(
-            [os.path.join(self.TEST_FILES_DIR, "POSCAR"), os.path.join(self.TEST_FILES_DIR, "POSCAR")], trans
+            [os.path.join(TEST_FILES_DIR, "POSCAR"), os.path.join(TEST_FILES_DIR, "POSCAR")], trans
         )
         assert len(tsc) == 2
         expected = {"Mn", "O", "P"}
@@ -46,7 +46,7 @@ class TestPoscarTransmuter(PymatgenTest):
             assert expected == els
 
     def test_transmuter(self):
-        tsc = PoscarTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "POSCAR")])
+        tsc = PoscarTransmuter.from_filenames([os.path.join(TEST_FILES_DIR, "POSCAR")])
         tsc.append_transformation(RemoveSpeciesTransformation("O"))
         assert len(tsc[0].final_structure) == 8
 

@@ -5,12 +5,12 @@ import unittest
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.prismatic import Prismatic
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestPrismatic(unittest.TestCase):
     def test_to_string(self):
-        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "CuCl.cif"))
+        structure = Structure.from_file(os.path.join(TEST_FILES_DIR, "CuCl.cif"))
         prismatic = Prismatic(structure)
         prismatic_str = prismatic.to_str()
         assert prismatic_str.startswith(

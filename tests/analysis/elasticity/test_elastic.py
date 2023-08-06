@@ -28,7 +28,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestElasticTensor(PymatgenTest):
@@ -65,10 +65,10 @@ class TestElasticTensor(PymatgenTest):
         )
 
         self.elastic_tensor_1 = ElasticTensor(self.ft)
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "Sn_def_stress.json")
+        filepath = os.path.join(TEST_FILES_DIR, "Sn_def_stress.json")
         with open(filepath) as f:
             self.def_stress_dict = json.load(f)
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json")) as f:
+        with open(os.path.join(TEST_FILES_DIR, "test_toec_data.json")) as f:
             self.toec_dict = json.load(f)
         self.structure = self.get_structure("Sn")
 
@@ -248,7 +248,7 @@ class TestElasticTensor(PymatgenTest):
 
 class TestElasticTensorExpansion(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json")) as f:
+        with open(os.path.join(TEST_FILES_DIR, "test_toec_data.json")) as f:
             self.data_dict = json.load(f)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -353,7 +353,7 @@ class TestElasticTensorExpansion(PymatgenTest):
 
 class TestNthOrderElasticTensor(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json")) as f:
+        with open(os.path.join(TEST_FILES_DIR, "test_toec_data.json")) as f:
             self.data_dict = json.load(f)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -392,7 +392,7 @@ class TestDiffFit(PymatgenTest):
     """Tests various functions related to diff fitting."""
 
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json")) as f:
+        with open(os.path.join(TEST_FILES_DIR, "test_toec_data.json")) as f:
             self.data_dict = json.load(f)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]

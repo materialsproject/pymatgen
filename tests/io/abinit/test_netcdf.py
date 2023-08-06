@@ -9,14 +9,14 @@ from numpy.testing import assert_array_equal
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import ETSF_Reader
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     import netCDF4
 except ImportError:
     netCDF4 = None
 
-_test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "abinit")
+_test_dir = os.path.join(TEST_FILES_DIR, "abinit")
 
 
 def ref_file(filename):

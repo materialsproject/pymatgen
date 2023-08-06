@@ -8,7 +8,7 @@ from monty.serialization import loadfn
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -740,9 +740,7 @@ $end
             assert i_str in multi_job_str_test
 
     def test_from_multi_jobs_file(self):
-        job_list_test = QCInput.from_multi_jobs_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "qchem", "pt_n2_wb97mv_0.0.in")
-        )
+        job_list_test = QCInput.from_multi_jobs_file(os.path.join(TEST_FILES_DIR, "qchem", "pt_n2_wb97mv_0.0.in"))
         species = [
             "S",
             "C",
@@ -1210,8 +1208,8 @@ $end"""
 
     def test_read_write_nbo7(self):
         test_path = os.path.join(module_dir, "test_nbo7.qin")
-        ref_path = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files/nbo7.qin"
-        qcinp = QCInput.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin"))
+        ref_path = f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7.qin"
+        qcinp = QCInput.from_file(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin"))
         qcinp.write_file(test_path)
 
         with open(test_path) as ref_file, open(ref_path) as test_file:
@@ -1222,9 +1220,9 @@ $end"""
         os.remove(test_path)
 
     def test_read_write_nbo_e2pert(self):
-        qcinp = QCInput.from_file(f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files/e2pert.qin")
+        qcinp = QCInput.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/e2pert.qin")
         qcinp.write_file(os.path.join(module_dir, "test_e2pert.qin"))
-        test_path = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files/e2pert.qin"
+        test_path = f"{TEST_FILES_DIR}/molecules/new_qchem_files/e2pert.qin"
         ref_path = os.path.join(module_dir, "test_e2pert.qin")
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
@@ -1234,9 +1232,9 @@ $end"""
         os.remove(os.path.join(module_dir, "test_e2pert.qin"))
 
     def test_read_write_custom_smd(self):
-        qcinp = QCInput.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules/new_qchem_files/custom_smd.qin"))
+        qcinp = QCInput.from_file(os.path.join(TEST_FILES_DIR, "molecules/new_qchem_files/custom_smd.qin"))
         qcinp.write_file(os.path.join(module_dir, "test_custom_smd.qin"))
-        test_path = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files/custom_smd.qin"
+        test_path = f"{TEST_FILES_DIR}/molecules/new_qchem_files/custom_smd.qin"
         ref_path = os.path.join(module_dir, "test_custom_smd.qin")
 
         with open(ref_path) as ref_file, open(test_path) as test_file:

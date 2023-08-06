@@ -21,7 +21,7 @@ from pymatgen.io.abinit.abiobjects import (
     species_by_znucl,
     structure_to_abivars,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestLatticeFromAbivars(PymatgenTest):
@@ -83,7 +83,7 @@ class TestLatticeFromAbivars(PymatgenTest):
         # Ga  Ga2  1  0.66666666666667  0.333333333333333  0.000880  1.0
         # N  N3  1  0.333333333333333  0.666666666666667  0.124120  1.0
         # N  N4  1  0.666666666666667  0.333333333333333  0.624120  1.0
-        gan = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "abinit", "gan.cif"))
+        gan = Structure.from_file(os.path.join(TEST_FILES_DIR, "abinit", "gan.cif"))
 
         # By default, znucl is filled using the first new type found in sites.
         def_vars = structure_to_abivars(gan)

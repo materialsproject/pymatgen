@@ -7,14 +7,14 @@ from pytest import approx
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.phonon.dos import CompletePhononDos, PhononDos
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestDos(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_ph_dos.json")) as f:
+        with open(os.path.join(TEST_FILES_DIR, "NaCl_ph_dos.json")) as f:
             self.dos = PhononDos.from_dict(json.load(f))
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
+        with open(os.path.join(TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
             self.structure = CompletePhononDos.from_dict(json.load(f)).structure
 
     def test_properties(self):
@@ -45,7 +45,7 @@ class TestDos(PymatgenTest):
 
 class TestCompleteDos(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
+        with open(os.path.join(TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
             self.cdos = CompletePhononDos.from_dict(json.load(f))
 
     def test_properties(self):

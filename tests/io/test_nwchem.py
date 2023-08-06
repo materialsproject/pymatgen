@@ -9,9 +9,9 @@ from pytest import approx
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.nwchem import NwInput, NwInputError, NwOutput, NwTask
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "nwchem")
+test_dir = os.path.join(TEST_FILES_DIR, "nwchem")
 
 coords = [
     [0.000000, 0.000000, 0.000000],

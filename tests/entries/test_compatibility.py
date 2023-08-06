@@ -30,7 +30,7 @@ from pymatgen.entries.compatibility import (
     MITCompatibility,
 )
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestCorrectionSpecificity(unittest.TestCase):
@@ -972,7 +972,7 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
         assert len(entries) == 2
 
     def test_config_file(self):
-        config_file = Path(f"{PymatgenTest.TEST_FILES_DIR}/MP2020Compatibility_alternate.yaml")
+        config_file = Path(f"{TEST_FILES_DIR}/MP2020Compatibility_alternate.yaml")
         compat = MaterialsProject2020Compatibility(config_file=config_file)
         entry = compat.process_entry(self.entry1)
         for ea in entry.energy_adjustments:
@@ -987,7 +987,7 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
 
     def test_processing_entries_inplace(self):
         # load two entries in GGA_GGA_U_R2SCAN thermo type
-        json_file = Path(f"{PymatgenTest.TEST_FILES_DIR}/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
+        json_file = Path(f"{TEST_FILES_DIR}/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
         with open(json_file) as file:
             entries = json.load(file, cls=MontyDecoder)
         # check whether the compatibility scheme can keep input entries unchanged

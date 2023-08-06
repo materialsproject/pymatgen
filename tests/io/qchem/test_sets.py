@@ -14,7 +14,7 @@ from pymatgen.io.qchem.sets import (
     SinglePointSet,
     TransitionStateSet,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -23,7 +23,7 @@ __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
+test_dir = os.path.join(TEST_FILES_DIR, "molecules")
 
 
 class TestQChemDictSet(PymatgenTest):

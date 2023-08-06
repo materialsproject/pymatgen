@@ -9,9 +9,9 @@ from pytest import approx
 from pymatgen.core.structure import Molecule
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.gaussian import GaussianInput, GaussianOutput
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
+test_dir = os.path.join(TEST_FILES_DIR, "molecules")
 
 
 class TestGaussianInput(unittest.TestCase):

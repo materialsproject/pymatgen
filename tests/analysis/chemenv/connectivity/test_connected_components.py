@@ -20,7 +20,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     import bson  # type: ignore
@@ -772,7 +772,7 @@ Node #11 P (T:4), connected to :
             assert cc.periodicity == "2D"
 
         # Connectivity of Li4Fe3Mn1(PO4)4
-        struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "Li4Fe3Mn1(PO4)4.cif"))
+        struct = Structure.from_file(os.path.join(TEST_FILES_DIR, "Li4Fe3Mn1(PO4)4.cif"))
         lgf.setup_structure(structure=struct)
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2)
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
@@ -853,7 +853,7 @@ Node #3 Li (O:6), connected to :
 
     def test_coordination_sequences(self):
         BaTiO3_se_fpath = os.path.join(
-            self.TEST_FILES_DIR,
+            TEST_FILES_DIR,
             "chemenv",
             "structure_environments_files",
             "se_mp-5020.json",

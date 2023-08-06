@@ -6,7 +6,7 @@ import unittest
 import pytest
 
 from pymatgen.entries.correction_calculator import CorrectionCalculator
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestCorrectionCalculator(unittest.TestCase):
@@ -91,7 +91,7 @@ class TestCorrectionCalculator(unittest.TestCase):
             "ozonide": (0, 0),
         }
 
-        self.test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "correction_calculator")
+        self.test_dir = os.path.join(TEST_FILES_DIR, "correction_calculator")
 
     def test_normal_corrections(self):
         """Test that the values in MPCompatibility.yaml are reproduced correctly."""

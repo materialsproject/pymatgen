@@ -9,7 +9,7 @@ from sympy import Number, Symbol
 
 from pymatgen.analysis.surface_analysis import NanoscaleStability, SlabEntry, SurfaceEnergyPlotter, WorkFunctionAnalyzer
 from pymatgen.entries.computed_entries import ComputedStructureEntry
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Richard Tran"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -20,7 +20,7 @@ __date__ = "Aug 24, 2017"
 
 
 def get_path(path_str):
-    return os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
+    return os.path.join(TEST_FILES_DIR, "surface_tests", path_str)
 
 
 class TestSlabEntry(PymatgenTest):

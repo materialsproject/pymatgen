@@ -11,9 +11,9 @@ from pytest import approx
 
 from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
 from pymatgen.core import Element
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "spectrum_test")
+test_dir = os.path.join(TEST_FILES_DIR, "spectrum_test")
 
 with open(os.path.join(test_dir, "LiCoO2_k_xanes.json")) as fp:
     k_xanes_dict = json.load(fp, cls=MontyDecoder)

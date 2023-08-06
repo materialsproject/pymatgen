@@ -6,9 +6,9 @@ import unittest
 from numpy.testing import assert_array_equal
 
 from pymatgen.io.shengbte import Control
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "shengbte")
+test_dir = os.path.join(TEST_FILES_DIR, "shengbte")
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 

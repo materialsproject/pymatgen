@@ -5,7 +5,7 @@ import os
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.xr import Xr
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Nils Edvin Richard Zimmermann"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -17,7 +17,7 @@ __date__ = "June 23, 2016"
 
 class TestXr:
     def setup(self):
-        p = Poscar.from_file(PymatgenTest.TEST_FILES_DIR / "POSCAR")
+        p = Poscar.from_file(TEST_FILES_DIR / "POSCAR")
         self.xr = Xr(p.structure)
 
     def test_str(self):

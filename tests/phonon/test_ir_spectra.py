@@ -4,12 +4,12 @@ import os
 
 from monty.serialization import loadfn
 
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestIRDielectricTensor(PymatgenTest):
     def setUp(self):
-        self.ir_spectra = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "ir_spectra_mp-991652_DDB.json"))
+        self.ir_spectra = loadfn(os.path.join(TEST_FILES_DIR, "ir_spectra_mp-991652_DDB.json"))
 
     def test_basic(self):
         self.ir_spectra.write_json("test.json")

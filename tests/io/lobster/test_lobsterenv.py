@@ -13,7 +13,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import Cohp
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -21,7 +21,7 @@ __version__ = "0.1"
 __email__ = "janine.george@uclouvain.be"
 __date__ = "Jan 14, 2021"
 
-test_dir_env = f"{PymatgenTest.TEST_FILES_DIR}/cohp/environments"
+test_dir_env = f"{TEST_FILES_DIR}/cohp/environments"
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
 

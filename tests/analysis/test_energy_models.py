@@ -9,7 +9,7 @@ from pytest import approx
 from pymatgen.analysis.energy_models import EwaldElectrostaticModel, IsingModel, SymmetryModel
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestEwaldElectrostaticModel(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestEwaldElectrostaticModel(unittest.TestCase):
         m = EwaldElectrostaticModel()
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
         assert m.get_energy(struct) == approx(-264.66364858, abs=1e-2)  # Result from GULP
-        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
+        s2 = Structure.from_file(os.path.join(TEST_FILES_DIR, "Li2O.cif"))
         assert m.get_energy(s2) == approx(-145.39050015844839, abs=1e-4)
 
     def test_to_from_dict(self):
@@ -48,7 +48,7 @@ class TestEwaldElectrostaticModel(unittest.TestCase):
 class TestSymmetryModel(unittest.TestCase):
     def test_get_energy(self):
         m = SymmetryModel()
-        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
+        s2 = Structure.from_file(os.path.join(TEST_FILES_DIR, "Li2O.cif"))
         assert m.get_energy(s2) == approx(-225)
 
     def test_to_from_dict(self):
@@ -64,7 +64,7 @@ class TestIsingModel(unittest.TestCase):
         m = IsingModel(5, 6)
         from pymatgen.core.periodic_table import Species
 
-        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
+        struct = Structure.from_file(os.path.join(TEST_FILES_DIR, "LiFePO4.cif"))
         struct.replace_species({"Fe": Species("Fe", 2, {"spin": 4})})
         assert m.get_energy(struct) == approx(172.81260515787977)
         struct[4] = Species("Fe", 2, {"spin": -4})

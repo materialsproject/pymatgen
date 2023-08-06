@@ -5,9 +5,9 @@ import os
 from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.generators import LammpsMinimization
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
+test_dir = os.path.join(TEST_FILES_DIR, "lammps")
 
 
 class TestLammpsMinimization(PymatgenTest):

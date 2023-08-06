@@ -17,12 +17,12 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     SelfCSMNbSetWeight,
 )
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import StructureEnvironments
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
 se_files_dir = os.path.join(
-    PymatgenTest.TEST_FILES_DIR,
+    TEST_FILES_DIR,
     "chemenv",
     "structure_environments_files",
 )

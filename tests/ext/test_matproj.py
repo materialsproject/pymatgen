@@ -27,7 +27,7 @@ from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, TaskType, _MPResterLe
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     website_down = requests.get("https://materialsproject.org").status_code != 200
@@ -141,7 +141,7 @@ class TestMPResterOld(PymatgenTest):
 
     def test_find_structure(self):
         mpr = _MPResterLegacy()
-        cif_file = f"{self.TEST_FILES_DIR}/Fe3O4.cif"
+        cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
         data = mpr.find_structure(str(cif_file))
         assert len(data) > 1
         s = CifParser(cif_file).get_structures()[0]

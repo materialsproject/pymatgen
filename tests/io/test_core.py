@@ -9,9 +9,9 @@ from monty.serialization import MontyDecoder
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser, CifWriter
 from pymatgen.io.core import InputFile, InputSet
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR)
+test_dir = os.path.join(TEST_FILES_DIR)
 
 
 class StructInputFile(InputFile):

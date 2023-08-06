@@ -16,7 +16,7 @@ from pymatgen.io.zeopp import (
     get_high_accuracy_voronoi_nodes,
     get_voronoi_nodes,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 try:
     import zeo
@@ -34,7 +34,7 @@ __date__ = "Aug 2, 2013"
 @unittest.skipIf(not zeo, "zeo not present.")
 class TestZeoCssr(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
+        filepath = os.path.join(TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         self.zeocssr = ZeoCssr(p.structure)
 
@@ -70,7 +70,7 @@ class TestZeoCssr(unittest.TestCase):
         assert str(self.zeocssr) == expected_string
 
     def test_from_file(self):
-        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI.cssr")
+        filename = os.path.join(TEST_FILES_DIR, "EDI.cssr")
         zeocssr = ZeoCssr.from_file(filename)
         assert isinstance(zeocssr.structure, Structure)
 
@@ -78,7 +78,7 @@ class TestZeoCssr(unittest.TestCase):
 @unittest.skipIf(not zeo, "zeo not present.")
 class TestZeoCssrOxi(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
+        filepath = os.path.join(TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         structure = BVAnalyzer().get_oxi_state_decorated_structure(p.structure)
         self.zeocssr = ZeoCssr(structure)
@@ -115,7 +115,7 @@ class TestZeoCssrOxi(unittest.TestCase):
         assert str(self.zeocssr) == expected_string
 
     def test_from_file(self):
-        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI_oxistate_decorated.cssr")
+        filename = os.path.join(TEST_FILES_DIR, "EDI_oxistate_decorated.cssr")
         zeocssr = ZeoCssr.from_file(filename)
         assert isinstance(zeocssr.structure, Structure)
 
@@ -146,7 +146,7 @@ H -0.363000 -0.513360 0.889165 0.200000"""
         assert str(self.xyz) == expected
 
     def test_from_file(self):
-        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI_voro.xyz")
+        filename = os.path.join(TEST_FILES_DIR, "EDI_voro.xyz")
         vor = ZeoVoronoiXYZ.from_file(filename)
         assert isinstance(vor.molecule, Molecule)
 
@@ -154,7 +154,7 @@ H -0.363000 -0.513360 0.889165 0.200000"""
 @unittest.skipIf(not zeo, "zeo not present.")
 class TestGetVoronoiNodes(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
+        filepath = os.path.join(TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         self.structure = p.structure
         bv = BVAnalyzer()
@@ -179,7 +179,7 @@ class TestGetVoronoiNodes(unittest.TestCase):
 @unittest.skip("file free_sph.cif not present")
 class TestGetFreeSphereParams(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "free_sph.cif")
+        filepath = os.path.join(TEST_FILES_DIR, "free_sph.cif")
         self.structure = Structure.from_file(filepath)
         self.rad_dict = {
             "Ge": 0.67,
@@ -201,7 +201,7 @@ class TestGetFreeSphereParams(unittest.TestCase):
 @unittest.skipIf(not zeo, "zeo not present.")
 class TestGetHighAccuracyVoronoiNodes(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
+        filepath = os.path.join(TEST_FILES_DIR, "POSCAR")
         poscar = Poscar.from_file(filepath)
         self.structure = poscar.structure
         bv = BVAnalyzer()
@@ -222,7 +222,7 @@ class TestGetHighAccuracyVoronoiNodes(unittest.TestCase):
 @unittest.skipIf(not zeo, "zeo not present.")
 class TestGetVoronoiNodesMultiOxi(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
+        filepath = os.path.join(TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         self.structure = p.structure
         bv = BVAnalyzer()

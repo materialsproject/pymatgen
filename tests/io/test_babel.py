@@ -13,7 +13,7 @@ from pymatgen.analysis.molecule_matcher import MoleculeMatcher
 from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.xyz import XYZ
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 pybel = pytest.importorskip("openbabel.pybel")
 
@@ -46,13 +46,13 @@ class TestBabelMolAdaptor(unittest.TestCase):
         assert adaptor.pymatgen_mol.formula == "H4 C1"
 
     def test_from_file(self):
-        adaptor = BabelMolAdaptor.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules/Ethane_e.pdb"), "pdb")
+        adaptor = BabelMolAdaptor.from_file(os.path.join(TEST_FILES_DIR, "molecules/Ethane_e.pdb"), "pdb")
         mol = adaptor.pymatgen_mol
         assert mol.formula == "H6 C2"
 
     def test_from_file_return_all_molecules(self):
         adaptors = BabelMolAdaptor.from_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "multiple_frame_xyz.xyz"),
+            os.path.join(TEST_FILES_DIR, "multiple_frame_xyz.xyz"),
             "xyz",
             return_all_molecules=True,
         )

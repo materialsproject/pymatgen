@@ -8,7 +8,7 @@ from pytest import approx
 
 from pymatgen.command_line.critic2_caller import Critic2Analysis, Critic2Caller
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Matthew Horton"
 __version__ = "0.1"
@@ -22,7 +22,7 @@ __date__ = "July 2017"
 class TestCritic2Caller(unittest.TestCase):
     def test_from_path(self):
         # uses chgcars
-        test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader")
+        test_dir = os.path.join(TEST_FILES_DIR, "bader")
 
         c2c = Critic2Caller.from_path(test_dir)
 
@@ -62,7 +62,7 @@ class TestCritic2Caller(unittest.TestCase):
         # uses promolecular density
         structure = Structure.from_file(
             os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
+                TEST_FILES_DIR,
                 "critic2/MoS2.cif",
             )
         )
@@ -77,14 +77,14 @@ class TestCritic2Analysis(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        stdout_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2_critic2_stdout.txt")
-        stdout_file_new_format = os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2_critic2_stdout_new_format.txt")
+        stdout_file = os.path.join(TEST_FILES_DIR, "critic2/MoS2_critic2_stdout.txt")
+        stdout_file_new_format = os.path.join(TEST_FILES_DIR, "critic2/MoS2_critic2_stdout_new_format.txt")
         with open(stdout_file) as f:
             reference_stdout = f.read()
         with open(stdout_file_new_format) as f:
             reference_stdout_new_format = f.read()
 
-        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2.cif"))
+        structure = Structure.from_file(os.path.join(TEST_FILES_DIR, "critic2/MoS2.cif"))
 
         self.c2o = Critic2Analysis(structure, reference_stdout)
         self.c2o_new_format = Critic2Analysis(structure, reference_stdout_new_format)

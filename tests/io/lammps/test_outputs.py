@@ -9,9 +9,9 @@ import pandas as pd
 from numpy.testing import assert_array_almost_equal
 
 from pymatgen.io.lammps.outputs import LammpsDump, parse_lammps_dumps, parse_lammps_log
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
+test_dir = os.path.join(TEST_FILES_DIR, "lammps")
 
 
 class TestLammpsDump(unittest.TestCase):
