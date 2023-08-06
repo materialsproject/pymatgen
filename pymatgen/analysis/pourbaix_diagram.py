@@ -277,7 +277,7 @@ class MultiEntry(PourbaixEntry):
             entry_list ([PourbaixEntry]): List of component PourbaixEntries
             weights ([float]): Weights associated with each entry. Default is None
         """
-        self.weights = [1.0] * len(entry_list) if weights is None else weights
+        self.weights = weights or [1.0] * len(entry_list)
         self.entry_list = entry_list
 
     def __getattr__(self, attr):
@@ -320,16 +320,16 @@ class MultiEntry(PourbaixEntry):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (): Dict representation.
+            d (dict): Dict representation.
 
         Returns:
             MultiEntry
         """
-        entry_list = [PourbaixEntry.from_dict(e) for e in d.get("entry_list")]
-        return cls(entry_list, d.get("weights"))
+        entry_list = [PourbaixEntry.from_dict(entry) for entry in dct.get("entry_list")]
+        return cls(entry_list, dct.get("weights"))
 
 
 # TODO: this class isn't particularly useful in its current form, could be
@@ -346,13 +346,14 @@ class IonEntry(PDEntry):
         set to some other string for display purposes.
     """
 
-    def __init__(self, ion, energy, name=None, attribute=None):
+    def __init__(self, ion: Ion, energy: float, name: str | None = None, attribute=None):
         """
         Args:
             ion: Ion object
             energy: Energy for composition.
             name: Optional parameter to name the entry. Defaults to the
                 chemical formula.
+            attribute: Optional attribute of the entry, e.g., band gap.
         """
         self.ion = ion
         # Auto-assign name

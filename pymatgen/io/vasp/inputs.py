@@ -1084,7 +1084,7 @@ class Kpoints(MSONable):
         The default behavior of the constructor is for a Gamma centered,
         1x1x1 KPOINTS with no shift.
         """
-        if num_kpts > 0 and (not labels) and (not kpts_weights):
+        if num_kpts > 0 and not labels and not kpts_weights:
             raise ValueError("For explicit or line-mode kpoints, either the labels or kpts_weights must be specified.")
 
         self.comment = comment
@@ -1100,10 +1100,9 @@ class Kpoints(MSONable):
         self.tet_connections = tet_connections
 
     @property
-    def style(self):
+    def style(self) -> KpointsSupportedModes:
         """
-        :return: Style for kpoint generation. One of Kpoints_supported_modes
-            enum.
+        Style for kpoint generation. One of Kpoints_supported_modes enum.
         """
         return self._style
 
@@ -1119,11 +1118,7 @@ class Kpoints(MSONable):
 
         if (
             style
-            in (
-                Kpoints.supported_modes.Automatic,
-                Kpoints.supported_modes.Gamma,
-                Kpoints.supported_modes.Monkhorst,
-            )
+            in (Kpoints.supported_modes.Automatic, Kpoints.supported_modes.Gamma, Kpoints.supported_modes.Monkhorst)
             and len(self.kpts) > 1
         ):
             raise ValueError(
@@ -1150,10 +1145,7 @@ class Kpoints(MSONable):
             Kpoints object
         """
         return Kpoints(
-            "Fully automatic kpoint scheme",
-            0,
-            style=Kpoints.supported_modes.Automatic,
-            kpts=[[subdivisions]],
+            "Fully automatic kpoint scheme", 0, style=Kpoints.supported_modes.Automatic, kpts=[[subdivisions]]
         )
 
     @staticmethod
@@ -1170,13 +1162,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return Kpoints(
-            "Automatic kpoint scheme",
-            0,
-            Kpoints.supported_modes.Gamma,
-            kpts=[kpts],
-            kpts_shift=shift,
-        )
+        return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
 
     @staticmethod
     def monkhorst_automatic(kpts: tuple[int, int, int] = (2, 2, 2), shift: Vector3D = (0, 0, 0)):
@@ -1192,13 +1178,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return Kpoints(
-            "Automatic kpoint scheme",
-            0,
-            Kpoints.supported_modes.Monkhorst,
-            kpts=[kpts],
-            kpts_shift=shift,
-        )
+        return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
 
     @staticmethod
     def automatic_density(structure: Structure, kppa: float, force_gamma: bool = False):
@@ -1864,11 +1844,13 @@ class PotcarSingle:
 
     def write_file(self, filename: str) -> None:
         """
-        Writes PotcarSingle to a file.
-        :param filename: Filename.
+        Write PotcarSingle to a file.
+
+        Args:
+            filename (str): Filename to write to.
         """
-        with zopen(filename, "wt") as f:
-            f.write(str(self))
+        with zopen(filename, "wt") as file:
+            file.write(str(self))
 
     @staticmethod
     def from_file(filename: str) -> PotcarSingle:
