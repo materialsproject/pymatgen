@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import numpy as np
 import scipy.constants as const
+from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
@@ -263,7 +264,7 @@ class Poscar(MSONable):
             return Poscar.from_str(f.read(), names, read_velocities=read_velocities)
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
+    @deprecated(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 

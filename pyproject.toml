@@ -115,6 +115,7 @@ exclude_also = [
   "show_plot",
   "if TYPE_CHECKING:",
   "if typing.TYPE_CHECKING:",
+  "@np.deprecate"
 ]
 
 [tool.mypy]

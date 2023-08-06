@@ -326,6 +326,8 @@ direct
    0.9033575600000000    0.7500000000000000    0.2586796500000000 T F F O
    0.9566276900000000    0.2500000000000000    0.2928623300000000 T F F O"""
         assert str(poscar).strip() == expected.strip()
+        poscar.velocities = np.ones((24, 3))
+        assert "velocities" in poscar.structure.site_properties
 
     def test_velocities(self):
         si = 14
