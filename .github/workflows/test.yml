@@ -110,10 +110,10 @@ jobs:
           make
           sudo mv packmol /usr/local/bin/
           cd ..
+          rm -rf .coverage*
         continue-on-error: true
       - name: Install dependencies
         run: |
-          rm -rf .coverage*
           python -m pip install --upgrade pip wheel
           python -m pip install numpy cython packaging
           python -m pip install -e '.[dev,optional]'
