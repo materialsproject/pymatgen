@@ -1,1 +1,1 @@
-"""tests for pymatgen.entries."""
+"""Tests for pymatgen.entries package."""

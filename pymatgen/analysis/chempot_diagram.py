@@ -113,7 +113,7 @@ class ChemicalPotentialDiagram(MSONable):
         self.entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
         self.limits = limits
         self.default_min_limit = default_min_limit
-        self.elements = sorted({els for e in self.entries for els in e.composition.elements})
+        self.elements = sorted({els for e in self.entries for els in e.elements})
         self.dim = len(self.elements)
         self._min_entries, self._el_refs = self._get_min_entries_and_el_refs(self.entries)
         self._entry_dict = {e.composition.reduced_formula: e for e in self._min_entries}
@@ -184,7 +184,7 @@ class ChemicalPotentialDiagram(MSONable):
         if len(elems) == 2 and self.dim == 2:
             fig = self._get_2d_plot(elements=elems, label_stable=label_stable, element_padding=element_padding)
         elif len(elems) == 2 and self.dim > 2:
-            entries = [e for e in self.entries if set(e.composition.elements).issubset(elems)]
+            entries = [e for e in self.entries if set(e.elements).issubset(elems)]
             cpd = ChemicalPotentialDiagram(
                 entries=entries,
                 limits=self.limits,
@@ -339,7 +339,7 @@ class ChemicalPotentialDiagram(MSONable):
                     col = pts_3d[:, idx]
                     pts_3d[:, idx] = np.where(np.isclose(col, self.default_min_limit), new_lim, col)
 
-            contains_target_elems = set(entry.composition.elements).issubset(elements)
+            contains_target_elems = set(entry.elements).issubset(elements)
 
             if formulas_to_draw and entry.composition.reduced_composition in draw_comps:
                 domain_simplexes[formula] = None

@@ -243,7 +243,7 @@ class StructureVis:
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
 
         if self.show_bonds or self.show_polyhedron:
-            elements = sorted(struct.composition.elements, key=lambda a: a.X)
+            elements = sorted(struct.elements, key=lambda a: a.X)
             anion = elements[-1]
 
             def contains_anion(site):

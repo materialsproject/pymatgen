@@ -447,7 +447,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def elements(self) -> list[Element | Species | DummySpecies]:
-        """Returns view of elements in Composition."""
+        """Returns list of elements in Composition."""
         return list(self)
 
     def __str__(self):

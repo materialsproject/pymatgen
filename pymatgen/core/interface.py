@@ -471,7 +471,7 @@ def label_termination(slab: Structure) -> str:
 
 def count_layers(struct: Structure, el=None) -> int:
     """Counts the number of 'layers' along the c-axis."""
-    el = el or struct.composition.elements[0]
+    el = el or struct.elements[0]
     frac_coords = [site.frac_coords for site in struct if site.species_string == str(el)]
     n = len(frac_coords)
 

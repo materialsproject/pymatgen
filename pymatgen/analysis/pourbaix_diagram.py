@@ -146,6 +146,11 @@ class PourbaixEntry(MSONable, Stringify):
         """
         return self.energy / self.composition.num_atoms
 
+    @property
+    def elements(self):
+        """Returns elements in the entry."""
+        return self.entry.elements
+
     def energy_at_conditions(self, pH, V):
         """
         Get free energy for a given pH and V.
@@ -261,8 +266,7 @@ class PourbaixEntry(MSONable, Stringify):
 
 class MultiEntry(PourbaixEntry):
     """
-    PourbaixEntry-like object for constructing multi-elemental Pourbaix
-    diagrams.
+    PourbaixEntry-like object for constructing multi-elemental Pourbaix diagrams.
     """
 
     def __init__(self, entry_list, weights=None):
@@ -273,40 +277,27 @@ class MultiEntry(PourbaixEntry):
             entry_list ([PourbaixEntry]): List of component PourbaixEntries
             weights ([float]): Weights associated with each entry. Default is None
         """
-        if weights is None:
-            self.weights = [1.0] * len(entry_list)
-        else:
-            self.weights = weights
+        self.weights = [1.0] * len(entry_list) if weights is None else weights
         self.entry_list = entry_list
 
-    def __getattr__(self, item):
+    def __getattr__(self, attr):
         """
         Because most of the attributes here are just weighted averages of the entry_list,
         we save some space by having a set of conditionals to define the attributes.
         """
         # Attributes that are weighted averages of entry attributes
-        if item in [
-            "energy",
-            "npH",
-            "nH2O",
-            "nPhi",
-            "conc_term",
-            "composition",
-            "uncorrected_energy",
-        ]:
+        if attr in ["energy", "npH", "nH2O", "nPhi", "conc_term", "composition", "uncorrected_energy", "elements"]:
             # TODO: Composition could be changed for compat with sum
-            start = Composition({}) if item == "composition" else 0
-            return sum(
-                (getattr(e, item) * w for e, w in zip(self.entry_list, self.weights)),
-                start,
-            )
+            start = Composition({}) if attr == "composition" else 0
+            weighted_values = (getattr(entry, attr) * weight for entry, weight in zip(self.entry_list, self.weights))
+            return sum(weighted_values, start)
 
         # Attributes that are just lists of entry attributes
-        if item in ["entry_id", "phase_type"]:
-            return [getattr(e, item) for e in self.entry_list]
+        if attr in ["entry_id", "phase_type"]:
+            return [getattr(e, attr) for e in self.entry_list]
 
         # normalization_factor, num_atoms should work from superclass
-        return self.__getattribute__(item)
+        return self.__getattribute__(attr)
 
     @property
     def name(self):
@@ -443,7 +434,7 @@ class PourbaixDiagram(MSONable):
                 not actually "stable" (and are frequently overstabilized from DFT errors).
                 Hence, including only the stable solid phases generally leads to the
                 most accurate Pourbaix diagrams.
-            nproc (int): number of processes to generate multientries with
+            nproc (int): number of processes to generate multi-entries with
                 in parallel. Defaults to None (serial processing).
         """
         entries = deepcopy(entries)
@@ -483,7 +474,7 @@ class PourbaixDiagram(MSONable):
 
             # If a conc_dict is specified, override individual entry concentrations
             for entry in ion_entries:
-                ion_elts = list(set(entry.composition.elements) - ELEMENTS_HO)
+                ion_elts = list(set(entry.elements) - ELEMENTS_HO)
                 # TODO: the logic here for ion concentration setting is in two
                 #       places, in PourbaixEntry and here, should be consolidated
                 if len(ion_elts) == 1:

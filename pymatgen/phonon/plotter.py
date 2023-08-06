@@ -424,12 +424,12 @@ class PhononBSPlotter:
 
         from pymatgen.electronic_structure.plotter import BSDOSPlotter
 
-        elements = [e.symbol for e in self._bs.structure.composition.elements]
+        elements = [e.symbol for e in self._bs.structure.elements]
         if site_comb == "element":
             assert 2 <= len(elements) <= 4, "the compound must have 2, 3 or 4 unique elements"
             indices: list[list[int]] = [[] for _ in range(len(elements))]
             for i, ele in enumerate(self._bs.structure.species):
-                for j, unique_species in enumerate(self._bs.structure.composition.elements):
+                for j, unique_species in enumerate(self._bs.structure.elements):
                     if ele == unique_species:
                         indices[j].append(i)
         else:
@@ -484,7 +484,7 @@ class PhononBSPlotter:
         if rgb_labels is not None:
             labels = rgb_labels  # type: ignore[assignment]
         elif site_comb == "element":
-            labels = [e.symbol for e in self._bs.structure.composition.elements]
+            labels = [e.symbol for e in self._bs.structure.elements]
         else:
             labels = [f"{i}" for i in range(len(site_comb))]
         if len(indices) == 2:
