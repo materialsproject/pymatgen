@@ -20,7 +20,7 @@ from pymatgen.io.abinit.inputs import (
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-_test_dir = os.path.join(TEST_FILES_DIR, "abinit")
+_test_dir = f"{TEST_FILES_DIR}/abinit"
 
 
 def abiref_file(filename):

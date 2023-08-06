@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 
 import numpy as np
@@ -28,7 +27,7 @@ class TestVoronoiAnalyzer(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        self.ss = Xdatcar(os.path.join(TEST_FILES_DIR, "XDATCAR.MD")).structures
+        self.ss = Xdatcar(f"{TEST_FILES_DIR}/XDATCAR.MD").structures
         self.s = self.ss[1]
         self.va = VoronoiAnalyzer(cutoff=4)
 
@@ -44,9 +43,9 @@ class TestVoronoiAnalyzer(PymatgenTest):
 
 class TestRelaxationAnalyzer(unittest.TestCase):
     def setUp(self):
-        p = Poscar.from_file(os.path.join(TEST_FILES_DIR, "POSCAR.Li2O"), check_for_POTCAR=False)
+        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.Li2O", check_for_POTCAR=False)
         s1 = p.structure
-        p = Poscar.from_file(os.path.join(TEST_FILES_DIR, "CONTCAR.Li2O"), check_for_POTCAR=False)
+        p = Poscar.from_file(f"{TEST_FILES_DIR}/CONTCAR.Li2O", check_for_POTCAR=False)
         s2 = p.structure
         self.analyzer = RelaxationAnalyzer(s1, s2)
 
@@ -84,7 +83,7 @@ class TestVoronoiConnectivity(PymatgenTest):
 
 class TestMiscFunction(PymatgenTest):
     def test_average_coordination_number(self):
-        xdatcar = Xdatcar(os.path.join(TEST_FILES_DIR, "XDATCAR.MD"))
+        xdatcar = Xdatcar(f"{TEST_FILES_DIR}/XDATCAR.MD")
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
         assert coordination_numbers["Fe"] == approx(
             4.771903318390836, 5

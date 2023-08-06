@@ -14,7 +14,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 class TestFunc(unittest.TestCase):
     def test_group_entries_by_structure(self):
-        entries = loadfn(os.path.join(TEST_FILES_DIR, "TiO2_entries.json"))
+        entries = loadfn(f"{TEST_FILES_DIR}/TiO2_entries.json")
         groups = group_entries_by_structure(entries)
         assert sorted(len(g) for g in groups) == [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4]
         assert len(groups) < len(entries)
@@ -44,7 +44,7 @@ class TestFunc(unittest.TestCase):
 
 class TestEntrySet(unittest.TestCase):
     def setUp(self):
-        entries = loadfn(os.path.join(TEST_FILES_DIR, "Li-Fe-P-O_entries.json"))
+        entries = loadfn(f"{TEST_FILES_DIR}/Li-Fe-P-O_entries.json")
         self.entry_set = EntrySet(entries)
 
     def test_chemsys(self):

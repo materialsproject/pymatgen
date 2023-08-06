@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.xr import Xr
@@ -58,7 +56,7 @@ class TestXr:
         assert str(self.xr) == expected_string
 
     def test_from_file(self):
-        filename = os.path.join(TEST_FILES_DIR, "EDI.xr")
+        filename = f"{TEST_FILES_DIR}/EDI.xr"
         xr = Xr.from_file(filename)
         assert isinstance(xr.structure, Structure)
         xr2 = Xr.from_file(filename, use_cores=False)

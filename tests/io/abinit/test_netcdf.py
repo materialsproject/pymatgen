@@ -16,7 +16,7 @@ try:
 except ImportError:
     netCDF4 = None
 
-_test_dir = os.path.join(TEST_FILES_DIR, "abinit")
+_test_dir = f"{TEST_FILES_DIR}/abinit"
 
 
 def ref_file(filename):

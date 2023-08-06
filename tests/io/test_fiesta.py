@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 from pymatgen.core.structure import Molecule
 from pymatgen.io.fiesta import FiestaInput, FiestaOutput
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -71,7 +69,7 @@ class TestFiestaInput:
 
 class TestFiestaOutput:
     def setup(self):
-        self.logfiesta = FiestaOutput(os.path.join(TEST_FILES_DIR, "log_fiesta"))
+        self.logfiesta = FiestaOutput(f"{TEST_FILES_DIR}/log_fiesta")
 
     def test_props(self):
         out = self.logfiesta

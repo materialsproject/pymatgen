@@ -20,7 +20,7 @@ __email__ = "esters@uoregon.edu"
 __date__ = "Nov 30, 2017"
 
 
-test_dir = os.path.join(TEST_FILES_DIR, "cohp")
+test_dir = f"{TEST_FILES_DIR}/cohp"
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
 

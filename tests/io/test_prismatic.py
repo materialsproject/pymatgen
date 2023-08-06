@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 
 from pymatgen.core.structure import Structure
@@ -10,7 +9,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 class TestPrismatic(unittest.TestCase):
     def test_to_string(self):
-        structure = Structure.from_file(os.path.join(TEST_FILES_DIR, "CuCl.cif"))
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/CuCl.cif")
         prismatic = Prismatic(structure)
         prismatic_str = prismatic.to_str()
         assert prismatic_str.startswith(

@@ -16,7 +16,7 @@ __maintainer__ = "Handong Ling, Rachel Woods-Robinson"
 __email__ = "handongling@berkeley.edu, rwoodsrobinson@lbl.gov"
 
 
-test_dir = os.path.join(TEST_FILES_DIR, "mcsqs")
+test_dir = f"{TEST_FILES_DIR}/mcsqs"
 
 
 @unittest.skipIf(not (which("mcsqs") and which("str2cif")), "mcsqs executable not present")

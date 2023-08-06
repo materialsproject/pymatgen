@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 import numpy as np
 from pytest import approx
 
@@ -16,7 +14,7 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = os.path.join(TEST_FILES_DIR, "BTO_221_99_polarization")
+test_dir = f"{TEST_FILES_DIR}/BTO_221_99_polarization"
 bto_folders = ["nonpolar_polarization"]
 bto_folders += [f"interpolation_{i}_polarization" for i in range(1, 9)][::-1]
 bto_folders += ["polar_polarization"]

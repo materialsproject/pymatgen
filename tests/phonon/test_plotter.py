@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import unittest
 
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
@@ -12,7 +11,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 class TestPhononDosPlotter(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
+        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as f:
             self.dos = CompletePhononDos.from_dict(json.load(f))
             self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
             self.plotter_nostack = PhononDosPlotter(sigma=0.2, stack=False)
@@ -48,11 +47,11 @@ class TestPhononDosPlotter(unittest.TestCase):
 
 class TestPhononBSPlotter(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(TEST_FILES_DIR, "NaCl_phonon_bandstructure.json")) as f:
+        with open(f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json") as f:
             d = json.loads(f.read())
             self.bs = PhononBandStructureSymmLine.from_dict(d)
             self.plotter = PhononBSPlotter(self.bs)
-        with open(os.path.join(TEST_FILES_DIR, "SrTiO3_phonon_bandstructure.json")) as f:
+        with open(f"{TEST_FILES_DIR}/SrTiO3_phonon_bandstructure.json") as f:
             d = json.loads(f.read())
             self.bs_sto = PhononBandStructureSymmLine.from_dict(d)
             self.plotter_sto = PhononBSPlotter(self.bs_sto)
@@ -96,7 +95,7 @@ class TestPhononBSPlotter(unittest.TestCase):
 
 class TestThermoPlotter(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
+        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as f:
             self.dos = CompletePhononDos.from_dict(json.load(f))
             self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 

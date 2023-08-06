@@ -30,7 +30,7 @@ TITLE sites: 4
 * 2 Co     0.666667     0.333333     0.003676
 * 3 O     0.333333     0.666667     0.121324
 * 4 O     0.666667     0.333333     0.621325"""
-        cif_file = os.path.join(TEST_FILES_DIR, "CoO19128.cif")
+        cif_file = f"{TEST_FILES_DIR}/CoO19128.cif"
         cls.structure = CifParser(cif_file).get_structures()[0]
         cls.absorbing_atom = "O"
         cls.mp_xanes = MPXANESSet(cls.absorbing_atom, cls.structure)
@@ -121,7 +121,7 @@ TITLE sites: 4
     def test_charged_structure(self):
         # one Zn+2, 9 triflate, plus water
         # Molecule, net charge of -7
-        xyz = os.path.join(TEST_FILES_DIR, "feff_radial_shell.xyz")
+        xyz = f"{TEST_FILES_DIR}/feff_radial_shell.xyz"
         m = Molecule.from_file(xyz)
         m.set_charge_and_spin(-7)
         # Zn should not appear in the pot_dict
@@ -177,7 +177,7 @@ TITLE sites: 4
         assert elnes.tags["KMESH"] == [12, 12, 7]
 
     def test_large_systems(self):
-        struct = Structure.from_file(os.path.join(TEST_FILES_DIR, "La4Fe4O12.cif"))
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/La4Fe4O12.cif")
         user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
         elnes = MPELNESSet("Fe", struct, user_tag_settings=user_tag_settings)
         assert "RECIPROCAL" not in elnes.tags
@@ -231,15 +231,13 @@ TITLE sites: 4
         shutil.rmtree(os.path.join(".", "xanes_reci"))
 
     def test_post_distdiff(self):
-        feff_dict_input = FEFFDictSet.from_directory(os.path.join(TEST_FILES_DIR, "feff_dist_test"))
-        assert feff_dict_input.tags == Tags.from_file(os.path.join(TEST_FILES_DIR, "feff_dist_test/feff.inp"))
-        assert str(feff_dict_input.header()) == str(
-            Header.from_file(os.path.join(TEST_FILES_DIR, "feff_dist_test/HEADER"))
-        )
+        feff_dict_input = FEFFDictSet.from_directory(f"{TEST_FILES_DIR}/feff_dist_test")
+        assert feff_dict_input.tags == Tags.from_file(f"{TEST_FILES_DIR}/feff_dist_test/feff.inp")
+        assert str(feff_dict_input.header()) == str(Header.from_file(f"{TEST_FILES_DIR}/feff_dist_test/HEADER"))
         feff_dict_input.write_input("feff_dist_regen")
-        origin_tags = Tags.from_file(os.path.join(TEST_FILES_DIR, "feff_dist_test/PARAMETERS"))
+        origin_tags = Tags.from_file(f"{TEST_FILES_DIR}/feff_dist_test/PARAMETERS")
         output_tags = Tags.from_file(os.path.join(".", "feff_dist_regen/PARAMETERS"))
-        origin_mole = Atoms.cluster_from_file(os.path.join(TEST_FILES_DIR, "feff_dist_test/feff.inp"))
+        origin_mole = Atoms.cluster_from_file(f"{TEST_FILES_DIR}/feff_dist_test/feff.inp")
         output_mole = Atoms.cluster_from_file(os.path.join(".", "feff_dist_regen/feff.inp"))
         original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(np.float64)
         output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(np.float64)

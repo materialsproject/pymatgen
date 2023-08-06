@@ -324,7 +324,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         # because the structure has no site properties, the default MAGMOM is assigned from the
         # config dictionary.
         struct = Structure(lattice, ["Fe", "F"], coords)
-        incar = MPStaticSet(struct, prev_incar=os.path.join(TEST_FILES_DIR, "INCAR")).incar
+        incar = MPStaticSet(struct, prev_incar=f"{TEST_FILES_DIR}/INCAR").incar
         assert incar["MAGMOM"] == [5, 0.6]
 
         # Make sure this works with species.
@@ -1761,7 +1761,7 @@ class TestLobsterSet(PymatgenTest):
             self.lobsterset6 = LobsterSet(self.struct)
 
         # test W_sw
-        self.lobsterset8 = LobsterSet(Structure.from_file(os.path.join(TEST_FILES_DIR, "cohp", "POSCAR.W")))
+        self.lobsterset8 = LobsterSet(Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR.W"))
 
     def test_incar(self):
         incar1 = self.lobsterset1.incar

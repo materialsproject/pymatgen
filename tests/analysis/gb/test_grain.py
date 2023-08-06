@@ -15,7 +15,7 @@ __copyright__ = "Copyright 2018, The Materials Virtual Lab"
 __email__ = "xil110@eng.ucsd.edu"
 __date__ = "07/30/18"
 
-test_dir = os.path.join(TEST_FILES_DIR, "grain_boundary")
+test_dir = f"{TEST_FILES_DIR}/grain_boundary"
 
 
 class TestGrainBoundary(PymatgenTest):

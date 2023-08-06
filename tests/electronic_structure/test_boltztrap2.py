@@ -26,7 +26,7 @@ try:
 except Exception:
     BOLTZTRAP2_PRESENT = False
 
-test_dir = os.path.join(TEST_FILES_DIR, "boltztrap2")
+test_dir = f"{TEST_FILES_DIR}/boltztrap2"
 
 
 vrunfile = os.path.join(test_dir, "vasprun.xml")

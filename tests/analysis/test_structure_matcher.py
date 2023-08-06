@@ -27,17 +27,17 @@ class TestStructureMatcher(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        with open(os.path.join(TEST_FILES_DIR, "TiO2_entries.json")) as fp:
+        with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [
             self.get_structure("Li2O"),
-            Structure.from_file(os.path.join(TEST_FILES_DIR, "POSCAR.Li2O")),
+            Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Li2O"),
         ]
 
     def test_ignore_species(self):
-        s1 = Structure.from_file(os.path.join(TEST_FILES_DIR, "LiFePO4.cif"))
-        s2 = Structure.from_file(os.path.join(TEST_FILES_DIR, "POSCAR"))
+        s1 = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
+        s2 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
         m = StructureMatcher(ignored_species=["Li"], primitive_cell=False, attempt_supercell=True)
         assert m.fit(s1, s2)
         assert m.fit_anonymous(s1, s2)
@@ -343,7 +343,7 @@ class TestStructureMatcher(PymatgenTest):
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted."""
         sm = StructureMatcher()
-        struct = Structure.from_file(os.path.join(TEST_FILES_DIR, "Li3GaPCO7.json"))
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/Li3GaPCO7.json")
         assert sm.fit(struct, struct)
 
     def test_as_dict_and_from_dict(self):
@@ -367,8 +367,8 @@ class TestStructureMatcher(PymatgenTest):
 
     def test_supercell_fit(self):
         sm = StructureMatcher(attempt_supercell=False)
-        s1 = Structure.from_file(os.path.join(TEST_FILES_DIR, "Al3F9.json"))
-        s2 = Structure.from_file(os.path.join(TEST_FILES_DIR, "Al3F9_distorted.json"))
+        s1 = Structure.from_file(f"{TEST_FILES_DIR}/Al3F9.json")
+        s2 = Structure.from_file(f"{TEST_FILES_DIR}/Al3F9_distorted.json")
 
         assert not sm.fit(s1, s2)
 
@@ -778,8 +778,8 @@ class TestStructureMatcher(PymatgenTest):
     def test_electronegativity(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5)
 
-        s1 = Structure.from_file(os.path.join(TEST_FILES_DIR, "Na2Fe2PAsO4S4.json"))
-        s2 = Structure.from_file(os.path.join(TEST_FILES_DIR, "Na2Fe2PNO4Se4.json"))
+        s1 = Structure.from_file(f"{TEST_FILES_DIR}/Na2Fe2PAsO4S4.json")
+        s2 = Structure.from_file(f"{TEST_FILES_DIR}/Na2Fe2PNO4Se4.json")
         assert sm.get_best_electronegativity_anonymous_mapping(s1, s2) == {
             Element("S"): Element("Se"),
             Element("As"): Element("N"),

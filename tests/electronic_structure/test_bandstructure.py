@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import unittest
 import warnings
 
@@ -224,7 +223,7 @@ class TestBandStructureSymmLine(PymatgenTest):
         assert set(d3) >= expected_keys, f"{expected_keys - set(d3)=}"
 
     def test_old_format_load(self):
-        with open(os.path.join(TEST_FILES_DIR, "bs_ZnS_old.json")) as f:
+        with open(f"{TEST_FILES_DIR}/bs_ZnS_old.json") as f:
             d = json.load(f)
             bs_old = BandStructureSymmLine.from_dict(d)
             assert bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"] == 0.0971
@@ -265,11 +264,11 @@ class TestReconstructBandStructure(PymatgenTest):
 
     def test_vasprun_bs(self):
         bsv = BSVasprun(
-            os.path.join(TEST_FILES_DIR, "vasprun.xml"),
+            f"{TEST_FILES_DIR}/vasprun.xml",
             parse_projected_eigen=True,
             parse_potcar_file=True,
         )
-        bs = bsv.get_band_structure(kpoints_filename=os.path.join(TEST_FILES_DIR, "KPOINTS.band"), line_mode=True)
+        bs = bsv.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS.band", line_mode=True)
         bs.get_projection_on_elements()
 
 
@@ -277,13 +276,13 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
         with open(
-            os.path.join(TEST_FILES_DIR, "cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json"),
+            f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
         ) as f:
             bs_spin_dict = json.load(f)
         self.bs_spin = LobsterBandStructureSymmLine.from_dict(bs_spin_dict)
 
         with open(
-            os.path.join(TEST_FILES_DIR, "cohp/Fatband_SiO2/Test_p/lobster_band_structure.json"),
+            f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure.json",
         ) as f:
             bs_dict = json.load(f)
         self.bs_p = LobsterBandStructureSymmLine.from_dict(bs_dict)

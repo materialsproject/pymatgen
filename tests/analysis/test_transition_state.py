@@ -21,7 +21,7 @@ __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
 
-test_dir = os.path.join(TEST_FILES_DIR, "neb_analysis")
+test_dir = f"{TEST_FILES_DIR}/neb_analysis"
 
 
 class TestNEBAnalysis(PymatgenTest):

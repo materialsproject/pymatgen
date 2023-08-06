@@ -772,7 +772,7 @@ Node #11 P (T:4), connected to :
             assert cc.periodicity == "2D"
 
         # Connectivity of Li4Fe3Mn1(PO4)4
-        struct = Structure.from_file(os.path.join(TEST_FILES_DIR, "Li4Fe3Mn1(PO4)4.cif"))
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/Li4Fe3Mn1(PO4)4.cif")
         lgf.setup_structure(structure=struct)
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2)
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)

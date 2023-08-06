@@ -78,8 +78,8 @@ class TestGaussianToComputedEntryDrone(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_get_valid_paths(self):
-        for path in os.walk(os.path.join(TEST_FILES_DIR, "molecules")):
-            if path[0] == os.path.join(TEST_FILES_DIR, "molecules"):
+        for path in os.walk(f"{TEST_FILES_DIR}/molecules"):
+            if path[0] == f"{TEST_FILES_DIR}/molecules":
                 assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_assimilate(self):

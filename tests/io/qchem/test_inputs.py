@@ -740,7 +740,7 @@ $end
             assert i_str in multi_job_str_test
 
     def test_from_multi_jobs_file(self):
-        job_list_test = QCInput.from_multi_jobs_file(os.path.join(TEST_FILES_DIR, "qchem", "pt_n2_wb97mv_0.0.in"))
+        job_list_test = QCInput.from_multi_jobs_file(f"{TEST_FILES_DIR}/qchem/pt_n2_wb97mv_0.0.in")
         species = [
             "S",
             "C",
@@ -1209,7 +1209,7 @@ $end"""
     def test_read_write_nbo7(self):
         test_path = os.path.join(module_dir, "test_nbo7.qin")
         ref_path = f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7.qin"
-        qcinp = QCInput.from_file(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin"))
+        qcinp = QCInput.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7.qin")
         qcinp.write_file(test_path)
 
         with open(test_path) as ref_file, open(ref_path) as test_file:
@@ -1232,7 +1232,7 @@ $end"""
         os.remove(os.path.join(module_dir, "test_e2pert.qin"))
 
     def test_read_write_custom_smd(self):
-        qcinp = QCInput.from_file(os.path.join(TEST_FILES_DIR, "molecules/new_qchem_files/custom_smd.qin"))
+        qcinp = QCInput.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/custom_smd.qin")
         qcinp.write_file(os.path.join(module_dir, "test_custom_smd.qin"))
         test_path = f"{TEST_FILES_DIR}/molecules/new_qchem_files/custom_smd.qin"
         ref_path = os.path.join(module_dir, "test_custom_smd.qin")

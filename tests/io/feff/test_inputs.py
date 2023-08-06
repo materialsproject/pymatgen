@@ -28,7 +28,7 @@ TITLE sites: 4
 
 class TestHeader(unittest.TestCase):
     def test_init(self):
-        filepath = os.path.join(TEST_FILES_DIR, "HEADER")
+        filepath = f"{TEST_FILES_DIR}/HEADER"
         header = Header.header_string_from_file(filepath)
         h = header.splitlines()
         hs = header_string.splitlines()
@@ -41,7 +41,7 @@ class TestHeader(unittest.TestCase):
         assert header.struct.composition.reduced_formula == "CoO", "Failed to generate structure from HEADER string"
 
     def test_get_string(self):
-        cif_file = os.path.join(TEST_FILES_DIR, "CoO19128.cif")
+        cif_file = f"{TEST_FILES_DIR}/CoO19128.cif"
         h = Header.from_cif_file(cif_file)
         head = str(h)
         assert (
@@ -49,7 +49,7 @@ class TestHeader(unittest.TestCase):
         ), "Failed to generate HEADER from structure"
 
     def test_as_dict_and_from_dict(self):
-        file_name = os.path.join(TEST_FILES_DIR, "HEADER")
+        file_name = f"{TEST_FILES_DIR}/HEADER"
         header = Header.from_file(file_name)
         d = header.as_dict()
         header2 = Header.from_dict(d)
@@ -59,7 +59,7 @@ class TestHeader(unittest.TestCase):
 class TestFeffAtoms(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        r = CifParser(os.path.join(TEST_FILES_DIR, "CoO19128.cif"))
+        r = CifParser(f"{TEST_FILES_DIR}/CoO19128.cif")
         cls.structure = r.get_structures()[0]
         cls.atoms = Atoms(cls.structure, "O", 12.0)
 
@@ -75,7 +75,7 @@ class TestFeffAtoms(unittest.TestCase):
         in the pot_dict to avoid an error.
         """
         # one Zn+2, 9 triflate, plus water
-        xyz = os.path.join(TEST_FILES_DIR, "feff_radial_shell.xyz")
+        xyz = f"{TEST_FILES_DIR}/feff_radial_shell.xyz"
         m = Molecule.from_file(xyz)
         m.set_charge_and_spin(-7)
         atoms = Atoms(m, "Zn", 9)
@@ -102,13 +102,13 @@ class TestFeffAtoms(unittest.TestCase):
     def test_distances(self):
         atoms_1 = self.atoms.get_lines()
         distances_1 = [float(a[5]) for a in atoms_1]
-        atoms_2 = Atoms.atoms_string_from_file(os.path.join(TEST_FILES_DIR, "ATOMS"))
+        atoms_2 = Atoms.atoms_string_from_file(f"{TEST_FILES_DIR}/ATOMS")
         atoms_2 = atoms_2.splitlines()[3:]
         distances_2 = [float(a.split()[5]) for a in atoms_2]
         np.testing.assert_allclose(distances_1, distances_2, rtol=1e-5)
 
     def test_atoms_from_file(self):
-        filepath = os.path.join(TEST_FILES_DIR, "ATOMS")
+        filepath = f"{TEST_FILES_DIR}/ATOMS"
         atoms = Atoms.atoms_string_from_file(filepath)
         assert atoms.splitlines()[3].split()[4] == "O", "failed to read ATOMS file"
 
@@ -121,7 +121,7 @@ class TestFeffAtoms(unittest.TestCase):
         assert atoms.splitlines()[3].split()[4] == central_atom, "failed to create ATOMS string"
 
     def test_as_dict_and_from_dict(self):
-        file_name = os.path.join(TEST_FILES_DIR, "HEADER")
+        file_name = f"{TEST_FILES_DIR}/HEADER"
         header = Header.from_file(file_name)
         struct = header.struct
         atoms = Atoms(struct, "O", radius=10.0)
@@ -132,7 +132,7 @@ class TestFeffAtoms(unittest.TestCase):
     def test_cluster_from_file(self):
         self.atoms.write_file("ATOMS_test")
         mol_1 = Atoms.cluster_from_file("ATOMS_test")
-        mol_2 = Atoms.cluster_from_file(os.path.join(TEST_FILES_DIR, "ATOMS"))
+        mol_2 = Atoms.cluster_from_file(f"{TEST_FILES_DIR}/ATOMS")
         assert mol_1.formula == mol_2.formula
         assert len(mol_1) == len(mol_2)
         os.remove("ATOMS_test")
@@ -140,16 +140,16 @@ class TestFeffAtoms(unittest.TestCase):
 
 class TestFeffTags(unittest.TestCase):
     def test_init(self):
-        filepath = os.path.join(TEST_FILES_DIR, "PARAMETERS")
+        filepath = f"{TEST_FILES_DIR}/PARAMETERS"
         parameters = Tags.from_file(filepath)
         parameters["RPATH"] = 10
         assert parameters["COREHOLE"] == "Fsr", "Failed to read PARAMETERS file"
         assert parameters["LDOS"] == [-30.0, 15.0, 0.1], "Failed to read PARAMETERS file"
 
     def test_diff(self):
-        filepath1 = os.path.join(TEST_FILES_DIR, "PARAMETERS")
+        filepath1 = f"{TEST_FILES_DIR}/PARAMETERS"
         parameters1 = Tags.from_file(filepath1)
-        filepath2 = os.path.join(TEST_FILES_DIR, "PARAMETERS.2")
+        filepath2 = f"{TEST_FILES_DIR}/PARAMETERS.2"
         parameters2 = Tags.from_file(filepath2)
         assert Tags(parameters1).diff(parameters2) == {
             "Different": {},
@@ -170,7 +170,7 @@ class TestFeffTags(unittest.TestCase):
         }
 
     def test_as_dict_and_from_dict(self):
-        file_name = os.path.join(TEST_FILES_DIR, "PARAMETERS")
+        file_name = f"{TEST_FILES_DIR}/PARAMETERS"
         tags = Tags.from_file(file_name)
         d = tags.as_dict()
         tags2 = Tags.from_dict(d)
@@ -195,17 +195,17 @@ class TestFeffTags(unittest.TestCase):
             "S02": [0.0],
             "SCF": [6, 0, 30, 0.2, 5],
         }
-        tags_1 = Tags.from_file(os.path.join(TEST_FILES_DIR, "feff_eels_powder.inp"))
+        tags_1 = Tags.from_file(f"{TEST_FILES_DIR}/feff_eels_powder.inp")
         assert dict(tags_1) == ans_1
         ans_1["ELNES"]["BEAM_ENERGY"] = "200 0 1 1"
         ans_1["ELNES"]["BEAM_DIRECTION"] = "1 0 0"
-        tags_2 = Tags.from_file(os.path.join(TEST_FILES_DIR, "feff_eels_x.inp"))
+        tags_2 = Tags.from_file(f"{TEST_FILES_DIR}/feff_eels_x.inp")
         assert dict(tags_2) == ans_1
 
 
 class TestFeffPot(unittest.TestCase):
     def test_init(self):
-        filepath = os.path.join(TEST_FILES_DIR, "POTENTIALS")
+        filepath = f"{TEST_FILES_DIR}/POTENTIALS"
         feffpot = Potential.pot_string_from_file(filepath)
         d, dr = Potential.pot_dict_from_string(feffpot)
         assert d["Co"] == 1, "Wrong symbols read in for Potential"
@@ -216,7 +216,7 @@ class TestFeffPot(unittest.TestCase):
         in the pot_dict to avoid an error.
         """
         # one Zn+2, 9 triflate, plus water
-        xyz = os.path.join(TEST_FILES_DIR, "feff_radial_shell.xyz")
+        xyz = f"{TEST_FILES_DIR}/feff_radial_shell.xyz"
         m = Molecule.from_file(xyz)
         m.set_charge_and_spin(-7)
         pot = Potential(m, "Zn")
@@ -226,7 +226,7 @@ class TestFeffPot(unittest.TestCase):
         assert str(pot).count("Zn") == 1
 
     def test_as_dict_and_from_dict(self):
-        file_name = os.path.join(TEST_FILES_DIR, "HEADER")
+        file_name = f"{TEST_FILES_DIR}/HEADER"
         header = Header.from_file(file_name)
         struct = header.struct
         pot = Potential(struct, "O")

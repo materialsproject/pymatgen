@@ -1554,10 +1554,10 @@ class TestFatband(PymatgenTest):
 class TestLobsterin(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
-        self.Lobsterinfromfile = Lobsterin.from_file(os.path.join(TEST_FILES_DIR, "cohp", "lobsterin.1"))
-        self.Lobsterinfromfile2 = Lobsterin.from_file(os.path.join(TEST_FILES_DIR, "cohp", "lobsterin.2"))
-        self.Lobsterinfromfile3 = Lobsterin.from_file(os.path.join(TEST_FILES_DIR, "cohp", "lobsterin.3"))
-        self.Lobsterinfromfile4 = Lobsterin.from_file(os.path.join(TEST_FILES_DIR, "cohp", "lobsterin.4.gz"))
+        self.Lobsterinfromfile = Lobsterin.from_file(f"{TEST_FILES_DIR}/cohp/lobsterin.1")
+        self.Lobsterinfromfile2 = Lobsterin.from_file(f"{TEST_FILES_DIR}/cohp/lobsterin.2")
+        self.Lobsterinfromfile3 = Lobsterin.from_file(f"{TEST_FILES_DIR}/cohp/lobsterin.3")
+        self.Lobsterinfromfile4 = Lobsterin.from_file(f"{TEST_FILES_DIR}/cohp/lobsterin.4.gz")
 
     def test_from_file(self):
         # test read from file
@@ -1775,10 +1775,10 @@ class TestLobsterin(unittest.TestCase):
             Structure.from_file(os.path.join(test_dir_doscar, "Fe3O4.cif")),
             potcar_symbols=Potcar_names,
         ) == ["Fe 3d 4p 4s ", "O 2p 2s "]
-        potcar = Potcar.from_file(os.path.join(TEST_FILES_DIR, "cohp", "POTCAR.GaAs"))
+        potcar = Potcar.from_file(f"{TEST_FILES_DIR}/cohp/POTCAR.GaAs")
         Potcar_names = [name["symbol"] for name in potcar.spec]
         assert lobsterin1.get_basis(
-            Structure.from_file(os.path.join(TEST_FILES_DIR, "cohp", "POSCAR.GaAs")),
+            Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR.GaAs"),
             potcar_symbols=Potcar_names,
         ) == ["Ga 3d 4p 4s ", "As 4p 4s "]
 
@@ -1803,7 +1803,7 @@ class TestLobsterin(unittest.TestCase):
     def test_get_potcar_symbols(self):
         lobsterin1 = Lobsterin({})
         assert lobsterin1._get_potcar_symbols(os.path.join(test_dir_doscar, "POTCAR.Fe3O4")) == ["Fe", "O"]
-        assert lobsterin1._get_potcar_symbols(os.path.join(TEST_FILES_DIR, "cohp", "POTCAR.GaAs")) == [
+        assert lobsterin1._get_potcar_symbols(f"{TEST_FILES_DIR}/cohp/POTCAR.GaAs") == [
             "Ga_d",
             "As",
         ]
@@ -1937,7 +1937,7 @@ class TestLobsterin(unittest.TestCase):
         )
 
         kpoint1 = Kpoints.from_file(outfile_path)
-        kpoint2 = Kpoints.from_file(os.path.join(TEST_FILES_DIR, "cohp", "IBZKPT_3_3_3_Li"))
+        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/cohp/IBZKPT_3_3_3_Li")
         for ikpoint, kpoint in enumerate(kpoint1.kpts):
             assert self.is_kpoint_in_list(
                 kpoint,
@@ -1963,7 +1963,7 @@ class TestLobsterin(unittest.TestCase):
         )
 
         kpoint1 = Kpoints.from_file(outfile_path)
-        kpoint2 = Kpoints.from_file(os.path.join(TEST_FILES_DIR, "cohp", "IBZKPT_2_2_2_Li"))
+        kpoint2 = Kpoints.from_file(f"{TEST_FILES_DIR}/cohp/IBZKPT_2_2_2_Li")
         for ikpoint, kpoint in enumerate(kpoint1.kpts):
             assert self.is_kpoint_in_list(
                 kpoint,
@@ -2012,11 +2012,11 @@ class TestBandoverlaps(unittest.TestCase):
         warnings.simplefilter("ignore")
         # test spin polarlized calc and non spinpolarized calc
 
-        self.bandoverlaps1 = Bandoverlaps(os.path.join(TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.1"))
-        self.bandoverlaps2 = Bandoverlaps(os.path.join(TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.2"))
+        self.bandoverlaps1 = Bandoverlaps(f"{TEST_FILES_DIR}/cohp/bandOverlaps.lobster.1")
+        self.bandoverlaps2 = Bandoverlaps(f"{TEST_FILES_DIR}/cohp/bandOverlaps.lobster.2")
 
-        self.bandoverlaps1_new = Bandoverlaps(os.path.join(TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.new.1"))
-        self.bandoverlaps2_new = Bandoverlaps(os.path.join(TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.new.2"))
+        self.bandoverlaps1_new = Bandoverlaps(f"{TEST_FILES_DIR}/cohp/bandOverlaps.lobster.new.1")
+        self.bandoverlaps2_new = Bandoverlaps(f"{TEST_FILES_DIR}/cohp/bandOverlaps.lobster.new.2")
 
     def test_attributes(self):
         # bandoverlapsdict
@@ -2161,7 +2161,7 @@ class TestBandoverlaps(unittest.TestCase):
 
 class TestGrosspop(unittest.TestCase):
     def setUp(self):
-        self.grosspop1 = Grosspop(os.path.join(TEST_FILES_DIR, "cohp", "GROSSPOP.lobster"))
+        self.grosspop1 = Grosspop(f"{TEST_FILES_DIR}/cohp/GROSSPOP.lobster")
 
     def testattributes(self):
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3s"] == approx(0.52)
@@ -2272,9 +2272,7 @@ class TestGrosspop(unittest.TestCase):
             ],
         }
 
-        new_structure = self.grosspop1.get_structure_with_total_grosspop(
-            os.path.join(TEST_FILES_DIR, "cohp", "POSCAR.SiO2")
-        )
+        new_structure = self.grosspop1.get_structure_with_total_grosspop(f"{TEST_FILES_DIR}/cohp/POSCAR.SiO2")
         assert np.allclose(new_structure.frac_coords, Structure.from_dict(struct_dict).frac_coords)
 
 

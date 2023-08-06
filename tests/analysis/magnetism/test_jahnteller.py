@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 
 import numpy as np
@@ -83,10 +82,10 @@ class TestJahnTeller(unittest.TestCase):
         assert m == "none"
 
     def test_jahn_teller_structure_analysis(self):
-        parser = CifParser(os.path.join(TEST_FILES_DIR, "LiFePO4.cif"))
+        parser = CifParser(f"{TEST_FILES_DIR}/LiFePO4.cif")
         LiFePO4 = parser.get_structures()[0]
 
-        parser = CifParser(os.path.join(TEST_FILES_DIR, "Fe3O4.cif"))
+        parser = CifParser(f"{TEST_FILES_DIR}/Fe3O4.cif")
         Fe3O4 = parser.get_structures()[0]
 
         assert self.jt.is_jahn_teller_active(LiFePO4)

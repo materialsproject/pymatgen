@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import unittest
 
 from pymatgen.core.structure import Structure
@@ -20,7 +19,7 @@ __date__ = "Jan 24, 2012"
 
 class TestCssr(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(TEST_FILES_DIR, "POSCAR")
+        filepath = f"{TEST_FILES_DIR}/POSCAR"
         p = Poscar.from_file(filepath)
         self.cssr = Cssr(p.structure)
 
@@ -56,6 +55,6 @@ class TestCssr(unittest.TestCase):
         assert str(self.cssr) == expected_string
 
     def test_from_file(self):
-        filename = os.path.join(TEST_FILES_DIR, "Si.cssr")
+        filename = f"{TEST_FILES_DIR}/Si.cssr"
         cssr = Cssr.from_file(filename)
         assert isinstance(cssr.structure, Structure)

@@ -15,7 +15,7 @@ __email__ = "handongling@berkeley.edu"
 __status__ = "Development"
 __date__ = "4/23/19"
 
-test_dir = os.path.join(TEST_FILES_DIR, "site_symmetries")
+test_dir = f"{TEST_FILES_DIR}/site_symmetries"
 
 
 class TestSiteSymmetries(PymatgenTest):

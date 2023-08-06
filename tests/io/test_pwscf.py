@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 import numpy as np
 import pytest
 from pytest import approx
@@ -381,7 +379,7 @@ CELL_PARAMETERS angstrom
 
 class TestPWOuput(PymatgenTest):
     def setUp(self):
-        self.pwout = PWOutput(os.path.join(TEST_FILES_DIR, "Si.pwscf.out"))
+        self.pwout = PWOutput(f"{TEST_FILES_DIR}/Si.pwscf.out")
 
     def test_properties(self):
         assert self.pwout.final_energy == approx(-93.45259708)

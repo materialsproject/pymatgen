@@ -91,7 +91,7 @@ class TestCorrectionCalculator(unittest.TestCase):
             "ozonide": (0, 0),
         }
 
-        self.test_dir = os.path.join(TEST_FILES_DIR, "correction_calculator")
+        self.test_dir = f"{TEST_FILES_DIR}/correction_calculator"
 
     def test_normal_corrections(self):
         """Test that the values in MPCompatibility.yaml are reproduced correctly."""

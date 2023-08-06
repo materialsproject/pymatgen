@@ -23,7 +23,7 @@ __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
 
-test_dir = os.path.join(TEST_FILES_DIR, "molecules")
+test_dir = f"{TEST_FILES_DIR}/molecules"
 
 
 class TestQChemDictSet(PymatgenTest):

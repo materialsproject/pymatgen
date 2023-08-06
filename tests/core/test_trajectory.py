@@ -16,11 +16,11 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestTrajectory(PymatgenTest):
     def setUp(self):
-        xdatcar = Xdatcar(os.path.join(TEST_FILES_DIR, "Traj_XDATCAR"))
-        self.traj = Trajectory.from_file(os.path.join(TEST_FILES_DIR, "Traj_XDATCAR"))
+        xdatcar = Xdatcar(f"{TEST_FILES_DIR}/Traj_XDATCAR")
+        self.traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_XDATCAR")
         self.structures = xdatcar.structures
 
-        out = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "ts.out"))
+        out = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/ts.out")
         last_mol = out.data["molecule_from_last_geometry"]
         species = last_mol.species
         coords = out.data["geometries"]
@@ -220,15 +220,15 @@ class TestTrajectory(PymatgenTest):
         traj = copy.deepcopy(self.traj)
 
         # Case of compatible trajectories
-        compatible_traj = Trajectory.from_file(os.path.join(TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_1"))
+        compatible_traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_Combine_Test_XDATCAR_1")
         traj.extend(compatible_traj)
 
-        full_traj = Trajectory.from_file(os.path.join(TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_Full"))
+        full_traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_Combine_Test_XDATCAR_Full")
         compatible_success = self._check_traj_equality(self.traj, full_traj)
 
         # Case of incompatible trajectories
         traj = copy.deepcopy(self.traj)
-        incompatible_traj = Trajectory.from_file(os.path.join(TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_2"))
+        incompatible_traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_Combine_Test_XDATCAR_2")
         incompatible_test_success = False
         try:
             traj.extend(incompatible_traj)
@@ -417,7 +417,7 @@ class TestTrajectory(PymatgenTest):
         assert len(self.traj_mols) == len(self.molecules)
 
     def test_displacements(self):
-        poscar = Poscar.from_file(os.path.join(TEST_FILES_DIR, "POSCAR"))
+        poscar = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR")
         structures = [poscar.structure]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
 

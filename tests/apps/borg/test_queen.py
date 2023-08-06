@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import os
 import unittest
 import warnings
 
@@ -35,5 +34,5 @@ class TestBorgQueen(unittest.TestCase):
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()
         queen = BorgQueen(drone)
-        queen.load_data(os.path.join(TEST_FILES_DIR, "assimilated.json"))
+        queen.load_data(f"{TEST_FILES_DIR}/assimilated.json")
         assert len(queen.get_data()) == 1

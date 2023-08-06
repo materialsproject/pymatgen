@@ -20,7 +20,7 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.lammps.data import CombinedData, ForceField, LammpsBox, LammpsData, Topology, lattice_2_lmpbox
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = os.path.join(TEST_FILES_DIR, "lammps")
+test_dir = f"{TEST_FILES_DIR}/lammps"
 
 
 class TestLammpsBox(PymatgenTest):

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 import pytest
 
 from pymatgen.analysis.fragmenter import Fragmenter
@@ -14,7 +12,7 @@ __author__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
 
-test_dir = os.path.join(TEST_FILES_DIR, "fragmenter_files")
+test_dir = f"{TEST_FILES_DIR}/fragmenter_files"
 
 
 class TestFragmentMolecule(PymatgenTest):

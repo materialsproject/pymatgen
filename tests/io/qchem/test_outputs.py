@@ -307,19 +307,15 @@ class TestQCOutput(PymatgenTest):
 
     @unittest.skipIf((openbabel is None), "OpenBabel not installed.")
     def test_structural_change(self):
-        t1 = Molecule.from_file(os.path.join(TEST_FILES_DIR, "molecules", "structural_change", "t1.xyz"))
-        t2 = Molecule.from_file(os.path.join(TEST_FILES_DIR, "molecules", "structural_change", "t2.xyz"))
-        t3 = Molecule.from_file(os.path.join(TEST_FILES_DIR, "molecules", "structural_change", "t3.xyz"))
+        t1 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/t1.xyz")
+        t2 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/t2.xyz")
+        t3 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/t3.xyz")
 
-        thio_1 = Molecule.from_file(os.path.join(TEST_FILES_DIR, "molecules", "structural_change", "thiophene1.xyz"))
-        thio_2 = Molecule.from_file(os.path.join(TEST_FILES_DIR, "molecules", "structural_change", "thiophene2.xyz"))
+        thio_1 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/thiophene1.xyz")
+        thio_2 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/thiophene2.xyz")
 
-        frag_1 = Molecule.from_file(
-            os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "test_structure_change", "frag_1.xyz")
-        )
-        frag_2 = Molecule.from_file(
-            os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "test_structure_change", "frag_2.xyz")
-        )
+        frag_1 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/test_structure_change/frag_1.xyz")
+        frag_2 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/test_structure_change/frag_2.xyz")
 
         assert check_for_structure_changes(t1, t1) == "no_change"
         assert check_for_structure_changes(t2, t3) == "no_change"
@@ -331,7 +327,7 @@ class TestQCOutput(PymatgenTest):
         assert check_for_structure_changes(frag_1, frag_2) == "bond_change"
 
     def test_NBO_parsing(self):
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo.qout")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo.qout").data
         assert len(data["nbo_data"]["natural_populations"]) == 3
         assert len(data["nbo_data"]["hybridization_character"]) == 6
         assert len(data["nbo_data"]["perturbation_energy"]) == 2
@@ -342,18 +338,18 @@ class TestQCOutput(PymatgenTest):
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][0] == "RY*"
 
     def test_NBO7_parsing(self):
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_1.qout")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_1.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][9] == 15.73
         assert len(data["nbo_data"]["perturbation_energy"][0]["donor bond index"]) == 84
         assert len(data["nbo_data"]["perturbation_energy"][1]["donor bond index"]) == 29
 
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_2.qout")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_2.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == 32.93
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13] == "LV"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][12] == "RY"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][12] == "Mg"
 
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_3.qout")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_3.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == 34.54
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13] == "BD*"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][13] == "B"
@@ -361,8 +357,8 @@ class TestQCOutput(PymatgenTest):
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 number"][13] == 3
 
     def test_NBO5_vs_NBO7_hybridization_character(self):
-        data5 = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo5_1.qout")).data
-        data7 = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_1.qout")).data
+        data5 = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo5_1.qout").data
+        data7 = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_1.qout").data
         assert len(data5["nbo_data"]["hybridization_character"]) == len(data7["nbo_data"]["hybridization_character"])
         assert (
             data5["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9]
@@ -376,38 +372,38 @@ class TestQCOutput(PymatgenTest):
         assert data7["nbo_data"]["hybridization_character"][1]["bond index"][7] == "21"
 
     def test_NBO7_infinite_e2pert(self):
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7_inf.qout")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_inf.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][0] == float("inf")
 
     def test_cdft_parsing(self):
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_simple.qout")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/cdft_simple.qout").data
         assert data["cdft_becke_excess_electrons"][0][0] == 0.432641
         assert len(data["cdft_becke_population"][0]) == 12
         assert data["cdft_becke_net_spin"][0][6] == -0.000316
 
     def test_cdft_dc_parsing(self):
         data = QCOutput.multiple_outputs_from_file(
-            os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_dc.qout"),
+            f"{TEST_FILES_DIR}/molecules/new_qchem_files/cdft_dc.qout",
             keep_sub_files=False,
         )[-1].data
         assert data["direct_coupling_eV"] == 0.0103038246
 
     def test_almo_msdft2_parsing(self):
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "almo.out")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/almo.out").data
         assert data["almo_coupling_states"] == [[[1, 2], [0, 1]], [[0, 1], [1, 2]]]
         assert data["almo_hamiltonian"][0][0] == -156.62929
         assert data["almo_coupling_eV"] == approx(0.26895)
 
     def test_pod_parsing(self):
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "pod2_gs.out")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/pod2_gs.out").data
         assert data["pod_coupling_eV"] == 0.247818
 
     def test_fodft_parsing(self):
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "fodft.out")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/fodft.out").data
         assert data["fodft_coupling_eV"] == 0.268383
 
     def test_isosvp_water(self):
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "isosvp_water_single.qcout")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/isosvp_water_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
         # ISOSVP parameters
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 78.39
@@ -421,9 +417,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is False
 
     def test_isosvp_dielst10(self):
-        data = QCOutput(
-            os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "isosvp_dielst10_single.qcout")
-        ).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/isosvp_dielst10_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
 
         # ISOSVP parameters
@@ -438,7 +432,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is False
 
     def test_cmirs_benzene(self):
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "cmirs_benzene_single.qcout")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/cmirs_benzene_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 2.28
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
@@ -448,9 +442,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0178177740
 
     def test_cmirs_dielst10(self):
-        data = QCOutput(
-            os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "cmirs_dielst10_single.qcout")
-        ).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/cmirs_dielst10_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 10
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
@@ -460,7 +452,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0179866718
 
     def test_cmirs_water(self):
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "cmirs_water_single.qcout")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/cmirs_water_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
 
         # ISOSVP parameters
@@ -479,14 +471,14 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0180445935
 
     def test_NBO_hyperbonds(self):
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "hyper.qout")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/hyper.qout").data
         assert len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"].keys()) == 2
         assert data["nbo_data"]["hyperbonds"][0]["BD(A-B)"][1] == 106
         assert data["nbo_data"]["hyperbonds"][0]["bond atom 2 symbol"][0] == "C"
         assert data["nbo_data"]["hyperbonds"][0]["occ"][1] == 3.0802
 
     def test_NBO_3C(self):
-        data = QCOutput(os.path.join(TEST_FILES_DIR, "molecules", "new_qchem_files", "3C.qout")).data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/3C.qout").data
         assert len(data["nbo_data"]["hybridization_character"]) == 3
         assert data["nbo_data"]["hybridization_character"][2]["type"][0] == "3C"
         assert data["nbo_data"]["hybridization_character"][2]["type"][10] == "3Cn"

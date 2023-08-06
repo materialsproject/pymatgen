@@ -22,7 +22,7 @@ __date__ = "July 2017"
 class TestCritic2Caller(unittest.TestCase):
     def test_from_path(self):
         # uses chgcars
-        test_dir = os.path.join(TEST_FILES_DIR, "bader")
+        test_dir = f"{TEST_FILES_DIR}/bader"
 
         c2c = Critic2Caller.from_path(test_dir)
 
@@ -77,14 +77,14 @@ class TestCritic2Analysis(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        stdout_file = os.path.join(TEST_FILES_DIR, "critic2/MoS2_critic2_stdout.txt")
-        stdout_file_new_format = os.path.join(TEST_FILES_DIR, "critic2/MoS2_critic2_stdout_new_format.txt")
+        stdout_file = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout.txt"
+        stdout_file_new_format = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout_new_format.txt"
         with open(stdout_file) as f:
             reference_stdout = f.read()
         with open(stdout_file_new_format) as f:
             reference_stdout_new_format = f.read()
 
-        structure = Structure.from_file(os.path.join(TEST_FILES_DIR, "critic2/MoS2.cif"))
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/critic2/MoS2.cif")
 
         self.c2o = Critic2Analysis(structure, reference_stdout)
         self.c2o_new_format = Critic2Analysis(structure, reference_stdout_new_format)

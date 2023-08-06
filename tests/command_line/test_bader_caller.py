@@ -60,11 +60,11 @@ class TestBaderAnalysis(unittest.TestCase):
         assert struct[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
 
         # make sure bader still runs without reference file
-        analysis = BaderAnalysis(chgcar_filename=os.path.join(TEST_FILES_DIR, "CHGCAR.Fe3O4"))
+        analysis = BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4")
         assert len(analysis.data) == 14
 
         # Test Cube file format parsing
-        analysis = BaderAnalysis(cube_filename=os.path.join(TEST_FILES_DIR, "bader/elec.cube.gz"))
+        analysis = BaderAnalysis(cube_filename=f"{TEST_FILES_DIR}/bader/elec.cube.gz")
         assert len(analysis.data) == 9
 
     def test_from_path(self):

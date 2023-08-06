@@ -15,7 +15,7 @@ from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile, LammpsRun, LammpsTemplateGen, write_lammps_inputs
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = os.path.join(TEST_FILES_DIR, "lammps")
+test_dir = f"{TEST_FILES_DIR}/lammps"
 
 
 class TestLammpsInputFile(PymatgenTest):
@@ -627,7 +627,7 @@ run             10000
 class TestFunc(unittest.TestCase):
     def test_write_lammps_inputs(self):
         # script template
-        with open(os.path.join(TEST_FILES_DIR, "lammps", "kappa.txt")) as f:
+        with open(f"{TEST_FILES_DIR}/lammps/kappa.txt") as f:
             kappa_template = f.read()
         kappa_settings = {"method": "heat"}
         write_lammps_inputs(output_dir="heat", script_template=kappa_template, settings=kappa_settings)
@@ -644,7 +644,7 @@ class TestFunc(unittest.TestCase):
         pair_style = re.search(r"pair_style\slj/cut\s+(.*)\n", kappa_script)
         assert pair_style.group(1) == "${rc}"
 
-        with open(os.path.join(TEST_FILES_DIR, "lammps", "in.peptide")) as f:
+        with open(f"{TEST_FILES_DIR}/lammps/in.peptide") as f:
             peptide_script = f.read()
         # copy data file
         src = f"{TEST_FILES_DIR}/lammps/data.quartz"
@@ -693,7 +693,7 @@ class TestLammpsTemplateGen(PymatgenTest):
         assert pair_style.group(1) == "${rc}"
 
         # script with data file
-        obj = LammpsData.from_file(os.path.join(TEST_FILES_DIR, "lammps", "data.quartz"), atom_style="atomic")
+        obj = LammpsData.from_file(f"{TEST_FILES_DIR}/lammps/data.quartz", atom_style="atomic")
         lis = LammpsTemplateGen().get_input_set(
             script_template=f"{TEST_FILES_DIR}/lammps/in.peptide",
             settings=None,

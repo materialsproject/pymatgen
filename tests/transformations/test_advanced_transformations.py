@@ -66,7 +66,7 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    data_dir = os.path.join(TEST_FILES_DIR, "struct_predictor")
+    data_dir = f"{TEST_FILES_DIR}/struct_predictor"
     json_file = os.path.join(data_dir, "test_lambda.json")
     with open(json_file) as f:
         return json.load(f)
@@ -195,7 +195,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         enum_trans2 = EnumerateStructureTransformation(refine_structure=True, sort_criteria="nsites")
-        p = Poscar.from_file(os.path.join(TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
         struct = p.structure
         expected = [1, 3, 1]
         for idx, frac in enumerate([0.25, 0.5, 0.75]):
@@ -226,7 +226,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
-        p = Poscar.from_file(os.path.join(TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
         struct = p.structure
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
@@ -253,7 +253,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
             return relax_results["final_structure"], energy
 
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria=sort_criteria)
-        p = Poscar.from_file(os.path.join(TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
         struct = p.structure
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
@@ -332,12 +332,12 @@ class TestMagOrderingTransformation(PymatgenTest):
         self.NiO_AFM_001 = Structure(latt, species, coords)
         self.NiO_AFM_001.add_spin_by_site([-5, 5, 0, 0])
 
-        parser = CifParser(os.path.join(TEST_FILES_DIR, "Fe3O4.cif"))
+        parser = CifParser(f"{TEST_FILES_DIR}/Fe3O4.cif")
         self.Fe3O4 = parser.get_structures()[0]
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        parser = CifParser(os.path.join(TEST_FILES_DIR, "Li8Fe2NiCoO8.cif"))
+        parser = CifParser(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif")
         self.Li8Fe2NiCoO8 = parser.get_structures()[0]
         self.Li8Fe2NiCoO8.remove_oxidation_states()
         warnings.simplefilter("ignore")
@@ -347,7 +347,7 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
-        p = Poscar.from_file(os.path.join(TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
         struct = p.structure
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 3
@@ -377,7 +377,7 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
-        p = Poscar.from_file(os.path.join(TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4", check_for_POTCAR=False)
         struct = p.structure
         a = SpacegroupAnalyzer(struct, 0.1)
         struct = a.get_refined_structure()
@@ -657,7 +657,7 @@ class TestDisorderedOrderedTransformation(PymatgenTest):
 @unittest.skipIf(not mcsqs_cmd, "mcsqs not present.")
 class TestSQSTransformation(PymatgenTest):
     def test_apply_transformation(self):
-        pzt_structs = loadfn(os.path.join(TEST_FILES_DIR, "mcsqs/pztstructs.json"))
+        pzt_structs = loadfn(f"{TEST_FILES_DIR}/mcsqs/pztstructs.json")
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
         # nonsensical example just for testing purposes
         struct = self.get_structure("Pb2TiZrO6").copy()
@@ -668,7 +668,7 @@ class TestSQSTransformation(PymatgenTest):
 
     def test_return_ranked_list(self):
         # list of structures
-        pzt_structs2 = loadfn(os.path.join(TEST_FILES_DIR, "mcsqs/pztstructs2.json"))
+        pzt_structs2 = loadfn(f"{TEST_FILES_DIR}/mcsqs/pztstructs2.json")
         trans = SQSTransformation(scaling=2, search_time=0.01, instances=8, wd=0)
         struct = self.get_structure("Pb2TiZrO6").copy()
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})

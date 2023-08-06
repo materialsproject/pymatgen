@@ -767,7 +767,7 @@ Direct
 
         # test CIF file with unicode error
         # https://github.com/materialsproject/pymatgen/issues/2947
-        struct = Structure.from_file(os.path.join(TEST_FILES_DIR, "bad-unicode-gh-2947.mcif"))
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif")
         assert struct.formula == "Ni32 O32"
 
     def test_pbc(self):

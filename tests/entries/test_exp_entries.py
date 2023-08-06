@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import unittest
 
 from monty.json import MontyDecoder
@@ -13,7 +12,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 class TestExpEntry(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(TEST_FILES_DIR, "Fe2O3_exp.json")) as f:
+        with open(f"{TEST_FILES_DIR}/Fe2O3_exp.json") as f:
             thermo_data = json.load(f, cls=MontyDecoder)
         self.entry = ExpEntry("Fe2O3", thermo_data)
 

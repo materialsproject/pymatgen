@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 
 import pytest
 
@@ -61,7 +60,7 @@ class TestTransformedStructure(PymatgenTest):
         assert self.trans.final_structure.composition.reduced_formula == "NaFePO4"
 
     def test_from_dict(self):
-        with open(os.path.join(TEST_FILES_DIR, "transformations.json")) as file:
+        with open(f"{TEST_FILES_DIR}/transformations.json") as file:
             dct = json.load(file)
         dct["other_parameters"] = {"tags": ["test"]}
         ts = TransformedStructure.from_dict(dct)

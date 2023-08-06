@@ -13,7 +13,7 @@ from pymatgen.core import Molecule
 from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = os.path.join(TEST_FILES_DIR, "packmol")
+test_dir = f"{TEST_FILES_DIR}/packmol"
 
 
 if which("packmol") is None:

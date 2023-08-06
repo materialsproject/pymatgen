@@ -33,7 +33,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestDosPlotter(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(TEST_FILES_DIR, "complete_dos.json")) as f:
+        with open(f"{TEST_FILES_DIR}/complete_dos.json") as f:
             self.dos = CompleteDos.from_dict(json.load(f))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
         warnings.simplefilter("ignore")
@@ -75,7 +75,7 @@ class TestDosPlotter(PymatgenTest):
         rc("text", usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         # Contains energy and DOS limits and expected results
-        with open(os.path.join(TEST_FILES_DIR, "complete_dos_limits.json")) as f:
+        with open(f"{TEST_FILES_DIR}/complete_dos_limits.json") as f:
             limits_results = json.load(f)
 
         for item in limits_results:
@@ -98,18 +98,18 @@ class TestDosPlotter(PymatgenTest):
 
 class TestBSPlotter(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(TEST_FILES_DIR, "CaO_2605_bandstructure.json")) as f:
+        with open(f"{TEST_FILES_DIR}/CaO_2605_bandstructure.json") as f:
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotter(self.bs)
 
         assert len(self.plotter._bs) == 1, "wrong number of band objects"
 
-        with open(os.path.join(TEST_FILES_DIR, "N2_12103_bandstructure.json")) as f:
+        with open(f"{TEST_FILES_DIR}/N2_12103_bandstructure.json") as f:
             d = json.loads(f.read())
             self.sbs_sc = BandStructureSymmLine.from_dict(d)
 
-        with open(os.path.join(TEST_FILES_DIR, "C_48_bandstructure.json")) as f:
+        with open(f"{TEST_FILES_DIR}/C_48_bandstructure.json") as f:
             d = json.loads(f.read())
             self.sbs_met = BandStructureSymmLine.from_dict(d)
 
@@ -202,7 +202,7 @@ class TestBSPlotter(unittest.TestCase):
 
 class TestBSPlotterProjected(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(TEST_FILES_DIR, "Cu2O_361_bandstructure.json")) as f:
+        with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as f:
             d = json.load(f)
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotterProjected(self.bs)
@@ -233,19 +233,17 @@ class TestBSDOSPlotter(unittest.TestCase):
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
-        vasp_run = Vasprun(os.path.join(TEST_FILES_DIR, "vasprun_Si_bands.xml"))
+        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun_Si_bands.xml")
         plotter = BSDOSPlotter()
-        plt = plotter.get_plot(
-            vasp_run.get_band_structure(kpoints_filename=os.path.join(TEST_FILES_DIR, "KPOINTS_Si_bands"))
-        )
+        plt = plotter.get_plot(vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands"))
         plt.close()
         plt = plotter.get_plot(
-            vasp_run.get_band_structure(kpoints_filename=os.path.join(TEST_FILES_DIR, "KPOINTS_Si_bands")),
+            vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands"),
             vasp_run.complete_dos,
         )
         plt.close("all")
 
-        with open(os.path.join(TEST_FILES_DIR, "SrBa2Sn2O7.json")) as f:
+        with open(f"{TEST_FILES_DIR}/SrBa2Sn2O7.json") as f:
             band_struct_dict = json.load(f)
         # generate random projections
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
@@ -271,7 +269,7 @@ class TestBSDOSPlotter(unittest.TestCase):
 
 class TestPlotBZ(unittest.TestCase):
     def setUp(self):
-        self.rec_latt = Structure.from_file(os.path.join(TEST_FILES_DIR, "Si.cssr")).lattice.reciprocal_lattice
+        self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/Si.cssr").lattice.reciprocal_lattice
         self.kpath = [[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
         self.labels = {
             "\\Gamma": [0.0, 0.0, 0.0],
@@ -321,7 +319,7 @@ x_trans = which("x_trans")
 @unittest.skipIf(not x_trans, "No x_trans.")
 class TestBoltztrapPlotter(unittest.TestCase):
     def setUp(self):
-        bz = BoltztrapAnalyzer.from_files(os.path.join(TEST_FILES_DIR, "boltztrap/transp/"))
+        bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")
         self.plotter = BoltztrapPlotter(bz)
         warnings.simplefilter("ignore")
 

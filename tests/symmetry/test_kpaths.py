@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 
 from monty.serialization import loadfn
@@ -59,8 +58,8 @@ class TestHighSymmKpath(PymatgenTest):
             _ = kpath.get_kpoints()
 
     def test_continuous_kpath(self):
-        bs = loadfn(os.path.join(TEST_FILES_DIR, "Cu2O_361_bandstructure.json"))
-        cont_bs = loadfn(os.path.join(TEST_FILES_DIR, "Cu2O_361_bandstructure_continuous.json.gz"))
+        bs = loadfn(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json")
+        cont_bs = loadfn(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure_continuous.json.gz")
         alt_bs = HighSymmKpath(bs.structure).get_continuous_path(bs)
 
         assert cont_bs.as_dict() == alt_bs.as_dict()
