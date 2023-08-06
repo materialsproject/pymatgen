@@ -10,9 +10,9 @@ from pytest import approx
 
 import pymatgen.command_line.vampire_caller as vampirecaller
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings")
+test_dir = f"{TEST_FILES_DIR}/magnetic_orderings"
 
 
 @unittest.skipIf(not which("vampire-serial"), "vampire executable not present")

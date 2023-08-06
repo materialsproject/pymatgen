@@ -12,7 +12,7 @@ from pymatgen.analysis.structure_prediction.substitution_probability import (
 )
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Species
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 
 def get_table():
@@ -22,7 +22,7 @@ def get_table():
     default lambda table.
     """
     data_dir = os.path.join(
-        PymatgenTest.TEST_FILES_DIR,
+        TEST_FILES_DIR,
         "struct_predictor",
     )
 

@@ -11,7 +11,7 @@ from pymatgen.core.units import Ry_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lmto import LMTOCopl, LMTOCtrl
 from pymatgen.util.num import round_to_sigfigs
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -20,7 +20,7 @@ __email__ = "esters@uoregon.edu"
 __date__ = "Nov 30, 2017"
 
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp")
+test_dir = f"{TEST_FILES_DIR}/cohp"
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
 

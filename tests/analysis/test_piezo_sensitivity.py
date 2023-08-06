@@ -16,7 +16,7 @@ from pymatgen.analysis.piezo_sensitivity import (
     get_piezo,
     rand_piezo,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     from phonopy import Phonopy
@@ -30,7 +30,7 @@ __email__ = "handongling@berkeley.edu"
 __status__ = "Development"
 __date__ = "4/23/19"
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "piezo_sensitivity")
+test_dir = f"{TEST_FILES_DIR}/piezo_sensitivity"
 
 
 class TestPiezoSensitivity(PymatgenTest):

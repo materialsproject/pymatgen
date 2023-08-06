@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import unittest
 import warnings
 
@@ -20,7 +19,7 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.plotter import BSPlotterProjected
 from pymatgen.io.vasp import BSVasprun
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestKpoint(unittest.TestCase):
@@ -61,14 +60,12 @@ class TestKpoint(unittest.TestCase):
 
 class TestBandStructureSymmLine(PymatgenTest):
     def setUp(self):
-        self.bs: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/Cu2O_361_bandstructure.json")
-        self.bs2: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/CaO_2605_bandstructure.json")
-        self.bs_spin: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/NiO_19009_bandstructure.json")
-        self.bs_cbm0: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/InN_22205_bandstructure.json")
-        self.bs_cu: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/Cu_30_bandstructure.json")
-        self.bs_diff_spins: BandStructureSymmLine = loadfn(
-            f"{PymatgenTest.TEST_FILES_DIR}/VBr2_971787_bandstructure.json"
-        )
+        self.bs: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json")
+        self.bs2: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/CaO_2605_bandstructure.json")
+        self.bs_spin: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/NiO_19009_bandstructure.json")
+        self.bs_cbm0: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/InN_22205_bandstructure.json")
+        self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu_30_bandstructure.json")
+        self.bs_diff_spins: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/VBr2_971787_bandstructure.json")
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -190,7 +187,7 @@ class TestBandStructureSymmLine(PymatgenTest):
         cbm_k = bs.get_cbm()["kpoint"].frac_coords
         vbm_k = bs.get_vbm()["kpoint"].frac_coords
         assert bs.get_kpoint_degeneracy(cbm_k) is None
-        bs.structure: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/CaO_2605_structure.json")
+        bs.structure: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/CaO_2605_structure.json")
         assert bs.get_kpoint_degeneracy(cbm_k) == 3
         assert bs.get_kpoint_degeneracy(vbm_k) == 1
         cbm_eqs = bs.get_sym_eq_kpoints(cbm_k)
@@ -226,7 +223,7 @@ class TestBandStructureSymmLine(PymatgenTest):
         assert set(d3) >= expected_keys, f"{expected_keys - set(d3)=}"
 
     def test_old_format_load(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "bs_ZnS_old.json")) as f:
+        with open(f"{TEST_FILES_DIR}/bs_ZnS_old.json") as f:
             d = json.load(f)
             bs_old = BandStructureSymmLine.from_dict(d)
             assert bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"] == 0.0971
@@ -254,8 +251,8 @@ class TestBandStructureSymmLine(PymatgenTest):
 
 class TestReconstructBandStructure(PymatgenTest):
     def setUp(self):
-        self.bs_cu: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/Cu_30_bandstructure.json")
-        self.bs_cu2: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/Cu_30_bandstructure.json")
+        self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu_30_bandstructure.json")
+        self.bs_cu2: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu_30_bandstructure.json")
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -267,13 +264,11 @@ class TestReconstructBandStructure(PymatgenTest):
 
     def test_vasprun_bs(self):
         bsv = BSVasprun(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml"),
+            f"{TEST_FILES_DIR}/vasprun.xml",
             parse_projected_eigen=True,
             parse_potcar_file=True,
         )
-        bs = bsv.get_band_structure(
-            kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS.band"), line_mode=True
-        )
+        bs = bsv.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS.band", line_mode=True)
         bs.get_projection_on_elements()
 
 
@@ -281,13 +276,13 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
         with open(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json"),
+            f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
         ) as f:
             bs_spin_dict = json.load(f)
         self.bs_spin = LobsterBandStructureSymmLine.from_dict(bs_spin_dict)
 
         with open(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp/Fatband_SiO2/Test_p/lobster_band_structure.json"),
+            f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure.json",
         ) as f:
             bs_dict = json.load(f)
         self.bs_p = LobsterBandStructureSymmLine.from_dict(bs_dict)

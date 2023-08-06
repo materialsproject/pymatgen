@@ -7,9 +7,9 @@ from pytest import approx
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSetyawanCurtarolo
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir_structs = os.path.join(PymatgenTest.TEST_FILES_DIR, "space_group_structs")
+test_dir_structs = f"{TEST_FILES_DIR}/space_group_structs"
 
 
 class TestBandStructureSC(PymatgenTest):

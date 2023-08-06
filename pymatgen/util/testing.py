@@ -22,14 +22,16 @@ from numpy.testing import assert_allclose
 
 from pymatgen.core import SETTINGS, Structure
 
+MODULE_DIR = Path(__file__).absolute().parent
+
+TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / ".." / "tests" / "files"))
+
 
 class PymatgenTest(unittest.TestCase):
     """Extends unittest.TestCase with several assert methods for array and str comparison."""
 
     _multiprocess_shared_ = True
-    MODULE_DIR = Path(__file__).absolute().parent
     STRUCTURES_DIR = MODULE_DIR / "structures"
-    TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / ".." / "tests" / "files"))
 
     TEST_STRUCTURES: ClassVar[dict[str, Structure]] = {}  # Dict for test structures to aid testing.
 

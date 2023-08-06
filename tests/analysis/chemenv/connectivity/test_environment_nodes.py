@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     import bson
@@ -13,7 +13,7 @@ except ModuleNotFoundError:
 __author__ = "waroquiers"
 
 json_files_dir = os.path.join(
-    PymatgenTest.TEST_FILES_DIR,
+    TEST_FILES_DIR,
     "chemenv",
     "json_test_files",
 )

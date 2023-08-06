@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 
 import pytest
 
@@ -16,7 +15,7 @@ from pymatgen.transformations.standard_transformations import (
     SupercellTransformation,
 )
 from pymatgen.util.provenance import StructureNL
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestTransformedStructure(PymatgenTest):
@@ -52,7 +51,7 @@ class TestTransformedStructure(PymatgenTest):
         self.trans.append_filter(f3)
 
     def test_get_vasp_input(self):
-        SETTINGS["PMG_VASP_PSP_DIR"] = PymatgenTest.TEST_FILES_DIR
+        SETTINGS["PMG_VASP_PSP_DIR"] = TEST_FILES_DIR
         potcar = self.trans.get_vasp_input(MPRelaxSet)["POTCAR"]
         assert "\n".join(p.symbol for p in potcar) == "Na_pv\nFe_pv\nP\nO"
         assert len(self.trans.structures) == 2
@@ -61,7 +60,7 @@ class TestTransformedStructure(PymatgenTest):
         assert self.trans.final_structure.composition.reduced_formula == "NaFePO4"
 
     def test_from_dict(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json")) as file:
+        with open(f"{TEST_FILES_DIR}/transformations.json") as file:
             dct = json.load(file)
         dct["other_parameters"] = {"tags": ["test"]}
         ts = TransformedStructure.from_dict(dct)

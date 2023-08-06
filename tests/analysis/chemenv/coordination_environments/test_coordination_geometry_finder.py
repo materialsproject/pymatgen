@@ -13,12 +13,12 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     symmetry_measure,
 )
 from pymatgen.core.structure import Lattice, Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
 json_files_dir = os.path.join(
-    PymatgenTest.TEST_FILES_DIR,
+    TEST_FILES_DIR,
     "chemenv",
     "json_test_files",
 )

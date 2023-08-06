@@ -5,12 +5,12 @@ from unittest import TestCase
 
 from pymatgen.analysis.molecule_structure_comparator import MoleculeStructureComparator
 from pymatgen.core.structure import Molecule
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "xiaohuiqu"
 
 
-test_dir = f"{PymatgenTest.TEST_FILES_DIR}/molecules/structural_change"
+test_dir = f"{TEST_FILES_DIR}/molecules/structural_change"
 
 
 class TestMoleculeStructureComparator(TestCase):

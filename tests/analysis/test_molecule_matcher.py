@@ -18,14 +18,14 @@ from pymatgen.analysis.molecule_matcher import (
 )
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Molecule, Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 try:
     from openbabel import openbabel
 except (ImportError, RuntimeError):
     openbabel = None
 
-test_dir = f"{PymatgenTest.TEST_FILES_DIR}/molecules/molecule_matcher"
+test_dir = f"{TEST_FILES_DIR}/molecules/molecule_matcher"
 
 
 ob_align_missing = openbabel is None or "OBAlign" not in dir(openbabel)

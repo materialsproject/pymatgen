@@ -10,9 +10,9 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.kpath import KPathLatimerMunro
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir_structs = PymatgenTest.TEST_FILES_DIR
+test_dir_structs = TEST_FILES_DIR
 
 
 class TestKPathLatimerMunro(PymatgenTest):

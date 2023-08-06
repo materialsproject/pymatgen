@@ -17,9 +17,9 @@ from pymatgen.electronic_structure.cohp import (
     get_integrated_cohp_in_energy_range,
 )
 from pymatgen.electronic_structure.core import Orbital, Spin
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp")
+test_dir = f"{TEST_FILES_DIR}/cohp"
 
 
 class TestCohp(unittest.TestCase):

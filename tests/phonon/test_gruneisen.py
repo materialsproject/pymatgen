@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import os
 import unittest
 
 from pytest import approx
+
+from pymatgen.util.testing import TEST_FILES_DIR
 
 try:
     import phonopy
@@ -21,8 +22,8 @@ from pymatgen.util.testing import PymatgenTest
 class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
     def setUp(self) -> None:
         self.bs_symm_line = get_gruneisen_ph_bs_symm_line(
-            gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_eq_plus_minus_InP.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_InP"),
+            gruneisen_path=f"{TEST_FILES_DIR}/gruneisen/gruneisen_eq_plus_minus_InP.yaml",
+            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_InP",
             fit=True,
         )
 
@@ -43,16 +44,16 @@ class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
 class TestGruneisenParameter(PymatgenTest):
     def setUp(self) -> None:
         self.gruneisen_obj = get_gruneisenparameter(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_InP.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_InP"),
+            f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_InP.yaml",
+            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_InP",
         )
         self.gruneisen_obj_small = get_gruneisenparameter(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_only_one_q_InP.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_InP"),
+            f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_only_one_q_InP.yaml",
+            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_InP",
         )
         self.gruneisen_obj_Si = get_gruneisenparameter(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_Si.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_Si"),
+            f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_Si.yaml",
+            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_Si",
         )
 
     def test_plot(self):

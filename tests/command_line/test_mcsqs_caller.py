@@ -9,14 +9,14 @@ from monty.serialization import loadfn
 
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Handong Ling, Rachel Woods-Robinson"
 __maintainer__ = "Handong Ling, Rachel Woods-Robinson"
 __email__ = "handongling@berkeley.edu, rwoodsrobinson@lbl.gov"
 
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs")
+test_dir = f"{TEST_FILES_DIR}/mcsqs"
 
 
 @unittest.skipIf(not (which("mcsqs") and which("str2cif")), "mcsqs executable not present")

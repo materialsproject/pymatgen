@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import warnings
 
 import networkx as nx
@@ -18,7 +17,7 @@ from pymatgen.analysis.dimensionality import (
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import CrystalNN
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestLarsenDimensionality(PymatgenTest):
@@ -114,7 +113,7 @@ class TestLarsenDimensionality(PymatgenTest):
             zero_d_graph_to_molecule_graph(self.graphite, comp_graphs[0])
 
         # test for a troublesome structure
-        s = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "PH7CN3O3F.json.gz"))
+        s = loadfn(f"{TEST_FILES_DIR}/PH7CN3O3F.json.gz")
         bs = CrystalNN().get_bonded_structure(s)
         comp_graphs = [bs.graph.subgraph(c) for c in nx.weakly_connected_components(bs.graph)]
         mol_graph = zero_d_graph_to_molecule_graph(bs, comp_graphs[0])

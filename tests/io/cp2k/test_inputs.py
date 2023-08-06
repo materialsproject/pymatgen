@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -22,7 +20,7 @@ from pymatgen.io.cp2k.inputs import (
     Section,
     SectionList,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 Si_structure = Structure(
     lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],
@@ -148,8 +146,7 @@ class TestBasisAndPotential(PymatgenTest):
 
 class TestInput(PymatgenTest):
     def setUp(self):
-        self.TEST_FILES_DIR = Path.joinpath(PymatgenTest.TEST_FILES_DIR, "cp2k")
-        self.ci = Cp2kInput.from_file(Path.joinpath(self.TEST_FILES_DIR, "cp2k.inp"))
+        self.ci = Cp2kInput.from_file(f"{TEST_FILES_DIR}/cp2k/cp2k.inp")
 
     def test_basic_sections(self):
         s = """

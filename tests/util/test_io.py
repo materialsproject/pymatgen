@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import os
-
 from pymatgen.util.io_utils import micro_pyawk
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestFunc(PymatgenTest):
     def test_micro_pyawk(self):
-        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR")
+        filename = f"{TEST_FILES_DIR}/OUTCAR"
         data = []
 
         def f(x, y):

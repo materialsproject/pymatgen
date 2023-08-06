@@ -1,18 +1,17 @@
 from __future__ import annotations
 
-import os
 import unittest
 
 from pytest import approx
 
 from pymatgen.analysis.cost import CostAnalyzer, CostDBCSV, CostDBElements
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestCostAnalyzer(unittest.TestCase):
     def setUp(self):
-        self.ca1 = CostAnalyzer(CostDBCSV(os.path.join(PymatgenTest.TEST_FILES_DIR, "costdb_1.csv")))
-        self.ca2 = CostAnalyzer(CostDBCSV(os.path.join(PymatgenTest.TEST_FILES_DIR, "costdb_2.csv")))
+        self.ca1 = CostAnalyzer(CostDBCSV(f"{TEST_FILES_DIR}/costdb_1.csv"))
+        self.ca2 = CostAnalyzer(CostDBCSV(f"{TEST_FILES_DIR}/costdb_2.csv"))
 
     def test_cost_per_kg(self):
         assert self.ca1.get_cost_per_kg("Ag") == approx(3, rel=1e-3)

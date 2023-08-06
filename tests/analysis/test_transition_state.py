@@ -7,7 +7,7 @@ import warnings
 import numpy as np
 
 from pymatgen.analysis.transition_state import NEBAnalysis, combine_neb_plots
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 """
 TODO: Modify unittest doc.
@@ -21,7 +21,7 @@ __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "neb_analysis")
+test_dir = f"{TEST_FILES_DIR}/neb_analysis"
 
 
 class TestNEBAnalysis(PymatgenTest):

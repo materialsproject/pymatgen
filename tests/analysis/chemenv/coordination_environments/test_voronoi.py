@@ -7,12 +7,12 @@ import numpy as np
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-json_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/json_test_files"
-img_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/images"
+json_files_dir = f"{TEST_FILES_DIR}/chemenv/json_test_files"
+img_files_dir = f"{TEST_FILES_DIR}/chemenv/images"
 
 
 class TestVoronoiContainer(PymatgenTest):

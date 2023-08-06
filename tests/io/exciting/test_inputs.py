@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import os
 import xml.etree.ElementTree as ET
 
 import numpy as np
 
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.exciting import ExcitingInput
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 """
 Tests the module to parse exciting input
@@ -26,7 +25,7 @@ class TestExcitingInput(PymatgenTest):
     def test_fromfile(self):
         # Test for the import of a structure directly from an exciting
         # input file
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "input_exciting1.xml")
+        filepath = f"{TEST_FILES_DIR}/input_exciting1.xml"
         excin = ExcitingInput.from_file(filepath)
         lattice = [[0.0, 2.81, 2.81], [2.81, 0.0, 2.81], [2.81, 2.81, 0.0]]
         atoms = ["Na", "Cl"]
@@ -78,7 +77,7 @@ class TestExcitingInput(PymatgenTest):
                 assert l1.strip() == l2.strip()
 
     def test_writebandstr(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "CsI3Pb.cif")
+        filepath = f"{TEST_FILES_DIR}/CsI3Pb.cif"
         structure = Structure.from_file(filepath)
         excin = ExcitingInput(structure)
         string = excin.write_string("primitive", bandstr=True)
@@ -159,7 +158,7 @@ class TestExcitingInput(PymatgenTest):
         test_string = test_input.write_string("unchanged", **paradir)
 
         # read reference file
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "input_exciting2.xml")
+        filepath = f"{TEST_FILES_DIR}/input_exciting2.xml"
         tree = ET.parse(filepath)
         root = tree.getroot()
         ref_string = ET.tostring(root, encoding="unicode")
