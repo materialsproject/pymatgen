@@ -219,7 +219,7 @@
     "tests/analysis/test_bond_dissociation.py::TestBondDissociation::test_pc_neutral_pcm_65": 0.0004544589319266379,
     "tests/analysis/test_bond_dissociation.py::TestBondDissociation::test_tfsi_neg_no_pcm": 0.0004278330015949905,
     "tests/analysis/test_bond_valence.py::TestBVAnalyzer::test_get_oxi_state_structure": 0.005586749990470707,
-    "tests/analysis/test_bond_valence.py::TestBVAnalyzer::test_get_valence": 0.05632162501569837,
+    "tests/analysis/test_bond_valence.py::TestBVAnalyzer::test_get_valences": 0.05632162501569837,
     "tests/analysis/test_bond_valence.py::TestBondValenceSum::test_calculate_bv_sum": 0.0013919160119257867,
     "tests/analysis/test_bond_valence.py::TestBondValenceSum::test_calculate_bv_sum_unordered": 0.0008953339420258999,
     "tests/analysis/test_chempot_diagram.py::TestChemicalPotentialDiagram::test_border_hyperplanes": 0.07804387499345466,

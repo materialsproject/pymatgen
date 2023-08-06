@@ -223,8 +223,8 @@ class BVAnalyzer:
         """
         els = [Element(el.symbol) for el in structure.elements]
 
-        if not set(els).issubset(set(BV_PARAMS)):
-            raise ValueError("Structure contains elements not in set of BV parameters!")
+        if diff := set(els) - set(BV_PARAMS):
+            raise ValueError(f"Structure contains elements not in set of BV parameters: {diff}")
 
         # Perform symmetry determination and get sites grouped by symmetry.
         if self.symm_tol:
