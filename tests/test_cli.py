@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import os
 
+from pymatgen.util.testing import TEST_FILES_DIR
 
-def test_entrypoint(TEST_FILES_DIR):
+
+def test_entrypoint():
     exit_status = os.system(f"pmg analyze {TEST_FILES_DIR}/scan_relaxation")
     assert exit_status == 0
     assert os.path.exists("vasp_data.gz")

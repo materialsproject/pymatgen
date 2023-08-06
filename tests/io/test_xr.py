@@ -57,7 +57,7 @@ class TestXr:
 0.0000 0.0000 4.7595"""
         assert str(self.xr) == expected_string
 
-    def test_from_file(self, TEST_FILES_DIR):
+    def test_from_file(self):
         filename = os.path.join(TEST_FILES_DIR, "EDI.xr")
         xr = Xr.from_file(filename)
         assert isinstance(xr.structure, Structure)

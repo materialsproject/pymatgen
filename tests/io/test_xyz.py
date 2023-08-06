@@ -10,6 +10,7 @@ from pytest import approx
 from pymatgen.core.structure import Molecule
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.xyz import XYZ
+from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestXYZ:
@@ -121,7 +122,7 @@ C32-C2-1
         assert mol[2].x == approx(2.34210)
         assert mol[3].z == approx(-0.13790)
 
-    def test_from_file(self, TEST_FILES_DIR):
+    def test_from_file(self):
         filepath = os.path.join(TEST_FILES_DIR, "multiple_frame_xyz.xyz")
         mxyz = XYZ.from_file(filepath)
         assert len(mxyz.all_molecules) == 302
@@ -133,7 +134,7 @@ C32-C2-1
         assert list(mxyz.all_molecules[-1].cart_coords[-1]) == [5.5355550720000002, 0.0282305931, -0.30993102189999999]
         assert list(mxyz.molecule.cart_coords[-1]) == [5.5355550720000002, 0.0282305931, -0.30993102189999999]
 
-    def test_init_from_structure(self, TEST_FILES_DIR):
+    def test_init_from_structure(self):
         filepath = os.path.join(TEST_FILES_DIR, "POSCAR")
         poscar = Poscar.from_file(filepath)
         struct = poscar.structure

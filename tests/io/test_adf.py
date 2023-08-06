@@ -7,12 +7,13 @@ from pytest import approx
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.adf import AdfInput, AdfKey, AdfOutput, AdfTask
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
 @pytest.fixture(autouse=True)
-def test_dir(TEST_FILES_DIR):
+def test_dir():
     return TEST_FILES_DIR / "molecules"
 
 
