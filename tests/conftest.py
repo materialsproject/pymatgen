@@ -1,6 +1,4 @@
-"""
-Test fixes for pymatgen
-"""
+"""Test fixes for pymatgen."""
 
 from __future__ import annotations
 
