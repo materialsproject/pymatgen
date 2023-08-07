@@ -689,7 +689,7 @@ class _MPResterLegacy:
 
         extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} - {Element("H"), Element("O")}
         for entry in ion_ref_entries:
-            entry_elts = set(entry.composition.elements)
+            entry_elts = set(entry.elements)
             # Ensure no OH chemsys or extraneous elements from ion references
             if not (entry_elts <= {Element("H"), Element("O")} or extra_elts.intersection(entry_elts)):
                 # Create new computed entry

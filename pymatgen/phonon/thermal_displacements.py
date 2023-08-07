@@ -1,4 +1,5 @@
 """This module provides classes to handle thermal displacement matrices (anisotropic displacement parameters)."""
+
 from __future__ import annotations
 
 import re

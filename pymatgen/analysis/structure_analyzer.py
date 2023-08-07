@@ -384,7 +384,7 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
     jmnn = JmolNN(el_radius_updates=el_radius_updates)
 
     bonds_lens = {}
-    els = sorted(structure.composition.elements, key=lambda x: x.Z)
+    els = sorted(structure.elements, key=lambda x: x.Z)
 
     for i1, el1 in enumerate(els):
         for i2 in range(len(els) - i1):
@@ -440,9 +440,9 @@ class OxideType:
         h_sites_frac_coords = []
         lattice = structure.lattice
 
-        if isinstance(structure.composition.elements[0], Element):
+        if isinstance(structure.elements[0], Element):
             comp = structure.composition
-        elif isinstance(structure.composition.elements[0], Species):
+        elif isinstance(structure.elements[0], Species):
             elem_map: dict[Element, float] = collections.defaultdict(float)
             for site in structure:
                 for species, occu in site.species.items():

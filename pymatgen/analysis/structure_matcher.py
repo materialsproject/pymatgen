@@ -1,4 +1,5 @@
 """This module provides classes to perform fitting of structures."""
+
 from __future__ import annotations
 
 import abc
@@ -386,7 +387,7 @@ class StructureMatcher(MSONable):
         If fu == 1, s1_supercell is returned as true, to avoid ambiguity.
         """
         if self._supercell_size == "num_sites":
-            fu = s2.num_sites / s1.num_sites
+            fu = len(s2) / len(s1)
         elif self._supercell_size == "num_atoms":
             fu = s2.composition.num_atoms / s1.composition.num_atoms
         elif self._supercell_size == "volume":
@@ -895,8 +896,8 @@ class StructureMatcher(MSONable):
             raise ValueError("Anonymous fitting currently requires SpeciesComparator")
 
         # check that species lists are comparable
-        sp1 = struct1.composition.elements
-        sp2 = struct2.composition.elements
+        sp1 = struct1.elements
+        sp2 = struct2.elements
         if len(sp1) != len(sp2):
             return None
 

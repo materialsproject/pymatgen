@@ -508,7 +508,7 @@ class DictSet(VaspInputSet):
                         ]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
-                    incar["EDIFF"] = float(v) * structure.num_sites
+                    incar["EDIFF"] = float(v) * len(structure)
                 else:
                     incar["EDIFF"] = float(settings["EDIFF"])
             else:
@@ -1868,18 +1868,23 @@ class MPNMRSet(MPStaticSet):
     """Init a MPNMRSet."""
 
     def __init__(
-        self, structure: Structure, mode="cs", isotopes=None, prev_incar=None, reciprocal_density=100, **kwargs
+        self,
+        structure: Structure,
+        mode: Literal["cs", "efg"] = "cs",
+        isotopes: list | None = None,
+        prev_incar: Incar = None,
+        reciprocal_density: int = 100,
+        **kwargs,
     ):
         """
         Args:
             structure (Structure): Structure to compute
             mode (str): The NMR calculation to run
-                            "cs": for Chemical Shift
-                            "efg" for Electric Field Gradient
+                "cs": for Chemical Shift
+                "efg" for Electric Field Gradient
             isotopes (list): list of Isotopes for quadrupole moments
             prev_incar (Incar): Incar file from previous run.
-            reciprocal_density (int): density of k-mesh by reciprocal
-                                    volume (defaults to 100)
+            reciprocal_density (int): density of k-mesh by reciprocal volume. Defaults to 100.
             **kwargs: kwargs supported by MPStaticSet.
         """
         self.mode = mode
@@ -1900,7 +1905,7 @@ class MPNMRSet(MPStaticSet):
                     "LCHARG": False,
                     "LNMR_SYM_RED": True,
                     "NELMIN": 10,
-                    "NSLPLINE": True,
+                    "NLSPLINE": True,
                     "PREC": "ACCURATE",
                     "SIGMA": 0.01,
                 }
@@ -2896,8 +2901,8 @@ def standardize_structure(structure, sym_prec=0.1, international_monoclinic=True
 
     # the primitive structure finding has had several bugs in the past
     # defend through validation
-    vpa_old = structure.volume / structure.num_sites
-    vpa_new = new_structure.volume / new_structure.num_sites
+    vpa_old = structure.volume / len(structure)
+    vpa_new = new_structure.volume / len(new_structure)
 
     if abs(vpa_old - vpa_new) / vpa_old > 0.02:
         raise ValueError(f"Standardizing cell failed! VPA old: {vpa_old}, VPA new: {vpa_new}")

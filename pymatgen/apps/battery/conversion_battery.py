@@ -72,8 +72,7 @@ class ConversionElectrode(AbstractElectrode):
         profile.reverse()
         if len(profile) < 2:
             return None
-        working_ion_entry = working_ion_entry
-        working_ion = working_ion_entry.composition.elements[0].symbol
+        working_ion = working_ion_entry.elements[0].symbol
         normalization_els = {}
         for el, amt in comp.items():
             if el != Element(working_ion):
@@ -83,7 +82,7 @@ class ConversionElectrode(AbstractElectrode):
             framework.pop(working_ion)
         framework = Composition(framework)
 
-        vpairs = [
+        v_pairs = [
             ConversionVoltagePair.from_steps(
                 profile[i],
                 profile[i + 1],
@@ -94,7 +93,7 @@ class ConversionElectrode(AbstractElectrode):
         ]
 
         return ConversionElectrode(  # pylint: disable=E1123
-            voltage_pairs=vpairs,
+            voltage_pairs=v_pairs,
             working_ion_entry=working_ion_entry,
             initial_comp_formula=comp.reduced_formula,
             framework_formula=framework.reduced_formula,
@@ -299,7 +298,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
             framework_formula: Formula of the framework.
         """
         working_ion_entry = step1["element_reference"]
-        working_ion = working_ion_entry.composition.elements[0].symbol
+        working_ion = working_ion_entry.elements[0].symbol
         working_ion_valence = max(Element(working_ion).oxidation_states)
         voltage = (-step1["chempot"] + working_ion_entry.energy_per_atom) / working_ion_valence
         mAh = (
@@ -338,26 +337,24 @@ class ConversionVoltagePair(AbstractVoltagePair):
             sum(curr_rxn.all_comp[i].weight * abs(curr_rxn.coeffs[i]) for i in range(len(curr_rxn.all_comp))) / 2
         )
         mass_charge = prev_mass_dischg
-        mass_discharge = mass_discharge
         vol_discharge = sum(
             abs(curr_rxn.get_coeff(e.composition)) * e.structure.volume
             for e in step2["entries"]
             if e.composition.reduced_formula != working_ion
         )
 
-        totalcomp = Composition({})
+        total_comp = Composition({})
         for comp in prev_rxn.products:
             if comp.reduced_formula != working_ion:
-                totalcomp += comp * abs(prev_rxn.get_coeff(comp))
-        frac_charge = totalcomp.get_atomic_fraction(Element(working_ion))
+                total_comp += comp * abs(prev_rxn.get_coeff(comp))
+        frac_charge = total_comp.get_atomic_fraction(Element(working_ion))
 
-        totalcomp = Composition({})
+        total_comp = Composition({})
         for comp in curr_rxn.products:
             if comp.reduced_formula != working_ion:
-                totalcomp += comp * abs(curr_rxn.get_coeff(comp))
-        frac_discharge = totalcomp.get_atomic_fraction(Element(working_ion))
+                total_comp += comp * abs(curr_rxn.get_coeff(comp))
+        frac_discharge = total_comp.get_atomic_fraction(Element(working_ion))
 
-        rxn = rxn
         entries_charge = step1["entries"]
         entries_discharge = step2["entries"]
 
