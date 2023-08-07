@@ -339,7 +339,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return site in self.sites
 
     def __iter__(self) -> Iterator[Site]:
-        return self.sites.__iter__()
+        return iter(self.sites)
 
     # TODO return type needs fixing (can be list[Site] but raises lots of mypy errors)
     def __getitem__(self, ind: int | slice) -> Site:
@@ -1345,10 +1345,10 @@ class IStructure(SiteCollection, MSONable):
 
         new_sites = []
         for site in self:
-            for v in c_lat:
-                s = PeriodicSite(
+            for vec in c_lat:
+                site = PeriodicSite(
                     site.species,
-                    site.coords + v,
+                    site.coords + vec,
                     new_lattice,
                     properties=site.properties,
                     coords_are_cartesian=True,
@@ -1356,14 +1356,14 @@ class IStructure(SiteCollection, MSONable):
                     skip_checks=True,
                     label=site.label,
                 )
-                new_sites.append(s)
+                new_sites.append(site)
 
         new_charge = self._charge * np.linalg.det(scale_matrix) if self._charge else None
         return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=True)
 
     def __rmul__(self, scaling_matrix):
         """Similar to __mul__ to preserve commutativeness."""
-        return self.__mul__(scaling_matrix)
+        return self * scaling_matrix
 
     @property
     def frac_coords(self):

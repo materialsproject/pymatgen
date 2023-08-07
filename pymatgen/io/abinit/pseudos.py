@@ -11,7 +11,7 @@ import logging
 import os
 import sys
 from collections import defaultdict, namedtuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator, Sequence
 
 import numpy as np
 from monty.collections import AttrDict, Namespace
@@ -1609,7 +1609,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
         return cls(pseudos).sort_by_z()
 
-    def __init__(self, pseudos):
+    def __init__(self, pseudos: Sequence[Pseudo]) -> None:
         """
         Args:
             pseudos: List of pseudopotentials or filepaths.
@@ -1650,22 +1650,22 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             return self.__class__(pseudos)
         return self.__class__(self._pseudos_with_z[Z])
 
-    def __len__(self):
-        return len(list(self.__iter__()))
+    def __len__(self) -> int:
+        return len(list(iter(self)))
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Pseudo]:
         """Process the elements in Z order."""
         for z in self.zlist:
             yield from self._pseudos_with_z[z]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{type(self).__name__} at {id(self)}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.to_table()
 
     @property
-    def allnc(self):
+    def allnc(self) -> bool:
         """True if all pseudos are norm-conserving."""
         return all(p.isnc for p in self)
 

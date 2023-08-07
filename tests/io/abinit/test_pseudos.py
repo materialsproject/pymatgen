@@ -84,7 +84,7 @@ class PseudoTestCase(PymatgenTest):
         assert pseudo.l_local == 2
         assert not pseudo.supports_soc
 
-        # Test PseudoTable.
+        # Test PseudoTable
         table = PseudoTable(self.nc_pseudos["Si"])
         assert repr(table)
         assert str(table)

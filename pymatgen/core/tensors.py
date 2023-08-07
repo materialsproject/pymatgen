@@ -707,7 +707,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         return self.tensors[ind]
 
     def __iter__(self):
-        return self.tensors.__iter__()
+        return iter(self.tensors)
 
     def zeroed(self, tol: float = 1e-3):
         """

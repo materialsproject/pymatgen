@@ -23,7 +23,7 @@ from numpy.testing import assert_allclose
 from pymatgen.core import SETTINGS, Structure
 
 MODULE_DIR = Path(__file__).absolute().parent
-
+STRUCTURES_DIR = MODULE_DIR / "structures"
 TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / ".." / "tests" / "files"))
 
 
@@ -31,7 +31,6 @@ class PymatgenTest(unittest.TestCase):
     """Extends unittest.TestCase with several assert methods for array and str comparison."""
 
     _multiprocess_shared_ = True
-    STRUCTURES_DIR = MODULE_DIR / "structures"
 
     TEST_STRUCTURES: ClassVar[dict[str, Structure]] = {}  # Dict for test structures to aid testing.
 
@@ -44,7 +43,7 @@ class PymatgenTest(unittest.TestCase):
     @classmethod
     def get_structure(cls, name: str) -> Structure:
         """
-        Get a structure from the template directories.
+        Lazily load a structure from pymatgen/util/testing/structures.
 
         Args:
             name (str): Name of structure file.
@@ -53,7 +52,7 @@ class PymatgenTest(unittest.TestCase):
             Structure
         """
         if name not in cls.TEST_STRUCTURES:
-            cls.TEST_STRUCTURES[name] = loadfn(cls.STRUCTURES_DIR / f"{name}.json")
+            cls.TEST_STRUCTURES[name] = loadfn(f"{STRUCTURES_DIR}/{name}.json")
         return cls.TEST_STRUCTURES[name].copy()
 
     @staticmethod

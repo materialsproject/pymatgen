@@ -537,7 +537,7 @@ class ComputedEntry(Entry):
         if self.entry_id is not None:
             return hash(f"{type(self).__name__}{self.entry_id}")
 
-        return super().__hash__()
+        return hash(super())
 
     def copy(self) -> ComputedEntry:
         """Returns a copy of the ComputedEntry."""

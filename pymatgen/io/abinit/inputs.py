@@ -596,7 +596,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return self.vars.__getitem__(key)
 
     def __iter__(self):
-        return self.vars.__iter__()
+        return iter(self.vars)
 
     def __len__(self):
         return len(self.vars)
@@ -1139,7 +1139,7 @@ class BasicMultiDataset:
         return self._inputs[key]
 
     def __iter__(self):
-        return self._inputs.__iter__()
+        return iter(self._inputs)
 
     def __getattr__(self, name):
         _inputs = object.__getattribute__(self, "_inputs")
