@@ -193,12 +193,11 @@ class BaderAnalysis:
                     # Find the index of the atom in the charge density atom
                     index = np.round(np.multiply(loc, chg.dim))
 
-                    data = chg.data["total"]
                     # Find the shift vector in the array
                     shift = (np.divide(chg.dim, 2) - index).astype(int)
 
                     # Shift the data so that the atomic charge density to the center for easier manipulation
-                    shifted_data = np.roll(data, shift, axis=(0, 1, 2))
+                    shifted_data = np.roll(chg.data["total"], shift, axis=(0, 1, 2))
 
                     # Slices a central window from the data array
                     def slice_from_center(data, xwidth, ywidth, zwidth):
@@ -212,8 +211,8 @@ class BaderAnalysis:
                             startz : startz + zwidth,
                         ]
 
-                    # Finds the central encompassing volume which holds all the data within a precision
-                    def find_encompassing_vol(data):
+                    def find_encompassing_vol(data: np.ndarray):
+                        # Find the central encompassing volume which holds all the data within a precision
                         total = np.sum(data)
                         for i in range(np.max(data.shape)):
                             sliced_data = slice_from_center(data, i, i, i)
