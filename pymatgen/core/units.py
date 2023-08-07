@@ -394,7 +394,7 @@ class FloatWithUnit(float):
         return FloatWithUnit(val, unit_type=None, unit=self._unit / other._unit)
 
     def __neg__(self):
-        return FloatWithUnit(-super(), unit_type=self._unit_type, unit=self._unit)
+        return FloatWithUnit(super().__neg__(), unit_type=self._unit_type, unit=self._unit)
 
     def __getnewargs__(self):
         """Function used by pickle to recreate object."""
