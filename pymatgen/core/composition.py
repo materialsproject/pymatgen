@@ -751,7 +751,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
-        return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
+        return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
     def replace(self, elem_map: dict[str, str | dict[str, int | float]]) -> Composition:
         """
@@ -843,9 +843,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             on the results form guessing oxidation states. If no oxidation state
             is possible, returns a Composition where all oxidation states are 0.
         """
-        _, oxidation_states = self._get_oxid_state_guesses(
-            all_oxi_states, max_sites, oxi_states_override, target_charge
-        )
+        _, oxidation_states = self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)
 
         # Special case: No charged compound is possible
         if not oxidation_states:
@@ -872,7 +870,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             dct[Element(specie.symbol)] += amt
         return Composition(dct)
 
-    def _get_oxid_state_guesses(self, all_oxi_states, max_sites, oxi_states_override, target_charge):
+    def _get_oxi_state_guesses(self, all_oxi_states, max_sites, oxi_states_override, target_charge):
         """
         Utility operation for guessing oxidation states.
 
