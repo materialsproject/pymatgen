@@ -424,6 +424,7 @@ class Vasprun(MSONable):
                         self.parameters = self._parse_params(elem)
                     elif tag == "structure" and elem.attrib.get("name") == "initialpos":
                         self.initial_structure = self._parse_structure(elem)
+                        self.final_structure = self.initial_structure
                     elif tag == "atominfo":
                         self.atomic_symbols, self.potcar_symbols = self._parse_atominfo(elem)
                         self.potcar_spec = [{"titel": p, "hash": None} for p in self.potcar_symbols]
