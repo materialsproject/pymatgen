@@ -898,13 +898,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 formula is greater than abs(max_sites).
 
         Returns:
-            A list of dicts - each dict reports an element symbol and average
-                oxidation state across all sites in that composition. If the
-                composition is not charge balanced, an empty list is returned.
-            A list of dicts - each dict maps the element symbol to a list of
+            list[dict]: Each dict maps the element symbol to a list of
                 oxidation states for each site of that element. For example, Fe3O4 could
-                return a list of [2,2,2,3,3,3] for the oxidation states of If the composition
-                is
+                return a list of [2,2,2,3,3,3] for the oxidation states of the 6 Fe sites.
+                If the composition is not charge balanced, an empty list is returned.
         """
         comp = self.copy()
         # reduce Composition if necessary
