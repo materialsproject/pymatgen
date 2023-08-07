@@ -242,12 +242,12 @@ class BoltztrapRunner(MSONable):
 
     @property
     def bs(self):
-        """:return: The BandStructure"""
+        """The BandStructure."""
         return self._bs
 
     @property
     def nelec(self):
-        """:return: Number of electrons"""
+        """Number of electrons."""
         return self._nelec
 
     def write_energy(self, output_file):
@@ -681,7 +681,7 @@ class BoltztrapRunner(MSONable):
             return path_dir
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict."""
         results = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -2040,7 +2040,7 @@ class BoltztrapAnalyzer:
         raise ValueError(f"Run type: {run_type} not recognized!")
 
     def as_dict(self):
-        """:return: MSONable dict."""
+        """MSONable dict."""
         results = {
             "gap": self.gap,
             "mu_steps": self.mu_steps,

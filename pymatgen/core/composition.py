@@ -243,12 +243,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def average_electroneg(self) -> float:
-        """:return: Average electronegativity of the composition."""
+        """Average electronegativity of the composition."""
         return sum((el.X * abs(amt) for el, amt in self.items())) / self.num_atoms
 
     @property
     def total_electrons(self) -> float:
-        """:return: Total number of electrons in composition."""
+        """Total number of electrons in composition."""
         return sum((el.Z * abs(amt) for el, amt in self.items()))
 
     def almost_equals(self, other: Composition, rtol: float = 0.1, atol: float = 1e-8) -> bool:
@@ -275,7 +275,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return len(self) == 1
 
     def copy(self) -> Composition:
-        """:return: A copy of the composition."""
+        """A copy of the composition."""
         return Composition(self, allow_negative=self.allow_negative)
 
     @property

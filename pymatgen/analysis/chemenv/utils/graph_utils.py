@@ -287,7 +287,7 @@ class SimpleGraphCycle(MSONable):
         return cls(nodes)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         d = MSONable.as_dict(self)
         # Transforming tuple object to a list to allow BSON and MongoDB
         d["nodes"] = list(d["nodes"])

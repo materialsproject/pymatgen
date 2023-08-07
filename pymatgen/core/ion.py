@@ -313,7 +313,7 @@ class Ion(Composition, MSONable, Stringify):
         return "Ion: " + self.formula
 
     def to_pretty_string(self) -> str:
-        """:return: Pretty string with proper superscripts."""
+        """Pretty string with proper superscripts."""
         str_ = super().reduced_formula
         if val := formula_double_format(self.charge, False):
             str_ += f"^{val:+}"

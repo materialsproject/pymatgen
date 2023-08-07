@@ -553,7 +553,7 @@ class Poscar(MSONable):
             f.write(self.get_string(**kwargs))
 
     def as_dict(self) -> dict:
-        """:return: MSONable dict."""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -679,7 +679,7 @@ class Incar(dict, MSONable):
         )
 
     def as_dict(self) -> dict:
-        """:return: MSONable dict."""
+        """MSONable dict."""
         d = dict(self)
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -1526,7 +1526,7 @@ class Kpoints(MSONable):
         return "\n".join(lines) + "\n"
 
     def as_dict(self):
-        """:return: MSONable dict."""
+        """MSONable dict."""
         d = {
             "comment": self.comment,
             "nkpoints": self.num_kpts,
@@ -1828,7 +1828,7 @@ class PotcarSingle:
 
     @property
     def electron_configuration(self):
-        """:return: Electronic configuration of the PotcarSingle."""
+        """Electronic configuration of the PotcarSingle."""
         if not self.nelectrons.is_integer():
             warnings.warn("POTCAR has non-integer charge, electron configuration not well-defined.")
             return None
@@ -1907,7 +1907,7 @@ class PotcarSingle:
         )
 
     @property
-    def element(self):
+    def element(self) -> str:
         """Attempt to return the atomic symbol based on the VRHFIN keyword."""
         element = self.keywords["VRHFIN"].split(":")[0].strip()
         try:
@@ -1925,18 +1925,18 @@ class PotcarSingle:
         return Element(self.element).Z
 
     @property
-    def nelectrons(self):
-        """:return: Number of electrons"""
+    def nelectrons(self) -> float:
+        """Number of electrons"""
         return self.zval
 
     @property
-    def symbol(self):
-        """:return: The POTCAR symbol, e.g. W_pv"""
+    def symbol(self) -> str:
+        """The POTCAR symbol, e.g. W_pv"""
         return self._symbol
 
     @property
-    def potential_type(self) -> str:
-        """:return: Type of PSP. E.g., US, PAW, etc."""
+    def potential_type(self) -> Literal["NC", "PAW", "US"]:
+        """Type of PSP. E.g., US, PAW, etc."""
         if self.lultra:
             return "US"
         if self.lpaw:
@@ -1944,13 +1944,13 @@ class PotcarSingle:
         return "NC"
 
     @property
-    def functional(self):
-        """:return: Functional associated with PotcarSingle."""
+    def functional(self) -> str | None:
+        """Functional associated with PotcarSingle."""
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("name")
 
     @property
     def functional_class(self):
-        """:return: Functional class associated with PotcarSingle."""
+        """Functional class associated with PotcarSingle."""
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
 
     def verify_potcar(self) -> tuple[bool, bool]:
@@ -2229,7 +2229,7 @@ class Potcar(list, MSONable):
             self.set_symbols(symbols, functional, sym_potcar_map)
 
     def as_dict(self):
-        """:return: MSONable dict representation"""
+        """MSONable dict representation"""
         return {
             "functional": self.functional,
             "symbols": self.symbols,
@@ -2351,7 +2351,7 @@ class VaspInput(dict, MSONable):
         return "\n".join(output)
 
     def as_dict(self):
-        """:return: MSONable dict."""
+        """MSONable dict."""
         d = {k: v.as_dict() for k, v in self.items()}
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__

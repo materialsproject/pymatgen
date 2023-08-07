@@ -282,7 +282,7 @@ class Lobsterin(dict, MSONable):
                             f.write(f"{key} {entry}\n")
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         d = dict(self)
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__

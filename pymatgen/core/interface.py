@@ -279,7 +279,7 @@ class Interface(Structure):
             site.coords = c_coords  # Put back into original Cartesian space
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict."""
         d = super().as_dict()
         d["in_plane_offset"] = self.in_plane_offset.tolist()
         d["gap"] = self.gap

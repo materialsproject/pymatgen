@@ -492,7 +492,7 @@ class Slab(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict."""
         d = super().as_dict()
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__

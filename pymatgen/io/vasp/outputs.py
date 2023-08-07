@@ -3268,7 +3268,7 @@ class Outcar:
         return aps
 
     def as_dict(self):
-        """:return: MSONable dict."""
+        """MSONable dict."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -3654,7 +3654,7 @@ class Chgcar(VolumetricData):
 
     @property
     def net_magnetization(self):
-        """:return: Net magnetization from Chgcar"""
+        """Net magnetization from Chgcar"""
         if self.is_spin_polarized:
             return np.sum(self.data["diff"])
         return None
@@ -4010,7 +4010,7 @@ class Oszicar:
         return self.ionic_steps[-1]["E0"]
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "electronic_steps": self.electronic_steps,
             "ionic_steps": self.ionic_steps,

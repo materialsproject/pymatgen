@@ -224,7 +224,7 @@ class PhononBandStructure(MSONable):
         return None
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

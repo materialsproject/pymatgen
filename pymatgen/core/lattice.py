@@ -96,7 +96,7 @@ class Lattice(MSONable):
 
     @property
     def is_orthogonal(self) -> bool:
-        """:return: Whether all angles are 90 degrees."""
+        """Whether all angles are 90 degrees."""
         return all(abs(a - 90) < 1e-5 for a in self.angles)
 
     def __format__(self, fmt_spec: str = ""):
@@ -468,7 +468,7 @@ class Lattice(MSONable):
 
     @property
     def lll_matrix(self) -> np.ndarray:
-        """:return: The matrix for LLL reduction"""
+        """The matrix for LLL reduction."""
         if 0.75 not in self._lll_matrix_mappings:
             self._lll_matrix_mappings[0.75] = self._calculate_lll()
         return self._lll_matrix_mappings[0.75][0]
@@ -485,7 +485,7 @@ class Lattice(MSONable):
 
     @property
     def lll_inverse(self) -> np.ndarray:
-        """:return: Inverse of self.lll_mapping."""
+        """Inverse of self.lll_mapping."""
         return np.linalg.inv(self.lll_mapping)
 
     @property
