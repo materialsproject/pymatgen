@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import unittest
 import warnings
 from shutil import which
@@ -67,7 +66,7 @@ def get_table():
     default lambda table.
     """
     data_dir = f"{TEST_FILES_DIR}/struct_predictor"
-    json_file = os.path.join(data_dir, "test_lambda.json")
+    json_file = f"{data_dir}/test_lambda.json"
     with open(json_file) as f:
         return json.load(f)
 

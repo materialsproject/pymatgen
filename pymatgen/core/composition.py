@@ -751,7 +751,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
-        return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
+        return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
     def replace(self, elem_map: dict[str, str | dict[str, int | float]]) -> Composition:
         """
@@ -843,9 +843,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             on the results form guessing oxidation states. If no oxidation state
             is possible, returns a Composition where all oxidation states are 0.
         """
-        _, oxidation_states = self._get_oxid_state_guesses(
-            all_oxi_states, max_sites, oxi_states_override, target_charge
-        )
+        _, oxidation_states = self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)
 
         # Special case: No charged compound is possible
         if not oxidation_states:
@@ -872,7 +870,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             dct[Element(specie.symbol)] += amt
         return Composition(dct)
 
-    def _get_oxid_state_guesses(self, all_oxi_states, max_sites, oxi_states_override, target_charge):
+    def _get_oxi_state_guesses(self, all_oxi_states, max_sites, oxi_states_override, target_charge):
         """
         Utility operation for guessing oxidation states.
 
@@ -898,13 +896,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 formula is greater than abs(max_sites).
 
         Returns:
-            A list of dicts - each dict reports an element symbol and average
-                oxidation state across all sites in that composition. If the
-                composition is not charge balanced, an empty list is returned.
-            A list of dicts - each dict maps the element symbol to a list of
+            list[dict]: Each dict maps the element symbol to a list of
                 oxidation states for each site of that element. For example, Fe3O4 could
-                return a list of [2,2,2,3,3,3] for the oxidation states of If the composition
-                is
+                return a list of [2,2,2,3,3,3] for the oxidation states of the 6 Fe sites.
+                If the composition is not charge balanced, an empty list is returned.
         """
         comp = self.copy()
         # reduce Composition if necessary
@@ -925,7 +920,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # Load prior probabilities of oxidation states, used to rank solutions
         if not Composition.oxi_prob:
             module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-            all_data = loadfn(os.path.join(module_dir, "..", "analysis", "icsd_bv.yaml"))
+            all_data = loadfn(f"{module_dir}/../analysis/icsd_bv.yaml")
             Composition.oxi_prob = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
         oxi_states_override = oxi_states_override or {}
         # assert: Composition only has integer amounts

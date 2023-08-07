@@ -88,7 +88,7 @@ def main():
 
     # Generate new json file in pycore
     pmg_core = os.path.abspath("../pymatgen/core/")
-    json_path = os.path.join(pmg_core, "libxc_docs.json")
+    json_path = f"{pmg_core}/libxc_docs.json"
     write_libxc_docs_json(xc_funcs, json_path)
 
     # Build new enum list.
@@ -101,7 +101,7 @@ def main():
 
     # Re-generate enumerations.
     # [0] read py module.
-    xc_funcpy_path = os.path.join(pmg_core, "libxcfunc.py")
+    xc_funcpy_path = f"{pmg_core}/libxcfunc.py"
     with open(xc_funcpy_path) as fh:
         lines = fh.readlines()
 

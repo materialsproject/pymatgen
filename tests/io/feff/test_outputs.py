@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 
 from pymatgen.io.feff.outputs import LDos, Xmu
@@ -14,8 +13,8 @@ class TestFeffLdos(unittest.TestCase):
     filepath2 = f"{TEST_FILES_DIR}/ldos"
     ldos = LDos.from_file(filepath1, filepath2)
 
-    reci_feffinp = os.path.join(test_dir_reci, "feff.inp")
-    reci_ldos = os.path.join(test_dir_reci, "ldos")
+    reci_feffinp = f"{test_dir_reci}/feff.inp"
+    reci_ldos = f"{test_dir_reci}/ldos"
     reci_dos = LDos.from_file(reci_feffinp, reci_ldos)
 
     def test_init(self):

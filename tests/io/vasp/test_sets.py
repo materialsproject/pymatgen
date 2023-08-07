@@ -1755,7 +1755,7 @@ class TestLobsterSet(PymatgenTest):
             self.lobsterset6 = LobsterSet(self.struct, user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s"})
         self.lobsterset7 = LobsterSet(
             self.struct,
-            address_basis_file=os.path.join(MODULE_DIR, "../lobster/lobster_basis/BASIS_PBE_54_standard.yaml"),
+            address_basis_file=f"{MODULE_DIR}/../lobster/lobster_basis/BASIS_PBE_54_standard.yaml",
         )
         with pytest.warns(BadInputSetWarning, match="Overriding the POTCAR"):
             self.lobsterset6 = LobsterSet(self.struct)
