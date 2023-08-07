@@ -39,7 +39,7 @@ def gen_potcar(dirname, filename):
             elements = f.readlines()
         symbols = [el.strip() for el in elements if el.strip() != ""]
         potcar = Potcar(symbols)
-        potcar.write_file(os.path.join(dirname, "POTCAR"))
+        potcar.write_file(f"{dirname}/POTCAR")
 
 
 def generate_potcar(args):

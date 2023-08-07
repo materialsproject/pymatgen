@@ -19,7 +19,7 @@ def get_table():
         TEST_FILES_DIR,
         "struct_predictor",
     )
-    json_file = os.path.join(data_dir, "test_lambda.json")
+    json_file = f"{data_dir}/test_lambda.json"
     with open(json_file) as f:
         return json.load(f)
 

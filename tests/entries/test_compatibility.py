@@ -1843,7 +1843,7 @@ class TestMaterialsProjectAqueousCompatibility:
 class TestAqueousCorrection(unittest.TestCase):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
-        fp = os.path.join(module_dir, "MITCompatibility.yaml")
+        fp = f"{module_dir}/MITCompatibility.yaml"
         self.corr = AqueousCorrection(fp)
 
     def test_compound_energy(self):
@@ -1873,7 +1873,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.aqcompat = MITAqueousCompatibility(check_potcar_hash=True)
         module_dir = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
-        fp = os.path.join(module_dir, "MITCompatibility.yaml")
+        fp = f"{module_dir}/MITCompatibility.yaml"
         self.aqcorr = AqueousCorrection(fp)
 
     def test_aqueous_compat(self):

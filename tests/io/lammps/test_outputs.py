@@ -17,10 +17,10 @@ test_dir = f"{TEST_FILES_DIR}/lammps"
 class TestLammpsDump(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        with open(os.path.join(test_dir, "dump.rdx_wc.100")) as f:
+        with open(f"{test_dir}/dump.rdx_wc.100") as f:
             rdx_str = f.read()
         cls.rdx = LammpsDump.from_str(string=rdx_str)
-        with open(os.path.join(test_dir, "dump.tatb")) as f:
+        with open(f"{test_dir}/dump.tatb") as f:
             tatb_str = f.read()
         cls.tatb = LammpsDump.from_str(string=tatb_str)
 
@@ -57,13 +57,13 @@ class TestLammpsDump(unittest.TestCase):
 class TestFunc(unittest.TestCase):
     def test_parse_lammps_dumps(self):
         # gzipped
-        rdx_10_pattern = os.path.join(test_dir, "dump.rdx.gz")
+        rdx_10_pattern = f"{test_dir}/dump.rdx.gz"
         rdx_10 = list(parse_lammps_dumps(file_pattern=rdx_10_pattern))
         timesteps_10 = [d.timestep for d in rdx_10]
         np.testing.assert_array_equal(timesteps_10, np.arange(0, 101, 10))
         assert rdx_10[-1].data.shape == (21, 5)
         # wildcard
-        rdx_25_pattern = os.path.join(test_dir, "dump.rdx_wc.*")
+        rdx_25_pattern = f"{test_dir}/dump.rdx_wc.*"
         rdx_25 = list(parse_lammps_dumps(file_pattern=rdx_25_pattern))
         timesteps_25 = [d.timestep for d in rdx_25]
         np.testing.assert_array_equal(timesteps_25, np.arange(0, 101, 25))

@@ -490,17 +490,17 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
             if aeccar0 and aeccar2:
                 # construct reference file
                 chgref = aeccar0.linear_add(aeccar2)
-                chgref_path = os.path.join(tmp_dir, "CHGCAR_ref")
+                chgref_path = f"{tmp_dir}/CHGCAR_ref"
                 chgref.write_file(chgref_path)
             else:
                 chgref_path = None
 
             chgcar.write_file("CHGCAR")
-            chgcar_path = os.path.join(tmp_dir, "CHGCAR")
+            chgcar_path = f"{tmp_dir}/CHGCAR"
 
             if potcar:
                 potcar.write_file("POTCAR")
-                potcar_path = os.path.join(tmp_dir, "POTCAR")
+                potcar_path = f"{tmp_dir}/POTCAR"
             else:
                 potcar_path = None
 
@@ -530,7 +530,7 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
                 chgcar.is_spin_polarized = False
                 chgcar.write_file("CHGCAR_mag")
 
-                chgcar_mag_path = os.path.join(tmp_dir, "CHGCAR_mag")
+                chgcar_mag_path = f"{tmp_dir}/CHGCAR_mag"
                 ba = BaderAnalysis(
                     chgcar_filename=chgcar_mag_path,
                     potcar_filename=potcar_path,

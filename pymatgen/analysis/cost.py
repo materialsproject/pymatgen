@@ -123,7 +123,7 @@ class CostDBElements(CostDBCSV):
 
     def __init__(self):
         """Init."""
-        CostDBCSV.__init__(self, os.path.join(module_dir, "costdb_elements.csv"))
+        CostDBCSV.__init__(self, f"{module_dir}/costdb_elements.csv")
 
 
 class CostAnalyzer:

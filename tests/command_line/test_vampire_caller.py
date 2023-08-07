@@ -21,7 +21,7 @@ class TestVampireCaller(unittest.TestCase):
     def setUpClass(cls):
         print("Testing with: ", which("vampire-serial"))
 
-        cls.Mn3Al = pd.read_json(os.path.join(test_dir, "Mn3Al.json"))
+        cls.Mn3Al = pd.read_json(f"{test_dir}/Mn3Al.json")
 
         cls.compounds = [cls.Mn3Al]
 

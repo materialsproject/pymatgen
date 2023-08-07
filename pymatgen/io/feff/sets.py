@@ -102,7 +102,7 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
             with open(os.path.join(output_dir, k), "w") as f:
                 f.write(str(v))
 
-        with open(os.path.join(output_dir, "feff.inp"), "w") as f:
+        with open(f"{output_dir}/feff.inp", "w") as f:
             f.write(feff_input)
 
         # write the structure to cif file
@@ -299,7 +299,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
         absorber_index = []
         radius = None
-        feffinp = zpath(os.path.join(input_dir, "feff.inp"))
+        feffinp = zpath(f"{input_dir}/feff.inp")
 
         if "RECIPROCAL" not in sub_d["parameters"]:
             input_atoms = Atoms.cluster_from_file(feffinp)
@@ -339,7 +339,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
         # Generate the input set
         if "XANES" in sub_d["parameters"]:
-            CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
+            CONFIG = loadfn(f"{MODULE_DIR}/MPXANESSet.yaml")
             if radius is None:
                 radius = 10
             return FEFFDictSet(
@@ -358,7 +358,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 class MPXANESSet(FEFFDictSet):
     """FeffDictSet for XANES spectroscopy."""
 
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
+    CONFIG = loadfn(f"{MODULE_DIR}/MPXANESSet.yaml")
 
     def __init__(
         self,
@@ -397,7 +397,7 @@ class MPXANESSet(FEFFDictSet):
 class MPEXAFSSet(FEFFDictSet):
     """FeffDictSet for EXAFS spectroscopy."""
 
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXAFSSet.yaml"))
+    CONFIG = loadfn(f"{MODULE_DIR}/MPEXAFSSet.yaml")
 
     def __init__(
         self,
@@ -507,7 +507,7 @@ class MPEELSDictSet(FEFFDictSet):
 class MPELNESSet(MPEELSDictSet):
     """FeffDictSet for ELNES spectroscopy."""
 
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPELNESSet.yaml"))
+    CONFIG = loadfn(f"{MODULE_DIR}/MPELNESSet.yaml")
 
     def __init__(
         self,
@@ -563,7 +563,7 @@ class MPELNESSet(MPEELSDictSet):
 class MPEXELFSSet(MPEELSDictSet):
     """FeffDictSet for EXELFS spectroscopy."""
 
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXELFSSet.yaml"))
+    CONFIG = loadfn(f"{MODULE_DIR}/MPEXELFSSet.yaml")
 
     def __init__(
         self,

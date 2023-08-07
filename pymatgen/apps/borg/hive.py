@@ -117,9 +117,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
         """
         files = os.listdir(path)
         if "relax1" in files and "relax2" in files:
-            filepath = glob(os.path.join(path, "relax2", "vasprun.xml*"))[0]
+            filepath = glob(f"{path}/relax2/vasprun.xml*")[0]
         else:
-            vasprun_files = glob(os.path.join(path, "vasprun.xml*"))
+            vasprun_files = glob(f"{path}/vasprun.xml*")
             filepath = None
             if len(vasprun_files) == 1:
                 filepath = vasprun_files[0]
@@ -157,8 +157,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
             (not parent.endswith("/relax1"))
             and (not parent.endswith("/relax2"))
             and (
-                len(glob(os.path.join(parent, "vasprun.xml*"))) > 0
-                or (len(glob(os.path.join(parent, "POSCAR*"))) > 0 and len(glob(os.path.join(parent, "OSZICAR*"))) > 0)
+                len(glob(f"{parent}/vasprun.xml*")) > 0
+                or (len(glob(f"{parent}/POSCAR*")) > 0 and len(glob(f"{parent}/OSZICAR*")) > 0)
             )
         ):
             return [parent]
@@ -225,10 +225,10 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             filenames = {"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"}
             if "relax1" in files and "relax2" in files:
                 for filename in ("INCAR", "POTCAR", "POSCAR"):
-                    search_str = os.path.join(path, "relax1", filename + "*")
+                    search_str = f"{path}/relax1", filename + "*"
                     files_to_parse[filename] = glob(search_str)[0]
                 for filename in ("CONTCAR", "OSZICAR"):
-                    search_str = os.path.join(path, "relax2", filename + "*")
+                    search_str = f"{path}/relax2", filename + "*"
                     files_to_parse[filename] = glob(search_str)[-1]
             else:
                 for filename in filenames:
@@ -427,7 +427,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
 def _get_transformation_history(path):
     """Checks for a transformations.json* file and returns the history."""
-    trans_json = glob(os.path.join(path, "transformations.json*"))
+    trans_json = glob(f"{path}/transformations.json*")
     if trans_json:
         try:
             with zopen(trans_json[0]) as f:
