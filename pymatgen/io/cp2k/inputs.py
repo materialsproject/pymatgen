@@ -134,7 +134,11 @@ class Keyword(MSONable):
         dct["verbose"] = self.verbose
         return dct
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """String representation of Keyword."""
         return str(self)
 
@@ -228,7 +232,11 @@ class KeywordList(MSONable):
         """Extend the keyword list."""
         self.keywords.extend(lst)
 
-    def get_string(self, indent=0):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, indent: int = 0) -> str:
         """String representation of Keyword."""
         return " \n".join("\t" * indent + str(k) for k in self.keywords)
 
@@ -552,7 +560,11 @@ class Section(MSONable):
             s = s.get_section(p)
         return s
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Get string representation of Section."""
         return Section._get_string(self)
 
@@ -646,7 +658,11 @@ class SectionList(MSONable):
     def _get_string(d, indent=0):
         return " \n".join(s._get_string(s, indent) for s in d)
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Return string representation of section list."""
         return SectionList._get_string(self.sections)
 
@@ -2361,7 +2377,11 @@ class AtomicMetadata(MSONable):
         md5.update(self.get_string().lower().encode("utf-8"))
         return md5.hexdigest()
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Get string representation."""
         return str(self)
 
@@ -2426,11 +2446,21 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         return [len(e) for e in self.exponents]
 
     @typing.no_type_check
-    def get_string(self) -> str:
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Get standard cp2k GTO formatted string."""
-        if any(
-            getattr(self, x, None) is None
-            for x in ("info", "nset", "n", "lmax", "lmin", "nshell", "exponents", "coefficients")
+        if (
+            self.info is None
+            or self.nset is None
+            or self.n is None
+            or self.lmax is None
+            or self.lmin is None
+            or self.nshell is None
+            or self.exponents is None
+            or self.coefficients is None
         ):
             raise ValueError("Must have all attributes defined to get string representation")
 
@@ -2663,18 +2693,22 @@ class GthPotential(AtomicMetadata):
         s = "\n".join(s)
         return cls.from_str(s)
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Convert model to a GTH-formatted string."""
-        if None in (
-            self.info,
-            self.n_elecs,
-            self.r_loc,
-            self.nexp_ppl,
-            self.c_exp_ppl,
-            self.radii,
-            self.nprj,
-            self.nprj_ppnl,
-            self.hprj_ppnl,
+        if (  # written verbosely so mypy can perform type narrowing
+            self.info is None
+            or self.n_elecs is None
+            or self.r_loc is None
+            or self.nexp_ppl is None
+            or self.c_exp_ppl is None
+            or self.radii is None
+            or self.nprj is None
+            or self.nprj_ppnl is None
+            or self.hprj_ppnl is None
         ):
             raise ValueError("Must initialize all attributes in order to get string")
 
@@ -2801,9 +2835,13 @@ class DataFile(MSONable):
         with open(fn, "w") as f:
             f.write(self.get_string())
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Get string representation."""
-        return "\n".join(b.get_string() for b in self.objects)
+        return "\n".join(b.get_string() for b in self.objects or [])
 
     def __str__(self):
         return self.get_string()

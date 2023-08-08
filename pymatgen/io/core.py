@@ -56,6 +56,11 @@ class InputFile(MSONable):
     """
 
     @abc.abstractmethod
+    def get_str(self) -> str:
+        """Return a string representation of an entire input file."""
+
+    @np.deprecate(message="Use get_str instead")
+    @abc.abstractmethod
     def get_string(self) -> str:
         """Return a string representation of an entire input file."""
 

@@ -466,7 +466,11 @@ class Poscar(MSONable):
             predictor_corrector_preamble=predictor_corrector_preamble,
         )
 
-    def get_string(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 16) -> str:
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 16) -> str:
         """
         Returns a string to be written as a POSCAR file. By default, site
         symbols are written, which means compatibility is for vasp >= 5.
@@ -695,7 +699,11 @@ class Incar(dict, MSONable):
             d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
         return Incar({k: v for k, v in d.items() if k not in ("@module", "@class")})
 
-    def get_string(self, sort_keys: bool = False, pretty: bool = False) -> str:
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """
         Returns a string representation of the INCAR. The reason why this
         method is different from the __str__ method is to provide options for

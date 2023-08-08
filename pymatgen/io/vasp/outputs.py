@@ -4236,7 +4236,11 @@ class Xdatcar:
                 structures.append(p.structure)
         self.structures = structures
 
-    def get_string(self, ionicstep_start=1, ionicstep_end=None, significant_figures=8):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, ionicstep_start: int = 1, ionicstep_end: int | None = None, significant_figures: int = 8) -> str:
         """
         Write  Xdatcar class to a string.
 

@@ -147,7 +147,11 @@ class LammpsBox(MSONable):
         m = self._matrix
         return np.dot(np.cross(m[0], m[1]), m[2])
 
-    def get_string(self, significant_figures=6):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, significant_figures: int = 6) -> str:
         """
         Returns the string representation of simulation box in LAMMPS
         data file format.
@@ -318,7 +322,11 @@ class LammpsData(MSONable):
             site_properties=site_properties,
         )
 
-    def get_string(self, distance=6, velocity=8, charge=4, hybrid=True):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
         """
         Returns the string representation of LammpsData, essentially
         the string to be written to a file. Support hybrid style
@@ -402,12 +410,12 @@ class LammpsData(MSONable):
             "q": map_charges,
         }
         coeffsdatatype = loadfn(str(MODULE_DIR / "CoeffsDataType.yaml"))
-        coeffs = {}
+        coeffs: dict[str, dict] = {}
         for style, types in coeffsdatatype.items():
             coeffs[style] = {}
             for type, formatter in types.items():
                 coeffs[style][type] = {}
-                for coeff, datatype in formatter.items():
+                for coeff, datatype in formatter.items():  # type: ignore
                     if datatype == "int_format":
                         coeffs[style][type][coeff] = int_format
                     elif datatype == "float_format_2":
@@ -1415,7 +1423,11 @@ class CombinedData(LammpsData):
             assert atom_style == style_return, "Data have different atom_style as specified."
         return cls(mols, names, list_of_numbers, coordinates, style_return)
 
-    def get_string(self, distance=6, velocity=8, charge=4, hybrid=True):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, distance=6, velocity=8, charge=4, hybrid=True) -> str:
         """
         Returns the string representation of CombinedData, essentially
         the string to be written to a file. Combination info is included

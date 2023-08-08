@@ -613,7 +613,11 @@ class Tags(dict):
                 i[k] = v
         return i
 
-    def get_string(self, sort_keys=False, pretty=False):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """
         Returns a string representation of the Tags. The reason why this
         method is different from the __str__ method is to provide options

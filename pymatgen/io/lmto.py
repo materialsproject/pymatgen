@@ -60,7 +60,11 @@ class LMTOCtrl:
         """String representation of the CTRL file."""
         return self.get_string()
 
-    def get_string(self, sigfigs=8):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, sigfigs=8) -> str:
         """
         Generates the string representation of the CTRL file. This is
         the minimal CTRL file necessary to execute lmhart.run.
@@ -78,12 +82,12 @@ class LMTOCtrl:
 
         for cat in ["CLASS", "SITE"]:
             for a, atoms in enumerate(ctrl_dict[cat]):
-                line = [cat.ljust(9)] if a == 0 else [" ".ljust(9)]
+                lst = [cat.ljust(9)] if a == 0 else [" ".ljust(9)]
                 for token, val in sorted(atoms.items()):
                     if token == "POS":
-                        line.append("POS=" + " ".join(str(round(p, sigfigs)) for p in val))
+                        lst.append("POS=" + " ".join(str(round(p, sigfigs)) for p in val))
                     else:
-                        line.append(f"{token}={val}")
+                        lst.append(f"{token}={val}")
                 line = " ".join(line)
                 lines.append(line)
 
@@ -98,23 +102,17 @@ class LMTOCtrl:
         a-lattice parameter as the scaling factor and not the a-lattice
         parameter of the primitive cell.
         """
-        ctrl_dict = {
-            "@module": type(self).__module__,
-            "@class": type(self).__name__,
-        }
+        ctrl_dict = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.header is not None:
             ctrl_dict["HEADER"] = self.header
         if self.version is not None:
             ctrl_dict["VERS"] = self.version
         sga = SpacegroupAnalyzer(self.structure)
-        alat = sga.get_conventional_standard_structure().lattice.a
-        plat = self.structure.lattice.matrix / alat
-        """
-        The following is to find the classes (atoms that are not symmetry
-        equivalent, and create labels. Note that LMTO only attaches
-        numbers with the second atom of the same species, e.g. "Bi", "Bi1",
-        "Bi2", etc.
-        """
+        a_len = sga.get_conventional_standard_structure().lattice.a
+        plat = self.structure.lattice.matrix / a_len
+        # The following is to find the classes (atoms that are not symmetry equivalent,
+        # and create labels. Note that LMTO only attaches numbers with the second atom
+        # of the same species, e.g. "Bi", "Bi1", "Bi2", etc.
         eq_atoms = sga.get_symmetry_dataset()["equivalent_atoms"]
         ineq_sites_index = list(set(eq_atoms))
         sites = []
@@ -131,17 +129,10 @@ class LMTOCtrl:
             else:
                 num_atoms[atom.symbol] = 1
                 classes.append({"ATOM": atom.symbol, "Z": atom.Z})
-            sites.append({"ATOM": classes[label_index]["ATOM"], "POS": site.coords / alat})
+            sites.append({"ATOM": classes[label_index]["ATOM"], "POS": site.coords / a_len})
 
-        ctrl_dict.update(
-            {
-                "ALAT": alat / bohr_to_angstrom,
-                "PLAT": plat,
-                "CLASS": classes,
-                "SITE": sites,
-            }
-        )
-        return ctrl_dict
+        update = {"ALAT": a_len / bohr_to_angstrom, "PLAT": plat, "CLASS": classes, "SITE": sites}
+        return {**ctrl_dict, **update}
 
     def write_file(self, filename="CTRL", **kwargs):
         """
