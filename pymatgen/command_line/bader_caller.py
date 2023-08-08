@@ -183,9 +183,7 @@ class BaderAnalysis:
 
             if self.parse_atomic_densities:
                 # convert the charge density for each atom spit out by Bader into Chgcar objects for easy parsing
-                atom_chgcars = [
-                    Chgcar.from_file(f"BvAt{str(i).zfill(4)}.dat") for i in range(1, len(self.chgcar.structure) + 1)
-                ]
+                atom_chgcars = [Chgcar.from_file(f"BvAt{idx + 1:04}.dat") for idx in range(len(self.chgcar.structure))]
 
                 atomic_densities = []
                 # For each atom in the structure
