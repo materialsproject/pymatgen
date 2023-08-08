@@ -166,7 +166,7 @@ class ChargemolAnalysis:
             fpath = paths[0]
         return fpath
 
-    def _execute_chargemol(self, **jobcontrol_kwargs):
+    def _execute_chargemol(self, **job_control_kwargs):
         """
         Internal function to run Chargemol.
 
@@ -175,7 +175,7 @@ class ChargemolAnalysis:
             required by Chargemol. If None, Pymatgen assumes that this is
             defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment variable.
                 Default: None.
-            jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
+            job_control_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
         with ScratchDir("."):
             try:
@@ -183,11 +183,11 @@ class ChargemolAnalysis:
                 os.symlink(self._potcarpath, "./POTCAR")
                 os.symlink(self._aeccar0path, "./AECCAR0")
                 os.symlink(self._aeccar2path, "./AECCAR2")
-            except OSError as e:
-                print(f"Error creating symbolic link: {e}")
+            except OSError as exc:
+                print(f"Error creating symbolic link: {exc}")
 
             # write job_script file:
-            self._write_jobscript_for_chargemol(**jobcontrol_kwargs)
+            self._write_jobscript_for_chargemol(**job_control_kwargs)
 
             # Run Chargemol
             with subprocess.Popen(CHARGEMOL_EXE, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:

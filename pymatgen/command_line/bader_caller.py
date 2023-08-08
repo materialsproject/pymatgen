@@ -98,8 +98,7 @@ class BaderAnalysis:
                 self.is_vasp = True
 
                 # decompress the file if compressed
-                fpath = decompress_file(filepath=chgcar_filename)
-                fpath = fpath if fpath else chgcar_filename
+                fpath = decompress_file(filepath=chgcar_filename) or chgcar_filename
 
                 self.chgcar = Chgcar.from_file(fpath)
                 self.structure = self.chgcar.structure
@@ -215,18 +214,18 @@ class BaderAnalysis:
                     def find_encompassing_vol(data: np.ndarray):
                         # Find the central encompassing volume which holds all the data within a precision
                         total = np.sum(data)
-                        for i in range(np.max(data.shape)):
-                            sliced_data = slice_from_center(data, i, i, i)
+                        for idx in range(np.max(data.shape)):
+                            sliced_data = slice_from_center(data, idx, idx, idx)
                             if total - np.sum(sliced_data) < 0.1:
                                 return sliced_data
                         return None
 
-                    d = {
+                    dct = {
                         "data": find_encompassing_vol(shifted_data),
                         "shift": shift,
                         "dim": self.chgcar.dim,
                     }
-                    atomic_densities.append(d)
+                    atomic_densities.append(dct)
                 self.atomic_densities = atomic_densities
 
     def get_charge(self, atom_index):
@@ -387,7 +386,7 @@ class BaderAnalysis:
 
         def _get_filepath(filename):
             name_pattern = filename + suffix + "*" if filename != "POTCAR" else filename + "*"
-            paths = glob(os.path.join(path, name_pattern))
+            paths = glob(f"{path}/{name_pattern}")
             fpath = None
             if len(paths) >= 1:
                 # using reverse=True because, if multiple files are present,
@@ -416,7 +415,7 @@ class BaderAnalysis:
         if aeccar0 and aeccar2:
             # `chgsum.pl AECCAR0 AECCAR2` equivalent to obtain chgref_file
             chgref = Chgcar.from_file(aeccar0) + Chgcar.from_file(aeccar2)
-            chgref_filename = os.path.join(path, "CHGREF")
+            chgref_filename = f"{path}/CHGCAR_ref"
             chgref.write_file(chgref_filename)
         else:
             chgref_filename = None
@@ -447,7 +446,7 @@ def bader_analysis_from_path(path, suffix=""):
     """
 
     def _get_filepath(filename, warning, path=path, suffix=suffix):
-        paths = glob(os.path.join(path, filename + suffix + "*"))
+        paths = glob(f"{path}/{filename}{suffix}*")
         if not paths:
             warnings.warn(warning)
             return None
