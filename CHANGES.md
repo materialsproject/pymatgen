@@ -6,6 +6,10 @@ nav_order: 4
 
 # Changelog
 
+## v2023.8.8
+
+- Bug fix and cleanup release.
+
 ## v2023.7.20
 
 - Unreadable string concat ops to f-string by @janosh in <https://github.com/materialsproject/pymatgen/pull/3162>
