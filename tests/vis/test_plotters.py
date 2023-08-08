@@ -12,7 +12,7 @@ from pymatgen.vis.plotters import SpectrumPlotter
 
 test_dir = f"{TEST_FILES_DIR}/spectrum_test"
 
-with open(os.path.join(test_dir, "LiCoO2_k_xanes.json")) as fp:
+with open(f"{test_dir}/LiCoO2_k_xanes.json") as fp:
     spect_data_dict = json.load(fp, cls=MontyDecoder)
 
 

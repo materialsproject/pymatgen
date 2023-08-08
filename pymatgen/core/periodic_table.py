@@ -1213,7 +1213,7 @@ class Species(MSONable, Stringify):
         return output
 
     def to_pretty_string(self) -> str:
-        """:return: String without properties."""
+        """String without properties."""
         output = self.symbol
         if self.oxi_state is not None:
             output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
@@ -1330,7 +1330,7 @@ class Species(MSONable, Stringify):
         return Species(self.symbol, self.oxi_state, spin=self._spin)
 
     def as_dict(self) -> dict:
-        """:return: Json-able dictionary representation."""
+        """Json-able dictionary representation."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1455,7 +1455,7 @@ class DummySpecies(Species):
 
     @property
     def symbol(self) -> str:
-        """:return: Symbol for DummySpecies."""
+        """Symbol for DummySpecies."""
         return self._symbol
 
     def __deepcopy__(self, memo):
@@ -1492,7 +1492,7 @@ class DummySpecies(Species):
         raise ValueError("Invalid DummySpecies String")
 
     def as_dict(self) -> dict:
-        """:return: MSONable dict representation."""
+        """MSONable dict representation."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

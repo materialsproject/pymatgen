@@ -250,7 +250,7 @@ class PourbaixEntry(MSONable, Stringify):
         return self.composition.num_atoms
 
     def to_pretty_string(self) -> str:
-        """:return: A pretty string representation."""
+        """A pretty string representation."""
         if self.phase_type == "Solid":
             return self.entry.composition.reduced_formula + "(s)"
 

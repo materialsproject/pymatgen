@@ -564,37 +564,37 @@ class Doscar:
 
     @property
     def completedos(self) -> LobsterCompleteDos:
-        """:return: CompleteDos"""
+        """LobsterCompleteDos"""
         return self._completedos
 
     @property
     def pdos(self) -> list:
-        """:return: Projected DOS"""
+        """Projected DOS"""
         return self._pdos
 
     @property
     def tdos(self) -> Dos:
-        """:return: Total DOS"""
+        """Total DOS"""
         return self._tdos
 
     @property
     def energies(self) -> np.ndarray:
-        """:return: Energies"""
+        """Energies"""
         return self._energies
 
     @property
     def tdensities(self) -> np.ndarray:
-        """:return: total densities as a np.ndarray"""
+        """total densities as a np.ndarray"""
         return self._tdensities
 
     @property
     def itdensities(self) -> np.ndarray:
-        """:return: integrated total densities as a np.ndarray"""
+        """integrated total densities as a np.ndarray"""
         return self._itdensities
 
     @property
     def is_spin_polarized(self) -> bool:
-        """:return: Whether run is spin polarized."""
+        """Whether run is spin polarized."""
         return self._is_spin_polarized
 
 

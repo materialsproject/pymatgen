@@ -428,12 +428,12 @@ class FloatWithUnit(float):
 
     @property
     def unit_type(self) -> str:
-        """:return: The type of unit. Energy, Charge, etc."""
+        """The type of unit. Energy, Charge, etc."""
         return self._unit_type
 
     @property
     def unit(self) -> str:
-        """:return: The unit, e.g., "eV"."""
+        """The unit, e.g., "eV"."""
         return self._unit
 
     def to(self, new_unit):
@@ -518,12 +518,12 @@ class ArrayWithUnit(np.ndarray):
 
     @property
     def unit_type(self) -> str:
-        """:return: The type of unit. Energy, Charge, etc."""
+        """The type of unit. Energy, Charge, etc."""
         return self._unit_type
 
     @property
     def unit(self) -> str:
-        """:return: The unit, e.g., "eV"."""
+        """The unit, e.g., "eV"."""
         return self._unit
 
     def __reduce__(self):

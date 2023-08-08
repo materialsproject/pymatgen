@@ -169,7 +169,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             if make_dir_if_not_present and not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
-            with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as file:
+            with zopen(f"{output_dir}/POTCAR.spec", "wt") as file:
                 file.write("\n".join(self.potcar_symbols))
 
             for key in ["INCAR", "POSCAR", "KPOINTS"]:
@@ -436,7 +436,7 @@ class DictSet(VaspInputSet):
 
     @property
     def structure(self) -> Structure:
-        """:return: Structure"""
+        """Structure"""
         if self.standardize and self.sym_prec:
             return standardize_structure(
                 self._structure,
@@ -447,7 +447,7 @@ class DictSet(VaspInputSet):
 
     @property
     def incar(self) -> Incar:
-        """:return: Incar"""
+        """Incar"""
         settings = dict(self._config_dict["INCAR"])
         for k, v in self.user_incar_settings.items():
             if v is None:
@@ -596,7 +596,7 @@ class DictSet(VaspInputSet):
 
     @property
     def poscar(self) -> Poscar:
-        """:return: Poscar"""
+        """Poscar"""
         return Poscar(self.structure)
 
     @property
@@ -1085,7 +1085,7 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         parent_incar = super().incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
 
@@ -1150,7 +1150,7 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def kpoints(self) -> Kpoints | None:
-        """:return: Kpoints"""
+        """Kpoints"""
         self._config_dict["KPOINTS"]["reciprocal_density"] = self.reciprocal_density
         kpoints = super().kpoints
 
@@ -1246,7 +1246,7 @@ class MPScanStaticSet(MPScanRelaxSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         parent_incar = super().incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
 
@@ -1383,7 +1383,7 @@ class MPHSEBSSet(MPHSERelaxSet):
 
     @property
     def kpoints(self) -> Kpoints:
-        """:return: Kpoints"""
+        """Kpoints"""
         kpts: list[int | float | None] = []
         weights: list[float | None] = []
         all_labels: list[str | None] = []
@@ -1559,7 +1559,7 @@ class MPNonSCFSet(MPRelaxSet):
 
     @property
     def incar(self) -> Incar:
-        """:return: Incar"""
+        """Incar"""
         incar = super().incar
         if self.prev_incar is not None:
             incar.update(self.prev_incar.items())
@@ -1602,7 +1602,7 @@ class MPNonSCFSet(MPRelaxSet):
 
     @property
     def kpoints(self) -> Kpoints | None:
-        """:return: Kpoints"""
+        """Kpoints"""
         # override pymatgen kpoints if provided
         user_kpoints = self.user_kpoints_settings
         if isinstance(user_kpoints, Kpoints):
@@ -1771,7 +1771,7 @@ class MPSOCSet(MPStaticSet):
 
     @property
     def incar(self) -> Incar:
-        """:return: Incar"""
+        """Incar"""
         incar = super().incar
         if self.prev_incar is not None:
             incar.update(self.prev_incar.items())
@@ -1893,7 +1893,7 @@ class MPNMRSet(MPStaticSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         incar = super().incar
 
         if self.mode.lower() == "cs":
@@ -2046,7 +2046,7 @@ class MVLGWSet(DictSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         parent_incar = super().incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
 
@@ -2303,7 +2303,7 @@ class MVLGBSet(MPRelaxSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         incar = super().incar
 
         # The default incar setting is used for metallic system, for
@@ -2391,12 +2391,12 @@ class MITNEBSet(MITRelaxSet):
 
     @property
     def poscar(self):
-        """:return: Poscar for structure of first end point."""
+        """Poscar for structure of first end point."""
         return Poscar(self.structures[0])
 
     @property
     def poscars(self):
-        """:return: List of Poscars."""
+        """List of Poscars."""
         return [Poscar(s) for s in self.structures]
 
     @staticmethod
@@ -2531,7 +2531,7 @@ class MITMDSet(MITRelaxSet):
 
     @property
     def kpoints(self):
-        """:return: Kpoints"""
+        """Kpoints"""
         return Kpoints.gamma_automatic()
 
 
@@ -2613,7 +2613,7 @@ class MPMDSet(MPRelaxSet):
 
     @property
     def kpoints(self):
-        """:return: Kpoints"""
+        """Kpoints"""
         return Kpoints.gamma_automatic()
 
 
@@ -3115,7 +3115,7 @@ class MPAbsorptionSet(MPRelaxSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         parent_incar = super().incar
         absorption_incar = {
             "ALGO": "Exact",

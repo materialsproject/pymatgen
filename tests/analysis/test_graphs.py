@@ -587,8 +587,8 @@ class TestMoleculeGraph(unittest.TestCase):
         pytest.importorskip("openbabel")
         edges_frag = {(e[0], e[1]): {"weight": 1.0} for e in self.pc_frag1_edges}
         mol_graph = MoleculeGraph.with_edges(self.pc_frag1, edges_frag)
-        # dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_frag1_mg.json"))
-        ref_mol_graph = loadfn(os.path.join(module_dir, "pc_frag1_mg.json"))
+        # dumpfn(mol_graph.as_dict(), f"{module_dir}/pc_frag1_mg.json")
+        ref_mol_graph = loadfn(f"{module_dir}/pc_frag1_mg.json")
         assert mol_graph == ref_mol_graph
         assert mol_graph.graph.adj == ref_mol_graph.graph.adj
         for node in mol_graph.graph.nodes:
@@ -598,8 +598,8 @@ class TestMoleculeGraph(unittest.TestCase):
 
         edges_pc = {(e[0], e[1]): {"weight": 1.0} for e in self.pc_edges}
         mol_graph = MoleculeGraph.with_edges(self.pc, edges_pc)
-        # dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_mg.json"))
-        ref_mol_graph = loadfn(os.path.join(module_dir, "pc_mg.json"))
+        # dumpfn(mol_graph.as_dict(), f"{module_dir}/pc_mg.json")
+        ref_mol_graph = loadfn(f"{module_dir}/pc_mg.json")
         assert mol_graph == ref_mol_graph
         assert mol_graph.graph.adj == ref_mol_graph.graph.adj
         for node in mol_graph.graph:

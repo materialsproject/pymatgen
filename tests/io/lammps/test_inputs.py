@@ -21,7 +21,7 @@ test_dir = f"{TEST_FILES_DIR}/lammps"
 class TestLammpsInputFile(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.filename = os.path.join(test_dir, "lgps.in")
+        cls.filename = f"{test_dir}/lgps.in"
 
     def test_from_file(self):
         lmp_input = LammpsInputFile().from_file(self.filename)

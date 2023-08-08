@@ -345,7 +345,7 @@ class ComputedEntry(Entry):
 
     @property
     def energy(self) -> float:
-        """:return: the *corrected* energy of the entry."""
+        """The *corrected* energy of the entry."""
         return self.uncorrected_energy + self.correction
 
     @property
@@ -518,7 +518,7 @@ class ComputedEntry(Entry):
         )
 
     def as_dict(self) -> dict:
-        """:return: MSONable dict."""
+        """MSONable dict."""
         return_dict = super().as_dict()
         return_dict.update(
             {
@@ -613,11 +613,11 @@ class ComputedStructureEntry(ComputedEntry):
 
     @property
     def structure(self) -> Structure:
-        """:return: the structure of the entry."""
+        """The structure of the entry."""
         return self._structure
 
     def as_dict(self) -> dict:
-        """:return: MSONable dict."""
+        """MSONable dict."""
         d = super().as_dict()
         d["structure"] = self.structure.as_dict()
         return d
@@ -953,7 +953,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return cls.from_pd(pd, temp, gibbs_model)
 
     def as_dict(self) -> dict:
-        """:return: MSONable dict."""
+        """MSONable dict."""
         d = super().as_dict()
         d["formation_enthalpy_per_atom"] = self.formation_enthalpy_per_atom
         d["temp"] = self.temp

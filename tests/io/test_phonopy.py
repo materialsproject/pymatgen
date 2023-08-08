@@ -42,7 +42,7 @@ test_dir = f"{TEST_FILES_DIR}/phonopy"
 
 class TestPhonopyParser(PymatgenTest):
     def test_get_ph_bs(self):
-        ph_bs = get_ph_bs_symm_line(os.path.join(test_dir, "NaCl_band.yaml"), has_nac=True)
+        ph_bs = get_ph_bs_symm_line(f"{test_dir}/NaCl_band.yaml", has_nac=True)
 
         assert ph_bs.bands[1][10] == approx(0.7753555184)
         assert ph_bs.bands[5][100] == approx(5.2548379776)
@@ -71,7 +71,7 @@ class TestPhonopyParser(PymatgenTest):
         assert ph_bs.get_nac_eigendisplacements_along_dir([1, 0, 1]) is None
 
     def test_get_ph_dos(self):
-        dos = get_ph_dos(os.path.join(test_dir, "NaCl_total_dos.dat"))
+        dos = get_ph_dos(f"{test_dir}/NaCl_total_dos.dat")
 
         assert dos.densities[15] == approx(0.0001665998)
         assert dos.frequencies[20] == approx(0.0894965119)
@@ -81,8 +81,8 @@ class TestPhonopyParser(PymatgenTest):
 
     def test_get_complete_dos(self):
         cdos = get_complete_ph_dos(
-            os.path.join(test_dir, "NaCl_partial_dos.dat"),
-            os.path.join(test_dir, "NaCl_phonopy.yaml"),
+            f"{test_dir}/NaCl_partial_dos.dat",
+            f"{test_dir}/NaCl_phonopy.yaml",
         )
         site_Na = cdos.structure[0]
         site_Cl = cdos.structure[1]
@@ -119,7 +119,7 @@ class TestStructureConversion(PymatgenTest):
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestGetDisplacedStructures(PymatgenTest):
     def test_get_displaced_structures(self):
-        pmg_s = Structure.from_file(os.path.join(test_dir, "POSCAR-unitcell"), False)
+        pmg_s = Structure.from_file(f"{test_dir}/POSCAR-unitcell", False)
         supercell_matrix = [[2, 0, 0], [0, 1, 0], [0, 0, 2]]
         structures = get_displaced_structures(pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix)
 

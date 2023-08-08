@@ -161,7 +161,7 @@ class PeriodicNeighbor(PeriodicSite):
 
     @property  # type: ignore
     def coords(self) -> np.ndarray:  # type: ignore
-        """:return: Cartesian coords."""
+        """Cartesian coords."""
         return self._lattice.get_cartesian_coords(self._frac_coords)
 
     def __len__(self):
@@ -3699,7 +3699,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     @property
     def lattice(self) -> Lattice:
-        """:return: Lattice associated with structure."""
+        """Lattice associated with structure."""
         return self._lattice
 
     @lattice.setter

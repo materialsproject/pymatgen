@@ -641,7 +641,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
     @property
     def lowest_energy_structure(self):
-        """:return: Lowest energy structure found."""
+        """Lowest energy structure found."""
         return self._all_structures[0]["structure"]
 
 

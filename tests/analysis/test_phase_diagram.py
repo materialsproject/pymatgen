@@ -832,7 +832,7 @@ class TestPatchedPhaseDiagram(unittest.TestCase):
 class TestReactionDiagram(unittest.TestCase):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        self.entries = list(EntrySet.from_csv(os.path.join(module_dir, "reaction_entries_test.csv")).entries)
+        self.entries = list(EntrySet.from_csv(f"{module_dir}/reaction_entries_test.csv").entries)
         for e in self.entries:
             if e.composition.reduced_formula == "VPO5":
                 entry1 = e
@@ -872,7 +872,7 @@ class TestReactionDiagram(unittest.TestCase):
 
 class TestPDPlotter(unittest.TestCase):
     def setUp(self):
-        entries = list(EntrySet.from_csv(os.path.join(module_dir, "pd_entries_test.csv")))
+        entries = list(EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv"))
 
         elemental_entries = [e for e in entries if e.elements == [Element("Li")]]
         self.pd_unary = PhaseDiagram(elemental_entries)

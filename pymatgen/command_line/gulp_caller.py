@@ -881,7 +881,7 @@ class TersoffPotential:
     def __init__(self):
         """Init TersoffPotential."""
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "OxideTersoffPotentials")) as f:
+        with open(f"{module_dir}/OxideTersoffPotentials") as f:
             data = {}
             for row in f:
                 metaloxi = row.split()[0]

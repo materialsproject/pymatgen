@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import os
 import struct
 
 import pytest
@@ -37,14 +36,14 @@ class TestUtil(PymatgenTest):
 
     def test_process_parsed_HESS(self):
         data_132 = []
-        with zopen(os.path.join(test_dir, "parse_hess", "132.0"), mode="rb") as file:
+        with zopen(f"{test_dir}/parse_hess/132.0", mode="rb") as file:
             binary = file.read()
             for ii in range(int(len(binary) / 8)):
                 data_132.append(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0])
 
         data_HESS = []
         with zopen(
-            os.path.join(test_dir, "parse_hess", "HESS"),
+            f"{test_dir}/parse_hess/HESS",
             mode="rt",
             encoding="ISO-8859-1",
         ) as f:

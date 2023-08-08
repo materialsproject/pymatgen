@@ -15,7 +15,6 @@ from __future__ import annotations
 import collections
 import copy
 import math
-import os
 from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
@@ -497,7 +496,7 @@ class LobsterNeighbors(NearNeighbors):
         import tempfile
 
         with tempfile.TemporaryDirectory() as t:
-            path = os.path.join(t, "POSCAR.vasp")
+            path = f"{t}/POSCAR.vasp"
 
             self.structure.to(filename=path, fmt="POSCAR")
 

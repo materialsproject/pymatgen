@@ -28,7 +28,7 @@ test_dir = f"{TEST_FILES_DIR}/molecules"
 
 class TestQChemDictSet(PymatgenTest):
     def test_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_DictSet = QChemDictSet(
             molecule=test_molecule,
             job_type="opt",
@@ -57,7 +57,7 @@ class TestQChemDictSet(PymatgenTest):
         assert test_DictSet.molecule == test_molecule
 
     def test_full_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
 
         test_DictSet = QChemDictSet(
             molecule=test_molecule,
@@ -128,7 +128,7 @@ class TestQChemDictSet(PymatgenTest):
         assert test_DictSet.smx == {"solvent": "water"}
 
     def test_overwrite_input(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         overwrite_inputs = {
             "rem": {
                 "method": "b3lyp",
@@ -157,7 +157,7 @@ class TestQChemDictSet(PymatgenTest):
         assert act_rem == test_OptSet.rem
 
     def test_double_solvation(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         raised_error = False
         dict_set = None
         try:
@@ -178,7 +178,7 @@ class TestQChemDictSet(PymatgenTest):
         assert dict_set is None
 
     def test_pcm_write(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         dict_set = QChemDictSet(
             molecule=test_molecule,
             job_type="opt",
@@ -220,7 +220,7 @@ class TestQChemDictSet(PymatgenTest):
 
     def test_isosvp_write(self):
         """Also tests overwrite_inputs with a RHOISO value."""
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         dict_set = QChemDictSet(
             molecule=test_molecule,
             job_type="opt",
@@ -261,7 +261,7 @@ class TestQChemDictSet(PymatgenTest):
         os.remove("mol.qin")
 
     def test_smd_write(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         dict_set = QChemDictSet(
             molecule=test_molecule,
             job_type="opt",
@@ -297,7 +297,7 @@ class TestQChemDictSet(PymatgenTest):
 
     def test_cmirs_write(self):
         """Also tests overwrite_inputs with a RHOISO value."""
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         dict_set = QChemDictSet(
             molecule=test_molecule,
             job_type="opt",
@@ -348,7 +348,7 @@ class TestQChemDictSet(PymatgenTest):
         os.remove("mol.qin")
 
     def test_custom_smd_write(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         dict_set = QChemDictSet(
             molecule=test_molecule,
             job_type="opt",
@@ -389,7 +389,7 @@ class TestQChemDictSet(PymatgenTest):
 
     def test_solvation_warnings(self):
         """Tests warnings / errors resulting from nonsensical overwrite_inputs."""
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         with pytest.raises(RuntimeError, match="CMIRS is only parameterized"):
             QChemDictSet(
                 molecule=test_molecule,
@@ -449,7 +449,7 @@ class TestQChemDictSet(PymatgenTest):
 
 class TestSinglePointSet(PymatgenTest):
     def test_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_SPSet = SinglePointSet(molecule=test_molecule)
         ref_dict = {
             "job_type": "sp",
@@ -471,7 +471,7 @@ class TestSinglePointSet(PymatgenTest):
         assert test_SPSet.molecule == test_molecule
 
     def test_scf_extra_print(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, extra_scf_print=True)
         ref_dict = {
             "job_type": "sp",
@@ -495,7 +495,7 @@ class TestSinglePointSet(PymatgenTest):
         assert test_SPSet.molecule == test_molecule
 
     def test_pcm_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, pcm_dielectric=10.0)
         ref_dict = {
             "job_type": "sp",
@@ -525,7 +525,7 @@ class TestSinglePointSet(PymatgenTest):
         assert test_SPSet.molecule == test_molecule
 
     def test_isosvp_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, isosvp_dielectric=10.0)
         ref_dict = {
             "job_type": "sp",
@@ -548,7 +548,7 @@ class TestSinglePointSet(PymatgenTest):
         assert test_SPSet.molecule == test_molecule
 
     def test_smd_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, smd_solvent="water")
         ref_dict = {
             "job_type": "sp",
@@ -571,7 +571,7 @@ class TestSinglePointSet(PymatgenTest):
         assert test_SPSet.molecule == test_molecule
 
     def test_cmirs_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_SPSet = SinglePointSet(
             molecule=test_molecule, cmirs_solvent="benzene", overwrite_inputs={"svp": {"RHOISO": 0.0005}}
         )
@@ -615,7 +615,7 @@ class TestSinglePointSet(PymatgenTest):
         assert test_SPSet.molecule == test_molecule
 
     def test_plots_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, smd_solvent="water", plot_cubes=True)
         ref_dict = {
             "job_type": "sp",
@@ -643,7 +643,7 @@ class TestSinglePointSet(PymatgenTest):
 
 class TestOptSet(PymatgenTest):
     def test_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_OptSet = OptSet(molecule=test_molecule)
         ref_dict = {
             "job_type": "opt",
@@ -667,7 +667,7 @@ class TestOptSet(PymatgenTest):
         assert test_OptSet.molecule == test_molecule
 
     def test_pcm_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_OptSet = OptSet(molecule=test_molecule, pcm_dielectric=10.0)
         ref_dict = {
             "job_type": "opt",
@@ -698,7 +698,7 @@ class TestOptSet(PymatgenTest):
         assert test_OptSet.molecule == test_molecule
 
     def test_smd_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_OptSet = OptSet(molecule=test_molecule, smd_solvent="water")
         ref_dict = {
             "job_type": "opt",
@@ -722,14 +722,14 @@ class TestOptSet(PymatgenTest):
         assert test_OptSet.molecule == test_molecule
 
     def test_overwrite_opt_input(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         overwrite_inputs = {"opt": {"FIXED": ["1 XYZ", "2 XY"]}}
         test_OptSet = OptSet(molecule=test_molecule, overwrite_inputs=overwrite_inputs)
         act_opt = {"fixed": ["1 XYZ", "2 XY"]}
         assert act_opt == test_OptSet.opt
 
     def test_nbo_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_OptSet = OptSet(molecule=test_molecule, nbo_params={})
         ref_dict = {
             "job_type": "opt",
@@ -752,7 +752,7 @@ class TestOptSet(PymatgenTest):
         assert test_OptSet.molecule == test_molecule
 
     def test_v5_vs_v6(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         v5_OptSet = OptSet(molecule=test_molecule, qchem_version=5, basis_set="def2-tzvpd", geom_opt={})
         ref_dict = {
             "job_type": "opt",
@@ -818,7 +818,7 @@ class TestOptSet(PymatgenTest):
 
 class TestTransitionStateSet(PymatgenTest):
     def test_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_TSSet = TransitionStateSet(molecule=test_molecule)
         ref_dict = {
             "job_type": "ts",
@@ -842,7 +842,7 @@ class TestTransitionStateSet(PymatgenTest):
         assert test_TSSet.molecule == test_molecule
 
     def test_pcm_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_TSSet = TransitionStateSet(molecule=test_molecule, pcm_dielectric=10.0)
         ref_dict = {
             "job_type": "ts",
@@ -867,7 +867,7 @@ class TestTransitionStateSet(PymatgenTest):
         assert test_TSSet.molecule == test_molecule
 
     def test_smd_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_TSSet = TransitionStateSet(molecule=test_molecule, smd_solvent="water")
         ref_dict = {
             "job_type": "ts",
@@ -893,7 +893,7 @@ class TestTransitionStateSet(PymatgenTest):
 
 class TestForceSet(PymatgenTest):
     def test_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_forceset = ForceSet(molecule=test_molecule)
         ref_dict = {
             "job_type": "force",
@@ -915,7 +915,7 @@ class TestForceSet(PymatgenTest):
         assert test_forceset.molecule == test_molecule
 
     def test_pcm_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_forceset = ForceSet(molecule=test_molecule, pcm_dielectric=10.0)
         ref_dict = {
             "job_type": "force",
@@ -939,7 +939,7 @@ class TestForceSet(PymatgenTest):
         assert test_forceset.molecule == test_molecule
 
     def test_smd_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_forceset = ForceSet(molecule=test_molecule, smd_solvent="water")
         ref_dict = {
             "job_type": "force",
@@ -964,7 +964,7 @@ class TestForceSet(PymatgenTest):
 
 class TestPESScanSet(PymatgenTest):
     def test_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pes_scan.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pes_scan.qin").molecule
 
         test_pes_scan = PESScanSet(molecule=test_molecule, scan_variables={"stre": ["3 6 1.5 1.9 0.01"]})
         ref_dict = {
@@ -990,7 +990,7 @@ class TestPESScanSet(PymatgenTest):
         assert test_pes_scan.molecule == test_molecule
 
     def test_pcm_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pes_scan.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pes_scan.qin").molecule
         test_pes_scan = PESScanSet(
             molecule=test_molecule, pcm_dielectric=10.0, scan_variables={"stre": ["3 6 1.5 1.9 0.01"]}
         )
@@ -1018,7 +1018,7 @@ class TestPESScanSet(PymatgenTest):
         assert test_pes_scan.molecule == test_molecule
 
     def test_smd_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pes_scan.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pes_scan.qin").molecule
         test_pes_scan = PESScanSet(
             molecule=test_molecule, smd_solvent="water", scan_variables={"stre": ["3 6 1.5 1.9 0.01"]}
         )
@@ -1047,7 +1047,7 @@ class TestPESScanSet(PymatgenTest):
 
 class TestFreqSet(PymatgenTest):
     def test_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_FreqSet = FreqSet(molecule=test_molecule)
         ref_dict = {
             "job_type": "freq",
@@ -1069,7 +1069,7 @@ class TestFreqSet(PymatgenTest):
         assert test_FreqSet.molecule == test_molecule
 
     def test_pcm_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_FreqSet = FreqSet(molecule=test_molecule, pcm_dielectric=10.0)
         ref_dict = {
             "job_type": "freq",
@@ -1099,7 +1099,7 @@ class TestFreqSet(PymatgenTest):
         assert test_FreqSet.molecule == test_molecule
 
     def test_smd_init(self):
-        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         test_FreqSet = FreqSet(molecule=test_molecule, smd_solvent="water")
         ref_dict = {
             "job_type": "freq",

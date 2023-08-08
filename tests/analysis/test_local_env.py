@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 import warnings
 from math import pi
@@ -1415,8 +1414,8 @@ class TestCritic2NN(PymatgenTest):
 
 class TestMetalEdgeExtender(PymatgenTest):
     def setUp(self):
-        self.LiEC = Molecule.from_file(os.path.join(test_dir, "LiEC.xyz"))
-        self.phsh = Molecule.from_file(os.path.join(test_dir, "phsh.xyz"))
+        self.LiEC = Molecule.from_file(f"{test_dir}/LiEC.xyz")
+        self.phsh = Molecule.from_file(f"{test_dir}/phsh.xyz")
         self.phsh_graph = MoleculeGraph.with_edges(
             molecule=self.phsh,
             edges={
@@ -1465,7 +1464,7 @@ class TestMetalEdgeExtender(PymatgenTest):
         )
 
         # potassium + 7 H2O. 4 at ~2.5 Ang and 3 more within 4.25 Ang
-        uncharged_K_cluster = Molecule.from_file(os.path.join(test_dir, "water_cluster_K.xyz"))
+        uncharged_K_cluster = Molecule.from_file(f"{test_dir}/water_cluster_K.xyz")
         K_sites = [s.coords for s in uncharged_K_cluster.sites]
         K_species = [s.species for s in uncharged_K_cluster.sites]
         charged_K_cluster = Molecule(K_species, K_sites, charge=1)
@@ -1473,7 +1472,7 @@ class TestMetalEdgeExtender(PymatgenTest):
         assert len(self.water_cluster_K.graph.edges) == 0
 
         # Mg + 6 H2O at 1.94 Ang from Mg
-        uncharged_Mg_cluster = Molecule.from_file(os.path.join(test_dir, "water_cluster_Mg.xyz"))
+        uncharged_Mg_cluster = Molecule.from_file(f"{test_dir}/water_cluster_Mg.xyz")
         Mg_sites = [s.coords for s in uncharged_Mg_cluster.sites]
         Mg_species = [s.species for s in uncharged_Mg_cluster.sites]
         charged_Mg_cluster = Molecule(Mg_species, Mg_sites, charge=2)
