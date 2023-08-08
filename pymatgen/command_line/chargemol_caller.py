@@ -218,42 +218,42 @@ class ChargemolAnalysis:
         if chargemol_output_path is None:
             chargemol_output_path = ""
 
-        charge_path = os.path.join(chargemol_output_path, "DDEC6_even_tempered_net_atomic_charges.xyz")
+        charge_path = f"{chargemol_output_path}/DDEC6_even_tempered_net_atomic_charges.xyz"
         self.ddec_charges = self._get_data_from_xyz(charge_path)
         self.dipoles = self._get_dipole_info(charge_path)
 
-        bond_order_path = os.path.join(chargemol_output_path, "DDEC6_even_tempered_bond_orders.xyz")
+        bond_order_path = f"{chargemol_output_path}/DDEC6_even_tempered_bond_orders.xyz"
         if os.path.exists(bond_order_path):
             self.bond_order_sums = self._get_data_from_xyz(bond_order_path)
             self.bond_order_dict = self._get_bond_order_info(bond_order_path)
         else:
             self.bond_order_sums = self.bond_order_dict = None
 
-        spin_moment_path = os.path.join(chargemol_output_path, "DDEC6_even_tempered_atomic_spin_moments.xyz")
+        spin_moment_path = f"{chargemol_output_path}/DDEC6_even_tempered_atomic_spin_moments.xyz"
         if os.path.exists(spin_moment_path):
             self.ddec_spin_moments = self._get_data_from_xyz(spin_moment_path)
         else:
             self.ddec_spin_moments = None
 
-        rsquared_path = os.path.join(chargemol_output_path, "DDEC_atomic_Rsquared_moments.xyz")
+        rsquared_path = f"{chargemol_output_path}/DDEC_atomic_Rsquared_moments.xyz"
         if os.path.exists(rsquared_path):
             self.ddec_rsquared_moments = self._get_data_from_xyz(rsquared_path)
         else:
             self.ddec_rsquared_moments = None
 
-        rcubed_path = os.path.join(chargemol_output_path, "DDEC_atomic_Rcubed_moments.xyz")
+        rcubed_path = f"{chargemol_output_path}/DDEC_atomic_Rcubed_moments.xyz"
         if os.path.exists(rcubed_path):
             self.ddec_rcubed_moments = self._get_data_from_xyz(rcubed_path)
         else:
             self.ddec_rcubed_moments = None
 
-        rfourth_path = os.path.join(chargemol_output_path, "DDEC_atomic_Rfourth_moments.xyz")
+        rfourth_path = f"{chargemol_output_path}/DDEC_atomic_Rfourth_moments.xyz"
         if os.path.exists(rfourth_path):
             self.ddec_rfourth_moments = self._get_data_from_xyz(rfourth_path)
         else:
             self.ddec_rfourth_moments = None
 
-        ddec_analysis_path = os.path.join(chargemol_output_path, "VASP_DDEC_analysis.output")
+        ddec_analysis_path = f"{chargemol_output_path}/VASP_DDEC_analysis.output"
         if os.path.exists(ddec_analysis_path):
             self.cm5_charges = self._get_cm5_data_from_output(ddec_analysis_path)
         else:

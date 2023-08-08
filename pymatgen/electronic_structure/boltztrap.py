@@ -242,12 +242,12 @@ class BoltztrapRunner(MSONable):
 
     @property
     def bs(self):
-        """:return: The BandStructure"""
+        """The BandStructure."""
         return self._bs
 
     @property
     def nelec(self):
-        """:return: Number of electrons"""
+        """Number of electrons."""
         return self._nelec
 
     def write_energy(self, output_file):
@@ -507,18 +507,18 @@ class BoltztrapRunner(MSONable):
         :param output_dir: Directory to write the input files.
         """
         if self._bs.is_spin_polarized or self.soc:
-            self.write_energy(os.path.join(output_dir, "boltztrap.energyso"))
+            self.write_energy(f"{output_dir}/boltztrap.energyso")
         else:
-            self.write_energy(os.path.join(output_dir, "boltztrap.energy"))
+            self.write_energy(f"{output_dir}/boltztrap.energy")
 
-        self.write_struct(os.path.join(output_dir, "boltztrap.struct"))
-        self.write_intrans(os.path.join(output_dir, "boltztrap.intrans"))
-        self.write_def(os.path.join(output_dir, "BoltzTraP.def"))
+        self.write_struct(f"{output_dir}/boltztrap.struct")
+        self.write_intrans(f"{output_dir}/boltztrap.intrans")
+        self.write_def(f"{output_dir}/BoltzTraP.def")
 
         if len(self.bs.projections) != 0 and self.run_type == "DOS":
             self.write_proj(
-                os.path.join(output_dir, "boltztrap.proj"),
-                os.path.join(output_dir, "BoltzTraP.def"),
+                f"{output_dir}/boltztrap.proj",
+                f"{output_dir}/BoltzTraP.def",
             )
 
     def run(
@@ -587,7 +587,7 @@ class BoltztrapRunner(MSONable):
         logging.basicConfig(
             level=logging.INFO,
             format=FORMAT,
-            filename=os.path.join(path_dir, "../boltztrap.out"),
+            filename=f"{path_dir}/../boltztrap.out",
         )
 
         with cd(path_dir):
@@ -681,7 +681,7 @@ class BoltztrapRunner(MSONable):
             return path_dir
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict."""
         results = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1690,7 +1690,7 @@ class BoltztrapAnalyzer:
         run_type = warning = efermi = gap = None
         doping_levels = []
 
-        with open(os.path.join(path_dir, "boltztrap.outputtrans")) as f:
+        with open(f"{path_dir}/boltztrap.outputtrans") as f:
             for line in f:
                 if "WARNING" in line:
                     warning = line
@@ -1721,7 +1721,7 @@ class BoltztrapAnalyzer:
         data_dos = {"total": [], "partial": {}}
         # parse the total DOS data
         # format is energy, DOS, integrated DOS
-        with open(os.path.join(path_dir, "boltztrap.transdos")) as f:
+        with open(f"{path_dir}/boltztrap.transdos") as f:
             count_series = 0  # TODO: why is count_series needed?
             for line in f:
                 if line.lstrip().startswith("#"):
@@ -1794,7 +1794,7 @@ class BoltztrapAnalyzer:
                 been used in the Boltztrap run.
         """
         intrans = {}
-        with open(os.path.join(path_dir, "boltztrap.intrans")) as f:
+        with open(f"{path_dir}/boltztrap.intrans") as f:
             for line in f:
                 if "iskip" in line:
                     intrans["scissor"] = Energy(float(line.split(" ")[3]), "Ry").to("eV")
@@ -1813,7 +1813,7 @@ class BoltztrapAnalyzer:
         Returns:
             (float) volume
         """
-        with open(os.path.join(path_dir, "boltztrap.struct")) as f:
+        with open(f"{path_dir}/boltztrap.struct") as f:
             tokens = f.readlines()
             return Lattice(
                 [[Length(float(tokens[i].split()[j]), "bohr").to("ang") for j in range(3)] for i in range(1, 4)]
@@ -1843,7 +1843,7 @@ class BoltztrapAnalyzer:
 
         # parse the full conductivity/Seebeck/kappa0/etc data
         # also initialize t_steps and mu_steps
-        with open(os.path.join(path_dir, "boltztrap.condtens")) as f:
+        with open(f"{path_dir}/boltztrap.condtens") as f:
             for line in f:
                 if not line.startswith("#"):
                     mu_steps.add(float(line.split()[0]))
@@ -1851,20 +1851,20 @@ class BoltztrapAnalyzer:
                     data_full.append([float(c) for c in line.split()])
 
         # parse the full Hall tensor
-        with open(os.path.join(path_dir, "boltztrap.halltens")) as f:
+        with open(f"{path_dir}/boltztrap.halltens") as f:
             for line in f:
                 if not line.startswith("#"):
                     data_hall.append([float(c) for c in line.split()])
 
         if len(doping_levels) != 0:
             # parse doping levels version of full cond. tensor, etc.
-            with open(os.path.join(path_dir, "boltztrap.condtens_fixdoping")) as f:
+            with open(f"{path_dir}/boltztrap.condtens_fixdoping") as f:
                 for line in f:
                     if not line.startswith("#") and len(line) > 2:
                         data_doping_full.append([float(c) for c in line.split()])
 
             # parse doping levels version of full hall tensor
-            with open(os.path.join(path_dir, "boltztrap.halltens_fixdoping")) as f:
+            with open(f"{path_dir}/boltztrap.halltens_fixdoping") as f:
                 for line in f:
                     if not line.startswith("#") and len(line) > 2:
                         data_doping_hall.append([float(c) for c in line.split()])
@@ -2022,17 +2022,17 @@ class BoltztrapAnalyzer:
             return BoltztrapAnalyzer(gap=gap, dos=dos, dos_partial=pdos, warning=warning, vol=vol)
 
         if run_type == "BANDS":
-            bz_kpoints = np.loadtxt(os.path.join(path_dir, "boltztrap_band.dat"))[:, -3:]
-            bz_bands = np.loadtxt(os.path.join(path_dir, "boltztrap_band.dat"))[:, 1:-6]
+            bz_kpoints = np.loadtxt(f"{path_dir}/boltztrap_band.dat")[:, -3:]
+            bz_bands = np.loadtxt(f"{path_dir}/boltztrap_band.dat")[:, 1:-6]
             return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints, warning=warning, vol=vol)
 
         if run_type == "FERMI":
             """ """
 
-            if os.path.exists(os.path.join(path_dir, "boltztrap_BZ.cube")):
-                fs_data = read_cube_file(os.path.join(path_dir, "boltztrap_BZ.cube"))
-            elif os.path.exists(os.path.join(path_dir, "fort.30")):
-                fs_data = read_cube_file(os.path.join(path_dir, "fort.30"))
+            if os.path.exists(f"{path_dir}/boltztrap_BZ.cube"):
+                fs_data = read_cube_file(f"{path_dir}/boltztrap_BZ.cube")
+            elif os.path.exists(f"{path_dir}/fort.30"):
+                fs_data = read_cube_file(f"{path_dir}/fort.30")
             else:
                 raise BoltztrapError("No data file found for fermi surface")
             return BoltztrapAnalyzer(fermi_surface_data=fs_data)
@@ -2040,7 +2040,7 @@ class BoltztrapAnalyzer:
         raise ValueError(f"Run type: {run_type} not recognized!")
 
     def as_dict(self):
-        """:return: MSONable dict."""
+        """MSONable dict."""
         results = {
             "gap": self.gap,
             "mu_steps": self.mu_steps,

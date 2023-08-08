@@ -130,7 +130,7 @@ class LammpsMinimization(BaseLammpsGenerator):
                          If False, stage names are not printed and all commands appear in a single block.
         """
         if template is None:
-            template = os.path.join(template_dir, "minimization.template")
+            template = f"{template_dir}/minimization.template"
         settings = {
             "units": units,
             "atom_style": atom_style,

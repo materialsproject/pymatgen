@@ -287,17 +287,17 @@ class StructureGraph(MSONable):
 
     @property
     def name(self):
-        """:return: Name of graph"""
+        """Name of graph"""
         return self.graph.graph["name"]
 
     @property
     def edge_weight_name(self):
-        """:return: Name of the edge weight property of graph"""
+        """Name of the edge weight property of graph"""
         return self.graph.graph["edge_weight_name"]
 
     @property
     def edge_weight_unit(self):
-        """:return: Units of the edge weight property of graph"""
+        """Units of the edge weight property of graph"""
         return self.graph.graph["edge_weight_units"]
 
     def add_edge(
@@ -1317,7 +1317,7 @@ class StructureGraph(MSONable):
         return s
 
     def __len__(self):
-        """:return: length of Structure / number of nodes in graph"""
+        """length of Structure / number of nodes in graph"""
         return len(self.structure)
 
     def sort(self, key=None, reverse=False):
@@ -1724,17 +1724,17 @@ class MoleculeGraph(MSONable):
 
     @property
     def name(self):
-        """:return: Name of graph"""
+        """Name of graph"""
         return self.graph.graph["name"]
 
     @property
     def edge_weight_name(self):
-        """:return: Name of the edge weight property of graph"""
+        """Name of the edge weight property of graph"""
         return self.graph.graph["edge_weight_name"]
 
     @property
     def edge_weight_unit(self):
-        """:return: Units of the edge weight property of graph"""
+        """Units of the edge weight property of graph"""
         return self.graph.graph["edge_weight_units"]
 
     def add_edge(
@@ -2682,7 +2682,7 @@ class MoleculeGraph(MSONable):
         return out
 
     def __len__(self) -> int:
-        """:return: length of Molecule / number of nodes in graph"""
+        """length of Molecule / number of nodes in graph"""
         return len(self.molecule)
 
     def sort(self, key: Callable[[Molecule], float] | None = None, reverse: bool = False) -> None:

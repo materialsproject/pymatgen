@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import unittest
 
 import pytest
@@ -328,7 +327,7 @@ task dft energy
         json.dumps(d)
 
     def test_from_string_and_file(self):
-        nwi = NwInput.from_file(os.path.join(test_dir, "ch4.nw"))
+        nwi = NwInput.from_file(f"{test_dir}/ch4.nw")
         assert nwi.tasks[0].theory == "dft"
         assert nwi.memory_options == "total 1000 mb stack 400 mb"
         assert nwi.tasks[0].basis_set["C"] == "6-31++G*"
@@ -399,8 +398,8 @@ task dft energy
 
 class TestNwOutput(unittest.TestCase):
     def test_read(self):
-        nwo = NwOutput(os.path.join(test_dir, "CH4.nwout"))
-        nwo_cosmo = NwOutput(os.path.join(test_dir, "N2O4.nwout"))
+        nwo = NwOutput(f"{test_dir}/CH4.nwout")
+        nwo_cosmo = NwOutput(f"{test_dir}/N2O4.nwout")
 
         assert nwo[0]["charge"] == 0
         assert nwo[-1]["charge"] == -1
@@ -438,22 +437,22 @@ class TestNwOutput(unittest.TestCase):
         assert approx(ea, abs=1e-3) == -14.997877958701338
         assert nwo[4]["basis_set"]["C"]["description"] == "6-311++G**"
 
-        nwo = NwOutput(os.path.join(test_dir, "H4C3O3_1.nwout"))
+        nwo = NwOutput(f"{test_dir}/H4C3O3_1.nwout")
         assert nwo[-1]["has_error"]
         assert nwo[-1]["errors"][0] == "Bad convergence"
 
-        nwo = NwOutput(os.path.join(test_dir, "CH3CH2O.nwout"))
+        nwo = NwOutput(f"{test_dir}/CH3CH2O.nwout")
         assert nwo[-1]["has_error"]
         assert nwo[-1]["errors"][0] == "Bad convergence"
 
-        nwo = NwOutput(os.path.join(test_dir, "C1N1Cl1_1.nwout"))
+        nwo = NwOutput(f"{test_dir}/C1N1Cl1_1.nwout")
         assert nwo[-1]["has_error"]
         assert nwo[-1]["errors"][0] == "autoz error"
 
-        nwo = NwOutput(os.path.join(test_dir, "anthrachinon_wfs_16_ethyl.nwout"))
+        nwo = NwOutput(f"{test_dir}/anthrachinon_wfs_16_ethyl.nwout")
         assert nwo[-1]["has_error"]
         assert nwo[-1]["errors"][0] == "Geometry optimization failed"
-        nwo = NwOutput(os.path.join(test_dir, "anthrachinon_wfs_15_carboxyl.nwout"))
+        nwo = NwOutput(f"{test_dir}/anthrachinon_wfs_15_carboxyl.nwout")
         assert nwo[1]["frequencies"][0][0] == -70.47
         assert len(nwo[1]["frequencies"][0][1]) == 27
         assert nwo[1]["frequencies"][-1][0] == 3696.74
@@ -463,7 +462,7 @@ class TestNwOutput(unittest.TestCase):
         assert nwo[1]["normal_frequencies"][1][1][-1] == (0.00056, 0.00042, 0.06781)
 
     def test_parse_tddft(self):
-        nwo = NwOutput(os.path.join(test_dir, "phen_tddft.log"))
+        nwo = NwOutput(f"{test_dir}/phen_tddft.log")
         roots = nwo.parse_tddft()
         assert len(roots["singlet"]) == 20
         assert roots["singlet"][0]["energy"] == approx(3.9291)
@@ -471,7 +470,7 @@ class TestNwOutput(unittest.TestCase):
         assert roots["singlet"][1]["osc_strength"] == approx(0.00177)
 
     def test_get_excitation_spectrum(self):
-        nwo = NwOutput(os.path.join(test_dir, "phen_tddft.log"))
+        nwo = NwOutput(f"{test_dir}/phen_tddft.log")
         spectrum = nwo.get_excitation_spectrum()
         assert len(spectrum.x) == 2000
         assert spectrum.x[0] == approx(1.9291)

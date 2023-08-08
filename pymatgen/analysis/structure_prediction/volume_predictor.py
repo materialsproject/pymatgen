@@ -13,7 +13,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Structure
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-bond_params = loadfn(os.path.join(MODULE_DIR, "DLS_bond_params.yaml"))
+bond_params = loadfn(f"{MODULE_DIR}/DLS_bond_params.yaml")
 
 
 def _is_ox(structure):

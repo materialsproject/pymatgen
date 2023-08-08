@@ -425,7 +425,7 @@ class SymmOp(MSONable):
         return SymmOp(m)
 
     def as_dict(self) -> dict[str, Any]:
-        """:return: MSONable dict."""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -628,7 +628,7 @@ class MagSymmOp(SymmOp):
         return f"{xyzt_string}, {self.time_reversal:+}"
 
     def as_dict(self) -> dict[str, Any]:
-        """:return: MSONABle dict"""
+        """MSONABle dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

@@ -74,7 +74,7 @@ class Nwchem2Fiesta(MSONable):
         os.chdir(init_folder)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -169,7 +169,7 @@ class FiestaRun(MSONable):
             os.chdir(init_folder)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -258,7 +258,7 @@ class BasisSetReader:
         return basis_set
 
     def set_n_nlmo(self):
-        """:return: the number of nlm orbitals for the basis set"""
+        """the number of nlm orbitals for the basis set"""
         nnlmo = 0
 
         data_tmp = self.data
@@ -529,7 +529,7 @@ $geometry
             f.write(str(self))
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "mol": self._mol.as_dict(),
             "correlation_grid": self.correlation_grid,

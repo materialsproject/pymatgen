@@ -70,8 +70,8 @@ class TestBaderAnalysis(unittest.TestCase):
     def test_from_path(self):
         test_dir = f"{TEST_FILES_DIR}/bader"
         analysis = BaderAnalysis.from_path(test_dir)
-        chgcar = os.path.join(test_dir, "CHGCAR.gz")
-        chgref = os.path.join(test_dir, "_CHGCAR_sum.gz")
+        chgcar = f"{test_dir}/CHGCAR.gz"
+        chgref = f"{test_dir}/_CHGCAR_sum.gz"
         analysis0 = BaderAnalysis(chgcar_filename=chgcar, chgref_filename=chgref)
         charge = np.array(analysis.summary["charge"])
         charge0 = np.array(analysis0.summary["charge"])

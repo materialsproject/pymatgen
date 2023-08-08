@@ -230,7 +230,7 @@ class TestMultiDataset(PymatgenTest):
         assert multi.to_str(with_pseudos=False)
 
         tmpdir = tempfile.mkdtemp()
-        filepath = os.path.join(tmpdir, "run.abi")
+        filepath = f"{tmpdir}/run.abi"
         inp.write(filepath=filepath)
         multi.write(filepath=filepath)
 

@@ -1229,17 +1229,17 @@ class IcohpCollection(MSONable):
 
     @property
     def is_spin_polarized(self) -> bool:
-        """:return: Whether it is spin polarized."""
+        """Whether it is spin polarized."""
         return self._is_spin_polarized
 
     @property
     def are_coops(self) -> bool:
-        """:return: Whether this is a coop."""
+        """Whether this is a coop."""
         return self._are_coops
 
     @property
     def are_cobis(self) -> bool:
-        """:return: Whether this a cobi."""
+        """Whether this a cobi."""
         return self._are_cobis
 
 

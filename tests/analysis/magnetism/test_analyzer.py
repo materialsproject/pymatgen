@@ -270,7 +270,7 @@ class TestMagneticStructureEnumerator(unittest.TestCase):
         # afm requiring large cell size
         # (enable for further development of workflow, too slow for CI)
 
-        # structure = Structure.from_file(os.path.join(ref_dir, "CuO.json"))
+        # structure = Structure.from_file(f"{ref_dir}/CuO.json")
         # enumerator = MagneticOrderingsenumerator(
         #     structure, default_magmoms={"Cu": 1.73}, transformation_kwargs={"max_cell_size": 4}
         # )

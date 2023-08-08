@@ -282,7 +282,7 @@ class Lobsterin(dict, MSONable):
                             f.write(f"{key} {entry}\n")
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         d = dict(self)
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -351,7 +351,7 @@ class Lobsterin(dict, MSONable):
             returns basis
         """
         if address_basis_file is None:
-            address_basis_file = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_standard.yaml")
+            address_basis_file = f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_standard.yaml"
         Potcar_names = list(potcar_symbols)
 
         AtomTypes_Potcar = [name.split("_")[0] for name in Potcar_names]
@@ -395,14 +395,12 @@ class Lobsterin(dict, MSONable):
         max_basis = Lobsterin.get_basis(
             structure=structure,
             potcar_symbols=potcar_symbols,
-            address_basis_file=address_basis_file_max
-            or os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_max.yaml"),
+            address_basis_file=address_basis_file_max or f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_max.yaml",
         )
         min_basis = Lobsterin.get_basis(
             structure=structure,
             potcar_symbols=potcar_symbols,
-            address_basis_file=address_basis_file_min
-            or os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_min.yaml"),
+            address_basis_file=address_basis_file_min or f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_min.yaml",
         )
         all_basis = get_all_possible_basis_combinations(min_basis=min_basis, max_basis=max_basis)
         list_basis_dict = []

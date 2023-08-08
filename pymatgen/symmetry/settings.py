@@ -126,23 +126,23 @@ class JonesFaithfulTransformation:
 
     @property
     def P(self) -> list[list[float]]:
-        """:return: transformation matrix"""
+        """Transformation matrix."""
         return self._P
 
     @property
     def p(self) -> list[float]:
-        """:return: translation vector"""
+        """Translation vector."""
         return self._p
 
     @property
     def inverse(self) -> JonesFaithfulTransformation:
-        """:return: JonesFaithfulTransformation"""
+        """JonesFaithfulTransformation."""
         Q = np.linalg.inv(self.P)
         return JonesFaithfulTransformation(Q, -np.matmul(Q, self.p))
 
     @property
     def transformation_string(self) -> str:
-        """:return: transformation string"""
+        """Transformation string."""
         return self._get_transformation_string_from_Pp(self.P, self.p)
 
     @staticmethod

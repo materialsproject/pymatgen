@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import datetime
 import json
-import os
 import re
 from typing import TYPE_CHECKING, Any
 from warnings import warn
@@ -217,7 +216,7 @@ class TransformedStructure(MSONable):
             **kwargs: All keyword args supported by the VASP input set.
         """
         vasp_input_set(self.final_structure, **kwargs).write_input(output_dir, make_dir_if_not_present=create_directory)
-        with open(os.path.join(output_dir, "transformations.json"), "w") as fp:
+        with open(f"{output_dir}/transformations.json", "w") as fp:
             json.dump(self.as_dict(), fp)
 
     def __str__(self) -> str:

@@ -138,7 +138,7 @@ class VasprunBSLoader:
         return cls(vrun_obj)
 
     def get_lattvec(self):
-        """:return: The lattice vectors."""
+        """The lattice vectors."""
         try:
             return self.lattvec
         except AttributeError:
@@ -146,7 +146,7 @@ class VasprunBSLoader:
         return self.lattvec
 
     def get_volume(self):
-        """:return: Volume"""
+        """Volume."""
         try:
             return self.UCvol
         except AttributeError:
@@ -245,7 +245,7 @@ class BandstructureLoader:
             self.nelect_all = nelect
 
     def get_lattvec(self):
-        """:return: The lattice vectors."""
+        """The lattice vectors."""
         try:
             return self.lattvec
         except AttributeError:
@@ -299,7 +299,7 @@ class BandstructureLoader:
                 self.proj[sp] = np.concatenate((proj_lower, proj, proj_upper), axis=1)
 
     def get_volume(self):
-        """:return: Volume"""
+        """Volume."""
         try:
             return self.UCvol
         except AttributeError:
@@ -356,7 +356,7 @@ class VasprunLoader:
         return VasprunLoader(vrun_obj)
 
     def get_lattvec(self):
-        """:return: Lattice vectors"""
+        """Lattice vectors."""
         try:
             return self.lattvec
         except AttributeError:
@@ -388,7 +388,7 @@ class VasprunLoader:
         return n_emin, n_emax
 
     def get_volume(self):
-        """:return: Volume of cell"""
+        """Volume of cell."""
         try:
             return self.UCvol
         except AttributeError:

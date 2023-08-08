@@ -117,7 +117,7 @@ class VolumetricData(MSONable):
         return self.linear_add(other, -1.0)
 
     def copy(self):
-        """:return: Copy of Volumetric object"""
+        """Copy of Volumetric object"""
         return VolumetricData(
             self.structure,
             {k: v.copy() for k, v in self.data.items()},

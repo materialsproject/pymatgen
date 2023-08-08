@@ -108,7 +108,6 @@ def parse_lammps_dumps(file_pattern):
 
     Yields:
         LammpsDump for each available snapshot.
-
     """
     files = glob(file_pattern)
     if len(files) > 1:
@@ -144,7 +143,6 @@ def parse_lammps_log(filename="log.lammps"):
 
     Returns:
         [pd.DataFrame] containing thermo data for each completed run.
-
     """
     with zopen(filename, "rt") as f:
         lines = f.readlines()

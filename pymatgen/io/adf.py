@@ -701,7 +701,7 @@ class AdfOutput:
         output file.
         """
         workdir = os.path.dirname(self.filename)
-        logfile = os.path.join(workdir, "logfile")
+        logfile = f"{workdir}/logfile"
         for ext in ("", ".gz", ".bz2"):
             if os.path.isfile(f"{logfile}{ext}"):
                 logfile = f"{logfile}{ext}"
