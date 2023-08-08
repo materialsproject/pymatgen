@@ -98,14 +98,14 @@ class BaderAnalysis:
                 self.is_vasp = True
 
                 # decompress the file if compressed
-                fpath = decompress_file(filepath=chgcar_filename) or chgcar_filename
-
-                self.chgcar = Chgcar.from_file(fpath)
+                fpath = chgcar_fpath = decompress_file(filepath=chgcar_filename) or chgcar_filename
+                self.chgcar = Chgcar.from_file(chgcar_fpath)
                 self.structure = self.chgcar.structure
+
                 self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
                 self.natoms = self.chgcar.poscar.natoms
-                chgref_fpath = decompress_file(filepath=chgref_filename) if chgref_filename else None
-                chgref_fpath = chgref_fpath if chgref_fpath else chgcar_filename
+
+                chgref_fpath = decompress_file(filepath=chgref_filename) or chgref_filename
                 self.reference_used = bool(chgref_filename)
 
                 # List of nelects for each atom from potcar
@@ -120,13 +120,11 @@ class BaderAnalysis:
 
             else:
                 self.is_vasp = False
-                fpath = decompress_file(filepath=cube_filename)
-                fpath = fpath if fpath else cube_filename
-                self.cube = VolumetricData.from_cube(fpath)
+                fpath = cube_fpath = decompress_file(filepath=cube_filename) or cube_filename
+                self.cube = VolumetricData.from_cube(cube_fpath)
                 self.structure = self.cube.structure
                 self.nelects = []
-                chgref_fpath = decompress_file(filepath=chgref_filename) if chgref_filename else None
-                chgref_fpath = chgref_fpath if chgref_fpath else chgref_filename
+                chgref_fpath = decompress_file(filepath=chgref_filename) or chgref_filename
                 self.reference_used = bool(chgref_filename)
 
             args = [BADER_EXE, fpath]
@@ -168,13 +166,13 @@ class BaderAnalysis:
                     vals = map(float, line.split()[1:])
                     data.append(dict(zip(headers, vals)))
                 for line in lines:
-                    toks = line.strip().split(":")
-                    if toks[0] == "VACUUM CHARGE":
-                        self.vacuum_charge = float(toks[1])
-                    elif toks[0] == "VACUUM VOLUME":
-                        self.vacuum_volume = float(toks[1])
-                    elif toks[0] == "NUMBER OF ELECTRONS":
-                        self.nelectrons = float(toks[1])
+                    tokens = line.strip().split(":")
+                    if tokens[0] == "VACUUM CHARGE":
+                        self.vacuum_charge = float(tokens[1])
+                    elif tokens[0] == "VACUUM VOLUME":
+                        self.vacuum_volume = float(tokens[1])
+                    elif tokens[0] == "NUMBER OF ELECTRONS":
+                        self.nelectrons = float(tokens[1])
             self.data = data
 
             if self.parse_atomic_densities:
