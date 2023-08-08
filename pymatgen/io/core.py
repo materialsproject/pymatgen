@@ -31,6 +31,7 @@ from collections.abc import MutableMapping
 from pathlib import Path
 from zipfile import ZipFile
 
+import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -67,6 +68,20 @@ class InputFile(MSONable):
         filename = filename if isinstance(filename, Path) else Path(filename)
         with zopen(filename, "wt") as f:
             f.write(self.get_string())
+
+    @np.deprecate(message="Use from_str instead")
+    @classmethod
+    @abc.abstractmethod
+    def from_string(cls, contents: str):
+        """
+        Create an InputFile object from a string.
+
+        Args:
+            contents: The contents of the file as a single string
+
+        Returns:
+            InputFile
+        """
 
     @classmethod
     @abc.abstractmethod
