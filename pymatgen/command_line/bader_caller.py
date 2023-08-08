@@ -83,18 +83,20 @@ class BaderAnalysis:
             cube_filename (str, optional): The filename of the cube file.
             bader_exe_path (str, optional): The path to the bader executable.
         """
-        if not BADER_EXE and not os.path.isfile(bader_exe_path or ""):
+        bader_exe = which(bader_exe_path or "")
+        if bader_exe is None:
             raise RuntimeError(
-                "BaderAnalysis requires the executable bader be in the PATH or the full path "
+                "BaderAnalysis requires bader or bader.exe to be in the PATH or the absolute path "
                 f"to the binary to be specified via {bader_exe_path=}. Download the binary at "
                 "https://theory.cm.utexas.edu/henkelman/code/bader."
             )
-        assert isinstance(BADER_EXE, str)  # mypy type narrowing
 
         if not (cube_filename or chgcar_filename):
             raise ValueError("You must provide either a cube file or a CHGCAR")
         if cube_filename and chgcar_filename:
-            raise ValueError("You cannot parse a cube and a CHGCAR at the same time.")
+            raise ValueError(
+                f"You cannot parse a cube and a CHGCAR at the same time.\n{cube_filename=}\n{chgcar_filename=}"
+            )
         self.parse_atomic_densities = parse_atomic_densities
 
         with ScratchDir("."):
@@ -131,7 +133,7 @@ class BaderAnalysis:
                 chgref_fpath = decompress_file(filepath=chgref_filename) or chgref_filename
                 self.reference_used = bool(chgref_filename)
 
-            args = [BADER_EXE, fpath]
+            args = [bader_exe, fpath]
 
             if chgref_fpath:
                 args += ["-ref", chgref_fpath]
@@ -143,7 +145,7 @@ class BaderAnalysis:
                 stdout, stderr = proc.communicate()
                 if proc.returncode != 0:
                     raise RuntimeError(
-                        f"{BADER_EXE} exit code: {proc.returncode}, error message: {stderr!s}. "
+                        f"{bader_exe} exit code: {proc.returncode}, error message: {stderr!s}.\nstdout: {stdout!s}"
                         "Please check your bader installation."
                     )
 
