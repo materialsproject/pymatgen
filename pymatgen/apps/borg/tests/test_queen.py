@@ -30,7 +30,7 @@ class BorgQueenTest(unittest.TestCase):
         drone = VaspToComputedEntryDrone()
         self.queen = BorgQueen(drone, PymatgenTest.TEST_FILES_DIR, 1)
         data = self.queen.get_data()
-        assert len(data) == 15
+        assert len(data) == 16  # added new folder for testing of chemical shift vasprun.
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()
