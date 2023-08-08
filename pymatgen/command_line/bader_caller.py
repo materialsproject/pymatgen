@@ -342,7 +342,7 @@ class BaderAnalysis:
         Returns:
             structure with site properties assigned via Bader Analysis
         """
-        vals = [self.get_charge(i) for i in range(len(self.structure))]
+        vals = np.array([self.get_charge(i) for i in range(len(self.structure))])
         struct = self.structure.copy()
         if average:
             vals = np.divide(vals, [d["atomic_vol"] for d in self.data])
