@@ -22,12 +22,12 @@ from shutil import which
 from tempfile import TemporaryDirectory
 
 import numpy as np
+from monty.shutil import decompress_file
 from monty.tempfile import ScratchDir
 
 from pymatgen.io.common import VolumetricData
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
-from pymatgen.util.io_utils import decompress_file_to_path
 
 __author__ = "shyuepingong"
 __version__ = "0.1"
@@ -97,14 +97,14 @@ class BaderAnalysis:
             if chgcar_filename:
                 self.is_vasp = True
                 # decompress the file if compressed
-                fpath = decompress_file_to_path(fin_path=chgcar_filename, fout_path=".")
+                fpath = decompress_file(filepath=chgcar_filename)
+                if not fpath:
+                    raise FileNotFoundError(f"Cannot decompress file {chgcar_filename}")
                 self.chgcar = Chgcar.from_file(fpath)
                 self.structure = self.chgcar.structure
                 self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
                 self.natoms = self.chgcar.poscar.natoms
-                chgref_fpath = (
-                    decompress_file_to_path(fin_path=chgref_filename, fout_path=".") if chgref_filename else None
-                )
+                chgref_fpath = decompress_file(filepath=chgref_filename) if chgref_filename else None
                 self.reference_used = bool(chgref_filename)
 
                 # List of nelects for each atom from potcar
@@ -119,13 +119,13 @@ class BaderAnalysis:
 
             else:
                 self.is_vasp = False
-                fpath = decompress_file_to_path(fin_path=cube_filename, fout_path=".")
+                fpath = decompress_file(filepath=cube_filename)
+                if not fpath:
+                    raise FileNotFoundError(f"Cannot decompress file {cube_filename}")
                 self.cube = VolumetricData.from_cube(fpath)
                 self.structure = self.cube.structure
                 self.nelects = []
-                chgref_fpath = (
-                    decompress_file_to_path(fin_path=chgref_filename, fout_path=".") if chgref_filename else None
-                )
+                chgref_fpath = decompress_file(filepath=chgref_filename) if chgref_filename else None
                 self.reference_used = bool(chgref_filename)
 
             args = [BADEREXE, fpath]
@@ -200,15 +200,15 @@ class BaderAnalysis:
                     shifted_data = np.roll(chg.data["total"], shift, axis=(0, 1, 2))
 
                     # Slices a central window from the data array
-                    def slice_from_center(data, xwidth, ywidth, zwidth):
+                    def slice_from_center(data, x_width, y_width, z_width):
                         x, y, z = data.shape
-                        startx = x // 2 - (xwidth // 2)
-                        starty = y // 2 - (ywidth // 2)
-                        startz = z // 2 - (zwidth // 2)
+                        start_x = x // 2 - (x_width // 2)
+                        start_y = y // 2 - (y_width // 2)
+                        start_z = z // 2 - (z_width // 2)
                         return data[
-                            startx : startx + xwidth,
-                            starty : starty + ywidth,
-                            startz : startz + zwidth,
+                            start_x : start_x + x_width,
+                            start_y : start_y + y_width,
+                            start_z : start_z + z_width,
                         ]
 
                     def find_encompassing_vol(data: np.ndarray):
