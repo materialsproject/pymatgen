@@ -523,7 +523,7 @@ class LammpsInputFile(InputFile):
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
         with zopen(filename, "wt") as f:
-            f.write(self.get_string(ignore_comments=ignore_comments, keep_stages=keep_stages))
+            f.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
     @np.deprecate(message="Use from_str instead")
@@ -629,7 +629,7 @@ class LammpsInputFile(InputFile):
             return cls.from_str(f.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
 
     def __repr__(self):
-        return self.get_string()
+        return self.get_str()
 
     def _initialize_stage(self, stage_name: str | None = None, stage_index: int | None = None):
         """

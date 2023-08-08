@@ -206,7 +206,7 @@ direct
    0.75    0.50    0.75 Si
 """
 
-        actual_str = poscar.get_string(significant_figures=2)
+        actual_str = poscar.get_str(significant_figures=2)
         assert actual_str == expected_str, "Wrong POSCAR output!"
 
     def test_str(self):
@@ -574,8 +574,8 @@ class TestIncar:
         assert i == self.incar
         tempfname.unlink()
 
-    def test_get_string(self):
-        s = self.incar.get_string(pretty=True, sort_keys=True)
+    def test_get_str(self):
+        s = self.incar.get_str(pretty=True, sort_keys=True)
         expected = """ALGO       =  Damped
 EDIFF      =  0.0001
 ENCUT      =  500

@@ -136,10 +136,10 @@ class LammpsBox(MSONable):
         self._matrix = matrix
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
     def __repr__(self):
-        return self.get_string()
+        return self.get_str()
 
     @property
     def volume(self):
@@ -284,10 +284,10 @@ class LammpsData(MSONable):
         self.atom_style = atom_style
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
     def __repr__(self):
-        return self.get_string()
+        return self.get_str()
 
     @property
     def structure(self):
@@ -357,7 +357,7 @@ class LammpsData(MSONable):
 
 {body}
 """
-        box = self.box.get_string(distance)
+        box = self.box.get_str(distance)
 
         body_dict = {}
         body_dict["Masses"] = self.masses
@@ -409,9 +409,9 @@ class LammpsData(MSONable):
             "vz": map_velos,
             "q": map_charges,
         }
-        coeffsdatatype = loadfn(str(MODULE_DIR / "CoeffsDataType.yaml"))
+        coeffs_data_type = loadfn(str(MODULE_DIR / "CoeffsDataType.yaml"))
         coeffs: dict[str, dict] = {}
-        for style, types in coeffsdatatype.items():
+        for style, types in coeffs_data_type.items():
             coeffs[style] = {}
             for type, formatter in types.items():
                 coeffs[style][type] = {}
@@ -479,7 +479,7 @@ class LammpsData(MSONable):
                 charges. Default to 4.
         """
         with open(filename, "w") as f:
-            f.write(self.get_string(distance=distance, velocity=velocity, charge=charge))
+            f.write(self.get_str(distance=distance, velocity=velocity, charge=charge))
 
     def disassemble(self, atom_labels=None, guess_element=True, ff_label="ff_map"):
         """
@@ -1453,7 +1453,7 @@ class CombinedData(LammpsData):
         Returns:
             String representation
         """
-        lines = LammpsData.get_string(self, distance, velocity, charge, hybrid).splitlines()
+        lines = LammpsData.get_str(self, distance, velocity, charge, hybrid).splitlines()
         info = "# " + " + ".join(
             (str(a) + " " + b) if c == 1 else (str(a) + "(" + str(c) + ") " + b)
             for a, b, c in zip(self.nums, self.names, self.mols_per_data)

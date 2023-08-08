@@ -65,9 +65,9 @@ class TestLammpsInputFile(PymatgenTest):
             }
         ]
 
-    def test_get_string(self):
+    def test_get_str(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
-        string = lmp_input.get_string()
+        string = lmp_input.get_str()
         assert "# LAMMPS input generated from LammpsInputFile with pymatgen v" in string
         assert "\nunits metal\natom_style full\ndimension 3\npair_style hybrid/overlay morse 15 coul/long" in string
         assert "15\nkspace_style ewald 1e-4\nboundary p p p\n# 2) System definition" in string

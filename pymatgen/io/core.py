@@ -73,7 +73,7 @@ class InputFile(MSONable):
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
         with zopen(filename, "wt") as file:
-            file.write(self.get_string())
+            file.write(self.get_str())
 
     @np.deprecate(message="Use from_str instead")
     @classmethod
@@ -118,7 +118,7 @@ class InputFile(MSONable):
             return cls.from_str(f.read())
 
     def __str__(self) -> str:
-        return self.get_string()
+        return self.get_str()
 
 
 class InputSet(MSONable, MutableMapping):

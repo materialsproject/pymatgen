@@ -542,11 +542,11 @@ class Poscar(MSONable):
         return "\n".join(lines) + "\n"
 
     def __repr__(self):
-        return self.get_string()
+        return self.get_str()
 
     def __str__(self):
         """String representation of Poscar file."""
-        return self.get_string()
+        return self.get_str()
 
     def write_file(self, filename: PathLike, **kwargs):
         """
@@ -554,7 +554,7 @@ class Poscar(MSONable):
         the Poscar.get_string method and are passed through directly.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.get_string(**kwargs))
+            f.write(self.get_str(**kwargs))
 
     def as_dict(self) -> dict:
         """MSONable dict."""
@@ -745,7 +745,7 @@ class Incar(dict, MSONable):
         return str_delimited(lines, None, " = ") + "\n"
 
     def __str__(self):
-        return self.get_string(sort_keys=True, pretty=False)
+        return self.get_str(sort_keys=True, pretty=False)
 
     def write_file(self, filename: PathLike):
         """

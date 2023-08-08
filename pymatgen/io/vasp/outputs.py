@@ -4291,10 +4291,10 @@ class Xdatcar:
                 Xdatcar.get_string method and are passed through directly.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.get_string(**kwargs))
+            f.write(self.get_str(**kwargs))
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
 
 class Dynmat:

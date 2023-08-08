@@ -44,13 +44,13 @@ class TestLammpsBox(PymatgenTest):
         assert self.peptide.volume == ov
         assert self.quartz.volume == approx(113.007331)
 
-    def test_get_string(self):
-        peptide = self.peptide.get_string(5)
+    def test_get_str(self):
+        peptide = self.peptide.get_str(5)
         peptide_5 = """36.84019 64.21156  xlo xhi
 41.01369 68.38506  ylo yhi
 29.76809 57.13946  zlo zhi"""
         assert peptide == peptide_5
-        quartz = self.quartz.get_string(4)
+        quartz = self.quartz.get_str(4)
         quartz_4 = """0.0000 4.9134  xlo xhi
 0.0000 4.2551  ylo yhi
 0.0000 5.4052  zlo zhi
@@ -134,8 +134,8 @@ class TestLammpsData(unittest.TestCase):
         lmp2 = LammpsData.from_file("test1.data", atom_style="charge")
         assert lmp2.atoms["type"].tolist() == [1, 2]
 
-    def test_get_string(self):
-        pep = self.peptide.get_string(distance=7, velocity=5, charge=4)
+    def test_get_str(self):
+        pep = self.peptide.get_str(distance=7, velocity=5, charge=4)
         pep_lines = pep.split("\n")
         pep_kws = [
             "Masses",
@@ -188,7 +188,7 @@ class TestLammpsData(unittest.TestCase):
         pep_topos = "\n".join(pep_lines[kw_inds["Bonds"] :])
         assert "." not in pep_topos
 
-        c2h6 = self.ethane.get_string(distance=5, charge=3)
+        c2h6 = self.ethane.get_str(distance=5, charge=3)
         c2h6_lines = c2h6.split("\n")
         c2h6_kws = [
             "Masses",
@@ -242,7 +242,7 @@ class TestLammpsData(unittest.TestCase):
         c2h6_topos = "\n".join(c2h6_lines[kw_inds["Bonds"] :])
         assert "." not in c2h6_topos
 
-        quartz = self.quartz.get_string(distance=4)
+        quartz = self.quartz.get_str(distance=4)
         quartz_lines = quartz.split("\n")
         quartz_kws = ["Masses", "Atoms"]
         kw_inds = {line: idx for idx, line in enumerate(quartz_lines) if line in quartz_kws}
@@ -264,7 +264,7 @@ class TestLammpsData(unittest.TestCase):
         quartz_atom = quartz_lines[kw_inds["Atoms"] + 2]
         assert quartz_atom == "1  1  2.3088  0.0000  3.6035"
 
-        virus = self.virus.get_string()
+        virus = self.virus.get_str()
         virus_lines = virus.split("\n")
         pairij_coeff = virus_lines[virus_lines.index("PairIJ Coeffs") + 5]
         assert pairij_coeff.strip().split() == ["1", "4", "1", "1.000", "1.12250"]
@@ -997,10 +997,10 @@ class TestCombinedData(unittest.TestCase):
         assert li_2_minimal.force_field is None, "Empty ff info should be none"
         assert li_2_minimal.topology is None, "Empty topo info should be none"
 
-    def test_get_string(self):
+    def test_get_str(self):
         # general tests
-        ec_fec_lines = self.ec_fec1.get_string().splitlines()
-        ec_fec_double_lines = self.ec_fec3.get_string().splitlines()
+        ec_fec_lines = self.ec_fec1.get_str().splitlines()
+        ec_fec_double_lines = self.ec_fec3.get_str().splitlines()
         # header information
         assert ec_fec_lines[1] == "# 1200 cluster1 + 300 cluster2"
         assert ec_fec_double_lines[1] == "# 2(1500) EC_FEC"
@@ -1146,7 +1146,7 @@ class TestCombinedData(unittest.TestCase):
         assert topo["Dihedrals"].loc[41991, "type"] == 30
         assert topo["Dihedrals"].loc[41991, "atom2"] == 14994
         assert topo["Impropers"].loc[4, "atom4"] == 34
-        ec_fec_lines = self.ec_fec_ld.get_string().splitlines()
+        ec_fec_lines = self.ec_fec_ld.get_str().splitlines()
         # header information
         assert ec_fec_lines[1] == ""
         # data type consistency tests

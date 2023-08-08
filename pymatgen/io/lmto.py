@@ -50,15 +50,15 @@ class LMTOCtrl:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self.get_string() == other.get_string()
+        return self.get_str() == other.get_str()
 
     def __repr__(self):
         """Representation of the CTRL file is as a string."""
-        return self.get_string()
+        return self.get_str()
 
     def __str__(self):
         """String representation of the CTRL file."""
-        return self.get_string()
+        return self.get_str()
 
     @np.deprecate(message="Use get_str instead")
     def get_string(self, *args, **kwargs) -> str:
@@ -140,7 +140,7 @@ class LMTOCtrl:
         used as input for lmhart.run.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.get_string(**kwargs))
+            f.write(self.get_str(**kwargs))
 
     @classmethod
     def from_file(cls, filename="CTRL", **kwargs):

@@ -670,7 +670,7 @@ class Tags(dict):
         return str(val)
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
     def write_file(self, filename="PARAMETERS"):
         """
