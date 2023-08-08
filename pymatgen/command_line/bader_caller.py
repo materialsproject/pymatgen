@@ -96,15 +96,17 @@ class BaderAnalysis:
         with ScratchDir("."):
             if chgcar_filename:
                 self.is_vasp = True
+
                 # decompress the file if compressed
                 fpath = decompress_file(filepath=chgcar_filename)
-                if not fpath:
-                    raise FileNotFoundError(f"Cannot decompress file {chgcar_filename}")
+                fpath = fpath if fpath else chgcar_filename
+
                 self.chgcar = Chgcar.from_file(fpath)
                 self.structure = self.chgcar.structure
                 self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
                 self.natoms = self.chgcar.poscar.natoms
                 chgref_fpath = decompress_file(filepath=chgref_filename) if chgref_filename else None
+                chgref_fpath = chgref_fpath if chgref_fpath else chgcar_filename
                 self.reference_used = bool(chgref_filename)
 
                 # List of nelects for each atom from potcar
@@ -120,12 +122,12 @@ class BaderAnalysis:
             else:
                 self.is_vasp = False
                 fpath = decompress_file(filepath=cube_filename)
-                if not fpath:
-                    raise FileNotFoundError(f"Cannot decompress file {cube_filename}")
+                fpath = fpath if fpath else cube_filename
                 self.cube = VolumetricData.from_cube(fpath)
                 self.structure = self.cube.structure
                 self.nelects = []
                 chgref_fpath = decompress_file(filepath=chgref_filename) if chgref_filename else None
+                chgref_fpath = chgref_fpath if chgref_fpath else chgref_filename
                 self.reference_used = bool(chgref_filename)
 
             args = [BADEREXE, fpath]
