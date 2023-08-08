@@ -37,7 +37,7 @@ __status__ = "Beta"
 __date__ = "4/5/13"
 
 
-BADEREXE = which("bader") or which("bader.exe")
+BADER_EXE = which("bader") or which("bader.exe")
 
 
 class BaderAnalysis:
@@ -65,7 +65,7 @@ class BaderAnalysis:
         chgref_filename=None,
         parse_atomic_densities=False,
         cube_filename=None,
-        bader_exe_path: str | None = BADEREXE,
+        bader_exe_path: str | None = BADER_EXE,
     ):
         """
         Initializes the Bader caller.
@@ -79,13 +79,13 @@ class BaderAnalysis:
             cube_filename (str, optional): The filename of the cube file.
             bader_exe_path (str, optional): The path to the bader executable.
         """
-        if not BADEREXE and not os.path.isfile(bader_exe_path or ""):
+        if not BADER_EXE and not os.path.isfile(bader_exe_path or ""):
             raise RuntimeError(
                 "BaderAnalysis requires the executable bader be in the PATH or the full path "
                 f"to the binary to be specified via {bader_exe_path=}. Download the binary at "
                 "https://theory.cm.utexas.edu/henkelman/code/bader."
             )
-        assert isinstance(BADEREXE, str)  # mypy type narrowing
+        assert isinstance(BADER_EXE, str)  # mypy type narrowing
 
         if not (cube_filename or chgcar_filename):
             raise ValueError("You must provide either a cube file or a CHGCAR")
@@ -130,7 +130,7 @@ class BaderAnalysis:
                 chgref_fpath = chgref_fpath if chgref_fpath else chgref_filename
                 self.reference_used = bool(chgref_filename)
 
-            args = [BADEREXE, fpath]
+            args = [BADER_EXE, fpath]
 
             if chgref_fpath:
                 args += ["-ref", chgref_fpath]
@@ -141,11 +141,10 @@ class BaderAnalysis:
             with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as proc:
                 stdout, stderr = proc.communicate()
                 if proc.returncode != 0:
-                    err = (
-                        f"{BADEREXE} exited with return code {proc.returncode} with error message: {stderr!s}. "
+                    raise RuntimeError(
+                        f"{BADER_EXE} exit code: {proc.returncode}, error message: {stderr!s}. "
                         "Please check your bader installation."
                     )
-                    raise RuntimeError(err)
 
             try:
                 self.version = float(stdout.split()[5])

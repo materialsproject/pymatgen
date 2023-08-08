@@ -62,7 +62,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "01/18/21"
 
-CHARGEMOLEXE = (
+CHARGEMOL_EXE = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
 )
 
@@ -190,19 +190,13 @@ class ChargemolAnalysis:
             self._write_jobscript_for_chargemol(**jobcontrol_kwargs)
 
             # Run Chargemol
-            with subprocess.Popen(
-                CHARGEMOLEXE,
-                stdout=subprocess.PIPE,
-                stdin=subprocess.PIPE,
-                close_fds=True,
-            ) as rs:
-                stdout, stderr = rs.communicate()
+            with subprocess.Popen(CHARGEMOL_EXE, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
+                _stdout, stderr = rs.communicate()
             if rs.returncode != 0:
-                err = (
-                    f"Chargemol exited with return code {rs.returncode} with error message: {stderr!s}. "
+                raise RuntimeError(
+                    f"{CHARGEMOL_EXE} exit code: {rs.returncode}, error message: {stderr!s}. "
                     "Please check your Chargemol installation."
                 )
-                raise RuntimeError(err)
 
             self._from_data_dir()
 
