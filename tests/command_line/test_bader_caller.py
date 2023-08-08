@@ -72,17 +72,20 @@ class TestBaderAnalysis(PymatgenTest):
 
     def test_from_path(self):
         test_dir = f"{TEST_FILES_DIR}/bader"
-        copy_r(test_dir, self.tmp_path)
-        analysis = BaderAnalysis.from_path(self.tmp_path)
-        chgcar = f"{self.tmp_path}/CHGCAR.gz"
-        chgref = f"{self.tmp_path}/_CHGCAR_sum.gz"
-        analysis0 = BaderAnalysis(chgcar_filename=chgcar, chgref_filename=chgref)
+        # we need to create two copies of input files since monty decompressing files
+        # deletes the compressed version which can't happen twice in same directory
+        copy_r(test_dir, direct_dir := f"{self.tmp_path}/direct")
+        copy_r(test_dir, from_path_dir := f"{self.tmp_path}/from_path")
+        chgcar_path = f"{direct_dir}/CHGCAR.gz"
+        chgref_path = f"{direct_dir}/_CHGCAR_sum.gz"
+        analysis = BaderAnalysis.from_path(from_path_dir)
+        analysis0 = BaderAnalysis(chgcar_filename=chgcar_path, chgref_filename=chgref_path)
         charge = np.array(analysis.summary["charge"])
         charge0 = np.array(analysis0.summary["charge"])
         assert np.allclose(charge, charge0)
 
     def test_automatic_runner(self):
-        pytest.skip("raises RuntimeError: bader exited with return code 24")
+        pytest.skip("raises RuntimeError: bader exits with return code 24")
         summary = bader_analysis_from_path(f"{TEST_FILES_DIR}/bader")
         """
         Reference summary dict (with bader 1.0)
