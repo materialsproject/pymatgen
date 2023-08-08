@@ -66,26 +66,20 @@ class TestBaderAnalysis(PymatgenTest):
 
         # Test Cube file format parsing
         test_dir = f"{TEST_FILES_DIR}/bader"
-        tmp_dir = os.path.join(self.tmp_path, "bader")
-        copy_r(test_dir, tmp_dir)
+        copy_r(test_dir, self.tmp_path)
         analysis = BaderAnalysis(cube_filename=os.path.join(test_dir, "elec.cube.gz"))
         assert len(analysis.data) == 9
 
     def test_from_path(self):
         test_dir = f"{TEST_FILES_DIR}/bader"
-        tmp_dir = os.path.join(self.tmp_path, "bader")
-        copy_r(test_dir, tmp_dir)
-        analysis = BaderAnalysis.from_path(tmp_dir)
-        chgcar = f"{tmp_dir}/CHGCAR.gz"
-        chgref = f"{tmp_dir}/_CHGCAR_sum.gz"
+        copy_r(test_dir, self.tmp_path)
+        analysis = BaderAnalysis.from_path(self.tmp_path)
+        chgcar = f"{self.tmp_path}/CHGCAR.gz"
+        chgref = f"{self.tmp_path}/_CHGCAR_sum.gz"
         analysis0 = BaderAnalysis(chgcar_filename=chgcar, chgref_filename=chgref)
         charge = np.array(analysis.summary["charge"])
         charge0 = np.array(analysis0.summary["charge"])
         assert np.allclose(charge, charge0)
-        # if os.path.exists("CHGREF"):
-        #     os.remove("CHGREF")
-        # if os.path.exists(os.path.join(tmp_dir, "CHGREF")):
-        #     os.remove(os.path.join(tmp_dir, "CHGREF"))
 
     def test_automatic_runner(self):
         pytest.skip("raises RuntimeError: bader exited with return code 24")
