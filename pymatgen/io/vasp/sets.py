@@ -1384,7 +1384,7 @@ class MPHSEBSSet(MPHSERelaxSet):
     @property
     def kpoints(self) -> Kpoints:
         """Kpoints"""
-        kpts: list[int | float | None] = []
+        kpts: list[float | None] = []
         weights: list[float | None] = []
         all_labels: list[str | None] = []
         structure = self.structure

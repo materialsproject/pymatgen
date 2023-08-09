@@ -143,8 +143,8 @@ class CoherentInterfaceBuilder:
         termination: tuple[str, str],
         gap: float = 2.0,
         vacuum_over_film: float = 20.0,
-        film_thickness: float | int = 1,
-        substrate_thickness: float | int = 1,
+        film_thickness: float = 1,
+        substrate_thickness: float = 1,
         in_layers: bool = True,
     ) -> Iterator[Interface]:
         """Generates interface structures given the film and substrate structure
@@ -154,8 +154,8 @@ class CoherentInterfaceBuilder:
             termination (tuple[str, str]): termination from self.termination list
             gap (float, optional): gap between film and substrate. Defaults to 2.0.
             vacuum_over_film (float, optional): vacuum over the top of the film. Defaults to 20.0.
-            film_thickness (float | int, optional): the film thickness. Defaults to 1.
-            substrate_thickness (float | int, optional): substrate thickness. Defaults to 1.
+            film_thickness (float, optional): the film thickness. Defaults to 1.
+            substrate_thickness (float, optional): substrate thickness. Defaults to 1.
             in_layers (bool, optional): set the thickness in layer units. Defaults to True.
 
         Yields:

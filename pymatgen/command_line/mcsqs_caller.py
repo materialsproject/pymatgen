@@ -39,7 +39,7 @@ def run_mcsqs(
     search_time: float = 60,
     directory: str | None = None,
     instances: int | None = None,
-    temperature: int | float = 1,
+    temperature: float = 1,
     wr: float = 1,
     wn: float = 1,
     wd: float = 0.5,
