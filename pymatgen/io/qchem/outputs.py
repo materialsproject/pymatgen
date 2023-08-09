@@ -2354,7 +2354,7 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
                     continue
 
                 # Extract the values
-                entry: dict[str, str | int | float] = {}
+                entry: dict[str, str | float] = {}
                 entry["hyperbond index"] = int(line[0:4].strip())
                 entry["bond atom 1 symbol"] = str(line[5:8].strip())
                 entry["bond atom 1 index"] = int(line[8:11].strip())
@@ -2437,7 +2437,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
 
                 # Lone pair
                 if "LP" in line or "LV" in line:
-                    LPentry: dict[str, str | int | float] = {orbital: 0.0 for orbital in orbitals}
+                    LPentry: dict[str, str | float] = {orbital: 0.0 for orbital in orbitals}
                     LPentry["bond index"] = line[0:4].strip()
                     LPentry["occupancy"] = line[7:14].strip()
                     LPentry["type"] = line[16:19].strip()
@@ -2464,7 +2464,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
 
                 # Bonding
                 if "BD" in line:
-                    BDentry: dict[str, str | int | float] = {
+                    BDentry: dict[str, str | float] = {
                         f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 3)
                     }
                     BDentry["bond index"] = line[0:4].strip()
@@ -2524,7 +2524,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
 
                 # 3-center bond
                 if "3C" in line:
-                    TCentry: dict[str, str | int | float] = {
+                    TCentry: dict[str, str | float] = {
                         f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 4)
                     }
                     TCentry["bond index"] = line[0:4].strip()
@@ -2664,7 +2664,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     continue
 
                 # Extract the values
-                entry: dict[str, str | int | float] = {}
+                entry: dict[str, str | float] = {}
                 first_3C = False
                 second_3C = False
                 if line[7] == "3":

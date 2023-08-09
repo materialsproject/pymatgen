@@ -1069,8 +1069,8 @@ class Mgrid(Section):
 
     def __init__(
         self,
-        cutoff: int | float = 1200,
-        rel_cutoff: int | float = 80,
+        cutoff: float = 1200,
+        rel_cutoff: float = 80,
         ngrids: int = 5,
         progression_factor: int = 3,
         keywords: dict | None = None,
@@ -1711,7 +1711,7 @@ class Smear(Section):
 
     def __init__(
         self,
-        elec_temp: int | float = 300,
+        elec_temp: float = 300,
         method: str = "FERMI_DIRAC",
         fixed_magnetic_moment: float = -1e2,
         keywords: dict | None = None,
@@ -1903,8 +1903,8 @@ class PBE(Section):
     def __init__(
         self,
         parameterization: str = "ORIG",
-        scale_c: float | int = 1,
-        scale_x: float | int = 1,
+        scale_c: float = 1,
+        scale_x: float = 1,
         keywords: dict | None = None,
         subsections: dict | None = None,
     ):
