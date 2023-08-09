@@ -178,7 +178,7 @@ class TestInput(PymatgenTest):
         assert kwd.values == ([1, 2, 3],)  # noqa: PD011
         kwd = Keyword("TEST3", "xyz", description="testing", units="Ha")
         assert kwd.description == "testing"
-        assert "[Ha]" in kwd.get_string()
+        assert "[Ha]" in kwd.get_str()
 
     def test_coords(self):
         for strucs in [nonsense_Structure, Si_structure, molecule]:
@@ -205,7 +205,7 @@ class TestInput(PymatgenTest):
 
     def test_odd_file(self):
         scramble = ""
-        for s in self.ci.get_string():
+        for s in self.ci.get_str():
             if np.random.rand(1) > 0.5:
                 if s == "\t":
                     scramble += " "

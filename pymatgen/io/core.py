@@ -29,8 +29,10 @@ import abc
 import os
 from collections.abc import MutableMapping
 from pathlib import Path
+from typing import Iterator
 from zipfile import ZipFile
 
+import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -54,6 +56,11 @@ class InputFile(MSONable):
     """
 
     @abc.abstractmethod
+    def get_str(self) -> str:
+        """Return a string representation of an entire input file."""
+
+    @np.deprecate(message="Use get_str instead")
+    @abc.abstractmethod
     def get_string(self) -> str:
         """Return a string representation of an entire input file."""
 
@@ -65,12 +72,26 @@ class InputFile(MSONable):
             filename: The filename to output to, including path.
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
-        with zopen(filename, "wt") as f:
-            f.write(self.get_string())
+        with zopen(filename, "wt") as file:
+            file.write(self.get_str())
+
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    @abc.abstractmethod
+    def from_string(cls, contents: str) -> InputFile:
+        """
+        Create an InputFile object from a string.
+
+        Args:
+            contents: The contents of the file as a single string
+
+        Returns:
+            InputFile
+        """
 
     @classmethod
     @abc.abstractmethod
-    def from_str(cls, contents: str):
+    def from_str(cls, contents: str) -> InputFile:
         """
         Create an InputFile object from a string.
 
@@ -96,8 +117,8 @@ class InputFile(MSONable):
         with zopen(filename, "rt") as f:
             return cls.from_str(f.read())
 
-    def __str__(self):
-        return self.get_string()
+    def __str__(self) -> str:
+        return self.get_str()
 
 
 class InputSet(MSONable, MutableMapping):
@@ -132,11 +153,11 @@ class InputSet(MSONable, MutableMapping):
         self._kwargs = kwargs
         self.__dict__.update(**kwargs)
 
-    def __getattr__(self, k):
+    def __getattr__(self, key):
         # allow accessing keys as attributes
-        if k in self._kwargs:
-            return self.get(k)
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute {k!r}")
+        if key in self._kwargs:
+            return self.get(key)
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute {key!r}")
 
     def __copy__(self) -> InputSet:
         cls = self.__class__
@@ -159,19 +180,19 @@ class InputSet(MSONable, MutableMapping):
 
         return new_instance
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.inputs)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str | Path]:
         return iter(self.inputs)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> str | InputFile | slice:
         return self.inputs[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str | Path, value: str | InputFile) -> None:
         self.inputs[key] = value
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str | Path) -> None:
         del self.inputs[key]
 
     def write_input(
