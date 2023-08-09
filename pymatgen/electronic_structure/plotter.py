@@ -1068,9 +1068,7 @@ class BSPlotterProjected(BSPlotter):
             character for the corresponding element and orbital
         """
         band_linewidth = 1.0
-        proj = self._get_projections_by_branches(
-            {e.symbol: ["s", "p", "d"] for e in self._bs.structure.composition.elements}
-        )
+        proj = self._get_projections_by_branches({e.symbol: ["s", "p", "d"] for e in self._bs.structure.elements})
         data = self.bs_plot_data(zero_to_efermi)
         plt = pretty_plot(12, 8)
         e_min = -4
@@ -1079,7 +1077,7 @@ class BSPlotterProjected(BSPlotter):
             e_min = -10
             e_max = 10
         count = 1
-        for el in self._bs.structure.composition.elements:
+        for el in self._bs.structure.elements:
             plt.subplot(220 + count)
             self._maketicks(plt)
             for b in range(len(data["distances"])):
@@ -1168,13 +1166,11 @@ class BSPlotterProjected(BSPlotter):
             a pyplot object
         """
         band_linewidth = 3.0
-        if len(self._bs.structure.composition.elements) > 3:
+        if len(self._bs.structure.elements) > 3:
             raise ValueError
         if elt_ordered is None:
-            elt_ordered = self._bs.structure.composition.elements
-        proj = self._get_projections_by_branches(
-            {e.symbol: ["s", "p", "d"] for e in self._bs.structure.composition.elements}
-        )
+            elt_ordered = self._bs.structure.elements
+        proj = self._get_projections_by_branches({e.symbol: ["s", "p", "d"] for e in self._bs.structure.elements})
         data = self.bs_plot_data(zero_to_efermi)
         plt = pretty_plot(12, 8)
 
@@ -2281,9 +2277,9 @@ class BSDOSPlotter:
         # make sure the user-specified band structure projection is valid
         bs_projection = self.bs_projection
         if dos:
-            elements = [e.symbol for e in dos.structure.composition.elements]
+            elements = [e.symbol for e in dos.structure.elements]
         elif bs_projection and bs.structure:
-            elements = [e.symbol for e in bs.structure.composition.elements]
+            elements = [e.symbol for e in bs.structure.elements]
         else:
             elements = []
 

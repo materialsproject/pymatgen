@@ -25,9 +25,9 @@ class MolecularOrbitals:
 
     The atomic orbital energies are stored in pymatgen.core.periodic_table.JSON
 
-    >>> MOs = MolecularOrbitals('SrTiO3')
-    >>> MOs.band_edges
-    {'HOMO':['O','2p',-0.338381], 'LUMO':['Ti','3d',-0.17001], 'metal':False}
+    MOs = MolecularOrbitals('SrTiO3')
+    MOs.band_edges
+    # gives {'HOMO':['O','2p',-0.338381], 'LUMO':['Ti','3d',-0.17001], 'metal':False}
     """
 
     def __init__(self, formula):

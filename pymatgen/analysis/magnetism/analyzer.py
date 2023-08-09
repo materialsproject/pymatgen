@@ -39,10 +39,10 @@ __date__ = "Feb 2017"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 try:
-    DEFAULT_MAGMOMS = loadfn(os.path.join(MODULE_DIR, "default_magmoms.yaml"))
+    DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/default_magmoms.yaml")
 except Exception:
     warnings.warn("Could not load default_magmoms.yaml, falling back to VASPIncarBase.yaml")
-    DEFAULT_MAGMOMS = loadfn(os.path.join(MODULE_DIR, "../../io/vasp/VASPIncarBase.yaml"))
+    DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/../../io/vasp/VASPIncarBase.yaml")
     DEFAULT_MAGMOMS = DEFAULT_MAGMOMS["MAGMOM"]
 
 

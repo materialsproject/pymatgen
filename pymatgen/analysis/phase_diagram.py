@@ -383,9 +383,9 @@ class PhaseDiagram(MSONable):
         self.dim = computed_data["dim"]
         self.el_refs = dict(computed_data["el_refs"])
         self.qhull_entries = tuple(computed_data["qhull_entries"])
-        self._qhull_spaces = tuple(frozenset(e.composition.elements) for e in self.qhull_entries)
+        self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
         self._stable_entries = tuple({self.qhull_entries[i] for i in set(itertools.chain(*self.facets))})
-        self._stable_spaces = tuple(frozenset(e.composition.elements) for e in self._stable_entries)
+        self._stable_spaces = tuple(frozenset(e.elements) for e in self._stable_entries)
 
     def as_dict(self):
         """
@@ -416,7 +416,7 @@ class PhaseDiagram(MSONable):
 
     def _compute(self) -> dict[str, Any]:
         if self.elements == ():
-            self.elements = sorted({els for e in self.entries for els in e.composition.elements})
+            self.elements = sorted({els for e in self.entries for els in e.elements})
 
         elements = list(self.elements)
         dim = len(elements)
@@ -543,15 +543,27 @@ class PhaseDiagram(MSONable):
         """
         return [e for e, s in zip(self._stable_entries, self._stable_spaces) if space.issuperset(s)]
 
-    def get_reference_energy_per_atom(self, comp: Composition) -> float:
-        """
+    def get_reference_energy(self, comp: Composition) -> float:
+        """Sum of elemental reference energies over all elements in a composition.
+
         Args:
             comp (Composition): Input composition.
 
         Returns:
-            Reference energy of the terminal species at a given composition.
+            float: Reference energy
         """
-        return sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements) / comp.num_atoms
+        return sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements)
+
+    def get_reference_energy_per_atom(self, comp: Composition) -> float:
+        """Sum of elemental reference energies over all elements in a composition.
+
+        Args:
+            comp (Composition): Input composition.
+
+        Returns:
+            float: Reference energy per atom
+        """
+        return self.get_reference_energy(comp) / comp.num_atoms
 
     def get_form_energy(self, entry: PDEntry) -> float:
         """
@@ -565,7 +577,7 @@ class PhaseDiagram(MSONable):
             float: Formation energy from the elemental references.
         """
         comp = entry.composition
-        return entry.energy - sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements)
+        return entry.energy - self.get_reference_energy(comp)
 
     def get_form_energy_per_atom(self, entry: PDEntry) -> float:
         """
@@ -794,7 +806,7 @@ class PhaseDiagram(MSONable):
             float | None: Equilibrium reaction energy of entry. Stable entries should have
                 equilibrium reaction energy <= 0. The energy is given per atom.
         """
-        elem_space = entry.composition.elements
+        elem_space = entry.elements
 
         # NOTE scaled duplicates of stable_entries will not be caught.
         if entry not in self._get_stable_entries_in_space(frozenset(elem_space)):
@@ -1403,14 +1415,12 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                 when generated for the first time.
         """
         if elements is None:
-            elements = {els for e in entries for els in e.composition.elements}
+            elements = {els for e in entries for els in e.elements}
 
         self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
         elements = set(elements) - set(self.chempots)
 
-        all_entries = [
-            GrandPotPDEntry(e, self.chempots) for e in entries if len(elements.intersection(e.composition.elements)) > 0
-        ]
+        all_entries = [GrandPotPDEntry(e, self.chempots) for e in entries if len(elements.intersection(e.elements)) > 0]
 
         super().__init__(all_entries, elements, computed_data=None)
 
@@ -1600,7 +1610,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             verbose (bool): Whether to show progress bar during convex hull construction.
         """
         if elements is None:
-            elements = sorted({els for e in entries for els in e.composition.elements})
+            elements = sorted({els for e in entries for els in e.elements})
 
         self.dim = len(elements)
 
@@ -1639,7 +1649,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self.qhull_entries = tuple(min_entries[i] for i in inds)
         # make qhull spaces frozensets since they become keys to self.pds dict and frozensets are hashable
         # prevent repeating elements in chemical space and avoid the ordering problem (i.e. Fe-O == O-Fe automatically)
-        self._qhull_spaces = tuple(frozenset(e.composition.elements) for e in self.qhull_entries)
+        self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
 
         # Get all unique chemical spaces
         spaces = {s for s in self._qhull_spaces if len(s) > 1}
@@ -1668,7 +1678,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # NOTE add el_refs in case no multielement entries are present for el
         _stable_entries = {se for pd in self.pds.values() for se in pd._stable_entries}
         self._stable_entries = tuple(_stable_entries | {*self.el_refs.values()})
-        self._stable_spaces = tuple(frozenset(e.composition.elements) for e in self._stable_entries)
+        self._stable_spaces = tuple(frozenset(e.elements) for e in self._stable_entries)
 
     def __repr__(self):
         return f"{type(self).__name__} covering {len(self.spaces)} sub-spaces"
@@ -1740,10 +1750,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Returns:
             PhaseDiagram: phase diagram that the entry is part of
         """
-        if isinstance(entry, Composition):
-            entry_space = frozenset(entry.elements)
-        else:
-            entry_space = frozenset(entry.composition.elements)
+        entry_space = frozenset(entry.elements) if isinstance(entry, Composition) else frozenset(entry.elements)
 
         try:
             return self.pds[entry_space]
@@ -1896,7 +1903,7 @@ class ReactionDiagram:
         """
         elem_set = set()
         for e in [entry1, entry2]:
-            elem_set.update([el.symbol for el in e.composition.elements])
+            elem_set.update([el.symbol for el in e.elements])
 
         elements = tuple(elem_set)  # Fix elements to ensure order.
 
@@ -2609,7 +2616,7 @@ class PDPlotter:
             layout = plotly_layouts["default_ternary_2d_layout"].copy()
             for el, axis in zip(self._pd.elements, ["a", "b", "c"]):
                 el_ref = self._pd.el_refs[el]
-                clean_formula = str(el_ref.composition.elements[0])
+                clean_formula = str(el_ref.elements[0])
                 if hasattr(el_ref, "original_entry"):  # for grand potential PDs, etc.
                     clean_formula = htmlify(el_ref.original_entry.composition.reduced_formula)
 
@@ -2917,7 +2924,7 @@ class PDPlotter:
                 z = coords[2]
 
             if entry.composition.is_element:
-                clean_formula = str(entry.composition.elements[0])
+                clean_formula = str(entry.elements[0])
                 if hasattr(entry, "original_entry"):
                     orig_comp = entry.original_entry.composition
                     clean_formula = htmlify(orig_comp.reduced_formula)
@@ -3746,7 +3753,7 @@ class PDPlotter:
             entry = labels[coords]
             label = entry.name
             if label_stable:
-                if len(entry.composition.elements) == 1:
+                if len(entry.elements) == 1:
                     ax.text(coords[0], coords[1], coords[2], label, fontproperties=font)
                 else:
                     ax.text(coords[0], coords[1], coords[2], str(count), fontsize=12)

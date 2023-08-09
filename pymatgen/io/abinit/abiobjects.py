@@ -207,7 +207,7 @@ to build an appropriate supercell from partial occupancies or, alternatively, us
 or the Virtual Crystal Approximation."""
         )
 
-    natom = structure.num_sites
+    n_atoms = len(structure)
     n_types_atom = structure.ntypesp
     enforce_order = False
 
@@ -230,7 +230,7 @@ or the Virtual Crystal Approximation."""
 
         # [ntypat] list
         znucl_type = [specie.number for specie in types_of_specie]
-        typat = np.zeros(natom, int)
+        typat = np.zeros(n_atoms, int)
         for atm_idx, site in enumerate(structure):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
     else:
@@ -248,7 +248,7 @@ or the Virtual Crystal Approximation."""
 
     # Info on atoms.
     d = {
-        "natom": natom,
+        "natom": n_atoms,
         "ntypat": n_types_atom,
         "typat": typat,
         "znucl": znucl_type,
@@ -286,8 +286,8 @@ or the Virtual Crystal Approximation."""
 
 def contract(s):
     """
-    >>> assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
-    >>> assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3".
+    assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
+    assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3"
     """
     if not s:
         return s
@@ -958,7 +958,7 @@ class KSampling(AbivarAble, MSONable):
         lattice = structure.lattice
         lengths = lattice.abc
         shifts = np.reshape(shifts, (-1, 3))
-        ngrid = kppa / structure.num_sites / len(shifts)
+        ngrid = kppa / len(structure) / len(shifts)
 
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3.0)
 

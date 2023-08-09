@@ -645,8 +645,8 @@ class DftSet(Cp2kInput):
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/PDOS"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(PDOS(nlumo=nlumo))
-        for i in range(self.structure.num_sites):
-            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(i + 1, alias=f"LDOS {i + 1}", verbose=False))
+        for idx in range(len(self.structure)):
+            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(idx + 1, alias=f"LDOS {idx + 1}", verbose=False))
 
     def print_mo_cubes(self, write_cube: bool = False, nlumo: int = -1, nhomo: int = -1) -> None:
         """

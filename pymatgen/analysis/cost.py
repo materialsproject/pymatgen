@@ -99,7 +99,7 @@ class CostDBCSV(CostDB):
                 comp = Composition(row[0])
                 cost_per_mol = float(row[1]) * comp.weight.to("kg") * const.N_A
                 pde = CostEntry(comp.formula, cost_per_mol, row[2], row[3])
-                chemsys = "-".join(sorted(el.symbol for el in pde.composition.elements))
+                chemsys = "-".join(sorted(el.symbol for el in pde.elements))
                 self._chemsys_entries[chemsys].append(pde)
 
     def get_entries(self, chemsys):
@@ -123,7 +123,7 @@ class CostDBElements(CostDBCSV):
 
     def __init__(self):
         """Init."""
-        CostDBCSV.__init__(self, os.path.join(module_dir, "costdb_elements.csv"))
+        CostDBCSV.__init__(self, f"{module_dir}/costdb_elements.csv")
 
 
 class CostAnalyzer:

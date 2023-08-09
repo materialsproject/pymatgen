@@ -66,14 +66,14 @@ class InsertionElectrode(AbstractElectrode):
                 ents.append(ent)
             entries = ents
 
-        _working_ion = working_ion_entry.composition.elements[0]
+        _working_ion = working_ion_entry.elements[0]
         _working_ion_entry = working_ion_entry
 
         # Prepare to make phase diagram: determine elements and set their energy
         # to be very high
         elements = set()
         for entry in entries:
-            elements.update(entry.composition.elements)
+            elements.update(entry.elements)
 
         # Set an artificial high energy for each element for convex hull generation
         element_energy = max(entry.energy_per_atom for entry in entries) + 10
@@ -410,7 +410,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
                 the element that carries charge across the battery, e.g. Li.
         """
         # initialize some internal variables
-        working_element = working_ion_entry.composition.elements[0]
+        working_element = working_ion_entry.elements[0]
 
         entry_charge = entry1
         entry_discharge = entry2

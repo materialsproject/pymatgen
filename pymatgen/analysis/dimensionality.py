@@ -210,7 +210,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
         rank1 = rank(seen | {candidate})
         return rank1 > rank0
 
-    connected_sites = {i: neighbors(i) for i in range(bonded_structure.structure.num_sites)}
+    connected_sites = {idx: neighbors(idx) for idx in range(len(bonded_structure))}
 
     seen_vertices = set()
     seen_comp_vertices = defaultdict(set)
@@ -475,10 +475,10 @@ def find_clusters(struct, connected_matrix):
                 atom_cluster = visit(new_atom, atom_cluster)
         return atom_cluster
 
-    for i in range(n_atoms):
-        if not visited[i]:
+    for idx in range(n_atoms):
+        if not visited[idx]:
             atom_cluster = set()
-            cluster = visit(i, atom_cluster)
+            cluster = visit(idx, atom_cluster)
             clusters.append(cluster)
             cluster_sizes.append(len(cluster))
 

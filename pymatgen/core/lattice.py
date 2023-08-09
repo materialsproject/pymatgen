@@ -23,6 +23,8 @@ from pymatgen.util.num import abs_cap
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
+    from pymatgen.core.trajectory import Vector3D
+
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
 __maintainer__ = "Shyue Ping Ong"
@@ -67,7 +69,7 @@ class Lattice(MSONable):
         self._pbc = tuple(pbc)
 
     @property
-    def lengths(self) -> tuple[float, float, float]:
+    def lengths(self) -> Vector3D:
         """
         Lattice lengths.
 
@@ -76,7 +78,7 @@ class Lattice(MSONable):
         return tuple(np.sqrt(np.sum(self._matrix**2, axis=1)).tolist())  # type: ignore
 
     @property
-    def angles(self) -> tuple[float, float, float]:
+    def angles(self) -> Vector3D:
         """
         Lattice angles.
 
@@ -94,7 +96,7 @@ class Lattice(MSONable):
 
     @property
     def is_orthogonal(self) -> bool:
-        """:return: Whether all angles are 90 degrees."""
+        """Whether all angles are 90 degrees."""
         return all(abs(a - 90) < 1e-5 for a in self.angles)
 
     def __format__(self, fmt_spec: str = ""):
@@ -414,7 +416,7 @@ class Lattice(MSONable):
         return self.lengths[2]
 
     @property
-    def abc(self) -> tuple[float, float, float]:
+    def abc(self) -> Vector3D:
         """Lengths of the lattice vectors, i.e. (a, b, c)."""
         return self.lengths
 
@@ -466,7 +468,7 @@ class Lattice(MSONable):
 
     @property
     def lll_matrix(self) -> np.ndarray:
-        """:return: The matrix for LLL reduction"""
+        """The matrix for LLL reduction."""
         if 0.75 not in self._lll_matrix_mappings:
             self._lll_matrix_mappings[0.75] = self._calculate_lll()
         return self._lll_matrix_mappings[0.75][0]
@@ -483,7 +485,7 @@ class Lattice(MSONable):
 
     @property
     def lll_inverse(self) -> np.ndarray:
-        """:return: Inverse of self.lll_mapping."""
+        """Inverse of self.lll_mapping."""
         return np.linalg.inv(self.lll_mapping)
 
     @property

@@ -492,7 +492,7 @@ class Slab(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict."""
         d = super().as_dict()
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -1327,7 +1327,7 @@ class SlabGenerator:
 
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(module_dir, "reconstructions_archive.json")) as data_file:
+with open(f"{module_dir}/reconstructions_archive.json") as data_file:
     reconstructions_archive = json.load(data_file)
 
 

@@ -1,4 +1,5 @@
 """Parsers for XTB output files and directories."""
+
 from __future__ import annotations
 
 import logging

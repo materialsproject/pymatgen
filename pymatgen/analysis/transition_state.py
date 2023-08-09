@@ -252,14 +252,14 @@ class NEBAnalysis(MSONable):
         terminal_dirs.append([os.path.join(root_dir, d) for d in ["initial", "final"]])
 
         for i, d in neb_dirs:
-            outcar = glob(os.path.join(d, "OUTCAR*"))
-            contcar = glob(os.path.join(d, "CONTCAR*"))
-            poscar = glob(os.path.join(d, "POSCAR*"))
+            outcar = glob(f"{d}/OUTCAR*")
+            contcar = glob(f"{d}/CONTCAR*")
+            poscar = glob(f"{d}/POSCAR*")
             terminal = i in [0, neb_dirs[-1][0]]
             if terminal:
                 for ds in terminal_dirs:
                     od = ds[0] if i == 0 else ds[1]
-                    outcar = glob(os.path.join(od, "OUTCAR*"))
+                    outcar = glob(f"{od}/OUTCAR*")
                     if outcar:
                         outcar = sorted(outcar)
                         outcars.append(Outcar(outcar[-1]))

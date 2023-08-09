@@ -118,7 +118,7 @@ class Substitutor(MSONable):
             for s in structures_list:
                 # check if: species are in the domain,
                 # and the probability of subst. is above the threshold
-                els = s["structure"].composition.elements
+                els = s["structure"].elements
                 if (
                     len(els) == len(permut)
                     and len(list(set(els) & set(self.get_allowed_species()))) == len(els)

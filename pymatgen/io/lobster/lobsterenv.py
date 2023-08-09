@@ -9,12 +9,12 @@ J. George, G. Petretto, A. Naik, M. Esters, A. J. Jackson, R. Nelson, R. Dronsko
 ChemPlusChem 2022, e202200123,
 DOI: 10.1002/cplu.202200123.
 """
+
 from __future__ import annotations
 
 import collections
 import copy
 import math
-import os
 from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
@@ -496,7 +496,7 @@ class LobsterNeighbors(NearNeighbors):
         import tempfile
 
         with tempfile.TemporaryDirectory() as t:
-            path = os.path.join(t, "POSCAR.vasp")
+            path = f"{t}/POSCAR.vasp"
 
             self.structure.to(filename=path, fmt="POSCAR")
 
@@ -1279,9 +1279,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         Returns: LobsterLightStructureEnvironments
         """
         strategy = None
-        valences = valences
         valences_origin = "user-defined"
-        structure = structure
 
         coordination_environments = []
 

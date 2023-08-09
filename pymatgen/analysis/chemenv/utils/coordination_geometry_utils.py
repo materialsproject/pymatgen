@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING, Callable
 
 import numpy as np
 from numpy.linalg import norm
@@ -11,6 +12,9 @@ from scipy.interpolate import UnivariateSpline
 from scipy.spatial import ConvexHull
 
 from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -84,51 +88,49 @@ def function_comparison(f1, f2, x1, x2, numpoints_check=500):
     raise RuntimeError("Error in comparing functions f1 and f2 ...")
 
 
-def quarter_ellipsis_functions(xx, yy):
+def quarter_ellipsis_functions(xx: ArrayLike, yy: ArrayLike) -> dict[str, Callable]:
     """
     Method that creates two quarter-ellipse functions based on points xx and yy. The ellipsis is supposed to
     be aligned with the axes. The two ellipsis pass through the two points xx and yy.
 
     Args:
-        xx:
-            First point
-        yy:
-            Second point
+        xx: First point
+        yy: Second point
 
     Returns:
         A dictionary with the lower and upper quarter ellipsis functions.
     """
-    npxx = np.array(xx)
-    npyy = np.array(yy)
-    if np.any(npxx == npyy):
+    xx = np.asarray(xx)
+    yy = np.asarray(yy)
+    if np.any(xx == yy):
         raise RuntimeError("Invalid points for quarter_ellipsis_functions")
-    if np.all(npxx < npyy) or np.all(npxx > npyy):
-        if npxx[0] < npyy[0]:
-            p1 = npxx
-            p2 = npyy
+    if np.all(xx < yy) or np.all(xx > yy):
+        if xx[0] < yy[0]:
+            p1 = xx
+            p2 = yy
         else:
-            p1 = npyy
-            p2 = npxx
+            p1 = yy
+            p2 = xx
         c_lower = np.array([p1[0], p2[1]])
         c_upper = np.array([p2[0], p1[1]])
         b2 = (p2[1] - p1[1]) ** 2
     else:
-        if npxx[0] < npyy[0]:
-            p1 = npxx
-            p2 = npyy
+        if xx[0] < yy[0]:
+            p1 = xx
+            p2 = yy
         else:
-            p1 = npyy
-            p2 = npxx
+            p1 = yy
+            p2 = xx
         c_lower = np.array([p2[0], p1[1]])
         c_upper = np.array([p1[0], p2[1]])
         b2 = (p1[1] - p2[1]) ** 2
-    b2overa2 = b2 / (p2[0] - p1[0]) ** 2
+    b2_over_a2 = b2 / (p2[0] - p1[0]) ** 2
 
     def lower(x):
-        return c_lower[1] - np.sqrt(b2 - b2overa2 * (x - c_lower[0]) ** 2)
+        return c_lower[1] - np.sqrt(b2 - b2_over_a2 * (x - c_lower[0]) ** 2)
 
     def upper(x):
-        return c_upper[1] + np.sqrt(b2 - b2overa2 * (x - c_upper[0]) ** 2)
+        return c_upper[1] + np.sqrt(b2 - b2_over_a2 * (x - c_upper[0]) ** 2)
 
     return {"lower": lower, "upper": upper}
 
@@ -348,10 +350,9 @@ def rectangle_surface_intersection(
     return quad(diff, xmin, xmax)
 
 
-def my_solid_angle(center, coords):
+def solid_angle(center, coords):
     """
-    Helper method to calculate the solid angle of a set of coords from the
-    center.
+    Helper method to calculate the solid angle of a set of coords from the center.
 
     Args:
         center:
@@ -368,17 +369,17 @@ def my_solid_angle(center, coords):
     n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
     n.append(np.cross(r[1], r[0]))
     phi = 0.0
-    for i in range(len(n) - 1):
+    for idx in range(len(n) - 1):
         try:
-            value = math.acos(-np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1])))
+            value = math.acos(-np.dot(n[idx], n[idx + 1]) / (np.linalg.norm(n[idx]) * np.linalg.norm(n[idx + 1])))
         except ValueError:
-            mycos = -np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
-            if 0.999999999999 < mycos < 1.000000000001:
+            cos = -np.dot(n[idx], n[idx + 1]) / (np.linalg.norm(n[idx]) * np.linalg.norm(n[idx + 1]))
+            if 0.999999999999 < cos < 1.000000000001:
                 value = math.acos(1.0)
-            elif -0.999999999999 > mycos > -1.000000000001:
+            elif -0.999999999999 > cos > -1.000000000001:
                 value = math.acos(-1.0)
             else:
-                raise SolidAngleError(mycos)
+                raise SolidAngleError(cos)
         phi += value
     return phi + (3 - len(r)) * math.pi
 
