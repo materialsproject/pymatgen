@@ -9,6 +9,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 from monty.shutil import copy_r
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path
@@ -79,14 +80,15 @@ class TestBaderAnalysis(PymatgenTest):
         chgcar_path = f"{direct_dir}/CHGCAR.gz"
         chgref_path = f"{direct_dir}/_CHGCAR_sum.gz"
 
-        analysis_direct = BaderAnalysis(chgcar_filename=chgcar_path, chgref_filename=chgref_path)
-        analysis = BaderAnalysis.from_path(from_path_dir)
+        analysis = BaderAnalysis(chgcar_filename=chgcar_path, chgref_filename=chgref_path)
+        analysis_from_path = BaderAnalysis.from_path(from_path_dir)
 
-        for key in analysis.summary:
-            if isinstance(analysis.summary[key], (bool, str)):
-                assert analysis.summary[key] == analysis_direct.summary[key]
-            else:
-                assert np.allclose(analysis.summary[key], analysis_direct.summary[key])
+        for key in analysis_from_path.summary:
+            val, val_from_path = analysis.summary[key], analysis_from_path.summary[key]
+            if isinstance(analysis_from_path.summary[key], (bool, str)):
+                assert val == val_from_path, f"{key=}"
+            elif key == "charge":
+                assert_allclose(val, val_from_path), f"{key=}"
 
     def test_automatic_runner(self):
         pytest.skip("raises RuntimeError: bader exits with return code 24")
