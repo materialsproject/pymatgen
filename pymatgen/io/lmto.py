@@ -8,6 +8,7 @@ Structure object in the pymatgen.electronic_structure.cohp.py module.
 from __future__ import annotations
 
 import re
+from typing import no_type_check
 
 import numpy as np
 from monty.io import zopen
@@ -163,42 +164,36 @@ class LMTOCtrl:
         return cls.from_str(*args, **kwargs)
 
     @classmethod
-    def from_str(cls, data, sigfigs=8):
+    @no_type_check
+    def from_str(cls, data: str, sigfigs: int = 8) -> LMTOCtrl:
         """
         Creates a CTRL file object from a string. This will mostly be
         used to read an LMTOCtrl object from a CTRL file. Empty spheres
         are ignored.
 
         Args:
-            data: String representation of the CTRL file.
+            data (str): String representation of the CTRL file.
 
         Returns:
             An LMTOCtrl object.
         """
         lines = data.split("\n")[:-1]
-        struc_lines = {
-            "HEADER": [],
-            "VERS": [],
-            "SYMGRP": [],
-            "STRUC": [],
-            "CLASS": [],
-            "SITE": [],
-        }
+        struct_lines = {"HEADER": [], "VERS": [], "SYMGRP": [], "STRUC": [], "CLASS": [], "SITE": []}
         for line in lines:
             if line != "" and not line.isspace():
                 if not line[0].isspace():
                     cat = line.split()[0]
-                if cat in struc_lines:
-                    struc_lines[cat].append(line)
+                if cat in struct_lines:
+                    struct_lines[cat].append(line)
                 else:
                     pass
 
-        struc_lines = {k: " ".join(v).replace("= ", "=") for k, v in struc_lines.items()}
+        struct_lines = {k: " ".join(v).replace("= ", "=") for k, v in struct_lines.items()}
 
         structure_tokens = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
 
         for cat in ["STRUC", "CLASS", "SITE"]:
-            fields = struc_lines[cat].split("=")  # pylint: disable=E1101
+            fields = struct_lines[cat].split("=")  # pylint: disable=E1101
             for f, field in enumerate(fields):
                 token = field.split()[-1]
                 if token == "ALAT":
@@ -227,15 +222,15 @@ class LMTOCtrl:
                 else:
                     pass
         try:
-            spcgrp_index = struc_lines["SYMGRP"].index("SPCGRP")
-            spcgrp = struc_lines["SYMGRP"][spcgrp_index : spcgrp_index + 12]
+            spcgrp_index = struct_lines["SYMGRP"].index("SPCGRP")
+            spcgrp = struct_lines["SYMGRP"][spcgrp_index : spcgrp_index + 12]
             structure_tokens["SPCGRP"] = spcgrp.split("=")[1].split()[0]
         except ValueError:
             pass
 
         for token in ["HEADER", "VERS"]:
             try:
-                value = re.split(token + r"\s*", struc_lines[token])[1]
+                value = re.split(token + r"\s*", struct_lines[token])[1]
                 structure_tokens[token] = value.strip()
             except IndexError:
                 pass
@@ -289,27 +284,16 @@ class LMTOCtrl:
 
 
 class LMTOCopl:
-    """
-    Class for reading COPL files, which contain COHP data.
+    """Class for reading COPL files, which contain COHP data.
 
-    .. attribute: cohp_data
-
-         Dict that contains the COHP data of the form:
-           {bond: {"COHP": {Spin.up: cohps, Spin.down:cohps},
-                   "ICOHP": {Spin.up: icohps, Spin.down: icohps},
-                   "length": bond length}
-
-    .. attribute: efermi
-
-         The Fermi energy in Ry or eV.
-
-    .. attribute: energies
-
-         Sequence of energies in Ry or eV.
-
-    .. attribute: is_spin_polarized
-
-         Boolean to indicate if the calculation is spin polarized.
+    Attributes:
+        cohp_data (dict): Contains the COHP data of the form:
+            {bond: {"COHP": {Spin.up: cohps, Spin.down:cohps},
+                    "ICOHP": {Spin.up: icohps, Spin.down: icohps},
+                    "length": bond length}
+        efermi (float): The Fermi energy in Ry or eV.
+        energies (list): Sequence of energies in Ry or eV.
+        is_spin_polarized (bool): Boolean to indicate if the calculation is spin polarized.
     """
 
     def __init__(self, filename="COPL", to_eV=False):
