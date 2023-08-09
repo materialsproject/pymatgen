@@ -553,7 +553,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # for Metallofullerene like "Y3N@C80"
         formula = formula.replace("@", "")
 
-        def get_sym_dict(form: str, factor: int | float) -> dict[str, float]:
+        def get_sym_dict(form: str, factor: float) -> dict[str, float]:
             sym_dict: dict[str, float] = collections.defaultdict(float)
             for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.e\d]*)", form):
                 el = m.group(1)
@@ -753,12 +753,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
-    def replace(self, elem_map: dict[str, str | dict[str, int | float]]) -> Composition:
+    def replace(self, elem_map: dict[str, str | dict[str, float]]) -> Composition:
         """
         Replace elements in a composition. Returns a new Composition, leaving the old one unchanged.
 
         Args:
-            elem_map (dict[str, str | dict[str, int | float]]): dict of elements or species to swap. E.g.
+            elem_map (dict[str, str | dict[str, float]]): dict of elements or species to swap. E.g.
                 {"Li": "Na"} performs a Li for Na substitution. The target can be a {species: factor} dict. For
                 example, in Fe2O3 you could map {"Fe": {"Mg": 0.5, "Cu":0.5}} to obtain MgCuO3.
 
@@ -1043,7 +1043,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         fuzzy_formula: str,
         m_dict: dict[str, float] | None = None,
         m_points: int = 0,
-        factor: int | float = 1,
+        factor: float = 1,
     ) -> Generator[tuple[Composition, int], None, None]:
         """
         A recursive helper method for formula parsing that helps in

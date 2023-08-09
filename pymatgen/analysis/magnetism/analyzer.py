@@ -294,7 +294,7 @@ class CollinearMagneticStructureAnalyzer:
 
     @no_type_check  # ignore seemingly false mypy errors
     @staticmethod
-    def _round_magmoms(magmoms: ArrayLike, round_magmoms_mode: int | float) -> np.ndarray:
+    def _round_magmoms(magmoms: ArrayLike, round_magmoms_mode: float) -> np.ndarray:
         """If round_magmoms_mode is an integer, simply round to that number
         of decimal places, else if set to a float will try and round
         intelligently by grouping magmoms.

@@ -746,7 +746,7 @@ class PerturbStructureTransformation(AbstractTransformation):
     def __init__(
         self,
         distance: float = 0.01,
-        min_distance: int | float | None = None,
+        min_distance: float | None = None,
     ):
         """
         Args:

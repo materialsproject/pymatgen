@@ -1647,7 +1647,7 @@ class TestXdatcar(PymatgenTest):
 
         x.concatenate(f"{TEST_FILES_DIR}/XDATCAR_4")
         assert len(x.structures) == 8
-        assert x.get_string() is not None
+        assert x.get_str() is not None
 
         filepath = f"{TEST_FILES_DIR}/XDATCAR_6"
         x = Xdatcar(filepath)
