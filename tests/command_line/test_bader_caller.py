@@ -78,11 +78,15 @@ class TestBaderAnalysis(PymatgenTest):
         copy_r(test_dir, from_path_dir := f"{self.tmp_path}/from_path")
         chgcar_path = f"{direct_dir}/CHGCAR.gz"
         chgref_path = f"{direct_dir}/_CHGCAR_sum.gz"
+
+        analysis_direct = BaderAnalysis(chgcar_filename=chgcar_path, chgref_filename=chgref_path)
         analysis = BaderAnalysis.from_path(from_path_dir)
-        analysis0 = BaderAnalysis(chgcar_filename=chgcar_path, chgref_filename=chgref_path)
-        charge = np.array(analysis.summary["charge"])
-        charge0 = np.array(analysis0.summary["charge"])
-        assert np.allclose(charge, charge0)
+
+        for key in analysis.summary:
+            if isinstance(analysis.summary[key], (bool, str)):
+                assert analysis.summary[key] == analysis_direct.summary[key]
+            else:
+                assert np.allclose(analysis.summary[key], analysis_direct.summary[key])
 
     def test_automatic_runner(self):
         pytest.skip("raises RuntimeError: bader exits with return code 24")

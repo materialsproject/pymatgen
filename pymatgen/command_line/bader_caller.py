@@ -108,7 +108,7 @@ class BaderAnalysis:
                 self.chgcar = Chgcar.from_file(chgcar_fpath)
                 self.structure = self.chgcar.structure
 
-                self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
+                self.potcar = Potcar.from_file(potcar_filename) if potcar_filename else None
                 self.natoms = self.chgcar.poscar.natoms
 
                 chgref_fpath = decompress_file(filepath=chgref_filename) or chgref_filename
@@ -393,21 +393,21 @@ class BaderAnalysis:
             paths = glob(f"{path}/{name_pattern}")
             fpath = ""
             if len(paths) >= 1:
-                # using reverse=True because, if multiple files are present,
-                # they likely have suffixes 'static', 'relax', 'relax2', etc.
-                # and this would give 'static' over 'relax2' over 'relax'
-                # however, better to use 'suffix' kwarg to avoid this!
+                # using reverse=True because, if multiple files are present, they likely
+                # have suffixes 'static', 'relax', 'relax2', etc. and this would give
+                # 'static' over 'relax2' over 'relax' however, better to use 'suffix'
+                # kwarg to avoid this!
                 paths.sort(reverse=True)
-                warning_msg = f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
+                if len(paths) > 1:
+                    warnings.warn(f"Multiple files detected, using {paths[0]}")
                 fpath = paths[0]
             else:
-                warning_msg = f"Could not find {filename}"
+                msg = f"Could not find {filename!r}"
                 if filename in ["AECCAR0", "AECCAR2"]:
-                    warning_msg += ", cannot calculate charge transfer."
+                    msg += ", cannot calculate charge transfer."
                 elif filename == "POTCAR":
-                    warning_msg += ", interpret Bader results with caution."
-            if warning_msg:
-                warnings.warn(warning_msg)
+                    msg += ", interpret Bader results with caution."
+                warnings.warn(msg)
             return fpath
 
         chgcar_filename = _get_filepath("CHGCAR")
