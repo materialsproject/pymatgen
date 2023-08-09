@@ -75,8 +75,8 @@ class InputFile(MSONable):
         with zopen(filename, "wt") as file:
             file.write(self.get_str())
 
-    @np.deprecate(message="Use from_str instead")
     @classmethod
+    @np.deprecate(message="Use from_str instead")
     @abc.abstractmethod
     def from_string(cls, contents: str) -> InputFile:
         """
