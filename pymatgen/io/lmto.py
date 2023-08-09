@@ -89,7 +89,7 @@ class LMTOCtrl:
                         lst.append("POS=" + " ".join(str(round(p, sigfigs)) for p in val))
                     else:
                         lst.append(f"{token}={val}")
-                line = " ".join(line)
+                line = " ".join(lst)
                 lines.append(line)
 
         return "\n".join(lines) + "\n"

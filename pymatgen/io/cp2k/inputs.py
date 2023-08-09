@@ -710,7 +710,7 @@ class Cp2kInput(Section):
             **kwargs,
         )
 
-    def get_string(self):
+    def get_str(self):
         """Get string representation of the Cp2kInput."""
         s = ""
         for v in self.subsections.values():
