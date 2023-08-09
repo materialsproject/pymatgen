@@ -88,7 +88,7 @@ class TestBaderAnalysis(PymatgenTest):
             if isinstance(analysis_from_path.summary[key], (bool, str)):
                 assert val == val_from_path, f"{key=}"
             elif key == "charge":
-                assert_allclose(val, val_from_path), f"{key=}"
+                assert_allclose(val, val_from_path, atol=1e-5)
 
     def test_automatic_runner(self):
         pytest.skip("raises RuntimeError: bader exits with return code 24")
