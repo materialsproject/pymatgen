@@ -114,6 +114,7 @@ exclude_also = [
   "show_plot",
   "if TYPE_CHECKING:",
   "if typing.TYPE_CHECKING:",
+  "except ImportError:"
 ]
 
 [tool.mypy]
