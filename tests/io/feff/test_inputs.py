@@ -40,7 +40,7 @@ class TestHeader(unittest.TestCase):
         header = Header.from_str(header_string)
         assert header.struct.composition.reduced_formula == "CoO", "Failed to generate structure from HEADER string"
 
-    def test_get_string(self):
+    def test_get_str(self):
         cif_file = f"{TEST_FILES_DIR}/CoO19128.cif"
         h = Header.from_cif_file(cif_file)
         head = str(h)
@@ -112,7 +112,7 @@ class TestFeffAtoms(unittest.TestCase):
         atoms = Atoms.atoms_string_from_file(filepath)
         assert atoms.splitlines()[3].split()[4] == "O", "failed to read ATOMS file"
 
-    def test_get_string(self):
+    def test_get_str(self):
         header = Header.from_str(header_string)
         struct = header.struct
         central_atom = "O"
