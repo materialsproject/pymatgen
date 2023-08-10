@@ -11,6 +11,7 @@ import pandas as pd
 from monty.io import zopen
 
 from pymatgen.core import Molecule, Structure
+from pymatgen.core.structure import SiteCollection
 
 if TYPE_CHECKING:
     from git import Sequence
@@ -21,7 +22,7 @@ class XYZ:
     Basic class for importing and exporting Molecules or Structures in XYZ
     format.
 
-    .. note::
+    Note:
         Exporting periodic structures in the XYZ format will lose information
         about the periodicity. Essentially, only Cartesian coordinates are
         written in this format and no information is retained about the
@@ -34,7 +35,7 @@ class XYZ:
             mol (Molecule | Structure): Input molecule or structure or list thereof.
             coord_precision: Precision to be used for coordinates.
         """
-        self._mols = mol if isinstance(mol, list) else [mol]
+        self._mols = [mol] if isinstance(mol, SiteCollection) else mol
         self.precision = coord_precision
 
     @property
