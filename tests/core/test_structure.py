@@ -1844,19 +1844,22 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
     def test_to_from_file_string(self):
         for fmt in ["xyz", "json", "g03", "yaml"]:
             mol = self.mol.to(fmt=fmt)
-            assert mol is not None
-            m = IMolecule.from_str(mol, fmt=fmt)
-            assert m == self.mol
-            assert isinstance(m, IMolecule)
+            assert isinstance(mol, str)
+            mol = IMolecule.from_str(mol, fmt=fmt)
+            assert mol == self.mol
+            assert isinstance(mol, IMolecule)
 
-        self.mol.to(filename="CH4_testing.xyz")
-        assert os.path.isfile("CH4_testing.xyz")
-        os.remove("CH4_testing.xyz")
-        self.mol.to(filename="CH4_testing.yaml")
-        assert os.path.isfile("CH4_testing.yaml")
-        mol = Molecule.from_file("CH4_testing.yaml")
-        assert self.mol == mol
-        os.remove("CH4_testing.yaml")
+        ch4_xyz_str = self.mol.to(filename=f"{self.tmp_path}/CH4_testing.xyz")
+        with open("CH4_testing.xyz") as xyz_file:
+            assert xyz_file.read() == ch4_xyz_str
+        ch4_mol = IMolecule.from_file(f"{self.tmp_path}/CH4_testing.xyz")
+        assert self.mol == ch4_mol
+        ch4_yaml_str = self.mol.to(filename=f"{self.tmp_path}/CH4_testing.yaml")
+
+        with open("CH4_testing.yaml") as yaml_file:
+            assert yaml_file.read() == ch4_yaml_str
+        ch4_mol = Molecule.from_file(f"{self.tmp_path}/CH4_testing.yaml")
+        assert self.mol == ch4_mol
 
 
 class TestMolecule(PymatgenTest):
