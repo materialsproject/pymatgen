@@ -1031,10 +1031,7 @@ class TestMITNEBSet(PymatgenTest):
         c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
         s1 = Structure(Lattice.cubic(5), ["Si", "Si"], c1)
         s2 = Structure(Lattice.cubic(5), ["Si", "Si"], c2)
-        structs = []
-        for s in s1.interpolate(s2, 3, pbc=True):
-            structs.append(Structure.from_sites(s.sites, to_unit_cell=True))
-        self.structures = structs
+        self.structures = [Structure.from_sites(s.sites, to_unit_cell=True) for s in s1.interpolate(s2, 3, pbc=True)]
         self.vis = MITNEBSet(self.structures)
         warnings.simplefilter("ignore")
 
