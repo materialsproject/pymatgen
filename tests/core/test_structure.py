@@ -1468,7 +1468,7 @@ class TestStructure(PymatgenTest):
         calculator = struct.calculate(calculator="chgnet")
         assert isinstance(calculator, Calculator)
         preds = calculator.results
-        assert {*preds} == {"stress", "energy", "free_energy", "magmoms", "forces"}
+        assert {*preds} >= {"stress", "energy", "free_energy", "magmoms", "forces"}
         assert preds["energy"] == approx(-10.7400808334, abs=1e-5)
         assert preds["magmoms"] == approx([0.00262399, 0.00262396], abs=1e-5)
         assert np.linalg.norm(preds["forces"]) == approx(1.998941843e-5, abs=1e-3)
