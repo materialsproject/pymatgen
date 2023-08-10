@@ -381,10 +381,10 @@ class TestComputedReaction(unittest.TestCase):
         entries = []
         for e in d:
             entries.append(ComputedEntry.from_dict(e))
-        rcts = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
+        reactants = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
         prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
 
-        self.rxn = ComputedReaction(rcts, prods)
+        self.rxn = ComputedReaction(reactants, prods)
 
     def test_calculated_reaction_energy(self):
         assert self.rxn.calculated_reaction_energy == approx(-5.60748821935)
@@ -449,10 +449,10 @@ class TestComputedReaction(unittest.TestCase):
         entries = []
         for e in d:
             entries.append(ComputedEntry.from_dict(e))
-        rcts = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
+        reactants = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
         prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
 
-        rxn_with_uncertainty = ComputedReaction(rcts, prods)
+        rxn_with_uncertainty = ComputedReaction(reactants, prods)
         assert rxn_with_uncertainty.calculated_reaction_energy_uncertainty == approx(0.5 * 0.0744)
 
     def test_calculated_reaction_energy_uncertainty_for_no_uncertainty(self):
@@ -519,13 +519,11 @@ class TestComputedReaction(unittest.TestCase):
                 "correction": -1.864,
             },
         ]
-        entries = []
-        for e in d:
-            entries.append(ComputedEntry.from_dict(e))
-        rcts = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
+        entries = [ComputedEntry.from_dict(e) for e in d]
+        reactants = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
         prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
 
-        rxn_with_uncertainty = ComputedReaction(rcts, prods)
+        rxn_with_uncertainty = ComputedReaction(reactants, prods)
         assert isnan(rxn_with_uncertainty.calculated_reaction_energy_uncertainty)
 
     def test_init(self):

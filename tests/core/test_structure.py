@@ -1409,18 +1409,15 @@ class TestStructure(PymatgenTest):
         coords = [
             [0, 0, 0],
             [0, 0, 1.089000],
-            [1.026719, 0, -0.363000],
-            [-0.513360, -0.889165, -0.363000],
-            [-0.513360, 0.889165, -0.363000],
+            [1.026719, 0, -0.363],
+            [-0.513360, -0.889165, -0.363],
+            [-0.513360, 0.889165, -0.363],
         ]
         ch4 = ["C", "H", "H", "H", "H"]
 
-        species = []
-        all_coords = []
-        for vec in ([0, 0, 0], [4, 0, 0], [0, 4, 0], [4, 4, 0]):
-            species.extend(ch4)
-            for c in coords:
-                all_coords.append(np.array(c) + vec)
+        vectors = [[0, 0, 0], [4, 0, 0], [0, 4, 0], [4, 4, 0]]
+        species = [atom for vec in vectors for atom in ch4]
+        all_coords = [np.array(c) + vec for vec in vectors for c in coords]
 
         structure = Structure(Lattice.cubic(10), species, all_coords, coords_are_cartesian=True)
 

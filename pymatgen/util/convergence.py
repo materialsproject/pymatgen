@@ -141,9 +141,7 @@ def exponential(x, a, b, n):
     elif b > 10:
         b = 10
     if isinstance(x, list):
-        y_l = []
-        for x_v in x:
-            y_l.append(a + b * n**-x_v)
+        y_l = [a + b * n**-x_v for x_v in x]
         y = np.array(y_l)
     else:
         y = a + b * n**-x
