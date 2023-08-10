@@ -3439,7 +3439,8 @@ class IMolecule(SiteCollection, MSONable):
                 OpenBabel. Non-case sensitive.
 
         Returns:
-            (str) if filename is None. None otherwise.
+            str: String representation of molecule in given format. If a filename
+                is provided, the same string is written to the file.
         """
         from pymatgen.io.babel import BabelMolAdaptor
         from pymatgen.io.gaussian import GaussianInput
@@ -3452,25 +3453,24 @@ class IMolecule(SiteCollection, MSONable):
         elif any(fmt == ext or fnmatch(filename.lower(), f"*.{ext}*") for ext in ["gjf", "g03", "g09", "com", "inp"]):
             writer = GaussianInput(self)
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
+            json_str = json.dumps(self.as_dict())
             if filename:
-                with zopen(filename, "wt", encoding="utf8") as f:
-                    json.dump(self.as_dict(), f)
-                    return None
-            else:
-                return json.dumps(self.as_dict())
+                with zopen(filename, "wt", encoding="utf8") as file:
+                    file.write(json_str)
+            return json_str
         elif fmt == "yaml" or fnmatch(filename, "*.yaml*"):
             yaml = YAML()
+            str_io = StringIO()
+            yaml.dump(self.as_dict(), str_io)
+            yaml_str = str_io.getvalue()
             if filename:
-                with zopen(filename, "wt", encoding="utf8") as f:
-                    return yaml.dump(self.as_dict(), f)
-            else:
-                sio = StringIO()
-                yaml.dump(self.as_dict(), sio)
-                return sio.getvalue()
+                with zopen(filename, "wt", encoding="utf8") as file:
+                    file.write(yaml_str)
+            return yaml_str
         else:
-            m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower())
-            if (not fmt) and m:
-                fmt = m.group(1)
+            match = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower())
+            if not fmt and match:
+                fmt = match.group(1)
             writer = BabelMolAdaptor(self)
             return writer.write_file(filename, file_format=fmt)
 
