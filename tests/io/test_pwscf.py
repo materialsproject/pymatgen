@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import os
-
 import numpy as np
 import pytest
 from pytest import approx
 
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestPWInput(PymatgenTest):
@@ -368,10 +366,7 @@ CELL_PARAMETERS angstrom
         pwin = PWInput.from_str(string)
 
         # generate list of coords
-        pw_sites = []
-        for site in pwin.structure:
-            pw_sites.append(list(site.coords))
-        pw_sites = np.array(pw_sites)
+        pw_sites = np.array([list(site.coords) for site in pwin.structure])
 
         np.testing.assert_allclose(sites, pw_sites)
 
@@ -381,7 +376,7 @@ CELL_PARAMETERS angstrom
 
 class TestPWOuput(PymatgenTest):
     def setUp(self):
-        self.pwout = PWOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.pwscf.out"))
+        self.pwout = PWOutput(f"{TEST_FILES_DIR}/Si.pwscf.out")
 
     def test_properties(self):
         assert self.pwout.final_energy == approx(-93.45259708)

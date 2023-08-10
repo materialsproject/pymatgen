@@ -212,7 +212,7 @@ class Control(MSONable, dict):
         Returns:
             A ShengBTE control object.
         """
-        elements = list(map(str, structure.composition.elements))
+        elements = list(map(str, structure.elements))
 
         unique_nums = np.unique(structure.atomic_numbers)
         types_dict = dict(zip(unique_nums, range(len(unique_nums))))

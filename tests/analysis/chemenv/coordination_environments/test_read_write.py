@@ -26,12 +26,12 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 )
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "waroquiers"
 
-json_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/json_test_files"
-se_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/structure_environments_files"
+json_files_dir = f"{TEST_FILES_DIR}/chemenv/json_test_files"
+se_files_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments_files"
 
 
 class TestReadWriteChemenv(unittest.TestCase):

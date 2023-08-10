@@ -454,7 +454,7 @@ class GaussianInput:
             file.write(self.to_str(cart_coords))
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -697,12 +697,12 @@ class GaussianOutput:
 
     @property
     def final_energy(self):
-        """:return: Final energy in Gaussian output."""
+        """Final energy in Gaussian output."""
         return self.energies[-1]
 
     @property
     def final_structure(self):
-        """:return: Final structure in Gaussian output."""
+        """Final structure in Gaussian output."""
         return self.structures[-1]
 
     def _parse(self, filename):

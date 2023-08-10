@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-import os
-
 from pymatgen.core.structure import Molecule
 from pymatgen.io.xtb.inputs import CRESTInput
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.1"
 
-test_dir = f"{PymatgenTest.TEST_FILES_DIR}/xtb/sample_CREST_output"
-expected_dir = f"{PymatgenTest.TEST_FILES_DIR}/xtb/expected_output"
+test_dir = f"{TEST_FILES_DIR}/xtb/sample_CREST_output"
+expected_dir = f"{TEST_FILES_DIR}/xtb/expected_output"
 
 
 class TestCRESTInput(PymatgenTest):
@@ -34,9 +32,9 @@ class TestCRESTInput(PymatgenTest):
 
     def test_constraints_file(self):
         constraints = {"atoms": [8, 1, 2], "force_constant": 0.5}
-        mol = Molecule.from_file(os.path.join(test_dir, "crest_in.xyz"))
+        mol = Molecule.from_file(f"{test_dir}/crest_in.xyz")
         cin = CRESTInput(molecule=mol, constraints=constraints)
-        with open(os.path.join(expected_dir, "expected_constrains.txt")) as f:
+        with open(f"{expected_dir}/expected_constrains.txt") as f:
             exp_con = f.read()
             assert (
                 exp_con.strip()

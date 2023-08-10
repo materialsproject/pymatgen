@@ -70,6 +70,7 @@ ignore = [
   "PLR",     # pylint refactor
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT013",   # pytest-incorrect-pytest-import
+  "PYI024",  # collections-named-tuple (TODO should maybe fix these)
   "RUF012",  # Disable checks for mutable class args. This is a non-problem.
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
 ]
@@ -98,22 +99,24 @@ omit = [
   "pymatgen/cli/pmg_plot.py",
   "pymatgen/cli/pmg_potcar.py",
   "pymatgen/cli/pmg_query.py",
+  "pymatgen/dao.py",
 ]
 
 [tool.coverage.report]
 exclude_also = [
   "@deprecated",
+  "@np.deprecate",
   "def __repr__",
   "if 0:",
+  "if TYPE_CHECKING:",
   "if __name__ == .__main__.:",
   "if self.debug:",
   "if settings.DEBUG",
+  "if typing.TYPE_CHECKING:",
   "pragma: no cover",
   "raise AssertionError",
   "raise NotImplementedError",
   "show_plot",
-  "if TYPE_CHECKING:",
-  "if typing.TYPE_CHECKING:",
   "except ImportError:"
 ]
 

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 import numpy as np
 from pytest import approx
 
@@ -10,9 +8,9 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.kpath import KPathLatimerMunro
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir_structs = PymatgenTest.TEST_FILES_DIR
+test_dir_structs = TEST_FILES_DIR
 
 
 class TestKPathLatimerMunro(PymatgenTest):
@@ -48,7 +46,7 @@ class TestKPathLatimerMunro(PymatgenTest):
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
             _ = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
 
-        struct_file_path = os.path.join(test_dir_structs, "AgO_kpath_test.cif")
+        struct_file_path = f"{test_dir_structs}/AgO_kpath_test.cif"
         struct = Structure.from_file(struct_file_path)
         _ = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
 
@@ -87,7 +85,7 @@ class TestKPathLatimerMunro(PymatgenTest):
         )
 
     def test_magnetic_kpath_generation(self):
-        struct_file_path = os.path.join(test_dir_structs, "LaMnO3_magnetic.mcif")
+        struct_file_path = f"{test_dir_structs}/LaMnO3_magnetic.mcif"
         struct = Structure.from_file(struct_file_path)
         mga = CollinearMagneticStructureAnalyzer(struct)
         col_spin_orig = mga.get_structure_with_spin()

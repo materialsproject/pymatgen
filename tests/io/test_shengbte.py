@@ -6,9 +6,9 @@ import unittest
 from numpy.testing import assert_array_equal
 
 from pymatgen.io.shengbte import Control
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "shengbte")
+test_dir = f"{TEST_FILES_DIR}/shengbte"
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -20,7 +20,7 @@ except ImportError:
 
 class TestShengBTE(PymatgenTest):
     def setUp(self):
-        self.filename = os.path.join(test_dir, "CONTROL-CSLD_Si")
+        self.filename = f"{test_dir}/CONTROL-CSLD_Si"
         self.test_dict = {
             "nelements": 1,
             "natoms": 2,
@@ -72,29 +72,29 @@ class TestShengBTE(PymatgenTest):
         assert not io["nonanalytic"]
         assert not io["nanowires"]
 
-        if os.path.exists(os.path.join(test_dir, "test_control")):
-            os.remove(os.path.join(test_dir, "test_control"))
-        io.to_file(filename=os.path.join(test_dir, "test_control"))
+        if os.path.exists(f"{test_dir}/test_control"):
+            os.remove(f"{test_dir}/test_control")
+        io.to_file(filename=f"{test_dir}/test_control")
 
-        with open(os.path.join(test_dir, "test_control")) as file:
+        with open(f"{test_dir}/test_control") as file:
             test_string = file.read()
-        with open(os.path.join(test_dir, "CONTROL-CSLD_Si")) as reference_file:
+        with open(f"{test_dir}/CONTROL-CSLD_Si") as reference_file:
             reference_string = reference_file.read()
         assert test_string == reference_string
-        os.remove(os.path.join(test_dir, "test_control"))
+        os.remove(f"{test_dir}/test_control")
 
     @unittest.skipIf(f90nml is None, "No f90nml")
     def test_from_dict(self):
         io = Control.from_dict(self.test_dict)
-        if os.path.exists(os.path.join(test_dir, "test_control")):
-            os.remove(os.path.join(test_dir, "test_control"))
-        io.to_file(filename=os.path.join(test_dir, "test_control"))
-        with open(os.path.join(test_dir, "test_control")) as file:
+        if os.path.exists(f"{test_dir}/test_control"):
+            os.remove(f"{test_dir}/test_control")
+        io.to_file(filename=f"{test_dir}/test_control")
+        with open(f"{test_dir}/test_control") as file:
             test_string = file.read()
-        with open(os.path.join(test_dir, "CONTROL-CSLD_Si")) as reference_file:
+        with open(f"{test_dir}/CONTROL-CSLD_Si") as reference_file:
             reference_string = reference_file.read()
         assert test_string == reference_string
-        os.remove(os.path.join(test_dir, "test_control"))
+        os.remove(f"{test_dir}/test_control")
 
     @unittest.skipIf(f90nml is None, "No f90nml")
     def test_MSONable_implementation(self):

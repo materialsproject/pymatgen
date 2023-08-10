@@ -9,7 +9,7 @@ from pytest import approx
 
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode, ConversionVoltagePair
 from pymatgen.core.composition import Composition
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestConversionElectrode(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestConversionElectrode(unittest.TestCase):
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_eletrodes = {}
         for f in self.formulas:
-            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, f + "_batt.json")) as fid:
+            with open(os.path.join(TEST_FILES_DIR, f + "_batt.json")) as fid:
                 entries = json.load(fid, cls=MontyDecoder)
             if f in ["LiCoO2", "FeF3"]:
                 working_ion = "Li"

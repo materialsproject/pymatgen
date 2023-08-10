@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import logging
-import os
 import struct
 
 import pytest
 from monty.io import zopen
 
 from pymatgen.io.qchem.utils import lower_and_check_unique, process_parsed_HESS
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Ryan Kingsbury, Samuel Blau"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -16,7 +15,7 @@ __copyright__ = "Copyright 2018-2022, The Materials Project"
 logger = logging.getLogger(__name__)
 
 
-test_dir = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files"
+test_dir = f"{TEST_FILES_DIR}/molecules/new_qchem_files"
 
 
 class TestUtil(PymatgenTest):
@@ -37,14 +36,14 @@ class TestUtil(PymatgenTest):
 
     def test_process_parsed_HESS(self):
         data_132 = []
-        with zopen(os.path.join(test_dir, "parse_hess", "132.0"), mode="rb") as file:
+        with zopen(f"{test_dir}/parse_hess/132.0", mode="rb") as file:
             binary = file.read()
             for ii in range(int(len(binary) / 8)):
                 data_132.append(struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0])
 
         data_HESS = []
         with zopen(
-            os.path.join(test_dir, "parse_hess", "HESS"),
+            f"{test_dir}/parse_hess/HESS",
             mode="rt",
             encoding="ISO-8859-1",
         ) as f:

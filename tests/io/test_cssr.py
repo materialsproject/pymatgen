@@ -1,15 +1,13 @@
 """Created on Jan 24, 2012."""
 
-
 from __future__ import annotations
 
-import os
 import unittest
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.cssr import Cssr
 from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -21,7 +19,7 @@ __date__ = "Jan 24, 2012"
 
 class TestCssr(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
+        filepath = f"{TEST_FILES_DIR}/POSCAR"
         p = Poscar.from_file(filepath)
         self.cssr = Cssr(p.structure)
 
@@ -57,6 +55,6 @@ class TestCssr(unittest.TestCase):
         assert str(self.cssr) == expected_string
 
     def test_from_file(self):
-        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.cssr")
+        filename = f"{TEST_FILES_DIR}/Si.cssr"
         cssr = Cssr.from_file(filename)
         assert isinstance(cssr.structure, Structure)

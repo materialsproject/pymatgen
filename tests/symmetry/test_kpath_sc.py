@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-import os
-
 from pytest import approx
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSetyawanCurtarolo
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir_structs = os.path.join(PymatgenTest.TEST_FILES_DIR, "space_group_structs")
+test_dir_structs = f"{TEST_FILES_DIR}/space_group_structs"
 
 
 class TestBandStructureSC(PymatgenTest):
@@ -44,7 +42,7 @@ class TestBandStructureSC(PymatgenTest):
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
             _ = KPathSetyawanCurtarolo(struct)  # Throws error if something doesn't work, causing test to fail.
 
-        struct_file_path = os.path.join(test_dir_structs, "ICSD_170.cif")
+        struct_file_path = f"{test_dir_structs}/ICSD_170.cif"
         struct = Structure.from_file(struct_file_path)
         hkp = KPathSetyawanCurtarolo(struct)
         assert hkp.name == "MCLC5"

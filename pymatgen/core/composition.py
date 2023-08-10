@@ -243,12 +243,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def average_electroneg(self) -> float:
-        """:return: Average electronegativity of the composition."""
+        """Average electronegativity of the composition."""
         return sum((el.X * abs(amt) for el, amt in self.items())) / self.num_atoms
 
     @property
     def total_electrons(self) -> float:
-        """:return: Total number of electrons in composition."""
+        """Total number of electrons in composition."""
         return sum((el.Z * abs(amt) for el, amt in self.items()))
 
     def almost_equals(self, other: Composition, rtol: float = 0.1, atol: float = 1e-8) -> bool:
@@ -275,7 +275,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return len(self) == 1
 
     def copy(self) -> Composition:
-        """:return: A copy of the composition."""
+        """A copy of the composition."""
         return Composition(self, allow_negative=self.allow_negative)
 
     @property
@@ -447,7 +447,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def elements(self) -> list[Element | Species | DummySpecies]:
-        """Returns view of elements in Composition."""
+        """Returns list of elements in Composition."""
         return list(self)
 
     def __str__(self):
@@ -553,7 +553,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # for Metallofullerene like "Y3N@C80"
         formula = formula.replace("@", "")
 
-        def get_sym_dict(form: str, factor: int | float) -> dict[str, float]:
+        def get_sym_dict(form: str, factor: float) -> dict[str, float]:
             sym_dict: dict[str, float] = collections.defaultdict(float)
             for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.e\d]*)", form):
                 el = m.group(1)
@@ -751,14 +751,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
-        return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
+        return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
-    def replace(self, elem_map: dict[str, str | dict[str, int | float]]) -> Composition:
+    def replace(self, elem_map: dict[str, str | dict[str, float]]) -> Composition:
         """
         Replace elements in a composition. Returns a new Composition, leaving the old one unchanged.
 
         Args:
-            elem_map (dict[str, str | dict[str, int | float]]): dict of elements or species to swap. E.g.
+            elem_map (dict[str, str | dict[str, float]]): dict of elements or species to swap. E.g.
                 {"Li": "Na"} performs a Li for Na substitution. The target can be a {species: factor} dict. For
                 example, in Fe2O3 you could map {"Fe": {"Mg": 0.5, "Cu":0.5}} to obtain MgCuO3.
 
@@ -843,9 +843,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             on the results form guessing oxidation states. If no oxidation state
             is possible, returns a Composition where all oxidation states are 0.
         """
-        _, oxidation_states = self._get_oxid_state_guesses(
-            all_oxi_states, max_sites, oxi_states_override, target_charge
-        )
+        _, oxidation_states = self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)
 
         # Special case: No charged compound is possible
         if not oxidation_states:
@@ -872,7 +870,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             dct[Element(specie.symbol)] += amt
         return Composition(dct)
 
-    def _get_oxid_state_guesses(self, all_oxi_states, max_sites, oxi_states_override, target_charge):
+    def _get_oxi_state_guesses(self, all_oxi_states, max_sites, oxi_states_override, target_charge):
         """
         Utility operation for guessing oxidation states.
 
@@ -898,13 +896,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 formula is greater than abs(max_sites).
 
         Returns:
-            A list of dicts - each dict reports an element symbol and average
-                oxidation state across all sites in that composition. If the
-                composition is not charge balanced, an empty list is returned.
-            A list of dicts - each dict maps the element symbol to a list of
+            list[dict]: Each dict maps the element symbol to a list of
                 oxidation states for each site of that element. For example, Fe3O4 could
-                return a list of [2,2,2,3,3,3] for the oxidation states of If the composition
-                is
+                return a list of [2,2,2,3,3,3] for the oxidation states of the 6 Fe sites.
+                If the composition is not charge balanced, an empty list is returned.
         """
         comp = self.copy()
         # reduce Composition if necessary
@@ -925,7 +920,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # Load prior probabilities of oxidation states, used to rank solutions
         if not Composition.oxi_prob:
             module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-            all_data = loadfn(os.path.join(module_dir, "..", "analysis", "icsd_bv.yaml"))
+            all_data = loadfn(f"{module_dir}/../analysis/icsd_bv.yaml")
             Composition.oxi_prob = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
         oxi_states_override = oxi_states_override or {}
         # assert: Composition only has integer amounts
@@ -1048,7 +1043,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         fuzzy_formula: str,
         m_dict: dict[str, float] | None = None,
         m_points: int = 0,
-        factor: int | float = 1,
+        factor: float = 1,
     ) -> Generator[tuple[Composition, int], None, None]:
         """
         A recursive helper method for formula parsing that helps in

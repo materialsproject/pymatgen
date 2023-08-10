@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import os
-
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.xr import Xr
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Nils Edvin Richard Zimmermann"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -17,7 +15,7 @@ __date__ = "June 23, 2016"
 
 class TestXr:
     def setup(self):
-        p = Poscar.from_file(PymatgenTest.TEST_FILES_DIR / "POSCAR")
+        p = Poscar.from_file(TEST_FILES_DIR / "POSCAR")
         self.xr = Xr(p.structure)
 
     def test_str(self):
@@ -57,8 +55,8 @@ class TestXr:
 0.0000 0.0000 4.7595"""
         assert str(self.xr) == expected_string
 
-    def test_from_file(self, TEST_FILES_DIR):
-        filename = os.path.join(TEST_FILES_DIR, "EDI.xr")
+    def test_from_file(self):
+        filename = f"{TEST_FILES_DIR}/EDI.xr"
         xr = Xr.from_file(filename)
         assert isinstance(xr.structure, Structure)
         xr2 = Xr.from_file(filename, use_cores=False)

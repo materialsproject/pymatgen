@@ -20,24 +20,24 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import find_in_coord_list_pbc
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestStructureMatcher(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json")) as fp:
+        with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [
             self.get_structure("Li2O"),
-            Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Li2O")),
+            Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.Li2O"),
         ]
 
     def test_ignore_species(self):
-        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
-        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        s1 = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
+        s2 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
         m = StructureMatcher(ignored_species=["Li"], primitive_cell=False, attempt_supercell=True)
         assert m.fit(s1, s2)
         assert m.fit_anonymous(s1, s2)
@@ -291,8 +291,8 @@ class TestStructureMatcher(PymatgenTest):
             angle_tol=6,
         )
 
-        s1 = Structure.from_file(f"{PymatgenTest.TEST_FILES_DIR}/fit_symm_s1.vasp")
-        s2 = Structure.from_file(f"{PymatgenTest.TEST_FILES_DIR}/fit_symm_s2.vasp")
+        s1 = Structure.from_file(f"{TEST_FILES_DIR}/fit_symm_s1.vasp")
+        s2 = Structure.from_file(f"{TEST_FILES_DIR}/fit_symm_s2.vasp")
         assert sm_coarse.fit(s1, s2)
         assert sm_coarse.fit(s2, s1) is False
         assert sm_coarse.fit(s1, s2, symmetric=True) is False
@@ -330,7 +330,7 @@ class TestStructureMatcher(PymatgenTest):
             self.get_structure("LiFePO4"),
         ]
         for fname in ["POSCAR.Li2O", "POSCAR.LiFePO4"]:
-            structures.append(Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, fname)))
+            structures.append(Structure.from_file(os.path.join(TEST_FILES_DIR, fname)))
         sm = StructureMatcher(comparator=ElementComparator())
         groups = sm.group_structures(structures)
         for g in groups:
@@ -343,7 +343,7 @@ class TestStructureMatcher(PymatgenTest):
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted."""
         sm = StructureMatcher()
-        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li3GaPCO7.json"))
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/Li3GaPCO7.json")
         assert sm.fit(struct, struct)
 
     def test_as_dict_and_from_dict(self):
@@ -367,8 +367,8 @@ class TestStructureMatcher(PymatgenTest):
 
     def test_supercell_fit(self):
         sm = StructureMatcher(attempt_supercell=False)
-        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Al3F9.json"))
-        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Al3F9_distorted.json"))
+        s1 = Structure.from_file(f"{TEST_FILES_DIR}/Al3F9.json")
+        s2 = Structure.from_file(f"{TEST_FILES_DIR}/Al3F9_distorted.json")
 
         assert not sm.fit(s1, s2)
 
@@ -778,8 +778,8 @@ class TestStructureMatcher(PymatgenTest):
     def test_electronegativity(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5)
 
-        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Na2Fe2PAsO4S4.json"))
-        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Na2Fe2PNO4Se4.json"))
+        s1 = Structure.from_file(f"{TEST_FILES_DIR}/Na2Fe2PAsO4S4.json")
+        s2 = Structure.from_file(f"{TEST_FILES_DIR}/Na2Fe2PNO4Se4.json")
         assert sm.get_best_electronegativity_anonymous_mapping(s1, s2) == {
             Element("S"): Element("Se"),
             Element("As"): Element("N"),

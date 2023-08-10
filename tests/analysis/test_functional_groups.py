@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 import warnings
 
@@ -10,9 +9,9 @@ from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "functional_groups")
+test_dir = f"{TEST_FILES_DIR}/functional_groups"
 
 pytest.importorskip("openbabel")
 pytest.importorskip("networkx")
@@ -30,7 +29,7 @@ class TestFunctionalGroupExtractor(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 
-        self.file = os.path.join(test_dir, "func_group_test.mol")
+        self.file = f"{test_dir}/func_group_test.mol"
         self.mol = Molecule.from_file(self.file)
         self.strategy = OpenBabelNN()
         self.mg = MoleculeGraph.with_local_env_strategy(self.mol, self.strategy)
@@ -56,7 +55,7 @@ class TestFunctionalGroupExtractor(unittest.TestCase):
         assert extractor_str.species == extractor_mg.species
 
         # Test optimization
-        file_no_h = os.path.join(test_dir, "func_group_test_no_h.mol")
+        file_no_h = f"{test_dir}/func_group_test_no_h.mol"
         extractor_no_h = FunctionalGroupExtractor(file_no_h, optimize=True)
 
         assert len(extractor_no_h.molecule) == len(extractor_mol.molecule)

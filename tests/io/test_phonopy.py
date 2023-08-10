@@ -28,7 +28,7 @@ from pymatgen.io.phonopy import (
     get_pmg_structure,
     get_thermal_displacement_matrices,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     from phonopy import Phonopy
@@ -37,12 +37,12 @@ except ImportError as exc:
     print(exc)
     Phonopy = None
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "phonopy")
+test_dir = f"{TEST_FILES_DIR}/phonopy"
 
 
 class TestPhonopyParser(PymatgenTest):
     def test_get_ph_bs(self):
-        ph_bs = get_ph_bs_symm_line(os.path.join(test_dir, "NaCl_band.yaml"), has_nac=True)
+        ph_bs = get_ph_bs_symm_line(f"{test_dir}/NaCl_band.yaml", has_nac=True)
 
         assert ph_bs.bands[1][10] == approx(0.7753555184)
         assert ph_bs.bands[5][100] == approx(5.2548379776)
@@ -71,7 +71,7 @@ class TestPhonopyParser(PymatgenTest):
         assert ph_bs.get_nac_eigendisplacements_along_dir([1, 0, 1]) is None
 
     def test_get_ph_dos(self):
-        dos = get_ph_dos(os.path.join(test_dir, "NaCl_total_dos.dat"))
+        dos = get_ph_dos(f"{test_dir}/NaCl_total_dos.dat")
 
         assert dos.densities[15] == approx(0.0001665998)
         assert dos.frequencies[20] == approx(0.0894965119)
@@ -81,8 +81,8 @@ class TestPhonopyParser(PymatgenTest):
 
     def test_get_complete_dos(self):
         cdos = get_complete_ph_dos(
-            os.path.join(test_dir, "NaCl_partial_dos.dat"),
-            os.path.join(test_dir, "NaCl_phonopy.yaml"),
+            f"{test_dir}/NaCl_partial_dos.dat",
+            f"{test_dir}/NaCl_phonopy.yaml",
         )
         site_Na = cdos.structure[0]
         site_Cl = cdos.structure[1]
@@ -119,7 +119,7 @@ class TestStructureConversion(PymatgenTest):
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestGetDisplacedStructures(PymatgenTest):
     def test_get_displaced_structures(self):
-        pmg_s = Structure.from_file(os.path.join(test_dir, "POSCAR-unitcell"), False)
+        pmg_s = Structure.from_file(f"{test_dir}/POSCAR-unitcell", False)
         supercell_matrix = [[2, 0, 0], [0, 1, 0], [0, 0, 2]]
         structures = get_displaced_structures(pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix)
 
@@ -203,13 +203,13 @@ class TestPhonopyFromForceConstants(unittest.TestCase):
 class TestGruneisen(unittest.TestCase):
     def test_ph_bs_symm_line(self):
         self.bs_symm_line_1 = get_gruneisen_ph_bs_symm_line(
-            gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_band_Si.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_Si"),
+            gruneisen_path=f"{TEST_FILES_DIR}/gruneisen/gruneisen_band_Si.yaml",
+            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_Si",
             fit=True,
         )
         self.bs_symm_line_2 = get_gruneisen_ph_bs_symm_line(
-            gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_band_Si.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_Si"),
+            gruneisen_path=f"{TEST_FILES_DIR}/gruneisen/gruneisen_band_Si.yaml",
+            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_Si",
             fit=False,
         )
 
@@ -217,14 +217,12 @@ class TestGruneisen(unittest.TestCase):
 
         assert self.bs_symm_line_1.gruneisen[0][0] != self.bs_symm_line_2.gruneisen[0][0]
         with pytest.raises(ValueError, match="Please provide a structure or structure path"):
-            get_gruneisen_ph_bs_symm_line(
-                gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_eq_plus_minus_InP.yaml")
-            )
+            get_gruneisen_ph_bs_symm_line(gruneisen_path=f"{TEST_FILES_DIR}/gruneisen/gruneisen_eq_plus_minus_InP.yaml")
 
     def test_gruneisen_parameter(self):
         self.gruneisenobject_Si = get_gruneisenparameter(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_Si.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_Si"),
+            f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_Si.yaml",
+            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_Si",
         )
 
         assert self.gruneisenobject_Si.frequencies[0][0] == approx(0.2523831291)
@@ -232,19 +230,15 @@ class TestGruneisen(unittest.TestCase):
 
         # catch the exception when no structure is present
         with pytest.raises(ValueError, match="Please provide a structure or structure path"):
-            get_gruneisenparameter(
-                os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_InP_without_struct.yaml")
-            )
+            get_gruneisenparameter(f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_InP_without_struct.yaml")
 
 
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestThermalDisplacementMatrices(PymatgenTest):
     def test_get_thermal_displacement_matrix(self):
         list_matrices = get_thermal_displacement_matrices(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "thermal_displacement_matrices.yaml"
-            ),
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR"),
+            f"{TEST_FILES_DIR}/thermal_displacement_matrices/thermal_displacement_matrices.yaml",
+            f"{TEST_FILES_DIR}/thermal_displacement_matrices/POSCAR",
         )
 
         assert np.allclose(

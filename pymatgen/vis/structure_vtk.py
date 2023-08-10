@@ -28,7 +28,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.coord import in_coord_list
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
-EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
+EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
 
 
 class StructureVis:
@@ -243,7 +243,7 @@ class StructureVis:
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
 
         if self.show_bonds or self.show_polyhedron:
-            elements = sorted(struct.composition.elements, key=lambda a: a.X)
+            elements = sorted(struct.elements, key=lambda a: a.X)
             anion = elements[-1]
 
             def contains_anion(site):

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 
 from monty.serialization import loadfn
@@ -8,7 +7,7 @@ from monty.serialization import loadfn
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     from seekpath import get_path
@@ -59,8 +58,8 @@ class TestHighSymmKpath(PymatgenTest):
             _ = kpath.get_kpoints()
 
     def test_continuous_kpath(self):
-        bs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"))
-        cont_bs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure_continuous.json.gz"))
+        bs = loadfn(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json")
+        cont_bs = loadfn(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure_continuous.json.gz")
         alt_bs = HighSymmKpath(bs.structure).get_continuous_path(bs)
 
         assert cont_bs.as_dict() == alt_bs.as_dict()

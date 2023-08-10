@@ -18,14 +18,14 @@ from pymatgen.analysis.molecule_matcher import (
 )
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Molecule, Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 try:
     from openbabel import openbabel
 except (ImportError, RuntimeError):
     openbabel = None
 
-test_dir = f"{PymatgenTest.TEST_FILES_DIR}/molecules/molecule_matcher"
+test_dir = f"{TEST_FILES_DIR}/molecules/molecule_matcher"
 
 
 ob_align_missing = openbabel is None or "OBAlign" not in dir(openbabel)
@@ -164,12 +164,12 @@ class TestMoleculeMatcher(unittest.TestCase):
 
     def test_group_molecules(self):
         mm = MoleculeMatcher(tolerance=0.001)
-        with open(os.path.join(test_dir, "mol_list.txt")) as f:
+        with open(f"{test_dir}/mol_list.txt") as f:
             filename_list = [line.strip() for line in f.readlines()]
         mol_list = [Molecule.from_file(os.path.join(test_dir, f)) for f in filename_list]
         mol_groups = mm.group_molecules(mol_list)
         filename_groups = [[filename_list[mol_list.index(m)] for m in g] for g in mol_groups]
-        with open(os.path.join(test_dir, "grouped_mol_list.txt")) as f:
+        with open(f"{test_dir}/grouped_mol_list.txt") as f:
             grouped_text = f.read().strip()
         assert str(filename_groups) == grouped_text
 

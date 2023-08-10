@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from pymatgen.analysis.chemenv.utils.chemenv_config import ChemEnvConfig
 from pymatgen.core import SETTINGS
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-config_file_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/config"
+config_file_dir = f"{TEST_FILES_DIR}/chemenv/config"
 
 
 class TestChemenvConfig(PymatgenTest):

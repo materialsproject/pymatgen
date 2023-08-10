@@ -163,7 +163,7 @@ def release_github(ctx, version):
 
     :param ctx:
     """
-    with open("CHANGES.rst") as file:
+    with open("CHANGES.md") as file:
         contents = file.read()
     tokens = re.split(r"\-+", contents)
     desc = tokens[1].strip()
@@ -239,16 +239,15 @@ def update_changelog(ctx, version=None, dry_run=False):
         ignored_commits.append(line)
     with open("CHANGES.md") as file:
         contents = file.read()
-    delim = "=========="
+    delim = "##"
     tokens = contents.split(delim)
-    head = f"\n\nv{version}\n{'-' * (len(version) + 1)}\n"
-    tokens.insert(-1, head + "\n".join(lines))
+    tokens.insert(1, f"## v{version}\n\n" + "\n".join(lines) + "\n")
     if dry_run:
-        print(tokens[0] + delim + "".join(tokens[1:]))
+        print(tokens[0] + "##".join(tokens[1:]))
     else:
-        with open("CHANGES.rst", "w") as file:
-            file.write(tokens[0] + delim + "".join(tokens[1:]))
-        ctx.run("open CHANGES.rst")
+        with open("CHANGES.md", "w") as file:
+            file.write(tokens[0] + "##".join(tokens[1:]))
+        ctx.run("open CHANGES.md")
     print("The following commit messages were not included...")
     print("\n".join(ignored_commits))
 

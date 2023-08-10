@@ -10,7 +10,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     LightStructureEnvironments,
     StructureEnvironments,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     import bson
@@ -23,7 +23,7 @@ __author__ = "waroquiers"
 class TestStructureConnectivity(PymatgenTest):
     def test_serialization(self):
         BaTiO3_se_fpath = os.path.join(
-            self.TEST_FILES_DIR,
+            TEST_FILES_DIR,
             "chemenv",
             "structure_environments_files",
             "se_mp-5020.json",

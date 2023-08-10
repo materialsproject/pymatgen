@@ -424,6 +424,7 @@ class Vasprun(MSONable):
                         self.parameters = self._parse_params(elem)
                     elif tag == "structure" and elem.attrib.get("name") == "initialpos":
                         self.initial_structure = self._parse_structure(elem)
+                        self.final_structure = self.initial_structure
                     elif tag == "atominfo":
                         self.atomic_symbols, self.potcar_symbols = self._parse_atominfo(elem)
                         self.potcar_spec = [{"titel": p, "hash": None} for p in self.potcar_symbols]
@@ -3267,7 +3268,7 @@ class Outcar:
         return aps
 
     def as_dict(self):
-        """:return: MSONable dict."""
+        """MSONable dict."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -3653,7 +3654,7 @@ class Chgcar(VolumetricData):
 
     @property
     def net_magnetization(self):
-        """:return: Net magnetization from Chgcar"""
+        """Net magnetization from Chgcar"""
         if self.is_spin_polarized:
             return np.sum(self.data["diff"])
         return None
@@ -4009,7 +4010,7 @@ class Oszicar:
         return self.ionic_steps[-1]["E0"]
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "electronic_steps": self.electronic_steps,
             "ionic_steps": self.ionic_steps,
@@ -4039,7 +4040,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
         A BandStructure Object
     """
     # TODO: Add better error handling!!!
-    if os.path.exists(os.path.join(dir_name, "branch_0")):
+    if os.path.exists(f"{dir_name}/branch_0"):
         # get all branch dir names
         branch_dir_names = [os.path.abspath(d) for d in glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
 
@@ -4049,7 +4050,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
         # populate branches with Bandstructure instances
         branches = []
         for dname in sorted_branch_dir_names:
-            xml_file = os.path.join(dname, "vasprun.xml")
+            xml_file = f"{dname}/vasprun.xml"
             if os.path.exists(xml_file):
                 run = Vasprun(xml_file, parse_projected_eigen=projections)
                 branches.append(run.get_band_structure(efermi=efermi))
@@ -4059,7 +4060,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
 
         return get_reconstructed_band_structure(branches, efermi)
 
-    xml_file = os.path.join(dir_name, "vasprun.xml")
+    xml_file = f"{dir_name}/vasprun.xml"
     # Better handling of Errors
     if os.path.exists(xml_file):
         return Vasprun(xml_file, parse_projected_eigen=projections).get_band_structure(
@@ -4235,7 +4236,11 @@ class Xdatcar:
                 structures.append(p.structure)
         self.structures = structures
 
-    def get_string(self, ionicstep_start=1, ionicstep_end=None, significant_figures=8):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, ionicstep_start: int = 1, ionicstep_end: int | None = None, significant_figures: int = 8) -> str:
         """
         Write  Xdatcar class to a string.
 
@@ -4286,10 +4291,10 @@ class Xdatcar:
                 Xdatcar.get_string method and are passed through directly.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.get_string(**kwargs))
+            f.write(self.get_str(**kwargs))
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
 
 class Dynmat:

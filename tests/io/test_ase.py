@@ -8,10 +8,11 @@ from pymatgen.core import Composition, Lattice, Molecule, Structure
 from pymatgen.core.structure import StructureError
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.util.testing import TEST_FILES_DIR
 
 
 @pytest.fixture()
-def poscar(TEST_FILES_DIR):
+def poscar():
     return Poscar.from_file(TEST_FILES_DIR / "POSCAR")
 
 
@@ -105,7 +106,7 @@ class TestAseAtomsAdaptor:
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]
 
-    def test_get_atoms_from_molecule(self, TEST_FILES_DIR):
+    def test_get_atoms_from_molecule(self):
         m = Molecule.from_file(TEST_FILES_DIR / "acetylene.xyz")
         atoms = aio.AseAtomsAdaptor.get_atoms(m)
         ase_composition = Composition(atoms.get_chemical_formula())
@@ -115,7 +116,7 @@ class TestAseAtomsAdaptor:
         assert atoms.get_chemical_symbols() == [s.species_string for s in m]
         assert not atoms.has("initial_magmoms")
 
-    def test_get_atoms_from_molecule_mags(self, TEST_FILES_DIR):
+    def test_get_atoms_from_molecule_mags(self):
         molecule = Molecule.from_file(TEST_FILES_DIR / "acetylene.xyz")
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         mags = [1.0] * len(molecule)
@@ -139,13 +140,13 @@ class TestAseAtomsAdaptor:
         assert atoms.charge == -2
         assert atoms.spin_multiplicity == 3
 
-    def test_get_atoms_from_molecule_dyn(self, TEST_FILES_DIR):
+    def test_get_atoms_from_molecule_dyn(self):
         molecule = Molecule.from_file(TEST_FILES_DIR / "acetylene.xyz")
         molecule.add_site_property("selective_dynamics", [[False] * 3] * len(molecule))
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]
 
-    def test_get_structure(self, TEST_FILES_DIR):
+    def test_get_structure(self):
         from ase.io import read
 
         atoms = read(TEST_FILES_DIR / "POSCAR")
@@ -165,7 +166,7 @@ class TestAseAtomsAdaptor:
         with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
             struct = aio.AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
 
-    def test_get_structure_mag(self, TEST_FILES_DIR):
+    def test_get_structure_mag(self):
         from ase.io import read
 
         atoms = read(TEST_FILES_DIR / "POSCAR")
@@ -182,7 +183,7 @@ class TestAseAtomsAdaptor:
         assert "magmom" not in structure.site_properties
         assert "initial_magmoms" not in structure.site_properties
 
-    def test_get_structure_dyn(self, TEST_FILES_DIR):
+    def test_get_structure_dyn(self):
         from ase.constraints import FixAtoms
         from ase.io import read
 
@@ -211,7 +212,7 @@ class TestAseAtomsAdaptor:
 
             assert len(ase_atoms) == len(structure)
 
-    def test_get_molecule(self, TEST_FILES_DIR):
+    def test_get_molecule(self):
         from ase.io import read
 
         atoms = read(TEST_FILES_DIR / "acetylene.xyz")
@@ -239,7 +240,7 @@ class TestAseAtomsAdaptor:
         assert molecule.charge == 2
         assert molecule.spin_multiplicity == 3
 
-    def test_back_forth(self, TEST_FILES_DIR):
+    def test_back_forth(self):
         from ase.constraints import FixAtoms
         from ase.io import read
 

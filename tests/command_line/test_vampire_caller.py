@@ -10,9 +10,9 @@ from pytest import approx
 
 import pymatgen.command_line.vampire_caller as vampirecaller
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings")
+test_dir = f"{TEST_FILES_DIR}/magnetic_orderings"
 
 
 @unittest.skipIf(not which("vampire-serial"), "vampire executable not present")
@@ -21,7 +21,7 @@ class TestVampireCaller(unittest.TestCase):
     def setUpClass(cls):
         print("Testing with: ", which("vampire-serial"))
 
-        cls.Mn3Al = pd.read_json(os.path.join(test_dir, "Mn3Al.json"))
+        cls.Mn3Al = pd.read_json(f"{test_dir}/Mn3Al.json")
 
         cls.compounds = [cls.Mn3Al]
 

@@ -11,9 +11,9 @@ import pytest
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
 from pymatgen.core import Molecule
 from pymatgen.io.packmol import PackmolBoxGen
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "packmol")
+test_dir = f"{TEST_FILES_DIR}/packmol"
 
 
 if which("packmol") is None:
@@ -65,8 +65,8 @@ class TestPackmolSet(PymatgenTest):
         """Test coords input as strings."""
         pw = PackmolBoxGen().get_input_set(
             molecules=[
-                {"name": "EMC", "number": 10, "coords": os.path.join(test_dir, "subdir with spaces", "EMC.xyz")},
-                {"name": "LiTFSi", "number": 20, "coords": os.path.join(test_dir, "LiTFSi.xyz")},
+                {"name": "EMC", "number": 10, "coords": f"{test_dir}/subdir with spaces/EMC.xyz"},
+                {"name": "LiTFSi", "number": 20, "coords": f"{test_dir}/LiTFSi.xyz"},
             ],
         )
         pw.write_input(self.tmp_path)
@@ -77,8 +77,8 @@ class TestPackmolSet(PymatgenTest):
 
     def test_packmol_with_path(self):
         """Test coords input as Path. Use a subdirectory with spaces."""
-        p1 = Path(os.path.join(test_dir, "subdir with spaces", "EMC.xyz"))
-        p2 = Path(os.path.join(test_dir, "LiTFSi.xyz"))
+        p1 = Path(f"{test_dir}/subdir with spaces/EMC.xyz")
+        p2 = Path(f"{test_dir}/LiTFSi.xyz")
         pw = PackmolBoxGen().get_input_set(
             molecules=[
                 {"name": "EMC", "number": 10, "coords": p1},

@@ -3,13 +3,12 @@
 
 from __future__ import annotations
 
-import os
 import unittest
 import warnings
 
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -28,12 +27,12 @@ class TestBorgQueen(unittest.TestCase):
 
     def test_get_data(self):
         drone = VaspToComputedEntryDrone()
-        self.queen = BorgQueen(drone, PymatgenTest.TEST_FILES_DIR, 1)
+        self.queen = BorgQueen(drone, TEST_FILES_DIR, 1)
         data = self.queen.get_data()
         assert len(data) == 15
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()
         queen = BorgQueen(drone)
-        queen.load_data(os.path.join(PymatgenTest.TEST_FILES_DIR, "assimilated.json"))
+        queen.load_data(f"{TEST_FILES_DIR}/assimilated.json")
         assert len(queen.get_data()) == 1

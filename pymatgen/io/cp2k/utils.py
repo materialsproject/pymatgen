@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Molecule, Structure
 
 
-def postprocessor(data: str) -> str | int | float | bool | None:
+def postprocessor(data: str) -> str | float | bool | None:
     """
     Helper function to post process the results of the pattern matching functions in Cp2kOutput
     and turn them to Python types.
@@ -25,7 +25,7 @@ def postprocessor(data: str) -> str | int | float | bool | None:
         ValueError: If the data cannot be parsed.
 
     Returns:
-        str | int | float | bool | None: The post processed data.
+        str | float | bool | None: The post processed data.
     """
     data = data.strip().replace(" ", "_")  # remove leading/trailing whitespace, replace spaces with _
 

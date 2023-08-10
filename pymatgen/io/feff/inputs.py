@@ -401,16 +401,14 @@ class Atoms(MSONable):
             absorbing_atom (str/int): Symbol for absorbing atom or site index
             radius (float): radius of the atom cluster in Angstroms.
         """
-        if struct.is_ordered:
-            self.struct = struct
-            atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, struct)[0]
-            self.pot_dict = get_atom_map(struct, atom_sym)
-        else:
+        if not struct.is_ordered:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
-
+        self.struct = struct
         self.absorbing_atom, self.center_index = get_absorbing_atom_symbol_index(absorbing_atom, struct)
         self.radius = radius
         self._cluster = self._set_cluster()
+        atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, self._cluster)[0]
+        self.pot_dict = get_atom_map(self._cluster, atom_sym)
 
     def _set_cluster(self):
         """
@@ -514,7 +512,7 @@ class Atoms(MSONable):
             ]
         ]
         for i, site in enumerate(self._cluster[1:]):
-            site_symbol = re.sub(r"[^aA-zZ]+", "", site.species_string)
+            site_symbol = site.specie.symbol
             ipot = self.pot_dict[site_symbol]
             lines.append(
                 [
@@ -613,7 +611,11 @@ class Tags(dict):
                 i[k] = v
         return i
 
-    def get_string(self, sort_keys=False, pretty=False):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """
         Returns a string representation of the Tags. The reason why this
         method is different from the __str__ method is to provide options
@@ -666,7 +668,7 @@ class Tags(dict):
         return str(val)
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
     def write_file(self, filename="PARAMETERS"):
         """

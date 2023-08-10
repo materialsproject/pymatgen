@@ -25,11 +25,11 @@ from pymatgen.core.surface import (
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 def get_path(path_str):
-    return os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
+    return os.path.join(TEST_FILES_DIR, "surface_tests", path_str)
 
 
 class TestSlab(PymatgenTest):

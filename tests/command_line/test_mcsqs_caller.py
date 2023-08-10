@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 from shutil import which
 
@@ -9,23 +8,23 @@ from monty.serialization import loadfn
 
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Handong Ling, Rachel Woods-Robinson"
 __maintainer__ = "Handong Ling, Rachel Woods-Robinson"
 __email__ = "handongling@berkeley.edu, rwoodsrobinson@lbl.gov"
 
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs")
+test_dir = f"{TEST_FILES_DIR}/mcsqs"
 
 
 @unittest.skipIf(not (which("mcsqs") and which("str2cif")), "mcsqs executable not present")
 class TestMcsqsCaller(PymatgenTest):
     def setUp(self):
-        self.pzt_structs = loadfn(os.path.join(test_dir, "pztstructs.json"))
-        self.pzt_structs2 = loadfn(os.path.join(test_dir, "pztstructs2.json"))
+        self.pzt_structs = loadfn(f"{test_dir}/pztstructs.json")
+        self.pzt_structs2 = loadfn(f"{test_dir}/pztstructs2.json")
         self.struct = self.get_structure("Pb2TiZrO6")
-        self.perfect_match_zzn_rs = loadfn(os.path.join(test_dir, "perfect_match_zzn_rs.json"))
+        self.perfect_match_zzn_rs = loadfn(f"{test_dir}/perfect_match_zzn_rs.json")
 
     def test_mcsqs_caller_supercell(self):
         struct = self.struct.copy()

@@ -30,7 +30,7 @@ class TestChemicalPotentialDiagram(PymatgenTest):
         elements = [Element("Fe"), Element("O")]
         binary_entries = list(
             filter(
-                lambda e: set(e.composition.elements).issubset(elements),
+                lambda e: set(e.elements).issubset(elements),
                 self.entries,
             )
         )

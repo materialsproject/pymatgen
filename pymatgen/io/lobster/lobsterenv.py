@@ -15,7 +15,6 @@ from __future__ import annotations
 import collections
 import copy
 import math
-import os
 from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
@@ -60,7 +59,7 @@ class LobsterNeighbors(NearNeighbors):
         filename_ICOHP: str = "ICOHPLIST.lobster",
         are_coops: bool = False,
         are_cobis: bool = False,
-        valences: list[int | float] | None = None,
+        valences: list[float] | None = None,
         limits: tuple[float, float] | None = None,
         additional_condition: int = 0,
         only_bonds_to: list[str] | None = None,
@@ -84,7 +83,7 @@ class LobsterNeighbors(NearNeighbors):
             are_coops: (bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster; only tested for
                 ICOHPLIST.lobster so far
             are_cobis: (bool) if True, the file is a ICOBILIST.lobster and not a ICOHPLIST.lobster
-            valences: (list[int | float]): gives valence/charge for each element
+            valences: (list[float]): gives valence/charge for each element
             limits (tuple[float, float] | None): limit to decide which ICOHPs (ICOOP or ICOBI) should be considered
             additional_condition (int): Additional condition that decides which kind of bonds will be considered
                 NO_ADDITIONAL_CONDITION = 0
@@ -497,7 +496,7 @@ class LobsterNeighbors(NearNeighbors):
         import tempfile
 
         with tempfile.TemporaryDirectory() as t:
-            path = os.path.join(t, "POSCAR.vasp")
+            path = f"{t}/POSCAR.vasp"
 
             self.structure.to(filename=path, fmt="POSCAR")
 

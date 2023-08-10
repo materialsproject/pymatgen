@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-import os
-
 import numpy as np
 from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.atat import Mcsqs
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs")
+test_dir = f"{TEST_FILES_DIR}/mcsqs"
 
 
 class TestAtat(PymatgenTest):
@@ -89,10 +87,10 @@ class TestAtat(PymatgenTest):
 
     def test_mcsqs_cif_nacl(self):
         # cif file from str2cif (utility distributed with atat)
-        struc_from_cif = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.cif"))
+        struc_from_cif = Structure.from_file(f"{test_dir}/bestsqs_nacl.cif")
 
         # output file directly from mcsqs
-        struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.out"))
+        struc_from_out = Structure.from_file(f"{test_dir}/bestsqs_nacl.out")
 
         assert struc_from_cif.matches(struc_from_out)
         assert np.allclose(
@@ -103,10 +101,10 @@ class TestAtat(PymatgenTest):
 
     def test_mcsqs_cif_pzt(self):
         # cif file from str2cif (utility distributed with atat)
-        struc_from_cif = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.cif"))
+        struc_from_cif = Structure.from_file(f"{test_dir}/bestsqs_pzt.cif")
 
         # output file directly from mcsqs
-        struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.out"))
+        struc_from_out = Structure.from_file(f"{test_dir}/bestsqs_pzt.out")
 
         assert struc_from_cif.matches(struc_from_out)
         assert np.allclose(

@@ -51,13 +51,13 @@ __date__ = "August 17, 2017"
 _directory = os.path.join(os.path.dirname(__file__))
 yaml = YAML()
 
-with open(os.path.join(_directory, "op_params.yaml")) as f:
+with open(f"{_directory}/op_params.yaml") as f:
     default_op_params = yaml.load(f)
 
-with open(os.path.join(_directory, "cn_opt_params.yaml")) as f:
+with open(f"{_directory}/cn_opt_params.yaml") as f:
     cn_opt_params = yaml.load(f)
 
-with open(os.path.join(_directory, "ionic_radii.json")) as fp:
+with open(f"{_directory}/ionic_radii.json") as fp:
     _ion_radii = json.load(fp)
 
 
@@ -744,7 +744,7 @@ class VoronoiNN(NearNeighbors):
         """
         # Assemble the list of neighbors used in the tessellation
         #   Gets all atoms within a certain radius
-        targets = structure.composition.elements if self.targets is None else self.targets
+        targets = structure.elements if self.targets is None else self.targets
         center = structure[n]
 
         cutoff = self.cutoff
@@ -802,7 +802,7 @@ class VoronoiNN(NearNeighbors):
             return [self.get_voronoi_polyhedra(structure, 0)]
 
         # Assemble the list of neighbors used in the tessellation
-        targets = structure.composition.elements if self.targets is None else self.targets
+        targets = structure.elements if self.targets is None else self.targets
 
         # Initialize the list of sites with the atoms in the origin unit cell
         # The `get_all_neighbors` function returns neighbors for each site's image in
@@ -1012,7 +1012,7 @@ class VoronoiNN(NearNeighbors):
             (list of tuples (Site, array, float)): See nn_info
         """
         # Get the target information
-        targets = structure.composition.elements if self.targets is None else self.targets
+        targets = structure.elements if self.targets is None else self.targets
 
         # Extract the NN info
         siw = []
@@ -1120,7 +1120,7 @@ class IsayevNN(VoronoiNN):
             See get_nn_info for the format of the returned data.
         """
         # Get the target information
-        targets = structure.composition.elements if self.targets is None else self.targets
+        targets = structure.elements if self.targets is None else self.targets
 
         site = structure[n]
 
@@ -1273,7 +1273,7 @@ class JmolNN(NearNeighbors):
 
         # Determine relevant bond lengths based on atomic radii table
         bonds = {}
-        for el in structure.composition.elements:
+        for el in structure.elements:
             bonds[site.specie, el] = self.get_max_bond_distance(site.specie.symbol, el.symbol)
 
         # Search for neighbors up to max bond length + tolerance
@@ -4218,7 +4218,7 @@ class CutOffDictNN(NearNeighbors):
             A CutOffDictNN using the preset cut-off dictionary.
         """
         if preset == "vesta_2019":
-            cut_offs = loadfn(os.path.join(_directory, "vesta_cutoffs.yaml"))
+            cut_offs = loadfn(f"{_directory}/vesta_cutoffs.yaml")
             return CutOffDictNN(cut_off_dict=cut_offs)
 
         raise ValueError(f"Unknown {preset=}")

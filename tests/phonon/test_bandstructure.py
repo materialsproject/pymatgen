@@ -8,20 +8,20 @@ from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestPhononBandStructureSymmLine(PymatgenTest):
     def setUp(self):
         with open(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json"),
+            f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json",
             encoding="utf-8",
         ) as file:
             dct = json.load(file)
             self.bs = PhononBandStructureSymmLine.from_dict(dct)
 
         with open(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "Si_phonon_bandstructure.json"),
+            f"{TEST_FILES_DIR}/Si_phonon_bandstructure.json",
             encoding="utf-8",
         ) as file:
             dct = json.load(file)

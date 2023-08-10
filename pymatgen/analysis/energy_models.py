@@ -84,7 +84,7 @@ class EwaldElectrostaticModel(EnergyModel):
         return e.total_energy
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -125,7 +125,7 @@ class SymmetryModel(EnergyModel):
         return -f.get_space_group_number()
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -163,7 +163,7 @@ class IsingModel(EnergyModel):
         return energy
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -187,7 +187,7 @@ class NsitesModel(EnergyModel):
         return len(structure)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,

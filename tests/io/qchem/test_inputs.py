@@ -8,7 +8,7 @@ from monty.serialization import loadfn
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -740,9 +740,7 @@ $end
             assert i_str in multi_job_str_test
 
     def test_from_multi_jobs_file(self):
-        job_list_test = QCInput.from_multi_jobs_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "qchem", "pt_n2_wb97mv_0.0.in")
-        )
+        job_list_test = QCInput.from_multi_jobs_file(f"{TEST_FILES_DIR}/qchem/pt_n2_wb97mv_0.0.in")
         species = [
             "S",
             "C",
@@ -1177,41 +1175,41 @@ $end"""
     def test_write_file_from_OptSet(self):
         from pymatgen.io.qchem.sets import OptSet
 
-        odd_dict = loadfn(os.path.join(module_dir, "odd.json"))
+        odd_dict = loadfn(f"{module_dir}/odd.json")
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol)
-        qcinp.write_file(os.path.join(module_dir, "test.qin"))
-        test_path = os.path.join(module_dir, "test.qin")
-        ref_path = os.path.join(module_dir, "test_ref.qin")
+        qcinp.write_file(f"{module_dir}/test.qin")
+        test_path = f"{module_dir}/test.qin"
+        ref_path = f"{module_dir}/test_ref.qin"
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
             for l_test, l_ref in zip(test_file, ref_file):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
 
-        os.remove(os.path.join(module_dir, "test.qin"))
+        os.remove(f"{module_dir}/test.qin")
 
     def test_write_file_from_OptSet_with_vdw(self):
         from pymatgen.io.qchem.sets import OptSet
 
-        odd_dict = loadfn(os.path.join(module_dir, "odd.json"))
+        odd_dict = loadfn(f"{module_dir}/odd.json")
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol, overwrite_inputs={"van_der_waals": {"16": 3.14159}})
-        qcinp.write_file(os.path.join(module_dir, "test_vdw.qin"))
-        test_path = os.path.join(module_dir, "test_vdw.qin")
-        ref_path = os.path.join(module_dir, "test_ref_vdw.qin")
+        qcinp.write_file(f"{module_dir}/test_vdw.qin")
+        test_path = f"{module_dir}/test_vdw.qin"
+        ref_path = f"{module_dir}/test_ref_vdw.qin"
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
             for l_test, l_ref in zip(test_file, ref_file):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
 
-        os.remove(os.path.join(module_dir, "test_vdw.qin"))
+        os.remove(f"{module_dir}/test_vdw.qin")
 
     def test_read_write_nbo7(self):
-        test_path = os.path.join(module_dir, "test_nbo7.qin")
-        ref_path = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files/nbo7.qin"
-        qcinp = QCInput.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin"))
+        test_path = f"{module_dir}/test_nbo7.qin"
+        ref_path = f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7.qin"
+        qcinp = QCInput.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7.qin")
         qcinp.write_file(test_path)
 
         with open(test_path) as ref_file, open(ref_path) as test_file:
@@ -1222,25 +1220,25 @@ $end"""
         os.remove(test_path)
 
     def test_read_write_nbo_e2pert(self):
-        qcinp = QCInput.from_file(f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files/e2pert.qin")
-        qcinp.write_file(os.path.join(module_dir, "test_e2pert.qin"))
-        test_path = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files/e2pert.qin"
-        ref_path = os.path.join(module_dir, "test_e2pert.qin")
+        qcinp = QCInput.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/e2pert.qin")
+        qcinp.write_file(f"{module_dir}/test_e2pert.qin")
+        test_path = f"{TEST_FILES_DIR}/molecules/new_qchem_files/e2pert.qin"
+        ref_path = f"{module_dir}/test_e2pert.qin"
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
             for l_test, l_ref in zip(test_file, ref_file):
                 assert l_test == l_ref
 
-        os.remove(os.path.join(module_dir, "test_e2pert.qin"))
+        os.remove(f"{module_dir}/test_e2pert.qin")
 
     def test_read_write_custom_smd(self):
-        qcinp = QCInput.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules/new_qchem_files/custom_smd.qin"))
-        qcinp.write_file(os.path.join(module_dir, "test_custom_smd.qin"))
-        test_path = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files/custom_smd.qin"
-        ref_path = os.path.join(module_dir, "test_custom_smd.qin")
+        qcinp = QCInput.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/custom_smd.qin")
+        qcinp.write_file(f"{module_dir}/test_custom_smd.qin")
+        test_path = f"{TEST_FILES_DIR}/molecules/new_qchem_files/custom_smd.qin"
+        ref_path = f"{module_dir}/test_custom_smd.qin"
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
             for l_test, l_ref in zip(test_file, ref_file):
                 assert l_test == l_ref
 
-        os.remove(os.path.join(module_dir, "test_custom_smd.qin"))
+        os.remove(f"{module_dir}/test_custom_smd.qin")

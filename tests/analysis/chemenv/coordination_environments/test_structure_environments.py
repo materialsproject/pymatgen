@@ -18,11 +18,11 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 )
 from pymatgen.core import Structure
 from pymatgen.core.periodic_table import Species
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-struct_env_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/structure_environments_files"
+struct_env_files_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments_files"
 
 
 class TestStructureEnvironments(PymatgenTest):
@@ -218,7 +218,7 @@ class TestStructureEnvironments(PymatgenTest):
     def test_from_structure_environments(self):
         # https://github.com/materialsproject/pymatgen/issues/2756
         mp_id = "mp-554015"
-        struct = Structure.from_file(f"{PymatgenTest.TEST_FILES_DIR}/{mp_id}.json.gz")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/{mp_id}.json.gz")
         strategy = SimplestChemenvStrategy(distance_cutoff=1.4, angle_cutoff=0.3)
         local_geom_finder = LocalGeometryFinder()
         local_geom_finder.setup_structure(structure=struct)

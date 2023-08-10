@@ -115,7 +115,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import Compatibility, CompatibilityError
 from pymatgen.entries.computed_entries import CompositionEnergyAdjustment, ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Ryan Kingsbury"
 __copyright__ = "Copyright 2019-2021, The Materials Project"
@@ -1254,7 +1254,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 
     def test_processing_entries_inplace(self):
         # load two entries in GGA_GGA_U_R2SCAN thermo type
-        entriesJson = Path(f"{PymatgenTest.TEST_FILES_DIR}/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
+        entriesJson = Path(f"{TEST_FILES_DIR}/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
         with open(entriesJson) as file:
             entries = json.load(file, cls=MontyDecoder)
         # check whether the compatibility scheme can keep input entries unchanged

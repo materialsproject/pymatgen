@@ -110,6 +110,7 @@ jobs:
           make
           sudo mv packmol /usr/local/bin/
           cd ..
+          rm -rf .coverage*
         continue-on-error: true
       - name: Install dependencies
         run: |

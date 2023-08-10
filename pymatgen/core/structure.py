@@ -161,7 +161,7 @@ class PeriodicNeighbor(PeriodicSite):
 
     @property  # type: ignore
     def coords(self) -> np.ndarray:  # type: ignore
-        """:return: Cartesian coords."""
+        """Cartesian coords."""
         return self._lattice.get_cartesian_coords(self._frac_coords)
 
     def __len__(self):
@@ -320,7 +320,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def site_properties(self) -> dict[str, Sequence]:
-        """Returns the site properties as a dict of sequences. E.g. {"magmom": (5,-5), "charge": (-4,4)}."""
+        """Returns the site properties as a dict of sequences. E.g. {"magmom": (5, -5), "charge": (-4, 4)}."""
         props: dict[str, Sequence] = {}
         prop_keys: set[str] = set()
         for site in self:
@@ -3699,7 +3699,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     @property
     def lattice(self) -> Lattice:
-        """:return: Lattice associated with structure."""
+        """Lattice associated with structure."""
         return self._lattice
 
     @lattice.setter

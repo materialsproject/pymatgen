@@ -69,11 +69,11 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         if not self._strict:
             # compare by atomic number
             filter_set = {sp.Z for sp in self._species}
-            structure_set = {sp.Z for sp in structure.composition.elements}
+            structure_set = {sp.Z for sp in structure.elements}
         else:
             # compare by specie or element object
             filter_set = set(self._species)
-            structure_set = set(structure.composition.elements)
+            structure_set = set(structure.elements)
 
         if self._AND and filter_set <= structure_set:
             # return true if we aren't excluding since all are in structure

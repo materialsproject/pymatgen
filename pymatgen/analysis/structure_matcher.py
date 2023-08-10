@@ -92,7 +92,7 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
         raise ValueError("Invalid Comparator dict")
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -831,7 +831,7 @@ class StructureMatcher(MSONable):
         return all_groups
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -896,8 +896,8 @@ class StructureMatcher(MSONable):
             raise ValueError("Anonymous fitting currently requires SpeciesComparator")
 
         # check that species lists are comparable
-        sp1 = struct1.composition.elements
-        sp2 = struct2.composition.elements
+        sp1 = struct1.elements
+        sp2 = struct2.elements
         if len(sp1) != len(sp2):
             return None
 

@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import numpy as np
 import scipy.constants as const
+from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
@@ -251,7 +252,7 @@ class Poscar(MSONable):
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         if check_for_POTCAR and SETTINGS.get("PMG_POTCAR_CHECKS") is not False:
-            potcars = glob(os.path.join(dirname, "*POTCAR*"))
+            potcars = glob(f"{dirname}/*POTCAR*")
             if potcars:
                 try:
                     potcar = Potcar.from_file(sorted(potcars)[0])
@@ -263,7 +264,7 @@ class Poscar(MSONable):
             return Poscar.from_str(f.read(), names, read_velocities=read_velocities)
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
+    @deprecated(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
@@ -465,7 +466,11 @@ class Poscar(MSONable):
             predictor_corrector_preamble=predictor_corrector_preamble,
         )
 
-    def get_string(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 16) -> str:
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 16) -> str:
         """
         Returns a string to be written as a POSCAR file. By default, site
         symbols are written, which means compatibility is for vasp >= 5.
@@ -537,11 +542,11 @@ class Poscar(MSONable):
         return "\n".join(lines) + "\n"
 
     def __repr__(self):
-        return self.get_string()
+        return self.get_str()
 
     def __str__(self):
         """String representation of Poscar file."""
-        return self.get_string()
+        return self.get_str()
 
     def write_file(self, filename: PathLike, **kwargs):
         """
@@ -549,10 +554,10 @@ class Poscar(MSONable):
         the Poscar.get_string method and are passed through directly.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.get_string(**kwargs))
+            f.write(self.get_str(**kwargs))
 
     def as_dict(self) -> dict:
-        """:return: MSONable dict."""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -631,7 +636,7 @@ class Poscar(MSONable):
 
 
 cwd = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(cwd, "incar_parameters.json")) as incar_params:
+with open(f"{cwd}/incar_parameters.json") as incar_params:
     incar_params = json.loads(incar_params.read())
 
 
@@ -678,7 +683,7 @@ class Incar(dict, MSONable):
         )
 
     def as_dict(self) -> dict:
-        """:return: MSONable dict."""
+        """MSONable dict."""
         d = dict(self)
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -694,7 +699,11 @@ class Incar(dict, MSONable):
             d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
         return Incar({k: v for k, v in d.items() if k not in ("@module", "@class")})
 
-    def get_string(self, sort_keys: bool = False, pretty: bool = False) -> str:
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """
         Returns a string representation of the INCAR. The reason why this
         method is different from the __str__ method is to provide options for
@@ -736,7 +745,7 @@ class Incar(dict, MSONable):
         return str_delimited(lines, None, " = ") + "\n"
 
     def __str__(self):
-        return self.get_string(sort_keys=True, pretty=False)
+        return self.get_str(sort_keys=True, pretty=False)
 
     def write_file(self, filename: PathLike):
         """
@@ -1034,7 +1043,7 @@ class Kpoints(MSONable):
         comment: str = "Default gamma",
         num_kpts: int = 0,
         style: KpointsSupportedModes = supported_modes.Gamma,
-        kpts: Sequence[float | int | Sequence] = ((1, 1, 1),),
+        kpts: Sequence[float | Sequence] = ((1, 1, 1),),
         kpts_shift: Vector3D = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
@@ -1083,7 +1092,7 @@ class Kpoints(MSONable):
         The default behavior of the constructor is for a Gamma centered,
         1x1x1 KPOINTS with no shift.
         """
-        if num_kpts > 0 and (not labels) and (not kpts_weights):
+        if num_kpts > 0 and not labels and not kpts_weights:
             raise ValueError("For explicit or line-mode kpoints, either the labels or kpts_weights must be specified.")
 
         self.comment = comment
@@ -1099,10 +1108,9 @@ class Kpoints(MSONable):
         self.tet_connections = tet_connections
 
     @property
-    def style(self):
+    def style(self) -> KpointsSupportedModes:
         """
-        :return: Style for kpoint generation. One of Kpoints_supported_modes
-            enum.
+        Style for kpoint generation. One of Kpoints_supported_modes enum.
         """
         return self._style
 
@@ -1118,11 +1126,7 @@ class Kpoints(MSONable):
 
         if (
             style
-            in (
-                Kpoints.supported_modes.Automatic,
-                Kpoints.supported_modes.Gamma,
-                Kpoints.supported_modes.Monkhorst,
-            )
+            in (Kpoints.supported_modes.Automatic, Kpoints.supported_modes.Gamma, Kpoints.supported_modes.Monkhorst)
             and len(self.kpts) > 1
         ):
             raise ValueError(
@@ -1149,10 +1153,7 @@ class Kpoints(MSONable):
             Kpoints object
         """
         return Kpoints(
-            "Fully automatic kpoint scheme",
-            0,
-            style=Kpoints.supported_modes.Automatic,
-            kpts=[[subdivisions]],
+            "Fully automatic kpoint scheme", 0, style=Kpoints.supported_modes.Automatic, kpts=[[subdivisions]]
         )
 
     @staticmethod
@@ -1169,13 +1170,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return Kpoints(
-            "Automatic kpoint scheme",
-            0,
-            Kpoints.supported_modes.Gamma,
-            kpts=[kpts],
-            kpts_shift=shift,
-        )
+        return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
 
     @staticmethod
     def monkhorst_automatic(kpts: tuple[int, int, int] = (2, 2, 2), shift: Vector3D = (0, 0, 0)):
@@ -1191,13 +1186,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return Kpoints(
-            "Automatic kpoint scheme",
-            0,
-            Kpoints.supported_modes.Monkhorst,
-            kpts=[kpts],
-            kpts_shift=shift,
-        )
+        return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
 
     @staticmethod
     def automatic_density(structure: Structure, kppa: float, force_gamma: bool = False):
@@ -1545,7 +1534,7 @@ class Kpoints(MSONable):
         return "\n".join(lines) + "\n"
 
     def as_dict(self):
-        """:return: MSONable dict."""
+        """MSONable dict."""
         d = {
             "comment": self.comment,
             "nkpoints": self.num_kpts,
@@ -1847,7 +1836,7 @@ class PotcarSingle:
 
     @property
     def electron_configuration(self):
-        """:return: Electronic configuration of the PotcarSingle."""
+        """Electronic configuration of the PotcarSingle."""
         if not self.nelectrons.is_integer():
             warnings.warn("POTCAR has non-integer charge, electron configuration not well-defined.")
             return None
@@ -1863,11 +1852,13 @@ class PotcarSingle:
 
     def write_file(self, filename: str) -> None:
         """
-        Writes PotcarSingle to a file.
-        :param filename: Filename.
+        Write PotcarSingle to a file.
+
+        Args:
+            filename (str): Filename to write to.
         """
-        with zopen(filename, "wt") as f:
-            f.write(str(self))
+        with zopen(filename, "wt") as file:
+            file.write(str(self))
 
     @staticmethod
     def from_file(filename: str) -> PotcarSingle:
@@ -1924,7 +1915,7 @@ class PotcarSingle:
         )
 
     @property
-    def element(self):
+    def element(self) -> str:
         """Attempt to return the atomic symbol based on the VRHFIN keyword."""
         element = self.keywords["VRHFIN"].split(":")[0].strip()
         try:
@@ -1942,18 +1933,18 @@ class PotcarSingle:
         return Element(self.element).Z
 
     @property
-    def nelectrons(self):
-        """:return: Number of electrons"""
+    def nelectrons(self) -> float:
+        """Number of electrons"""
         return self.zval
 
     @property
-    def symbol(self):
-        """:return: The POTCAR symbol, e.g. W_pv"""
+    def symbol(self) -> str:
+        """The POTCAR symbol, e.g. W_pv"""
         return self._symbol
 
     @property
-    def potential_type(self) -> str:
-        """:return: Type of PSP. E.g., US, PAW, etc."""
+    def potential_type(self) -> Literal["NC", "PAW", "US"]:
+        """Type of PSP. E.g., US, PAW, etc."""
         if self.lultra:
             return "US"
         if self.lpaw:
@@ -1961,13 +1952,13 @@ class PotcarSingle:
         return "NC"
 
     @property
-    def functional(self):
-        """:return: Functional associated with PotcarSingle."""
+    def functional(self) -> str | None:
+        """Functional associated with PotcarSingle."""
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("name")
 
     @property
     def functional_class(self):
-        """:return: Functional class associated with PotcarSingle."""
+        """Functional class associated with PotcarSingle."""
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
 
     def verify_potcar(self) -> tuple[bool, bool]:
@@ -1993,7 +1984,7 @@ class PotcarSingle:
             # if no sha256 hash is found in the POTCAR file, compare the whole
             # file with known potcar file hashes.
             md5_file_hash = self.file_hash
-            hash_db = loadfn(os.path.join(cwd, "vasp_potcar_file_hashes.json"))
+            hash_db = loadfn(f"{cwd}/vasp_potcar_file_hashes.json")
             passed_hash_check = md5_file_hash in hash_db
         return (has_sha256, passed_hash_check)
 
@@ -2109,10 +2100,10 @@ class PotcarSingle:
         cwd = os.path.abspath(os.path.dirname(__file__))
 
         if mode == "data":
-            hash_db = loadfn(os.path.join(cwd, "vasp_potcar_pymatgen_hashes.json"))
+            hash_db = loadfn(f"{cwd}/vasp_potcar_pymatgen_hashes.json")
             potcar_hash = self.hash
         elif mode == "file":
-            hash_db = loadfn(os.path.join(cwd, "vasp_potcar_file_hashes.json"))
+            hash_db = loadfn(f"{cwd}/vasp_potcar_file_hashes.json")
             potcar_hash = self.file_hash
         else:
             raise ValueError("Bad 'mode' argument. Specify 'data' or 'file'.")
@@ -2246,7 +2237,7 @@ class Potcar(list, MSONable):
             self.set_symbols(symbols, functional, sym_potcar_map)
 
     def as_dict(self):
-        """:return: MSONable dict representation"""
+        """MSONable dict representation"""
         return {
             "functional": self.functional,
             "symbols": self.symbols,
@@ -2368,7 +2359,7 @@ class VaspInput(dict, MSONable):
         return "\n".join(output)
 
     def as_dict(self):
-        """:return: MSONable dict."""
+        """MSONable dict."""
         d = {k: v.as_dict() for k, v in self.items()}
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__

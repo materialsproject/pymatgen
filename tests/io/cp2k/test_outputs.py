@@ -6,12 +6,12 @@ import numpy as np
 from pytest import approx
 
 from pymatgen.io.cp2k.outputs import Cp2kOutput
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestSet:
     def setup(self):
-        test_dir = Path.joinpath(PymatgenTest.TEST_FILES_DIR, "cp2k")
+        test_dir = Path.joinpath(TEST_FILES_DIR, "cp2k")
         self.out = Cp2kOutput(Path.joinpath(test_dir, "cp2k.out"), auto_load=True)
 
     def test_files(self):
