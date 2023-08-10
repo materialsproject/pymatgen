@@ -740,21 +740,26 @@ Direct
 
         assert "Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1)
 
-        self.struct.to(filename="POSCAR.testing")
-        assert os.path.isfile("POSCAR.testing")
+        poscar_path = f"{self.tmp_path}/POSCAR.testing"
+        poscar_str = self.struct.to(filename=poscar_path)
+        with open(poscar_path) as file:
+            assert file.read() == poscar_str
+        assert Structure.from_file(poscar_path) == self.struct
 
-        self.struct.to(filename="Si_testing.yaml")
-        assert os.path.isfile("Si_testing.yaml")
-        struct = Structure.from_file("Si_testing.yaml")
-        assert struct == self.struct
+        yaml_path = f"{self.tmp_path}/Si_testing.yaml"
+        yaml_str = self.struct.to(filename=yaml_path)
+        with open(yaml_path) as file:
+            assert file.read() == yaml_str
+        assert Structure.from_file(yaml_path) == self.struct
+
         # Test Path support
-        struct = Structure.from_file(Path("Si_testing.yaml"))
+        struct = Structure.from_file(Path(yaml_path))
         assert struct == self.struct
 
         # Test .yml extension works too.
-        os.replace("Si_testing.yaml", "Si_testing.yml")
-        struct = Structure.from_file("Si_testing.yml")
-        assert struct == self.struct
+        yml_path = yaml_path.replace(".yaml", ".yml")
+        os.replace(yaml_path, yml_path)
+        assert Structure.from_file(yml_path) == self.struct
 
         with pytest.raises(ValueError, match="Format not specified and could not infer from filename='whatever'"):
             self.struct.to(filename="whatever")
