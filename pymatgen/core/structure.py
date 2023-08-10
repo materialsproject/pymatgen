@@ -2637,7 +2637,7 @@ class IStructure(SiteCollection, MSONable):
         charge = d.get("charge")
         return cls.from_sites(sites, charge=charge)
 
-    def to(self, filename: str = "", fmt: str = "", **kwargs) -> str | None:
+    def to(self, filename: str = "", fmt: str = "", **kwargs) -> str:
         """
         Outputs the structure to a file or string.
 
@@ -2655,7 +2655,8 @@ class IStructure(SiteCollection, MSONable):
                 CifWriter.__init__ method for generation of symmetric cifs.
 
         Returns:
-            (str) if filename is None. None otherwise.
+            str: String representation of molecule in given format. If a filename
+                is provided, the same string is written to the file.
         """
         fmt = fmt.lower()
 
@@ -2684,11 +2685,11 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
 
-            string = XSF(self).to_str()
+            res_str = XSF(self).to_str()
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as file:
-                    file.write(string)
-            return string
+                    file.write(res_str)
+            return res_str
         elif (
             fmt == "mcsqs"
             or fnmatch(filename, "*rndstr.in*")
@@ -2697,24 +2698,24 @@ class IStructure(SiteCollection, MSONable):
         ):
             from pymatgen.io.atat import Mcsqs
 
-            string = Mcsqs(self).to_str()
+            res_str = Mcsqs(self).to_str()
             if filename:
                 with zopen(filename, "wt", encoding="ascii") as file:
-                    file.write(string)
-            return string
+                    file.write(res_str)
+            return res_str
         elif fmt == "prismatic" or fnmatch(filename, "*prismatic*"):
             from pymatgen.io.prismatic import Prismatic
 
             return Prismatic(self).to_str()
         elif fmt == "yaml" or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
+            str_io = StringIO()
+            yaml.dump(self.as_dict(), str_io)
+            yaml_str = str_io.getvalue()
             if filename:
                 with zopen(filename, "wt") as file:
-                    yaml.dump(self.as_dict(), file)
-                return None
-            sio = StringIO()
-            yaml.dump(self.as_dict(), sio)
-            return sio.getvalue()
+                    file.write(yaml_str)
+            return yaml_str
         # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen" or fnmatch(filename, "*.in*"):
             from pymatgen.io.fleur import FleurInput
@@ -2723,12 +2724,11 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "res" or fnmatch(filename, "*.res"):
             from pymatgen.io.res import ResIO
 
-            string = ResIO.structure_to_str(self)
+            res_str = ResIO.structure_to_str(self)
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as file:
-                    file.write(string)
-                return None
-            return string
+                    file.write(res_str)
+            return res_str
         else:
             if fmt == "":
                 raise ValueError(f"Format not specified and could not infer from {filename=}")
@@ -2736,7 +2736,6 @@ class IStructure(SiteCollection, MSONable):
 
         if filename:
             writer.write_file(filename)
-            return None
         return str(writer)
 
     @classmethod
