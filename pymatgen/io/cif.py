@@ -905,9 +905,9 @@ class CifParser:
 
         return parsed_sym
 
-
     def _get_structure(self, data, primitive, symmetrized, skip_occu_checks=False) -> Structure | None:
         """Generate structure from part of the cif."""
+
         def get_num_implicit_hydrogens(sym):
             num_h = {"Wat": 2, "wat": 2, "O-H": 1}
             return num_h.get(sym[:3], 0)
@@ -1148,8 +1148,12 @@ class CifParser:
         return None
 
     def get_structures(
-        self, primitive: bool = True, symmetrized: bool = False, skip_occu_checks: bool = False, 
-        on_error: Literal["ignore", "warn", "raise"] = "warn") -> list[Structure]:
+        self,
+        primitive: bool = True,
+        symmetrized: bool = False,
+        skip_occu_checks: bool = False,
+        on_error: Literal["ignore", "warn", "raise"] = "warn",
+    ) -> list[Structure]:
         """Return list of structures in CIF file.
 
         Args:
