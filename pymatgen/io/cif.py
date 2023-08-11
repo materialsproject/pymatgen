@@ -947,6 +947,8 @@ class CifParser:
             coord = (x, y, z)
             match = get_matching_coord(coord)
             if skip_occu_checks:
+                # Generate the skip_occu_checks version of comp_d. If the occupancy is zero pymatgen normaly excludes
+                # that comp_d. skip_occu_checks includes those values by setting them to a very small number
                 comp_d = {el: occu} if occu > 0 else {el: 1e-08}
             else:
                 if occu > 0:
