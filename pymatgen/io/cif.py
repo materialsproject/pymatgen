@@ -985,7 +985,7 @@ class CifParser:
             else:
                 if occu > 0:
                     comp_d = {el: occu}
-                    go = True
+                    comp_d_ready = True
             if comp_d_ready:
                 if num_h > 0:
                     comp_d["H"] = num_h  # type: ignore
