@@ -33,6 +33,7 @@ gulptmp_4_1
 .vscode/*
 
 # Environments
+env.py
 .env
 .venv
 env/
