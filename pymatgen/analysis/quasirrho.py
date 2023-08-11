@@ -38,8 +38,6 @@ c = const.speed_of_light * 100  # [cm/s]
 h = const.h  # Planck's constant [J.s]
 R = const.R / const.calorie  # Ideal gas constant [cal/mol/K]
 R_ha = const.R / const.value("Hartree energy") / const.Avogadro  # Ideal gas
-# constant [Ha/K]
-R_volume = const.R / const.atm * 1000  # Ideal gas constant [L.atm.K^-1.mol^-1]
 
 # Define useful conversion factors
 amu_to_kg = const.value("atomic mass unit-kilogram relationship")  # AMU to kg
@@ -84,15 +82,12 @@ class QuasiRRHO:
     Attributes:
         temp (float): Temperature [K]
         press (float): Pressure [Pa]
-        conc (float): Solvent concentration. Assumes 1M unless specified [M]
         v0 (float): Cutoff frequency for Quasi-RRHO method [1/cm]
         entropy_quasiRRHO (float): Quasi-RRHO entropy [Ha/K]
         entropy_ho (float): Total entropy calculated with a harmonic
             oscillator approximation for the vibrational entropy [Ha/K]
         h_corrected (float): Thermal correction to the enthalpy [Ha]
         free_energy_quasiRRHO (float): Quasi-RRHO free energy [Ha]
-        concentration_corrected_g_quasiRRHO (float): Quasi-RRHO free energy
-            with a standard state correction for the solvent concentration [Ha]
         free_energy_ho (float): Free energy calculated without the Quasi-RRHO
             method, i.e. with a harmonic oscillator approximation for the
             vibrational entropy [Ha]
@@ -108,7 +103,6 @@ class QuasiRRHO:
         sigma_r=1,
         temp=298.15,
         press=101317,
-        conc=1,
         v0=100,
     ):
         """
@@ -120,7 +114,6 @@ class QuasiRRHO:
             sigma_r (int): Rotational symmetry number
             temp (float): Temperature [K]
             press (float): Pressure [Pa]
-            conc (float): Solvent concentration [M]
             v0 (float): Cutoff frequency for Quasi-RRHO method [cm^-1]
         """
         # TO-DO: calculate sigma_r with PointGroupAnalyzer
@@ -128,12 +121,10 @@ class QuasiRRHO:
 
         self.temp = temp
         self.press = press
-        self.conc = conc
         self.v0 = v0
 
         self.entropy_quasiRRHO = None  # Ha/K
         self.free_energy_quasiRRHO = None  # Ha
-        self.concentration_corrected_g_quasiRRHO = None  # Ha
         self.h_corrected = None  # Ha
 
         self.entropy_ho = None  # Ha/K
@@ -257,11 +248,9 @@ class QuasiRRHO:
         ev *= R
         etot = (et + er + ev) * kcal2hartree / 1000
         self.h_corrected = etot + R * self.temp * kcal2hartree / 1000
-        molarity_corr = R_ha * self.temp * np.log(R_volume * self.temp * self.conc)
         self.entropy_ho = st + sr + sv + se
         self.free_energy_ho = elec_energy + self.h_corrected - (self.temp * self.entropy_ho * kcal2hartree / 1000)
         self.entropy_quasiRRHO = st + sr + sv_quasiRRHO + se
         self.free_energy_quasiRRHO = (
             elec_energy + self.h_corrected - (self.temp * self.entropy_quasiRRHO * kcal2hartree / 1000)
         )
-        self.concentration_corrected_g_quasiRRHO = self.free_energy_quasiRRHO + molarity_corr

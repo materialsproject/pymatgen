@@ -31,18 +31,12 @@ class TestQuasiRRHO(PymatgenTest):
         Testing from a Gaussian Output file. Correct values are taken from
         Trevor Seguin's original bash script.
         """
-        m = 55
         correct_g_conc = -884.770084
         correct_g = -884.776886
         correct_stot = 141.584080
-        qrrho = QuasiRRHO.from_GaussianOutput(self.gout, conc=m)
+        qrrho = QuasiRRHO.from_GaussianOutput(self.gout)
         assert correct_stot == pytest.approx(qrrho.entropy_quasiRRHO, 0.1), "Incorrect total entropy"
         assert correct_g == pytest.approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
-        assert correct_g_conc == pytest.approx(
-            qrrho.concentration_corrected_g_quasiRRHO
-        ), "Incorrect concentration corrected Quasi-RRHO free energy, {} != {}".format(
-            correct_g_conc, qrrho.concentration_corrected_g_quasiRRHO
-        )
 
     def test_qrrho_qchem(self):
         """
@@ -50,18 +44,13 @@ class TestQuasiRRHO(PymatgenTest):
         the version of QuasiRRHO that worked for Gaussian.
         initial run.
         """
-        m = 55
-        correct_g_conc = -428.60088006873156
         correct_g = -428.60768184222934
         correct_stot = 103.41012732045324
         # HO total entropy from QChem = 106.521
 
-        qrrho = QuasiRRHO.from_QCOutput(self.qout, conc=m)
+        qrrho = QuasiRRHO.from_QCOutput(self.qout)
         assert correct_stot == pytest.approx(qrrho.entropy_quasiRRHO, 0.1), "Incorrect total entropy"
         assert correct_g == pytest.approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
-        assert correct_g_conc == pytest.approx(
-            qrrho.concentration_corrected_g_quasiRRHO
-        ), "Incorrect concentration corrected Quasi-RRHO free energy"
 
     def test_rrho_manual(self):
         """
@@ -72,18 +61,11 @@ class TestQuasiRRHO(PymatgenTest):
         vib_freqs = [f["frequency"] for f in self.gout.frequencies[-1]]
 
         m = 55
-        correct_g_conc = -884.770084
         correct_g = -884.776886
         correct_stot = 141.584080
-        qrrho = QuasiRRHO(mol=mol, energy=e, frequencies=vib_freqs, mult=1, conc=m)
-        # self.assertAlmostEqual(correct_stot, qrrho.entropy_quasiRRHO, 0)
-        # self.assertAlmostEqual(correct_g, qrrho.free_energy_quasiRRHO, 3)
-        # self.assertAlmostEqual(correct_g_conc, qrrho.concentration_corrected_g_quasiRRHO, 3)
+        qrrho = QuasiRRHO(mol=mol, energy=e, frequencies=vib_freqs, mult=1)
         assert correct_stot == pytest.approx(qrrho.entropy_quasiRRHO, 0.1), "Incorrect total entropy"
         assert correct_g == pytest.approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
-        assert correct_g_conc == pytest.approx(
-            qrrho.concentration_corrected_g_quasiRRHO
-        ), "Incorrect concentration corrected Quasi-RRHO free energy"
 
     def test_rrho_linear(self):
         """
