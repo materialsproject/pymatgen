@@ -983,7 +983,7 @@ class CifParser:
             else:
                 if occu > 0:
                     comp_d = {el: occu}
-            if comp_d:
+            if list(comp_d.keys())[0] != 'skip':
                 if num_h > 0:
                     comp_d["H"] = num_h  # type: ignore
                     self.warnings.append(
@@ -1002,7 +1002,7 @@ class CifParser:
                     # disordered magnetic not currently supported
                     coord_to_magmoms[match] = None
                     labels[match] = label
-            comp_d = None
+            comp_d = {'skip': None}
         sum_occu = [
             sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
         ]

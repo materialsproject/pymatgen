@@ -916,8 +916,8 @@ Si1 Si 0 0 0 1 0.0
             parser.get_structures()
 
     def test_skip_checks(self):
-        with open(self.TEST_FILES_DIR / "site_type_symbol_test.cif") as f:
-            cif_str = f.read()
+        with open(f"{TEST_FILES_DIR}/ site_type_symbol_test.cif") as c:
+            cif_str = c.read()
         cif_str = cif_str.replace("Te    Te 1.0000", "Te    Te 1.5000", 1)
         parser = CifParser.from_string(cif_str, occupancy_tolerance=1.5)
         structs = parser.get_structures(primitive=False, symmetrized=True, skip_occu_checks=True)[0]
