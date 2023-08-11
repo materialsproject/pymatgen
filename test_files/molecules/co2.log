@@ -5,10 +5,10 @@
                                32 via shared-memory
                                 1 via Linda
  Entering Link 1 = /clusterfs/cloudcuckoo/software/gaussian/G16_AVX2-enabled/tar/g16/l1.exe PID=    207403.
-  
+
  Copyright (c) 1988,1990,1992,1993,1995,1998,2003,2009,2016,
             Gaussian, Inc.  All Rights Reserved.
-  
+
  This is part of the Gaussian(R) 16 program.  It is based on
  the Gaussian(R) 09 system (copyright 2009, Gaussian, Inc.),
  the Gaussian(R) 03 system (copyright 2003, Gaussian, Inc.),
@@ -21,28 +21,28 @@
  University), and the Gaussian 82(TM) system (copyright 1983,
  Carnegie Mellon University). Gaussian is a federally registered
  trademark of Gaussian, Inc.
-  
+
  This software contains proprietary and confidential information,
  including trade secrets, belonging to Gaussian, Inc.
-  
+
  This software is provided under written license and may be
  used, copied, transmitted, or stored only in accord with that
  written license.
-  
+
  The following legend is applicable only to US Government
  contracts under FAR:
-  
+
                     RESTRICTED RIGHTS LEGEND
-  
+
  Use, reproduction and disclosure by the US Government is
  subject to restrictions as set forth in subparagraphs (a)
  and (c) of the Commercial Computer Software - Restricted
  Rights clause in FAR 52.227-19.
-  
+
  Gaussian, Inc.
  340 Quinnipiac St., Bldg. 40, Wallingford CT 06492
-  
-  
+
+
  ---------------------------------------------------------------
  Warning -- This program may not be used in any manner that
  competes with the business of Gaussian, Inc. or will provide
@@ -55,30 +55,30 @@
  licensee that it is not a competitor of Gaussian, Inc. and that
  it will not use this program in any manner prohibited above.
  ---------------------------------------------------------------
-  
+
 
  Cite this work as:
  Gaussian 16, Revision A.03,
- M. J. Frisch, G. W. Trucks, H. B. Schlegel, G. E. Scuseria, 
- M. A. Robb, J. R. Cheeseman, G. Scalmani, V. Barone, 
- G. A. Petersson, H. Nakatsuji, X. Li, M. Caricato, A. V. Marenich, 
- J. Bloino, B. G. Janesko, R. Gomperts, B. Mennucci, H. P. Hratchian, 
- J. V. Ortiz, A. F. Izmaylov, J. L. Sonnenberg, D. Williams-Young, 
- F. Ding, F. Lipparini, F. Egidi, J. Goings, B. Peng, A. Petrone, 
- T. Henderson, D. Ranasinghe, V. G. Zakrzewski, J. Gao, N. Rega, 
- G. Zheng, W. Liang, M. Hada, M. Ehara, K. Toyota, R. Fukuda, 
- J. Hasegawa, M. Ishida, T. Nakajima, Y. Honda, O. Kitao, H. Nakai, 
- T. Vreven, K. Throssell, J. A. Montgomery, Jr., J. E. Peralta, 
- F. Ogliaro, M. J. Bearpark, J. J. Heyd, E. N. Brothers, K. N. Kudin, 
- V. N. Staroverov, T. A. Keith, R. Kobayashi, J. Normand, 
- K. Raghavachari, A. P. Rendell, J. C. Burant, S. S. Iyengar, 
- J. Tomasi, M. Cossi, J. M. Millam, M. Klene, C. Adamo, R. Cammi, 
- J. W. Ochterski, R. L. Martin, K. Morokuma, O. Farkas, 
+ M. J. Frisch, G. W. Trucks, H. B. Schlegel, G. E. Scuseria,
+ M. A. Robb, J. R. Cheeseman, G. Scalmani, V. Barone,
+ G. A. Petersson, H. Nakatsuji, X. Li, M. Caricato, A. V. Marenich,
+ J. Bloino, B. G. Janesko, R. Gomperts, B. Mennucci, H. P. Hratchian,
+ J. V. Ortiz, A. F. Izmaylov, J. L. Sonnenberg, D. Williams-Young,
+ F. Ding, F. Lipparini, F. Egidi, J. Goings, B. Peng, A. Petrone,
+ T. Henderson, D. Ranasinghe, V. G. Zakrzewski, J. Gao, N. Rega,
+ G. Zheng, W. Liang, M. Hada, M. Ehara, K. Toyota, R. Fukuda,
+ J. Hasegawa, M. Ishida, T. Nakajima, Y. Honda, O. Kitao, H. Nakai,
+ T. Vreven, K. Throssell, J. A. Montgomery, Jr., J. E. Peralta,
+ F. Ogliaro, M. J. Bearpark, J. J. Heyd, E. N. Brothers, K. N. Kudin,
+ V. N. Staroverov, T. A. Keith, R. Kobayashi, J. Normand,
+ K. Raghavachari, A. P. Rendell, J. C. Burant, S. S. Iyengar,
+ J. Tomasi, M. Cossi, J. M. Millam, M. Klene, C. Adamo, R. Cammi,
+ J. W. Ochterski, R. L. Martin, K. Morokuma, O. Farkas,
  J. B. Foresman, and D. J. Fox, Gaussian, Inc., Wallingford CT, 2016.
- 
+
  ******************************************
  Gaussian 16:  ES64L-G16RevA.03 25-Dec-2016
-                10-Jun-2021 
+                10-Jun-2021
  ******************************************
  -------------------------------------------------
  #P HF/6-31g(d) freq=noraman opt=(noeigen, calcfc)
@@ -112,10 +112,10 @@
  -------------------
  Symbolic Z-matrix:
  Charge =  0 Multiplicity = 1
- O                    -0.81185  -0.38536   3.24234 
- O                     1.18899   0.        1.98561 
- C                     0.18857  -0.19268   2.61398 
- 
+ O                    -0.81185  -0.38536   3.24234
+ O                     1.18899   0.        1.98561
+ C                     0.18857  -0.19268   2.61398
+
  ITRead=  0  0  0
  MicOpt= -1 -1 -1
  NAtoms=      3 NQM=        3 NQMF=       0 NMMI=      0 NMMIF=      0
@@ -155,7 +155,7 @@
 
  Leave Link  103 at Thu Jun 10 18:05:49 2021, MaxMem=  4800000000 cpu:               2.2 elap:               0.1
  (Enter /clusterfs/cloudcuckoo/software/gaussian/G16_AVX2-enabled/tar/g16/l202.exe)
-                          Input orientation:                          
+                          Input orientation:
  ---------------------------------------------------------------------
  Center     Atomic      Atomic             Coordinates (Angstroms)
  Number     Number       Type             X           Y           Z
@@ -175,7 +175,7 @@
  Full point group                 D*H     NOp   8
  Largest Abelian subgroup         D2H     NOp   8
  Largest concise Abelian subgroup C2      NOp   2
-                         Standard orientation:                         
+                         Standard orientation:
  ---------------------------------------------------------------------
  Center     Atomic      Atomic             Coordinates (Angstroms)
  Number     Number       Type             X           Y           Z
@@ -237,7 +237,7 @@
          wScrn=  0.000000 ICntrl=       500 IOpCl=  0 I1Cent=   200000004 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Harris En= -187.643581197863    
+ Harris En= -187.643581197863
  JPrj=0 DoOrth=F DoCkMO=F.
  Initial guess orbital symmetries:
        Occupied  (SGU) (SGG) (SGG) (SGG) (SGU) (SGG) (SGU) (PIU)
@@ -265,7 +265,7 @@
  No special actions if energy rises.
 
  Cycle   1  Pass 1  IDiag  1:
- E= -187.546707470472    
+ E= -187.546707470472
  DIIS: error= 6.33D-02 at cycle   1 NSaved=   1.
  NSaved= 1 IEnMin= 1 EnMin= -187.546707470472     IErMin= 1 ErrMin= 6.33D-02
  ErrMax= 6.33D-02  0.00D+00 EMaxC= 1.00D-01 BMatC= 1.94D-01 BMatP= 1.94D-01
@@ -578,8 +578,8 @@
       3        6          -0.000000000   -0.000000000   -0.000000000
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.098554123 RMS     0.055587750
- Force constants in Cartesian coordinates: 
-                1             2             3             4             5 
+ Force constants in Cartesian coordinates:
+                1             2             3             4             5
       1  0.598086D+00
       2  0.982942D-01  0.106661D+00
       3 -0.320552D+00 -0.617381D-01  0.289067D+00
@@ -589,14 +589,14 @@
       7 -0.518261D+00 -0.760635D-01  0.248055D+00 -0.518261D+00 -0.760635D-01
       8 -0.760635D-01 -0.137979D+00  0.477751D-01 -0.760635D-01 -0.137979D+00
       9  0.248055D+00  0.477751D-01 -0.279131D+00  0.248055D+00  0.477751D-01
-                6             7             8             9 
+                6             7             8             9
       6  0.289067D+00
       7  0.248055D+00  0.103652D+01
       8  0.477751D-01  0.152127D+00  0.275958D+00
       9 -0.279131D+00 -0.496109D+00 -0.955502D-01  0.558262D+00
  FormGI is forming the generalized inverse of G from B-inverse, IUseBI=4.
- Force constants in internal coordinates: 
-                1             2             3             4 
+ Force constants in internal coordinates:
+                1             2             3             4
       1  0.818355D+00
       2  0.129642D+00  0.818355D+00
       3  0.000000D+00  0.000000D+00  0.179243D+00
@@ -637,17 +637,17 @@
     A1        3.14159   0.00000   0.00000   0.00000   0.00000   3.14159
     A2        3.14159  -0.00000   0.00000   0.00000   0.00000   3.14159
          Item               Value     Threshold  Converged?
- Maximum Force            0.117919     0.000450     NO 
- RMS     Force            0.083382     0.000300     NO 
- Maximum Displacement     0.100928     0.001800     NO 
- RMS     Displacement     0.085390     0.001200     NO 
+ Maximum Force            0.117919     0.000450     NO
+ RMS     Force            0.083382     0.000300     NO
+ Maximum Displacement     0.100928     0.001800     NO
+ RMS     Displacement     0.085390     0.001200     NO
  Predicted change in Energy=-1.465528D-02
  Lowest energy point so far.  Saving SCF results.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
  Leave Link  103 at Thu Jun 10 18:05:59 2021, MaxMem=  4800000000 cpu:               0.7 elap:               0.0
  (Enter /clusterfs/cloudcuckoo/software/gaussian/G16_AVX2-enabled/tar/g16/l202.exe)
-                          Input orientation:                          
+                          Input orientation:
  ---------------------------------------------------------------------
  Center     Atomic      Atomic             Coordinates (Angstroms)
  Number     Number       Type             X           Y           Z
@@ -668,7 +668,7 @@
  RotChk:  IX=0 Diff= 3.51D-16
  Largest Abelian subgroup         D2H     NOp   8
  Largest concise Abelian subgroup C2      NOp   2
-                         Standard orientation:                         
+                         Standard orientation:
  ---------------------------------------------------------------------
  Center     Atomic      Atomic             Coordinates (Angstroms)
  Number     Number       Type             X           Y           Z
@@ -745,7 +745,7 @@
          wScrn=  0.000000 ICntrl=       500 IOpCl=  0 I1Cent=   200000004 NGrid=           0
          NMat0=    1 NMatS0=      1 NMatT0=    0 NMatD0=    1 NMtDS0=    0 NMtDT0=    0
  Petite list used in FoFCou.
- Harris En= -187.647008958098    
+ Harris En= -187.647008958098
  Leave Link  401 at Thu Jun 10 18:06:00 2021, MaxMem=  4800000000 cpu:               6.4 elap:               0.2
  (Enter /clusterfs/cloudcuckoo/software/gaussian/G16_AVX2-enabled/tar/g16/l502.exe)
  Keep R1 ints in memory in symmetry-blocked form, NReq=7134369.
@@ -763,7 +763,7 @@
  No special actions if energy rises.
 
  Cycle   1  Pass 1  IDiag  1:
- E= -187.627251532061    
+ E= -187.627251532061
  DIIS: error= 1.09D-02 at cycle   1 NSaved=   1.
  NSaved= 1 IEnMin= 1 EnMin= -187.627251532061     IErMin= 1 ErrMin= 1.09D-02
  ErrMax= 1.09D-02  0.00D+00 EMaxC= 1.00D-01 BMatC= 5.78D-03 BMatP= 5.78D-03
@@ -956,17 +956,17 @@
     A1        3.14159   0.00000   0.00000   0.00000  -0.00000   3.14159
     A2        3.14159   0.00000   0.00000   0.00000  -0.00000   3.14159
          Item               Value     Threshold  Converged?
- Maximum Force            0.027751     0.000450     NO 
- RMS     Force            0.019623     0.000300     NO 
- Maximum Displacement     0.016084     0.001800     NO 
- RMS     Displacement     0.013608     0.001200     NO 
+ Maximum Force            0.027751     0.000450     NO
+ RMS     Force            0.019623     0.000300     NO
+ Maximum Displacement     0.016084     0.001800     NO
+ RMS     Displacement     0.013608     0.001200     NO
  Predicted change in Energy=-6.213660D-04
  Lowest energy point so far.  Saving SCF results.
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 
  Leave Link  103 at Thu Jun 10 18:06:01 2021, MaxMem=  4800000000 cpu:               1.9 elap:               0.1
  (Enter /clusterfs/cloudcuckoo/software/gaussian/G16_AVX2-enabled/tar/g16/l202.exe)
-                          Input orientation:                          
+                          Input orientation:
  ---------------------------------------------------------------------
  Center     Atomic      Atomic             Coordinates (Angstroms)
  Number     Number       Type             X           Y           Z
@@ -987,7 +987,7 @@
  RotChk:  IX=0 Diff= 3.70D-16
  Largest Abelian subgroup         D2H     NOp   8
  Largest concise Abelian subgroup C2      NOp   2
-                         Standard orientation:                         
+                         Standard orientation:
  ---------------------------------------------------------------------
  Center     Atomic      Atomic             Coordinates (Angstroms)
  Number     Number       Type             X           Y           Z
@@ -1071,7 +1071,7 @@
  No special actions if energy rises.
 
  Cycle   1  Pass 1  IDiag  1:
- E= -187.634006821630    
+ E= -187.634006821630
  DIIS: error= 1.79D-03 at cycle   1 NSaved=   1.
  NSaved= 1 IEnMin= 1 EnMin= -187.634006821630     IErMin= 1 ErrMin= 1.79D-03
  ErrMax= 1.79D-03  0.00D+00 EMaxC= 1.00D-01 BMatC= 1.56D-04 BMatP= 1.56D-04
@@ -1277,7 +1277,7 @@
 
  Leave Link  103 at Thu Jun 10 18:06:02 2021, MaxMem=  4800000000 cpu:               2.1 elap:               0.1
  (Enter /clusterfs/cloudcuckoo/software/gaussian/G16_AVX2-enabled/tar/g16/l202.exe)
-                          Input orientation:                          
+                          Input orientation:
  ---------------------------------------------------------------------
  Center     Atomic      Atomic             Coordinates (Angstroms)
  Number     Number       Type             X           Y           Z
@@ -1298,7 +1298,7 @@
  RotChk:  IX=0 Diff= 4.01D-16
  Largest Abelian subgroup         D2H     NOp   8
  Largest concise Abelian subgroup C2      NOp   2
-                         Standard orientation:                         
+                         Standard orientation:
  ---------------------------------------------------------------------
  Center     Atomic      Atomic             Coordinates (Angstroms)
  Number     Number       Type             X           Y           Z
@@ -1469,7 +1469,7 @@
 
  Leave Link  103 at Thu Jun 10 18:06:03 2021, MaxMem=  4800000000 cpu:               0.4 elap:               0.0
  (Enter /clusterfs/cloudcuckoo/software/gaussian/G16_AVX2-enabled/tar/g16/l202.exe)
-                          Input orientation:                          
+                          Input orientation:
  ---------------------------------------------------------------------
  Center     Atomic      Atomic             Coordinates (Angstroms)
  Number     Number       Type             X           Y           Z
@@ -1490,7 +1490,7 @@
  RotChk:  IX=0 Diff= 4.44D-16
  Largest Abelian subgroup         D2H     NOp   8
  Largest concise Abelian subgroup C2      NOp   2
-                         Standard orientation:                         
+                         Standard orientation:
  ---------------------------------------------------------------------
  Center     Atomic      Atomic             Coordinates (Angstroms)
  Number     Number       Type             X           Y           Z
@@ -1574,7 +1574,7 @@
  No special actions if energy rises.
 
  Cycle   1  Pass 1  IDiag  1:
- E= -187.634176201493    
+ E= -187.634176201493
  DIIS: error= 4.01D-10 at cycle   1 NSaved=   1.
  NSaved= 1 IEnMin= 1 EnMin= -187.634176201493     IErMin= 1 ErrMin= 4.01D-10
  ErrMax= 4.01D-10  0.00D+00 EMaxC= 1.00D-01 BMatC= 2.50D-18 BMatP= 2.50D-18
@@ -1823,7 +1823,7 @@
                                     7.99834 (Kcal/Mol)
  Vibrational temperatures:   1073.16  1073.16  2184.60  3718.93
           (Kelvin)
- 
+
  Zero-point correction=                           0.012746 (Hartree/Particle)
  Thermal correction to Energy=                    0.015302
  Thermal correction to Enthalpy=                  0.016246
@@ -1832,7 +1832,7 @@
  Sum of electronic and thermal Energies=              -187.618874
  Sum of electronic and thermal Enthalpies=            -187.617930
  Sum of electronic and thermal Free Energies=         -187.642070
- 
+
                      E (Thermal)             CV                S
                       KCal/Mol        Cal/Mol-Kelvin    Cal/Mol-Kelvin
  Total                    9.602              6.527             50.808
@@ -1848,36 +1848,36 @@
  Electronic      0.100000D+01          0.000000          0.000000
  Translational   0.114679D+08          7.059482         16.255059
  Rotational      0.256999D+03          2.409932          5.549073
- 
+
                                                          co2 for linear test
                                                              IR Spectrum
- 
-     2                                                    1                                                                          
-     5                                                    5                                     7                                    
-     8                                                    1                                     4                                    
-     5                                                    8                                     6                                    
- 
-     X                                                                                          X                                    
-     X                                                                                          X                                    
-     X                                                                                          X                                    
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
-     X                                                                                                                               
- 
+
+     2                                                    1
+     5                                                    5                                     7
+     8                                                    1                                     4
+     5                                                    8                                     6
+
+     X                                                                                          X
+     X                                                                                          X
+     X                                                                                          X
+     X
+     X
+     X
+     X
+     X
+     X
+     X
+     X
+     X
+     X
+     X
+     X
+     X
+     X
+     X
+     X
+     X
+
  ***** Axes restored to original set *****
  -------------------------------------------------------------------
  Center     Atomic                   Forces (Hartrees/Bohr)
@@ -1888,8 +1888,8 @@
       3        6           0.000000000   -0.000000000    0.000000000
  -------------------------------------------------------------------
  Cartesian Forces:  Max     0.000051665 RMS     0.000029141
- Force constants in Cartesian coordinates: 
-                1             2             3             4             5 
+ Force constants in Cartesian coordinates:
+                1             2             3             4             5
       1  0.886547D+00
       2  0.161899D+00  0.771275D-01
       3 -0.527977D+00 -0.101688D+00  0.377566D+00
@@ -1899,14 +1899,14 @@
       7 -0.798298D+00 -0.136059D+00  0.443709D+00 -0.798298D+00 -0.136059D+00
       8 -0.136059D+00 -0.118068D+00  0.854579D-01 -0.136059D+00 -0.118068D+00
       9  0.443709D+00  0.854579D-01 -0.370554D+00  0.443709D+00  0.854579D-01
-                6             7             8             9 
+                6             7             8             9
       6  0.377566D+00
       7  0.443709D+00  0.159660D+01
       8  0.854579D-01  0.272118D+00  0.236136D+00
       9 -0.370554D+00 -0.887417D+00 -0.170916D+00  0.741109D+00
  FormGI is forming the generalized inverse of G from B-inverse, IUseBI=4.
- Force constants in internal coordinates: 
-                1             2             3             4 
+ Force constants in internal coordinates:
+                1             2             3             4
       1  0.124935D+01
       2  0.146154D+00  0.124935D+01
       3  0.000000D+00  0.000000D+00  0.210909D+00

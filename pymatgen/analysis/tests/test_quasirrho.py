@@ -31,7 +31,6 @@ class TestQuasiRRHO(PymatgenTest):
         Testing from a Gaussian Output file. Correct values are taken from
         Trevor Seguin's original bash script.
         """
-        correct_g_conc = -884.770084
         correct_g = -884.776886
         correct_stot = 141.584080
         qrrho = QuasiRRHO.from_GaussianOutput(self.gout)
@@ -60,7 +59,6 @@ class TestQuasiRRHO(PymatgenTest):
         mol = self.gout.final_structure
         vib_freqs = [f["frequency"] for f in self.gout.frequencies[-1]]
 
-        m = 55
         correct_g = -884.776886
         correct_stot = 141.584080
         qrrho = QuasiRRHO(mol=mol, energy=e, frequencies=vib_freqs, mult=1)
