@@ -107,6 +107,7 @@ exclude_also = [
   "@deprecated",
   "@np.deprecate",
   "def __repr__",
+  "except ImportError:",
   "if 0:",
   "if TYPE_CHECKING:",
   "if __name__ == .__main__.:",
@@ -117,7 +118,6 @@ exclude_also = [
   "raise AssertionError",
   "raise NotImplementedError",
   "show_plot",
-  "except ImportError:"
 ]
 
 [tool.mypy]
