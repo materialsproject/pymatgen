@@ -85,20 +85,20 @@ class AdditionalConditions:
         if condition == self.NO_E2SEB:
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
-            elmts_ii = [sp.symbol for sp in structure[ii].species]
-            elmts_jj = [sp.symbol for sp in structure[jj].species]
-            return len(set(elmts_ii) & set(elmts_jj)) == 0
+            elems_ii = [sp.symbol for sp in structure[ii].species]
+            elems_jj = [sp.symbol for sp in structure[jj].species]
+            return len(set(elems_ii) & set(elems_jj)) == 0
         if condition == self.ONLY_ACB_AND_NO_E2SEB:
             valences = parameters["valences"]
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
-            elmts_ii = [sp.symbol for sp in structure[ii].species]
-            elmts_jj = [sp.symbol for sp in structure[jj].species]
-            return len(set(elmts_ii) & set(elmts_jj)) == 0 and is_anion_cation_bond(valences, ii, jj)
+            elems_ii = [sp.symbol for sp in structure[ii].species]
+            elems_jj = [sp.symbol for sp in structure[jj].species]
+            return len(set(elems_ii) & set(elems_jj)) == 0 and is_anion_cation_bond(valences, ii, jj)
         if condition == self.ONLY_E2OB:
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
-            elmts_ii = [sp.symbol for sp in structure[ii].species]
-            elmts_jj = [sp.symbol for sp in structure[jj].species]
-            return ("O" in elmts_jj and "O" not in elmts_ii) or ("O" in elmts_ii and "O" not in elmts_jj)
+            elems_ii = [sp.symbol for sp in structure[ii].species]
+            elems_jj = [sp.symbol for sp in structure[jj].species]
+            return ("O" in elems_jj and "O" not in elems_ii) or ("O" in elems_ii and "O" not in elems_jj)
         return None

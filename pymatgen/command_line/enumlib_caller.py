@@ -367,7 +367,7 @@ class EnumlibAdaptor:
                 data = f.read()
                 data = re.sub(r"scale factor", "1", data)
                 data = re.sub(r"(\d+)-(\d+)", r"\1 -\2", data)
-                poscar = Poscar.from_string(data, self.index_species)
+                poscar = Poscar.from_str(data, self.index_species)
                 sub_structure = poscar.structure
                 # Enumeration may have resulted in a super lattice. We need to
                 # find the mapping from the new lattice to the old lattice, and

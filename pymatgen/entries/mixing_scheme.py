@@ -546,27 +546,25 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             structures.append(struct)
 
         # First group by composition, then by spacegroup number, then by structure matching
-        for comp, compgroup in groupby(sorted(structures, key=lambda s: s.composition), key=lambda s: s.composition):
-            l_compgroup = list(compgroup)
+        for comp, comp_group in groupby(sorted(structures, key=lambda s: s.composition), key=lambda s: s.composition):
+            l_comp_group = list(comp_group)
             # group by spacegroup, then by number of sites (for diatmics) or by structure matching
-            for sg, pregroup in groupby(sorted(l_compgroup, key=_get_sg), key=_get_sg):
-                l_pregroup = list(pregroup)
+            for sg, pre_group in groupby(sorted(l_comp_group, key=_get_sg), key=_get_sg):
+                l_pre_group = list(pre_group)
                 if comp.reduced_formula in ["O2", "H2", "Cl2", "F2", "N2", "I", "Br", "H2O"] and self.fuzzy_matching:
                     # group by number of sites
-                    for n, sitegroup in groupby(
-                        sorted(l_pregroup, key=lambda s: s.num_sites), key=lambda s: s.num_sites
-                    ):
-                        l_sitegroup = list(sitegroup)
+                    for idx, site_group in groupby(sorted(l_pre_group, key=lambda s: len(s)), key=lambda s: len(s)):
+                        l_sitegroup = list(site_group)
                         row_list.append(
-                            self._populate_df_row(l_sitegroup, comp, sg, n, pd_type_1, pd_type_2, all_entries)
+                            self._populate_df_row(l_sitegroup, comp, sg, idx, pd_type_1, pd_type_2, all_entries)
                         )
                 else:
-                    for group in self.structure_matcher.group_structures(l_pregroup):
-                        grp = list(group)
-                        n = group[0].num_sites
+                    for group in self.structure_matcher.group_structures(l_pre_group):
+                        group = list(group)
+                        idx = len(group[0])
                         # StructureMatcher.group_structures returns a list of lists,
                         # so each group should be a list containing matched structures
-                        row_list.append(self._populate_df_row(grp, comp, sg, n, pd_type_1, pd_type_2, all_entries))
+                        row_list.append(self._populate_df_row(group, comp, sg, idx, pd_type_1, pd_type_2, all_entries))
 
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
         return mixing_state_data.sort_values(["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True)

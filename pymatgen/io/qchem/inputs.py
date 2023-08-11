@@ -6,6 +6,7 @@ import logging
 import re
 from typing import TYPE_CHECKING, Literal
 
+import numpy as np
 from monty.io import zopen
 
 from pymatgen.core import Molecule
@@ -202,7 +203,11 @@ class QCInput(InputFile):
         #   - Validity checks specific to job type?
         #   - Check OPT and PCM sections?
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Return a string representation of an entire input file."""
         return str(self)
 
@@ -284,7 +289,7 @@ class QCInput(InputFile):
         return multi_job_string
 
     @classmethod
-    def from_string(cls, string: str) -> QCInput:
+    def from_str(cls, string: str) -> QCInput:
         """
         Read QcInput from string.
 
@@ -370,7 +375,7 @@ class QCInput(InputFile):
             QcInput
         """
         with zopen(filename, "rt") as f:
-            return QCInput.from_string(f.read())
+            return QCInput.from_str(f.read())
 
     @classmethod
     def from_multi_jobs_file(cls, filename: str) -> list[QCInput]:
@@ -387,7 +392,7 @@ class QCInput(InputFile):
             # the delimiter between QChem jobs is @@@
             multi_job_strings = f.read().split("@@@")
             # list of individual QChem jobs
-            return [cls.from_string(i) for i in multi_job_strings]
+            return [cls.from_str(i) for i in multi_job_strings]
 
     @staticmethod
     def molecule_template(molecule: Molecule | list[Molecule] | Literal["read"]) -> str:

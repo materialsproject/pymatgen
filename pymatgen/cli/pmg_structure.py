@@ -68,8 +68,8 @@ def analyze_localenv(args):
             for species, dist in bonds.items():
                 if species[0] in [sp.symbol for sp in site.species]:
                     dists = [
-                        d
-                        for nn, d in struct.get_neighbors(site, dist)
+                        nn.nn_distance
+                        for nn in struct.get_neighbors(site, dist)
                         if species[1] in [sp.symbol for sp in nn.species]
                     ]
                     dists = ", ".join(f"{d:.3f}" for d in sorted(dists))

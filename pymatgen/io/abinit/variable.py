@@ -1,4 +1,5 @@
 """Support for Abinit input variables."""
+
 from __future__ import annotations
 
 import collections
@@ -89,15 +90,15 @@ class InputVariable:
         line = " " + var
 
         # By default, do not impose a number of decimal points
-        floatdecimal = 0
+        float_decimal = 0
 
         # For some inputs, enforce number of decimal points...
         if any(inp in var for inp in ("xred", "xcart", "rprim", "qpt", "kpt")):
-            floatdecimal = 16
+            float_decimal = 16
 
         # ...but not for those
         if any(inp in var for inp in ("ngkpt", "kptrlatt", "ngqpt", "ng2qpt")):
-            floatdecimal = 0
+            float_decimal = 0
 
         if isinstance(value, np.ndarray):
             n = 1
@@ -110,14 +111,14 @@ class InputVariable:
         if isinstance(value, (list, tuple)):
             # Reshape a list of lists into a single list
             if all(isinstance(v, (list, tuple)) for v in value):
-                line += self.format_list2d(value, floatdecimal)
+                line += self.format_list2d(value, float_decimal)
 
             else:
-                line += self.format_list(value, floatdecimal)
+                line += self.format_list(value, float_decimal)
 
         # scalar values
         else:
-            line += " " + str(value)
+            line += f" {value}"
 
         # Add units
         if self.units:

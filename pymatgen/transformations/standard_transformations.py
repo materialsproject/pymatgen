@@ -310,9 +310,7 @@ class SubstitutionTransformation(AbstractTransformation):
         return struct
 
     def __str__(self):
-        return "Substitution Transformation :" + ", ".join(
-            [str(k) + "->" + str(v) for k, v in self._species_map.items()]
-        )
+        return "Substitution Transformation :" + ", ".join([f"{k}->{v}" for k, v in self._species_map.items()])
 
     def __repr__(self):
         return str(self)
@@ -534,15 +532,15 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         if self.no_oxi_states:
             structure = Structure.from_sites(structure)
-            for i, site in enumerate(structure):
-                structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}  # type: ignore[assignment]
+            for idx, site in enumerate(structure):
+                structure[idx] = {f"{k.symbol}0+": v for k, v in site.species.items()}  # type: ignore[assignment]
 
         equivalent_sites: list[list[int]] = []
         exemplars: list[PeriodicSite] = []
         # generate list of equivalent sites to order
         # equivalency is determined by sp_and_occu and symmetry
         # if symmetrized structure is true
-        for i, site in enumerate(structure):
+        for idx, site in enumerate(structure):
             if site.is_ordered:
                 continue
             for j, ex in enumerate(exemplars):
@@ -555,46 +553,43 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 else:
                     sym_test = True
                 if sym_test:
-                    equivalent_sites[j].append(i)
+                    equivalent_sites[j].append(idx)
                     break
             else:
-                equivalent_sites.append([i])
+                equivalent_sites.append([idx])
                 exemplars.append(site)
 
         # generate the list of manipulations and input structure
         struct = Structure.from_sites(structure)
 
-        m_list = []
-        for g in equivalent_sites:
-            total_occupancy = sum((structure[i].species for i in g), Composition())
-            total_occupancy = dict(total_occupancy.items())
+        manipulations = []
+        for group in equivalent_sites:
+            total_occupancy = dict(
+                sum((structure[idx].species for idx in group), Composition()).items()  # type: ignore[attr-defined]
+            )
             # round total occupancy to possible values
-            for k, v in total_occupancy.items():
-                if abs(v - round(v)) > 0.25:
+            for key, val in total_occupancy.items():
+                if abs(val - round(val)) > 0.25:
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
-                total_occupancy[k] = int(round(v))
+                total_occupancy[key] = int(round(val))
             # start with an ordered structure
             initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))
-            for i in g:
-                struct[i] = initial_sp
+            for idx in group:
+                struct[idx] = initial_sp
             # determine the manipulations
-            for k, v in total_occupancy.items():
-                if k == initial_sp:
+            for key, val in total_occupancy.items():
+                if key == initial_sp:
                     continue
-                m = [
-                    k.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state else 0,
-                    v,
-                    list(g),
-                    k,
-                ]
-                m_list.append(m)
+                oxi_ratio = key.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state else 0
+                manipulation = [oxi_ratio, val, list(group), key]
+                manipulations.append(manipulation)
             # determine the number of empty sites
-            empty = len(g) - sum(total_occupancy.values())
+            empty = len(group) - sum(total_occupancy.values())
             if empty > 0.5:
-                m_list.append([0, empty, list(g), None])
+                manipulations.append([0, empty, list(group), None])
 
         matrix = EwaldSummation(struct).total_energy_matrix
-        ewald_m = EwaldMinimizer(matrix, m_list, num_to_return, self.algo)
+        ewald_m = EwaldMinimizer(matrix, manipulations, num_to_return, self.algo)
 
         self._all_structures = []
 
@@ -646,7 +641,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
     @property
     def lowest_energy_structure(self):
-        """:return: Lowest energy structure found."""
+        """Lowest energy structure found."""
         return self._all_structures[0]["structure"]
 
 
@@ -751,7 +746,7 @@ class PerturbStructureTransformation(AbstractTransformation):
     def __init__(
         self,
         distance: float = 0.01,
-        min_distance: int | float | None = None,
+        min_distance: float | None = None,
     ):
         """
         Args:

@@ -169,7 +169,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             if make_dir_if_not_present and not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
-            with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as file:
+            with zopen(f"{output_dir}/POTCAR.spec", "wt") as file:
                 file.write("\n".join(self.potcar_symbols))
 
             for key in ["INCAR", "POSCAR", "KPOINTS"]:
@@ -436,7 +436,7 @@ class DictSet(VaspInputSet):
 
     @property
     def structure(self) -> Structure:
-        """:return: Structure"""
+        """Structure"""
         if self.standardize and self.sym_prec:
             return standardize_structure(
                 self._structure,
@@ -447,7 +447,7 @@ class DictSet(VaspInputSet):
 
     @property
     def incar(self) -> Incar:
-        """:return: Incar"""
+        """Incar"""
         settings = dict(self._config_dict["INCAR"])
         for k, v in self.user_incar_settings.items():
             if v is None:
@@ -508,7 +508,7 @@ class DictSet(VaspInputSet):
                         ]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
-                    incar["EDIFF"] = float(v) * structure.num_sites
+                    incar["EDIFF"] = float(v) * len(structure)
                 else:
                     incar["EDIFF"] = float(settings["EDIFF"])
             else:
@@ -526,12 +526,11 @@ class DictSet(VaspInputSet):
         # significant difference between SCF -> NonSCF even without Hubbard U enabled.
         # Thanks to Andrew Rosen for investigating and reporting.
         if "LMAXMIX" not in settings:
-            blocks = {site.specie.block for site in structure}
             # contains f-electrons
-            if "f" in blocks:
+            if any(el.Z > 56 for el in structure.composition):
                 incar["LMAXMIX"] = 6
             # contains d-electrons
-            elif "d" in blocks:
+            elif any(el.Z > 20 for el in structure.composition):
                 incar["LMAXMIX"] = 4
 
         # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
@@ -597,7 +596,7 @@ class DictSet(VaspInputSet):
 
     @property
     def poscar(self) -> Poscar:
-        """:return: Poscar"""
+        """Poscar"""
         return Poscar(self.structure)
 
     @property
@@ -677,21 +676,30 @@ class DictSet(VaspInputSet):
         Estimate the number of bands that VASP will initialize a
         calculation with by default. Note that in practice this
         can depend on # of cores (if not set explicitly).
+        Note that this formula is slightly different than the formula on the VASP wiki
+        (as of July 2023). This is because the formula in the source code (`main.F`) is
+        slightly different than what is on the wiki.
         """
-        nions = len(self.structure)
+        n_ions = len(self.structure)
 
-        # from VASP's point of view, the number of magnetic atoms are
-        # the number of atoms with non-zero magmoms, so use Incar as
-        # source of truth
-        nmag = len([m for m in self.incar["MAGMOM"] if not np.allclose(m, 0)])
+        if self.incar["ISPIN"] == 1:  # per the VASP source, if non-spin polarized ignore n_mag
+            n_mag = 0
+        else:  # otherwise set equal to sum of total magmoms
+            n_mag = sum(self.incar["MAGMOM"])
+            n_mag = np.floor((n_mag + 1) / 2)
 
-        # by definition, if non-spin polarized ignore nmag
-        if (not nmag) or (self.incar["ISPIN"] == 1):
-            nbands = np.ceil(self.nelect / 2 + nions / 2)
-        else:
-            nbands = np.ceil(0.6 * self.nelect + nmag)
+        possible_val_1 = np.floor((self.nelect + 2) / 2) + max(np.floor(n_ions / 2), 3)
+        possible_val_2 = np.floor(self.nelect * 0.6)
 
-        return int(nbands)
+        n_bands = max(possible_val_1, possible_val_2) + n_mag
+
+        if self.incar.get("LNONCOLLINEAR") is True:
+            n_bands = n_bands * 2
+
+        if n_par := self.incar.get("NPAR"):
+            n_bands = (np.floor((n_bands + n_par - 1) / n_par)) * n_par
+
+        return int(n_bands)
 
     def __str__(self):
         return type(self).__name__
@@ -754,7 +762,7 @@ class DictSet(VaspInputSet):
         # TODO Only do this for VASP 6 for now. Older version require more advanced logic
 
         # get the ENCUT val
-        if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
+        if self.incar.get("ENCUT", 0) > 0:
             encut = self.incar["ENCUT"]
         else:
             encut = max(i_species.enmax for i_species in self.get_vasp_input()["POTCAR"])
@@ -1077,7 +1085,7 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         parent_incar = super().incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
 
@@ -1142,7 +1150,7 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def kpoints(self) -> Kpoints | None:
-        """:return: Kpoints"""
+        """Kpoints"""
         self._config_dict["KPOINTS"]["reciprocal_density"] = self.reciprocal_density
         kpoints = super().kpoints
 
@@ -1238,7 +1246,7 @@ class MPScanStaticSet(MPScanRelaxSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         parent_incar = super().incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
 
@@ -1375,8 +1383,8 @@ class MPHSEBSSet(MPHSERelaxSet):
 
     @property
     def kpoints(self) -> Kpoints:
-        """:return: Kpoints"""
-        kpts: list[int | float | None] = []
+        """Kpoints"""
+        kpts: list[float | None] = []
         weights: list[float | None] = []
         all_labels: list[str | None] = []
         structure = self.structure
@@ -1551,7 +1559,7 @@ class MPNonSCFSet(MPRelaxSet):
 
     @property
     def incar(self) -> Incar:
-        """:return: Incar"""
+        """Incar"""
         incar = super().incar
         if self.prev_incar is not None:
             incar.update(self.prev_incar.items())
@@ -1594,7 +1602,7 @@ class MPNonSCFSet(MPRelaxSet):
 
     @property
     def kpoints(self) -> Kpoints | None:
-        """:return: Kpoints"""
+        """Kpoints"""
         # override pymatgen kpoints if provided
         user_kpoints = self.user_kpoints_settings
         if isinstance(user_kpoints, Kpoints):
@@ -1763,7 +1771,7 @@ class MPSOCSet(MPStaticSet):
 
     @property
     def incar(self) -> Incar:
-        """:return: Incar"""
+        """Incar"""
         incar = super().incar
         if self.prev_incar is not None:
             incar.update(self.prev_incar.items())
@@ -1860,18 +1868,23 @@ class MPNMRSet(MPStaticSet):
     """Init a MPNMRSet."""
 
     def __init__(
-        self, structure: Structure, mode="cs", isotopes=None, prev_incar=None, reciprocal_density=100, **kwargs
+        self,
+        structure: Structure,
+        mode: Literal["cs", "efg"] = "cs",
+        isotopes: list | None = None,
+        prev_incar: Incar = None,
+        reciprocal_density: int = 100,
+        **kwargs,
     ):
         """
         Args:
             structure (Structure): Structure to compute
             mode (str): The NMR calculation to run
-                            "cs": for Chemical Shift
-                            "efg" for Electric Field Gradient
+                "cs": for Chemical Shift
+                "efg" for Electric Field Gradient
             isotopes (list): list of Isotopes for quadrupole moments
             prev_incar (Incar): Incar file from previous run.
-            reciprocal_density (int): density of k-mesh by reciprocal
-                                    volume (defaults to 100)
+            reciprocal_density (int): density of k-mesh by reciprocal volume. Defaults to 100.
             **kwargs: kwargs supported by MPStaticSet.
         """
         self.mode = mode
@@ -1880,7 +1893,7 @@ class MPNMRSet(MPStaticSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         incar = super().incar
 
         if self.mode.lower() == "cs":
@@ -1892,7 +1905,7 @@ class MPNMRSet(MPStaticSet):
                     "LCHARG": False,
                     "LNMR_SYM_RED": True,
                     "NELMIN": 10,
-                    "NSLPLINE": True,
+                    "NLSPLINE": True,
                     "PREC": "ACCURATE",
                     "SIGMA": 0.01,
                 }
@@ -2033,7 +2046,7 @@ class MVLGWSet(DictSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         parent_incar = super().incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
 
@@ -2290,7 +2303,7 @@ class MVLGBSet(MPRelaxSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         incar = super().incar
 
         # The default incar setting is used for metallic system, for
@@ -2378,12 +2391,12 @@ class MITNEBSet(MITRelaxSet):
 
     @property
     def poscar(self):
-        """:return: Poscar for structure of first end point."""
+        """Poscar for structure of first end point."""
         return Poscar(self.structures[0])
 
     @property
     def poscars(self):
-        """:return: List of Poscars."""
+        """List of Poscars."""
         return [Poscar(s) for s in self.structures]
 
     @staticmethod
@@ -2518,7 +2531,7 @@ class MITMDSet(MITRelaxSet):
 
     @property
     def kpoints(self):
-        """:return: Kpoints"""
+        """Kpoints"""
         return Kpoints.gamma_automatic()
 
 
@@ -2600,7 +2613,7 @@ class MPMDSet(MPRelaxSet):
 
     @property
     def kpoints(self):
-        """:return: Kpoints"""
+        """Kpoints"""
         return Kpoints.gamma_automatic()
 
 
@@ -2888,8 +2901,8 @@ def standardize_structure(structure, sym_prec=0.1, international_monoclinic=True
 
     # the primitive structure finding has had several bugs in the past
     # defend through validation
-    vpa_old = structure.volume / structure.num_sites
-    vpa_new = new_structure.volume / new_structure.num_sites
+    vpa_old = structure.volume / len(structure)
+    vpa_new = new_structure.volume / len(new_structure)
 
     if abs(vpa_old - vpa_new) / vpa_old > 0.02:
         raise ValueError(f"Standardizing cell failed! VPA old: {vpa_old}, VPA new: {vpa_new}")
@@ -3102,7 +3115,7 @@ class MPAbsorptionSet(MPRelaxSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         parent_incar = super().incar
         absorption_incar = {
             "ALGO": "Exact",

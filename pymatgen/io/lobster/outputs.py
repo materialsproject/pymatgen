@@ -116,12 +116,8 @@ class Cohpcar:
         # Subtract 1 to skip the average
         num_bonds = int(parameters[0]) - 1
         self.efermi = float(parameters[-1])
-        if int(parameters[1]) == 2:
-            spins = [Spin.up, Spin.down]
-            self.is_spin_polarized = True
-        else:
-            spins = [Spin.up]
-            self.is_spin_polarized = False
+        self.is_spin_polarized = int(parameters[1]) == 2
+        spins = [Spin.up, Spin.down] if int(parameters[1]) == 2 else [Spin.up]
 
         # The COHP data start in row num_bonds + 3
         data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
@@ -135,22 +131,22 @@ class Cohpcar:
 
         orb_cohp: dict[str, Any] = {}
         # present for Lobster versions older than Lobster 2.2.0
-        veryold = False
+        very_old = False
         # the labeling had to be changed: there are more than one COHP for each atom combination
         # this is done to make the labeling consistent with ICOHPLIST.lobster
-        bondnumber = 0
+        bond_num = 0
         for bond in range(num_bonds):
             bond_data = self._get_bond_data(contents[3 + bond])
 
-            label = str(bondnumber)
+            label = str(bond_num)
 
             orbs = bond_data["orbitals"]
             cohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 3] for s, spin in enumerate(spins)}
 
             icohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 4] for s, spin in enumerate(spins)}
             if orbs is None:
-                bondnumber = bondnumber + 1
-                label = str(bondnumber)
+                bond_num = bond_num + 1
+                label = str(bond_num)
                 cohp_data[label] = {
                     "COHP": cohp,
                     "ICOHP": icohp,
@@ -172,11 +168,11 @@ class Cohpcar:
                 )
             else:
                 # present for Lobster versions older than Lobster 2.2.0
-                if bondnumber == 0:
-                    veryold = True
-                if veryold:
-                    bondnumber += 1
-                    label = str(bondnumber)
+                if bond_num == 0:
+                    very_old = True
+                if very_old:
+                    bond_num += 1
+                    label = str(bond_num)
 
                 orb_cohp[label] = {
                     bond_data["orb_label"]: {
@@ -189,7 +185,7 @@ class Cohpcar:
                 }
 
         # present for lobster older than 2.2.0
-        if veryold:
+        if very_old:
             for bond_str in orb_cohp:
                 cohp_data[bond_str] = {
                     "COHP": None,
@@ -302,18 +298,12 @@ class Icohplist:
 
         # If the calculation is spin polarized, the line in the middle
         # of the file will be another header line.
-        if "distance" in data[len(data) // 2]:
-            # TODO: adapt this for orbitalwise stuff
-            self.is_spin_polarized = True
-        else:
-            self.is_spin_polarized = False
+        # TODO: adapt this for orbitalwise stuff
+        self.is_spin_polarized = "distance" in data[len(data) // 2]
 
         # check if orbitalwise ICOHPLIST
         # include case when there is only one ICOHP!!!
-        if len(data) > 2 and "_" in data[1].split()[1]:
-            self.orbitalwise = True
-        else:
-            self.orbitalwise = False
+        self.orbitalwise = len(data) > 2 and "_" in data[1].split()[1]
 
         if self.orbitalwise:
             data_without_orbitals = []
@@ -364,7 +354,7 @@ class Icohplist:
                 length = float(line[3])
                 translation = [int(line[4]), int(line[5]), int(line[6])]
                 icohp[Spin.up] = float(line[7])
-                num = int(1)
+                num = 1
 
                 if self.is_spin_polarized:
                     icohp[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[7])
@@ -574,37 +564,37 @@ class Doscar:
 
     @property
     def completedos(self) -> LobsterCompleteDos:
-        """:return: CompleteDos"""
+        """LobsterCompleteDos"""
         return self._completedos
 
     @property
     def pdos(self) -> list:
-        """:return: Projected DOS"""
+        """Projected DOS"""
         return self._pdos
 
     @property
     def tdos(self) -> Dos:
-        """:return: Total DOS"""
+        """Total DOS"""
         return self._tdos
 
     @property
     def energies(self) -> np.ndarray:
-        """:return: Energies"""
+        """Energies"""
         return self._energies
 
     @property
     def tdensities(self) -> np.ndarray:
-        """:return: total densities as a np.ndarray"""
+        """total densities as a np.ndarray"""
         return self._tdensities
 
     @property
     def itdensities(self) -> np.ndarray:
-        """:return: integrated total densities as a np.ndarray"""
+        """integrated total densities as a np.ndarray"""
         return self._itdensities
 
     @property
     def is_spin_polarized(self) -> bool:
-        """:return: Whether run is spin polarized."""
+        """Whether run is spin polarized."""
         return self._is_spin_polarized
 
 
@@ -1141,10 +1131,7 @@ class Fatband:
                         linenumbers.append(iline)
 
                 if ifilename == 0:
-                    if len(linenumbers) == 2:
-                        self.is_spinpolarized = True
-                    else:
-                        self.is_spinpolarized = False
+                    self.is_spinpolarized = len(linenumbers) == 2
 
             if ifilename == 0:
                 eigenvals = {}

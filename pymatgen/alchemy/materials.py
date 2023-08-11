@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import datetime
 import json
-import os
 import re
 from typing import TYPE_CHECKING, Any
 from warnings import warn
@@ -217,7 +216,7 @@ class TransformedStructure(MSONable):
             **kwargs: All keyword args supported by the VASP input set.
         """
         vasp_input_set(self.final_structure, **kwargs).write_input(output_dir, make_dir_if_not_present=create_directory)
-        with open(os.path.join(output_dir, "transformations.json"), "w") as fp:
+        with open(f"{output_dir}/transformations.json", "w") as fp:
             json.dump(self.as_dict(), fp)
 
     def __str__(self) -> str:
@@ -286,7 +285,7 @@ class TransformedStructure(MSONable):
         Returns:
             TransformedStructure
         """
-        parser = CifParser.from_string(cif_string, occupancy_tolerance=occupancy_tolerance)
+        parser = CifParser.from_str(cif_string, occupancy_tolerance=occupancy_tolerance)
         raw_string = re.sub(r"'", '"', cif_string)
         cif_dict = parser.as_dict()
         cif_keys = list(cif_dict)
@@ -316,7 +315,7 @@ class TransformedStructure(MSONable):
             transformations (list[Transformation]): Sequence of transformations
                 to be applied to the input structure.
         """
-        p = Poscar.from_string(poscar_string)
+        p = Poscar.from_str(poscar_string)
         if not p.true_names:
             raise ValueError(
                 "Transformation can be created only from POSCAR strings with proper VASP5 element symbols."

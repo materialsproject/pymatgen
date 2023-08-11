@@ -310,10 +310,16 @@ class FloatWithUnit(float):
     Error = UnitError
 
     @classmethod
-    def from_string(cls, s):
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        """Use from_str instead."""
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, s):
         """Parse string to FloatWithUnit.
 
-        Example: Memory.from_string("1. Mb")
+        Example: Memory.from_str("1. Mb")
         """
         # Extract num and unit string.
         s = s.strip()
@@ -422,12 +428,12 @@ class FloatWithUnit(float):
 
     @property
     def unit_type(self) -> str:
-        """:return: The type of unit. Energy, Charge, etc."""
+        """The type of unit. Energy, Charge, etc."""
         return self._unit_type
 
     @property
     def unit(self) -> str:
-        """:return: The unit, e.g., "eV"."""
+        """The unit, e.g., "eV"."""
         return self._unit
 
     def to(self, new_unit):
@@ -512,12 +518,12 @@ class ArrayWithUnit(np.ndarray):
 
     @property
     def unit_type(self) -> str:
-        """:return: The type of unit. Energy, Charge, etc."""
+        """The type of unit. Energy, Charge, etc."""
         return self._unit_type
 
     @property
     def unit(self) -> str:
-        """:return: The unit, e.g., "eV"."""
+        """The unit, e.g., "eV"."""
         return self._unit
 
     def __reduce__(self):
@@ -665,7 +671,7 @@ def _my_partial(func, *args, **kwargs):
     """
     newobj = partial(func, *args, **kwargs)
     # monkey patch
-    newobj.from_string = FloatWithUnit.from_string
+    newobj.from_str = FloatWithUnit.from_str
     return newobj
 
 
@@ -783,9 +789,9 @@ def unitized(unit):
 
     """
 
-    def wrap(f):
+    def wrap(func):
         def wrapped_f(*args, **kwargs):
-            val = f(*args, **kwargs)
+            val = func(*args, **kwargs)
             unit_type = _UNAME2UTYPE[unit]
 
             if isinstance(val, (FloatWithUnit, ArrayWithUnit)):
@@ -810,9 +816,3 @@ def unitized(unit):
         return wrapped_f
 
     return wrap
-
-
-if __name__ == "__main__":
-    import doctest
-
-    doctest.testmod()

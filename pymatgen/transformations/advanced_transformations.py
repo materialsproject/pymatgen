@@ -382,9 +382,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             finder = SpacegroupAnalyzer(structure, self.symm_prec)
             structure = finder.get_refined_structure()
 
-        contains_oxidation_state = all(
-            hasattr(sp, "oxi_state") and sp.oxi_state != 0 for sp in structure.composition.elements
-        )
+        contains_oxidation_state = all(hasattr(sp, "oxi_state") and sp.oxi_state != 0 for sp in structure.elements)
 
         structures = None
 
@@ -488,7 +486,9 @@ class EnumerateStructureTransformation(AbstractTransformation):
         def sort_func(s):
             return (
                 s["energy"] / s["num_sites"]
-                if self.sort_criteria == "m3gnet" or (contains_oxidation_state and self.sort_criteria == "ewald")
+                if callable(self.sort_criteria)
+                or self.sort_criteria.startswith("m3gnet")
+                or (contains_oxidation_state and self.sort_criteria == "ewald")
                 else s["num_sites"]
             )
 
@@ -718,7 +718,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 # this very hacky bit of code only works because we know
                 # that on disordered sites in this class, all species are the same
                 # but have different spins, and this is comma-delimited
-                sp = str(list(site.species)[0]).split(",", maxsplit=1)[0]
+                sp = str(next(iter(site.species))).split(",", maxsplit=1)[0]
                 if sp in mag_species_order_parameter:
                     mag_species_occurrences[sp] += 1
                 else:
@@ -1635,12 +1635,12 @@ class CubicSupercellTransformation(AbstractTransformation):
             # Get number of atoms
             st = SupercellTransformation(self.transformation_matrix)
             superstructure = st.apply_transformation(structure)
-            num_at = superstructure.num_sites
+            n_atoms = len(superstructure)
 
             # Check if constraints are satisfied
             if (
                 np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
-                and self.min_atoms <= num_at <= self.max_atoms
+                and self.min_atoms <= n_atoms <= self.max_atoms
             ) and (
                 not self.force_90_degrees
                 or np.all(np.absolute(np.array(superstructure.lattice.angles) - 90) < self.angle_tolerance)
@@ -1649,7 +1649,7 @@ class CubicSupercellTransformation(AbstractTransformation):
 
             # Increase threshold until proposed supercell meets requirements
             target_sc_size += 0.1
-            if num_at > self.max_atoms:
+            if n_atoms > self.max_atoms:
                 raise AttributeError(
                     "While trying to solve for the supercell, the max "
                     "number of atoms was exceeded. Try lowering the number"

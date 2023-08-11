@@ -68,8 +68,8 @@ class CovalentBond:
             Float value of bond order. For example, for C-C bond in
             benzene, return 1.7.
         """
-        sp1 = list(self.site1.species)[0]
-        sp2 = list(self.site2.species)[0]
+        sp1 = next(iter(self.site1.species))
+        sp2 = next(iter(self.site2.species))
         dist = self.site1.distance(self.site2)
         return get_bond_order(sp1, sp2, dist, tol, default_bl)
 
@@ -93,8 +93,8 @@ class CovalentBond:
         Returns:
             Boolean indicating whether two sites are bonded.
         """
-        sp1 = list(site1.species)[0]
-        sp2 = list(site2.species)[0]
+        sp1 = next(iter(site1.species))
+        sp2 = next(iter(site2.species))
         dist = site1.distance(site2)
         syms = tuple(sorted([sp1.symbol, sp2.symbol]))
         if syms in bond_lengths:

@@ -43,11 +43,11 @@ if __name__ == "__main__":
             print("Wrong geometry, try again ...")
             continue
         print(cg.name)
-        for ipoint, point in enumerate(cg.points):
-            print(f"Point #{ipoint:d} : {point[0]!r} {point[1]!r} {point[2]!r}")
+        for idx, point in enumerate(cg.points):
+            print(f"Point #{idx} : {point[0]!r} {point[1]!r} {point[2]!r}")
         print("Algorithms used :")
-        for ialgo, algo in enumerate(cg.algorithms):
-            print(f"Algorithm #{ialgo:d} :")
+        for idx, algo in enumerate(cg.algorithms):
+            print(f"Algorithm #{idx} :")
             print(algo)
             print()
         # Visualize the separation plane of a given algorithm
@@ -56,8 +56,8 @@ if __name__ == "__main__":
             test = input("Enter index of the algorithm for which you want to visualize the plane : ")
             if test != "":
                 try:
-                    ialgo = int(test)
-                    algo = cg.algorithms[ialgo]
+                    idx = int(test)
+                    algo = cg.algorithms[idx]
                     sep_plane = True
                 except Exception:
                     print(

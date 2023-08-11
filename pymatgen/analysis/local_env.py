@@ -51,13 +51,13 @@ __date__ = "August 17, 2017"
 _directory = os.path.join(os.path.dirname(__file__))
 yaml = YAML()
 
-with open(os.path.join(_directory, "op_params.yaml")) as f:
+with open(f"{_directory}/op_params.yaml") as f:
     default_op_params = yaml.load(f)
 
-with open(os.path.join(_directory, "cn_opt_params.yaml")) as f:
+with open(f"{_directory}/cn_opt_params.yaml") as f:
     cn_opt_params = yaml.load(f)
 
-with open(os.path.join(_directory, "ionic_radii.json")) as fp:
+with open(f"{_directory}/ionic_radii.json") as fp:
     _ion_radii = json.load(fp)
 
 
@@ -183,7 +183,7 @@ class ValenceIonicRadiusEvaluator:
                     else:
                         valences.append(0)
                 if sum(valences):
-                    valences = [0] * self._structure.num_sites
+                    valences = [0] * len(self._structure)
                 else:
                     self._structure.add_oxidation_state_by_site(valences)
                 # raise
@@ -192,7 +192,6 @@ class ValenceIonicRadiusEvaluator:
         # el = [site.species_string for site in self._structure]
         # el = [site.specie for site in self._structure]
         # valence_dict = dict(zip(el, valences))
-        # print valence_dict
         return valences
 
 
@@ -208,8 +207,8 @@ def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
         raise ValueError(
             f"Generating StructureGraphs for disordered Structures is unsupported. Pass on_disorder='take "
             "majority' | 'take_max_species' | 'error'. 'take_majority_strict' considers only the majority species from "
-            "each site in the bonding algorithm and raises ValueError in case there is no majority (e.g. as in {{Fe: "
-            "0.4, O: 0.4, C: 0.2}}) whereas 'take_majority_drop' just ignores the site altogether when computing bonds "
+            "each site in the bonding algorithm and raises ValueError in case there is no majority (e.g. as in {Fe: "
+            "0.4, O: 0.4, C: 0.2}) whereas 'take_majority_drop' just ignores the site altogether when computing bonds "
             "as if it didn't exist. 'take_max_species' extracts the first max species on each site (Fe in prev. "
             "example since Fe and O have equal occupancy and Fe comes first). 'error' raises an error in case "
             f"of disordered structure. Offending {structure = }"
@@ -745,7 +744,7 @@ class VoronoiNN(NearNeighbors):
         """
         # Assemble the list of neighbors used in the tessellation
         #   Gets all atoms within a certain radius
-        targets = structure.composition.elements if self.targets is None else self.targets
+        targets = structure.elements if self.targets is None else self.targets
         center = structure[n]
 
         cutoff = self.cutoff
@@ -803,7 +802,7 @@ class VoronoiNN(NearNeighbors):
             return [self.get_voronoi_polyhedra(structure, 0)]
 
         # Assemble the list of neighbors used in the tessellation
-        targets = structure.composition.elements if self.targets is None else self.targets
+        targets = structure.elements if self.targets is None else self.targets
 
         # Initialize the list of sites with the atoms in the origin unit cell
         # The `get_all_neighbors` function returns neighbors for each site's image in
@@ -1013,7 +1012,7 @@ class VoronoiNN(NearNeighbors):
             (list of tuples (Site, array, float)): See nn_info
         """
         # Get the target information
-        targets = structure.composition.elements if self.targets is None else self.targets
+        targets = structure.elements if self.targets is None else self.targets
 
         # Extract the NN info
         siw = []
@@ -1121,7 +1120,7 @@ class IsayevNN(VoronoiNN):
             See get_nn_info for the format of the returned data.
         """
         # Get the target information
-        targets = structure.composition.elements if self.targets is None else self.targets
+        targets = structure.elements if self.targets is None else self.targets
 
         site = structure[n]
 
@@ -1274,7 +1273,7 @@ class JmolNN(NearNeighbors):
 
         # Determine relevant bond lengths based on atomic radii table
         bonds = {}
-        for el in structure.composition.elements:
+        for el in structure.elements:
             bonds[site.specie, el] = self.get_max_bond_distance(site.specie.symbol, el.symbol)
 
         # Search for neighbors up to max bond length + tolerance
@@ -1459,15 +1458,15 @@ class OpenBabelNN(NearNeighbors):
         siw = []
 
         # Get only the atom of interest
-        site_atom = [
+        site_atom = next(
             a
             for i, a in enumerate(openbabel.OBMolAtomDFSIter(obmol))
             if [a.GetX(), a.GetY(), a.GetZ()] == list(structure[n].coords)
-        ][0]
+        )
 
         for neighbor in openbabel.OBAtomAtomIter(site_atom):
             coords = [neighbor.GetX(), neighbor.GetY(), neighbor.GetZ()]
-            site = [a for a in structure if list(a.coords) == coords][0]
+            site = next(a for a in structure if list(a.coords) == coords)
             index = structure.index(site)
 
             bond = site_atom.GetBond(neighbor)
@@ -3650,12 +3649,13 @@ class EconNN(NearNeighbors):
         site = structure[n]
         neighbors = structure.get_neighbors(site, self.cutoff)
 
-        if self.cation_anion and hasattr(site.specie, "oxi_state"):
+        oxi_state = getattr(site.specie, "oxi_state", None)
+        if self.cation_anion and oxi_state is not None:
             # filter out neighbor of like charge (except for neutral sites)
-            if site.specie.oxi_state >= 0:
+            if oxi_state >= 0:
                 neighbors = [n for n in neighbors if n.oxi_state <= 0]
-            elif site.specie.oxi_state <= 0:
-                neighbors = [n for n in neighbors if n.oxi_state >= 0]
+            elif oxi_state < 0:
+                neighbors = [nghbr for nghbr in neighbors if nghbr.oxi_state >= 0]
 
         if self.use_fictive_radius:
             # calculate fictive ionic radii
@@ -3883,7 +3883,8 @@ class CrystalNN(NearNeighbors):
             target = []
             m_oxi = structure[n].specie.oxi_state
             for site in structure:
-                if site.specie.oxi_state * m_oxi <= 0:  # opposite charge
+                oxi_state = getattr(site.specie, "oxi_state", None)
+                if oxi_state is not None and oxi_state * m_oxi <= 0:  # opposite charge
                     target.append(site.specie)
             if not target:
                 raise ValueError("No valid targets for site within cation_anion constraint!")
@@ -4217,7 +4218,7 @@ class CutOffDictNN(NearNeighbors):
             A CutOffDictNN using the preset cut-off dictionary.
         """
         if preset == "vesta_2019":
-            cut_offs = loadfn(os.path.join(_directory, "vesta_cutoffs.yaml"))
+            cut_offs = loadfn(f"{_directory}/vesta_cutoffs.yaml")
             return CutOffDictNN(cut_off_dict=cut_offs)
 
         raise ValueError(f"Unknown {preset=}")

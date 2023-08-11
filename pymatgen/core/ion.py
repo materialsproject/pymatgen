@@ -142,7 +142,7 @@ class Ion(Composition, MSONable, Stringify):
         d = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
         (formula, factor) = reduce_formula(d, iupac_ordering=iupac_ordering)
 
-        if "HO" in formula and self.composition["H"] == self.composition["O"]:
+        if self.composition.get("H") == self.composition.get("O") is not None:
             formula = formula.replace("HO", "OH")
 
         if nH2O > 0:
@@ -274,7 +274,7 @@ class Ion(Composition, MSONable, Stringify):
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
-        return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, self.charge)[0]
+        return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, self.charge)[0]
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Ion):
@@ -313,7 +313,7 @@ class Ion(Composition, MSONable, Stringify):
         return "Ion: " + self.formula
 
     def to_pretty_string(self) -> str:
-        """:return: Pretty string with proper superscripts."""
+        """Pretty string with proper superscripts."""
         str_ = super().reduced_formula
         if val := formula_double_format(self.charge, False):
             str_ += f"^{val:+}"

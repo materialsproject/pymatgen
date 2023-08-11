@@ -61,7 +61,7 @@ class ExpEntry(PDEntry, MSONable):
         return cls(d["composition"], thermodata, d["temperature"])
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

@@ -274,8 +274,13 @@ class GaussianInput:
 
         return Molecule(species, coords)
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(contents):
+    def from_str(contents):
         """
         Creates GaussianInput from a string.
 
@@ -361,7 +366,7 @@ class GaussianInput:
             GaussianInput object
         """
         with zopen(filename, "r") as f:
-            return GaussianInput.from_string(f.read())
+            return GaussianInput.from_str(f.read())
 
     def get_zmatrix(self):
         """Returns a z-matrix representation of the molecule."""
@@ -375,9 +380,13 @@ class GaussianInput:
         return "\n".join(outs)
 
     def __str__(self):
-        return self.to_string()
+        return self.to_str()
 
-    def to_string(self, cart_coords=False):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, cart_coords=False):
         """Return GaussianInput string.
 
         Args:
@@ -442,10 +451,10 @@ class GaussianInput:
         Option: see __str__ method
         """
         with zopen(filename, "w") as file:
-            file.write(self.to_string(cart_coords))
+            file.write(self.to_str(cart_coords))
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -688,12 +697,12 @@ class GaussianOutput:
 
     @property
     def final_energy(self):
-        """:return: Final energy in Gaussian output."""
+        """Final energy in Gaussian output."""
         return self.energies[-1]
 
     @property
     def final_structure(self):
-        """:return: Final structure in Gaussian output."""
+        """Final structure in Gaussian output."""
         return self.structures[-1]
 
     def _parse(self, filename):
@@ -1137,23 +1146,23 @@ class GaussianOutput:
     def as_dict(self):
         """JSON-serializable dict representation."""
         structure = self.final_structure
-        d = {
+        dct = {
             "has_gaussian_completed": self.properly_terminated,
             "nsites": len(structure),
         }
         comp = structure.composition
-        d["unit_cell_formula"] = comp.as_dict()
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        d["pretty_formula"] = comp.reduced_formula
-        d["is_pcm"] = self.is_pcm
-        d["errors"] = self.errors
-        d["Mulliken_charges"] = self.Mulliken_charges
+        dct["unit_cell_formula"] = comp.as_dict()
+        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
+        dct["pretty_formula"] = comp.reduced_formula
+        dct["is_pcm"] = self.is_pcm
+        dct["errors"] = self.errors
+        dct["Mulliken_charges"] = self.Mulliken_charges
 
-        unique_symbols = sorted(d["unit_cell_formula"])
-        d["elements"] = unique_symbols
-        d["nelements"] = len(unique_symbols)
-        d["charge"] = self.charge
-        d["spin_multiplicity"] = self.spin_multiplicity
+        unique_symbols = sorted(dct["unit_cell_formula"])
+        dct["elements"] = unique_symbols
+        dct["nelements"] = len(unique_symbols)
+        dct["charge"] = self.charge
+        dct["spin_multiplicity"] = self.spin_multiplicity
 
         vin = {
             "route": self.route_parameters,
@@ -1163,24 +1172,24 @@ class GaussianOutput:
             "pcm_parameters": self.pcm,
         }
 
-        d["input"] = vin
+        dct["input"] = vin
 
-        nsites = len(self.final_structure)
+        n_sites = len(self.final_structure)
 
         vout = {
             "energies": self.energies,
             "final_energy": self.final_energy,
-            "final_energy_per_atom": self.final_energy / nsites,
+            "final_energy_per_atom": self.final_energy / n_sites,
             "molecule": structure.as_dict(),
             "stationary_type": self.stationary_type,
             "corrections": self.corrections,
         }
 
-        d["output"] = vout
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
+        dct["output"] = vout
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
 
-        return d
+        return dct
 
     def read_scan(self):
         """

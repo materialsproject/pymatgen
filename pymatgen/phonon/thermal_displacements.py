@@ -1,4 +1,5 @@
 """This module provides classes to handle thermal displacement matrices (anisotropic displacement parameters)."""
+
 from __future__ import annotations
 
 import re
@@ -337,7 +338,7 @@ class ThermalDisplacementMatrices(MSONable):
                 )
                 f.write(" 0.000000 0.000000 0.000000 0.00\n")  # error on positions - zero here
 
-            # now we iterate over the whole structure and write down the frational coordinates (with errors)
+            # now we iterate over the whole structure and write down the fractional coordinates (with errors)
             f.write("  0 0 0 0 0 0 0\n")
             f.write("THERT 0\n")
             f.write("THERM\n")
@@ -352,8 +353,8 @@ class ThermalDisplacementMatrices(MSONable):
                 counter += 1
             f.write("  0 0 0 0 0 0 0 0\n")
             f.write("VECTR\n")
-            vectorcounter = 1
-            sitecounter = 1
+            vector_count = 1
+            site_count = 1
             for vectors in result:
                 vector0_x = vectors["vector0"][0]
                 vector0_y = vectors["vector0"][1]
@@ -362,15 +363,15 @@ class ThermalDisplacementMatrices(MSONable):
                 vector1_y = vectors["vector1"][1]
                 vector1_z = vectors["vector1"][2]
 
-                f.write(f"    {vectorcounter} {vector0_x} {vector0_y} {vector0_z} 0\n")
-                f.write(f"    {sitecounter} 0 0 0 0\n")
+                f.write(f"    {vector_count} {vector0_x} {vector0_y} {vector0_z} 0\n")
+                f.write(f"    {site_count} 0 0 0 0\n")
 
                 f.write(" 0 0 0 0 0\n")
-                vectorcounter += 1
-                f.write(f"    {vectorcounter} {vector1_x} {vector1_y} {vector1_z} 0\n")
-                f.write(f"    {sitecounter} 0 0 0 0\n")
-                vectorcounter += 1
-                sitecounter += 1
+                vector_count += 1
+                f.write(f"    {vector_count} {vector1_x} {vector1_y} {vector1_z} 0\n")
+                f.write(f"    {site_count} 0 0 0 0\n")
+                vector_count += 1
+                site_count += 1
                 f.write(" 0 0 0 0 0\n")
 
             f.write(" 0 0 0 0 0\n")

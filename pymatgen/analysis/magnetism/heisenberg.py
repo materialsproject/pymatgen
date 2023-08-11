@@ -253,8 +253,8 @@ class HeisenbergMapper:
         # Get labels of unique NN interactions
         for k0, v0 in nn_interactions.items():
             for idx, j in v0.items():  # i and j indices
-                c = str(idx) + "-" + str(j) + "-" + str(k0)
-                c_rev = str(j) + "-" + str(idx) + "-" + str(k0)
+                c = f"{idx}-{j}-{k0}"
+                c_rev = f"{j}-{idx}-{k0}"
                 if c not in columns and c_rev not in columns:
                     columns.append(c)
 
@@ -311,8 +311,8 @@ class HeisenbergMapper:
                             order = "-nnn"
                         elif abs(dist - dists["nnnn"]) <= tol:
                             order = "-nnnn"
-                        j_ij = str(i_index) + "-" + str(j_index) + order
-                        j_ji = str(j_index) + "-" + str(i_index) + order
+                        j_ij = f"{i_index}-{j_index}{order}"
+                        j_ji = f"{j_index}-{i_index}{order}"
 
                         if j_ij in ex_mat.columns:
                             ex_row.loc[sgraph_index, j_ij] -= s_i * s_j
@@ -611,8 +611,8 @@ class HeisenbergMapper:
         elif abs(dist - self.dists["nnnn"]) <= self.tol:
             order = "-nnnn"
 
-        j_ij = str(i_index) + "-" + str(j_index) + order
-        j_ji = str(j_index) + "-" + str(i_index) + order
+        j_ij = f"{i_index}-{j_index}{order}"
+        j_ji = f"{j_index}-{i_index}{order}"
 
         if j_ij in self.ex_params:
             j_exc = self.ex_params[j_ij]
@@ -631,7 +631,7 @@ class HeisenbergMapper:
         """Save results of mapping to a HeisenbergModel object.
 
         Returns:
-            hmodel (HeisenbergModel): MSONable object.
+            HeisenbergModel: MSONable object.
         """
         # Original formula unit with nonmagnetic ions
         hm_formula = str(self.ordered_structures_[0].composition.reduced_formula)
@@ -981,8 +981,8 @@ class HeisenbergModel(MSONable):
         elif abs(dist - self.dists["nnnn"]) <= self.tol:
             order = "-nnnn"
 
-        j_ij = str(i_index) + "-" + str(j_index) + order
-        j_ji = str(j_index) + "-" + str(i_index) + order
+        j_ij = f"{i_index}-{j_index}{order}"
+        j_ji = f"{j_index}-{i_index}{order}"
 
         if j_ij in self.ex_params:
             j_exc = self.ex_params[j_ij]

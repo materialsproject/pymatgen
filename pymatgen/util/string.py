@@ -1,4 +1,5 @@
 """This module provides utility classes for string operations."""
+
 from __future__ import annotations
 
 import re
@@ -300,27 +301,27 @@ def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x",
     :return: xyz string.
     """
     parts = []
-    for i in range(3):
-        s = ""
-        m = matrix[i]
-        t = translation_vec[i]
+    for idx in range(3):
+        string = ""
+        m = matrix[idx]
+        offset = translation_vec[idx]
         for j, dim in enumerate(components):
             if m[j] != 0:
                 f = Fraction(m[j]).limit_denominator()
-                if s != "" and f >= 0:
-                    s += "+"
+                if string != "" and f >= 0:
+                    string += "+"
                 if abs(f.numerator) != 1:
-                    s += str(f.numerator)
+                    string += str(f.numerator)
                 elif f < 0:
-                    s += "-"
-                s += c + dim
+                    string += "-"
+                string += c + dim
                 if f.denominator != 1:
-                    s += "/" + str(f.denominator)
-        if t != 0:
-            s += ("+" if (t > 0 and s != "") else "") + str(Fraction(t).limit_denominator())
-        if s == "":
-            s += "0"
-        parts.append(s)
+                    string += "/" + str(f.denominator)
+        if offset != 0:
+            string += ("+" if (offset > 0 and string != "") else "") + str(Fraction(offset).limit_denominator())
+        if string == "":
+            string += "0"
+        parts.append(string)
     return delim.join(parts)
 
 

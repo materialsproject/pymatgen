@@ -472,9 +472,13 @@ class AbinitHeader(AttrDict):
     #        v.__doc__ = _HDR_VARIABLES[k].doc
 
     def __str__(self):
-        return self.to_string()
+        return self.to_str()
 
-    def to_string(self, verbose=0, title=None, **kwargs):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, verbose=0, title=None, **kwargs):
         """
         String representation. kwargs are passed to `pprint.pformat`.
 

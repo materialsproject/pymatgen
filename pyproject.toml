@@ -1,7 +1,7 @@
 [build-system]
 requires = [
-  # pin NumPy version used in the build
   "Cython>=0.29.23",
+  # pin NumPy version used in the build
   "oldest-supported-numpy",
   "setuptools>=65.0.0",
 ]
@@ -70,8 +70,9 @@ ignore = [
   "PLR",     # pylint refactor
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT013",   # pytest-incorrect-pytest-import
-  "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
+  "PYI024",  # collections-named-tuple (TODO should maybe fix these)
   "RUF012",  # Disable checks for mutable class args. This is a non-problem.
+  "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
@@ -79,7 +80,7 @@ isort.split-on-trailing-comma = false
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
-"*/tests/*" = ["D"]
+"tests/**" = ["D"]
 "tasks.py" = ["D"]
 "pymatgen/analysis/*" = ["D"]
 "pymatgen/vis/*" = ["D"]
@@ -87,24 +88,36 @@ isort.split-on-trailing-comma = false
 "dev_scripts/*" = ["D"]
 
 [tool.pytest.ini_options]
-addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings"
+addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mode=importlib"
 
 [tool.coverage.run]
-omit = ["pymatgen/cli"]
-relative_files = true
+branch = true
+omit = [
+  "pymatgen/cli/feff_plot_cross_section.py",
+  "pymatgen/cli/feff_plot_dos.py",
+  "pymatgen/cli/pmg_config.py",
+  "pymatgen/cli/pmg_plot.py",
+  "pymatgen/cli/pmg_potcar.py",
+  "pymatgen/cli/pmg_query.py",
+  "pymatgen/dao.py",
+]
 
 [tool.coverage.report]
-exclude_lines = [
+exclude_also = [
   "@deprecated",
+  "@np.deprecate",
   "def __repr__",
   "if 0:",
+  "if TYPE_CHECKING:",
   "if __name__ == .__main__.:",
   "if self.debug:",
   "if settings.DEBUG",
+  "if typing.TYPE_CHECKING:",
   "pragma: no cover",
   "raise AssertionError",
   "raise NotImplementedError",
   "show_plot",
+  "except ImportError:"
 ]
 
 [tool.mypy]
@@ -112,6 +125,7 @@ ignore_missing_imports = true
 namespace_packages = true
 explicit_package_bases = true
 no_implicit_optional = false
+disable_error_code = "annotation-unchecked"
 
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*"]

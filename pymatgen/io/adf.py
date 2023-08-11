@@ -6,6 +6,7 @@ import os
 import re
 from typing import Generator
 
+import numpy as np
 from monty.io import reverse_readline
 from monty.itertools import chunks
 from monty.json import MSONable
@@ -353,8 +354,13 @@ class AdfKey(MSONable):
         subkeys = [AdfKey.from_dict(k) for k in subkey_list] or None
         return cls(key, options, subkeys)
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(string):
+    def from_str(string):
         """
         Construct an AdfKey object from the string.
 
@@ -407,13 +413,13 @@ class AdfKey(MSONable):
                 continue
             if el[0].upper() in AdfKey.block_keys:
                 if key is None:
-                    key = AdfKey.from_string(line)
+                    key = AdfKey.from_str(line)
                 else:
                     return key
             elif el[0].upper() == "END":
                 return key
             elif key is not None:
-                key.add_subkey(AdfKey.from_string(line))
+                key.add_subkey(AdfKey.from_str(line))
 
         raise Exception("IncompleteKey: 'END' is missing!")
 
@@ -483,27 +489,27 @@ class AdfTask(MSONable):
     @staticmethod
     def get_default_basis_set():
         """Returns: Default basis set."""
-        return AdfKey.from_string("Basis\ntype DZ\ncore small\nEND")
+        return AdfKey.from_str("Basis\ntype DZ\ncore small\nEND")
 
     @staticmethod
     def get_default_scf():
         """Returns: ADF using default SCF."""
-        return AdfKey.from_string("SCF\niterations 300\nEND")
+        return AdfKey.from_str("SCF\niterations 300\nEND")
 
     @staticmethod
     def get_default_geo():
         """Returns: ADFKey using default geometry."""
-        return AdfKey.from_string("GEOMETRY SinglePoint\nEND")
+        return AdfKey.from_str("GEOMETRY SinglePoint\nEND")
 
     @staticmethod
     def get_default_xc():
         """Returns: ADFKey using default XC."""
-        return AdfKey.from_string("XC\nGGA PBE\nEND")
+        return AdfKey.from_str("XC\nGGA PBE\nEND")
 
     @staticmethod
     def get_default_units():
         """Returns: Default units."""
-        return AdfKey.from_string("Units\nlength angstrom\nangle degree\nEnd")
+        return AdfKey.from_str("Units\nlength angstrom\nangle degree\nEnd")
 
     def _setup_task(self, geo_subkeys):
         """
@@ -695,7 +701,7 @@ class AdfOutput:
         output file.
         """
         workdir = os.path.dirname(self.filename)
-        logfile = os.path.join(workdir, "logfile")
+        logfile = f"{workdir}/logfile"
         for ext in ("", ".gz", ".bz2"):
             if os.path.isfile(f"{logfile}{ext}"):
                 logfile = f"{logfile}{ext}"
@@ -848,8 +854,8 @@ class AdfOutput:
         coord_on_patt = re.compile(r"\s+\*\s+R\sU\sN\s+T\sY\sP\sE\s:\sFREQUENCIES\s+\*")
         parse_freq = False
         parse_mode = False
-        nnext = 0
-        nstrike = 0
+        n_next = 0
+        n_strike = 0
         sites = []
 
         self.frequencies = []
@@ -858,11 +864,11 @@ class AdfOutput:
         if self.final_structure is None:
             find_structure = True
             parse_coord = False
-            natoms = 0
+            n_atoms = 0
         else:
             find_structure = False
             parse_coord = False
-            natoms = self.final_structure.num_sites
+            n_atoms = len(self.final_structure)
 
         with open(self.filename) as f:
             for line in f:
@@ -875,11 +881,11 @@ class AdfOutput:
                         m = coord_patt.search(line)
                         if m:
                             sites.append([m.group(2), list(map(float, m.groups()[2:5]))])
-                            nstrike += 1
-                        elif nstrike > 0:
+                            n_strike += 1
+                        elif n_strike > 0:
                             find_structure = False
                             self.final_structure = self._sites_to_mol(sites)
-                            natoms = self.final_structure.num_sites
+                            n_atoms = len(self.final_structure)
 
                 elif self.freq_type is None:
                     if numerical_freq_patt.search(line):
@@ -896,22 +902,22 @@ class AdfOutput:
                         break
                     el = line.strip().split()
                     if 1 <= len(el) <= 3 and line.find(".") != -1:
-                        nnext = len(el)
+                        n_next = len(el)
                         parse_mode = True
                         parse_freq = False
                         self.frequencies.extend(map(float, el))
-                        for _ in range(nnext):
+                        for _ in range(n_next):
                             self.normal_modes.append([])
 
                 elif parse_mode:
                     m = mode_patt.search(line)
                     if m:
                         v = list(chunks(map(float, m.group(3).split()), 3))
-                        if len(v) != nnext:
+                        if len(v) != n_next:
                             raise AdfOutputError("Odd Error!")
-                        for i, k in enumerate(range(-nnext, 0, 1)):
+                        for i, k in enumerate(range(-n_next, 0, 1)):
                             self.normal_modes[k].extend(v[i])
-                        if int(m.group(1)) == natoms:
+                        if int(m.group(1)) == n_atoms:
                             parse_freq = True
                             parse_mode = False
         if isinstance(self.final_structure, list):
@@ -920,5 +926,5 @@ class AdfOutput:
         if self.freq_type is not None:
             if len(self.frequencies) != len(self.normal_modes):
                 raise AdfOutputError("The number of normal modes is wrong!")
-            if len(self.normal_modes[0]) != natoms * 3:
+            if len(self.normal_modes[0]) != n_atoms * 3:
                 raise AdfOutputError("The dimensions of the modes are wrong!")

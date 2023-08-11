@@ -53,9 +53,9 @@ def quick_view(
 
     if bonds:
         bonds = []
-        for idx in range(struct.num_sites - 1):
+        for idx in range(len(struct) - 1):
             sym_i = struct[idx].specie.symbol
-            for j in range(idx + 1, struct.num_sites):
+            for j in range(idx + 1, len(struct)):
                 sym_j = struct[j].specie.symbol
                 max_d = CovalentRadius.radius[sym_i] + CovalentRadius.radius[sym_j] + bond_tol
                 if struct.get_distance(idx, j, np.array([0, 0, 0])) < max_d:

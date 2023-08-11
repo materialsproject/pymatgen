@@ -453,7 +453,7 @@ class Tensor(np.ndarray, MSONable):
             n_umask = np.logical_not(angles == angles[u_index])
             rotation[1] = get_uvec(vecs[u_index])
             # Shorter of remaining lattice vectors for c axis
-            c = [vec / mag for (mag, vec) in sorted(zip(lengths[n_umask], vecs[n_umask]))][0]
+            c = next(vec / mag for (mag, vec) in sorted(zip(lengths[n_umask], vecs[n_umask])))
             rotation[2] = np.array(c)
             rotation[0] = np.cross(rotation[1], rotation[2])
 
@@ -737,7 +737,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @property
     def symmetrized(self):
-        """:return: TensorCollection where all tensors are symmetrized."""
+        """TensorCollection where all tensors are symmetrized."""
         return self.__class__([t.symmetrized for t in self])
 
     def is_symmetric(self, tol: float = 1e-5):
@@ -767,12 +767,12 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @property
     def voigt(self):
-        """:return: TensorCollection where all tensors are in voight form."""
+        """TensorCollection where all tensors are in voight form."""
         return [t.voigt for t in self]
 
     @property
     def ranks(self):
-        """:return: Ranks for all tensors."""
+        """Ranks for all tensors."""
         return [t.rank for t in self]
 
     def is_voigt_symmetric(self, tol: float = 1e-6):
@@ -816,7 +816,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @property
     def voigt_symmetrized(self):
-        """:return: TensorCollection where all tensors are voigt symmetrized."""
+        """TensorCollection where all tensors are voigt symmetrized."""
         return self.__class__([t.voigt_symmetrized for t in self])
 
     def as_dict(self, voigt=False):
@@ -1046,11 +1046,11 @@ class TensorMapping(collections.abc.MutableMapping):
         yield from self._tensor_list
 
     def values(self):
-        """:return: Values in mapping."""
+        """Values in mapping."""
         return self._value_list
 
     def items(self):
-        """:return: Items in mapping."""
+        """Items in mapping."""
         return zip(self._tensor_list, self._value_list)
 
     def __contains__(self, item):

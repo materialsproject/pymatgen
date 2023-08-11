@@ -49,12 +49,12 @@ class ConnectivityFinder:
                 continue
             if len(site_neighbors_sets) > 1:
                 if self.multiple_environments_choice is None:
-                    raise ValueError(f"Local environment of site {isite:d} is a mix and nothing is asked about it")
+                    raise ValueError(f"Local environment of site {isite} is a mix and nothing is asked about it")
                 if self.multiple_environments_choice == "TAKE_HIGHEST_FRACTION":
                     imax = np.argmax(
                         [ee["ce_fraction"] for ee in light_structure_environments.coordination_environments[isite]]
                     )
-                    print(f"IMAX {imax:d}")
+                    print(f"IMAX {imax}")
                     site_neighbors_set = site_neighbors_sets[imax]
                 else:
                     raise RuntimeError("Should not be here")

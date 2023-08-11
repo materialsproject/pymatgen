@@ -77,7 +77,7 @@ class BaseLammpsGenerator(InputGenerator):
         # Replace all variables
         input_str = Template(template_str).safe_substitute(**self.settings)
         # Get LammpsInputFile
-        input_file = LammpsInputFile.from_string(input_str, keep_stages=self.keep_stages)
+        input_file = LammpsInputFile.from_str(input_str, keep_stages=self.keep_stages)
 
         # Get the LammpsInputSet from the InputFile and data
         return LammpsInputSet(inputfile=input_file, data=data, calc_type=self.calc_type, template_file=self.template)
@@ -130,7 +130,7 @@ class LammpsMinimization(BaseLammpsGenerator):
                          If False, stage names are not printed and all commands appear in a single block.
         """
         if template is None:
-            template = os.path.join(template_dir, "minimization.template")
+            template = f"{template_dir}/minimization.template"
         settings = {
             "units": units,
             "atom_style": atom_style,

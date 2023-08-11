@@ -39,7 +39,7 @@ def run_mcsqs(
     search_time: float = 60,
     directory: str | None = None,
     instances: int | None = None,
-    temperature: int | float = 1,
+    temperature: float = 1,
     wr: float = 1,
     wn: float = 1,
     wd: float = 0.5,
@@ -104,7 +104,7 @@ def run_mcsqs(
     # Generate clusters
     mcsqs_generate_clusters_cmd = ["mcsqs"]
     for num in clusters:
-        mcsqs_generate_clusters_cmd.append("-" + str(num) + "=" + str(clusters[num]))
+        mcsqs_generate_clusters_cmd.append(f"-{num}={clusters[num]}")
 
     # Run mcsqs to find clusters
     with Popen(mcsqs_generate_clusters_cmd) as process:

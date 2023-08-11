@@ -585,8 +585,7 @@ class InterfacialReactivity(MSONable):
                3: 'x= 1 energy = 0 O2 -> O2'}.
         """
         return {
-            j: "x= " + str(round(x, 4)) + " energy in eV/atom = " + str(round(energy, 4)) + " " + str(reaction)
-            for j, x, energy, reaction, _ in self.get_kinks()
+            j: f"x= {x:.4} energy in eV/atom = {energy:.4} {reaction}" for j, x, energy, reaction, _ in self.get_kinks()
         }
 
     @property
@@ -598,7 +597,7 @@ class InterfacialReactivity(MSONable):
         Returns:
             Tuple (x_min, E_min).
         """
-        return min(((x, energy) for _, x, energy, _, _ in self.get_kinks()), key=lambda i: i[1])
+        return min(((x, energy) for _, x, energy, _, _ in self.get_kinks()), key=lambda tup: tup[1])
 
     @property
     def products(self):

@@ -212,7 +212,7 @@ class Control(MSONable, dict):
         Returns:
             A ShengBTE control object.
         """
-        elements = list(map(str, structure.composition.elements))
+        elements = list(map(str, structure.elements))
 
         unique_nums = np.unique(structure.atomic_numbers)
         types_dict = dict(zip(unique_nums, range(len(unique_nums))))
@@ -220,7 +220,7 @@ class Control(MSONable, dict):
 
         control_dict = {
             "nelements": structure.ntypesp,
-            "natoms": structure.num_sites,
+            "natoms": len(structure),
             "norientations": 0,
             "lfactor": 0.1,
             "lattvec": structure.lattice.matrix.tolist(),

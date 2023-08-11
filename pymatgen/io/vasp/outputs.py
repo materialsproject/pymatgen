@@ -424,6 +424,7 @@ class Vasprun(MSONable):
                         self.parameters = self._parse_params(elem)
                     elif tag == "structure" and elem.attrib.get("name") == "initialpos":
                         self.initial_structure = self._parse_structure(elem)
+                        self.final_structure = self.initial_structure
                     elif tag == "atominfo":
                         self.atomic_symbols, self.potcar_symbols = self._parse_atominfo(elem)
                         self.potcar_spec = [{"titel": p, "hash": None} for p in self.potcar_symbols]
@@ -607,7 +608,7 @@ class Vasprun(MSONable):
         """
         final_esteps = self.ionic_steps[-1]["electronic_steps"] if self.incar not in ["CHI"] else 0
         # In a response function run there is no ionic steps, there is no scf step
-        if "LEPSILON" in self.incar and self.incar["LEPSILON"]:
+        if self.incar.get("LEPSILON"):
             i = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
             while set(final_esteps[i]) == to_check:
@@ -1158,25 +1159,25 @@ class Vasprun(MSONable):
 
     def as_dict(self):
         """JSON-serializable dict representation."""
-        d = {
+        dct = {
             "vasp_version": self.vasp_version,
             "has_vasp_completed": self.converged,
             "nsites": len(self.final_structure),
         }
         comp = self.final_structure.composition
-        d["unit_cell_formula"] = comp.as_dict()
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        d["pretty_formula"] = comp.reduced_formula
+        dct["unit_cell_formula"] = comp.as_dict()
+        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
+        dct["pretty_formula"] = comp.reduced_formula
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split(r"_", s)[0] for s in symbols]
-        d["is_hubbard"] = self.is_hubbard
-        d["hubbards"] = self.hubbards
+        dct["is_hubbard"] = self.is_hubbard
+        dct["hubbards"] = self.hubbards
 
         unique_symbols = sorted(set(self.atomic_symbols))
-        d["elements"] = unique_symbols
-        d["nelements"] = len(unique_symbols)
+        dct["elements"] = unique_symbols
+        dct["nelements"] = len(unique_symbols)
 
-        d["run_type"] = self.run_type
+        dct["run_type"] = self.run_type
 
         vin = {
             "incar": dict(self.incar.items()),
@@ -1197,15 +1198,15 @@ class Vasprun(MSONable):
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
         vin["parameters"] = dict(self.parameters.items())
         vin["lattice_rec"] = self.final_structure.lattice.reciprocal_lattice.as_dict()
-        d["input"] = vin
+        dct["input"] = vin
 
-        nsites = len(self.final_structure)
+        n_sites = len(self.final_structure)
 
         try:
             vout = {
                 "ionic_steps": self.ionic_steps,
                 "final_energy": self.final_energy,
-                "final_energy_per_atom": self.final_energy / nsites,
+                "final_energy_per_atom": self.final_energy / n_sites,
                 "crystal": self.final_structure.as_dict(),
                 "efermi": self.efermi,
             }
@@ -1235,8 +1236,8 @@ class Vasprun(MSONable):
         vout["epsilon_static"] = self.epsilon_static
         vout["epsilon_static_wolfe"] = self.epsilon_static_wolfe
         vout["epsilon_ionic"] = self.epsilon_ionic
-        d["output"] = vout
-        return jsanitize(d, strict=True)
+        dct["output"] = vout
+        return jsanitize(dct, strict=True)
 
     def _parse_params(self, elem):
         params = {}
@@ -1295,7 +1296,7 @@ class Vasprun(MSONable):
         if elem.find("generation"):
             e = elem.find("generation")
         k = Kpoints("Kpoints from vasprun.xml")
-        k.style = Kpoints.supported_modes.from_string(e.attrib["param"] if "param" in e.attrib else "Reciprocal")
+        k.style = Kpoints.supported_modes.from_str(e.attrib["param"] if "param" in e.attrib else "Reciprocal")
         for v in e.findall("v"):
             name = v.attrib.get("name")
             toks = v.text.split()
@@ -1582,23 +1583,23 @@ class BSVasprun(Vasprun):
 
     def as_dict(self):
         """JSON-serializable dict representation."""
-        d = {
+        dct = {
             "vasp_version": self.vasp_version,
             "has_vasp_completed": True,
             "nsites": len(self.final_structure),
         }
         comp = self.final_structure.composition
-        d["unit_cell_formula"] = comp.as_dict()
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        d["pretty_formula"] = comp.reduced_formula
-        d["is_hubbard"] = self.is_hubbard
-        d["hubbards"] = self.hubbards
+        dct["unit_cell_formula"] = comp.as_dict()
+        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
+        dct["pretty_formula"] = comp.reduced_formula
+        dct["is_hubbard"] = self.is_hubbard
+        dct["hubbards"] = self.hubbards
 
         unique_symbols = sorted(set(self.atomic_symbols))
-        d["elements"] = unique_symbols
-        d["nelements"] = len(unique_symbols)
+        dct["elements"] = unique_symbols
+        dct["nelements"] = len(unique_symbols)
 
-        d["run_type"] = self.run_type
+        dct["run_type"] = self.run_type
 
         vin = {
             "incar": dict(self.incar),
@@ -1618,7 +1619,7 @@ class BSVasprun(Vasprun):
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
         vin["parameters"] = dict(self.parameters)
         vin["lattice_rec"] = self.final_structure.lattice.reciprocal_lattice.as_dict()
-        d["input"] = vin
+        dct["input"] = vin
 
         vout = {"crystal": self.final_structure.as_dict(), "efermi": self.efermi}
 
@@ -1639,8 +1640,8 @@ class BSVasprun(Vasprun):
                             peigen[kpoint_index][str(spin)] = vv
                 vout["projected_eigenvalues"] = peigen
 
-        d["output"] = vout
-        return jsanitize(d, strict=True)
+        dct["output"] = vout
+        return jsanitize(dct, strict=True)
 
 
 class Outcar:
@@ -3267,7 +3268,7 @@ class Outcar:
         return aps
 
     def as_dict(self):
-        """:return: MSONable dict."""
+        """MSONable dict."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -3464,7 +3465,7 @@ class VolumetricData(BaseVolumetricData):
                     if line != "" or len(poscar_string) == 0:
                         poscar_string.append(line)
                     elif line == "":
-                        poscar = Poscar.from_string("\n".join(poscar_string))
+                        poscar = Poscar.from_str("\n".join(poscar_string))
                         poscar_read = True
                 elif not dim:
                     dim = [int(i) for i in line.split()]
@@ -3641,19 +3642,19 @@ class Chgcar(VolumetricData):
         self._distance_matrix = {}
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename: str):
         """
-        Reads a CHGCAR file.
+        Read a CHGCAR file.
 
         :param filename: Filename
         :return: Chgcar
         """
-        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
+        poscar, data, data_aug = VolumetricData.parse_file(filename)
         return Chgcar(poscar, data, data_aug=data_aug)
 
     @property
     def net_magnetization(self):
-        """:return: Net magnetization from Chgcar"""
+        """Net magnetization from Chgcar"""
         if self.is_spin_polarized:
             return np.sum(self.data["diff"])
         return None
@@ -4009,7 +4010,7 @@ class Oszicar:
         return self.ionic_steps[-1]["E0"]
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "electronic_steps": self.electronic_steps,
             "ionic_steps": self.ionic_steps,
@@ -4039,7 +4040,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
         A BandStructure Object
     """
     # TODO: Add better error handling!!!
-    if os.path.exists(os.path.join(dir_name, "branch_0")):
+    if os.path.exists(f"{dir_name}/branch_0"):
         # get all branch dir names
         branch_dir_names = [os.path.abspath(d) for d in glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
 
@@ -4049,7 +4050,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
         # populate branches with Bandstructure instances
         branches = []
         for dname in sorted_branch_dir_names:
-            xml_file = os.path.join(dname, "vasprun.xml")
+            xml_file = f"{dname}/vasprun.xml"
             if os.path.exists(xml_file):
                 run = Vasprun(xml_file, parse_projected_eigen=projections)
                 branches.append(run.get_band_structure(efermi=efermi))
@@ -4059,7 +4060,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
 
         return get_reconstructed_band_structure(branches, efermi)
 
-    xml_file = os.path.join(dir_name, "vasprun.xml")
+    xml_file = f"{dir_name}/vasprun.xml"
     # Better handling of Errors
     if os.path.exists(xml_file):
         return Vasprun(xml_file, parse_projected_eigen=projections).get_band_structure(
@@ -4111,7 +4112,7 @@ class Xdatcar:
                     title = line
                 elif title == line:
                     preamble_done = False
-                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4136,7 +4137,7 @@ class Xdatcar:
                     else:
                         preamble.append(line)
                 elif line == "" or "Direct configuration=" in line:
-                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4149,7 +4150,7 @@ class Xdatcar:
                     coords_str = []
                 else:
                     coords_str.append(line)
-            p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+            p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
@@ -4217,7 +4218,7 @@ class Xdatcar:
                     else:
                         preamble.append(line)
                 elif line == "" or "Direct configuration=" in line:
-                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4227,7 +4228,7 @@ class Xdatcar:
                     coords_str = []
                 else:
                     coords_str.append(line)
-            p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+            p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
@@ -4235,7 +4236,11 @@ class Xdatcar:
                 structures.append(p.structure)
         self.structures = structures
 
-    def get_string(self, ionicstep_start=1, ionicstep_end=None, significant_figures=8):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, ionicstep_start: int = 1, ionicstep_end: int | None = None, significant_figures: int = 8) -> str:
         """
         Write  Xdatcar class to a string.
 
@@ -4286,10 +4291,10 @@ class Xdatcar:
                 Xdatcar.get_string method and are passed through directly.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.get_string(**kwargs))
+            f.write(self.get_str(**kwargs))
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
 
 class Dynmat:

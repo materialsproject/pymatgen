@@ -307,7 +307,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     @property
     def crystal_system(self):
-        """:return: Crystal system, e.g., cubic, hexagonal, etc."""
+        """Crystal system, e.g., cubic, hexagonal, etc."""
         i = self._data["bns_number"][0]
         if i <= 2:
             return "triclinic"
@@ -325,7 +325,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     @property
     def sg_symbol(self):
-        """:return: Space group symbol"""
+        """Space group symbol."""
         return self._data["bns_label"]
 
     @property

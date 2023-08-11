@@ -26,6 +26,7 @@ Todo:
 - read first derivative of the eigenvalues from vasprun.xml (mommat)
 - handle magnetic moments (magmom)
 """
+
 from __future__ import annotations
 
 import warnings
@@ -137,7 +138,7 @@ class VasprunBSLoader:
         return cls(vrun_obj)
 
     def get_lattvec(self):
-        """:return: The lattice vectors."""
+        """The lattice vectors."""
         try:
             return self.lattvec
         except AttributeError:
@@ -145,7 +146,7 @@ class VasprunBSLoader:
         return self.lattvec
 
     def get_volume(self):
-        """:return: Volume"""
+        """Volume."""
         try:
             return self.UCvol
         except AttributeError:
@@ -244,7 +245,7 @@ class BandstructureLoader:
             self.nelect_all = nelect
 
     def get_lattvec(self):
-        """:return: The lattice vectors."""
+        """The lattice vectors."""
         try:
             return self.lattvec
         except AttributeError:
@@ -298,7 +299,7 @@ class BandstructureLoader:
                 self.proj[sp] = np.concatenate((proj_lower, proj, proj_upper), axis=1)
 
     def get_volume(self):
-        """:return: Volume"""
+        """Volume."""
         try:
             return self.UCvol
         except AttributeError:
@@ -320,11 +321,11 @@ class VasprunLoader:
             self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
             self.proj = None
             if len(vrun_obj.eigenvalues) == 1:
-                e = list(vrun_obj.eigenvalues.values())[0]
+                e = next(iter(vrun_obj.eigenvalues.values()))
                 self.ebands = e[:, :, 0].transpose() * units.eV
                 self.dosweight = 2.0
                 if vrun_obj.projected_eigenvalues:
-                    self.proj = list(vrun_obj.projected_eigenvalues.values())[0]
+                    self.proj = next(iter(vrun_obj.projected_eigenvalues.values()))
 
             elif len(vrun_obj.eigenvalues) == 2:
                 raise BoltztrapError("spin bs case not implemented")
@@ -355,7 +356,7 @@ class VasprunLoader:
         return VasprunLoader(vrun_obj)
 
     def get_lattvec(self):
-        """:return: Lattice vectors"""
+        """Lattice vectors."""
         try:
             return self.lattvec
         except AttributeError:
@@ -387,7 +388,7 @@ class VasprunLoader:
         return n_emin, n_emax
 
     def get_volume(self):
-        """:return: Volume of cell"""
+        """Volume of cell."""
         try:
             return self.UCvol
         except AttributeError:
@@ -523,7 +524,6 @@ class BztInterpolator:
 
         lattvec = self.data.get_lattvec()
         egrid, vgrid = fite.getBands(kpoints, self.equivalences, lattvec, self.coeffs)
-        # print(egrid.shape)
         if self.data.is_spin_polarized:
             h = sum(np.array_split(self.accepted, 2)[0])
             egrid = np.array_split(egrid, [h], axis=0)
@@ -1147,7 +1147,7 @@ class BztPlotter:
                         plt.plot(
                             mu,
                             prop_out[:, i],
-                            label="eig " + str(i) + " " + str(temp) + " K",
+                            label=f"eig {i} {temp} K",
                         )
 
             plt.xlabel(r"$\mu$ (eV)", fontsize=30)
@@ -1165,7 +1165,7 @@ class BztPlotter:
                             doping_all,
                             prop_out[:, i],
                             "s-",
-                            label="eig " + str(i) + " " + str(temp) + " K",
+                            label=f"eig {i} {temp} K",
                         )
             plt.xlabel(r"Carrier conc. $cm^{-3}$", fontsize=30)
             leg_title = dop_type + "-type"
@@ -1187,7 +1187,7 @@ class BztPlotter:
                             temps_all,
                             prop_out[:, i],
                             "s-",
-                            label="eig " + str(i) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"eig {i} {dop} $cm^{{-3}}$",
                         )
 
             plt.xlabel(r"Temperature (K)", fontsize=30)
@@ -1216,7 +1216,6 @@ class BztPlotter:
             raise BoltztrapError("BztInterpolator not present")
 
         tdos = self.bzt_interp.get_dos(T=T, npts_mu=npoints)
-        # print(npoints)
         dosPlotter = DosPlotter()
         dosPlotter.add_dos("Total", tdos)
 

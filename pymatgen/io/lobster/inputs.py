@@ -267,7 +267,7 @@ class Lobsterin(dict, MSONable):
             for key in Lobsterin.AVAILABLEKEYWORDS:
                 if key.lower() in [element.lower() for element in self]:
                     if key.lower() in [element.lower() for element in Lobsterin.FLOAT_KEYWORDS]:
-                        f.write(key + " " + str(self.get(key)) + "\n")
+                        f.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.BOOLEAN_KEYWORDS]:
                         # checks if entry is True or False
                         for key_here in self:
@@ -276,13 +276,13 @@ class Lobsterin(dict, MSONable):
                         if self.get(new_key):
                             f.write(key + "\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.STRING_KEYWORDS]:
-                        f.write(key + " " + str(self.get(key) + "\n"))
+                        f.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:
                         for entry in self.get(key):
-                            f.write(key + " " + str(entry) + "\n")
+                            f.write(f"{key} {entry}\n")
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         d = dict(self)
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -331,7 +331,6 @@ class Lobsterin(dict, MSONable):
         if further_settings is not None:
             for key, item in further_settings.items():
                 incar[key] = item
-        # print it to file
         incar.write_file(incar_output)
 
     @staticmethod
@@ -352,7 +351,7 @@ class Lobsterin(dict, MSONable):
             returns basis
         """
         if address_basis_file is None:
-            address_basis_file = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_standard.yaml")
+            address_basis_file = f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_standard.yaml"
         Potcar_names = list(potcar_symbols)
 
         AtomTypes_Potcar = [name.split("_")[0] for name in Potcar_names]
@@ -365,17 +364,15 @@ class Lobsterin(dict, MSONable):
 
         basis_functions = []
         list_forin = []
-        for itype, type in enumerate(Potcar_names):
+        for idx, type in enumerate(Potcar_names):
             if type not in BASIS:
                 raise ValueError(
-                    "You have to provide the basis for"
-                    + str(type)
-                    + "manually. We don't have any information on this POTCAR."
+                    f"You have to provide the basis for {type} manually. We don't have any information on this POTCAR."
                 )
             basis_functions.append(BASIS[type].split())
-            tojoin = str(AtomTypes_Potcar[itype]) + " "
-            tojoin2 = "".join(str(str(e) + " ") for e in BASIS[type].split())
-            list_forin.append(str(tojoin + tojoin2))
+            to_join = str(AtomTypes_Potcar[idx]) + " "
+            to_join2 = "".join(str(str(e) + " ") for e in BASIS[type].split())
+            list_forin.append(str(to_join + to_join2))
         return list_forin
 
     @staticmethod
@@ -398,14 +395,12 @@ class Lobsterin(dict, MSONable):
         max_basis = Lobsterin.get_basis(
             structure=structure,
             potcar_symbols=potcar_symbols,
-            address_basis_file=address_basis_file_max
-            or os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_max.yaml"),
+            address_basis_file=address_basis_file_max or f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_max.yaml",
         )
         min_basis = Lobsterin.get_basis(
             structure=structure,
             potcar_symbols=potcar_symbols,
-            address_basis_file=address_basis_file_min
-            or os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_min.yaml"),
+            address_basis_file=address_basis_file_min or f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_min.yaml",
         )
         all_basis = get_all_possible_basis_combinations(min_basis=min_basis, max_basis=max_basis)
         list_basis_dict = []

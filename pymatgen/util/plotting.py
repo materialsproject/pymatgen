@@ -1,4 +1,5 @@
 """Utilities for generating nicer plots."""
+
 from __future__ import annotations
 
 import math
@@ -180,7 +181,7 @@ def _decide_fontcolor(rgba: tuple) -> Literal["black", "white"]:
 
 
 def periodic_table_heatmap(
-    elemental_data,
+    elemental_data=None,
     cbar_label="",
     cbar_label_size=14,
     show_plot=False,
@@ -193,39 +194,90 @@ def periodic_table_heatmap(
     symbol_fontsize=14,
     max_row=9,
     readable_fontcolor=False,
+    pymatviz: bool = True,
+    **kwargs,
 ):
     """
     A static method that generates a heat map overlaid on a periodic table.
 
     Args:
-         elemental_data (dict): A dictionary with the element as a key and a
+        elemental_data (dict): A dictionary with the element as a key and a
             value assigned to it, e.g. surface energy and frequency, etc.
             Elements missing in the elemental_data will be grey by default
             in the final table elemental_data={"Fe": 4.2, "O": 5.0}.
-         cbar_label (str): Label of the color bar. Default is "".
-         cbar_label_size (float): Font size for the color bar label. Default is 14.
-         cmap_range (tuple): Minimum and maximum value of the color map scale.
+        cbar_label (str): Label of the color bar. Default is "".
+        cbar_label_size (float): Font size for the color bar label. Default is 14.
+        cmap_range (tuple): Minimum and maximum value of the color map scale.
             If None, the color map will automatically scale to the range of the
             data.
-         show_plot (bool): Whether to show the heatmap. Default is False.
-         value_format (str): Formatting string to show values. If None, no value
+        show_plot (bool): Whether to show the heatmap. Default is False.
+        value_format (str): Formatting string to show values. If None, no value
             is shown. Example: "%.4f" shows float to four decimals.
-         value_fontsize (float): Font size for values. Default is 10.
-         symbol_fontsize (float): Font size for element symbols. Default is 14.
-         cmap (str): Color scheme of the heatmap. Default is 'YlOrRd'.
+        value_fontsize (float): Font size for values. Default is 10.
+        symbol_fontsize (float): Font size for element symbols. Default is 14.
+        cmap (str): Color scheme of the heatmap. Default is 'YlOrRd'.
             Refer to the matplotlib documentation for other options.
-         blank_color (str): Color assigned for the missing elements in
+        blank_color (str): Color assigned for the missing elements in
             elemental_data. Default is "grey".
-         edge_color (str): Color assigned for the edge of elements in the
+        edge_color (str): Color assigned for the edge of elements in the
             periodic table. Default is "white".
-         max_row (int): Maximum number of rows of the periodic table to be
+        max_row (int): Maximum number of rows of the periodic table to be
             shown. Default is 9, which means the periodic table heat map covers
             the standard 7 rows of the periodic table + 2 rows for the lanthanides
             and actinides. Use a value of max_row = 7 to exclude the lanthanides and
             actinides.
-         readable_fontcolor (bool): Whether to use readable font color depending
+        readable_fontcolor (bool): Whether to use readable font color depending
             on background color. Default is False.
+        pymatviz (bool): Whether to use pymatviz to generate the heatmap. Defaults to True.
+            See https://github.com/janosh/pymatviz.
+        kwargs: Passed to pymatviz.ptable_heatmap_plotly
     """
+    if pymatviz:
+        try:
+            from pymatviz import ptable_heatmap_plotly
+
+            if elemental_data:
+                kwargs.setdefault("elem_values", elemental_data)
+                print('elemental_data is deprecated, use elem_values={"Fe": 4.2, "O": 5.0} instead')
+            if cbar_label:
+                kwargs.setdefault("color_bar", {}).setdefault("title", cbar_label)
+                print('cbar_label is deprecated, use color_bar={"title": cbar_label} instead')
+            if cbar_label_size != 14:
+                kwargs.setdefault("color_bar", {}).setdefault("titlefont", {}).setdefault("size", cbar_label_size)
+                print('cbar_label_size is deprecated, use color_bar={"titlefont": {"size": cbar_label_size}} instead')
+            if cmap:
+                kwargs.setdefault("colorscale", cmap)
+                print("cmap is deprecated, use colorscale=cmap instead")
+            if cmap_range:
+                kwargs.setdefault("cscale_range", cmap_range)
+                print("cmap_range is deprecated, use cscale_range instead")
+            if value_format:
+                kwargs.setdefault("precision", value_format)
+                print("value_format is deprecated, use precision instead")
+            if blank_color != "grey":
+                print("blank_color is deprecated")
+            if edge_color != "white":
+                print("edge_color is deprecated")
+            if symbol_fontsize != 14:
+                print("symbol_fontsize is deprecated, use font_size instead")
+                kwargs.setdefault("font_size", symbol_fontsize)
+            if value_fontsize != 10:
+                print("value_fontsize is deprecated, use font_size instead")
+                kwargs.setdefault("font_size", value_fontsize)
+            if max_row != 9:
+                print("max_row is deprecated, use max_row instead")
+            if readable_fontcolor:
+                print("readable_fontcolor is deprecated, use font_colors instead, e.g. ('black', 'white')")
+
+            return ptable_heatmap_plotly(**kwargs)
+        except ImportError:
+            print(
+                "You're using a deprecated version of periodic_table_heatmap(). Consider `pip install pymatviz` which "
+                "offers an interactive plotly periodic table heatmap. You can keep calling this same function from "
+                "pymatgen. Some of the arguments have changed which you'll be warned about. "
+                "To disable this warning, pass pymatviz=False."
+            )
+
     # Convert primitive_elemental data in the form of numpy array for plotting.
     if cmap_range is not None:
         max_val = cmap_range[1]
@@ -286,7 +338,7 @@ def periodic_table_heatmap(
     ax.axis("off")
     ax.invert_yaxis()
 
-    # Set the scalermap for fontcolor
+    # Set the scalarmap for fontcolor
     norm = colors.Normalize(vmin=min_val, vmax=max_val)
     scalar_cmap = cm.ScalarMappable(norm=norm, cmap=cmap)
 
@@ -335,12 +387,12 @@ def format_formula(formula):
     """
     formatted_formula = ""
     number_format = ""
-    for i, s in enumerate(formula):
-        if s.isdigit():
+    for idx, char in enumerate(formula):
+        if char.isdigit():
             if not number_format:
                 number_format = "_{"
-            number_format += s
-            if i == len(formula) - 1:
+            number_format += char
+            if idx == len(formula) - 1:
                 number_format += "}"
                 formatted_formula += number_format
         else:
@@ -348,7 +400,7 @@ def format_formula(formula):
                 number_format += "}"
                 formatted_formula += number_format
                 number_format = ""
-            formatted_formula += s
+            formatted_formula += char
 
     return f"${formatted_formula}$"
 

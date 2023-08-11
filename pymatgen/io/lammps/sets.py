@@ -63,7 +63,7 @@ class LammpsInputSet(InputSet):
         if isinstance(inputfile, LammpsInputFile):
             self.inputfile = inputfile
         else:
-            self.inputfile = LammpsInputFile.from_string(inputfile, keep_stages=keep_stages)
+            self.inputfile = LammpsInputFile.from_str(inputfile, keep_stages=keep_stages)
         self.data = data
         self.calc_type = calc_type
         self.template_file = template_file
@@ -82,9 +82,9 @@ class LammpsInputSet(InputSet):
                        in.lammps for the LAMMPS input file, and system.data with the system information.
             keep_stages: Whether to keep the stage structure of the LammpsInputFile or not.
         """
-        input_file = LammpsInputFile.from_file(os.path.join(directory, "in.lammps"), keep_stages=keep_stages)
+        input_file = LammpsInputFile.from_file(f"{directory}/in.lammps", keep_stages=keep_stages)
         atom_style = input_file.get_args("atom_style")
-        data_file = LammpsData.from_file(os.path.join(directory, "system.data"), atom_style=atom_style)
+        data_file = LammpsData.from_file(f"{directory}/system.data", atom_style=atom_style)
         return LammpsInputSet(inputfile=input_file, data=data_file, calc_type="read_from_dir")
 
     def validate(self) -> bool:

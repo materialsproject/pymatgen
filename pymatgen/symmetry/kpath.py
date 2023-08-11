@@ -1824,7 +1824,7 @@ class KPathLatimerMunro(KPathBase):
 
         g = np.dot(W.T, W)  # just using change of basis matrix rather than
         # Lattice.get_cartesian_coordinates for conciseness
-        ginv = np.linalg.inv(g)
+        g_inv = np.linalg.inv(g)
         D = np.linalg.det(W)
 
         primary_orientation = secondary_orientation = tertiary_orientation = None
@@ -1871,7 +1871,7 @@ class KPathLatimerMunro(KPathBase):
                 face_center_found = False
                 for point in IRBZ_points:
                     if point[0] in face_center_inds:
-                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                         if not np.allclose(cross, 0, atol=atol):
                             rot_boundaries = [cross, -1 * np.dot(op, cross)]
                             face_center_found = True
@@ -1880,7 +1880,7 @@ class KPathLatimerMunro(KPathBase):
                 if not face_center_found:
                     print("face center not found")
                     for point in IRBZ_points:
-                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                         if not np.allclose(cross, 0, atol=atol):
                             rot_boundaries = [cross, -1 * np.dot(op, cross)]
                             used_axes.append(ax)
@@ -1896,7 +1896,7 @@ class KPathLatimerMunro(KPathBase):
                 face_center_found = False
                 for point in IRBZ_points:
                     if point[0] in face_center_inds:
-                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                         if not np.allclose(cross, 0, atol=atol):
                             rot_boundaries = [cross, np.dot(op, cross)]
                             face_center_found = True
@@ -1905,7 +1905,7 @@ class KPathLatimerMunro(KPathBase):
                 if not face_center_found:
                     print("face center not found")
                     for point in IRBZ_points:
-                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                         if not np.allclose(cross, 0, atol=atol):
                             rot_boundaries = [cross, -1 * np.dot(op, cross)]
                             used_axes.append(ax)
@@ -1921,7 +1921,7 @@ class KPathLatimerMunro(KPathBase):
                 face_center_found = False
                 for point in IRBZ_points:
                     if point[0] in face_center_inds:
-                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                         if not np.allclose(cross, 0, atol=atol):
                             rot_boundaries = [cross, -1 * np.dot(op, cross)]
                             face_center_found = True
@@ -1930,7 +1930,7 @@ class KPathLatimerMunro(KPathBase):
                 if not face_center_found:
                     print("face center not found")
                     for point in IRBZ_points:
-                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                         if not np.allclose(cross, 0, atol=atol):
                             rot_boundaries = [cross, -1 * np.dot(op, cross)]
                             used_axes.append(ax)
@@ -1946,7 +1946,7 @@ class KPathLatimerMunro(KPathBase):
                 face_center_found = False
                 for point in IRBZ_points:
                     if point[0] in face_center_inds:
-                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                         if not np.allclose(cross, 0, atol=atol):
                             rot_boundaries = [
                                 cross,
@@ -1958,7 +1958,7 @@ class KPathLatimerMunro(KPathBase):
                 if not face_center_found:
                     print("face center not found")
                     for point in IRBZ_points:
-                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                         if not np.allclose(cross, 0, atol=atol):
                             rot_boundaries = [cross, -1 * np.dot(op, cross)]
                             used_axes.append(ax)
@@ -1974,7 +1974,7 @@ class KPathLatimerMunro(KPathBase):
                 face_center_found = False
                 for point in IRBZ_points:
                     if point[0] in face_center_inds:
-                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                         if not np.allclose(cross, 0, atol=atol):
                             rot_boundaries = [cross, -1 * np.dot(op, cross)]
                             face_center_found = True
@@ -1983,7 +1983,7 @@ class KPathLatimerMunro(KPathBase):
                 if not face_center_found:
                     print("face center not found")
                     for point in IRBZ_points:
-                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                         if not np.allclose(cross, 0, atol=atol):
                             rot_boundaries = [cross, -1 * np.dot(op, cross)]
                             used_axes.append(ax)
@@ -1999,7 +1999,7 @@ class KPathLatimerMunro(KPathBase):
                 face_center_found = False
                 for point in IRBZ_points:
                     if point[0] in face_center_inds:
-                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                         if not np.allclose(cross, 0, atol=atol):
                             rot_boundaries = [cross, -1 * np.dot(op, cross)]
                             face_center_found = True
@@ -2008,7 +2008,7 @@ class KPathLatimerMunro(KPathBase):
                 if not face_center_found:
                     print("face center not found")
                     for point in IRBZ_points:
-                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        cross = D * np.dot(g_inv, np.cross(ax, point[1]))
                         if not np.allclose(cross, 0, atol=atol):
                             rot_boundaries = [cross, -1 * np.dot(op, cross)]
                             used_axes.append(ax)

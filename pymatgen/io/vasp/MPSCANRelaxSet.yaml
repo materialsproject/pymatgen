@@ -15,11 +15,11 @@ INCAR:
   LASPH: True
   LREAL: Auto
   LMIXTAU: True
-  LCHARG: True # Output CHGCAR
-  LAECHG: True # Output AECCAR
-  LELF: True # Output ELFCAR
-  LWAVE: False # Don't output WAVECAR
-  LVTOT: True # Output LOCPOT
+  LCHARG: True # write CHGCAR
+  LAECHG: True # write AECCAR
+  LELF: False # don't write ELFCAR, restricts calculation to KPAR = 1
+  LWAVE: False # Don't write WAVECAR
+  LVTOT: True # write LOCPOT
   METAGGA: R2SCAN
   NELM: 200
   NSW: 99

@@ -21,6 +21,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
+    from pymatgen.core.trajectory import Vector3D
     from pymatgen.util.typing import CompositionLike
 
 # This module implements representations of grain boundaries, as well as
@@ -55,10 +56,10 @@ class GrainBoundary(Structure):
         lattice: np.ndarray | Lattice,
         species: Sequence[CompositionLike],
         coords: Sequence[ArrayLike],
-        rotation_axis: tuple[float, float, float],
+        rotation_axis: Vector3D,
         rotation_angle: float,
-        gb_plane: tuple[float, float, float],
-        join_plane: tuple[float, float, float],
+        gb_plane: Vector3D,
+        join_plane: Vector3D,
         init_cell: Structure,
         vacuum_thickness: float,
         ab_shift: tuple[float, float],
@@ -202,7 +203,7 @@ class GrainBoundary(Structure):
         for tag in self.site_properties["grain_label"]:
             if "incident" in tag:
                 n_coi += 1
-        return int(round(self.num_sites / n_coi))
+        return int(round(len(self) / n_coi))
 
     @property
     def top_grain(self) -> Structure:
@@ -647,22 +648,22 @@ class GrainBoundaryGenerator:
                 surface=plane,
                 max_search=max_search,
             )
-            oriended_unit_cell = fix_pbc(parent_structure * t_temp[0])
-            t_matrix = oriended_unit_cell.lattice.matrix
+            oriented_unit_cell = fix_pbc(parent_structure * t_temp[0])
+            t_matrix = oriented_unit_cell.lattice.matrix
             normal_v_plane = np.cross(t_matrix[0], t_matrix[1])
             unit_normal_v = normal_v_plane / np.linalg.norm(normal_v_plane)
             unit_ab_adjust = (t_matrix[2] - np.dot(unit_normal_v, t_matrix[2]) * unit_normal_v) / np.dot(
                 unit_normal_v, t_matrix[2]
             )
         else:
-            oriended_unit_cell = top_grain.copy()
+            oriented_unit_cell = top_grain.copy()
             unit_ab_adjust = 0.0
 
         # bottom grain, using top grain's lattice matrix
         bottom_grain = fix_pbc(parent_structure * t2, top_grain.lattice.matrix)
 
         # label both grains with 'top','bottom','top_incident','bottom_incident'
-        n_sites = top_grain.num_sites
+        n_sites = len(top_grain)
         t_and_b = Structure(
             top_grain.lattice,
             top_grain.species + bottom_grain.species,
@@ -783,7 +784,7 @@ class GrainBoundaryGenerator:
             vacuum_thickness,
             ab_shift,
             site_properties=gb_with_vac.site_properties,
-            oriented_unit_cell=oriended_unit_cell,
+            oriented_unit_cell=oriented_unit_cell,
             coords_are_cartesian=True,
         )
 

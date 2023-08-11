@@ -1338,7 +1338,7 @@ class CompleteDos(Dos):
         return d
 
     def __str__(self):
-        return "Complete DOS for " + str(self.structure)
+        return f"Complete DOS for {self.structure}"
 
 
 class LobsterCompleteDos(CompleteDos):

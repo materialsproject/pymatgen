@@ -1,4 +1,4 @@
-exclude: ^(docs|.*test_files|cmd_line|tasks.py)
+exclude: ^(docs|tests/files|cmd_line|tasks.py)
 
 ci:
   autoupdate_schedule: monthly
@@ -8,7 +8,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.278
+    rev: v0.0.284
     hooks:
       - id: ruff
         args: [--fix]
@@ -45,3 +45,13 @@ repos:
       - id: cython-lint
         args: [--no-pycodestyle]
       - id: double-quote-cython-strings
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.35.0
+    hooks:
+      - id: markdownlint
+        # MD013: line too long
+        # MD033: no inline HTML
+        # MD041: first line in a file should be a top-level heading
+        # MD025: single title
+        args: [--disable, MD013, MD025, MD033, MD041, "--"]

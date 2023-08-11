@@ -136,10 +136,10 @@ class LammpsBox(MSONable):
         self._matrix = matrix
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
     def __repr__(self):
-        return self.get_string()
+        return self.get_str()
 
     @property
     def volume(self):
@@ -147,7 +147,11 @@ class LammpsBox(MSONable):
         m = self._matrix
         return np.dot(np.cross(m[0], m[1]), m[2])
 
-    def get_string(self, significant_figures=6):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, significant_figures: int = 6) -> str:
         """
         Returns the string representation of simulation box in LAMMPS
         data file format.
@@ -280,10 +284,10 @@ class LammpsData(MSONable):
         self.atom_style = atom_style
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
     def __repr__(self):
-        return self.get_string()
+        return self.get_str()
 
     @property
     def structure(self):
@@ -318,7 +322,11 @@ class LammpsData(MSONable):
             site_properties=site_properties,
         )
 
-    def get_string(self, distance=6, velocity=8, charge=4, hybrid=True):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
         """
         Returns the string representation of LammpsData, essentially
         the string to be written to a file. Support hybrid style
@@ -349,7 +357,7 @@ class LammpsData(MSONable):
 
 {body}
 """
-        box = self.box.get_string(distance)
+        box = self.box.get_str(distance)
 
         body_dict = {}
         body_dict["Masses"] = self.masses
@@ -401,13 +409,13 @@ class LammpsData(MSONable):
             "vz": map_velos,
             "q": map_charges,
         }
-        coeffsdatatype = loadfn(str(MODULE_DIR / "CoeffsDataType.yaml"))
-        coeffs = {}
-        for style, types in coeffsdatatype.items():
+        coeffs_data_type = loadfn(str(MODULE_DIR / "CoeffsDataType.yaml"))
+        coeffs: dict[str, dict] = {}
+        for style, types in coeffs_data_type.items():
             coeffs[style] = {}
             for type, formatter in types.items():
                 coeffs[style][type] = {}
-                for coeff, datatype in formatter.items():
+                for coeff, datatype in formatter.items():  # type: ignore
                     if datatype == "int_format":
                         coeffs[style][type][coeff] = int_format
                     elif datatype == "float_format_2":
@@ -420,7 +428,7 @@ class LammpsData(MSONable):
         for key, val in body_dict.items():
             index = key != "PairIJ Coeffs"
             if hybrid and key in ["Bond Coeffs", "Angle Coeffs", "Dihedral Coeffs", "Improper Coeffs"]:
-                dfs = np.array_split(val, len(val.index))
+                dfs: list[pd.DataFrame] = np.array_split(val, len(val.index))
                 df_string = ""
                 for idx, df in enumerate(dfs):
                     if isinstance(df.iloc[0]["coeff1"], str):
@@ -471,7 +479,7 @@ class LammpsData(MSONable):
                 charges. Default to 4.
         """
         with open(filename, "w") as f:
-            f.write(self.get_string(distance=distance, velocity=velocity, charge=charge))
+            f.write(self.get_str(distance=distance, velocity=velocity, charge=charge))
 
     def disassemble(self, atom_labels=None, guess_element=True, ff_label="ff_map"):
         """
@@ -1415,7 +1423,11 @@ class CombinedData(LammpsData):
             assert atom_style == style_return, "Data have different atom_style as specified."
         return cls(mols, names, list_of_numbers, coordinates, style_return)
 
-    def get_string(self, distance=6, velocity=8, charge=4, hybrid=True):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, distance=6, velocity=8, charge=4, hybrid=True) -> str:
         """
         Returns the string representation of CombinedData, essentially
         the string to be written to a file. Combination info is included
@@ -1441,7 +1453,7 @@ class CombinedData(LammpsData):
         Returns:
             String representation
         """
-        lines = LammpsData.get_string(self, distance, velocity, charge, hybrid).splitlines()
+        lines = LammpsData.get_str(self, distance, velocity, charge, hybrid).splitlines()
         info = "# " + " + ".join(
             (str(a) + " " + b) if c == 1 else (str(a) + "(" + str(c) + ") " + b)
             for a, b, c in zip(self.nums, self.names, self.mols_per_data)

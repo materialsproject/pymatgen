@@ -40,6 +40,7 @@ Isomorphic graphs should be assigned identical hashes.
 For now, only Weisfeiler-Lehman hashing is implemented.
 
 """
+
 from __future__ import annotations
 
 from collections import Counter, defaultdict

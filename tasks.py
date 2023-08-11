@@ -9,12 +9,12 @@ Author: Shyue Ping Ong
 from __future__ import annotations
 
 import datetime
+import glob
 import json
 import os
 import re
 import subprocess
 import webbrowser
-from glob import glob
 
 import requests
 from invoke import task
@@ -30,61 +30,31 @@ def make_doc(ctx):
 
     :param ctx:
     """
-    with open("CHANGES.rst") as file:
-        contents = file.read()
-
-    toks = re.split(r"\-{3,}", contents)
-    n = len(toks[0].split()[-1])
-    changes = [toks[0]]
-    changes.append("\n" + "\n".join(toks[1].strip().split("\n")[0:-1]))
-    changes = ("-" * n).join(changes)
-
-    with open("docs_rst/latest_changes.rst", "w") as file:
-        file.write(changes)
-
-    with cd("docs_rst"):
-        ctx.run("cp ../CHANGES.rst change_log.rst")
-        ctx.run("rm pymatgen.*.rst", warn=True)
-        ctx.run("sphinx-apidoc --implicit-namespaces -d 7 -o . -f ../pymatgen")
-        ctx.run("rm *.tests.*rst")
-        for file in glob("*.rst"):
-            if file.startswith("pymatgen") and file.endswith("rst"):
-                new_output = []
-                sub_output = []
-                sub_package = False
-                with open(file) as fid:
-                    for line in fid:
-                        clean = line.strip()
-                        if clean == "Subpackages":
-                            sub_package = True
-                        if not sub_package and not clean.endswith("tests"):
-                            new_output.append(line)
-                        else:
-                            if not clean.endswith("tests"):
-                                sub_output.append(line)
-                            if clean.startswith("pymatgen") and not clean.endswith("tests"):
-                                new_output.extend(sub_output)
-                                sub_package = False
-                                sub_output = []
-
-                with open(file, "w") as fid:
-                    fid.write("".join(new_output))
-        ctx.run("make html")
-
-        ctx.run("cp _static/* ../docs/html/_static", warn=True)
-
     with cd("docs"):
-        ctx.run("rm *.html", warn=True)
-        ctx.run("cp -r html/* .", warn=True)
-        ctx.run("rm -r html", warn=True)
-        ctx.run("rm -r doctrees", warn=True)
-        ctx.run("rm -r _sources", warn=True)
-        ctx.run("rm -r _build", warn=True)
-
-        # This makes sure pymatgen.org works to redirect to the Github page
-        ctx.run('echo "pymatgen.org" > CNAME')
-        # Avoid the use of jekyll so that _dir works as intended.
-        ctx.run("touch .nojekyll")
+        ctx.run("touch index.rst")
+        ctx.run("rm pymatgen.*.rst", warn=True)
+        ctx.run("rm pymatgen.*.md", warn=True)
+        ctx.run("sphinx-apidoc --implicit-namespaces -P -M -d 7 -o . -f ../pymatgen ../**/tests/*")
+        # ctx.run("rm pymatgen*.html", warn=True)
+        # ctx.run("sphinx-build -b html . ../docs")  # HTML building.
+        ctx.run("sphinx-build -M markdown . .")
+        ctx.run("rm *.rst", warn=True)
+        ctx.run("cp markdown/pymatgen*.md .")
+        ctx.run("rm pymatgen*tests*.md", warn=True)
+        for fn in glob.glob("pymatgen*.md"):
+            with open(fn) as f:
+                lines = [line.rstrip() for line in f if "Submodules" not in line]
+            if fn == "pymatgen.md":
+                preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 6", "---", ""]
+            else:
+                preamble = ["---", "layout: default", "title: " + fn, "nav_exclude: true", "---", "",
+                            "1. TOC", "{:toc}", ""]
+            with open(fn, "w") as f:
+                f.write("\n".join(preamble + lines))
+        ctx.run("rm -r markdown", warn=True)
+        # ctx.run("cp ../README.md index.md")
+        ctx.run("cp ../CHANGES.md CHANGES.md")
+        ctx.run("rm -rf doctrees", warn=True)
 
 
 @task
@@ -193,7 +163,7 @@ def release_github(ctx, version):
 
     :param ctx:
     """
-    with open("CHANGES.rst") as file:
+    with open("CHANGES.md") as file:
         contents = file.read()
     tokens = re.split(r"\-+", contents)
     desc = tokens[1].strip()
@@ -259,26 +229,25 @@ def update_changelog(ctx, version=None, dry_run=False):
             response = requests.get(f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}")
             lines.append(f"* PR #{pr_number} from @{contributor} {pr_name}")
             json_resp = response.json()
-            if "body" in json_resp and json_resp["body"]:
-                for ll in map(str.strip, json_resp["body"].split("\n")):
+            if body := json_resp["body"]:
+                for ll in map(str.strip, body.split("\n")):
                     if ll in ["", "## Summary"]:
                         continue
                     if ll.startswith(("## Checklist", "## TODO")):
                         break
                     lines.append(f"    {ll}")
         ignored_commits.append(line)
-    with open("CHANGES.rst") as file:
+    with open("CHANGES.md") as file:
         contents = file.read()
-    delim = "=========="
+    delim = "##"
     tokens = contents.split(delim)
-    head = f"\n\nv{version}\n{'-' * (len(version) + 1)}\n"
-    tokens.insert(-1, head + "\n".join(lines))
+    tokens.insert(1, f"## v{version}\n\n" + "\n".join(lines) + "\n")
     if dry_run:
-        print(tokens[0] + delim + "".join(tokens[1:]))
+        print(tokens[0] + "##".join(tokens[1:]))
     else:
-        with open("CHANGES.rst", "w") as file:
-            file.write(tokens[0] + delim + "".join(tokens[1:]))
-        ctx.run("open CHANGES.rst")
+        with open("CHANGES.md", "w") as file:
+            file.write(tokens[0] + "##".join(tokens[1:]))
+        ctx.run("open CHANGES.md")
     print("The following commit messages were not included...")
     print("\n".join(ignored_commits))
 

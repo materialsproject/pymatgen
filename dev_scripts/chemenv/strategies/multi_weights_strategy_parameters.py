@@ -277,7 +277,7 @@ if __name__ == "__main__":
     for ii in range(1, 14):
         self_weight_max_csms_per_cn[str(ii)] = []
         for jj in range(ii + 1, 14):
-            cn_pair = f"{ii:d}_{jj:d}"
+            cn_pair = f"{ii}_{jj}"
             self_weight_max_csms[cn_pair] = []
             delta_csm_mins[cn_pair] = []
             all_cn_pairs.append(cn_pair)

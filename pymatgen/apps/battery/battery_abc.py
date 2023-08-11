@@ -66,7 +66,7 @@ class AbstractVoltagePair(MSONable):
     @property
     def working_ion(self) -> Element:
         """Working ion as pymatgen Element object."""
-        return self.working_ion_entry.composition.elements[0]
+        return self.working_ion_entry.elements[0]
 
     @property
     def framework(self) -> Composition:
@@ -153,7 +153,7 @@ class AbstractElectrode(Sequence, MSONable):
     @property
     def working_ion(self):
         """Working ion as pymatgen Element object."""
-        return self.working_ion_entry.composition.elements[0]
+        return self.working_ion_entry.elements[0]
 
     @property
     def framework(self):

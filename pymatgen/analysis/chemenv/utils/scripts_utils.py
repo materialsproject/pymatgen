@@ -123,7 +123,7 @@ def draw_cg(
             else:
                 faces = cg.faces(neighbors)
                 edges = cg.edges(neighbors)
-            symbol = list(site.species)[0].symbol
+            symbol = next(iter(site.species)).symbol
             if faces_color_override:
                 mycolor = faces_color_override
             else:
@@ -233,7 +233,7 @@ def compute_environments(chemenv_configuration):
                 source_type = questions[test]
         else:
             found = False
-            source_type = list(questions.values())[0]
+            source_type = next(iter(questions.values()))
         if found and len(questions) > 1:
             input_source = test
         if source_type == "cif":

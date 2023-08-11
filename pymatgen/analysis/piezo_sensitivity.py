@@ -534,21 +534,22 @@ class ForceConstantMatrix:
         """
         # set max force in reciprocal space
         operations = self.FCM_operations
-        assert operations is not None, "No symmetry operations found"
+        if operations is None:
+            raise RuntimeError("No symmetry operations found. Run get_FCM_operations first.")
 
-        numsites = len(self.structure)
+        n_sites = len(self.structure)
 
-        D = np.ones([numsites * 3, numsites * 3])
+        D = np.ones([n_sites * 3, n_sites * 3])
         for _ in range(numiter):
             X = np.real(fcm)
 
             # symmetry operations
             pastrow = 0
             total = np.zeros([3, 3])
-            for col in range(numsites):
+            for col in range(n_sites):
                 total = total + X[0:3, col * 3 : col * 3 + 3]
 
-            total = total / (numsites)
+            total = total / (n_sites)
             for op in operations:
                 same = 0
                 transpose = 0
@@ -574,15 +575,15 @@ class ForceConstantMatrix:
                     ].T
                     continue
                 # Get the difference in the sum up to this point
-                currrow = op[0]
-                if currrow != pastrow:
+                curr_row = op[0]
+                if curr_row != pastrow:
                     total = np.zeros([3, 3])
-                    for col in range(numsites):
-                        total = total + X[currrow * 3 : currrow * 3 + 3, col * 3 : col * 3 + 3]
-                    for col in range(currrow):
-                        total = total - D[currrow * 3 : currrow * 3 + 3, col * 3 : col * 3 + 3]
-                    total = total / (numsites - currrow)
-                pastrow = currrow
+                    for col in range(n_sites):
+                        total = total + X[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
+                    for col in range(curr_row):
+                        total = total - D[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
+                    total = total / (n_sites - curr_row)
+                pastrow = curr_row
 
                 # Apply the point symmetry operations of the site
                 temp_tensor = Tensor(total)
@@ -669,8 +670,8 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     Return:
         3x3x3 calculated Piezo tensor
     """
-    numsites = len(BEC)
-    temp_fcm = np.reshape(np.swapaxes(FCM, 1, 2), (numsites * 3, numsites * 3))
+    n_sites = len(BEC)
+    temp_fcm = np.reshape(np.swapaxes(FCM, 1, 2), (n_sites * 3, n_sites * 3))
 
     eigs, vecs = np.linalg.eig(temp_fcm)
     K = np.linalg.pinv(
@@ -678,7 +679,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
         rcond=np.abs(eigs[np.argsort(np.abs(eigs))[2]]) / np.abs(eigs[np.argsort(np.abs(eigs))[-1]]) + rcond,
     )
 
-    K = np.reshape(K, (numsites, 3, numsites, 3)).swapaxes(1, 2)
+    K = np.reshape(K, (n_sites, 3, n_sites, 3)).swapaxes(1, 2)
     return np.einsum("ikl,ijlm,jmno->kno", BEC, K, IST) * 16.0216559424
 
 

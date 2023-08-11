@@ -172,7 +172,7 @@ class PotcarCorrection(Correction):
         else:
             psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
 
-        expected_psp = {self.valid_potcars.get(el.symbol) for el in entry.composition.elements}
+        expected_psp = {self.valid_potcars.get(el.symbol) for el in entry.elements}
         if expected_psp != psp_settings:
             raise CompatibilityError(f"Incompatible POTCAR {psp_settings}, expected {expected_psp}")
         return ufloat(0.0, 0.0)
@@ -809,7 +809,7 @@ class MaterialsProjectCompatibility(CorrectionsList):
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
-        fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
+        fp = f"{MODULE_DIR}/MPCompatibility.yaml"
         super().__init__(
             [
                 PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
@@ -918,7 +918,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 raise ValueError(f"Custom MaterialsProject2020Compatibility {config_file=} does not exist.")
         else:
             self.config_file = None
-            c = loadfn(os.path.join(MODULE_DIR, "MP2020Compatibility.yaml"))
+            c = loadfn(f"{MODULE_DIR}/MP2020Compatibility.yaml")
 
         self.name = c["Name"]
         self.comp_correction = c["Corrections"].get("CompositionCorrections", defaultdict(float))
@@ -1146,7 +1146,7 @@ class MITCompatibility(CorrectionsList):
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
-        fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
+        fp = f"{MODULE_DIR}/MITCompatibility.yaml"
         super().__init__(
             [
                 PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
@@ -1187,7 +1187,7 @@ class MITAqueousCompatibility(CorrectionsList):
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
-        fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
+        fp = f"{MODULE_DIR}/MITCompatibility.yaml"
         super().__init__(
             [
                 PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),

@@ -508,7 +508,7 @@ class ElementBase(Enum):
             L, S = min(comb_counter)
 
             J = list(np.arange(abs(L - S), abs(L) + abs(S) + 1))
-            term_symbols.append([str(int(2 * (abs(S)) + 1)) + L_symbols[abs(L)] + str(j) for j in J])
+            term_symbols.append([f"{int(2 * (abs(S)) + 1)}{L_symbols[abs(L)]}{j}" for j in J])
 
             # Delete all configurations included in this term
             for ML in range(-L, L - 1, -1):
@@ -1022,8 +1022,6 @@ class Species(MSONable, Stringify):
         spin: float | None = None,
     ) -> None:
         """
-        Initializes a Species.
-
         Args:
             symbol (str): Element symbol optionally incl. oxidation state. E.g. Fe, Fe2+, O2-.
             oxidation_state (float): Explicit oxidation state of element, e.g. -2, -1, 0, 1, 2, ...
@@ -1033,7 +1031,8 @@ class Species(MSONable, Stringify):
             spin: Spin associated with Species. Defaults to None.
 
         Raises:
-            ValueError: If oxidation state passed both in symbol and via oxidation_state kwarg.
+            ValueError: If oxidation state passed both in symbol string and via
+                oxidation_state kwarg.
         """
         if oxidation_state is not None and isinstance(symbol, str) and symbol[-1] in {"+", "-"}:
             raise ValueError(
@@ -1113,7 +1112,7 @@ class Species(MSONable, Stringify):
         return False
 
     @property
-    def element(self):
+    def element(self) -> Element:
         """Underlying element object."""
         return self._el
 
@@ -1140,18 +1139,24 @@ class Species(MSONable, Stringify):
             return self.ionic_radii[self._oxi_state]
         if self._oxi_state:
             d = self._el.data
-            oxstr = str(int(self._oxi_state))
-            if oxstr in d.get("Ionic radii hs", {}):
+            oxi_str = str(int(self._oxi_state))
+            if oxi_str in d.get("Ionic radii hs", {}):
                 warnings.warn(f"No default ionic radius for {self}. Using hs data.")
-                return d["Ionic radii hs"][oxstr]
-            if oxstr in d.get("Ionic radii ls", {}):
+                return d["Ionic radii hs"][oxi_str]
+            if oxi_str in d.get("Ionic radii ls", {}):
                 warnings.warn(f"No default ionic radius for {self}. Using ls data.")
-                return d["Ionic radii ls"][oxstr]
+                return d["Ionic radii ls"][oxi_str]
         warnings.warn(f"No ionic radius for {self}!")
         return None
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        """Use from_str instead."""
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(species_string: str) -> Species:
+    def from_str(species_string: str) -> Species:
         """
         Returns a Species from a string representation.
 
@@ -1171,22 +1176,22 @@ class Species(MSONable, Stringify):
         # 3rd group: ([+\-])          --> +
         # 4th group: (.*)             --> everything else, ",spin=5"
 
-        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
-        if m:
+        match = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
+        if match:
             # parse symbol
-            sym = m.group(1)
+            sym = match.group(1)
 
             # parse oxidation state (optional)
-            if not m.group(2) and not m.group(3):
+            if not match.group(2) and not match.group(3):
                 oxi = None
             else:
-                oxi = 1 if m.group(2) == "" else float(m.group(2))
-                oxi = -oxi if m.group(3) == "-" else oxi
+                oxi = 1 if match.group(2) == "" else float(match.group(2))
+                oxi = -oxi if match.group(3) == "-" else oxi
 
             # parse properties (optional)
             properties = None
-            if m.group(4):
-                toks = m.group(4).replace(",", "").split("=")
+            if match.group(4):
+                toks = match.group(4).replace(",", "").split("=")
                 properties = {toks[0]: ast.literal_eval(toks[1])}
 
             # but we need either an oxidation state or a property
@@ -1208,7 +1213,7 @@ class Species(MSONable, Stringify):
         return output
 
     def to_pretty_string(self) -> str:
-        """:return: String without properties."""
+        """String without properties."""
         output = self.symbol
         if self.oxi_state is not None:
             output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
@@ -1216,8 +1221,7 @@ class Species(MSONable, Stringify):
 
     def get_nmr_quadrupole_moment(self, isotope: str | None = None) -> float:
         """
-        Gets the nuclear electric quadrupole moment in units of
-        e*millibarns.
+        Gets the nuclear electric quadrupole moment in units of e * millibarns.
 
         Args:
             isotope (str): the isotope to get the quadrupole moment for
@@ -1262,7 +1266,7 @@ class Species(MSONable, Stringify):
         radii = self._el.data["Shannon radii"]
         radii = radii[str(int(self._oxi_state))][cn]  # type: ignore
         if len(radii) == 1:
-            key, data = list(radii.items())[0]
+            key, data = next(iter(radii.items()))
             if key != spin:
                 warnings.warn(
                     f"Specified {spin=} not consistent with database spin of {key}. "
@@ -1322,11 +1326,11 @@ class Species(MSONable, Stringify):
                 return 10 - n_electrons
         raise RuntimeError(f"should not reach here, {spin_config=}, {coordination=}")
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo) -> Species:
         return Species(self.symbol, self.oxi_state, spin=self._spin)
 
     def as_dict(self) -> dict:
-        """:return: Json-able dictionary representation."""
+        """Json-able dictionary representation."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1410,6 +1414,9 @@ class DummySpecies(Species):
         else:
             self._spin = spin
 
+    def __getattr__(self, attr):
+        raise AttributeError
+
     def __lt__(self, other):
         """
         Sets a default sort order for atomic species by Pauling electronegativity,
@@ -1448,14 +1455,14 @@ class DummySpecies(Species):
 
     @property
     def symbol(self) -> str:
-        """:return: Symbol for DummySpecies."""
+        """Symbol for DummySpecies."""
         return self._symbol
 
     def __deepcopy__(self, memo):
         return DummySpecies(self.symbol, self._oxi_state)
 
     @staticmethod
-    def from_string(species_string: str) -> DummySpecies:
+    def from_str(species_string: str) -> DummySpecies:
         """
         Returns a Dummy from a string representation.
 
@@ -1485,7 +1492,7 @@ class DummySpecies(Species):
         raise ValueError("Invalid DummySpecies String")
 
     def as_dict(self) -> dict:
-        """:return: MSONable dict representation."""
+        """MSONable dict representation."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1533,15 +1540,15 @@ class DummySpecie(DummySpecies):
 
 
 @functools.lru_cache
-def get_el_sp(obj) -> Element | Species | DummySpecies:
-    """
-    Utility method to get an Element or Species from an input obj.
+def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
+    """Utility method to get an Element, Species or DummySpecies from any input.
+
     If obj is in itself an element or a specie, it is returned automatically.
-    If obj is an int or a string representing an integer, the Element
-    with the atomic number obj is returned.
-    If obj is a string, Species parsing will be attempted (e.g., Mn2+), failing
-    which Element parsing will be attempted (e.g., Mn), failing which
-    DummyElement parsing will be attempted.
+    If obj is an int or a string representing an integer, the Element with the
+    atomic number obj is returned.
+    If obj is a string, Species parsing will be attempted (e.g. Mn2+). Failing that
+    Element parsing will be attempted (e.g. Mn). Failing that DummyElement parsing
+    will be attempted.
 
     Args:
         obj (Element/Species/str/int): An arbitrary object. Supported objects
@@ -1553,28 +1560,28 @@ def get_el_sp(obj) -> Element | Species | DummySpecies:
         that can be determined.
 
     Raises:
-        ValueError if obj cannot be converted into an Element or Species.
+        ValueError: if obj cannot be converted into an Element or Species.
     """
     if isinstance(obj, (Element, Species, DummySpecies)):
         return obj
 
     try:
-        c = float(obj)
-        i = int(c)
-        i = i if i == c else None  # type: ignore
+        flt = float(obj)
+        integer = int(flt)
+        integer = integer if integer == flt else None  # type: ignore
+        return Element.from_Z(integer)
     except (ValueError, TypeError):
-        i = None
-
-    if i is not None:
-        return Element.from_Z(i)
+        pass
 
     try:
-        return Species.from_string(obj)
+        return Species.from_str(obj)  # type: ignore
     except (ValueError, KeyError):
-        try:
-            return Element(obj)
-        except (ValueError, KeyError):
-            try:
-                return DummySpecies.from_string(obj)
-            except Exception:
-                raise ValueError(f"Can't parse Element or String from {type(obj).__name__}: {obj}.")
+        pass
+    try:
+        return Element(obj)  # type: ignore
+    except (ValueError, KeyError):
+        pass
+    try:
+        return DummySpecies.from_str(obj)  # type: ignore
+    except Exception:
+        raise ValueError(f"Can't parse Element or Species from {type(obj).__name__}: {obj}.")
