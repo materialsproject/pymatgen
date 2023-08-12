@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 import pytest
 
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.structure import Lattice, Molecule, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
@@ -249,3 +249,22 @@ TITLE sites: 4
         assert original_mole_shell == output_mole_shell
 
         shutil.rmtree(os.path.join(".", "feff_dist_regen"))
+
+    def test_big_radius(self):
+        struct = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3.033043), ["Ti", "O"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        dict_set = FEFFDictSet(
+            absorbing_atom="Ti",
+            structure=struct,
+            radius=10.0,
+            config_dict={
+                "S02": "0",
+                "COREHOLE": "regular",
+                "CONTROL": "1 1 1 1 1 1",
+                "XANES": "4 0.04 0.1",
+                "SCF": "7.0 0 100 0.2 3",
+                "FMS": "9.0 0",
+                "EXCHANGE": "0 0.0 0.0 2",
+                "RPATH": "-1",
+            },
+        )
+        assert str(dict_set) is not None
