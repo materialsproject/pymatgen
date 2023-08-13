@@ -759,16 +759,14 @@ class TestKpoints:
         filepath = f"{TEST_FILES_DIR}/KPOINTS.explicit"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts_weights is not None
-        assert (
-            str(kpoints).strip()
-            == """Example file
+        expected_kpt_str = """Example file
 4
 Cartesian
 0.0 0.0 0.0 1 None
 0.0 0.0 0.5 1 None
 0.0 0.5 0.5 2 None
 0.5 0.5 0.5 4 None"""
-        )
+        assert str(kpoints).strip() == expected_kpt_str
 
         filepath = f"{TEST_FILES_DIR}/KPOINTS.explicit_tet"
         kpoints = Kpoints.from_file(filepath)
