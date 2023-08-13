@@ -179,8 +179,7 @@ class DosPlotter:
             all_energies.append(energies)
             all_densities.append(new_dens)
 
-        keys = list(self._doses)
-        keys.reverse()
+        keys = list(reversed(self._doses))
         all_densities.reverse()
         all_energies.reverse()
         all_pts = []
@@ -241,8 +240,7 @@ class DosPlotter:
         handles, labels = ax.get_gca().get_legend_handles_labels()
         label_dict = dict(zip(labels, handles))
         ax.legend(label_dict.values(), label_dict.keys())
-        leg = ax.get_legend()
-        legend_text = leg.get_texts()  # all the text.Text instance in the legend
+        legend_text = ax.get_legend().get_texts()  # all the text.Text instance in the legend
         plt.setp(legend_text, fontsize=30)
         plt.tight_layout()
         return ax
@@ -3866,8 +3864,7 @@ class CohpPlotter:
             ax.set_ylabel(cohp_label)
 
         ax.legend()
-        leg = ax.get_legend()
-        legend_text = leg.get_texts()
+        legend_text = ax.legend().get_texts()
         plt.setp(legend_text, fontsize=30)
         plt.tight_layout()
         return ax

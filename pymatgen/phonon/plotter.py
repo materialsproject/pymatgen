@@ -156,8 +156,7 @@ class PhononDosPlotter:
             all_frequencies.append(frequencies)
             all_densities.append(new_dens)
 
-        keys = list(self._doses)
-        keys.reverse()
+        keys = list(reversed(self._doses))
         all_densities.reverse()
         all_frequencies.reverse()
         all_pts = []
@@ -175,23 +174,22 @@ class PhononDosPlotter:
                 )
 
         if xlim:
-            ax.xlim(xlim)
+            ax.set_xlim(xlim)
         if ylim:
-            ax.ylim(ylim)
+            ax.set_ylim(ylim)
         else:
-            xlim = ax.xlim()
+            xlim = ax.set_xlim()
             relevant_y = [p[1] for p in all_pts if xlim[0] < p[0] < xlim[1]]
-            ax.ylim((min(relevant_y), max(relevant_y)))
+            ax.set_ylim((min(relevant_y), max(relevant_y)))
 
         ylim = ax.ylim()
         ax.plot([0, 0], ylim, "k--", linewidth=2)
 
-        ax.xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$")
-        ax.ylabel(r"$\mathrm{Density\ of\ states}$")
+        ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$")
+        ax.set_ylabel(r"$\mathrm{Density\ of\ states}$")
 
         ax.legend()
-        leg = ax.get_legend()
-        legend_text = leg.get_texts()  # all the text.Text instance in the legend
+        legend_text = ax.get_legend().get_texts()  # all the text.Text instance in the legend
         plt.setp(legend_text, fontsize=30)
         plt.tight_layout()
         return ax
