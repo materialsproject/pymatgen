@@ -938,12 +938,11 @@ class Lattice(MSONable):
         return "\n".join(" ".join([f"{i:.6f}" for i in row]) for row in self._matrix)
 
     def as_dict(self, verbosity: int = 0) -> dict:
-        """
-        Json-serialization dict representation of the Lattice.
+        """MSONable dict representation of the Lattice.
 
         Args:
-            verbosity (int): Verbosity level. Default of 0 only includes the
-                matrix representation. Set to 1 for more details.
+            verbosity (int): Default of 0 only includes the matrix representation.
+                Set to 1 to include the lattice parameters.
         """
         dct = {
             "@module": type(self).__module__,
@@ -952,8 +951,8 @@ class Lattice(MSONable):
             "pbc": self._pbc,
         }
         if verbosity > 0:
-            keys = ["a", "b", "c", "alpha", "beta", "gamma", "volume"]
-            dct.update(dict(zip(keys, [*self.parameters, self.volume])))
+            dct.update(self.params_dict)
+            dct["volume"] = self.volume
 
         return dct
 
