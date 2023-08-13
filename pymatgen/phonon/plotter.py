@@ -127,74 +127,74 @@ class PhononDosPlotter:
             ylim: Specifies the y-axis limits.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        u = freq_units(units)
+        unit = freq_units(units)
 
-        ncolors = max(3, len(self._doses))
-        ncolors = min(9, ncolors)
+        n_colors = max(3, len(self._doses))
+        n_colors = min(9, n_colors)
 
         import palettable
 
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors  # pylint: disable=E1101
 
         y = None
-        alldensities = []
-        allfrequencies = []
-        plt = pretty_plot(12, 8)
+        all_densities = []
+        all_frequencies = []
+        ax = pretty_plot(12, 8)
 
         # Note that this complicated processing of frequencies is to allow for
         # stacked plots in matplotlib.
         for dos in self._doses.values():
-            frequencies = dos["frequencies"] * u.factor
+            frequencies = dos["frequencies"] * unit.factor
             densities = dos["densities"]
             if y is None:
                 y = np.zeros(frequencies.shape)
             if self.stack:
                 y += densities
-                newdens = y.copy()
+                new_dens = y.copy()
             else:
-                newdens = densities
-            allfrequencies.append(frequencies)
-            alldensities.append(newdens)
+                new_dens = densities
+            all_frequencies.append(frequencies)
+            all_densities.append(new_dens)
 
         keys = list(self._doses)
         keys.reverse()
-        alldensities.reverse()
-        allfrequencies.reverse()
-        allpts = []
-        for i, (key, frequencies, densities) in enumerate(zip(keys, allfrequencies, alldensities)):
-            allpts.extend(list(zip(frequencies, densities)))
+        all_densities.reverse()
+        all_frequencies.reverse()
+        all_pts = []
+        for i, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
+            all_pts.extend(list(zip(frequencies, densities)))
             if self.stack:
-                plt.fill(frequencies, densities, color=colors[i % ncolors], label=str(key))
+                ax.fill(frequencies, densities, color=colors[i % n_colors], label=str(key))
             else:
-                plt.plot(
+                ax.plot(
                     frequencies,
                     densities,
-                    color=colors[i % ncolors],
+                    color=colors[i % n_colors],
                     label=str(key),
                     linewidth=3,
                 )
 
         if xlim:
-            plt.xlim(xlim)
+            ax.xlim(xlim)
         if ylim:
-            plt.ylim(ylim)
+            ax.ylim(ylim)
         else:
-            xlim = plt.xlim()
-            relevanty = [p[1] for p in allpts if xlim[0] < p[0] < xlim[1]]
-            plt.ylim((min(relevanty), max(relevanty)))
+            xlim = ax.xlim()
+            relevant_y = [p[1] for p in all_pts if xlim[0] < p[0] < xlim[1]]
+            ax.ylim((min(relevant_y), max(relevant_y)))
 
-        ylim = plt.ylim()
-        plt.plot([0, 0], ylim, "k--", linewidth=2)
+        ylim = ax.ylim()
+        ax.plot([0, 0], ylim, "k--", linewidth=2)
 
-        plt.xlabel(rf"$\mathrm{{Frequencies\ ({u.label})}}$")
-        plt.ylabel(r"$\mathrm{Density\ of\ states}$")
+        ax.xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$")
+        ax.ylabel(r"$\mathrm{Density\ of\ states}$")
 
-        plt.legend()
-        leg = plt.gca().get_legend()
-        ltext = leg.get_texts()  # all the text.Text instance in the legend
-        plt.setp(ltext, fontsize=30)
+        ax.legend()
+        leg = ax.gca().get_legend()
+        legend_text = leg.get_texts()  # all the text.Text instance in the legend
+        ax.setp(legend_text, fontsize=30)
         plt.tight_layout()
-        return plt
+        return ax
 
     def save_plot(self, filename, img_format="eps", xlim=None, ylim=None, units="thz"):
         """

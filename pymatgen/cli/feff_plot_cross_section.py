@@ -60,8 +60,8 @@ def main():
 
     plt.legend()
     leg = plt.gca().get_legend()
-    ltext = leg.get_texts()  # all the text.Text instance in the legend
-    plt.setp(ltext, fontsize=15)
+    legend_text = leg.get_texts()  # all the text.Text instance in the legend
+    plt.setp(legend_text, fontsize=15)
     plt.tight_layout()
     plt.show()
 

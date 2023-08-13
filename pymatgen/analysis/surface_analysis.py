@@ -1058,10 +1058,10 @@ class SurfaceEnergyPlotter:
             ax.plot(monolayers, BEs, "-o", c=self.color_dict[clean_entry], label=hkl)
 
         adsorbates = tuple(ads_entry.ads_entries_dict)
-        ax.xlabel(f"{' '.join(adsorbates)} Coverage (ML)")
-        ax.ylabel("Adsorption Energy (eV)") if plot_eads else ax.ylabel("Binding Energy (eV)")
+        ax.set_xlabel(f"{' '.join(adsorbates)} Coverage (ML)")
+        ax.set_ylabel("Adsorption Energy (eV)") if plot_eads else ax.ylabel("Binding Energy (eV)")
         ax.legend()
-        ax.tight_layout()
+        plt.tight_layout()
 
         return ax
 

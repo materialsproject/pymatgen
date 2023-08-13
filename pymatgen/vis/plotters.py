@@ -119,8 +119,8 @@ class SpectrumPlotter:
 
         plt.legend()
         leg = plt.gca().get_legend()
-        ltext = leg.get_texts()  # all the text.Text instance in the legend
-        plt.setp(ltext, fontsize=30)
+        legend_text = leg.get_texts()  # all the text.Text instance in the legend
+        plt.setp(legend_text, fontsize=30)
         plt.tight_layout()
         return plt
 

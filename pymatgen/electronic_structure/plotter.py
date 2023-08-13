@@ -3792,10 +3792,9 @@ class CohpPlotter:
 
         import palettable
 
-        # pylint: disable=E1101
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
         allpts = []
         keys = list(self._cohps)
@@ -3812,7 +3811,7 @@ class CohpPlotter:
                         y = -populations[spin] if plot_negative else populations[spin]
                     allpts.extend(list(zip(x, y)))
                     if spin == Spin.up:
-                        plt.plot(
+                        ax.plot(
                             x,
                             y,
                             color=colors[i % ncolors],
@@ -3821,29 +3820,29 @@ class CohpPlotter:
                             linewidth=3,
                         )
                     else:
-                        plt.plot(x, y, color=colors[i % ncolors], linestyle="--", linewidth=3)
+                        ax.plot(x, y, color=colors[i % ncolors], linestyle="--", linewidth=3)
 
         if xlim:
-            plt.xlim(xlim)
+            ax.xlim(xlim)
         if ylim:
-            plt.ylim(ylim)
+            ax.ylim(ylim)
         elif not invert_axes:
-            xlim = plt.xlim()
+            xlim = ax.get_xlim()
             relevanty = [p[1] for p in allpts if xlim[0] < p[0] < xlim[1]]
-            plt.ylim((min(relevanty), max(relevanty)))
+            ax.ylim((min(relevanty), max(relevanty)))
         if not xlim and invert_axes:
-            ylim = plt.ylim()
+            ylim = ax.get_ylim()
             relevanty = [p[0] for p in allpts if ylim[0] < p[1] < ylim[1]]
-            plt.xlim((min(relevanty), max(relevanty)))
+            ax.xlim((min(relevanty), max(relevanty)))
 
-        xlim = plt.xlim()
-        ylim = plt.ylim()
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
         if not invert_axes:
-            plt.axhline(y=0, color="k", linewidth=2)
+            ax.axhline(y=0, color="k", linewidth=2)
             if self.zero_at_efermi:
-                plt.plot([0, 0], ylim, "k--", linewidth=2)
+                ax.plot([0, 0], ylim, "k--", linewidth=2)
             else:
-                plt.plot(
+                ax.plot(
                     [self._cohps[key]["efermi"], self._cohps[key]["efermi"]],
                     ylim,
                     color=colors[i % ncolors],
@@ -3851,11 +3850,11 @@ class CohpPlotter:
                     linewidth=2,
                 )
         else:
-            plt.axvline(x=0, color="k", linewidth=2)
+            ax.axvline(x=0, color="k", linewidth=2)
             if self.zero_at_efermi:
-                plt.plot(xlim, [0, 0], "k--", linewidth=2)
+                ax.plot(xlim, [0, 0], "k--", linewidth=2)
             else:
-                plt.plot(
+                ax.plot(
                     xlim,
                     [self._cohps[key]["efermi"], self._cohps[key]["efermi"]],
                     color=colors[i % ncolors],
@@ -3864,18 +3863,18 @@ class CohpPlotter:
                 )
 
         if invert_axes:
-            plt.xlabel(cohp_label)
-            plt.ylabel(energy_label)
+            ax.set_xlabel(cohp_label)
+            ax.set_ylabel(energy_label)
         else:
-            plt.xlabel(energy_label)
-            plt.ylabel(cohp_label)
+            ax.set_xlabel(energy_label)
+            ax.set_ylabel(cohp_label)
 
-        plt.legend()
-        leg = plt.gca().get_legend()
-        ltext = leg.get_texts()
-        plt.setp(ltext, fontsize=30)
+        ax.legend()
+        leg = ax.get_legend()
+        legend_text = leg.get_texts()
+        ax.setp(legend_text, fontsize=30)
         plt.tight_layout()
-        return plt
+        return ax
 
     def save_plot(self, filename, img_format="eps", xlim=None, ylim=None):
         """
