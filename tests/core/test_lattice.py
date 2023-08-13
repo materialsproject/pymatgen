@@ -300,6 +300,13 @@ class LatticeTestCase(PymatgenTest):
         assert tetragonal.abc == self.tetragonal.abc
         assert tetragonal.angles == self.tetragonal.angles
 
+    def test_parameters(self):
+        params_dict = self.tetragonal.params_dict
+        assert params_dict == {"a": 10, "b": 10, "c": 20, "alpha": 90, "beta": 90, "gamma": 90}
+        params = self.tetragonal.parameters
+        assert params == (10, 10, 20, 90, 90, 90)
+        assert tuple(params_dict.values()) == params
+
     def test_scale(self):
         new_volume = 10
         for lattice in self.families.values():
