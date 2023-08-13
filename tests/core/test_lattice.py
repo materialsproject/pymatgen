@@ -278,10 +278,12 @@ class LatticeTestCase(PymatgenTest):
     def test_mapping_symmetry(self):
         latt = Lattice.cubic(1)
         l2 = Lattice.orthorhombic(1.1001, 1, 1)
-        assert latt.find_mapping(l2, ltol=0.1) is None
+        assert latt.find_mapping(l2, ltol=0.1) == l2.find_mapping(latt, ltol=0.1)
         assert l2.find_mapping(latt, ltol=0.1) is None
         l2 = Lattice.orthorhombic(1.0999, 1, 1)
-        assert l2.find_mapping(latt, ltol=0.1) is not None
+        map = l2.find_mapping(latt, ltol=0.1)
+        assert isinstance(map, tuple)
+        assert len(map) == 3
         assert latt.find_mapping(l2, ltol=0.1) is not None
 
     def test_to_from_dict(self):
