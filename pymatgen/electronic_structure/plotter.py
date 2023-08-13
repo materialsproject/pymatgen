@@ -3823,17 +3823,17 @@ class CohpPlotter:
                         ax.plot(x, y, color=colors[i % ncolors], linestyle="--", linewidth=3)
 
         if xlim:
-            ax.xlim(xlim)
+            ax.set_xlim(xlim)
         if ylim:
-            ax.ylim(ylim)
+            ax.set_ylim(ylim)
         elif not invert_axes:
             xlim = ax.get_xlim()
-            relevanty = [p[1] for p in allpts if xlim[0] < p[0] < xlim[1]]
-            ax.ylim((min(relevanty), max(relevanty)))
+            relevant_y = [p[1] for p in allpts if xlim[0] < p[0] < xlim[1]]
+            ax.set_ylim((min(relevant_y), max(relevant_y)))
         if not xlim and invert_axes:
             ylim = ax.get_ylim()
-            relevanty = [p[0] for p in allpts if ylim[0] < p[1] < ylim[1]]
-            ax.xlim((min(relevanty), max(relevanty)))
+            relevant_y = [p[0] for p in allpts if ylim[0] < p[1] < ylim[1]]
+            ax.set_xlim((min(relevant_y), max(relevant_y)))
 
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
