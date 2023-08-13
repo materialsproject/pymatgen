@@ -241,7 +241,7 @@ class DosPlotter:
         handles, labels = ax.get_gca().get_legend_handles_labels()
         label_dict = dict(zip(labels, handles))
         ax.legend(label_dict.values(), label_dict.keys())
-        leg = ax.gca().get_legend()
+        leg = ax.get_legend()
         legend_text = leg.get_texts()  # all the text.Text instance in the legend
         ax.setp(legend_text, fontsize=30)
         plt.tight_layout()
@@ -337,7 +337,7 @@ class BSPlotter:
             # bands
             self._nb_bands.extend([b.nb_bands for b in bs])
 
-    def _maketicks(self, plt):
+    def _maketicks(self, ax: plt.Axes) -> plt.Axes:
         """Utility private method to add ticks to a band structure."""
         ticks = self.get_ticks()
         # Sanitize only plot the uniq values
@@ -357,8 +357,8 @@ class BSPlotter:
                 uniq_l.append(t[1])
 
         logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
-        plt.gca().set_xticks(uniq_d)
-        plt.gca().set_xticklabels(uniq_l)
+        ax.set_xticks(uniq_d)
+        ax.set_xticklabels(uniq_l)
 
         for i in range(len(ticks["label"])):
             if ticks["label"][i] is not None:
@@ -368,11 +368,11 @@ class BSPlotter:
                         logger.debug(f"already print label... skipping label {ticks['label'][i]}")
                     else:
                         logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                        plt.axvline(ticks["distance"][i], color="k")
+                        ax.axvline(ticks["distance"][i], color="k")
                 else:
                     logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                    plt.axvline(ticks["distance"][i], color="k")
-        return plt
+                    ax.axvline(ticks["distance"][i], color="k")
+        return ax
 
     @staticmethod
     def _get_branch_steps(branches):
@@ -613,7 +613,7 @@ class BSPlotter:
             smooth_np (int): number of interpolated points per each branch.
             bs_labels: labels for each band for the plot legend.
         """
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
         if isinstance(smooth, bool):
             smooth = [smooth] * len(self._bs)
@@ -672,19 +672,19 @@ class BSPlotter:
                     energies = np.hsplit(energies, steps)
 
                 for dist, ene in zip(distances, energies):
-                    plt.plot(dist, ene.T, c=colors[ibs], ls=ls)
+                    ax.plot(dist, ene.T, c=colors[ibs], ls=ls)
 
             # plot markers for vbm and cbm
             if vbm_cbm_marker:
                 for cbm in data["cbm"]:
-                    plt.scatter(cbm[0], cbm[1], color="r", marker="o", s=100)
+                    ax.scatter(cbm[0], cbm[1], color="r", marker="o", s=100)
                 for vbm in data["vbm"]:
-                    plt.scatter(vbm[0], vbm[1], color="g", marker="o", s=100)
+                    ax.scatter(vbm[0], vbm[1], color="g", marker="o", s=100)
 
             # Draw Fermi energy, only if not the zero
             if not zero_to_efermi:
                 ef = bs.efermi
-                plt.axhline(ef, lw=2, ls="-.", color=colors[ibs])
+                ax.axhline(ef, lw=2, ls="-.", color=colors[ibs])
 
         # defaults for ylim
         e_min = -4
@@ -695,45 +695,41 @@ class BSPlotter:
 
         if ylim is None:
             if zero_to_efermi:
-                if one_is_metal:
-                    # Plot A Metal
-                    plt.ylim(e_min, e_max)
-                else:
-                    plt.ylim(e_min, max(cbm_max) + e_max)
+                ax.set_ylim(e_min, e_max if one_is_metal else max(cbm_max) + e_max)
             else:
                 all_efermi = [b.efermi for b in self._bs]
                 ll = min([min(vbm_min), min(all_efermi)])
                 hh = max([max(cbm_max), max(all_efermi)])
-                plt.ylim(ll + e_min, hh + e_max)
+                ax.set_ylim(ll + e_min, hh + e_max)
         else:
-            plt.ylim(ylim)
+            ax.set_ylim(ylim)
 
-        self._maketicks(plt)
+        self._maketicks(ax)
 
         # Main X and Y Labels
-        plt.xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
+        ax.set_xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
         ylabel = r"$\mathrm{E\ -\ E_f\ (eV)}$" if zero_to_efermi else r"$\mathrm{Energy\ (eV)}$"
-        plt.ylabel(ylabel, fontsize=30)
+        ax.set_ylabel(ylabel, fontsize=30)
 
         # X range (K)
         # last distance point
         x_max = data["distances"][-1][-1]
-        plt.xlim(0, x_max)
+        ax.set_xlim(0, x_max)
 
-        plt.legend(handles=handles)
+        ax.legend(handles=handles)
 
         plt.tight_layout()
 
         # auto tight_layout when resizing or pressing t
         def fix_layout(event):
             if (event.name == "key_press_event" and event.key == "t") or event.name == "resize_event":
-                plt.gcf().tight_layout()
-                plt.gcf().canvas.draw()
+                ax.gcf().tight_layout()
+                ax.gcf().canvas.draw()
 
-        plt.gcf().canvas.mpl_connect("key_press_event", fix_layout)
-        plt.gcf().canvas.mpl_connect("resize_event", fix_layout)
+        ax.figure.canvas.mpl_connect("key_press_event", fix_layout)
+        ax.figure.canvas.mpl_connect("resize_event", fix_layout)
 
-        return plt
+        return ax
 
     def show(self, zero_to_efermi=True, ylim=None, smooth=False, smooth_tol=None):
         """
@@ -999,7 +995,7 @@ class BSPlotterProjected(BSPlotter):
         fig_rows = max(len(v) for v in dictio.values()) * 10
         proj = self._get_projections_by_branches(dictio)
         data = self.bs_plot_data(zero_to_efermi)
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
         e_min = -4
         e_max = 4
         if self._bs.is_metal():
@@ -1009,32 +1005,32 @@ class BSPlotterProjected(BSPlotter):
 
         for el in dictio:
             for o in dictio[el]:
-                plt.subplot(fig_rows + fig_cols + count)
-                self._maketicks(plt)
+                ax = plt.subplot(fig_rows + fig_cols + count)
+                self._maketicks(ax)
                 for b in range(len(data["distances"])):
                     for i in range(self._nb_bands):
-                        plt.plot(
+                        ax.plot(
                             data["distances"][b],
                             data["energy"][str(Spin.up)][b][i],
                             "b-",
                             linewidth=band_linewidth,
                         )
                         if self._bs.is_spin_polarized:
-                            plt.plot(
+                            ax.plot(
                                 data["distances"][b],
                                 data["energy"][str(Spin.down)][b][i],
                                 "r--",
                                 linewidth=band_linewidth,
                             )
                             for j in range(len(data["energy"][str(Spin.up)][b][i])):
-                                plt.plot(
+                                ax.plot(
                                     data["distances"][b][j],
                                     data["energy"][str(Spin.down)][b][i][j],
                                     "ro",
                                     markersize=proj[b][str(Spin.down)][i][j][str(el)][o] * 15.0,
                                 )
                         for j in range(len(data["energy"][str(Spin.up)][b][i])):
-                            plt.plot(
+                            ax.plot(
                                 data["distances"][b][j],
                                 data["energy"][str(Spin.up)][b][i][j],
                                 "bo",
@@ -1043,23 +1039,23 @@ class BSPlotterProjected(BSPlotter):
                 if ylim is None:
                     if self._bs.is_metal():
                         if zero_to_efermi:
-                            plt.ylim(e_min, e_max)
+                            ax.set_ylim(e_min, e_max)
                         else:
-                            plt.ylim(self._bs.efermi + e_min, self._bs.efermi + e_max)
+                            ax.set_ylim(self._bs.efermi + e_min, self._bs.efermi + e_max)
                     else:
                         if vbm_cbm_marker:
                             for cbm in data["cbm"]:
-                                plt.scatter(cbm[0], cbm[1], color="r", marker="o", s=100)
+                                ax.scatter(cbm[0], cbm[1], color="r", marker="o", s=100)
 
                             for vbm in data["vbm"]:
-                                plt.scatter(vbm[0], vbm[1], color="g", marker="o", s=100)
+                                ax.scatter(vbm[0], vbm[1], color="g", marker="o", s=100)
 
-                        plt.ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
+                        ax.set_ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
                 else:
-                    plt.ylim(ylim)
-                plt.title(f"{el} {o}")
+                    ax.set_ylim(ylim)
+                ax.set_title(f"{el} {o}")
                 count += 1
-        return plt
+        return ax
 
     @no_type_check
     def get_elt_projected_plots(self, zero_to_efermi: bool = True, ylim=None, vbm_cbm_marker: bool = False) -> plt.Axes:
@@ -1076,11 +1072,9 @@ class BSPlotterProjected(BSPlotter):
         proj = self._get_projections_by_branches({e.symbol: ["s", "p", "d"] for e in self._bs.structure.elements})
         data = self.bs_plot_data(zero_to_efermi)
         ax = pretty_plot(12, 8)
-        e_min = -4
-        e_max = 4
+        e_min, e_max = -4, 4
         if self._bs.is_metal():
-            e_min = -10
-            e_max = 10
+            e_min, e_max = -10, 10
         count = 1
         for el in self._bs.structure.elements:
             plt.subplot(220 + count)
@@ -1159,30 +1153,33 @@ class BSPlotterProjected(BSPlotter):
         and the corresponding rgb color depending on the character of the band
         is used. The method can only deal with binary and ternary compounds.
 
-        spin up and spin down are differientiated by a '-' and a '--' line
+        Spin up and spin down are differentiated by a '-' and a '--' line.
 
         Args:
             zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
                 Defaults to True.
-            elt_ordered: A list of Element ordered. The first one is red,
-                second green, last blue
+            elt_ordered: A list of Element ordered. The first one is red, second green, last blue.
+
+        Raises:
+            ValueError: if the number of elements is not 2 or 3.
 
         Returns:
             a pyplot object
         """
-        band_linewidth = 3.0
-        if len(self._bs.structure.elements) > 3:
-            raise ValueError
+        band_linewidth = 3
+        n_elems = len(self._bs.structure.elements)
+        if n_elems > 3:
+            raise ValueError(f"Can only plot binary and ternary compounds, got {n_elems} elements")
         if elt_ordered is None:
             elt_ordered = self._bs.structure.elements
         proj = self._get_projections_by_branches({e.symbol: ["s", "p", "d"] for e in self._bs.structure.elements})
         data = self.bs_plot_data(zero_to_efermi)
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
         spins = [Spin.up]
         if self._bs.is_spin_polarized:
             spins = [Spin.up, Spin.down]
-        self._maketicks(plt)
+        self._maketicks(ax)
         for s in spins:
             for b in range(len(data["distances"])):
                 for i in range(self._nb_bands):
@@ -1206,7 +1203,7 @@ class BSPlotterProjected(BSPlotter):
                         sign = "-"
                         if s == Spin.down:
                             sign = "--"
-                        plt.plot(
+                        ax.plot(
                             [data["distances"][b][j], data["distances"][b][j + 1]],
                             [data["energy"][str(s)][b][i][j], data["energy"][str(s)][b][i][j + 1]],
                             sign,
@@ -1218,14 +1215,14 @@ class BSPlotterProjected(BSPlotter):
             if zero_to_efermi:
                 e_min = -10
                 e_max = 10
-                plt.ylim(e_min, e_max)
-                plt.ylim(self._bs.efermi + e_min, self._bs.efermi + e_max)
+                ax.set_ylim(e_min, e_max)
+                ax.set_ylim(self._bs.efermi + e_min, self._bs.efermi + e_max)
         else:
-            plt.ylim(data["vbm"][0][1] - 4.0, data["cbm"][0][1] + 2.0)
+            ax.set_ylim(data["vbm"][0][1] - 4.0, data["cbm"][0][1] + 2.0)
         # https://github.com/materialsproject/pymatgen/issues/562
         x_max = data["distances"][-1][-1]
-        plt.xlim(0, x_max)
-        return plt
+        ax.set_xlim(0, x_max)
+        return ax
 
     def _get_projections_by_branches_patom_pmorb(self, dictio, dictpa, sum_atoms, sum_morbs, selected_branches):
         setos = {
