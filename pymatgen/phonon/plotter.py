@@ -1041,14 +1041,21 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             other_plotter (GruneisenPhononBSPlotter): another phonon DOS plotter defined along
                 the same symmetry lines.
 
+        Raises:
+            ValueError: if the two plotters are incompatible (due to different data lengths)
+
         Returns:
             a matplotlib object with both band structures
         """
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
 
-        if len(data_orig["distances"]) != len(data["distances"]):
-            raise ValueError("The two objects are not compatible.")
+        len_orig = len(data_orig["distances"])
+        len_other = len(data["distances"])
+        if len_orig != len_other:
+            raise ValueError(
+                f"The two plotters are incompatible, plotting data have different lengths ({len_orig} vs {len_other})."
+            )
 
         self.get_plot()
         band_linewidth = 1
