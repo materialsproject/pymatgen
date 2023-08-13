@@ -285,18 +285,20 @@ class LatticeTestCase(PymatgenTest):
         assert latt.find_mapping(l2, ltol=0.1) is not None
 
     def test_to_from_dict(self):
-        d = self.tetragonal.as_dict()
-        t = Lattice.from_dict(d)
-        for i in range(3):
-            assert t.abc[i] == self.tetragonal.abc[i]
-            assert t.angles[i] == self.tetragonal.angles[i]
+        dct = self.tetragonal.as_dict()
+        expected_keys = {"matrix", "@class", "pbc", "@module"}
+        assert {*dct} == expected_keys
+        tetragonal = Lattice.from_dict(dct)
+        assert tetragonal.abc == self.tetragonal.abc
+        assert tetragonal.angles == self.tetragonal.angles
+
         # Make sure old style dicts work.
-        d = self.tetragonal.as_dict(verbosity=1)
-        del d["matrix"]
-        t = Lattice.from_dict(d)
-        for i in range(3):
-            assert t.abc[i] == self.tetragonal.abc[i]
-            assert t.angles[i] == self.tetragonal.angles[i]
+        dct = self.tetragonal.as_dict(verbosity=1)
+        assert {*dct} == expected_keys | {"a", "b", "c", "alpha", "beta", "gamma", "volume"}
+        del dct["matrix"]
+        tetragonal = Lattice.from_dict(dct)
+        assert tetragonal.abc == self.tetragonal.abc
+        assert tetragonal.angles == self.tetragonal.angles
 
     def test_scale(self):
         new_volume = 10
