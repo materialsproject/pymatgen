@@ -131,7 +131,7 @@ class DosPlotter:
         ylim: tuple[float, float] | None = None,
         invert_axes: bool = False,
         beta_dashed: bool = False,
-    ):
+    ) -> plt.Axes:
         """
         Get a matplotlib plot showing the DOS.
 
@@ -142,6 +142,9 @@ class DosPlotter:
             invert_axes (bool): Whether to invert the x and y axes. Enables chemist style DOS plotting.
                 Defaults to False.
             beta_dashed (bool): Plots the beta spin channel with a dashed line. Defaults to False.
+
+        Returns:
+            plt.Axes: matplotlib Axes object.
         """
         n_colors = min(9, max(3, len(self._doses)))
 
@@ -153,7 +156,7 @@ class DosPlotter:
         ys = None
         all_densities = []
         all_energies = []
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
         # Note that this complicated processing of energies is to allow for
         # stacked plots in matplotlib.
@@ -165,22 +168,22 @@ class DosPlotter:
                     Spin.up: np.zeros(energies.shape),
                     Spin.down: np.zeros(energies.shape),
                 }
-            newdens = {}
+            new_dens = {}
             for spin in [Spin.up, Spin.down]:
                 if spin in densities:
                     if self.stack:
                         ys[spin] += densities[spin]
-                        newdens[spin] = ys[spin].copy()
+                        new_dens[spin] = ys[spin].copy()
                     else:
-                        newdens[spin] = densities[spin]
+                        new_dens[spin] = densities[spin]
             all_energies.append(energies)
-            all_densities.append(newdens)
+            all_densities.append(new_dens)
 
         keys = list(self._doses)
         keys.reverse()
         all_densities.reverse()
         all_energies.reverse()
-        allpts = []
+        all_pts = []
 
         for idx, key in enumerate(keys):
             for spin in [Spin.up, Spin.down]:
@@ -193,56 +196,56 @@ class DosPlotter:
                     else:
                         x = energy
                         y = densities
-                    allpts.extend(list(zip(x, y)))
+                    all_pts.extend(list(zip(x, y)))
                     if self.stack:
-                        plt.fill(x, y, color=colors[idx % n_colors], label=str(key))
+                        ax.fill(x, y, color=colors[idx % n_colors], label=str(key))
                     elif spin == Spin.down and beta_dashed:
-                        plt.plot(x, y, color=colors[idx % n_colors], label=str(key), linestyle="--", linewidth=3)
+                        ax.plot(x, y, color=colors[idx % n_colors], label=str(key), linestyle="--", linewidth=3)
                     else:
-                        plt.plot(x, y, color=colors[idx % n_colors], label=str(key), linewidth=3)
+                        ax.plot(x, y, color=colors[idx % n_colors], label=str(key), linewidth=3)
 
         if xlim:
-            plt.xlim(xlim)
+            ax.set_xlim(xlim)
         if ylim:
-            plt.ylim(ylim)
+            ax.set_ylim(ylim)
         elif not invert_axes:
-            xlim = plt.xlim()
-            relevanty = [p[1] for p in allpts if xlim[0] < p[0] < xlim[1]]
-            plt.ylim((min(relevanty), max(relevanty)))
+            xlim = ax.get_xlim()
+            relevant_y = [p[1] for p in all_pts if xlim[0] < p[0] < xlim[1]]
+            ax.set_ylim((min(relevant_y), max(relevant_y)))
         if not xlim and invert_axes:
-            ylim = plt.ylim()
-            relevanty = [p[0] for p in allpts if ylim[0] < p[1] < ylim[1]]
-            plt.xlim((min(relevanty), max(relevanty)))
+            ylim = ax.get_ylim()
+            relevant_y = [p[0] for p in all_pts if ylim[0] < p[1] < ylim[1]]
+            ax.set_xlim((min(relevant_y), max(relevant_y)))
 
         if self.zero_at_efermi:
-            xlim = plt.xlim()
-            ylim = plt.ylim()
-            plt.plot(xlim, [0, 0], "k--", linewidth=2) if invert_axes else plt.plot([0, 0], ylim, "k--", linewidth=2)
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+            ax.plot(xlim, [0, 0], "k--", linewidth=2) if invert_axes else ax.plot([0, 0], ylim, "k--", linewidth=2)
 
         if invert_axes:
-            plt.ylabel("Energies (eV)")
+            ax.set_ylabel("Energies (eV)")
             if self._norm_val:
-                plt.xlabel("Density of states (states/eV/Å³)")
+                ax.xlabel("Density of states (states/eV/Å³)")
             else:
-                plt.xlabel("Density of states (states/eV)")
-            plt.axvline(x=0, color="k", linestyle="--", linewidth=2)
+                ax.xlabel("Density of states (states/eV)")
+            ax.axvline(x=0, color="k", linestyle="--", linewidth=2)
         else:
-            plt.xlabel("Energies (eV)")
+            ax.xlabel("Energies (eV)")
             if self._norm_val:
-                plt.ylabel("Density of states (states/eV/Å³)")
+                ax.set_ylabel("Density of states (states/eV/Å³)")
             else:
-                plt.ylabel("Density of states (states/eV)")
-            plt.axhline(y=0, color="k", linestyle="--", linewidth=2)
+                ax.set_ylabel("Density of states (states/eV)")
+            ax.axhline(y=0, color="k", linestyle="--", linewidth=2)
 
         # Remove duplicate labels with a dictionary
-        handles, labels = plt.gca().get_legend_handles_labels()
+        handles, labels = ax.get_gca().get_legend_handles_labels()
         label_dict = dict(zip(labels, handles))
-        plt.legend(label_dict.values(), label_dict.keys())
-        leg = plt.gca().get_legend()
-        ltext = leg.get_texts()  # all the text.Text instance in the legend
-        plt.setp(ltext, fontsize=30)
+        ax.legend(label_dict.values(), label_dict.keys())
+        leg = ax.gca().get_legend()
+        legend_text = leg.get_texts()  # all the text.Text instance in the legend
+        ax.setp(legend_text, fontsize=30)
         plt.tight_layout()
-        return plt
+        return ax
 
     def save_plot(self, filename, img_format="eps", xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
         """
