@@ -164,15 +164,15 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
     Returns:
         matplotlib.pyplot object.
     """
-    plt = pretty_plot(**kwargs)
+    ax = pretty_plot(**kwargs)
     pp = np.polyfit(x, y, deg)
     xp = np.linspace(min(x), max(x), 200)
-    plt.plot(xp, np.polyval(pp, xp), "k--", x, y, "o")
+    ax.plot(xp, np.polyval(pp, xp), "k--", x, y, "o")
     if xlabel:
-        plt.xlabel(xlabel)
+        ax.set_xlabel(xlabel)
     if ylabel:
-        plt.ylabel(ylabel)
-    return plt
+        ax.set_ylabel(ylabel)
+    return ax
 
 
 def _decide_fontcolor(rgba: tuple) -> Literal["black", "white"]:

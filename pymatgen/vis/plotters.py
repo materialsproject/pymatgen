@@ -88,43 +88,43 @@ class SpectrumPlotter:
                 determination.
             ylim: Specifies the y-axis limits.
         """
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
         base = 0.0
-        i = 0
+        idx = 0
         for key, sp in self._spectra.items():
             if not self.stack:
-                plt.plot(
+                ax.plot(
                     sp.x,
-                    sp.y + self.yshift * i,
-                    color=self.colors[i],
+                    sp.y + self.yshift * idx,
+                    color=self.colors[idx],
                     label=str(key),
                     linewidth=3,
                 )
             else:
-                plt.fill_between(
+                ax.fill_between(
                     sp.x,
                     base,
-                    sp.y + self.yshift * i,
-                    color=self.colors[i],
+                    sp.y + self.yshift * idx,
+                    color=self.colors[idx],
                     label=str(key),
                     linewidth=3,
                 )
                 base = sp.y + base
-            plt.xlabel(sp.XLABEL)
-            plt.ylabel(sp.YLABEL)
-            i += 1
+            ax.xlabel(sp.XLABEL)
+            ax.ylabel(sp.YLABEL)
+            idx += 1
 
         if xlim:
-            plt.xlim(xlim)
+            ax.set_xlim(xlim)
         if ylim:
-            plt.ylim(ylim)
+            ax.set_ylim(ylim)
 
-        plt.legend()
-        leg = plt.gca().get_legend()
+        ax.legend()
+        leg = ax.get_legend()
         legend_text = leg.get_texts()  # all the text.Text instance in the legend
-        plt.setp(legend_text, fontsize=30)
+        ax.setp(legend_text, fontsize=30)
         plt.tight_layout()
-        return plt
+        return ax
 
     def save_plot(self, filename, img_format="eps", **kwargs):
         """
