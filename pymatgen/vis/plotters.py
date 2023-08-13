@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import importlib
 
+import matplotlib.pyplot as plt
+
 from pymatgen.util.plotting import pretty_plot
 
 
@@ -132,10 +134,10 @@ class SpectrumPlotter:
             filename: Filename to write to.
             img_format: Image format to use. Defaults to EPS.
         """
-        plt = self.get_plot(**kwargs)
+        self.get_plot(**kwargs)
         plt.savefig(filename, format=img_format)
 
     def show(self, **kwargs):
         """Show the plot using matplotlib."""
-        plt = self.get_plot(**kwargs)
+        self.get_plot(**kwargs)
         plt.show()

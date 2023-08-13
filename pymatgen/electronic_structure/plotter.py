@@ -230,7 +230,7 @@ class DosPlotter:
                 ax.xlabel("Density of states (states/eV)")
             ax.axvline(x=0, color="k", linestyle="--", linewidth=2)
         else:
-            ax.xlabel("Energies (eV)")
+            ax.set_xlabel("Energies (eV)")
             if self._norm_val:
                 ax.set_ylabel("Density of states (states/eV/Å³)")
             else:
@@ -261,7 +261,7 @@ class DosPlotter:
                 Defaults to False.
             beta_dashed (bool): Plots the beta spin channel with a dashed line. Defaults to False.
         """
-        plt = self.get_plot(xlim, ylim, invert_axes, beta_dashed)
+        self.get_plot(xlim, ylim, invert_axes, beta_dashed)
         plt.savefig(filename, format=img_format)
 
     def show(self, xlim=None, ylim=None, invert_axes=False, beta_dashed=False):
@@ -276,7 +276,7 @@ class DosPlotter:
                 Defaults to False.
             beta_dashed (bool): Plots the beta spin channel with a dashed line. Defaults to False.
         """
-        plt = self.get_plot(xlim, ylim, invert_axes, beta_dashed)
+        self.get_plot(xlim, ylim, invert_axes, beta_dashed)
         plt.show()
 
 
@@ -745,7 +745,7 @@ class BSPlotter:
             smooth_tol (float) : tolerance for fitting spline to band data.
                 Default is None such that no tolerance will be used.
         """
-        plt = self.get_plot(zero_to_efermi, ylim, smooth)
+        self.get_plot(zero_to_efermi, ylim, smooth)
         plt.show()
 
     def save_plot(self, filename, img_format="eps", ylim=None, zero_to_efermi=True, smooth=False):
@@ -760,7 +760,7 @@ class BSPlotter:
                 Defaults to True.
             smooth: Cubic spline interpolation of the bands.
         """
-        plt = self.get_plot(ylim=ylim, zero_to_efermi=zero_to_efermi, smooth=smooth)
+        self.get_plot(ylim=ylim, zero_to_efermi=zero_to_efermi, smooth=smooth)
         plt.savefig(filename, format=img_format)
         plt.close()
 
@@ -843,7 +843,7 @@ class BSPlotter:
                 previous_branch = this_branch
         return {"distance": tick_distance, "label": tick_labels}
 
-    def plot_compare(self, other_plotter, legend=True):
+    def plot_compare(self, other_plotter, legend=True) -> plt.Axes:
         """
         Plot two band structure for comparison. One is in red the other in blue
         (no difference in spins). The two band structures need to be defined
@@ -855,27 +855,27 @@ class BSPlotter:
             legend: True to add a legend to the plot
 
         Returns:
-            a matplotlib object with both band structures
+            plt.Axes: matplotlib Axes object with both band structures
         """
         warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
 
         # TODO: add exception if the band structures are not compatible
         import matplotlib.lines as mlines
 
-        plt = self.get_plot()
+        ax = self.get_plot()
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
         band_linewidth = 1
         for i in range(other_plotter._nb_bands):
             for d in range(len(data_orig["distances"])):
-                plt.plot(
+                ax.plot(
                     data_orig["distances"][d],
                     [e[str(Spin.up)][i] for e in data["energy"]][d],
                     "c-",
                     linewidth=band_linewidth,
                 )
                 if other_plotter._bs.is_spin_polarized:
-                    plt.plot(
+                    ax.plot(
                         data_orig["distances"][d],
                         [e[str(Spin.down)][i] for e in data["energy"]][d],
                         "m--",
@@ -889,8 +889,8 @@ class BSPlotter:
                 mlines.Line2D([], [], linewidth=2, color="m", linestyle="--", label="bs 2 down"),
             ]
 
-            plt.legend(handles=handles)
-        return plt
+            ax.legend(handles=handles)
+        return ax
 
     def plot_brillouin(self):
         """Plot the Brillouin zone."""
@@ -3888,7 +3888,7 @@ class CohpPlotter:
             ylim: Specifies the y-axis limits. Defaults to None for
                 automatic determination.
         """
-        plt = self.get_plot(xlim, ylim)
+        self.get_plot(xlim, ylim)
         plt.savefig(filename, format=img_format)
 
     def show(self, xlim=None, ylim=None):
@@ -3901,7 +3901,7 @@ class CohpPlotter:
             ylim: Specifies the y-axis limits. Defaults to None for
                 automatic determination.
         """
-        plt = self.get_plot(xlim, ylim)
+        self.get_plot(xlim, ylim)
         plt.show()
 
 

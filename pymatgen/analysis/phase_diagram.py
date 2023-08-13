@@ -2287,10 +2287,9 @@ class PDPlotter:
             **kwargs: Optinoal kwargs passed to the get_plot function.
         """
         if self.backend == "matplotlib":
-            plt = self.get_plot(**kwargs)
-            f = plt.gcf()
-            f.set_size_inches((12, 10))
-            plt.savefig(stream, format=image_format)
+            ax = self.get_plot(**kwargs)
+            ax.figure.set_size_inches((12, 10))
+            ax.figure.savefig(stream, format=image_format)
         elif self.backend == "plotly":
             fig = self.get_plot(**kwargs)
             fig.write_image(stream, format=image_format)

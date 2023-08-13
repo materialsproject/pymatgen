@@ -208,7 +208,7 @@ class PhononDosPlotter:
             ylim: Specifies the y-axis limits.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1
         """
-        plt = self.get_plot(xlim, ylim, units=units)
+        self.get_plot(xlim, ylim, units=units)
         plt.savefig(filename, format=img_format)
         plt.close()
 
@@ -222,7 +222,7 @@ class PhononDosPlotter:
             ylim: Specifies the y-axis limits.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        plt = self.get_plot(xlim, ylim, units=units)
+        self.get_plot(xlim, ylim, units=units)
         plt.show()
 
 
@@ -505,7 +505,7 @@ class PhononBSPlotter:
                 the code choose.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        plt = self.get_plot(ylim, units=units)
+        self.get_plot(ylim, units=units)
         plt.show()
 
     def save_plot(self, filename, img_format="eps", ylim=None, units="thz"):
@@ -518,7 +518,7 @@ class PhononBSPlotter:
             ylim: Specifies the y-axis limits.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        plt = self.get_plot(ylim=ylim, units=units)
+        self.get_plot(ylim=ylim, units=units)
         plt.savefig(filename, format=img_format)
         plt.close()
 
@@ -608,7 +608,7 @@ class PhononBSPlotter:
         if len(data_orig["distances"]) != len(data["distances"]):
             raise ValueError("The two objects are not compatible.")
 
-        plt = self.get_plot(units=units)
+        self.get_plot(units=units)
         band_linewidth = 1
         for i in range(other_plotter._nb_bands):
             for d in range(len(data_orig["distances"])):
@@ -894,7 +894,7 @@ class GruneisenPlotter:
 
         Returns: plot
         """
-        plt = self.get_plot(units=units)
+        self.get_plot(units=units)
         plt.show()
 
     def save_plot(self, filename, img_format="pdf", units="thz"):
@@ -905,7 +905,7 @@ class GruneisenPlotter:
             img_format: format of the saved plot
             units: accepted units: thz, ev, mev, ha, cm-1, cm^-1.
         """
-        plt = self.get_plot(units=units)
+        self.get_plot(units=units)
         plt.savefig(filename, format=img_format)
         plt.close()
 
@@ -1014,7 +1014,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         Args:
             ylim: Specifies the y-axis limits.
         """
-        plt = self.get_plot_gs(ylim)
+        self.get_plot_gs(ylim)
         plt.show()
 
     def save_plot_gs(self, filename, img_format="eps", ylim=None):
@@ -1026,7 +1026,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             img_format: Image format to use. Defaults to EPS.
             ylim: Specifies the y-axis limits.
         """
-        plt = self.get_plot_gs(ylim=ylim)
+        self.get_plot_gs(ylim=ylim)
         plt.savefig(filename, format=img_format)
         plt.close()
 
@@ -1050,7 +1050,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         if len(data_orig["distances"]) != len(data["distances"]):
             raise ValueError("The two objects are not compatible.")
 
-        plt = self.get_plot()
+        self.get_plot()
         band_linewidth = 1
         for i in range(other_plotter._nb_bands):
             for d in range(len(data_orig["distances"])):
