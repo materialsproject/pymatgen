@@ -9,7 +9,7 @@ import math
 import typing
 import warnings
 from collections import Counter
-from typing import TYPE_CHECKING, List, Literal, Sequence, cast
+from typing import TYPE_CHECKING, List, Literal, Sequence, cast, no_type_check
 
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
@@ -1058,7 +1058,8 @@ class BSPlotterProjected(BSPlotter):
                 count += 1
         return plt
 
-    def get_elt_projected_plots(self, zero_to_efermi=True, ylim=None, vbm_cbm_marker=False):
+    @no_type_check
+    def get_elt_projected_plots(self, zero_to_efermi: bool = True, ylim=None, vbm_cbm_marker: bool = False) -> plt.Axes:
         """
         Method returning a plot composed of subplots along different elements.
 
@@ -1071,7 +1072,7 @@ class BSPlotterProjected(BSPlotter):
         band_linewidth = 1.0
         proj = self._get_projections_by_branches({e.symbol: ["s", "p", "d"] for e in self._bs.structure.elements})
         data = self.bs_plot_data(zero_to_efermi)
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
         e_min = -4
         e_max = 4
         if self._bs.is_metal():
@@ -1080,10 +1081,10 @@ class BSPlotterProjected(BSPlotter):
         count = 1
         for el in self._bs.structure.elements:
             plt.subplot(220 + count)
-            self._maketicks(plt)
+            self._maketicks(ax)
             for b in range(len(data["distances"])):
                 for i in range(self._nb_bands):
-                    plt.plot(
+                    ax.plot(
                         data["distances"][b],
                         data["energy"][str(Spin.up)][b][i],
                         "-",
@@ -1091,7 +1092,7 @@ class BSPlotterProjected(BSPlotter):
                         linewidth=band_linewidth,
                     )
                     if self._bs.is_spin_polarized:
-                        plt.plot(
+                        ax.plot(
                             data["distances"][b],
                             data["energy"][str(Spin.down)][b][i],
                             "--",
@@ -1103,7 +1104,7 @@ class BSPlotterProjected(BSPlotter):
                                 proj[b][str(Spin.down)][i][j][str(el)][o]
                                 for o in proj[b][str(Spin.down)][i][j][str(el)]
                             )
-                            plt.plot(
+                            ax.plot(
                                 data["distances"][b][j],
                                 data["energy"][str(Spin.down)][b][i][j],
                                 "bo",
@@ -1118,7 +1119,7 @@ class BSPlotterProjected(BSPlotter):
                         markerscale = sum(
                             proj[b][str(Spin.up)][i][j][str(el)][o] for o in proj[b][str(Spin.up)][i][j][str(el)]
                         )
-                        plt.plot(
+                        ax.plot(
                             data["distances"][b][j],
                             data["energy"][str(Spin.up)][b][i][j],
                             "o",
@@ -1128,24 +1129,24 @@ class BSPlotterProjected(BSPlotter):
             if ylim is None:
                 if self._bs.is_metal():
                     if zero_to_efermi:
-                        plt.ylim(e_min, e_max)
+                        ax.set_ylim(e_min, e_max)
                     else:
-                        plt.ylim(self._bs.efermi + e_min, self._bs.efermi + e_max)
+                        ax.set_ylim(self._bs.efermi + e_min, self._bs.efermi + e_max)
                 else:
                     if vbm_cbm_marker:
                         for cbm in data["cbm"]:
-                            plt.scatter(cbm[0], cbm[1], color="r", marker="o", s=100)
+                            ax.scatter(cbm[0], cbm[1], color="r", marker="o", s=100)
 
                         for vbm in data["vbm"]:
-                            plt.scatter(vbm[0], vbm[1], color="g", marker="o", s=100)
+                            ax.scatter(vbm[0], vbm[1], color="g", marker="o", s=100)
 
-                    plt.ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
+                    ax.set_ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
             else:
-                plt.ylim(ylim)
-            plt.title(str(el))
+                ax.set_ylim(ylim)
+            ax.set_title(str(el))
             count += 1
 
-        return plt
+        return ax
 
     def get_elt_projected_plots_color(self, zero_to_efermi=True, elt_ordered=None):
         """

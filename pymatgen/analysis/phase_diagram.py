@@ -2397,7 +2397,7 @@ class PDPlotter:
         Returns:
             plt.Axes: matplotlib axes object.
         """
-        ax_main = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
         chempot_ranges = self._pd.get_chempot_range_map(elements, referenced=referenced)
         missing_lines = {}
         excluded_region = []
@@ -2427,9 +2427,8 @@ class PDPlotter:
                 xy = (center_x / len(coords), center_y / len(coords))
                 plt.annotate(latexify(entry.name), xy, fontsize=22)
 
-            ax = ax_main
-            xlim = ax.get_xlim()
-            ylim = ax.get_ylim()
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
 
         # Shade the forbidden chemical potential regions.
         excluded_region.append([xlim[1], ylim[1]])
@@ -2483,7 +2482,7 @@ class PDPlotter:
         ax.set_xlabel(f"$\\mu_{{{el0.symbol}}} - \\mu_{{{el0.symbol}}}^0$ (eV)")
         ax.set_ylabel(f"$\\mu_{{{el1.symbol}}} - \\mu_{{{el1.symbol}}}^0$ (eV)")
         plt.tight_layout()
-        return ax_main
+        return ax
 
     def get_contour_pd_plot(self):
         """
