@@ -1602,16 +1602,12 @@ class BSPlotterProjected(BSPlotter):
                 f"The number of sub-figures {number_figs} might be too manny and the implementation might take a long "
                 f"time.\n A smaller number or a plot with selected symmetry lines (selected_branches) might be better."
             )
-        from pymatgen.util.plotting import pretty_plot
 
         band_linewidth = 0.5
         plt = pretty_plot(w_h_size[0], w_h_size[1])
-        (
-            proj_br_d,
-            dictio_d,
-            dictpa_d,
-            branches,
-        ) = self._get_projections_by_branches_patom_pmorb(dictio, dictpa, sum_atoms, sum_morbs, selected_branches)
+        proj_br_d, dictio_d, dictpa_d, branches = self._get_projections_by_branches_patom_pmorb(
+            dictio, dictpa, sum_atoms, sum_morbs, selected_branches
+        )
         data = self.bs_plot_data(zero_to_efermi)
         e_min = -4
         e_max = 4

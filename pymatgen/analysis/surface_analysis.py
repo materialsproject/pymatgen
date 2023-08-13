@@ -1161,11 +1161,11 @@ class SurfaceEnergyPlotter:
         no_doped=False,
         no_clean=False,
         delu_dict=None,
-        plt=None,
+        ax=None,
         annotate=True,
         show_unphyiscal_only=False,
         fontsize=10,
-    ):
+    ) -> plt.Axes:
         """
         Adapted from the get_chempot_range_map() method in the PhaseDiagram
             class. Plot the chemical potential range map based on surface
@@ -1190,7 +1190,7 @@ class SurfaceEnergyPlotter:
             delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
-            plt (Plot): Plot object to plot on. If None, will create a new plot.
+            ax (plt.Axes): Axes object to plot on. If None, will create a new plot.
             annotate (bool): Whether to annotate each "phase" with the label of
                 the entry. If no label, uses the reduced formula
             show_unphyiscal_only (bool): Whether to only show the shaded region where
@@ -1199,7 +1199,7 @@ class SurfaceEnergyPlotter:
         """
         # Set up
         delu_dict = delu_dict or {}
-        plt = plt if plt else pretty_plot(12, 8)
+        ax = ax if ax else pretty_plot(12, 8)
         el1, el2 = str(elements[0]), str(elements[1])
         delu1 = Symbol(f"delu_{elements[0]}")
         delu2 = Symbol(f"delu_{elements[1]}")
@@ -1208,7 +1208,7 @@ class SurfaceEnergyPlotter:
 
         # Find a range map for each entry (surface). This part is very slow, will
         # need to implement a more sophisticated method of getting the range map
-        vertices_dict = {}
+        vertices_dict: dict[SlabEntry, list] = {}
         for dmu1 in np.linspace(range1[0], range1[1], incr):
             # Get chemical potential range of dmu2 for each increment of dmu1
             new_delu_dict = delu_dict.copy()
@@ -1248,17 +1248,17 @@ class SurfaceEnergyPlotter:
                     else:
                         neg_dmu_range = [pt1[delu2][0][1], pt1[delu2][0][2]]
                     # Shade the threshold and region at which se<=0
-                    plt.plot([pt1[delu1], pt1[delu1]], neg_dmu_range, "k--")
+                    ax.plot([pt1[delu1], pt1[delu1]], neg_dmu_range, "k--")
                 elif pt1[delu2][1][0] < 0 and pt1[delu2][1][1] < 0 and not show_unphyiscal_only:
                     # Any chempot at this point will result
                     # in se<0, shade the entire y range
-                    plt.plot([pt1[delu1], pt1[delu1]], range2, "k--")
+                    ax.plot([pt1[delu1], pt1[delu1]], range2, "k--")
 
                 if ii == len(v) - 1:
                     break
                 pt2 = v[ii + 1]
                 if not show_unphyiscal_only:
-                    plt.plot(
+                    ax.plot(
                         [pt1[delu1], pt2[delu1]],
                         [pt1[delu2][0][0], pt2[delu2][0][0]],
                         "k",
@@ -1274,23 +1274,23 @@ class SurfaceEnergyPlotter:
             xvals.extend([pt[delu1], pt[delu1]])
             yvals.extend(pt[delu2][0])
             if not show_unphyiscal_only:
-                plt.plot([pt[delu1], pt[delu1]], [pt[delu2][0][0], pt[delu2][0][-1]], "k")
+                ax.plot([pt[delu1], pt[delu1]], [pt[delu2][0][0], pt[delu2][0][-1]], "k")
 
             if annotate:
                 # Label the phases
                 x = np.mean([max(xvals), min(xvals)])
                 y = np.mean([max(yvals), min(yvals)])
                 label = entry.label if entry.label else entry.composition.reduced_formula
-                plt.annotate(label, xy=[x, y], xytext=[x, y], fontsize=fontsize)
+                ax.annotate(label, xy=[x, y], xytext=[x, y], fontsize=fontsize)
 
         # Label plot
-        plt.xlim(range1)
-        plt.ylim(range2)
-        plt.xlabel(rf"$\Delta\mu_{{{el1}}} (eV)$", fontsize=25)
-        plt.ylabel(rf"$\Delta\mu_{{{el2}}} (eV)$", fontsize=25)
-        plt.xticks(rotation=60)
+        ax.set_xlim(range1)
+        ax.set_ylim(range2)
+        ax.set_xlabel(rf"$\Delta\mu_{{{el1}}} (eV)$", fontsize=25)
+        ax.set_ylabel(rf"$\Delta\mu_{{{el2}}} (eV)$", fontsize=25)
+        ax.set_xticks(rotation=60)
 
-        return plt
+        return ax
 
     def set_all_variables(self, delu_dict, delu_default):
         """

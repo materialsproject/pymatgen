@@ -312,7 +312,7 @@ class PhononBSPlotter:
             "lattice": self._bs.lattice_rec.as_dict(),
         }
 
-    def get_plot(self, ylim=None, units="thz"):
+    def get_plot(self, ylim=None, units="thz") -> plt.Axes:
         """
         Get a matplotlib object for the bandstructure plot.
 
@@ -323,41 +323,41 @@ class PhononBSPlotter:
         """
         u = freq_units(units)
 
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
         band_linewidth = 1
 
         data = self.bs_plot_data()
         for d in range(len(data["distances"])):
             for i in range(self._nb_bands):
-                plt.plot(
+                ax.plot(
                     data["distances"][d],
                     [data["frequency"][d][i][j] * u.factor for j in range(len(data["distances"][d]))],
                     "b-",
                     linewidth=band_linewidth,
                 )
 
-        self._maketicks(plt)
+        self._maketicks(ax)
 
         # plot y=0 line
-        plt.axhline(0, linewidth=1, color="k")
+        ax.axhline(0, linewidth=1, color="k")
 
         # Main X and Y Labels
-        plt.xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
+        ax.set_xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
         ylabel = rf"$\mathrm{{Frequencies\ ({u.label})}}$"
-        plt.ylabel(ylabel, fontsize=30)
+        ax.set_ylabel(ylabel, fontsize=30)
 
         # X range (K)
         # last distance point
         x_max = data["distances"][-1][-1]
-        plt.xlim(0, x_max)
+        ax.set_xlim(0, x_max)
 
         if ylim is not None:
-            plt.ylim(ylim)
+            ax.set_ylim(ylim)
 
         plt.tight_layout()
 
-        return plt
+        return ax
 
     def _get_weight(self, vec: np.ndarray, indices: list[list[int]]) -> np.ndarray:
         """
@@ -608,18 +608,21 @@ class PhononBSPlotter:
         if len(data_orig["distances"]) != len(data["distances"]):
             raise ValueError("The two objects are not compatible.")
 
-        self.get_plot(units=units)
+        ax = self.get_plot(units=units)
         band_linewidth = 1
-        for i in range(other_plotter._nb_bands):
-            for d in range(len(data_orig["distances"])):
-                plt.plot(
-                    data_orig["distances"][d],
-                    [data["frequency"][d][i][j] * u.factor for j in range(len(data_orig["distances"][d]))],
+        for band_idx in range(other_plotter._nb_bands):
+            for dist_idx in range(len(data_orig["distances"])):
+                ax.plot(
+                    data_orig["distances"][dist_idx],
+                    [
+                        data["frequency"][dist_idx][band_idx][j] * u.factor
+                        for j in range(len(data_orig["distances"][dist_idx]))
+                    ],
                     "r-",
                     linewidth=band_linewidth,
                 )
 
-        return plt
+        return ax
 
     def plot_brillouin(self):
         """Plot the Brillouin zone."""
@@ -868,23 +871,22 @@ class GruneisenPlotter:
         xs = self._gruneisen.frequencies.flatten() * u.factor
         ys = self._gruneisen.gruneisen.flatten()
 
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
-        plt.xlabel(rf"$\mathrm{{Frequency\ ({u.label})}}$")
-        plt.ylabel(r"$\mathrm{Grüneisen\ parameter}$")
+        ax.set_xlabel(rf"$\mathrm{{Frequency\ ({u.label})}}$")
+        ax.set_ylabel(r"$\mathrm{Grüneisen\ parameter}$")
 
         n = len(ys) - 1
         for i, (x, y) in enumerate(zip(xs, ys)):
             color = (1.0 / n * i, 0, 1.0 / n * (n - i))
 
             if markersize:
-                plt.plot(x, y, marker, color=color, markersize=markersize)
+                ax.plot(x, y, marker, color=color, markersize=markersize)
             else:
-                plt.plot(x, y, marker, color=color)
+                ax.plot(x, y, marker, color=color)
 
         plt.tight_layout()
-
-        return plt
+        return ax
 
     def show(self, units="thz"):
         """
@@ -969,14 +971,14 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             ylim: Specify the y-axis (gruneisen) limits; by default None let
                 the code choose.
         """
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
         # band_linewidth = 1
 
         data = self.bs_plot_data()
         for d in range(len(data["distances"])):
             for i in range(self._nb_bands):
-                plt.plot(
+                ax.plot(
                     data["distances"][d],
                     [data["gruneisen"][d][i][j] for j in range(len(data["distances"][d]))],
                     "b-",
@@ -986,26 +988,26 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
                     linewidth=2,
                 )
 
-        self._maketicks(plt)
+        self._maketicks(ax)
 
         # plot y=0 line
-        plt.axhline(0, linewidth=1, color="k")
+        ax.axhline(0, linewidth=1, color="k")
 
         # Main X and Y Labels
-        plt.xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
-        plt.ylabel(r"$\mathrm{Grüneisen\ Parameter}$", fontsize=30)
+        ax.set_xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
+        ax.set_ylabel(r"$\mathrm{Grüneisen\ Parameter}$", fontsize=30)
 
         # X range (K)
         # last distance point
         x_max = data["distances"][-1][-1]
-        plt.xlim(0, x_max)
+        ax.set_xlim(0, x_max)
 
         if ylim is not None:
-            plt.ylim(ylim)
+            ax.set_ylim(ylim)
 
         plt.tight_layout()
 
-        return plt
+        return ax
 
     def show_gs(self, ylim=None):
         """
@@ -1057,15 +1059,15 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
                 f"The two plotters are incompatible, plotting data have different lengths ({len_orig} vs {len_other})."
             )
 
-        self.get_plot()
+        ax = self.get_plot()
         band_linewidth = 1
-        for i in range(other_plotter._nb_bands):
-            for d in range(len(data_orig["distances"])):
-                plt.plot(
-                    data_orig["distances"][d],
-                    [data["gruneisen"][d][i][j] for j in range(len(data_orig["distances"][d]))],
+        for band_idx in range(other_plotter._nb_bands):
+            for dist_idx in range(len(data_orig["distances"])):
+                ax.plot(
+                    data_orig["distances"][dist_idx],
+                    [data["gruneisen"][dist_idx][band_idx][j] for j in range(len(data_orig["distances"][dist_idx]))],
                     "r-",
                     linewidth=band_linewidth,
                 )
 
-        return plt
+        return ax
