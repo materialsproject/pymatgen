@@ -122,7 +122,7 @@ class SpectrumPlotter:
         ax.legend()
         leg = ax.get_legend()
         legend_text = leg.get_texts()  # all the text.Text instance in the legend
-        ax.setp(legend_text, fontsize=30)
+        plt.setp(legend_text, fontsize=30)
         plt.tight_layout()
         return ax
 
