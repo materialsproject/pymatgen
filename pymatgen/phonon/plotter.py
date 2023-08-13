@@ -190,7 +190,7 @@ class PhononDosPlotter:
         ax.ylabel(r"$\mathrm{Density\ of\ states}$")
 
         ax.legend()
-        leg = ax.gca().get_legend()
+        leg = ax.get_legend()
         legend_text = leg.get_texts()  # all the text.Text instance in the legend
         ax.setp(legend_text, fontsize=30)
         plt.tight_layout()
@@ -243,7 +243,7 @@ class PhononBSPlotter:
         self._bs = bs
         self._nb_bands = self._bs.nb_bands
 
-    def _maketicks(self, plt):
+    def _maketicks(self, ax: plt.Axes) -> plt.Axes:
         """Utility private method to add ticks to a band structure."""
         ticks = self.get_ticks()
         # Sanitize only plot the uniq values
@@ -263,8 +263,8 @@ class PhononBSPlotter:
                 uniq_l.append(tt[1])
 
         logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
-        plt.gca().set_xticks(uniq_d)
-        plt.gca().set_xticklabels(uniq_l)
+        ax.set_xticks(uniq_d)
+        ax.set_xticklabels(uniq_l)
 
         for i in range(len(ticks["label"])):
             if ticks["label"][i] is not None:
@@ -274,11 +274,11 @@ class PhononBSPlotter:
                         logger.debug(f"already print label... skipping label {ticks['label'][i]}")
                     else:
                         logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                        plt.axvline(ticks["distance"][i], color="k")
+                        ax.axvline(ticks["distance"][i], color="k")
                 else:
                     logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                    plt.axvline(ticks["distance"][i], color="k")
-        return plt
+                    ax.axvline(ticks["distance"][i], color="k")
+        return ax
 
     def bs_plot_data(self):
         """

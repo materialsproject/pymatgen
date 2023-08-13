@@ -2107,7 +2107,7 @@ class BSPlotterProjected(BSPlotter):
 
         return dictio_d, dictpa_d
 
-    def _maketicks_selected(self, plt, branches):
+    def _maketicks_selected(self, ax: plt.Axes, branches: list[int]) -> tuple[plt.Axes, list[float]]:
         """Utility private method to add ticks to a band structure with selected branches."""
         ticks = self.get_ticks()
         distance = []
@@ -2174,8 +2174,8 @@ class BSPlotterProjected(BSPlotter):
                 uniq_l.append(t[1])
 
         logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
-        plt.gca().set_xticks(uniq_d)
-        plt.gca().set_xticklabels(uniq_l)
+        ax.set_xticks(uniq_d)
+        ax.set_xticklabels(uniq_l)
 
         for i in range(len(n_ticks["label"])):
             if n_ticks["label"][i] is not None:
@@ -2185,10 +2185,10 @@ class BSPlotterProjected(BSPlotter):
                         logger.debug(f"already print label... skipping label {n_ticks['label'][i]}")
                     else:
                         logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
-                        plt.axvline(n_ticks["distance"][i], color="k")
+                        ax.axvline(n_ticks["distance"][i], color="k")
                 else:
                     logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
-                    plt.axvline(n_ticks["distance"][i], color="k")
+                    ax.axvline(n_ticks["distance"][i], color="k")
 
         shift = []
         br = -1
@@ -2196,7 +2196,7 @@ class BSPlotterProjected(BSPlotter):
             br += 1
             shift.append(distance[branch] - rf_distance[br])
 
-        return plt, shift
+        return ax, shift
 
 
 class BSDOSPlotter:
