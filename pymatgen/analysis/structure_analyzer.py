@@ -8,6 +8,7 @@ from math import acos, pi
 from typing import TYPE_CHECKING
 from warnings import warn
 
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial import Voronoi
 
@@ -146,28 +147,30 @@ class VoronoiAnalyzer:
         return sorted(voro_dict.items(), key=lambda x: (x[1], x[0]), reverse=True)[:most_frequent_polyhedra]
 
     @staticmethod
-    def plot_vor_analysis(voronoi_ensemble):
+    def plot_vor_analysis(voronoi_ensemble: list[tuple[str, float]]) -> plt.Axes:
         """
         Plot the Voronoi analysis.
 
-        :param voronoi_ensemble:
-        :return: matplotlib.pyplot
-        """
-        t = list(zip(*voronoi_ensemble))
-        labels = t[0]
-        val = list(t[1])
-        tot = np.sum(val)
-        val = [float(j) / tot for j in val]
-        pos = np.arange(len(val)) + 0.5  # the bar centers on the y axis
-        import matplotlib.pyplot as plt
+        Args:
+            voronoi_ensemble (list[tuple[str, float]]): List of tuples containing labels and
+                values for Voronoi analysis.
 
-        plt.figure()
-        plt.barh(pos, val, align="center", alpha=0.5)
-        plt.yticks(pos, labels)
-        plt.xlabel("Count")
-        plt.title("Voronoi Spectra")
-        plt.grid(True)
-        return plt
+        Returns:
+            plt.Axes: Matplotlib Axes object with the plotted Voronoi analysis.
+        """
+        labels, val = zip(*voronoi_ensemble)
+        val = np.array(val, dtype=float)
+        val /= np.sum(val)
+        pos = np.arange(len(val)) + 0.5  # the bar centers on the y axis
+
+        fig, ax = plt.subplots()
+        ax.barh(pos, val, align="center", alpha=0.5)
+        ax.set_yticks(pos)
+        ax.set_yticklabels(labels)
+        ax.set(title="Voronoi Spectra", xlabel="Count")
+        ax.grid(True)
+
+        return ax
 
 
 class RelaxationAnalyzer:

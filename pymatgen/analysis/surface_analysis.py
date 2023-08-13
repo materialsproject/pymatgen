@@ -40,6 +40,7 @@ import random
 import warnings
 from typing import TYPE_CHECKING
 
+import matplotlib.pyplot as plt
 import numpy as np
 from sympy import Symbol
 from sympy.solvers import linsolve, solve
@@ -559,58 +560,58 @@ class SurfaceEnergyPlotter:
 
     def area_frac_vs_chempot_plot(
         self,
-        ref_delu,
-        chempot_range,
-        delu_dict=None,
-        delu_default=0,
-        increments=10,
-        no_clean=False,
-        no_doped=False,
-    ):
+        ref_delu: Symbol,
+        chempot_range: list[float],
+        delu_dict: dict[Symbol, float] | None = None,
+        delu_default: float = 0,
+        increments: int = 10,
+        no_clean: bool = False,
+        no_doped: bool = False,
+    ) -> plt.Axes:
         """
         1D plot. Plots the change in the area contribution
         of each facet as a function of chemical potential.
 
         Args:
-            ref_delu (sympy Symbol): The free variable chempot with the format:
+            ref_delu (Symbol): The free variable chempot with the format:
                 Symbol("delu_el") where el is the name of the element.
-            chempot_range (list): Min/max range of chemical potential to plot along
-            delu_dict (dict): Dictionary of the chemical potentials to be set as
+            chempot_range (List[float]): Min/max range of chemical potential to plot along.
+            delu_dict (Dict[Symbol, float]): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
-            delu_default (float): Default value for all unset chemical potentials
+            delu_default (float): Default value for all unset chemical potentials.
             increments (int): Number of data points between min/max or point
                 of intersection. Defaults to 10 points.
+            no_clean (bool): Some parameter, description missing.
+            no_doped (bool): Some parameter, description missing.
 
         Returns:
-            (pyplot): Plot of area frac on the Wulff shape
-                for each facet vs chemical potential.
+            plt.Axes: Plot of area frac on the Wulff shape for each facet vs chemical potential.
         """
         delu_dict = delu_dict or {}
         chempot_range = sorted(chempot_range)
         all_chempots = np.linspace(min(chempot_range), max(chempot_range), increments)
 
         # initialize a dictionary of lists of fractional areas for each hkl
-        hkl_area_dict = {}
+        hkl_area_dict: dict[tuple[int, int, int], list[float]] = {}
         for hkl in self.all_slab_entries:
             hkl_area_dict[hkl] = []
 
         # Get plot points for each Miller index
         for u in all_chempots:
             delu_dict[ref_delu] = u
-            wulffshape = self.wulff_from_chempot(
+            wulff_shape = self.wulff_from_chempot(
                 delu_dict=delu_dict,
                 no_clean=no_clean,
                 no_doped=no_doped,
                 delu_default=delu_default,
             )
 
-            for hkl in wulffshape.area_fraction_dict:
-                hkl_area_dict[hkl].append(wulffshape.area_fraction_dict[hkl])
+            for hkl in wulff_shape.area_fraction_dict:
+                hkl_area_dict[hkl].append(wulff_shape.area_fraction_dict[hkl])
 
         # Plot the area fraction vs chemical potential for each facet
-        plt = pretty_plot(width=8, height=7)
-        axes = plt.gca()
+        ax = pretty_plot(width=8, height=7)
 
         for hkl in self.all_slab_entries:
             clean_entry = next(iter(self.all_slab_entries[hkl]))
@@ -627,18 +628,17 @@ class SurfaceEnergyPlotter:
             )
 
         # Make the figure look nice
-        plt.ylabel(r"Fractional area $A^{Wulff}_{hkl}/A^{Wulff}$")
+        ax.set(ylabel=r"Fractional area $A^{Wulff}_{hkl}/A^{Wulff}$")
         self.chempot_plot_addons(
-            plt,
+            ax,
             chempot_range,
             str(ref_delu).split("_")[1],
-            axes,
             rect=[-0.0, 0, 0.95, 1],
             pad=5,
             ylim=[0, 1],
         )
 
-        return plt
+        return ax
 
     def get_surface_equilibrium(self, slab_entries, delu_dict=None):
         """
@@ -852,42 +852,36 @@ class SurfaceEnergyPlotter:
 
     def chempot_vs_gamma_plot_one(
         self,
-        plt,
-        entry,
-        ref_delu,
-        chempot_range,
-        delu_dict=None,
-        delu_default=0,
-        label="",
-        JPERM2=False,
-    ):
+        ax: plt.Axes,
+        entry: SlabEntry,
+        ref_delu: Symbol,
+        chempot_range: list[float],
+        delu_dict: dict[Symbol, float] | None = None,
+        delu_default: float = 0,
+        label: str = "",
+        JPERM2: bool = False,
+    ) -> plt.Axes:
         """
-        Helper function to  help plot the surface energy of a
+        Helper function to help plot the surface energy of a
         single SlabEntry as a function of chemical potential.
 
         Args:
-            plt (Plot): A plot.
-            entry (SlabEntry): Entry of the slab whose surface energy we want
-                to plot
-            ref_delu (sympy Symbol): The range stability of each slab is based
-                on the chempot range of this chempot. Should be a sympy Symbol
-                object of the format: Symbol("delu_el") where el is the name of
-                the element
-            chempot_range ([max_chempot, min_chempot]): Range to consider the
-                stability of the slabs.
-            delu_dict (dict): Dictionary of the chemical potentials to be set as
-                constant. Note the key should be a sympy Symbol object of the
-                format: Symbol("delu_el") where el is the name of the element.
-            delu_default (float): Default value for all unset chemical potentials
+            ax (plt.Axes): Matplotlib Axes instance for plotting.
+            entry: Entry of the slab whose surface energy we want
+                to plot. (Add appropriate description for type)
+            ref_delu (Symbol): The range stability of each slab is based
+                on the chempot range of this chempot.
+            chempot_range (List[float]): Range to consider the stability of the slabs.
+            delu_dict (Dict[Symbol, float]): Dictionary of the chemical potentials.
+            delu_default (float): Default value for all unset chemical potentials.
             label (str): Label of the slab for the legend.
             JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
-                eV/A^2 (False)
+                eV/A^2 (False).
 
         Returns:
-            (Plot): Plot of surface energy vs chemical potential for one entry.
+            plt.Axes: Plot of surface energy vs chemical potential for one entry.
         """
-        if delu_dict is None:
-            delu_dict = {}
+        delu_dict = delu_dict or {}
         chempot_range = sorted(chempot_range)
 
         # use dashed lines for slabs that are not stoichiometric
@@ -902,10 +896,10 @@ class SurfaceEnergyPlotter:
         mark = "--" if ucell_comp != clean_comp else "-"
 
         delu_dict = self.set_all_variables(delu_dict, delu_default)
-        delu_dict[ref_delu] = chempot_range[0]
+        delu_dict[ref_delu] = chempot_range[0]  # type: ignore
         gamma_min = self.as_coeffs_dict[entry]
         gamma_min = gamma_min if type(gamma_min).__name__ == "float" else sub_chempots(gamma_min, delu_dict)
-        delu_dict[ref_delu] = chempot_range[1]
+        delu_dict[ref_delu] = chempot_range[1]  # type: ignore
         gamma_max = self.as_coeffs_dict[entry]
         gamma_max = gamma_max if type(gamma_max).__name__ == "float" else sub_chempots(gamma_max, delu_dict)
         gamma_range = [gamma_min, gamma_max]
@@ -914,9 +908,7 @@ class SurfaceEnergyPlotter:
 
         mark = entry.mark if entry.mark else mark
         c = entry.color if entry.color else self.color_dict[entry]
-        plt.plot(chempot_range, se_range, mark, color=c, label=label)
-
-        return plt
+        return plt.plot(chempot_range, se_range, mark, color=c, label=label)
 
     def chempot_vs_gamma(
         self,
@@ -1039,7 +1031,7 @@ class SurfaceEnergyPlotter:
         """
         Plots the binding energy as a function of monolayers (ML), i.e.
             the fractional area adsorbate density for all facets. For each
-            facet at a specific monlayer, only plot the lowest binding energy.
+            facet at a specific monolayer, only plot the lowest binding energy.
 
         Args:
             plot_eads (bool): Option to plot the adsorption energy (binding
@@ -1048,7 +1040,7 @@ class SurfaceEnergyPlotter:
         Returns:
             (Plot): Plot of binding energy vs monolayer for all facets.
         """
-        plt = pretty_plot(width=8, height=7)
+        ax = pretty_plot(width=8, height=7)
         for hkl in self.all_slab_entries:
             ml_be_dict = {}
             for clean_entry in self.all_slab_entries[hkl]:
@@ -1063,18 +1055,18 @@ class SurfaceEnergyPlotter:
             # in order to properly draw a line plot
             vals = sorted(ml_be_dict.items())
             monolayers, BEs = zip(*vals)
-            plt.plot(monolayers, BEs, "-o", c=self.color_dict[clean_entry], label=hkl)
+            ax.plot(monolayers, BEs, "-o", c=self.color_dict[clean_entry], label=hkl)
 
         adsorbates = tuple(ads_entry.ads_entries_dict)
-        plt.xlabel(f"{' '.join(adsorbates)} Coverage (ML)")
-        plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
-        plt.legend()
-        plt.tight_layout()
+        ax.xlabel(f"{' '.join(adsorbates)} Coverage (ML)")
+        ax.ylabel("Adsorption Energy (eV)") if plot_eads else ax.ylabel("Binding Energy (eV)")
+        ax.legend()
+        ax.tight_layout()
 
-        return plt
+        return ax
 
     @staticmethod
-    def chempot_plot_addons(plt, xrange, ref_el, axes, pad=2.4, rect=None, ylim=None):
+    def chempot_plot_addons(ax, xrange, ref_el, pad=2.4, rect=None, ylim=None):
         """
         Helper function to a chempot plot look nicer.
 
@@ -1092,12 +1084,12 @@ class SurfaceEnergyPlotter:
         """
         # Make the figure look nice
         plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.0)
-        axes.set_xlabel(rf"Chemical potential $\Delta\mu_{{{ref_el}}}$ (eV)")
+        ax.set_xlabel(rf"Chemical potential $\Delta\mu_{{{ref_el}}}$ (eV)")
 
-        ylim = ylim or axes.get_ylim()
+        ylim = ylim or ax.get_ylim()
         plt.xticks(rotation=60)
         plt.ylim(ylim)
-        xlim = axes.get_xlim()
+        xlim = ax.get_xlim()
         plt.xlim(xlim)
         plt.tight_layout(pad=pad, rect=rect or [-0.047, 0, 0.84, 1])
         plt.plot([xrange[0], xrange[0]], ylim, "--k")
@@ -1107,7 +1099,7 @@ class SurfaceEnergyPlotter:
         xy = [np.mean([xlim[0]]), np.mean(ylim)]
         plt.annotate(f"{ref_el}-poor", xy=xy, xytext=xy, rotation=90, fontsize=17)
 
-        return plt
+        return ax
 
     def BE_vs_clean_SE(
         self,

@@ -657,7 +657,9 @@ class ThermoPlotter:
         self.dos = dos
         self.structure = structure
 
-    def _plot_thermo(self, func, temperatures, factor=1, ax=None, ylabel=None, label=None, ylim=None, **kwargs):
+    def _plot_thermo(
+        self, func, temperatures, factor=1, ax: plt.Axes = None, ylabel=None, label=None, ylim=None, **kwargs
+    ):
         """
         Plots a thermodynamic property for a generic function from a PhononDos instance.
 

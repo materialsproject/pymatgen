@@ -12,6 +12,7 @@ from collections import Counter
 from typing import TYPE_CHECKING, List, Literal, Sequence, cast
 
 import matplotlib.lines as mlines
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.interpolate as scint
 from monty.dev import requires
@@ -3311,7 +3312,7 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return plt
 
-    def plot_eff_mass_temp(self, doping="all", output="average"):
+    def plot_eff_mass_temp(self, doping="all", output: Literal["average", "eigs"] = "average"):
         """
         Plot the average effective mass in function of temperature
         for different doping levels.
@@ -3319,50 +3320,42 @@ class BoltztrapPlotter:
         Args:
             doping (str): the default 'all' plots all the doping levels in the analyzer.
                 Specify a list of doping levels if you want to plot only some.
-            output: with 'average' you get an average of the three directions
+            output ('average' | 'eigs'): with 'average' you get an average of the three directions
                 with 'eigs' you get all the three directions.
 
         Returns:
-            a matplotlib object
+            a matplotlib Axes object
         """
         if output == "average":
-            em = self._bz.get_average_eff_mass(output="average")
+            eff_mass = self._bz.get_average_eff_mass(output="average")
         elif output == "eigs":
-            em = self._bz.get_average_eff_mass(output="eigs")
+            eff_mass = self._bz.get_average_eff_mass(output="eigs")
 
-        plt = pretty_plot(22, 14)
-        tlist = sorted(em["n"])
+        ax_main = pretty_plot(22, 14)
+        tlist = sorted(eff_mass["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
+        for idx, dt in enumerate(["n", "p"]):
+            ax = plt.subplot(121 + idx)
             for dop in doping:
                 d = self._bz.doping[dt].index(dop)
-                em_temp = []
-                for temp in tlist:
-                    em_temp.append(em[dt][temp][d])
+                em_temp = [eff_mass[dt][temp][d] for temp in tlist]
                 if output == "average":
-                    plt.plot(tlist, em_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(tlist, em_temp, marker="s", label=f"{dop} $cm^{{-3}}$")
                 elif output == "eigs":
                     for xyz in range(3):
-                        plt.plot(
-                            tlist,
-                            list(zip(*em_temp))[xyz],
-                            marker="s",
-                            label=f"{xyz} {dop} $cm^{{-3}}$",
-                        )
-            plt.title(dt + "-type", fontsize=20)
-            if i == 0:
-                plt.ylabel("Effective mass (m$_e$)", fontsize=30.0)
-            plt.xlabel("Temperature (K)", fontsize=30.0)
+                        ax.plot(tlist, list(zip(*em_temp))[xyz], marker="s", label=f"{xyz} {dop} $cm^{{-3}}$")
+            ax.set_title(dt + "-type", fontsize=20)
+            if idx == 0:
+                ax.set_ylabel("Effective mass (m$_e$)", fontsize=30.0)
+            ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
             p = "best"  # 'lower right' if i == 0 else ''
-            plt.legend(loc=p, fontsize=15)
-            plt.grid()
-            plt.xticks(fontsize=25)
-            plt.yticks(fontsize=25)
+            ax.legend(loc=p, fontsize=15)
+            ax.grid()
+            ax.tick_params(labelsize=25)
 
         plt.tight_layout()
-        return plt
+        return ax_main
 
     def plot_seebeck_dop(self, temps="all", output="average"):
         """
@@ -4104,7 +4097,7 @@ def plot_fermi_surface(
     return fig, mlab
 
 
-def plot_wigner_seitz(lattice, ax=None, **kwargs):
+def plot_wigner_seitz(lattice, ax: plt.Axes = None, **kwargs):
     """
     Adds the skeleton of the Wigner-Seitz cell of the lattice to a matplotlib Axes.
 
@@ -4139,7 +4132,7 @@ def plot_wigner_seitz(lattice, ax=None, **kwargs):
     return fig, ax
 
 
-def plot_lattice_vectors(lattice, ax=None, **kwargs):
+def plot_lattice_vectors(lattice, ax: plt.Axes = None, **kwargs):
     """
     Adds the basis vectors of the lattice provided to a matplotlib Axes.
 
@@ -4170,7 +4163,7 @@ def plot_lattice_vectors(lattice, ax=None, **kwargs):
     return fig, ax
 
 
-def plot_path(line, lattice=None, coords_are_cartesian=False, ax=None, **kwargs):
+def plot_path(line, lattice=None, coords_are_cartesian=False, ax: plt.Axes = None, **kwargs):
     """
     Adds a line passing through the coordinates listed in 'line' to a matplotlib Axes.
 
@@ -4207,7 +4200,7 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax=None, **kwargs)
     return fig, ax
 
 
-def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax=None, **kwargs):
+def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes = None, **kwargs):
     """
     Adds labels to a matplotlib Axes.
 
@@ -4282,7 +4275,7 @@ def fold_point(p, lattice, coords_are_cartesian=False):
     return p
 
 
-def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax=None, **kwargs):
+def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax: plt.Axes = None, **kwargs):
     """
     Adds Points to a matplotlib Axes.
 
@@ -4321,7 +4314,7 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
 
 
 @add_fig_kwargs
-def plot_brillouin_zone_from_kpath(kpath, ax=None, **kwargs):
+def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs):
     """
     Gives the plot (as a matplotlib object) of the symmetry line path in
         the Brillouin Zone.
@@ -4353,7 +4346,7 @@ def plot_brillouin_zone(
     kpoints=None,
     fold=False,
     coords_are_cartesian=False,
-    ax=None,
+    ax: plt.Axes = None,
     **kwargs,
 ):
     """
@@ -4415,7 +4408,7 @@ def plot_ellipsoid(
     center,
     lattice=None,
     rescale=1.0,
-    ax=None,
+    ax: plt.Axes = None,
     coords_are_cartesian=False,
     arrows=False,
     **kwargs,

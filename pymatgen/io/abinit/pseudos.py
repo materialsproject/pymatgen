@@ -28,6 +28,8 @@ from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 
 if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+
     from pymatgen.core import Structure
 
 logger = logging.getLogger(__name__)
@@ -1412,7 +1414,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # yield self.plot_potentials(title="potentials", show=False)
 
     @add_fig_kwargs
-    def plot_densities(self, ax=None, **kwargs):
+    def plot_densities(self, ax: plt.Axes = None, **kwargs):
         """
         Plot the PAW densities.
 
@@ -1438,7 +1440,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return fig
 
     @add_fig_kwargs
-    def plot_waves(self, ax=None, fontsize=12, **kwargs):
+    def plot_waves(self, ax: plt.Axes = None, fontsize=12, **kwargs):
         """
         Plot the AE and the pseudo partial waves.
 
@@ -1469,7 +1471,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return fig
 
     @add_fig_kwargs
-    def plot_projectors(self, ax=None, fontsize=12, **kwargs):
+    def plot_projectors(self, ax: plt.Axes = None, fontsize=12, **kwargs):
         """
         Plot the PAW projectors.
 

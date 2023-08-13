@@ -1031,7 +1031,7 @@ class BztPlotter:
         doping=None,
         temps=None,
         xlim=(-2, 2),
-        ax=None,
+        ax: plt.Axes = None,
     ):
         """
         Function to plot the transport properties.
