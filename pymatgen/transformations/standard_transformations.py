@@ -8,10 +8,10 @@ All transformations should inherit the AbstractTransformation ABC.
 from __future__ import annotations
 
 import logging
-import numpy as np
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
+import numpy as np
 from numpy import around
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -256,14 +256,13 @@ class SupercellTransformation(AbstractTransformation):
                 number of atoms than the SupercellTransformation with unchanged lattice angles
                 can possibly be found. If such a SupercellTransformation cannot be found easily,
                 the SupercellTransformation with unchanged lattice angles will be returned.
+
         Returns:
             SupercellTransformation.
         """
         min_expand = np.int8(
             min_boundary_dist
-            / np.array(
-                [structure.lattice.d_hkl(plane) for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]
-            )
+            / np.array([structure.lattice.d_hkl(plane) for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]])
         )
 
         # Try to find a scaling_matrix satisfying the required boundary distance with smaller cell.
@@ -274,26 +273,27 @@ class SupercellTransformation(AbstractTransformation):
                     1 if min_expand[0] and min_expand[1] else 0,
                     1 if min_expand[0] and min_expand[2] else 0,
                 ],
-                [-1 if min_expand[1] and min_expand[0] else 0,
-                 min_expand[1] if min_expand[1] else 1,
-                 1 if min_expand[1] and min_expand[2] else 0,
-                 ],
-                [-1 if min_expand[2] and min_expand[0] else 0,
-                 -1 if min_expand[2] and min_expand[1] else 0,
-                 min_expand[2] if min_expand[2] else 1],
+                [
+                    -1 if min_expand[1] and min_expand[0] else 0,
+                    min_expand[1] if min_expand[1] else 1,
+                    1 if min_expand[1] and min_expand[2] else 0,
+                ],
+                [
+                    -1 if min_expand[2] and min_expand[0] else 0,
+                    -1 if min_expand[2] and min_expand[1] else 0,
+                    min_expand[2] if min_expand[2] else 1,
+                ],
             ]
             struct_scaled = structure.copy().make_supercell(scaling_matrix)
             min_expand_scaled = np.int8(
                 min_boundary_dist
-                / np.array(
-                    [struct_scaled.lattice.d_hkl(plane) for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]
-                )
+                / np.array([struct_scaled.lattice.d_hkl(plane) for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]])
             )
             if np.count_nonzero(min_expand_scaled) == 0:
                 return SupercellTransformation(scaling_matrix)
 
         return SupercellTransformation(
-            [[min_expand[0]+1, 0, 0], [0, min_expand[1]+1, 0], [0, 0, min_expand[2]+1]]
+            [[min_expand[0] + 1, 0, 0], [0, min_expand[1] + 1, 0], [0, 0, min_expand[2] + 1]]
         )
 
     def apply_transformation(self, structure):
