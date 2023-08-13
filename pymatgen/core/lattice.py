@@ -59,9 +59,9 @@ class Lattice(MSONable):
             pbc: a tuple defining the periodic boundary conditions along the three
                 axis of the lattice. If None periodic in all directions.
         """
-        m = np.array(matrix, dtype=np.float64).reshape((3, 3))
-        m.setflags(write=False)
-        self._matrix: np.ndarray = m
+        mat = np.array(matrix, dtype=np.float64).reshape((3, 3))
+        mat.setflags(write=False)
+        self._matrix: np.ndarray = mat
         self._inv_matrix: np.ndarray | None = None
         self._diags = None
         self._lll_matrix_mappings: dict[float, tuple[np.ndarray, np.ndarray]] = {}
@@ -84,13 +84,13 @@ class Lattice(MSONable):
 
         :return: The angles (alpha, beta, gamma) of the lattice.
         """
-        m = self._matrix
+        mat = self._matrix
         lengths = self.lengths
         angles = np.zeros(3)
-        for i in range(3):
-            j = (i + 1) % 3
-            k = (i + 2) % 3
-            angles[i] = abs_cap(np.dot(m[j], m[k]) / (lengths[j] * lengths[k]))
+        for dim in range(3):
+            j = (dim + 1) % 3
+            k = (dim + 2) % 3
+            angles[dim] = abs_cap(np.dot(mat[j], mat[k]) / (lengths[j] * lengths[k]))
         angles = np.arccos(angles) * 180.0 / pi
         return tuple(angles.tolist())  # type: ignore
 
@@ -99,9 +99,8 @@ class Lattice(MSONable):
         """Whether all angles are 90 degrees."""
         return all(abs(a - 90) < 1e-5 for a in self.angles)
 
-    def __format__(self, fmt_spec: str = ""):
-        """
-        Support format printing.
+    def __format__(self, fmt_spec: str = "") -> str:
+        """Support format printing.
 
         Supported fmt_spec (str) are:
         1. "l" for a list format that can be easily copied and pasted, e.g.,
@@ -114,17 +113,17 @@ class Lattice(MSONable):
            0.000 10.000 0.000
            0.000 0.000 10.000
         """
-        m = self._matrix.tolist()
+        matrix = self._matrix.tolist()
         if fmt_spec.endswith("l"):
             fmt = "[[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]]"
             fmt_spec = fmt_spec[:-1]
         elif fmt_spec.endswith("p"):
             fmt = "{{{}, {}, {}, {}, {}, {}}}"
             fmt_spec = fmt_spec[:-1]
-            m = (self.lengths, self.angles)
+            matrix = (self.lengths, self.angles)
         else:
             fmt = "{} {} {}\n{} {} {}\n{} {} {}"
-        return fmt.format(*(format(c, fmt_spec) for row in m for c in row))
+        return fmt.format(*(format(c, fmt_spec) for row in matrix for c in row))
 
     def copy(self):
         """Deep copy of self."""
@@ -443,8 +442,13 @@ class Lattice(MSONable):
 
     @property
     def parameters(self) -> tuple[float, float, float, float, float, float]:
-        """Returns: (a, b, c, alpha, beta, gamma)."""
+        """Returns (a, b, c, alpha, beta, gamma)."""
         return (*self.lengths, *self.angles)
+
+    @property
+    def params_dict(self) -> dict[str, float]:
+        """Dictionary of lattice parameters."""
+        return dict(zip("a b c alpha beta gamma".split(), self.parameters))
 
     @property
     def reciprocal_lattice(self) -> Lattice:
