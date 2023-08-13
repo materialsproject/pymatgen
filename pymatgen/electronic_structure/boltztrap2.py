@@ -1191,7 +1191,7 @@ class BztPlotter:
                         )
 
             plt.xlabel(r"Temperature (K)", fontsize=30)
-            leg_title = dop_type + "-type"
+            leg_title = f"{dop_type}-type"
 
         plt.ylabel(props_lbl[idx_prop] + " " + props_unit[idx_prop], fontsize=30)
         plt.xticks(fontsize=25)

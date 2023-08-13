@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 from pymatgen.util.plotting import pretty_plot
@@ -85,7 +86,7 @@ class VoltageProfilePlotter:
             y.append(0)
         return x, y
 
-    def get_plot(self, width=8, height=8, term_zero=True):
+    def get_plot(self, width=8, height=8, term_zero=True, ax: plt.Axes = None):
         """
         Returns a plot object.
 
@@ -93,11 +94,12 @@ class VoltageProfilePlotter:
             width: Width of the plot. Defaults to 8 in.
             height: Height of the plot. Defaults to 6 in.
             term_zero: If True append zero voltage point at the end
+            ax (plt.Axes): matplotlib axes object. Defaults to None.
 
         Returns:
-            A matplotlib plot object.
+            plt.Axes: matplotlib axes object.
         """
-        plt = pretty_plot(width, height)
+        ax = ax or pretty_plot(width, height)
         wion_symbol = set()
         formula = set()
 
@@ -105,13 +107,13 @@ class VoltageProfilePlotter:
             (x, y) = self.get_plot_data(electrode, term_zero=term_zero)
             wion_symbol.add(electrode.working_ion.symbol)
             formula.add(electrode.framework_formula)
-            plt.plot(x, y, "-", linewidth=2, label=label)
+            ax.plot(x, y, "-", linewidth=2, label=label)
 
-        plt.legend()
-        plt.xlabel(self._choose_best_x_lable(formula=formula, wion_symbol=wion_symbol))
-        plt.ylabel("Voltage (V)")
+        ax.legend()
+        ax.set_xlabel(self._choose_best_x_lable(formula=formula, wion_symbol=wion_symbol))
+        ax.set_ylabel("Voltage (V)")
         plt.tight_layout()
-        return plt
+        return ax
 
     def get_plotly_figure(
         self,
