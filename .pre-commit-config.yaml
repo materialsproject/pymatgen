@@ -17,7 +17,6 @@ repos:
     rev: v4.4.0
     hooks:
       - id: check-yaml
-        exclude: pymatgen/analysis/vesta_cutoffs.yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
 
