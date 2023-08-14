@@ -243,7 +243,7 @@ class SupercellTransformation(AbstractTransformation):
 
     @staticmethod
     def from_boundary_distance(
-        structure: Structure, min_boundary_dist: float = 6, allow_rotation: bool = False
+        structure: Structure, min_boundary_dist: float = 6, allow_rotation: bool = False, max_atoms: int | None = None
     ) -> SupercellTransformation:
         """
         Get a SupercellTransformation according to the desired minimum distance between periodic
@@ -258,6 +258,7 @@ class SupercellTransformation(AbstractTransformation):
                 number of atoms than the SupercellTransformation with unchanged lattice angles
                 can possibly be found. If such a SupercellTransformation cannot be found easily,
                 the SupercellTransformation with unchanged lattice angles will be returned.
+            max_atoms (int): Maximum number of atoms allowed in the supercell. Default to infinity.
 
         Returns:
             SupercellTransformation.
@@ -266,6 +267,7 @@ class SupercellTransformation(AbstractTransformation):
             min_boundary_dist
             / np.array([structure.lattice.d_hkl(plane) for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]])
         )
+        max_atoms = max_atoms or np.Inf
 
         # Try to find a scaling_matrix satisfying the required boundary distance with smaller cell.
         if allow_rotation and np.count_nonzero(min_expand) > 1:
@@ -280,10 +282,19 @@ class SupercellTransformation(AbstractTransformation):
                 min_boundary_dist
                 / np.array([struct_scaled.lattice.d_hkl(plane) for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]])
             )
-            if np.count_nonzero(min_expand_scaled) == 0:
+            if np.count_nonzero(min_expand_scaled) == 0 and len(struct_scaled) <= max_atoms:
                 return SupercellTransformation(scaling_matrix)
 
-        return SupercellTransformation(np.eye(3) + np.diag(min_expand))
+        scaling_matrix = np.eye(3) + np.diag(min_expand)
+        struct_scaled = structure.make_supercell(scaling_matrix, in_place=False)
+        if len(struct_scaled) <= max_atoms:
+            return SupercellTransformation(scaling_matrix)
+
+        raise AttributeError(
+            "While trying to solve for the supercell, the max "
+            "number of atoms was exceeded. Try lowering the"
+            "min_boundary_dist or set allow_rotation=True."
+        )
 
     def apply_transformation(self, structure):
         """
