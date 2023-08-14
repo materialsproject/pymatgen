@@ -11,6 +11,7 @@ import logging
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
+import numpy as np
 from numpy import around
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -209,7 +210,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
 
 
 class SupercellTransformation(AbstractTransformation):
-    """The RotationTransformation applies a rotation to a structure."""
+    """The SupercellTransformation replicates an unitcell to a supercell."""
 
     def __init__(self, scaling_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1))):
         """
@@ -239,6 +240,56 @@ class SupercellTransformation(AbstractTransformation):
             SupercellTransformation.
         """
         return SupercellTransformation([[scale_a, 0, 0], [0, scale_b, 0], [0, 0, scale_c]])
+
+    @staticmethod
+    def from_boundary_distance(
+        structure: Structure, min_boundary_dist: float = 6, allow_rotation: bool = False, max_atoms: int | None = None
+    ) -> SupercellTransformation:
+        """
+        Get a SupercellTransformation according to the desired minimum distance between periodic
+        boundaries of the resulting supercell.
+
+        Args:
+            structure (Structure): Input structure.
+            min_boundary_dist (float): Desired minimum distance between all periodic boundaries. Defaults to 6.
+            allow_rotation (bool): Whether allowing lattice angles to change. Only useful when
+                at least two of the three lattice vectors are required to expand. Defaults to False.
+                If True, a SupercellTransformation satisfying min_boundary_dist but with smaller
+                number of atoms than the SupercellTransformation with unchanged lattice angles
+                can possibly be found. If such a SupercellTransformation cannot be found easily,
+                the SupercellTransformation with unchanged lattice angles will be returned.
+            max_atoms (int): Maximum number of atoms allowed in the supercell. Defaults to infinity.
+
+        Returns:
+            SupercellTransformation.
+        """
+        min_expand = np.int8(min_boundary_dist / np.array([structure.lattice.d_hkl(plane) for plane in np.eye(3)]))
+        max_atoms = max_atoms or np.Inf
+
+        # Try to find a scaling_matrix satisfying the required boundary distance with smaller cell.
+        if allow_rotation and sum(min_expand != 0) > 1:
+            min1, min2, min3 = map(int, min_expand)  # map(int) just for mypy's sake
+            scaling_matrix = [
+                [min1 if min1 else 1, 1 if min1 and min2 else 0, 1 if min1 and min3 else 0],
+                [-1 if min2 and min1 else 0, min2 if min2 else 1, 1 if min2 and min3 else 0],
+                [-1 if min3 and min1 else 0, -1 if min3 and min2 else 0, min3 if min3 else 1],
+            ]
+            struct_scaled = structure.make_supercell(scaling_matrix, in_place=False)
+            min_expand_scaled = np.int8(
+                min_boundary_dist / np.array([struct_scaled.lattice.d_hkl(plane) for plane in np.eye(3)])
+            )
+            if np.count_nonzero(min_expand_scaled) == 0 and len(struct_scaled) <= max_atoms:
+                return SupercellTransformation(scaling_matrix)
+
+        scaling_matrix = np.eye(3) + np.diag(min_expand)
+        struct_scaled = structure.make_supercell(scaling_matrix, in_place=False)
+        if len(struct_scaled) <= max_atoms:
+            return SupercellTransformation(scaling_matrix)
+
+        msg = f"{max_atoms=} exceeded while trying to solve for supercell. You can try lowering {min_boundary_dist=}"
+        if not allow_rotation:
+            msg += " or set allow_rotation=True"
+        raise RuntimeError(msg)
 
     def apply_transformation(self, structure):
         """
