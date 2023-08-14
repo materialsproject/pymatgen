@@ -170,16 +170,10 @@ class TestSupercellTransformation(unittest.TestCase):
         struct_super_allow_rotate_true = trafo_allow_rotate_true.apply_transformation(struct_cubic.copy())
         struct_super_allow_rotate_false = trafo_allow_rotate_false.apply_transformation(struct_cubic.copy())
         min_expand_allow_rotate_true = np.int8(
-            9
-            / np.array(
-                [struct_super_allow_rotate_true.lattice.d_hkl(plane) for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]
-            )
+            9 / np.array([struct_super_allow_rotate_true.lattice.d_hkl(plane) for plane in np.eye(3)])
         )
         min_expand_allow_rotate_false = np.int8(
-            9
-            / np.array(
-                [struct_super_allow_rotate_false.lattice.d_hkl(plane) for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]
-            )
+            9 / np.array([struct_super_allow_rotate_false.lattice.d_hkl(plane) for plane in np.eye(3)])
         )
         assert len(struct_super_allow_rotate_true) == 14
         assert len(struct_super_allow_rotate_false) == 27
