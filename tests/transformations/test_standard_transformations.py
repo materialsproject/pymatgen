@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import functools
 import json
+import numpy as np
 import random
 import unittest
 import warnings
@@ -157,6 +158,45 @@ class TestSupercellTransformation(unittest.TestCase):
         trafo = SupercellTransformation.from_scaling_factors(*scale_factors)
         struct = trafo.apply_transformation(self.struct)
         assert len(struct) == 4 * functools.reduce(lambda a, b: a * b, scale_factors)
+
+    def test_from_boundary_distance(self):
+        struct_cubic = Structure.from_spacegroup(
+            "Pm-3m", [[4, 0, 0], [0, 4, 0], [0, 0, 4]], ["H"], [[0, 0, 0]]
+        )
+        trafo_allow_rotate_true = SupercellTransformation.from_boundary_distance(
+            structure=struct_cubic, min_boundary_dist=9, allow_rotation=True
+        )
+        trafo_allow_rotate_false = SupercellTransformation.from_boundary_distance(
+            structure=struct_cubic, min_boundary_dist=9, allow_rotation=False
+        )
+        struct_super_allow_rotate_true = trafo_allow_rotate_true.apply_transformation(
+            struct_cubic.copy()
+        )
+        struct_super_allow_rotate_false = trafo_allow_rotate_false.apply_transformation(
+            struct_cubic.copy()
+        )
+        min_expand_allow_rotate_true = np.int8(
+            9
+            / np.array(
+                [
+                    struct_super_allow_rotate_true.lattice.d_hkl(plane)
+                    for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+                ]
+            )
+        )
+        min_expand_allow_rotate_false = np.int8(
+            9
+            / np.array(
+                [
+                    struct_super_allow_rotate_false.lattice.d_hkl(plane)
+                    for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+                ]
+            )
+        )
+        assert len(struct_super_allow_rotate_true) == 14
+        assert len(struct_super_allow_rotate_false) == 27
+        assert np.count_nonzero(min_expand_allow_rotate_true) == 0
+        assert np.count_nonzero(min_expand_allow_rotate_false) == 0
 
 
 class TestOxidationStateDecorationTransformation(unittest.TestCase):
