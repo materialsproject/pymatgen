@@ -202,9 +202,14 @@ class TestSupercellTransformation(unittest.TestCase):
                 assert np.count_nonzero(min_expand_allow_rotate_true) == 0
                 assert np.count_nonzero(min_expand_allow_rotate_false) == 0
 
-        with self.assertRaises(AttributeError):
+        max_atoms, min_boundary_dist = 10, 9
+        with pytest.raises(
+            RuntimeError,
+            match=f"{max_atoms=} exceeded while trying to solve for supercell. "
+            f"You can try lowering {min_boundary_dist=}",
+        ):
             SupercellTransformation.from_boundary_distance(
-                structure=struct_cubic, min_boundary_dist=9, allow_rotation=False, max_atoms=10
+                structure=struct_cubic, min_boundary_dist=min_boundary_dist, allow_rotation=False, max_atoms=max_atoms
             )
 
 

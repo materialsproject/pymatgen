@@ -290,11 +290,10 @@ class SupercellTransformation(AbstractTransformation):
         if len(struct_scaled) <= max_atoms:
             return SupercellTransformation(scaling_matrix)
 
-        raise AttributeError(
-            "While trying to solve for the supercell, the max "
-            "number of atoms was exceeded. Try lowering the"
-            "min_boundary_dist or set allow_rotation=True."
-        )
+        msg = f"{max_atoms=} exceeded while trying to solve for supercell. You can try lowering {min_boundary_dist=}"
+        if not allow_rotation:
+            msg += " or set allow_rotation=True"
+        raise RuntimeError(msg)
 
     def apply_transformation(self, structure):
         """
