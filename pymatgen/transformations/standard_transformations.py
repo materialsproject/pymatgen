@@ -258,20 +258,17 @@ class SupercellTransformation(AbstractTransformation):
                 number of atoms than the SupercellTransformation with unchanged lattice angles
                 can possibly be found. If such a SupercellTransformation cannot be found easily,
                 the SupercellTransformation with unchanged lattice angles will be returned.
-            max_atoms (int): Maximum number of atoms allowed in the supercell. Default to infinity.
+            max_atoms (int): Maximum number of atoms allowed in the supercell. Defaults to infinity.
 
         Returns:
             SupercellTransformation.
         """
-        min_expand = np.int8(
-            min_boundary_dist
-            / np.array([structure.lattice.d_hkl(plane) for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]])
-        )
+        min_expand = np.int8(min_boundary_dist / np.array([structure.lattice.d_hkl(plane) for plane in np.eye(3)]))
         max_atoms = max_atoms or np.Inf
 
         # Try to find a scaling_matrix satisfying the required boundary distance with smaller cell.
-        if allow_rotation and np.count_nonzero(min_expand) > 1:
-            min1, min2, min3 = min_expand
+        if allow_rotation and sum(min_expand != 0) > 1:
+            min1, min2, min3 = map(int, min_expand)  # map(int) just for mypy's sake
             scaling_matrix = [
                 [min1 if min1 else 1, 1 if min1 and min2 else 0, 1 if min1 and min3 else 0],
                 [-1 if min2 and min1 else 0, min2 if min2 else 1, 1 if min2 and min3 else 0],
@@ -279,8 +276,7 @@ class SupercellTransformation(AbstractTransformation):
             ]
             struct_scaled = structure.make_supercell(scaling_matrix, in_place=False)
             min_expand_scaled = np.int8(
-                min_boundary_dist
-                / np.array([struct_scaled.lattice.d_hkl(plane) for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]])
+                min_boundary_dist / np.array([struct_scaled.lattice.d_hkl(plane) for plane in np.eye(3)])
             )
             if np.count_nonzero(min_expand_scaled) == 0 and len(struct_scaled) <= max_atoms:
                 return SupercellTransformation(scaling_matrix)
