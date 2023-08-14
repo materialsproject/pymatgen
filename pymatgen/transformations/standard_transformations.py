@@ -269,24 +269,13 @@ class SupercellTransformation(AbstractTransformation):
 
         # Try to find a scaling_matrix satisfying the required boundary distance with smaller cell.
         if allow_rotation and np.count_nonzero(min_expand) > 1:
+            min1, min2, min3 = min_expand
             scaling_matrix = [
-                [
-                    min_expand[0] if min_expand[0] else 1,
-                    1 if min_expand[0] and min_expand[1] else 0,
-                    1 if min_expand[0] and min_expand[2] else 0,
-                ],
-                [
-                    -1 if min_expand[1] and min_expand[0] else 0,
-                    min_expand[1] if min_expand[1] else 1,
-                    1 if min_expand[1] and min_expand[2] else 0,
-                ],
-                [
-                    -1 if min_expand[2] and min_expand[0] else 0,
-                    -1 if min_expand[2] and min_expand[1] else 0,
-                    min_expand[2] if min_expand[2] else 1,
-                ],
+                [min1 if min1 else 1, 1 if min1 and min2 else 0, 1 if min1 and min3 else 0],
+                [-1 if min2 and min1 else 0, min2 if min2 else 1, 1 if min2 and min3 else 0],
+                [-1 if min3 and min1 else 0, -1 if min3 and min2 else 0, min3 if min3 else 1],
             ]
-            struct_scaled = structure.copy().make_supercell(scaling_matrix)
+            struct_scaled = structure.make_supercell(scaling_matrix, in_place=False)
             min_expand_scaled = np.int8(
                 min_boundary_dist
                 / np.array([struct_scaled.lattice.d_hkl(plane) for plane in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]])
@@ -294,9 +283,7 @@ class SupercellTransformation(AbstractTransformation):
             if np.count_nonzero(min_expand_scaled) == 0:
                 return SupercellTransformation(scaling_matrix)
 
-        return SupercellTransformation(
-            [[min_expand[0] + 1, 0, 0], [0, min_expand[1] + 1, 0], [0, 0, min_expand[2] + 1]]
-        )
+        return SupercellTransformation(np.eye(3) + np.diag(min_expand))
 
     def apply_transformation(self, structure):
         """
