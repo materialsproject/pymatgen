@@ -6,6 +6,7 @@ import unittest
 import warnings
 from shutil import which
 
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 from pytest import approx
@@ -235,9 +236,9 @@ class TestBSDOSPlotter(unittest.TestCase):
     def test_methods(self):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun_Si_bands.xml")
         plotter = BSDOSPlotter()
-        plt = plotter.get_plot(vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands"))
+        ax = plotter.get_plot(vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands"))
         plt.close()
-        plt = plotter.get_plot(
+        ax = plotter.get_plot(
             vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands"),
             vasp_run.complete_dos,
         )
@@ -263,8 +264,8 @@ class TestBSDOSPlotter(unittest.TestCase):
                     d[i][j][k][b] = np.random.rand()
                     # d[i][j][k][c] = np.random.rand()
         band_struct = BandStructureSymmLine.from_dict(band_struct_dict)
-        plt = plotter.get_plot(band_struct)
-        plt.show()
+        ax = plotter.get_plot(band_struct)
+        assert isinstance(ax, plt.Axes)
 
 
 class TestPlotBZ(unittest.TestCase):
