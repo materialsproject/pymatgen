@@ -242,16 +242,18 @@ class SupercellTransformation(AbstractTransformation):
         return SupercellTransformation([[scale_a, 0, 0], [0, scale_b, 0], [0, 0, scale_c]])
 
     @staticmethod
-    def from_boundary_distance(structure, min_boundary_dist=6.0, allow_rotation=False):
+    def from_boundary_distance(
+        structure: Structure, min_boundary_dist: float = 6, allow_rotation: bool = False
+    ) -> SupercellTransformation:
         """
-        Method to get a SupercellTransformation according to the desired minimum
-        distance between periodic boundaries of the wanted supercell.
+        Get a SupercellTransformation according to the desired minimum distance between periodic
+        boundaries of the resulting supercell.
 
         Args:
             structure (Structure): Input structure.
-            min_boundary_dist (float): Desired minimum distance between all periodic boundaries.
+            min_boundary_dist (float): Desired minimum distance between all periodic boundaries. Defaults to 6.
             allow_rotation (bool): Whether allowing lattice angles to change. Only useful when
-                at least two of the three lattice vectors are required to expand. Default to False.
+                at least two of the three lattice vectors are required to expand. Defaults to False.
                 If True, a SupercellTransformation satisfying min_boundary_dist but with smaller
                 number of atoms than the SupercellTransformation with unchanged lattice angles
                 can possibly be found. If such a SupercellTransformation cannot be found easily,
