@@ -33,16 +33,13 @@ class LMTOCtrl:
     Currently, only HEADER, VERS and the structure can be used.
     """
 
-    def __init__(self, structure: Structure, header=None, version="LMASA-47"):
+    def __init__(self, structure: Structure, header: str | None = None, version: str = "LMASA-47") -> None:
         """
         Args:
-            structure: The structure as a pymatgen Structure object.
-
-            header: The header for the CTRL file .
-                    Defaults to None.
-
-            version: The LMTO version that is used for the VERS category.
-                     Defaults to the newest version (4.7).
+            structure (Structure): pymatgen object.
+            header (str): The header for the CTRL file. Defaults to None.
+            version (str): The LMTO version that is used for the VERS category.
+                Defaults to version (4.7).
         """
         self.structure = structure
         self.header = header
@@ -71,7 +68,7 @@ class LMTOCtrl:
         the minimal CTRL file necessary to execute lmhart.run.
         """
         ctrl_dict = self.as_dict()
-        lines = [] if "HEADER" not in ctrl_dict else ["HEADER".ljust(10) + self.header]
+        lines = [] if "HEADER" not in ctrl_dict else [f"{'HEADER':<10}{self.header}"]
         if "VERS" in ctrl_dict:
             lines.append("VERS".ljust(10) + self.version)
 
