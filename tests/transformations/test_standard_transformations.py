@@ -180,6 +180,30 @@ class TestSupercellTransformation(unittest.TestCase):
         assert np.count_nonzero(min_expand_allow_rotate_true) == 0
         assert np.count_nonzero(min_expand_allow_rotate_false) == 0
 
+        for struct in [struct_cubic, self.struct]:
+            for min_boundary_dist in range(5, 16, 2):
+                trafo_allow_rotate_true = SupercellTransformation.from_boundary_distance(
+                    structure=struct, min_boundary_dist=min_boundary_dist, allow_rotation=True
+                )
+                trafo_allow_rotate_false = SupercellTransformation.from_boundary_distance(
+                    structure=struct, min_boundary_dist=min_boundary_dist, allow_rotation=False
+                )
+                struct_super_allow_rotate_true = trafo_allow_rotate_true.apply_transformation(struct.copy())
+                struct_super_allow_rotate_false = trafo_allow_rotate_false.apply_transformation(struct.copy())
+                min_expand_allow_rotate_true = np.int8(
+                    min_boundary_dist / np.array([struct_super_allow_rotate_true.lattice.d_hkl(plane) for plane in np.eye(3)])
+                )
+                min_expand_allow_rotate_false = np.int8(
+                    min_boundary_dist / np.array([struct_super_allow_rotate_false.lattice.d_hkl(plane) for plane in np.eye(3)])
+                )
+                assert len(struct_super_allow_rotate_true) <= len(struct_super_allow_rotate_false)
+                assert np.count_nonzero(min_expand_allow_rotate_true) == 0
+                assert np.count_nonzero(min_expand_allow_rotate_false) == 0
+
+        with self.assertRaises(AttributeError):
+            SupercellTransformation.from_boundary_distance(
+                structure=struct_cubic, min_boundary_dist=9, allow_rotation=False, max_atoms=10
+            )
 
 class TestOxidationStateDecorationTransformation(unittest.TestCase):
     def test_apply_transformation(self):
