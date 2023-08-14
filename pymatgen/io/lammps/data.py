@@ -144,8 +144,8 @@ class LammpsBox(MSONable):
     @property
     def volume(self):
         """Volume of simulation box."""
-        m = self._matrix
-        return np.dot(np.cross(m[0], m[1]), m[2])
+        matrix = self._matrix
+        return np.dot(np.cross(matrix[0], matrix[1]), matrix[2])
 
     @np.deprecate(message="Use get_str instead")
     def get_string(self, *args, **kwargs) -> str:
