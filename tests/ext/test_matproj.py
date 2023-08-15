@@ -23,16 +23,17 @@ from pymatgen.electronic_structure.bandstructure import BandStructure, BandStruc
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, TaskType, _MPResterLegacy
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
-    website_down = requests.get("https://materialsproject.org").status_code != 200
-except requests.exceptions.ConnectionError:
-    website_down = True
+    skip_mprester_tests = requests.get("https://materialsproject.org").status_code != 200
+    from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, TaskType, _MPResterLegacy
+except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
+    # Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
+    skip_mprester_tests = True
 
 
 PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY")
@@ -44,7 +45,7 @@ if os.getenv("CI") and PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
 
 
 @pytest.mark.skipif(
-    website_down or not PMG_MAPI_KEY,
+    skip_mprester_tests or not PMG_MAPI_KEY,
     reason="PMG_MAPI_KEY environment variable not set or MP API is down.",
 )
 class TestMPResterOld(PymatgenTest):
