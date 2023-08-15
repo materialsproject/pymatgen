@@ -64,6 +64,13 @@ dec = MontyDecoder()
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
 skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set.")
 
+_dummy_structure = Structure(
+    [1, 0, 0, 0, 1, 0, 0, 0, 1],
+    ["I"],
+    [[0, 0, 0]],
+    site_properties={"magmom": [[0, 0, 1]]},
+)
+
 
 @pytest.mark.parametrize(
     "input_set",
@@ -1821,47 +1828,39 @@ class TestMPAbsorptionSet(PymatgenTest):
 
     def test_ipa(self):
         prev_run = f"{TEST_FILES_DIR}/absorption/static"
-        absorptionipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, copy_wavecar=True, mode="IPA")
-        absorptionipa.write_input(self.tmp)
+        absorption_ipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, copy_wavecar=True, mode="IPA")
+        absorption_ipa.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
-        assert absorptionipa.incar["NBANDS"] == 32
-        assert absorptionipa.incar["ALGO"] == "Exact"
-        assert absorptionipa.incar["LOPTICS"]
+        assert absorption_ipa.incar["NBANDS"] == 32
+        assert absorption_ipa.incar["ALGO"] == "Exact"
+        assert absorption_ipa.incar["LOPTICS"]
 
         # test override_from_prev_calc
-        absorptionipa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="IPA")
-        absorptionipa.override_from_prev_calc(prev_calc_dir=prev_run)
-        absorptionipa.write_input(self.tmp)
+        absorption_ipa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="IPA")
+        absorption_ipa.override_from_prev_calc(prev_calc_dir=prev_run)
+        absorption_ipa.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
-        assert absorptionipa.incar["NBANDS"] == 32
-        assert absorptionipa.incar["ALGO"] == "Exact"
-        assert absorptionipa.incar["LOPTICS"]
+        assert absorption_ipa.incar["NBANDS"] == 32
+        assert absorption_ipa.incar["ALGO"] == "Exact"
+        assert absorption_ipa.incar["LOPTICS"]
 
     def test_rpa(self):
         prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
-        absorptionrpa = MPAbsorptionSet.from_prev_calc(prev_run, copy_wavecar=True, mode="RPA")
-        absorptionrpa.write_input(self.tmp)
+        absorption_rpa = MPAbsorptionSet.from_prev_calc(prev_run, copy_wavecar=True, mode="RPA")
+        absorption_rpa.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
         assert os.path.isfile(os.path.join(self.tmp, "WAVEDER"))
-        assert absorptionrpa.incar["NOMEGA"] == 1000
-        assert absorptionrpa.incar["NBANDS"] == 48
-        assert absorptionrpa.incar["ALGO"] == "CHI"
+        assert absorption_rpa.incar["NOMEGA"] == 1000
+        assert absorption_rpa.incar["NBANDS"] == 48
+        assert absorption_rpa.incar["ALGO"] == "CHI"
 
         # test override_from_prev_calc
         prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
-        absorptionrpa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="RPA")
-        absorptionrpa.override_from_prev_calc(prev_calc_dir=prev_run)
-        absorptionrpa.write_input(self.tmp)
+        absorption_rpa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="RPA")
+        absorption_rpa.override_from_prev_calc(prev_calc_dir=prev_run)
+        absorption_rpa.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
         assert os.path.isfile(os.path.join(self.tmp, "WAVEDER"))
-        assert absorptionrpa.incar["NOMEGA"] == 1000
-        assert absorptionrpa.incar["NBANDS"] == 48
-        assert absorptionrpa.incar["ALGO"] == "CHI"
-
-
-_dummy_structure = Structure(
-    [1, 0, 0, 0, 1, 0, 0, 0, 1],
-    ["I"],
-    [[0, 0, 0]],
-    site_properties={"magmom": [[0, 0, 1]]},
-)
+        assert absorption_rpa.incar["NOMEGA"] == 1000
+        assert absorption_rpa.incar["NBANDS"] == 48
+        assert absorption_rpa.incar["ALGO"] == "CHI"
