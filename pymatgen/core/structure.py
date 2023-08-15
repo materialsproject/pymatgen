@@ -617,8 +617,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             for sp, occu in site.species.items():
                 sym = sp.symbol
                 oxi_state = getattr(sp, "oxi_state", None)
-                props = {"spin": spins.get(str(sp), spins.get(sym))}
-                species = Species(sym, oxidation_state=oxi_state, properties=props)
+                species = Species(sym, oxidation_state=oxi_state, spin=spins.get(str(sp), spins.get(sym)))
                 new_species[species] = occu
             site.species = Composition(new_species)
 
@@ -638,7 +637,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             for sp, occu in site.species.items():
                 sym = sp.symbol
                 oxi_state = getattr(sp, "oxi_state", None)
-                new_species[Species(sym, oxidation_state=oxi_state, properties={"spin": spin})] = occu
+                new_species[Species(sym, oxidation_state=oxi_state, spin=spin)] = occu
             site.species = Composition(new_species)
 
     def remove_spin(self) -> None:
@@ -3648,7 +3647,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             s[0] = "Fe", [0.5, 0.5, 0.5]
             Replaces site and *fractional* coordinates. Any properties
             are inherited from current site.
-            s[0] = "Fe", [0.5, 0.5, 0.5], {"spin": 2}
+            s[0] = "Fe", [0.5, 0.5, 0.5], spin=2
             Replaces site and *fractional* coordinates and properties.
 
             s[(0, 2, 3)] = "Fe"
