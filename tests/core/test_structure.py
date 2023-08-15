@@ -214,15 +214,15 @@ class TestIStructure(PymatgenTest):
         struct = IStructure(
             self.lattice,
             [
-                {Species("O", -2, properties={"spin": 3}): 1.0},
-                {Species("Mg", 2, properties={"spin": 2}): 0.8},
+                {Species("O", -2, spin=3): 1.0},
+                {Species("Mg", 2, spin=2): 0.8},
             ],
             coords,
             site_properties={"magmom": [5, -5]},
         )
         d = struct.as_dict()
         assert d["sites"][0]["properties"]["magmom"] == 5
-        assert d["sites"][0]["species"][0]["properties"]["spin"] == 3
+        assert d["sites"][0]["species"][0]["spin"] == 3
 
         d = struct.as_dict(0)
         assert "volume" not in d["lattice"]
@@ -260,7 +260,7 @@ class TestIStructure(PymatgenTest):
                         {
                             "occu": 1.0,
                             "oxidation_state": -2,
-                            "properties": {"spin": 3},
+                            "spin": 3,
                             "element": "O",
                         }
                     ],
@@ -275,7 +275,7 @@ class TestIStructure(PymatgenTest):
                         {
                             "occu": 0.8,
                             "oxidation_state": 2,
-                            "properties": {"spin": 2},
+                            "spin": 2,
                             "element": "Mg",
                         }
                     ],
@@ -613,7 +613,7 @@ Direct
     #         },
     #         "sites": [
     #             {
-    #                "species": [{"element": "Mn", "oxidation_state": 0, "properties": {"spin": Spin.down}, "occu": 1}],
+    #                "species": [{"element": "Mn", "oxidation_state": 0, "spin": Spin.down, "occu": 1}],
     #                 "abc": [0.0, 0.5, 0.5],
     #                 "xyz": [2.8730499999999997, 3.83185, 4.1055671618015446e-16],
     #                 "label": "Mn0+,spin=-1",

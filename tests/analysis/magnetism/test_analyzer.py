@@ -90,10 +90,7 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
         assert "magmom" not in Fe_spin.site_properties
 
         # test with disorder on magnetic site
-        self.Fe[0] = {
-            Species("Fe", oxidation_state=0, properties={"spin": 5}): 0.5,
-            "Ni": 0.5,
-        }
+        self.Fe[0] = {Species("Fe", 0, spin=5): 0.5, "Ni": 0.5}
         with pytest.raises(
             NotImplementedError,
             match="CollinearMagneticStructureAnalyzer not implemented for disordered structures,"

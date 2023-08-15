@@ -179,14 +179,14 @@ class BatteryAnalyzer:
         # the elements that can possibly be oxidized or reduced
         oxid_els = [Element(spec.symbol) for spec in self.comp if is_redox_active_intercalation(spec)]
 
-        numa = set()
+        num_a = set()
         for oxid_el in oxid_els:
-            numa = numa | self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, numa)
+            num_a = num_a | self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, num_a)
         # convert from num A in structure to num A removed
         num_working_ion = self.comp[Species(self.working_ion.symbol, self.working_ion_charge)]
-        return {num_working_ion - a for a in numa}
+        return {num_working_ion - a for a in num_a}
 
-    def _get_int_removals_helper(self, spec_amts_oxi, redox_el, redox_els, numa):
+    def _get_int_removals_helper(self, spec_amts_oxi, redox_el, redox_els, num_a):
         """
         This is a helper method for get_removals_int_oxid!
 
@@ -194,7 +194,7 @@ class BatteryAnalyzer:
             spec_amts_oxi: a dict of species to their amounts in the structure
             redox_el: the element to oxidize or reduce
             redox_els: the full list of elements that might be oxidized or reduced
-            numa: a running set of numbers of A ion at integer oxidation steps
+            num_a: a running set of numbers of A ion at integer oxidation steps
 
         Returns:
             a set of numbers A; steps for oxidizing oxid_el first, then the other oxid_els in this list
@@ -209,19 +209,19 @@ class BatteryAnalyzer:
             if oxid_new < min(
                 os for os in Element(redox_el.symbol).oxidation_states if os >= lowest_oxid[redox_el.symbol]
             ):
-                return numa
+                return num_a
         else:
             oxid_old = min(spec.oxi_state for spec in spec_amts_oxi if spec.symbol == redox_el.symbol)
             oxid_new = math.floor(oxid_old + 1)
             # if this is not a valid solution, break out of here and don't add anything to the list
             if oxid_new > redox_el.max_oxidation_state:
-                return numa
+                return num_a
         # update the spec_amts_oxi map to reflect that the redox took place
         spec_old = Species(redox_el.symbol, oxid_old)
         spec_new = Species(redox_el.symbol, oxid_new)
-        specamt = spec_amts_oxi[spec_old]
+        spec_amt = spec_amts_oxi[spec_old]
         spec_amts_oxi = {sp: amt for sp, amt in spec_amts_oxi.items() if sp != spec_old}
-        spec_amts_oxi[spec_new] = specamt
+        spec_amts_oxi[spec_new] = spec_amt
         spec_amts_oxi = Composition(spec_amts_oxi)
 
         # determine the amount of ion A in the structure needed for charge balance and add it to the list
@@ -229,14 +229,14 @@ class BatteryAnalyzer:
             spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if spec.symbol not in self.working_ion.symbol
         )
         a = max(0, -oxi_noA / self.working_ion_charge)
-        numa = numa | {a}
+        num_a = num_a | {a}
 
         # recursively try the other oxidation states
         if a == 0:
-            return numa
+            return num_a
         for red in redox_els:
-            numa = numa | self._get_int_removals_helper(spec_amts_oxi.copy(), red, redox_els, numa)
-        return numa
+            num_a = num_a | self._get_int_removals_helper(spec_amts_oxi.copy(), red, redox_els, num_a)
+        return num_a
 
 
 def is_redox_active_intercalation(element) -> bool:

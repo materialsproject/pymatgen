@@ -768,8 +768,8 @@ class MagOrderingTransformation(AbstractTransformation):
         dummy_species_symbols = [next(dummy_species_gen) for i in range(len(order_parameters))]
         dummy_species = [
             {
-                DummySpecies(symbol, properties={"spin": Spin.up}): constraint.order_parameter,
-                DummySpecies(symbol, properties={"spin": Spin.down}): 1 - constraint.order_parameter,
+                DummySpecies(symbol, spin=Spin.up): constraint.order_parameter,
+                DummySpecies(symbol, spin=Spin.down): 1 - constraint.order_parameter,
             }
             for symbol, constraint in zip(dummy_species_symbols, order_parameters)
         ]
