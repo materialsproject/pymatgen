@@ -20,7 +20,6 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import NeighborsNotComputedC
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule
-from pymatgen.ext.matproj import MPRester
 from pymatgen.io.cif import CifParser
 
 try:
@@ -244,6 +243,8 @@ def compute_environments(chemenv_configuration):
         elif source_type == "mp":
             if not found:
                 input_source = input('Enter materials project id (e.g. "mp-1902") : ')
+            from pymatgen.ext.matproj import MPRester
+
             a = MPRester()
             structure = a.get_structure_by_material_id(input_source)
         lgf.setup_structure(structure)
