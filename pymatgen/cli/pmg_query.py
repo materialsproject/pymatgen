@@ -11,8 +11,6 @@ import re
 from monty.serialization import dumpfn
 from tabulate import tabulate
 
-from pymatgen.ext.matproj import MPRester
-
 
 def do_query(args):
     """
@@ -21,6 +19,8 @@ def do_query(args):
     Args:
         args (dict): Args from argparse.
     """
+    from pymatgen.ext.matproj import MPRester
+
     m = MPRester()
     try:
         criteria = json.loads(args.criteria)
