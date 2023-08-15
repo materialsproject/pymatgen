@@ -144,8 +144,8 @@ class LammpsBox(MSONable):
     @property
     def volume(self):
         """Volume of simulation box."""
-        m = self._matrix
-        return np.dot(np.cross(m[0], m[1]), m[2])
+        matrix = self._matrix
+        return np.dot(np.cross(matrix[0], matrix[1]), matrix[2])
 
     @np.deprecate(message="Use get_str instead")
     def get_string(self, *args, **kwargs) -> str:
@@ -428,7 +428,7 @@ class LammpsData(MSONable):
         for key, val in body_dict.items():
             index = key != "PairIJ Coeffs"
             if hybrid and key in ["Bond Coeffs", "Angle Coeffs", "Dihedral Coeffs", "Improper Coeffs"]:
-                dfs = np.array_split(val, len(val.index))
+                dfs: list[pd.DataFrame] = np.array_split(val, len(val.index))
                 df_string = ""
                 for idx, df in enumerate(dfs):
                     if isinstance(df.iloc[0]["coeff1"], str):

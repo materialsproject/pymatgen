@@ -2637,7 +2637,7 @@ class IStructure(SiteCollection, MSONable):
         charge = d.get("charge")
         return cls.from_sites(sites, charge=charge)
 
-    def to(self, filename: str = "", fmt: str = "", **kwargs) -> str | None:
+    def to(self, filename: str = "", fmt: str = "", **kwargs) -> str:
         """
         Outputs the structure to a file or string.
 
@@ -2655,7 +2655,8 @@ class IStructure(SiteCollection, MSONable):
                 CifWriter.__init__ method for generation of symmetric cifs.
 
         Returns:
-            (str) if filename is None. None otherwise.
+            str: String representation of molecule in given format. If a filename
+                is provided, the same string is written to the file.
         """
         fmt = fmt.lower()
 
@@ -2684,11 +2685,11 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
 
-            string = XSF(self).to_str()
+            res_str = XSF(self).to_str()
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as file:
-                    file.write(string)
-            return string
+                    file.write(res_str)
+            return res_str
         elif (
             fmt == "mcsqs"
             or fnmatch(filename, "*rndstr.in*")
@@ -2697,24 +2698,24 @@ class IStructure(SiteCollection, MSONable):
         ):
             from pymatgen.io.atat import Mcsqs
 
-            string = Mcsqs(self).to_str()
+            res_str = Mcsqs(self).to_str()
             if filename:
                 with zopen(filename, "wt", encoding="ascii") as file:
-                    file.write(string)
-            return string
+                    file.write(res_str)
+            return res_str
         elif fmt == "prismatic" or fnmatch(filename, "*prismatic*"):
             from pymatgen.io.prismatic import Prismatic
 
             return Prismatic(self).to_str()
         elif fmt == "yaml" or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
+            str_io = StringIO()
+            yaml.dump(self.as_dict(), str_io)
+            yaml_str = str_io.getvalue()
             if filename:
                 with zopen(filename, "wt") as file:
-                    yaml.dump(self.as_dict(), file)
-                return None
-            sio = StringIO()
-            yaml.dump(self.as_dict(), sio)
-            return sio.getvalue()
+                    file.write(yaml_str)
+            return yaml_str
         # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen" or fnmatch(filename, "*.in*"):
             from pymatgen.io.fleur import FleurInput
@@ -2723,12 +2724,11 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "res" or fnmatch(filename, "*.res"):
             from pymatgen.io.res import ResIO
 
-            string = ResIO.structure_to_str(self)
+            res_str = ResIO.structure_to_str(self)
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as file:
-                    file.write(string)
-                return None
-            return string
+                    file.write(res_str)
+            return res_str
         else:
             if fmt == "":
                 raise ValueError(f"Format not specified and could not infer from {filename=}")
@@ -2736,7 +2736,6 @@ class IStructure(SiteCollection, MSONable):
 
         if filename:
             writer.write_file(filename)
-            return None
         return str(writer)
 
     @classmethod
@@ -3440,7 +3439,8 @@ class IMolecule(SiteCollection, MSONable):
                 OpenBabel. Non-case sensitive.
 
         Returns:
-            (str) if filename is None. None otherwise.
+            str: String representation of molecule in given format. If a filename
+                is provided, the same string is written to the file.
         """
         from pymatgen.io.babel import BabelMolAdaptor
         from pymatgen.io.gaussian import GaussianInput
@@ -3453,25 +3453,24 @@ class IMolecule(SiteCollection, MSONable):
         elif any(fmt == ext or fnmatch(filename.lower(), f"*.{ext}*") for ext in ["gjf", "g03", "g09", "com", "inp"]):
             writer = GaussianInput(self)
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
+            json_str = json.dumps(self.as_dict())
             if filename:
-                with zopen(filename, "wt", encoding="utf8") as f:
-                    json.dump(self.as_dict(), f)
-                    return None
-            else:
-                return json.dumps(self.as_dict())
+                with zopen(filename, "wt", encoding="utf8") as file:
+                    file.write(json_str)
+            return json_str
         elif fmt == "yaml" or fnmatch(filename, "*.yaml*"):
             yaml = YAML()
+            str_io = StringIO()
+            yaml.dump(self.as_dict(), str_io)
+            yaml_str = str_io.getvalue()
             if filename:
-                with zopen(filename, "wt", encoding="utf8") as f:
-                    return yaml.dump(self.as_dict(), f)
-            else:
-                sio = StringIO()
-                yaml.dump(self.as_dict(), sio)
-                return sio.getvalue()
+                with zopen(filename, "wt", encoding="utf8") as file:
+                    file.write(yaml_str)
+            return yaml_str
         else:
-            m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower())
-            if (not fmt) and m:
-                fmt = m.group(1)
+            match = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower())
+            if not fmt and match:
+                fmt = match.group(1)
             writer = BabelMolAdaptor(self)
             return writer.write_file(filename, file_format=fmt)
 
@@ -4134,7 +4133,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for idx in range(len(self._sites)):
             self.translate_sites([idx], get_rand_vec(), frac_coords=False)
 
-    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> None:
+    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> Structure:
         """
         Create a supercell.
 
