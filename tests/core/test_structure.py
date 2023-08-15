@@ -222,7 +222,7 @@ class TestIStructure(PymatgenTest):
         )
         d = struct.as_dict()
         assert d["sites"][0]["properties"]["magmom"] == 5
-        assert d["sites"][0]["species"][0]["properties"]["spin"] == 3
+        assert d["sites"][0]["species"][0]["spin"] == 3
 
         d = struct.as_dict(0)
         assert "volume" not in d["lattice"]
