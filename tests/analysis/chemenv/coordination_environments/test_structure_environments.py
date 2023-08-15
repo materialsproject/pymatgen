@@ -180,7 +180,7 @@ class TestStructureEnvironments(PymatgenTest):
         assert stats["coordination_environments_atom_present"] == {"T:4": {"Si": 3}}
         assert stats["fraction_atom_coordination_environments_present"] == {"Si": {"T:4": 1}}
 
-        site_info_ce = lse.get_site_info_for_specie_ce(specie=Species("Si", 4), ce_symbol="T:4")
+        site_info_ce = lse.get_site_info_for_specie_ce(specie=Species("Si4+"), ce_symbol="T:4")
         assert_array_almost_equal(site_info_ce["fractions"], [1, 1, 1])
         assert_array_almost_equal(
             site_info_ce["csms"],
@@ -188,7 +188,7 @@ class TestStructureEnvironments(PymatgenTest):
         )
         assert site_info_ce["isites"] == [6, 7, 8]
 
-        site_info_allces = lse.get_site_info_for_specie_allces(specie=Species("Si", 4))
+        site_info_allces = lse.get_site_info_for_specie_allces(specie=Species("Si4+"))
 
         assert site_info_allces["T:4"] == site_info_ce
 

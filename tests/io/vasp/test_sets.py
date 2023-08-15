@@ -346,7 +346,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         incar = MITRelaxSet(struct, sort_structure=False).incar
         assert incar["MAGMOM"] == [5.2, -4.5]
 
-        struct = Structure(lattice, [Species("Fe", 2, {"spin": 4.1}), "Mn"], coords)
+        struct = Structure(lattice, [Species("Fe2+", spin=4.1), "Mn"], coords)
         incar = MPRelaxSet(struct).incar
         assert incar["MAGMOM"] == [5, 4.1]
 
