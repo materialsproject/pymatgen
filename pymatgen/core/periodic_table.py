@@ -1004,30 +1004,21 @@ class Element(ElementBase):
 @functools.total_ordering
 class Species(MSONable, Stringify):
     """
-    An extension of Element with an oxidation state and other optional
-    properties. Properties associated with Species should be "idealized"
-    values, not calculated values. For example, high-spin Fe2+ may be
-    assigned an idealized spin of +5, but an actual Fe2+ site may be
-    calculated to have a magmom of +4.5. Calculated properties should be
-    assigned to Site objects, and not Species.
+    An extension of Element with optional oxidation state and spin. Properties associated
+    with Species should be "idealized" values, not calculated values. For example,
+    high-spin Fe2+ may be assigned an idealized spin of +5, but an actual Fe2+ site may be
+    calculated to have a magmom of +4.5. Calculated properties should be assigned to Site
+    objects, and not Species.
     """
 
     STRING_MODE = "SUPERSCRIPT"
 
-    def __init__(
-        self,
-        symbol: SpeciesLike,
-        oxidation_state: float | None = None,
-        properties: dict | None = None,
-        spin: float | None = None,
-    ) -> None:
+    def __init__(self, symbol: SpeciesLike, oxidation_state: float | None = None, spin: float | None = None) -> None:
         """
         Args:
             symbol (str): Element symbol optionally incl. oxidation state. E.g. Fe, Fe2+, O2-.
             oxidation_state (float): Explicit oxidation state of element, e.g. -2, -1, 0, 1, 2, ...
                 If oxidation state is present in symbol, this argument is ignored.
-            properties: Properties associated with the Species, e.g., {"spin": 5}. Defaults to None. This is now
-                deprecated and retained purely for backward compatibility.
             spin: Spin associated with Species. Defaults to None.
 
         Raises:
@@ -1047,14 +1038,7 @@ class Species(MSONable, Stringify):
 
         self._el = Element(symbol)
 
-        if properties:
-            warnings.warn("Use of properties is now deprecated. Set the spin by setting the spin arg instead.")
-            for key in properties:
-                if key != "spin":
-                    raise ValueError(f"{key} is not a supported property")
-                self._spin = properties.get("spin", None)
-        else:
-            self._spin = spin
+        self._spin = spin
 
     def __getattr__(self, attr):
         """Allows Specie to inherit properties of underlying element."""
@@ -1127,12 +1111,6 @@ class Species(MSONable, Stringify):
         return self._spin
 
     @property
-    def properties(self) -> dict:
-        """Retained for backwards incompatibility."""
-        warnings.warn("Use of properties is now deprecated. Use Species.spin instead.")
-        return {"spin": self._spin}
-
-    @property
     def ionic_radius(self) -> float | None:
         """Ionic radius of specie. Returns None if data is not present."""
         if self._oxi_state in self.ionic_radii:
@@ -1189,16 +1167,16 @@ class Species(MSONable, Stringify):
                 oxi = -oxi if match.group(3) == "-" else oxi
 
             # parse properties (optional)
-            properties = None
-            if match.group(4):
+            properties = {}
+            if match.group(4):  # has Spin properties
                 toks = match.group(4).replace(",", "").split("=")
                 properties = {toks[0]: ast.literal_eval(toks[1])}
 
             # but we need either an oxidation state or a property
-            if oxi is None and properties is None:
+            if oxi is None and properties == {}:
                 raise ValueError("Invalid Species String")
 
-            return Species(sym, 0 if oxi is None else oxi, properties)
+            return Species(sym, 0 if oxi is None else oxi, **properties)
         raise ValueError("Invalid Species String")
 
     def __repr__(self):
@@ -1331,15 +1309,13 @@ class Species(MSONable, Stringify):
 
     def as_dict(self) -> dict:
         """Json-able dictionary representation."""
-        d = {
+        return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "element": self.symbol,
             "oxidation_state": self._oxi_state,
             "spin": self._spin,
         }
-        d["properties"] = {"spin": self._spin}
-        return d
 
     @classmethod
     def from_dict(cls, d) -> Species:
@@ -1347,7 +1323,7 @@ class Species(MSONable, Stringify):
         :param d: Dict representation.
         :return: Species.
         """
-        return cls(d["element"], d["oxidation_state"], properties=d.get("properties"), spin=d.get("spin"))
+        return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
 
 
 @functools.total_ordering
@@ -1378,7 +1354,6 @@ class DummySpecies(Species):
         self,
         symbol: str = "X",
         oxidation_state: float | None = 0,
-        properties: dict | None = None,
         spin: float | None = None,
     ) -> None:
         """
@@ -1390,7 +1365,6 @@ class DummySpecies(Species):
                 be parsed wrongly. E.g., "X" is fine, but "Vac" is not
                 because Vac contains V, a valid Element.
             oxidation_state (float): Oxidation state for dummy specie. Defaults to 0.
-            properties: Properties associated with the Species, e.g. {"spin": 5}. Defaults to None. This is now
                 deprecated and retained purely for backward compatibility.
             spin: Spin associated with Species. Defaults to None.
         """
@@ -1406,13 +1380,7 @@ class DummySpecies(Species):
         # most instances.
         self._symbol = symbol
         self._oxi_state = oxidation_state
-        if properties:
-            for key in properties:
-                if key != "spin":
-                    raise ValueError(f"{key} is not a supported property")
-                self._spin = properties.get("spin", None)
-        else:
-            self._spin = spin
+        self._spin = spin
 
     def __getattr__(self, attr):
         raise AttributeError
@@ -1484,24 +1452,22 @@ class DummySpecies(Species):
             else:
                 oxi = 1.0 if m.group(2) == "" else float(m.group(2))
                 oxi = -oxi if m.group(3) == "-" else oxi
-            properties = None
-            if m.group(4):
+            properties = {}
+            if m.group(4):  # has Spin property
                 toks = m.group(4).split("=")
                 properties = {toks[0]: float(toks[1])}
-            return DummySpecies(sym, oxi, properties)
+            return DummySpecies(sym, oxi, **properties)
         raise ValueError("Invalid DummySpecies String")
 
     def as_dict(self) -> dict:
         """MSONable dict representation."""
-        d = {
+        return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "element": self.symbol,
             "oxidation_state": self._oxi_state,
             "spin": self._spin,
         }
-        d["properties"] = {"spin": self._spin}  # type: ignore
-        return d
 
     @classmethod
     def from_dict(cls, d) -> DummySpecies:
@@ -1509,7 +1475,7 @@ class DummySpecies(Species):
         :param d: Dict representation
         :return: DummySpecies
         """
-        return cls(d["element"], d["oxidation_state"], spin=d.get("spin"), properties=d.get("properties"))
+        return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
 
     def __repr__(self):
         return f"DummySpecies {self}"
@@ -1555,12 +1521,12 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
             are actual Element/Species objects, integers (representing atomic
             numbers) or strings (element symbols or species strings).
 
-    Returns:
-        Species or Element, with a bias for the maximum number of properties
-        that can be determined.
-
     Raises:
         ValueError: if obj cannot be converted into an Element or Species.
+
+    Returns:
+        Species | Element: with a bias for the maximum number of properties
+            that can be determined.
     """
     if isinstance(obj, (Element, Species, DummySpecies)):
         return obj
