@@ -290,28 +290,28 @@ class ElementBase(Enum):
                 try:
                     val = float(val)
                 except ValueError:
-                    nobracket = re.sub(r"\(.*\)", "", val)
-                    toks = nobracket.replace("about", "").strip().split(" ", 1)
-                    if len(toks) == 2:
+                    no_bracket = re.sub(r"\(.*\)", "", val)
+                    tokens = no_bracket.replace("about", "").strip().split(" ", 1)
+                    if len(tokens) == 2:
                         try:
-                            if "10<sup>" in toks[1]:
-                                base_power = re.findall(r"([+-]?\d+)", toks[1])
+                            if "10<sup>" in tokens[1]:
+                                base_power = re.findall(r"([+-]?\d+)", tokens[1])
                                 factor = "e" + base_power[1]
-                                if toks[0] in ["&gt;", "high"]:
-                                    toks[0] = "1"  # return the border value
-                                toks[0] += factor
+                                if tokens[0] in ["&gt;", "high"]:
+                                    tokens[0] = "1"  # return the border value
+                                tokens[0] += factor
                                 if item == "electrical_resistivity":
                                     unit = "ohm m"
                                 elif item == "coefficient_of_linear_thermal_expansion":
                                     unit = "K^-1"
                                 else:
-                                    unit = toks[1]
-                                val = FloatWithUnit(toks[0], unit)
+                                    unit = tokens[1]
+                                val = FloatWithUnit(tokens[0], unit)
                             else:
-                                unit = toks[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
+                                unit = tokens[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
                                 units = Unit(unit)
                                 if set(units).issubset(SUPPORTED_UNIT_NAMES):
-                                    val = FloatWithUnit(toks[0], unit)
+                                    val = FloatWithUnit(tokens[0], unit)
                         except ValueError:
                             # Ignore error. val will just remain a string.
                             pass

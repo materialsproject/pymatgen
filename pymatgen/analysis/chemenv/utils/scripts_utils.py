@@ -204,7 +204,7 @@ def compute_environments(chemenv_configuration):
     questions["m"] = "mp"
     lgf = LocalGeometryFinder()
     lgf.setup_parameters()
-    allcg = AllCoordinationGeometries()
+    all_cg = AllCoordinationGeometries()
     strategy_class = strategies_class_lookup[chemenv_configuration.package_options["default_strategy"]["strategy"]]
     # TODO: Add the possibility to change the parameters and save them in the chemenv_configuration
     default_strategy = strategy_class()
@@ -280,7 +280,7 @@ def compute_environments(chemenv_configuration):
                         ce = ces[0]
                         if ce is None:
                             continue
-                        the_cg = allcg.get_geometry_from_mp_symbol(ce[0])
+                        the_cg = all_cg.get_geometry_from_mp_symbol(ce[0])
                         msg = (
                             f"Environment for site #{site_idx} {reduced_formula}"
                             f" ({comp}) : {the_cg.name} ({ce[0]})\n"
@@ -288,7 +288,7 @@ def compute_environments(chemenv_configuration):
                     else:
                         msg = f"Environments for site #{site_idx} {reduced_formula} ({comp}) : \n"
                         for ce in ces:
-                            cg = allcg.get_geometry_from_mp_symbol(ce[0])
+                            cg = all_cg.get_geometry_from_mp_symbol(ce[0])
                             csm = ce[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
                             msg += f" - {cg.name} ({cg.mp_symbol}): {ce[2]:.2%} (csm : {csm:2f})\n"
                     if (
