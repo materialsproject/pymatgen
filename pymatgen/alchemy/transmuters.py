@@ -297,9 +297,7 @@ class CifTransmuter(StandardTransmuter):
 
 
 class PoscarTransmuter(StandardTransmuter):
-    """
-    Generates a transmuter from a sequence of POSCARs.
-    """
+    """Generates a transmuter from a sequence of POSCARs."""
 
     def __init__(self, poscar_string, transformations=None, extend_collection=False):
         """
@@ -338,7 +336,7 @@ def batch_write_vasp_input(
     vasp_input_set: type[VaspInputSet] = MPRelaxSet,
     output_dir: str = ".",
     create_directory: bool = True,
-    subfolder: Callable[[TransformedStructure], str] = None,
+    subfolder: Callable[[TransformedStructure], str] | None = None,
     include_cif: bool = False,
     **kwargs,
 ):

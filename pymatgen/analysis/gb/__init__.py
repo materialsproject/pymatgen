@@ -1,3 +1,1 @@
-"""
-This package implements various grain boundary analyses
-"""
+"""This package implements various grain boundary analyses."""

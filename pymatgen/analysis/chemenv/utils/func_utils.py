@@ -1,8 +1,8 @@
-"""
-This module contains some utility functions and classes that are used in the chemenv package.
-"""
+"""This module contains some utility functions and classes that are used in the chemenv package."""
 
 from __future__ import annotations
+
+from typing import ClassVar
 
 import numpy as np
 
@@ -24,20 +24,18 @@ __date__ = "Feb 20, 2016"
 
 
 class AbstractRatioFunction:
-    """
-    Abstract class for all ratio functions
-    """
+    """Abstract class for all ratio functions."""
 
-    ALLOWED_FUNCTIONS: dict[str, list] = {}
+    ALLOWED_FUNCTIONS: ClassVar[dict[str, list]] = {}  # type: ignore[assignment]
 
     def __init__(self, function, options_dict=None):
-        """Constructor for AbstractRatioFunction
+        """Constructor for AbstractRatioFunction.
 
         :param function: Ration function name.
         :param options_dict: Dictionary containing the parameters for the ratio function.
         """
         if function not in self.ALLOWED_FUNCTIONS:
-            raise ValueError(f'Function {function!r} is not allowed in RatioFunction of type "{type(self).__name__}"')
+            raise ValueError(f"{function=!r} is not allowed in RatioFunction of type {type(self).__name__}")
         self.eval = object.__getattribute__(self, function)
         self.function = function
         self.setup_parameters(options_dict=options_dict)
@@ -109,15 +107,15 @@ class AbstractRatioFunction:
 class RatioFunction(AbstractRatioFunction):
     """Concrete implementation of a series of ratio functions."""
 
-    ALLOWED_FUNCTIONS = {
-        "power2_decreasing_exp": ["max", "alpha"],
-        "smoothstep": ["lower", "upper"],
-        "smootherstep": ["lower", "upper"],
-        "inverse_smoothstep": ["lower", "upper"],
-        "inverse_smootherstep": ["lower", "upper"],
-        "power2_inverse_decreasing": ["max"],
-        "power2_inverse_power2_decreasing": ["max"],
-    }
+    ALLOWED_FUNCTIONS = dict(
+        power2_decreasing_exp=["max", "alpha"],
+        smoothstep=["lower", "upper"],
+        smootherstep=["lower", "upper"],
+        inverse_smoothstep=["lower", "upper"],
+        inverse_smootherstep=["lower", "upper"],
+        power2_inverse_decreasing=["max"],
+        power2_inverse_power2_decreasing=["max"],
+    )
 
     def power2_decreasing_exp(self, vals):
         """Get the evaluation of the ratio function f(x)=exp(-a*x)*(x-1)^2.
@@ -201,11 +199,11 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = {
-        "power2_decreasing_exp": ["max_csm", "alpha"],
-        "smoothstep": ["lower_csm", "upper_csm"],
-        "smootherstep": ["lower_csm", "upper_csm"],
-    }
+    ALLOWED_FUNCTIONS = dict(
+        power2_decreasing_exp=["max_csm", "alpha"],
+        smoothstep=["lower_csm", "upper_csm"],
+        smootherstep=["lower_csm", "upper_csm"],
+    )
 
     def power2_decreasing_exp(self, vals):
         """Get the evaluation of the ratio function f(x)=exp(-a*x)*(x-1)^2.
@@ -287,10 +285,10 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = {
-        "power2_inverse_decreasing": ["max_csm"],
-        "power2_inverse_power2_decreasing": ["max_csm"],
-    }
+    ALLOWED_FUNCTIONS = dict(
+        power2_inverse_decreasing=["max_csm"],
+        power2_inverse_power2_decreasing=["max_csm"],
+    )
 
     def power2_inverse_decreasing(self, vals):
         """Get the evaluation of the ratio function f(x)=(x-1)^2 / x.
@@ -323,12 +321,12 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
         if len(data) == 0:
             return None
         close_to_zero = np.isclose(data, 0.0, atol=1e-10).tolist()
-        nzeros = close_to_zero.count(True)
-        if nzeros == 1:
+        n_zeros = close_to_zero.count(True)
+        if n_zeros == 1:
             fractions = [0.0] * len(data)
             fractions[close_to_zero.index(True)] = 1.0
             return fractions
-        if nzeros > 1:
+        if n_zeros > 1:
             raise RuntimeError("Should not have more than one continuous symmetry measure with value equal to 0.0")
         fractions = self.eval(np.array(data))
         total = np.sum(fractions)
@@ -366,7 +364,7 @@ class DeltaCSMRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = {"smootherstep": ["delta_csm_min", "delta_csm_max"]}
+    ALLOWED_FUNCTIONS = dict(smootherstep=["delta_csm_min", "delta_csm_max"])
 
     def smootherstep(self, vals):
         """Get the evaluation of the smootherstep ratio function: f(x)=6*x^5-15*x^4+10*x^3.

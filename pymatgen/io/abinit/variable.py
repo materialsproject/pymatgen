@@ -1,4 +1,5 @@
 """Support for Abinit input variables."""
+
 from __future__ import annotations
 
 import collections
@@ -29,9 +30,7 @@ _UNITS = {
 
 
 class InputVariable:
-    """
-    An Abinit input variable.
-    """
+    """An Abinit input variable."""
 
     def __init__(self, name, value, units="", valperline=3):
         """
@@ -91,15 +90,15 @@ class InputVariable:
         line = " " + var
 
         # By default, do not impose a number of decimal points
-        floatdecimal = 0
+        float_decimal = 0
 
         # For some inputs, enforce number of decimal points...
         if any(inp in var for inp in ("xred", "xcart", "rprim", "qpt", "kpt")):
-            floatdecimal = 16
+            float_decimal = 16
 
         # ...but not for those
         if any(inp in var for inp in ("ngkpt", "kptrlatt", "ngqpt", "ng2qpt")):
-            floatdecimal = 0
+            float_decimal = 0
 
         if isinstance(value, np.ndarray):
             n = 1
@@ -112,14 +111,14 @@ class InputVariable:
         if isinstance(value, (list, tuple)):
             # Reshape a list of lists into a single list
             if all(isinstance(v, (list, tuple)) for v in value):
-                line += self.format_list2d(value, floatdecimal)
+                line += self.format_list2d(value, float_decimal)
 
             else:
-                line += self.format_list(value, floatdecimal)
+                line += self.format_list(value, float_decimal)
 
         # scalar values
         else:
-            line += " " + str(value)
+            line += f" {value}"
 
         # Add units
         if self.units:
@@ -154,9 +153,7 @@ class InputVariable:
 
         sval = f"{fval:>{ndec + addlen}.{ndec}{form}}"
 
-        sval = sval.replace("e", "d")
-
-        return sval
+        return sval.replace("e", "d")
 
     @staticmethod
     def format_list2d(values, floatdecimal=0):
@@ -177,23 +174,23 @@ class InputVariable:
         # Determine the format
         width = max(len(str(s)) for s in lvals)
         if type_all == int:
-            formatspec = f">{width}d"
+            fmt_spec = f">{width}d"
         elif type_all == str:
-            formatspec = f">{width}"
+            fmt_spec = f">{width}"
         else:
             # Number of decimal
-            maxdec = max(len(str(f - int(f))) - 2 for f in lvals)
-            ndec = min(max(maxdec, floatdecimal), 10)
+            max_dec = max(len(str(f - int(f))) - 2 for f in lvals)
+            ndec = min(max(max_dec, floatdecimal), 10)
 
             if all(f == 0 or (abs(f) > 1e-3 and abs(f) < 1e4) for f in lvals):
-                formatspec = f">{ndec + 5}.{ndec}f"
+                fmt_spec = f">{ndec + 5}.{ndec}f"
             else:
-                formatspec = f">{ndec + 8}.{ndec}e"
+                fmt_spec = f">{ndec + 8}.{ndec}e"
 
         line = "\n"
         for L in values:
             for val in L:
-                line += f" {val:{{formatspec}}}"
+                line += f" {val:{{fmt_spec}}}"
             line += "\n"
 
         return line.rstrip("\n")

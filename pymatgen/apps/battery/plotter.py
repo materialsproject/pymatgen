@@ -1,6 +1,4 @@
-"""
-This module provides plotting capabilities for battery related applications.
-"""
+"""This module provides plotting capabilities for battery related applications."""
 
 
 from __future__ import annotations
@@ -18,9 +16,7 @@ __date__ = "Jul 12, 2012"
 
 
 class VoltageProfilePlotter:
-    """
-    A plotter to make voltage profile plots for batteries.
-    """
+    """A plotter to make voltage profile plots for batteries."""
 
     def __init__(self, xaxis="capacity", hide_negative=False):
         """
@@ -30,7 +26,7 @@ class VoltageProfilePlotter:
             - capacity_vol: the volumetric capacity
             - x_form: the number of working ions per formula unit of the host
             - frac_x: the atomic fraction of the working ion
-            hide_negative: If True only plot the voltage steps above zero
+            hide_negative: If True only plot the voltage steps above zero.
         """
         self._electrodes = {}
         self.xaxis = xaxis
@@ -54,7 +50,7 @@ class VoltageProfilePlotter:
         """
         Args:
             electrode: Electrode object
-            term_zero: If True append zero voltage point at the end
+            term_zero: If True append zero voltage point at the end.
 
         Returns:
             Plot data in x, y.
@@ -126,7 +122,7 @@ class VoltageProfilePlotter:
         **kwargs,
     ):
         """
-        Return plotly Figure object
+        Return plotly Figure object.
 
         Args:
             width: Width of the plot. Defaults to 800 px.

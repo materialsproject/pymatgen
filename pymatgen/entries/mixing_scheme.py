@@ -54,7 +54,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         compat_1: Compatibility | None = MaterialsProject2020Compatibility(),  # noqa: B008
         compat_2: Compatibility | None = None,
         fuzzy_matching: bool = True,
-    ):
+        check_potcar: bool = True,
+    ) -> None:
         """
         Instantiate the mixing scheme. The init method creates a generator class that
         contains relevant settings (e.g., StructureMatcher instance, Compatibility settings
@@ -93,29 +94,28 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 space group are all identical. If there are multiple materials of run_type_2
                 that satisfy these criteria, the one with lowest energy is considered to
                 match.
+            check_potcar: Whether to ensure the POTCARs used for the run_type_1 and run_type_2 calculations
+                are the same. This is useful for ensuring that the mixing scheme is not used on calculations
+                that used different POTCARs, which can lead to unphysical results. Defaults to True.
+                Has no effect if neither compat_1 nor compat_2 have a check_potcar attribute.
+                Can also be disabled globally by running `pmg config --add PMG_POTCAR_CHECKS false`.
         """
         self.name = "MP DFT mixing scheme"
         self.structure_matcher = structure_matcher or StructureMatcher()
         if run_type_1 == run_type_2:
-            raise ValueError(
-                f"You specified the same run_type {run_type_1} for both run_type_1 and run_type_2. "
-                "The mixing scheme is meaningless unless run_type_1 and run_type_2 are different"
-            )
+            raise ValueError(f"run_type_1={run_type_2=}. The mixing scheme is meaningless unless run_types different")
         self.run_type_1 = run_type_1
         self.run_type_2 = run_type_2
-        if self.run_type_1 == "GGA(+U)":
-            self.valid_rtypes_1 = ["GGA", "GGA+U"]
-        else:
-            self.valid_rtypes_1 = [self.run_type_1]
-
-        if self.run_type_2 == "GGA(+U)":
-            self.valid_rtypes_2 = ["GGA", "GGA+U"]
-        else:
-            self.valid_rtypes_2 = [self.run_type_2]
+        self.valid_rtypes_1 = ["GGA", "GGA+U"] if self.run_type_1 == "GGA(+U)" else [self.run_type_1]
+        self.valid_rtypes_2 = ["GGA", "GGA+U"] if self.run_type_2 == "GGA(+U)" else [self.run_type_2]
 
         self.compat_1 = compat_1
         self.compat_2 = compat_2
         self.fuzzy_matching = fuzzy_matching
+        self.check_potcar = check_potcar
+        for compat in (self.compat_1, self.compat_2):
+            if hasattr(compat, "check_potcar"):
+                compat.check_potcar = check_potcar  # type: ignore[union-attr]
 
     def process_entries(
         self,
@@ -252,7 +252,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         return processed_entry_list
 
-    def get_adjustments(self, entry, mixing_state_data: pd.DataFrame = None):
+    def get_adjustments(self, entry, mixing_state_data: pd.DataFrame | None = None):
         """
         Returns the corrections applied to a particular entry. Note that get_adjustments is not
         intended to be called directly in the R2SCAN mixing scheme. Call process_entries instead,
@@ -292,7 +292,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         if run_type not in self.valid_rtypes_1 + self.valid_rtypes_2:
             raise CompatibilityError(
-                f"WARNING! Invalid run_type {run_type} for entry {entry.entry_id}. Must be one of "
+                f"WARNING! Invalid {run_type=} for entry {entry.entry_id}. Must be one of "
                 f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
             )
 
@@ -531,7 +531,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         ]
 
         def _get_sg(struct) -> int:
-            """Helper function to get spacegroup with a loose tolerance"""
+            """Helper function to get spacegroup with a loose tolerance."""
             try:
                 return struct.get_space_group_info(symprec=0.1)[1]
             except Exception:
@@ -541,66 +541,63 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # this logic follows emmet.builders.vasp.materials.MaterialsBuilder.filter_and_group_tasks
         structures = []
         for entry in all_entries:
-            s = entry.structure
-            s.entry_id = entry.entry_id
-            structures.append(s)
+            struct = entry.structure
+            struct.entry_id = entry.entry_id
+            structures.append(struct)
 
         # First group by composition, then by spacegroup number, then by structure matching
-        for comp, compgroup in groupby(sorted(structures, key=lambda s: s.composition), key=lambda s: s.composition):
-            l_compgroup = list(compgroup)
+        for comp, comp_group in groupby(sorted(structures, key=lambda s: s.composition), key=lambda s: s.composition):
+            l_comp_group = list(comp_group)
             # group by spacegroup, then by number of sites (for diatmics) or by structure matching
-            for sg, pregroup in groupby(sorted(l_compgroup, key=_get_sg), key=_get_sg):
-                l_pregroup = list(pregroup)
+            for sg, pre_group in groupby(sorted(l_comp_group, key=_get_sg), key=_get_sg):
+                l_pre_group = list(pre_group)
                 if comp.reduced_formula in ["O2", "H2", "Cl2", "F2", "N2", "I", "Br", "H2O"] and self.fuzzy_matching:
                     # group by number of sites
-                    for n, sitegroup in groupby(
-                        sorted(l_pregroup, key=lambda s: s.num_sites), key=lambda s: s.num_sites
-                    ):
-                        l_sitegroup = list(sitegroup)
+                    for idx, site_group in groupby(sorted(l_pre_group, key=lambda s: len(s)), key=lambda s: len(s)):
+                        l_sitegroup = list(site_group)
                         row_list.append(
-                            self._populate_df_row(l_sitegroup, comp, sg, n, pd_type_1, pd_type_2, all_entries)
+                            self._populate_df_row(l_sitegroup, comp, sg, idx, pd_type_1, pd_type_2, all_entries)
                         )
                 else:
-                    for group in self.structure_matcher.group_structures(l_pregroup):
-                        grp = list(group)
-                        n = group[0].num_sites
+                    for group in self.structure_matcher.group_structures(l_pre_group):
+                        group = list(group)
+                        idx = len(group[0])
                         # StructureMatcher.group_structures returns a list of lists,
                         # so each group should be a list containing matched structures
-                        row_list.append(self._populate_df_row(grp, comp, sg, n, pd_type_1, pd_type_2, all_entries))
+                        row_list.append(self._populate_df_row(group, comp, sg, idx, pd_type_1, pd_type_2, all_entries))
 
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
-        mixing_state_data = mixing_state_data.sort_values(
-            ["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True
-        )
-
-        return mixing_state_data
+        return mixing_state_data.sort_values(["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True)
 
     def _filter_and_sort_entries(self, entries, verbose=True):
         """
         Given a single list of entries, separate them by run_type and return two lists, one containing
-        only entries of each run_type
+        only entries of each run_type.
         """
         filtered_entries = []
 
         for entry in entries:
+            entry_id = entry.entry_id
             if not entry.parameters.get("run_type"):
                 warnings.warn(
-                    f"Entry {entry.entry_id} is missing parameters.run_type! This field"
+                    f"Entry {entry_id} is missing parameters.run_type! This field"
                     "is required. This entry will be ignored."
                 )
                 continue
 
-            if entry.parameters.get("run_type") not in self.valid_rtypes_1 + self.valid_rtypes_2:
+            run_type = entry.parameters.get("run_type")
+            if run_type not in [*self.valid_rtypes_1, *self.valid_rtypes_2]:
                 warnings.warn(
-                    f"Invalid run_type {entry.parameters.get('run_type')} for entry {entry.entry_id}. Must be one of "
+                    f"Invalid {run_type=} for entry {entry_id}. Must be one of "
                     f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
                 )
                 continue
 
-            if entry.entry_id is None:
+            formula = entry.composition.reduced_formula
+            if entry_id is None:
                 warnings.warn(
-                    f"Entry_id for {entry.composition.reduced_formula} entry {entry.entry_id} is invalid. "
-                    "Unique entry_ids are required for every ComputedStructureEntry. This entry will be ignored."
+                    f"{entry_id=} for {formula=}. Unique entry_ids are required for every ComputedStructureEntry."
+                    " This entry will be ignored."
                 )
                 continue
 
@@ -666,7 +663,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
     def _populate_df_row(self, struct_group, comp, sg, n, pd_type_1, pd_type_2, all_entries):
         """
         Helper function to populate a row of the mixing state DataFrame, given
-        a list of matched structures
+        a list of matched structures.
         """
         # within the group of matched structures, keep the lowest energy entry from
         # each run_type
@@ -728,9 +725,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     @staticmethod
     def display_entries(entries):
-        """
-        Generate a pretty printout of key properties of a list of ComputedEntry
-        """
+        """Generate a pretty printout of key properties of a list of ComputedEntry."""
         entries = sorted(entries, key=lambda e: (e.composition.reduced_formula, e.energy_per_atom))
         try:
             pd = PhaseDiagram(entries)

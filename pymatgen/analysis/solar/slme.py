@@ -1,5 +1,5 @@
 """
-Calculate spectroscopy limited maximum efficiency (SLME) given dielectric function data
+Calculate spectroscopy limited maximum efficiency (SLME) given dielectric function data.
 
 Forked and adjusted from :
 https://github.com/usnistgov/jarvis
@@ -21,16 +21,26 @@ from scipy.integrate import simps
 from scipy.interpolate import interp1d
 
 from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.util.due import Doi, due
+
+due.cite(
+    Doi("10.1021/acs.chemmater.9b02166"),
+    description="Accelerated Discovery of Efficient Solar Cell Materials Using Quantum and Machine-Learning Methods",
+)
+due.cite(
+    Doi("10.1103/PhysRevLett.108.068701"),
+    description="Identification of Potential Photovoltaic Absorbers Based on First-Principles "
+    "Spectroscopic Screening of Materials",
+)
+
 
 eV_to_recip_cm = 1.0 / (physical_constants["Planck constant in eV s"][0] * speed_of_light * 1e2)
 
 
 def get_dir_indir_gap(run=""):
-    """
-    Get direct and indirect bandgaps for a vasprun.xml
-    """
-    v = Vasprun(run)
-    bandstructure = v.get_band_structure()
+    """Get direct and indirect bandgaps for a vasprun.xml."""
+    vasp_run = Vasprun(run)
+    bandstructure = vasp_run.get_band_structure()
     dir_gap = bandstructure.get_direct_band_gap()
     indir_gap = bandstructure.get_band_gap()["energy"]
     return dir_gap, indir_gap
@@ -66,8 +76,7 @@ def to_matrix(xx, yy, zz, xy, yz, xz):
     Returns:
         (np.array): The matrix, as a 3x3 numpy array.
     """
-    matrix = np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
-    return matrix
+    return np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
 
 
 def parse_dielectric_data(data):
@@ -121,9 +130,7 @@ def absorption_coefficient(dielectric):
 
 
 def optics(path=""):
-    """
-    Helper function to calculate optical absorption coefficient
-    """
+    """Helper function to calculate optical absorption coefficient."""
     dirgap, indirgap = get_dir_indir_gap(path)
 
     run = Vasprun(path, occu_tol=1e-2)
@@ -148,7 +155,7 @@ def slme(
     plot_current_voltage=False,
 ):
     """
-    Calculate the SLME
+    Calculate the SLME.
 
     Args:
         material_energy_for_absorbance_data: energy grid for absorbance data
@@ -252,12 +259,10 @@ def slme(
     J_sc = e * simps(solar_spectra_photon_flux * absorbed_by_wavelength, solar_spectra_wavelength)
 
     def J(V):
-        J = J_sc - J_0 * (np.exp(e * V / (k * temperature)) - 1.0)
-        return J
+        return J_sc - J_0 * (np.exp(e * V / (k * temperature)) - 1.0)
 
     def power(V):
-        p = J(V) * V
-        return p
+        return J(V) * V
 
     test_voltage = 0
     voltage_step = 0.001
@@ -266,7 +271,7 @@ def slme(
 
     max_power = power(test_voltage)
 
-    # Calculate the maximized efficience
+    # Calculate the maximized efficiency
     efficiency = max_power / power_in
 
     if plot_current_voltage:
@@ -275,6 +280,5 @@ def slme(
         plt.plot(V, power(V), linestyle="--")
         plt.savefig("pp.png")
         plt.close()
-        # print(power(V_Pmax))
 
     return 100.0 * efficiency

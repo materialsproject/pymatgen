@@ -30,11 +30,9 @@ __date__ = "June 2019"
 
 
 class HeisenbergMapper:
-    """
-    Class to compute exchange parameters from low energy magnetic orderings.
-    """
+    """Class to compute exchange parameters from low energy magnetic orderings."""
 
-    def __init__(self, ordered_structures, energies, cutoff=0.0, tol: float = 0.02):
+    def __init__(self, ordered_structures, energies, cutoff=0, tol: float = 0.02):
         """
         Exchange parameters are computed by mapping to a classical Heisenberg
         model. Strategy is the scheme for generating neighbors. Currently only
@@ -87,10 +85,7 @@ class HeisenbergMapper:
         self.unique_site_ids, self.wyckoff_ids = self._get_unique_sites(ordered_structures[0])
 
         # These attributes are set by internal methods
-        self.nn_interactions = None
-        self.dists = None
-        self.ex_mat = None
-        self.ex_params = None
+        self.nn_interactions = self.dists = self.ex_mat = self.ex_params = None
 
         # Check how many commensurate graphs we found
         if len(self.sgraphs) < 2:
@@ -116,9 +111,7 @@ class HeisenbergMapper:
         strategy = MinimumDistanceNN(cutoff=cutoff, get_all_sites=True) if cutoff else MinimumDistanceNN()  # only NN
 
         # Generate structure graphs
-        sgraphs = [StructureGraph.with_local_env_strategy(s, strategy=strategy) for s in ordered_structures]
-
-        return sgraphs
+        return [StructureGraph.with_local_env_strategy(s, strategy=strategy) for s in ordered_structures]
 
     @staticmethod
     def _get_unique_sites(structure):
@@ -200,7 +193,7 @@ class HeisenbergMapper:
         all_dists = [d for idx, d in enumerate(all_dists) if idx not in rm_list]
 
         if len(all_dists) < 3:  # pad with zeros
-            all_dists += [0.0] * (3 - len(all_dists))
+            all_dists += [0] * (3 - len(all_dists))
 
         all_dists = all_dists[:3]
         labels = ["nn", "nnn", "nnnn"]
@@ -260,8 +253,8 @@ class HeisenbergMapper:
         # Get labels of unique NN interactions
         for k0, v0 in nn_interactions.items():
             for idx, j in v0.items():  # i and j indices
-                c = str(idx) + "-" + str(j) + "-" + str(k0)
-                c_rev = str(j) + "-" + str(idx) + "-" + str(k0)
+                c = f"{idx}-{j}-{k0}"
+                c_rev = f"{j}-{idx}-{k0}"
                 if c not in columns and c_rev not in columns:
                     columns.append(c)
 
@@ -318,8 +311,8 @@ class HeisenbergMapper:
                             order = "-nnn"
                         elif abs(dist - dists["nnnn"]) <= tol:
                             order = "-nnnn"
-                        j_ij = str(i_index) + "-" + str(j_index) + order
-                        j_ji = str(j_index) + "-" + str(i_index) + order
+                        j_ij = f"{i_index}-{j_index}{order}"
+                        j_ji = f"{j_index}-{i_index}{order}"
 
                         if j_ij in ex_mat.columns:
                             ex_row.loc[sgraph_index, j_ij] -= s_i * s_j
@@ -339,7 +332,7 @@ class HeisenbergMapper:
                     #     if True in zeros:
                     #         sgraph_index -= 1  # keep looking
 
-            ex_mat[j_columns] = ex_mat[j_columns].div(2.0)  # 1/2 factor in Heisenberg Hamiltonian
+            ex_mat[j_columns] = ex_mat[j_columns].div(2)  # 1/2 factor in Heisenberg Hamiltonian
             ex_mat[["E0"]] = 1  # Nonmagnetic contribution
 
             # Check for singularities and delete columns with all zeros
@@ -409,7 +402,7 @@ class HeisenbergMapper:
         # epas = [e / len(s) for (e, s) in zip(self.energies, self.ordered_structures)]
 
         for s, e in zip(self.ordered_structures, self.energies):
-            ordering = CollinearMagneticStructureAnalyzer(s, threshold=0.0, make_primitive=False).ordering
+            ordering = CollinearMagneticStructureAnalyzer(s, threshold=0, make_primitive=False).ordering
             magmoms = s.site_properties["magmom"]
 
             # Try to find matching orderings first
@@ -618,8 +611,8 @@ class HeisenbergMapper:
         elif abs(dist - self.dists["nnnn"]) <= self.tol:
             order = "-nnnn"
 
-        j_ij = str(i_index) + "-" + str(j_index) + order
-        j_ji = str(j_index) + "-" + str(i_index) + order
+        j_ij = f"{i_index}-{j_index}{order}"
+        j_ji = f"{j_index}-{i_index}{order}"
 
         if j_ij in self.ex_params:
             j_exc = self.ex_params[j_ij]
@@ -638,7 +631,7 @@ class HeisenbergMapper:
         """Save results of mapping to a HeisenbergModel object.
 
         Returns:
-            hmodel (HeisenbergModel): MSONable object.
+            HeisenbergModel: MSONable object.
         """
         # Original formula unit with nonmagnetic ions
         hm_formula = str(self.ordered_structures_[0].composition.reduced_formula)
@@ -659,7 +652,7 @@ class HeisenbergMapper:
         hm_javg = self.estimate_exchange()
         hm_igraph = self.get_interaction_graph()
 
-        hmodel = HeisenbergModel(
+        return HeisenbergModel(
             hm_formula,
             hm_structures,
             hm_energies,
@@ -676,13 +669,9 @@ class HeisenbergMapper:
             hm_igraph,
         )
 
-        return hmodel
-
 
 class HeisenbergScreener:
-    """
-    Class to clean and screen magnetic orderings.
-    """
+    """Class to clean and screen magnetic orderings."""
 
     def __init__(self, structures, energies, screen=False):
         """
@@ -878,9 +867,7 @@ class HeisenbergModel(MSONable):
         self.igraph = igraph
 
     def as_dict(self):
-        """
-        Because some dicts have tuple keys, some sanitization is required for json compatibility.
-        """
+        """Because some dicts have tuple keys, some sanitization is required for json compatibility."""
         dct = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
@@ -948,7 +935,7 @@ class HeisenbergModel(MSONable):
         except SyntaxError:  # if ex_mat is empty
             ex_mat = pd.DataFrame(columns=["E", "E0"])
 
-        hmodel = HeisenbergModel(
+        return HeisenbergModel(
             formula=d["formula"],
             structures=structures,
             energies=d["energies"],
@@ -964,8 +951,6 @@ class HeisenbergModel(MSONable):
             javg=d["javg"],
             igraph=igraph,
         )
-
-        return hmodel
 
     def _get_j_exc(self, i, j, dist):
         """
@@ -996,8 +981,8 @@ class HeisenbergModel(MSONable):
         elif abs(dist - self.dists["nnnn"]) <= self.tol:
             order = "-nnnn"
 
-        j_ij = str(i_index) + "-" + str(j_index) + order
-        j_ji = str(j_index) + "-" + str(i_index) + order
+        j_ij = f"{i_index}-{j_index}{order}"
+        j_ji = f"{j_index}-{i_index}{order}"
 
         if j_ij in self.ex_params:
             j_exc = self.ex_params[j_ij]

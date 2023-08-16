@@ -13,7 +13,7 @@ from abc import ABCMeta, abstractmethod
 from collections.abc import Sequence
 from fractions import Fraction
 from itertools import product
-from typing import TYPE_CHECKING, Literal, overload
+from typing import TYPE_CHECKING, ClassVar, Literal, overload
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -33,9 +33,7 @@ SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
 
 
 class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
-    """
-    Abstract class representing a symmetry group.
-    """
+    """Abstract class representing a symmetry group."""
 
     @property
     @abstractmethod
@@ -132,7 +130,9 @@ class PointGroup(SymmetryGroup):
         from pymatgen.core.operations import SymmOp
 
         self.symbol = int_symbol
-        self.generators = [SYMM_DATA["generator_matrices"][c] for c in SYMM_DATA["point_group_encoding"][int_symbol]]
+        self.generators = [
+            SYMM_DATA["generator_matrices"][enc] for enc in SYMM_DATA["point_group_encoding"][int_symbol]
+        ]
         self._symmetry_ops = {SymmOp.from_rotation_and_translation(m) for m in self._generate_full_symmetry_ops()}
         self.order = len(self._symmetry_ops)
 
@@ -202,7 +202,7 @@ class SpaceGroup(SymmetryGroup):
     """
 
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))
-    SG_SYMBOLS = set(SYMM_DATA["space_group_encoding"])
+    SG_SYMBOLS: ClassVar[set] = set(SYMM_DATA["space_group_encoding"])
     for op in SYMM_OPS:
         op["hermann_mauguin"] = re.sub(r" ", "", op["hermann_mauguin"])
         op["universal_h_m"] = re.sub(r" ", "", op["universal_h_m"])
@@ -211,7 +211,7 @@ class SpaceGroup(SymmetryGroup):
 
     gen_matrices = SYMM_DATA["generator_matrices"]
     # POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
-    sgencoding = SYMM_DATA["space_group_encoding"]
+    sg_encoding = SYMM_DATA["space_group_encoding"]
     abbrev_sg_mapping = SYMM_DATA["abbreviated_spacegroup_symbols"]
     translations = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
     full_sg_mapping = {v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
@@ -247,9 +247,9 @@ class SpaceGroup(SymmetryGroup):
             if int_symbol in [spg["hermann_mauguin"], spg["universal_h_m"]]:
                 ops = [SymmOp.from_xyz_string(s) for s in spg["symops"]]
                 self.symbol = re.sub(r":", "", re.sub(r" ", "", spg["universal_h_m"]))
-                if int_symbol in SpaceGroup.sgencoding:
-                    self.full_symbol = SpaceGroup.sgencoding[int_symbol]["full_symbol"]
-                    self.point_group = SpaceGroup.sgencoding[int_symbol]["point_group"]
+                if int_symbol in SpaceGroup.sg_encoding:
+                    self.full_symbol = SpaceGroup.sg_encoding[int_symbol]["full_symbol"]
+                    self.point_group = SpaceGroup.sg_encoding[int_symbol]["point_group"]
                 else:
                     self.full_symbol = re.sub(r" ", "", spg["universal_h_m"])
                     self.point_group = spg["schoenflies"]
@@ -258,10 +258,10 @@ class SpaceGroup(SymmetryGroup):
                 self._symmetry_ops = {*ops}
                 break
         else:
-            if int_symbol not in SpaceGroup.sgencoding:
-                raise ValueError(f"Bad international symbol {int_symbol}")
+            if int_symbol not in SpaceGroup.sg_encoding:
+                raise ValueError(f"Bad international symbol {int_symbol!r}")
 
-            data = SpaceGroup.sgencoding[int_symbol]
+            data = SpaceGroup.sg_encoding[int_symbol]
 
             self.symbol = int_symbol
             # TODO: Support different origin choices.
@@ -323,10 +323,10 @@ class SpaceGroup(SymmetryGroup):
         symbols = []
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
             symbols.append(SpaceGroup.abbrev_sg_mapping[int_symbol])
-            int_number = SpaceGroup.sgencoding[int_symbol]["int_number"]
+            int_number = SpaceGroup.sg_encoding[int_symbol]["int_number"]
         elif int_symbol in SpaceGroup.full_sg_mapping:
             symbols.append(SpaceGroup.full_sg_mapping[int_symbol])
-            int_number = SpaceGroup.sgencoding[int_symbol]["int_number"]
+            int_number = SpaceGroup.sg_encoding[int_symbol]["int_number"]
         else:
             for spg in SpaceGroup.SYMM_OPS:
                 if int_symbol in [
@@ -453,18 +453,18 @@ class SpaceGroup(SymmetryGroup):
         Returns:
             str: Crystal system of the space group, e.g., cubic, hexagonal, etc.
         """
-        i = self.int_number
-        if i <= 2:
+        num = self.int_number
+        if num <= 2:
             return "triclinic"
-        if i <= 15:
+        if num <= 15:
             return "monoclinic"
-        if i <= 74:
+        if num <= 74:
             return "orthorhombic"
-        if i <= 142:
+        if num <= 142:
             return "tetragonal"
-        if i <= 167:
+        if num <= 167:
             return "trigonal"
-        if i <= 194:
+        if num <= 194:
             return "hexagonal"
         return "cubic"
 
@@ -522,13 +522,22 @@ class SpaceGroup(SymmetryGroup):
             hexagonal (bool): For rhombohedral groups, whether to return the
                 hexagonal setting (default) or rhombohedral setting.
 
+        Raises:
+            ValueError: If the international number is not valid, i.e. not between 1 and 230 inclusive.
+
         Returns:
-            (SpaceGroup)
+            SpaceGroup: object with the given international number.
         """
-        sym = sg_symbol_from_int_number(int_number, hexagonal=hexagonal)
-        if not hexagonal and int_number in [146, 148, 155, 160, 161, 166, 167]:
-            sym += ":R"
-        return SpaceGroup(sym)
+        if int_number not in range(1, 231):
+            raise ValueError(f"International number must be between 1 and 230, got {int_number}")
+        symbol = sg_symbol_from_int_number(int_number, hexagonal=hexagonal)
+        if not hexagonal and int_number in (146, 148, 155, 160, 161, 166, 167):
+            symbol += ":R"
+        return SpaceGroup(symbol)
+
+    def __repr__(self) -> str:
+        symbol = self.symbol
+        return f"{type(self).__name__}({symbol=})"
 
     def __str__(self) -> str:
         return (

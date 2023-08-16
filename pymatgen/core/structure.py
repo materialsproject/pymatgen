@@ -8,6 +8,7 @@ from __future__ import annotations
 import collections
 import contextlib
 import functools
+import inspect
 import io
 import itertools
 import json
@@ -24,7 +25,6 @@ from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
 
 import numpy as np
-from ase.optimize.optimize import Optimizer
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -45,6 +45,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
+    from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike
 
@@ -68,6 +69,7 @@ class Neighbor(Site):
         properties: dict | None = None,
         nn_distance: float = 0.0,
         index: int = 0,
+        label: str | None = None,
     ):
         """
         :param species: Same as Site
@@ -75,17 +77,17 @@ class Neighbor(Site):
         :param properties: Same as Site
         :param nn_distance: Distance to some other Site.
         :param index: Index within structure.
+        :param label: Label for the site. Defaults to None.
         """
         self.coords = coords
         self._species = species
         self.properties = properties or {}
         self.nn_distance = nn_distance
         self.index = index
+        self._label = label
 
     def __len__(self) -> Literal[3]:
-        """
-        Make neighbor Tuple-like to retain backwards compatibility.
-        """
+        """Make neighbor Tuple-like to retain backwards compatibility."""
         return 3
 
     def __getitem__(self, idx: int):
@@ -135,6 +137,7 @@ class PeriodicNeighbor(PeriodicSite):
         nn_distance: float = 0.0,
         index: int = 0,
         image: tuple = (0, 0, 0),
+        label: str | None = None,
     ):
         """
         Args:
@@ -145,6 +148,7 @@ class PeriodicNeighbor(PeriodicSite):
             nn_distance (float, optional): Distance to some other Site.. Defaults to 0.0.
             index (int, optional): Index within structure.. Defaults to 0.
             image (tuple, optional): PeriodicImage. Defaults to (0, 0, 0).
+            label (str, optional): Label for the site. Defaults to None.
         """
         self._lattice = lattice
         self._frac_coords = coords
@@ -153,24 +157,19 @@ class PeriodicNeighbor(PeriodicSite):
         self.nn_distance = nn_distance
         self.index = index
         self.image = image
+        self._label = label
 
     @property  # type: ignore
     def coords(self) -> np.ndarray:  # type: ignore
-        """
-        :return: Cartesian coords.
-        """
+        """Cartesian coords."""
         return self._lattice.get_cartesian_coords(self._frac_coords)
 
     def __len__(self):
-        """
-        Make neighbor Tuple-like to retain backwards compatibility.
-        """
+        """Make neighbor Tuple-like to retain backwards compatibility."""
         return 4
 
     def __getitem__(self, idx: int | slice):
-        """
-        Make neighbor Tuple-like to retain backwards compatibility.
-        """
+        """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index, self.image)[idx]
 
     def as_dict(self) -> dict:  # type: ignore
@@ -207,11 +206,24 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     DISTANCE_TOLERANCE = 0.5
 
     @property
+    def sites(self) -> list[Site]:
+        """Returns an iterator for the sites in the Structure."""
+        return self._sites  # type: ignore[has-type]
+
+    @sites.setter
+    def sites(self, sites: Sequence[PeriodicSite]) -> None:
+        """Sets the sites in the Structure."""
+        # if self is mutable Structure or Molecule, set _sites as list
+        is_mutable = isinstance(self._sites, list)  # type: ignore[has-type]
+        self._sites = list(sites) if is_mutable else tuple(sites)
+
     @abstractmethod
-    def sites(self) -> tuple[Site, ...]:
+    def copy(self) -> SiteCollection:
         """
-        Returns a tuple of sites.
+        Returns a copy of itself. Concrete subclasses should implement this
+        method.
         """
+        raise NotImplementedError
 
     @abstractmethod
     def get_distance(self, i: int, j: int) -> float:
@@ -219,8 +231,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns distance between sites at index i and j.
 
         Args:
-            i: Index of first site
-            j: Index of second site
+            i: 1st site index
+            j: 2nd site index
 
         Returns:
             Distance between sites at index i and index j.
@@ -252,9 +264,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def species_and_occu(self) -> list[Composition]:
-        """
-        List of species and occupancies at each site of the structure.
-        """
+        """List of species and occupancies at each site of the structure."""
         return [site.species for site in self]
 
     @property
@@ -264,9 +274,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def types_of_species(self) -> tuple[Element | Species | DummySpecies]:
-        """
-        List of types of specie.
-        """
+        """List of types of specie."""
         # Cannot use set since we want a deterministic algorithm.
         types: list[Element | Species | DummySpecies] = []
         for site in self:
@@ -277,13 +285,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def types_of_specie(self) -> tuple[Element | Species | DummySpecies]:
-        """
-        Specie->Species rename. Maintained for backwards compatibility.
-        """
+        """Specie->Species rename. Maintained for backwards compatibility."""
         return self.types_of_species
 
     def group_by_types(self) -> Iterator[Site | PeriodicSite]:
-        """Iterate over species grouped by type"""
+        """Iterate over species grouped by type."""
         for sp_typ in self.types_of_species:
             for site in self:
                 if site.specie == sp_typ:
@@ -300,7 +306,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     def symbol_set(self) -> tuple[str, ...]:
         """
         Tuple with the set of chemical symbols.
-        Note that len(symbol_set) == len(types_of_specie)
+        Note that len(symbol_set) == len(types_of_specie).
         """
         return tuple(sorted(specie.symbol for specie in self.types_of_species))
 
@@ -314,10 +320,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def site_properties(self) -> dict[str, Sequence]:
-        """
-        Returns the site properties as a dict of sequences. E.g.,
-        {"magmom": (5,-5), "charge": (-4,4)}.
-        """
+        """Returns the site properties as a dict of sequences. E.g. {"magmom": (5, -5), "charge": (-4, 4)}."""
         props: dict[str, Sequence] = {}
         prop_keys: set[str] = set()
         for site in self:
@@ -327,14 +330,20 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             props[key] = [site.properties.get(key) for site in self]
         return props
 
+    @property
+    def labels(self) -> list[str]:
+        """Return site labels as a list."""
+        return [site.label for site in self]
+
     def __contains__(self, site: object) -> bool:
         return site in self.sites
 
     def __iter__(self) -> Iterator[Site]:
         return self.sites.__iter__()
 
-    def __getitem__(self, ind):
-        return self.sites[ind]
+    # TODO return type needs fixing (can be list[Site] but raises lots of mypy errors)
+    def __getitem__(self, ind: int | slice) -> Site:
+        return self.sites[ind]  # type: ignore[return-value]
 
     def __len__(self) -> int:
         return len(self.sites)
@@ -345,31 +354,27 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def num_sites(self) -> int:
-        """
-        Number of sites.
-        """
+        """Number of sites."""
         return len(self)
 
     @property
     def cart_coords(self) -> np.ndarray:
-        """
-        Returns an np.array of the Cartesian coordinates of sites in the
-        structure.
-        """
+        """Returns an np.array of the Cartesian coordinates of sites in the structure."""
         return np.array([site.coords for site in self])
 
     @property
     def formula(self) -> str:
-        """
-        (str) Returns the formula.
-        """
+        """Returns the formula as a string."""
         return self.composition.formula
 
     @property
+    def elements(self) -> list[Element | Species | DummySpecies]:
+        """Returns the elements in the structure as a list of Element objects."""
+        return self.composition.elements
+
+    @property
     def composition(self) -> Composition:
-        """
-        (Composition) Returns the composition
-        """
+        """Returns the structure's corresponding Composition object."""
         elem_map: dict[Species, float] = collections.defaultdict(float)
         for site in self:
             for species, occu in site.species.items():
@@ -417,26 +422,26 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns angle specified by three sites.
 
         Args:
-            i: Index of first site.
-            j: Index of second site.
-            k: Index of third site.
+            i: 1st site index
+            j: 2nd site index
+            k: 3rd site index
 
         Returns:
             Angle in degrees.
         """
-        v1 = self[i].coords - self[j].coords
-        v2 = self[k].coords - self[j].coords
-        return get_angle(v1, v2, units="degrees")
+        vec_1 = self[i].coords - self[j].coords
+        vec_2 = self[k].coords - self[j].coords
+        return get_angle(vec_1, vec_2, units="degrees")
 
     def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:  # noqa: E741
         """
         Returns dihedral angle specified by four sites.
 
         Args:
-            i: Index of first site
-            j: Index of second site
-            k: Index of third site
-            l: Index of fourth site
+            i: 1st site index
+            j: 2nd site index
+            k: 3rd site index
+            l: 4th site index
 
         Returns:
             Dihedral angle in degrees.
@@ -456,11 +461,10 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Molecules, while PBC is taken into account for periodic structures.
 
         Args:
-            tol (float): Distance tolerance. Default is 0.5A.
+            tol (float): Distance tolerance. Default is 0.5 Angstrom, which is fairly large.
 
         Returns:
-            (bool) True if SiteCollection does not contain atoms that are too
-            close together.
+            (bool) True if SiteCollection does not contain atoms that are too close together.
         """
         if len(self) == 1:
             return True
@@ -478,17 +482,13 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def from_str(cls, input_string: str, fmt: Any):
-        """
-        Reads in SiteCollection from a string.
-        """
+        """Reads in SiteCollection from a string."""
         raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def from_file(cls, filename: str):
-        """
-        Reads in SiteCollection from a filename.
-        """
+        """Reads in SiteCollection from a filename."""
         raise NotImplementedError
 
     def add_site_property(self, property_name: str, values: list):
@@ -521,26 +521,31 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         for site in self:
             del site.properties[property_name]
 
-    def replace_species(self, species_mapping: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]]) -> None:
+    def replace_species(
+        self, species_mapping: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]], in_place: bool = True
+    ) -> SiteCollection:
         """
-        Swap species. Note that this method modifies the structure in place.
+        Swap species.
 
         Args:
             species_mapping (dict): dict of species to swap. Species can be elements too. E.g.,
                 {Element("Li"): Element("Na")} performs a Li for Na substitution. The second species can
                 be a sp_and_occu dict. For example, a site with 0.5 Si that is passed the mapping
                 {Element('Si): {Element('Ge'): 0.75, Element('C'): 0.25} } will have .375 Ge and .125 C.
+            in_place (bool): Whether to perform the substitution in place or modify a copy.
+                Defaults to True.
         """
+        site_coll = self if in_place else self.copy()
         sp_mapping = {get_el_sp(k): v for k, v in species_mapping.items()}
         sp_to_replace = set(sp_mapping)
         sp_in_structure = set(self.composition)
-        if not sp_in_structure.issuperset(sp_to_replace):
+        if not sp_in_structure >= sp_to_replace:
             warnings.warn(
                 "Some species to be substituted are not present in structure. Pls check your input. Species to be "
                 f"substituted = {sp_to_replace}; Species in structure = {sp_in_structure}"
             )
 
-        for site in self:
+        for site in site_coll:
             if sp_to_replace.intersection(site.species):
                 comp = Composition()
                 for sp, amt in site.species.items():
@@ -550,6 +555,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                     except Exception:
                         comp += {new_sp: amt}
                 site.species = comp
+
+        return site_coll
 
     def add_oxidation_state_by_element(self, oxidation_states: dict[str, float]) -> None:
         """
@@ -592,9 +599,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             site.species = Composition(new_sp)
 
     def remove_oxidation_states(self) -> None:
-        """
-        Removes oxidation states from a structure.
-        """
+        """Removes oxidation states from a structure."""
         for site in self:
             new_sp: dict[Element, float] = collections.defaultdict(float)
             for el, occu in site.species.items():
@@ -605,14 +610,14 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     def add_oxidation_state_by_guess(self, **kwargs) -> None:
         """
         Decorates the structure with oxidation state, guessing
-        using Composition.oxi_state_guesses()
+        using Composition.oxi_state_guesses().
 
         Args:
             **kwargs: parameters to pass into oxi_state_guesses()
         """
-        oxid_guess = self.composition.oxi_state_guesses(**kwargs)
-        oxid_guess = oxid_guess or [{e.symbol: 0 for e in self.composition}]
-        self.add_oxidation_state_by_element(oxid_guess[0])
+        oxi_guess = self.composition.oxi_state_guesses(**kwargs)
+        oxi_guess = oxi_guess or [{e.symbol: 0 for e in self.composition}]
+        self.add_oxidation_state_by_element(oxi_guess[0])
 
     def add_spin_by_element(self, spins: dict[str, float]) -> None:
         """
@@ -627,8 +632,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             for sp, occu in site.species.items():
                 sym = sp.symbol
                 oxi_state = getattr(sp, "oxi_state", None)
-                props = {"spin": spins.get(str(sp), spins.get(sym))}
-                species = Species(sym, oxidation_state=oxi_state, properties=props)
+                species = Species(sym, oxidation_state=oxi_state, spin=spins.get(str(sp), spins.get(sym)))
                 new_species[species] = occu
             site.species = Composition(new_species)
 
@@ -648,13 +652,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             for sp, occu in site.species.items():
                 sym = sp.symbol
                 oxi_state = getattr(sp, "oxi_state", None)
-                new_species[Species(sym, oxidation_state=oxi_state, properties={"spin": spin})] = occu
+                new_species[Species(sym, oxidation_state=oxi_state, spin=spin)] = occu
             site.species = Composition(new_species)
 
     def remove_spin(self) -> None:
-        """
-        Remove spin states from structure.
-        """
+        """Remove spin states from structure."""
         for site in self:
             new_sp: dict[Element, float] = collections.defaultdict(float)
             for sp, occu in site.species.items():
@@ -664,7 +666,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     def extract_cluster(self, target_sites: list[Site], **kwargs) -> list[Site]:
         """
-        Extracts a cluster of atoms based on bond lengths
+        Extracts a cluster of atoms based on bond lengths.
 
         Args:
             target_sites (list[Site]): Initial sites from which to nucleate cluster.
@@ -689,31 +691,29 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             others = new_others
         return cluster
 
-    def _calculate(
-        self, struct: Structure | Molecule, calculator: str | Calculator, verbose: bool = False
-    ) -> Structure | Molecule:
+    def _calculate(self, calculator: str | Calculator, verbose: bool = False) -> Calculator:
         """
         Performs an ASE calculation.
 
         Args:
-            struct: Structure or Molecule to run ASE calculation on.
-            calculator: An ASE Calculator or a string from the following options: "m3gnet",
-                "gfn2-xtb".
+            calculator (str | Calculator): An ASE Calculator or a string from the following case-insensitive
+                options: "m3gnet", "gfn2-xtb", "chgnet".
             verbose (bool): whether to print stdout. Defaults to False.
+                Has no effect when calculator=='chgnet'.
 
         Returns:
-            Structure: Structure or Molelcule following ASE calculation.
+            Structure | Molecule: Structure or Molecule with new calc attribute containing
+                result of ASE calculation.
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        is_molecule = isinstance(struct, Molecule)
-        if is_molecule and calculator == "m3gnet":
+        if isinstance(self, Molecule) and isinstance(calculator, str) and calculator.lower() in ("chgnet", "m3gnet"):
             raise ValueError(f"Can't use {calculator=} for a Molecule.")
         calculator = self._prep_calculator(calculator)
 
         # Get Atoms object
         adaptor = AseAtomsAdaptor()
-        atoms = adaptor.get_atoms(struct)
+        atoms = adaptor.get_atoms(self)
 
         # Set calculator
         atoms.calc = calculator
@@ -723,16 +723,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         with contextlib.redirect_stdout(stream):
             atoms.get_potential_energy()
 
-        # Ensure Calculator state is preserved because it contains parameters and results
-        calc = atoms.calc
-
-        # Get Molecule/Structure object
-        struct = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
-
-        # Attach important ASE results
-        struct.calc = calc
-
-        return struct
+        return calculator
 
     def _relax(
         self,
@@ -742,7 +733,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         steps: int = 500,
         fmax: float = 0.1,
         stress_weight: float = 0.01,
-        opt_kwargs: dict = None,
+        opt_kwargs: dict | None = None,
         return_trajectory: bool = False,
         verbose: bool = False,
     ) -> Structure | Molecule | tuple[Structure | Molecule, TrajectoryObserver | Trajectory]:
@@ -750,7 +741,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Performs a structure relaxation using an ASE calculator.
 
         Args:
-            calculator: An ASE Calculator or a string from the following options: "M3GNet",
+            calculator (str | ase.Calculator): An ASE Calculator or a string from the following options: "M3GNet",
                 "gfn2-xtb".
             relax_cell (bool): whether to relax the lattice cell. Defaults to True.
             optimizer (str): name of the ASE optimizer class to use
@@ -770,40 +761,40 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         from ase import optimize
         from ase.constraints import ExpCellFilter
         from ase.io import read
+        from ase.optimize.optimize import Optimizer
 
         from pymatgen.io.ase import AseAtomsAdaptor
 
         opt_kwargs = opt_kwargs or {}
         is_molecule = isinstance(self, Molecule)
-        run_m3gnet = isinstance(calculator, str) and calculator.lower() == "m3gnet"
+        # UIP=universal interatomic potential
+        run_uip = isinstance(calculator, str) and calculator.lower() in ("m3gnet", "chgnet")
 
-        if isinstance(calculator, str):
-            if run_m3gnet:
-                calculator = self._prep_calculator(calculator, stress_weight=stress_weight)
-            else:
-                calculator = self._prep_calculator(calculator)
+        calc_params = dict(stress_weight=stress_weight) if not is_molecule else {}
+        calculator = self._prep_calculator(calculator, **calc_params)
 
         # check str is valid optimizer key
         def is_ase_optimizer(key):
             return isclass(obj := getattr(optimize, key)) and issubclass(obj, Optimizer)
 
         valid_keys = [key for key in dir(optimize) if is_ase_optimizer(key)]
-        if optimizer not in valid_keys:
-            raise ValueError(f"Unknown {optimizer=}, must be one of {valid_keys}")
-        opt_class = getattr(optimize, optimizer)
+        if isinstance(optimizer, str):
+            if optimizer not in valid_keys:
+                raise ValueError(f"Unknown {optimizer=}, must be one of {valid_keys}")
+            opt_class = getattr(optimize, optimizer)
 
         # Get Atoms object
         adaptor = AseAtomsAdaptor()
         atoms = adaptor.get_atoms(self)
 
-        # Use a TrajectoryObserver if running m3gnet; otherwise, write a .traj file
+        # Use a TrajectoryObserver if running M3GNet or CHGNet; otherwise, write a .traj file
         if return_trajectory:
-            if run_m3gnet:
+            if run_uip:
                 from matgl.ext.ase import TrajectoryObserver
 
                 traj_observer = TrajectoryObserver(atoms)
-            elif "trajectory" not in opt_kwargs:
-                opt_kwargs["trajectory"] = "opt.traj"
+            else:
+                opt_kwargs.setdefault("trajectory", "opt.traj")
 
         # Attach calculator
         atoms.calc = calculator
@@ -828,7 +819,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         system.dynamics = dyn.todict()
 
         if return_trajectory:
-            if run_m3gnet:
+            if run_uip:
                 traj_observer()  # save properties of the Atoms during the relaxation
             else:
                 traj_file = opt_kwargs["trajectory"]
@@ -849,10 +840,17 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns:
             Calculator: ASE calculator object.
         """
-        from ase.calculators.calculator import Calculator
-
-        if isinstance(calculator, Calculator):
+        if inspect.isclass(calculator):
+            return calculator(**params)
+        if not isinstance(calculator, str):
             return calculator
+
+        if calculator.lower() == "chgnet":
+            try:
+                from chgnet.model import CHGNetCalculator
+            except ImportError:
+                raise ImportError("chgnet not installed. Try `pip install chgnet`.")
+            return CHGNetCalculator()
 
         if calculator.lower() == "m3gnet":
             try:
@@ -898,6 +896,7 @@ class IStructure(SiteCollection, MSONable):
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
         site_properties: dict | None = None,
+        labels: Sequence[str | None] | None = None,
     ) -> None:
         """
         Create a periodic structure.
@@ -933,6 +932,10 @@ class IStructure(SiteCollection, MSONable):
                 dict of sequences, e.g. {"magmom":[5, 5, 5, 5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
         """
         if len(species) != len(coords):
             raise StructureError("atomic species and fractional coordinates must have same length")
@@ -945,6 +948,8 @@ class IStructure(SiteCollection, MSONable):
             if site_properties:
                 prop = {key: val[idx] for key, val in site_properties.items()}
 
+            label = labels[idx] if labels else None
+
             site = PeriodicSite(
                 specie,
                 coords[idx],
@@ -952,6 +957,7 @@ class IStructure(SiteCollection, MSONable):
                 to_unit_cell,
                 coords_are_cartesian=coords_are_cartesian,
                 properties=prop,  # type: ignore
+                label=label,
             )
             sites.append(site)
         self._sites: tuple[PeriodicSite, ...] = tuple(sites)
@@ -986,6 +992,7 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError(f"You need at least one site to construct a {cls}")
         prop_keys: list[str] = []
         props = {}
+        labels = [site.label for site in sites]
         lattice = sites[0].lattice
         for idx, site in enumerate(sites):
             if site.lattice != lattice:
@@ -1006,18 +1013,20 @@ class IStructure(SiteCollection, MSONable):
             site_properties=props,
             validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
+            labels=labels,
         )
 
     @classmethod
     def from_spacegroup(
         cls,
-        sg: str,
+        sg: str | int,
         lattice: list | np.ndarray | Lattice,
         species: Sequence[str | Element | Species | DummySpecies | Composition],
         coords: Sequence[Sequence[float]],
         site_properties: dict[str, Sequence] | None = None,
         coords_are_cartesian: bool = False,
         tol: float = 1e-5,
+        labels: Sequence[str | None] | None = None,
     ) -> IStructure | Structure:
         """
         Generate a structure using a spacegroup. Note that only symmetrically
@@ -1057,14 +1066,18 @@ class IStructure(SiteCollection, MSONable):
                 fractional_coords. Defaults to None for no properties.
             tol (float): A fractional tolerance to deal with numerical
                precision issues in determining if orbits are the same.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
         """
         from pymatgen.symmetry.groups import SpaceGroup
 
         try:
-            i = int(sg)
-            spg = SpaceGroup.from_int_number(i)
+            num = int(sg)
+            spg = SpaceGroup.from_int_number(num)
         except ValueError:
-            spg = SpaceGroup(sg)
+            spg = SpaceGroup(sg)  # type: ignore
 
         latt = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
@@ -1086,12 +1099,15 @@ class IStructure(SiteCollection, MSONable):
         all_sp: list[str | Element | Species | DummySpecies | Composition] = []
         all_coords: list[list[float]] = []
         all_site_properties: dict[str, list] = collections.defaultdict(list)
-        for i, (sp, c) in enumerate(zip(species, frac_coords)):
+        all_labels: list[str | None] = []
+        for idx, (sp, c) in enumerate(zip(species, frac_coords)):
             cc = spg.get_orbit(c, tol=tol)
             all_sp.extend([sp] * len(cc))
             all_coords.extend(cc)  # type: ignore
+            label = labels[idx] if labels else None
+            all_labels.extend([label] * len(cc))
             for k, v in props.items():
-                all_site_properties[k].extend([v[i]] * len(cc))
+                all_site_properties[k].extend([v[idx]] * len(cc))
 
         return cls(latt, all_sp, all_coords, site_properties=all_site_properties)
 
@@ -1105,6 +1121,7 @@ class IStructure(SiteCollection, MSONable):
         site_properties: dict[str, Sequence],
         coords_are_cartesian: bool = False,
         tol: float = 1e-5,
+        labels: Sequence[str | None] | None = None,
     ) -> IStructure | Structure:
         """
         Generate a structure using a magnetic spacegroup. Note that only
@@ -1149,6 +1166,10 @@ class IStructure(SiteCollection, MSONable):
                 coordinates in Cartesian coordinates. Defaults to False.
             tol (float): A fractional tolerance to deal with numerical
                 precision issues in determining if orbits are the same.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
 
         Returns:
             Structure | IStructure
@@ -1181,30 +1202,29 @@ class IStructure(SiteCollection, MSONable):
         all_coords: list[list[float]] = []
         all_magmoms: list[float] = []
         all_site_properties: dict[str, list] = collections.defaultdict(list)
-        for i, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):  # type: ignore
+        all_labels: list[str | None] = []
+        for idx, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):  # type: ignore
             cc, mm = msg.get_orbit(c, m, tol=tol)
             all_sp.extend([sp] * len(cc))
             all_coords.extend(cc)
             all_magmoms.extend(mm)
+            label = labels[idx] if labels else None
+            all_labels.extend([label] * len(cc))
             for k, v in site_properties.items():
                 if k != "magmom":
-                    all_site_properties[k].extend([v[i]] * len(cc))
+                    all_site_properties[k].extend([v[idx]] * len(cc))
 
         all_site_properties["magmom"] = all_magmoms
 
-        return cls(latt, all_sp, all_coords, site_properties=all_site_properties)
+        return cls(latt, all_sp, all_coords, site_properties=all_site_properties, labels=all_labels)
 
     def unset_charge(self):
-        """
-        Reset the charge to None, i.e., computed dynamically based on oxidation states.
-        """
+        """Reset the charge to None, i.e., computed dynamically based on oxidation states."""
         self._charge = None
 
     @property
     def charge(self) -> float:
-        """
-        Overall charge of the structure
-        """
+        """Overall charge of the structure."""
         formal_charge = super().charge
         if self._charge is None:
             return super().charge
@@ -1224,32 +1244,19 @@ class IStructure(SiteCollection, MSONable):
         return self.lattice.get_all_distances(self.frac_coords, self.frac_coords)
 
     @property
-    def sites(self) -> tuple[PeriodicSite, ...]:
-        """
-        Returns an iterator for the sites in the Structure.
-        """
-        return self._sites
-
-    @property
     def lattice(self) -> Lattice:
-        """
-        Lattice of the structure.
-        """
+        """Lattice of the structure."""
         return self._lattice
 
     @property
     def density(self) -> float:
-        """
-        Returns the density in units of g/cm^3.
-        """
+        """Returns the density in units of g/cm^3."""
         m = Mass(self.composition.weight, "amu")
         return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     @property
     def pbc(self) -> tuple[bool, bool, bool]:
-        """
-        Returns the periodicity of the structure.
-        """
+        """Returns the periodicity of the structure."""
         return self._lattice.pbc
 
     @property
@@ -1273,8 +1280,8 @@ class IStructure(SiteCollection, MSONable):
         # Import within method needed to avoid cyclic dependency.
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-        a = SpacegroupAnalyzer(self, symprec=symprec, angle_tolerance=angle_tolerance)
-        return a.get_space_group_symbol(), a.get_space_group_number()
+        spga = SpacegroupAnalyzer(self, symprec=symprec, angle_tolerance=angle_tolerance)
+        return spga.get_space_group_symbol(), spga.get_space_group_number()
 
     def matches(self, other: IStructure | Structure, anonymous: bool = False, **kwargs) -> bool:
         """
@@ -1318,7 +1325,7 @@ class IStructure(SiteCollection, MSONable):
 
     def __mul__(self, scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]]) -> Structure:
         """
-        Makes a supercell. Allowing to have sites outside the unit cell
+        Makes a supercell. Allowing to have sites outside the unit cell.
 
         Args:
             scaling_matrix: A scaling matrix for transforming the lattice
@@ -1344,8 +1351,8 @@ class IStructure(SiteCollection, MSONable):
         """
         scale_matrix = np.array(scaling_matrix, int)
         if scale_matrix.shape != (3, 3):
-            scale_matrix = np.array(scale_matrix * np.eye(3), int)
-        new_lattice = Lattice(np.dot(scale_matrix, self._lattice.matrix))
+            scale_matrix = scale_matrix * np.eye(3)
+        new_lattice = Lattice(np.dot(scale_matrix, self.lattice.matrix))
 
         f_lat = lattice_points_in_supercell(scale_matrix)
         c_lat = new_lattice.get_cartesian_coords(f_lat)
@@ -1361,6 +1368,7 @@ class IStructure(SiteCollection, MSONable):
                     coords_are_cartesian=True,
                     to_unit_cell=False,
                     skip_checks=True,
+                    label=site.label,
                 )
                 new_sites.append(s)
 
@@ -1368,23 +1376,17 @@ class IStructure(SiteCollection, MSONable):
         return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=True)
 
     def __rmul__(self, scaling_matrix):
-        """
-        Similar to __mul__ to preserve commutativeness.
-        """
+        """Similar to __mul__ to preserve commutativeness."""
         return self.__mul__(scaling_matrix)
 
     @property
     def frac_coords(self):
-        """
-        Fractional coordinates as a Nx3 numpy array.
-        """
-        return np.array([site.frac_coords for site in self._sites])
+        """Fractional coordinates as a Nx3 numpy array."""
+        return np.array([site.frac_coords for site in self])
 
     @property
     def volume(self) -> float:
-        """
-        Returns the volume of the structure in Angstrom^3.
-        """
+        """Returns the volume of the structure in Angstrom^3."""
         return self._lattice.volume
 
     def get_distance(self, i: int, j: int, jimage=None) -> float:
@@ -1397,15 +1399,16 @@ class IStructure(SiteCollection, MSONable):
         atom and the specified jimage atom.
 
         Args:
-            i (int): Index of first site
-            j (int): Index of second site
+            i (int): 1st site index
+            j (int): 2nd site index
             jimage: Number of lattice translations in each lattice direction.
                 Default is None for nearest image.
 
         Returns:
             distance
         """
-        return self[i].distance(self[j], jimage)
+        site: PeriodicSite = self[i]
+        return site.distance(self[j], jimage)
 
     def get_sites_in_sphere(
         self,
@@ -1440,7 +1443,7 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
+            PeriodicNeighbor
         """
         site_fcoords = np.mod(self.frac_coords, 1)
         neighbors: list[PeriodicNeighbor] = []
@@ -1453,6 +1456,7 @@ class IStructure(SiteCollection, MSONable):
                 nn_distance=dist,
                 image=img,  # type: ignore
                 index=i,
+                label=self[i].label,
             )
             neighbors.append(nn_site)
         return neighbors
@@ -1477,7 +1481,7 @@ class IStructure(SiteCollection, MSONable):
                 is always included in the returned data.
 
         Returns:
-            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
+            PeriodicNeighbor
         """
         return self.get_all_neighbors(r, include_index=include_index, include_image=include_image, sites=[site])[0]
 
@@ -1496,7 +1500,7 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
+            PeriodicNeighbor
         """
         nn = self.get_sites_in_sphere(site.coords, r, include_index=include_index, include_image=include_image)
         return [d for d in nn if site != d[0]]
@@ -1588,10 +1592,10 @@ class IStructure(SiteCollection, MSONable):
         else:
             if sites is None:
                 sites = self.sites
-            site_coords = np.array([site.coords for site in sites], dtype=float)
-            cart_coords = np.array(self.cart_coords, dtype=float)
-            lattice_matrix = np.array(self.lattice.matrix, dtype=float)
-            pbc = np.array(self.pbc, dtype=int)
+            site_coords = np.ascontiguousarray([site.coords for site in sites], dtype=float)
+            cart_coords = np.ascontiguousarray(self.cart_coords, dtype=float)
+            lattice_matrix = np.ascontiguousarray(self.lattice.matrix, dtype=float)
+            pbc = np.ascontiguousarray(self.pbc, dtype=int)
             center_indices, points_indices, images, distances = find_points_in_spheres(
                 cart_coords,
                 site_coords,
@@ -1840,6 +1844,7 @@ class IStructure(SiteCollection, MSONable):
                         nn_distance=d,
                         index=pindex,
                         image=tuple(image),
+                        label=psite.label,
                     )
                 )
 
@@ -1957,7 +1962,7 @@ class IStructure(SiteCollection, MSONable):
                 data. Defaults to True.
 
         Returns:
-            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
+            PeriodicNeighbor
         """
         # Use same algorithm as get_sites_in_sphere to determine supercell but
         # loop over all atoms in crystal
@@ -1969,7 +1974,7 @@ class IStructure(SiteCollection, MSONable):
         all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
         latt = self._lattice
         matrix = latt.matrix
-        neighbors = [[] for _ in range(len(self._sites))]
+        neighbors = [[] for _ in range(len(self))]
         all_fcoords = np.mod(self.frac_coords, 1)
         coords_in_cell = np.dot(all_fcoords, matrix)
         site_coords = self.cart_coords
@@ -2068,6 +2073,7 @@ class IStructure(SiteCollection, MSONable):
                 coords_are_cartesian=True,
                 to_unit_cell=True,
                 site_properties=self.site_properties,
+                labels=self.labels,
                 charge=self._charge,
             )
         return self.copy()
@@ -2104,6 +2110,7 @@ class IStructure(SiteCollection, MSONable):
                 self.frac_coords,
                 charge=self._charge,
                 site_properties=props,
+                labels=self.labels,
             )
         reduced_latt = self._lattice.get_lll_reduced_lattice()
         new_sites = []
@@ -2119,6 +2126,7 @@ class IStructure(SiteCollection, MSONable):
                     reduced_latt,
                     to_unit_cell=True,
                     properties=site_props,
+                    label=site.label,
                     skip_checks=True,
                 )
             )
@@ -2170,9 +2178,7 @@ class IStructure(SiteCollection, MSONable):
         # Check that both structures have the same species
         for i, site in enumerate(self):
             if site.species != end_structure[i].species:
-                raise ValueError(
-                    "Different species!\nStructure 1:\n" + str(self) + "\nStructure 2\n" + str(end_structure)
-                )
+                raise ValueError(f"Different species!\nStructure 1:\n{self}\nStructure 2\n{end_structure}")
 
         start_coords = np.array(self.frac_coords)
         end_coords = np.array(end_structure.frac_coords)
@@ -2204,7 +2210,7 @@ class IStructure(SiteCollection, MSONable):
 
             if len(unmapped_start_ind) == 1:
                 i = unmapped_start_ind[0]
-                j = list(set(range(len(start_coords))) - set(matched))[0]  # type: ignore
+                j = next(iter(set(range(len(start_coords))) - set(matched)))  # type: ignore
                 sorted_end_coords[i] = end_coords[j]
 
             end_coords = sorted_end_coords
@@ -2231,7 +2237,7 @@ class IStructure(SiteCollection, MSONable):
             else:
                 lat = self.lattice
             fcoords = start_coords + x * vec
-            structs.append(self.__class__(lat, sp, fcoords, site_properties=self.site_properties))
+            structs.append(self.__class__(lat, sp, fcoords, site_properties=self.site_properties, labels=self.labels))
         return structs
 
     def get_miller_index_from_site_indexes(self, site_ids, round_dp=4, verbose=True):
@@ -2293,10 +2299,10 @@ class IStructure(SiteCollection, MSONable):
         def site_label(site):
             if not use_site_props:
                 return site.species_string
-            d = [site.species_string]
-            for k in sorted(site.properties):
-                d.append(k + "=" + str(site.properties[k]))
-            return ", ".join(d)
+            parts = [site.species_string]
+            for key in sorted(site.properties):
+                parts.append(f"{key}={site.properties[key]}")
+            return ", ".join(parts)
 
         # group sites by species string
         sites = sorted(self._sites, key=site_label)
@@ -2317,7 +2323,7 @@ class IStructure(SiteCollection, MSONable):
         def pbc_coord_intersection(fc1, fc2, tol):
             """
             Returns the fractional coords in fc1 that have coordinates
-            within tolerance to some coordinate in fc2
+            within tolerance to some coordinate in fc2.
             """
             d = fc1[:, None, :] - fc2[None, :, :]
             d -= np.round(d)
@@ -2393,6 +2399,7 @@ class IStructure(SiteCollection, MSONable):
                 new_coords = []
                 new_sp = []
                 new_props = collections.defaultdict(list)
+                new_labels = []
                 for gsites, gfcoords, non_nbrs in zip(grouped_sites, grouped_fcoords, grouped_non_nbrs):
                     all_frac = np.dot(gfcoords, m)
 
@@ -2430,21 +2437,23 @@ class IStructure(SiteCollection, MSONable):
                             new_sp.append(gsites[inds[0]].species)
                             for k in gsites[inds[0]].properties:
                                 new_props[k].append(gsites[inds[0]].properties[k])
+                            new_labels.append(gsites[inds[0]].label)
                             new_coords.append(coords)
 
                 if valid:
                     inv_m = np.linalg.inv(m)
                     new_latt = Lattice(np.dot(inv_m, self.lattice.matrix))
-                    s = Structure(
+                    struct = Structure(
                         new_latt,
                         new_sp,
                         new_coords,
                         site_properties=new_props,
+                        labels=new_labels,
                         coords_are_cartesian=False,
                     )
 
                     # Default behavior
-                    p = s.get_primitive_structure(
+                    p = struct.get_primitive_structure(
                         tolerance=tolerance,
                         use_site_props=use_site_props,
                         constrain_latt=constrain_latt,
@@ -2642,7 +2651,7 @@ class IStructure(SiteCollection, MSONable):
         charge = d.get("charge")
         return cls.from_sites(sites, charge=charge)
 
-    def to(self, filename: str = "", fmt: str = "", **kwargs) -> str | None:
+    def to(self, filename: str = "", fmt: str = "", **kwargs) -> str:
         """
         Outputs the structure to a file or string.
 
@@ -2660,7 +2669,8 @@ class IStructure(SiteCollection, MSONable):
                 CifWriter.__init__ method for generation of symmetric cifs.
 
         Returns:
-            (str) if filename is None. None otherwise.
+            str: String representation of molecule in given format. If a filename
+                is provided, the same string is written to the file.
         """
         fmt = fmt.lower()
 
@@ -2689,11 +2699,11 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
 
-            s = XSF(self).to_string()
+            res_str = XSF(self).to_str()
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as file:
-                    file.write(s)
-            return s
+                    file.write(res_str)
+            return res_str
         elif (
             fmt == "mcsqs"
             or fnmatch(filename, "*rndstr.in*")
@@ -2702,25 +2712,25 @@ class IStructure(SiteCollection, MSONable):
         ):
             from pymatgen.io.atat import Mcsqs
 
-            s = Mcsqs(self).to_string()
+            res_str = Mcsqs(self).to_str()
             if filename:
                 with zopen(filename, "wt", encoding="ascii") as file:
-                    file.write(s)
-            return s
+                    file.write(res_str)
+            return res_str
         elif fmt == "prismatic" or fnmatch(filename, "*prismatic*"):
             from pymatgen.io.prismatic import Prismatic
 
-            s = Prismatic(self).to_string()
-            return s
+            return Prismatic(self).to_str()
         elif fmt == "yaml" or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
+            str_io = StringIO()
+            yaml.dump(self.as_dict(), str_io)
+            yaml_str = str_io.getvalue()
             if filename:
                 with zopen(filename, "wt") as file:
-                    yaml.dump(self.as_dict(), file)
-                return None
-            sio = StringIO()
-            yaml.dump(self.as_dict(), sio)
-            return sio.getvalue()
+                    file.write(yaml_str)
+            return yaml_str
+        # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen" or fnmatch(filename, "*.in*"):
             from pymatgen.io.fleur import FleurInput
 
@@ -2728,18 +2738,18 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "res" or fnmatch(filename, "*.res"):
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_to_str(self)
+            res_str = ResIO.structure_to_str(self)
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as file:
-                    file.write(s)
-                return None
-            return s
+                    file.write(res_str)
+            return res_str
         else:
-            raise ValueError(f"Invalid format: `{fmt!s}`")
+            if fmt == "":
+                raise ValueError(f"Format not specified and could not infer from {filename=}")
+            raise ValueError(f"Invalid format={fmt!r}")
 
         if filename:
             writer.write_file(filename)
-            return None
         return str(writer)
 
     @classmethod
@@ -2775,52 +2785,53 @@ class IStructure(SiteCollection, MSONable):
         if fmt_low == "cif":
             from pymatgen.io.cif import CifParser
 
-            parser = CifParser.from_string(input_string, **kwargs)
-            s = parser.get_structures(primitive=primitive)[0]
+            parser = CifParser.from_str(input_string, **kwargs)
+            struct = parser.get_structures(primitive=primitive)[0]
         elif fmt_low == "poscar":
             from pymatgen.io.vasp import Poscar
 
-            s = Poscar.from_string(input_string, False, read_velocities=False, **kwargs).structure
+            struct = Poscar.from_str(input_string, False, read_velocities=False, **kwargs).structure
         elif fmt_low == "cssr":
             from pymatgen.io.cssr import Cssr
 
-            cssr = Cssr.from_string(input_string, **kwargs)
-            s = cssr.structure
+            cssr = Cssr.from_str(input_string, **kwargs)
+            struct = cssr.structure
         elif fmt_low == "json":
             d = json.loads(input_string)
-            s = Structure.from_dict(d)
+            struct = Structure.from_dict(d)
         elif fmt_low == "yaml":
             yaml = YAML()
             d = yaml.load(input_string)
-            s = Structure.from_dict(d)
+            struct = Structure.from_dict(d)
         elif fmt_low == "xsf":
             from pymatgen.io.xcrysden import XSF
 
-            s = XSF.from_string(input_string, **kwargs).structure
+            struct = XSF.from_str(input_string, **kwargs).structure
         elif fmt_low == "mcsqs":
             from pymatgen.io.atat import Mcsqs
 
-            s = Mcsqs.structure_from_string(input_string, **kwargs)
+            struct = Mcsqs.structure_from_str(input_string, **kwargs)
+        # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
 
-            s = FleurInput.from_string(input_string, inpgen_input=True, **kwargs).structure
+            struct = FleurInput.from_string(input_string, inpgen_input=True, **kwargs).structure
         elif fmt == "fleur":
             from pymatgen.io.fleur import FleurInput
 
-            s = FleurInput.from_string(input_string, inpgen_input=False).structure
+            struct = FleurInput.from_string(input_string, inpgen_input=False).structure
         elif fmt == "res":
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_from_str(input_string, **kwargs)
+            struct = ResIO.structure_from_str(input_string, **kwargs)
         else:
             raise ValueError(f"Unrecognized format `{fmt}`!")
 
         if sort:
-            s = s.get_sorted_structure()
+            struct = struct.get_sorted_structure()
         if merge_tol:
-            s.merge_sites(merge_tol)
-        return cls.from_sites(s)
+            struct.merge_sites(merge_tol)
+        return cls.from_sites(struct)
 
     @classmethod
     def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, **kwargs) -> Structure | IStructure:
@@ -2847,10 +2858,10 @@ class IStructure(SiteCollection, MSONable):
             # Read Structure from a netcdf file.
             from pymatgen.io.abinit.netcdf import structure_from_ncdata
 
-            s = structure_from_ncdata(filename, cls=cls)
+            struct = structure_from_ncdata(filename, cls=cls)
             if sort:
-                s = s.get_sorted_structure()
-            return s
+                struct = struct.get_sorted_structure()
+            return struct
 
         from pymatgen.io.exciting import ExcitingInput
         from pymatgen.io.lmto import LMTOCtrl
@@ -2862,12 +2873,12 @@ class IStructure(SiteCollection, MSONable):
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
             return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         if fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
-            s = cls.from_str(contents, fmt="poscar", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            struct = cls.from_str(contents, fmt="poscar", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
 
         elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
-            s = Chgcar.from_file(filename, **kwargs).structure
+            struct = Chgcar.from_file(filename, **kwargs).structure
         elif fnmatch(fname, "vasprun*.xml*"):
-            s = Vasprun(filename, **kwargs).final_structure
+            struct = Vasprun(filename, **kwargs).final_structure
         elif fnmatch(fname.lower(), "*.cssr*"):
             return cls.from_str(contents, fmt="cssr", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
@@ -2885,20 +2896,20 @@ class IStructure(SiteCollection, MSONable):
         elif fnmatch(fname, "inp*.xml") or fnmatch(fname, "*.in*") or fnmatch(fname, "inp_*"):
             from pymatgen.io.fleur import FleurInput
 
-            s = FleurInput.from_file(filename, **kwargs).structure
+            struct = FleurInput.from_file(filename, **kwargs).structure
         elif fnmatch(fname, "*.res"):
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_from_file(filename, **kwargs)
+            struct = ResIO.structure_from_file(filename, **kwargs)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
-            s = s.get_sorted_structure()
+            struct = struct.get_sorted_structure()
         if merge_tol:
-            s.merge_sites(merge_tol)
+            struct.merge_sites(merge_tol)
 
-        s.__class__ = cls
-        return s
+        struct.__class__ = cls
+        return struct
 
 
 class IMolecule(SiteCollection, MSONable):
@@ -2921,6 +2932,7 @@ class IMolecule(SiteCollection, MSONable):
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
         site_properties: dict | None = None,
+        labels: Sequence[str | None] | None = None,
         charge_spin_check: bool = True,
     ) -> None:
         """
@@ -2943,23 +2955,29 @@ class IMolecule(SiteCollection, MSONable):
                 a dict of sequences, e.g., {"magmom":[5,5,5,5]}. The
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
             charge_spin_check (bool): Whether to check that the charge and
                 spin multiplicity are compatible with each other. Defaults
                 to True.
         """
         if len(species) != len(coords):
             raise StructureError(
-                "The list of atomic species must be of the same length as the list of fractional coordinates."
+                f"len(species) != len(coords) ({len(species)} != {len(coords)}). List of atomic species must "
+                "have same length as list of fractional coordinates."
             )
 
         self._charge_spin_check = charge_spin_check
 
-        sites = []
-        for i, _ in enumerate(species):
+        sites: list[Site] = []
+        for idx in range(len(species)):
             prop = None
             if site_properties:
-                prop = {k: v[i] for k, v in site_properties.items()}
-            sites.append(Site(species[i], coords[i], properties=prop))  # type: ignore
+                prop = {k: v[idx] for k, v in site_properties.items()}
+            label = labels[idx] if labels else None
+            sites.append(Site(species[idx], coords[idx], properties=prop, label=label))
 
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
@@ -2985,30 +3003,22 @@ class IMolecule(SiteCollection, MSONable):
 
     @property
     def charge(self) -> float:
-        """
-        Charge of molecule
-        """
+        """Charge of molecule."""
         return self._charge
 
     @property
     def spin_multiplicity(self) -> float:
-        """
-        Spin multiplicity of molecule.
-        """
+        """Spin multiplicity of molecule."""
         return self._spin_multiplicity
 
     @property
     def nelectrons(self) -> float:
-        """
-        Number of electrons in the molecule.
-        """
+        """Number of electrons in the molecule."""
         return self._nelectrons
 
     @property
     def center_of_mass(self) -> np.ndarray:
-        """
-        Center of mass of molecule.
-        """
+        """Center of mass of molecule."""
         center = np.zeros(3)
         total_weight: float = 0
         for site in self:
@@ -3017,12 +3027,14 @@ class IMolecule(SiteCollection, MSONable):
             total_weight += wt
         return center / total_weight
 
-    @property
-    def sites(self) -> tuple[Site, ...]:
+    def copy(self) -> IMolecule | Molecule:
         """
-        Returns a tuple of sites in the Molecule.
+        Convenience method to get a copy of the molecule.
+
+        Returns:
+            IMolecule | Molecule
         """
-        return self._sites
+        return type(self).from_sites(self)
 
     @classmethod
     def from_sites(
@@ -3051,6 +3063,7 @@ class IMolecule(SiteCollection, MSONable):
         for site in sites:
             for k, v in site.properties.items():
                 props[k].append(v)
+        labels = [site.label for site in sites]
         return cls(
             [site.species for site in sites],
             [site.coords for site in sites],
@@ -3058,6 +3071,7 @@ class IMolecule(SiteCollection, MSONable):
             spin_multiplicity=spin_multiplicity,
             validate_proximity=validate_proximity,
             site_properties=props,
+            labels=labels,
             charge_spin_check=charge_spin_check,
         )
 
@@ -3067,8 +3081,8 @@ class IMolecule(SiteCollection, MSONable):
         ind1 and ind2.
 
         Args:
-            ind1 (int): Index of first site.
-            ind2 (int): Index of second site.
+            ind1 (int): 1st site index
+            ind2 (int): 2nd site index
             tol (float): Relative tolerance to test. Basically, the code
                 checks if the distance between the sites is less than (1 +
                 tol) * typical bond distances. Defaults to 0.2, i.e.,
@@ -3078,9 +3092,9 @@ class IMolecule(SiteCollection, MSONable):
             Two Molecule objects representing the two clusters formed from
             breaking the bond.
         """
-        clusters = [[self._sites[ind1]], [self._sites[ind2]]]
+        clusters = [[self[ind1]], [self[ind2]]]
 
-        sites = [site for i, site in enumerate(self._sites) if i not in (ind1, ind2)]
+        sites = [site for idx, site in enumerate(self) if idx not in (ind1, ind2)]
 
         def belongs_to_cluster(site, cluster):
             return any(CovalentBond.is_bonded(site, test_site, tol=tol) for test_site in cluster)
@@ -3134,15 +3148,50 @@ class IMolecule(SiteCollection, MSONable):
             return False
         return all(site in other for site in self)
 
-    def __hash__(self):
+    def get_zmatrix(self):
+        """Returns a z-matrix representation of the molecule."""
+        # TODO: allow more z-matrix conventions for element/site description
+
+        output = []
+        output_var = []
+        for idx, site in enumerate(self):
+            if idx == 0:
+                output.append(f"{site.specie}")
+            elif idx == 1:
+                nn = self._find_nn_pos_before_site(idx)
+                bond_length = self.get_distance(idx, nn[0])
+                output.append(f"{self[idx].specie} {nn[0] + 1} B{idx}")
+                output_var.append(f"B{idx}={bond_length:.6f}")
+            elif idx == 2:
+                nn = self._find_nn_pos_before_site(idx)
+                bond_length = self.get_distance(idx, nn[0])
+                angle = self.get_angle(idx, nn[0], nn[1])
+                output.append(f"{self[idx].specie} {nn[0] + 1} B{idx} {nn[1] + 1} A{idx}")
+                output_var.append(f"B{idx}={bond_length:.6f}")
+                output_var.append(f"A{idx}={angle:.6f}")
+            else:
+                nn = self._find_nn_pos_before_site(idx)
+                bond_length = self.get_distance(idx, nn[0])
+                angle = self.get_angle(idx, nn[0], nn[1])
+                dih = self.get_dihedral(idx, nn[0], nn[1], nn[2])
+                output.append(f"{self[idx].specie} {nn[0] + 1} B{idx} {nn[1] + 1} A{idx} {nn[2] + 1} D{idx}")
+                output_var.append(f"B{idx}={bond_length:.6f}")
+                output_var.append(f"A{idx}={angle:.6f}")
+                output_var.append(f"D{idx}={dih:.6f}")
+        return "\n".join(output) + "\n\n" + "\n".join(output_var)
+
+    def _find_nn_pos_before_site(self, site_idx):
+        """Returns index of nearest neighbor atoms."""
+        all_dist = [(self.get_distance(site_idx, idx), idx) for idx in range(site_idx)]
+        all_dist = sorted(all_dist, key=lambda x: x[0])
+        return [d[1] for d in all_dist]
+
+    def __hash__(self) -> int:
         # For now, just use the composition hash code.
         return hash(self.composition)
 
     def __repr__(self):
-        outs = ["Molecule Summary"]
-        for s in self:
-            outs.append(s.__repr__())
-        return "\n".join(outs)
+        return "Molecule Summary\n" + "\n".join(map(repr, self))
 
     def __str__(self):
         outs = [
@@ -3152,13 +3201,11 @@ class IMolecule(SiteCollection, MSONable):
             f"Sites ({len(self)})",
         ]
         for idx, site in enumerate(self):
-            outs.append(f"{idx} {site.species_string} {' '.join([f'{j:0.6f}'.rjust(12) for j in site.coords])}")
+            outs.append(f"{idx} {site.species_string} {' '.join([f'{coord:0.6f}'.rjust(12) for coord in site.coords])}")
         return "\n".join(outs)
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of Molecule
-        """
+        """JSON-serializable dict representation of Molecule."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -3174,7 +3221,7 @@ class IMolecule(SiteCollection, MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d) -> dict:
+    def from_dict(cls, d) -> IMolecule | Molecule:
         """
         Reconstitute a Molecule object from a dict representation created using
         as_dict().
@@ -3195,8 +3242,8 @@ class IMolecule(SiteCollection, MSONable):
         Get distance between site i and j.
 
         Args:
-            i (int): Index of first site
-            j (int): Index of second site
+            i (int): 1st site index
+            j (int): 2nd site index
 
         Returns:
             Distance between the two sites.
@@ -3212,13 +3259,13 @@ class IMolecule(SiteCollection, MSONable):
             r (float): Radius of sphere.
 
         Returns:
-            [:class:`pymatgen.core.structure.Neighbor`]
+            Neighbor
         """
         neighbors = []
         for i, site in enumerate(self._sites):
             dist = site.distance_from_point(pt)
             if dist <= r:
-                neighbors.append(Neighbor(site.species, site.coords, site.properties, dist, i))
+                neighbors.append(Neighbor(site.species, site.coords, site.properties, dist, i, label=site.label))
         return neighbors
 
     def get_neighbors(self, site: Site, r: float) -> list[Neighbor]:
@@ -3231,7 +3278,7 @@ class IMolecule(SiteCollection, MSONable):
             r (float): Radius of sphere.
 
         Returns:
-            [:class:`pymatgen.core.structure.Neighbor`]
+            Neighbor
         """
         nns = self.get_sites_in_sphere(site.coords, r)
         return [nn for nn in nns if nn != site]
@@ -3247,7 +3294,7 @@ class IMolecule(SiteCollection, MSONable):
             dr (float): Width of shell.
 
         Returns:
-            [:class:`pymatgen.core.structure.Neighbor`]
+            Neighbor
         """
         outer = self.get_sites_in_sphere(origin, r + dr)
         inner = r - dr
@@ -3307,7 +3354,7 @@ class IMolecule(SiteCollection, MSONable):
         if a <= x_range or b <= y_range or c <= z_range:
             raise ValueError("Box is not big enough to contain Molecule.")
         lattice = Lattice.from_parameters(a * images[0], b * images[1], c * images[2], 90, 90, 90)  # type: ignore
-        nimages = images[0] * images[1] * images[2]  # type: ignore
+        nimages: int = images[0] * images[1] * images[2]  # type: ignore
         all_coords: list[ArrayLike] = []
 
         centered_coords = self.cart_coords - self.center_of_mass + offset
@@ -3330,7 +3377,7 @@ class IMolecule(SiteCollection, MSONable):
                         y_max, y_min = max(new_coords[:, 1]), min(new_coords[:, 1])
                         z_max, z_min = max(new_coords[:, 2]), min(new_coords[:, 2])
                         if x_max > a or x_min < 0 or y_max > b or y_min < 0 or z_max > c or z_min < 0:
-                            raise ValueError("Molecule crosses boundary of box.")
+                            raise ValueError("Molecule crosses boundary of box")
                     if len(all_coords) == 0:
                         break
                     distances = lattice.get_all_distances(
@@ -3346,7 +3393,7 @@ class IMolecule(SiteCollection, MSONable):
                     y_max, y_min = max(new_coords[:, 1]), min(new_coords[:, 1])
                     z_max, z_min = max(new_coords[:, 2]), min(new_coords[:, 2])
                     if x_max > a or x_min < 0 or y_max > b or y_min < 0 or z_max > c or z_min < 0:
-                        raise ValueError("Molecule crosses boundary of box.")
+                        raise ValueError("Molecule crosses boundary of box")
             all_coords.extend(new_coords)
         sprops = {k: v * nimages for k, v in self.site_properties.items()}  # type: ignore
 
@@ -3356,18 +3403,20 @@ class IMolecule(SiteCollection, MSONable):
         if reorder:
             return cls(
                 lattice,
-                self.species * nimages,  # type: ignore
+                self.species * nimages,
                 all_coords,
                 coords_are_cartesian=True,
                 site_properties=sprops,
+                labels=self.labels * nimages,
             ).get_sorted_structure()
 
         return cls(
             lattice,
-            self.species * nimages,  # type: ignore
+            self.species * nimages,
             coords,
             coords_are_cartesian=True,
             site_properties=sprops,
+            labels=self.labels * nimages,
         )
 
     def get_centered_molecule(self) -> IMolecule | Molecule:
@@ -3386,6 +3435,7 @@ class IMolecule(SiteCollection, MSONable):
             spin_multiplicity=self._spin_multiplicity,
             site_properties=self.site_properties,
             charge_spin_check=self._charge_spin_check,
+            labels=self.labels,
         )
 
     def to(self, filename: str = "", fmt: str = "") -> str | None:
@@ -3403,7 +3453,8 @@ class IMolecule(SiteCollection, MSONable):
                 OpenBabel. Non-case sensitive.
 
         Returns:
-            (str) if filename is None. None otherwise.
+            str: String representation of molecule in given format. If a filename
+                is provided, the same string is written to the file.
         """
         from pymatgen.io.babel import BabelMolAdaptor
         from pymatgen.io.gaussian import GaussianInput
@@ -3413,28 +3464,27 @@ class IMolecule(SiteCollection, MSONable):
         writer: Any
         if fmt == "xyz" or fnmatch(filename.lower(), "*.xyz*"):
             writer = XYZ(self)
-        elif any(fmt == r or fnmatch(filename.lower(), f"*.{r}*") for r in ["gjf", "g03", "g09", "com", "inp"]):
+        elif any(fmt == ext or fnmatch(filename.lower(), f"*.{ext}*") for ext in ["gjf", "g03", "g09", "com", "inp"]):
             writer = GaussianInput(self)
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
+            json_str = json.dumps(self.as_dict())
             if filename:
-                with zopen(filename, "wt", encoding="utf8") as f:
-                    json.dump(self.as_dict(), f)
-                    return None
-            else:
-                return json.dumps(self.as_dict())
+                with zopen(filename, "wt", encoding="utf8") as file:
+                    file.write(json_str)
+            return json_str
         elif fmt == "yaml" or fnmatch(filename, "*.yaml*"):
             yaml = YAML()
+            str_io = StringIO()
+            yaml.dump(self.as_dict(), str_io)
+            yaml_str = str_io.getvalue()
             if filename:
-                with zopen(filename, "wt", encoding="utf8") as f:
-                    return yaml.dump(self.as_dict(), f)
-            else:
-                sio = StringIO()
-                yaml.dump(self.as_dict(), sio)
-                return sio.getvalue()
+                with zopen(filename, "wt", encoding="utf8") as file:
+                    file.write(yaml_str)
+            return yaml_str
         else:
-            m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower())
-            if (not fmt) and m:
-                fmt = m.group(1)
+            match = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower())
+            if not fmt and match:
+                fmt = match.group(1)
             writer = BabelMolAdaptor(self)
             return writer.write_file(filename, file_format=fmt)
 
@@ -3443,7 +3493,9 @@ class IMolecule(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_str(cls, input_string: str, fmt: str):
+    def from_str(
+        cls, input_string: str, fmt: Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"]
+    ) -> IMolecule | Molecule:
         """
         Reads the molecule from a string.
 
@@ -3462,21 +3514,21 @@ class IMolecule(SiteCollection, MSONable):
         from pymatgen.io.xyz import XYZ
 
         if fmt.lower() == "xyz":
-            m = XYZ.from_string(input_string).molecule
+            mol = XYZ.from_str(input_string).molecule
         elif fmt in ["gjf", "g03", "g09", "com", "inp"]:
-            m = GaussianInput.from_string(input_string).molecule
+            mol = GaussianInput.from_str(input_string).molecule
         elif fmt == "json":
-            d = json.loads(input_string)
-            return cls.from_dict(d)
+            dct = json.loads(input_string)
+            return cls.from_dict(dct)
         elif fmt == "yaml":
             yaml = YAML()
-            d = yaml.load(input_string)
-            return cls.from_dict(d)
+            dct = yaml.load(input_string)
+            return cls.from_dict(dct)
         else:
             from pymatgen.io.babel import BabelMolAdaptor
 
-            m = BabelMolAdaptor.from_string(input_string, file_format=fmt).pymatgen_mol
-        return cls.from_sites(m)
+            mol = BabelMolAdaptor.from_str(input_string, file_format=fmt).pymatgen_mol
+        return cls.from_sites(mol)
 
     @classmethod
     def from_file(cls, filename):
@@ -3520,9 +3572,7 @@ class IMolecule(SiteCollection, MSONable):
 
 
 class Structure(IStructure, collections.abc.MutableSequence):
-    """
-    Mutable version of structure.
-    """
+    """Mutable version of structure."""
 
     __hash__ = None  # type: ignore
 
@@ -3536,6 +3586,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
         site_properties: dict | None = None,
+        labels: Sequence[str | None] | None = None,
     ):
         """
         Create a periodic structure.
@@ -3570,6 +3621,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
         """
         super().__init__(
             lattice,
@@ -3580,18 +3635,19 @@ class Structure(IStructure, collections.abc.MutableSequence):
             to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
+            labels=labels,
         )
 
         self._sites: list[PeriodicSite] = list(self._sites)  # type: ignore
 
     def __setitem__(  # type: ignore
-        self, i: int | slice | Sequence[int] | SpeciesLike, site: SpeciesLike | PeriodicSite | Sequence
+        self, idx: int | slice | Sequence[int] | SpeciesLike, site: SpeciesLike | PeriodicSite | Sequence
     ):
         """
         Modify a site in the structure.
 
         Args:
-            i (int, [int], slice, Species-like): Indices to change. You can
+            idx (int, [int], slice, Species-like): Indices to change. You can
                 specify these as an int, a list of int, or a species-like
                 string.
             site (PeriodicSite/Species/Sequence): Three options exist. You
@@ -3606,7 +3662,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             s[0] = "Fe", [0.5, 0.5, 0.5]
             Replaces site and *fractional* coordinates. Any properties
             are inherited from current site.
-            s[0] = "Fe", [0.5, 0.5, 0.5], {"spin": 2}
+            s[0] = "Fe", [0.5, 0.5, 0.5], spin=2
             Replaces site and *fractional* coordinates and properties.
 
             s[(0, 2, 3)] = "Fe"
@@ -3623,16 +3679,16 @@ class Structure(IStructure, collections.abc.MutableSequence):
             Replaces all Mn in the structure with Fe: 0.5, Co: 0.5, i.e.,
             creates a disordered structure!
         """
-        if isinstance(i, int):
-            indices = [i]
-        elif isinstance(i, (str, Element, Species)):
-            self.replace_species({i: site})  # type: ignore
+        if isinstance(idx, int):
+            indices = [idx]
+        elif isinstance(idx, (str, Element, Species)):
+            self.replace_species({idx: site})  # type: ignore
             return
-        elif isinstance(i, slice):
-            to_mod = self[i]
-            indices = [ii for ii, s in enumerate(self._sites) if s in to_mod]
+        elif isinstance(idx, slice):
+            to_mod = self[idx]
+            indices = [ii for ii, site in enumerate(self) if site in to_mod]
         else:
-            indices = list(i)
+            indices = list(idx)
 
         for ii in indices:
             if isinstance(site, PeriodicSite):
@@ -3656,9 +3712,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     @property
     def lattice(self) -> Lattice:
-        """
-        :return: Lattice associated with structure.
-        """
+        """Lattice associated with structure."""
         return self._lattice
 
     @lattice.setter
@@ -3666,7 +3720,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         if not isinstance(lattice, Lattice):
             lattice = Lattice(lattice)
         self._lattice = lattice
-        for site in self._sites:
+        for site in self:
             site.lattice = lattice
 
     def append(  # type: ignore
@@ -3703,72 +3757,78 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def insert(  # type: ignore
         self,
-        i: int,
+        idx: int,
         species: CompositionLike,
         coords: ArrayLike,
         coords_are_cartesian: bool = False,
         validate_proximity: bool = False,
         properties: dict | None = None,
+        label: str | None = None,
     ):
         """
         Insert a site to the structure.
 
         Args:
-            i (int): Index to insert site
+            idx (int): Index to insert site
             species (species-like): Species of inserted site
             coords (3x1 array): Coordinates of inserted site
             coords_are_cartesian (bool): Whether coordinates are cartesian.
                 Defaults to False.
-            validate_proximity (bool): Whether to check if inserted site is
-                too close to an existing site. Defaults to False.
+            validate_proximity (bool): Whether to check if inserted site is too close to
+                an existing site. Controlled by self.DISTANCE_TOLERANCE. Defaults to False.
             properties (dict): Properties associated with the site.
+            label (str): Label associated with the site.
 
         Returns:
             New structure with inserted site.
         """
-        if not coords_are_cartesian:
-            new_site = PeriodicSite(species, coords, self._lattice, properties=properties)
-        else:
+        if coords_are_cartesian:
             frac_coords = self._lattice.get_fractional_coords(coords)
-            new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties)
+            new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties, label=label)
+        else:
+            new_site = PeriodicSite(species, coords, self._lattice, properties=properties, label=label)
 
         if validate_proximity:
             for site in self:
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
                     raise ValueError("New site is too close to an existing site!")
 
-        self._sites.insert(i, new_site)
+        self.sites.insert(idx, new_site)
+
+        return self
 
     def replace(
         self,
-        i: int,
+        idx: int,
         species: CompositionLike,
         coords: ArrayLike | None = None,
         coords_are_cartesian: bool = False,
         properties: dict | None = None,
+        label: str | None = None,
     ):
         """
         Replace a single site. Takes either a species or a dict of species and
         occupations.
 
         Args:
-            i (int): Index of the site in the _sites list.
+            idx (int): Index of the site in the sites list.
             species (species-like): Species of replacement site
             coords (3x1 array): Coordinates of replacement site. If None,
                 the current coordinates are assumed.
             coords_are_cartesian (bool): Whether coordinates are cartesian.
                 Defaults to False.
             properties (dict): Properties associated with the site.
+            label (str): Label associated with the site.
         """
         if coords is None:
-            frac_coords = self[i].frac_coords
+            frac_coords = self[idx].frac_coords
         elif coords_are_cartesian:
             frac_coords = self._lattice.get_fractional_coords(coords)
         else:
             frac_coords = coords  # type: ignore
 
-        new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties)
-        self._sites[i] = new_site
+        new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties, label=label)
+        self.sites[idx] = new_site
 
     def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1) -> None:
         """
@@ -3862,7 +3922,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         # group.
         del self[index]
         for site in fgroup[1:]:
-            s_new = PeriodicSite(site.species, site.coords, self.lattice, coords_are_cartesian=True)
+            s_new = PeriodicSite(site.species, site.coords, self.lattice, coords_are_cartesian=True, label=site.label)
             self._sites.append(s_new)
 
     def remove_species(self, species: Sequence[SpeciesLike]) -> None:
@@ -3875,7 +3935,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         new_sites = []
         species = [get_el_sp(s) for s in species]
 
-        for site in self._sites:
+        for site in self:
             new_sp_occu = {sp: amt for sp, amt in site.species.items() if sp not in species}
             if len(new_sp_occu) > 0:
                 new_sites.append(
@@ -3884,9 +3944,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
                         site.frac_coords,
                         self._lattice,
                         properties=site.properties,
+                        label=site.label,
                     )
                 )
-        self._sites = new_sites
+        self.sites = new_sites
 
     def remove_sites(self, indices: Sequence[int]) -> None:
         """
@@ -3895,7 +3956,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Args:
             indices: Sequence of indices of sites to delete.
         """
-        self._sites = [s for i, s in enumerate(self._sites) if i not in indices]
+        self.sites = [site for idx, site in enumerate(self) if idx not in indices]
 
     def apply_operation(self, symmop: SymmOp, fractional: bool = False) -> Structure:
         """
@@ -3924,6 +3985,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     self._lattice,
                     properties=site.properties,
                     skip_checks=True,
+                    label=site.label,
                 )
 
         else:
@@ -3937,9 +3999,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     self._lattice,
                     properties=site.properties,
                     skip_checks=True,
+                    label=site.label,
                 )
 
-        self._sites = [operate_site(s) for s in self._sites]
+        self.sites = [operate_site(site) for site in self]
 
         return self
 
@@ -3994,15 +4057,15 @@ class Structure(IStructure, collections.abc.MutableSequence):
         if not isinstance(indices, collections.abc.Iterable):
             indices = [indices]
 
-        for i in indices:
-            site = self._sites[i]
+        for idx in indices:
+            site = self[idx]
             if frac_coords:
                 fcoords = site.frac_coords + vector
             else:
                 fcoords = self._lattice.get_fractional_coords(site.coords + vector)
             if to_unit_cell:
                 fcoords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, fcoords)]
-            self._sites[i].frac_coords = fcoords
+            self[idx].frac_coords = fcoords
 
     def rotate_sites(
         self,
@@ -4043,8 +4106,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         theta %= 2 * np.pi
 
         rm = expm(cross(eye(3), axis / norm(axis)) * theta)
-        for i in indices:
-            site = self._sites[i]
+        for idx in indices:
+            site = self[idx]
             coords = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
             new_site = PeriodicSite(
                 site.species,
@@ -4054,8 +4117,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 coords_are_cartesian=True,
                 properties=site.properties,
                 skip_checks=True,
+                label=site.label,
             )
-            self._sites[i] = new_site
+            self[idx] = new_site
 
     def perturb(self, distance: float, min_distance: float | None = None) -> None:
         """
@@ -4080,15 +4144,15 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 dist = np.random.uniform(min_distance, dist)
             return vector / vnorm * dist if vnorm != 0 else get_rand_vec()
 
-        for i in range(len(self._sites)):
-            self.translate_sites([i], get_rand_vec(), frac_coords=False)
+        for idx in range(len(self._sites)):
+            self.translate_sites([idx], get_rand_vec(), frac_coords=False)
 
-    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True) -> None:
+    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> Structure:
         """
         Create a supercell.
 
         Args:
-            scaling_matrix: A scaling matrix for transforming the lattice
+            scaling_matrix (ArrayLike): A scaling matrix for transforming the lattice
                 vectors. Has to be all integers. Several options are possible:
 
                 a. A full 3x3 scaling matrix defining the linear combination
@@ -4101,14 +4165,24 @@ class Structure(IStructure, collections.abc.MutableSequence):
                    c.
                 c. A number, which simply scales all lattice vectors by the
                    same factor.
-            to_unit_cell: Whether or not to fall back sites into the unit cell
+            to_unit_cell (bool): Whether or not to fold sites back into the unit cell
+                if they have fractional coords > 1. Defaults to True.
+            in_place (bool): Whether to perform the operation in-place or to return
+                a new Structure object. Defaults to True.
+
+        Returns:
+            Structure: self if in_place is True else self.copy() after making supercell
         """
-        s = self * scaling_matrix
+        # TODO (janosh) maybe default in_place to False after a depreciation period
+        struct = self if in_place else self.copy()
+        supercell = struct * scaling_matrix
         if to_unit_cell:
-            for site in s:
+            for site in supercell:
                 site.to_unit_cell(in_place=True)
-        self._sites = s.sites
-        self._lattice = s.lattice
+        struct.sites = supercell.sites
+        struct.lattice = supercell.lattice
+
+        return struct
 
     def scale_lattice(self, volume: float) -> None:
         """
@@ -4135,9 +4209,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         from scipy.cluster.hierarchy import fcluster, linkage
         from scipy.spatial.distance import squareform
 
-        d = self.distance_matrix
-        np.fill_diagonal(d, 0)
-        clusters = fcluster(linkage(squareform((d + d.T) / 2)), tol, "distance")
+        dist_mat = self.distance_matrix
+        np.fill_diagonal(dist_mat, 0)
+        clusters = fcluster(linkage(squareform((dist_mat + dist_mat.T) / 2)), tol, "distance")
         sites = []
         for c in np.unique(clusters):
             inds = np.where(clusters == c)[0]
@@ -4166,7 +4240,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def set_charge(self, new_charge: float = 0.0) -> None:
         """
-        Sets the overall structure charge
+        Sets the overall structure charge.
 
         Args:
             new_charge (float): new charge to set
@@ -4181,7 +4255,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         steps: int = 500,
         fmax: float = 0.1,
         stress_weight: float = 0.01,
-        opt_kwargs: dict = None,
+        opt_kwargs: dict | None = None,
         return_trajectory: bool = False,
         verbose: bool = False,
     ) -> Structure | tuple[Structure, TrajectoryObserver | Trajectory]:
@@ -4204,8 +4278,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             verbose (bool): whether to print out relaxation steps. Defaults to False.
 
         Returns:
-            Structure | tuple[Structure, Trajectory]: Relaxed structure or 2-tuple of Structure
-                and ASE/M3GNet TrajectoryObserver if return_trajectory=True.
+            Structure | tuple[Structure, Trajectory]: Relaxed structure or if return_trajectory=True,
+                2-tuple of Structure and matgl TrajectoryObserver.
         """
         return self._relax(
             calculator,
@@ -4219,11 +4293,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             verbose=verbose,
         )
 
-    def calculate(
-        self,
-        calculator: str | Calculator = "m3gnet",
-        verbose: bool = False,
-    ):
+    def calculate(self, calculator: str | Calculator = "m3gnet", verbose: bool = False) -> Calculator:
         """
         Performs an ASE calculation.
 
@@ -4233,9 +4303,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
             verbose (bool): whether to print stdout. Defaults to False.
 
         Returns:
-            Structure: Structure following ASE calculation.
+            Calculator: ASE Calculator instance with a results attribute containing the output.
         """
-        return self._calculate(self, calculator, verbose=verbose)
+        return self._calculate(calculator, verbose=verbose)
 
     @classmethod
     def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Structure:
@@ -4287,9 +4357,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 return Structure.from_spacegroup(
                     "F-43m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [1 / 4, 1 / 4, 3 / 4]]
                 )
-        except KeyError as ex:
-            raise ValueError(f"Required parameter {ex} not specified as a kwargs!")
-        raise ValueError(f"Unsupported prototype {prototype}!")
+        except KeyError as exc:
+            raise ValueError(f"Required parameter {exc} not specified as a kwargs!") from exc
+        raise ValueError(f"Unsupported {prototype=}!")
 
 
 class Molecule(IMolecule, collections.abc.MutableSequence):
@@ -4308,6 +4378,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
         site_properties: dict | None = None,
+        labels: Sequence[str | None] | None = None,
         charge_spin_check: bool = True,
     ) -> None:
         """
@@ -4330,6 +4401,10 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 a dict of sequences, e.g., {"magmom":[5,5,5,5]}. The
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
             charge_spin_check (bool): Whether to check that the charge and
                 spin multiplicity are compatible with each other. Defaults
                 to True.
@@ -4341,6 +4416,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             spin_multiplicity=spin_multiplicity,
             validate_proximity=validate_proximity,
             site_properties=site_properties,
+            labels=labels,
             charge_spin_check=charge_spin_check,
         )
         self._sites: list[Site] = list(self._sites)  # type: ignore
@@ -4367,7 +4443,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             return
         elif isinstance(idx, slice):
             to_mod = self[idx]
-            indices = [ii for ii, s in enumerate(self._sites) if s in to_mod]
+            indices = [idx for idx, site in enumerate(self._sites) if site in to_mod]
         else:
             indices = list(idx)
 
@@ -4427,51 +4503,53 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 if there are unpaired electrons.
         """
         self._charge = charge
-        nelectrons = 0.0
-        for site in self._sites:
+        n_electrons = 0.0
+        for site in self:
             for sp, amt in site.species.items():
                 if not isinstance(sp, DummySpecies):
-                    nelectrons += sp.Z * amt
-        nelectrons -= charge
-        self._nelectrons = nelectrons
+                    n_electrons += sp.Z * amt
+        n_electrons -= charge
+        self._nelectrons = n_electrons
         if spin_multiplicity:
-            if self._charge_spin_check and (nelectrons + spin_multiplicity) % 2 != 1:
+            if self._charge_spin_check and (n_electrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
                     f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} is"
                     " not possible for this molecule"
                 )
             self._spin_multiplicity = spin_multiplicity
         else:
-            self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+            self._spin_multiplicity = 1 if n_electrons % 2 == 0 else 2
 
     def insert(  # type: ignore
         self,
-        i: int,
+        idx: int,
         species: CompositionLike,
         coords: ArrayLike,
         validate_proximity: bool = False,
         properties: dict | None = None,
+        label: str | None = None,
     ) -> Molecule:
         """
         Insert a site to the molecule.
 
         Args:
-            i (int): Index to insert site
+            idx (int): Index to insert site
             species: species of inserted site
             coords (3x1 array): coordinates of inserted site
             validate_proximity (bool): Whether to check if inserted site is
                 too close to an existing site. Defaults to True.
             properties (dict): Dict of properties for the Site.
+            label (str): Label of inserted site
 
         Returns:
             New molecule with inserted site.
         """
-        new_site = Site(species, coords, properties=properties)
+        new_site = Site(species, coords, properties=properties, label=label)
         if validate_proximity:
             for site in self:
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
                     raise ValueError("New site is too close to an existing site!")
-        self._sites.insert(i, new_site)
+        self.sites.insert(idx, new_site)
 
         return self
 
@@ -4484,11 +4562,11 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """
         new_sites = []
         species = [get_el_sp(sp) for sp in species]
-        for site in self._sites:
+        for site in self:
             new_sp_occu = {sp: amt for sp, amt in site.species.items() if sp not in species}
             if len(new_sp_occu) > 0:
-                new_sites.append(Site(new_sp_occu, site.coords, properties=site.properties))
-        self._sites = new_sites
+                new_sites.append(Site(new_sp_occu, site.coords, properties=site.properties, label=site.label))
+        self.sites = new_sites
 
     def remove_sites(self, indices: Sequence[int]):
         """
@@ -4497,7 +4575,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         Args:
             indices: Sequence of indices of sites to delete.
         """
-        self._sites = [self._sites[i] for i in range(len(self._sites)) if i not in indices]
+        self.sites = [self[idx] for idx in range(len(self)) if idx not in indices]
 
     def translate_sites(self, indices: Sequence[int] | None = None, vector: ArrayLike | None = None):
         """
@@ -4513,10 +4591,10 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             indices = range(len(self))
         if vector is None:
             vector = [0, 0, 0]
-        for i in indices:
-            site = self._sites[i]
-            new_site = Site(site.species, site.coords + vector, properties=site.properties)
-            self._sites[i] = new_site
+        for idx in indices:
+            site = self[idx]
+            new_site = Site(site.species, site.coords + vector, properties=site.properties, label=site.label)
+            self[idx] = new_site
 
     def rotate_sites(
         self,
@@ -4555,11 +4633,11 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         rm = expm(cross(eye(3), axis / norm(axis)) * theta)
 
-        for i in indices:
-            site = self._sites[i]
+        for idx in indices:
+            site = self[idx]
             s = ((np.dot(rm, (site.coords - anchor).T)).T + anchor).ravel()
-            new_site = Site(site.species, s, properties=site.properties)
-            self._sites[i] = new_site
+            new_site = Site(site.species, s, properties=site.properties, label=site.label)
+            self[idx] = new_site
 
     def perturb(self, distance: float):
         """
@@ -4577,8 +4655,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             vnorm = np.linalg.norm(vector)
             return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
 
-        for i in range(len(self._sites)):
-            self.translate_sites([i], get_rand_vec())
+        for idx in range(len(self)):
+            self.translate_sites([idx], get_rand_vec())
 
     def apply_operation(self, symmop: SymmOp):
         """
@@ -4590,18 +4668,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         def operate_site(site):
             new_cart = symmop.operate(site.coords)
-            return Site(site.species, new_cart, properties=site.properties)
+            return Site(site.species, new_cart, properties=site.properties, label=site.label)
 
-        self._sites = [operate_site(s) for s in self._sites]
-
-    def copy(self):
-        """
-        Convenience method to get a copy of the molecule.
-
-        Returns:
-            A copy of the Molecule.
-        """
-        return type(self).from_sites(self)
+        self.sites = [operate_site(site) for site in self]
 
     def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1):
         """
@@ -4689,8 +4758,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         # Remove the atom to be replaced, and add the rest of the functional
         # group.
         del self[index]
-        for site in functional_group[1:]:
-            self._sites.append(site)
+        self._sites += list(functional_group[1:])
 
     def relax(
         self,
@@ -4698,10 +4766,10 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         optimizer: str | Optimizer = "FIRE",
         steps: int = 500,
         fmax: float = 0.1,
-        opt_kwargs: dict = None,
+        opt_kwargs: dict | None = None,
         return_trajectory: bool = False,
         verbose: bool = False,
-    ) -> Molecule | tuple[Molecule, TrajectoryObserver | Trajectory]:
+    ) -> Molecule | tuple[Molecule, TrajectoryObserver]:
         """
         Performs a molecule relaxation using an ASE calculator.
 
@@ -4718,8 +4786,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             verbose (bool): whether to print out relaxation steps. Defaults to False.
 
         Returns:
-            Molecule | tuple[Molecule, Trajectory]: Relaxed Molecule or 2-tuple of Molecule
-                and ASE/M3GNet TrajectoryObserver if return_trajectory=True.
+            Molecule | tuple[Molecule, Trajectory]: Relaxed Molecule or if return_trajectory=True,
+                2-tuple of Molecule and ASE TrajectoryObserver.
         """
         return self._relax(
             calculator,
@@ -4732,11 +4800,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             verbose=verbose,
         )
 
-    def calculate(
-        self,
-        calculator: str | Calculator = "gfn2-xtb",
-        verbose: bool = False,
-    ) -> Molecule:
+    def calculate(self, calculator: str | Calculator = "gfn2-xtb", verbose: bool = False) -> Calculator:
         """
         Performs an ASE calculation.
 
@@ -4746,9 +4810,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             verbose (bool): whether to print stdout. Defaults to False.
 
         Returns:
-            Molecule: Molecule following ASE calculation.
+            Calculator: ASE Calculator instance with a results attribute containing the output.
         """
-        return self._calculate(self, calculator, verbose=verbose)
+        return self._calculate(calculator, verbose=verbose)
 
 
 class StructureError(Exception):

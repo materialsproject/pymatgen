@@ -40,6 +40,7 @@ Isomorphic graphs should be assigned identical hashes.
 For now, only Weisfeiler-Lehman hashing is implemented.
 
 """
+
 from __future__ import annotations
 
 from collections import Counter, defaultdict
@@ -231,7 +232,7 @@ def weisfeiler_lehman_subgraph_hashes(G, edge_attr=None, node_attr=None, iterati
         in the graph.
         Computes a dictionary with labels for each node.
         Appends the new hashed label to the dictionary of subgraph hashes
-        originating from and indexed by each node in G
+        originating from and indexed by each node in G.
         """
         new_labels = {}
         for node in G.nodes():

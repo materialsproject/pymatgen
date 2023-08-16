@@ -24,23 +24,24 @@ A quick overview of the module:
 from __future__ import annotations
 
 import copy
+import hashlib
 import itertools
 import os
 import re
 import textwrap
 import typing
 from dataclasses import dataclass, field
-from hashlib import md5
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable, Literal, Sequence
 
+import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.cp2k.utils import chunk, postprocessor, preprocessor
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
-from pymatgen.io.vasp.inputs import Kpoints_supported_modes
+from pymatgen.io.vasp.inputs import KpointsSupportedModes
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
@@ -99,9 +100,7 @@ class Keyword(MSONable):
 
     def __str__(self):
         return (
-            self.name.__str__()
-            + " "
-            + (f"[{self.units}] " if self.units else "")
+            f"{self.name} {f'[{self.units}] ' if self.units else ''}"
             + " ".join(map(str, self.values))
             + (" ! " + self.description if (self.description and self.verbose) else "")
         )
@@ -123,9 +122,7 @@ class Keyword(MSONable):
         return self.values[item]  # noqa: PD011
 
     def as_dict(self):
-        """
-        Get a dictionary representation of the Keyword
-        """
+        """Get a dictionary representation of the Keyword."""
         dct = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
@@ -137,17 +134,17 @@ class Keyword(MSONable):
         dct["verbose"] = self.verbose
         return dct
 
-    def get_string(self):
-        """
-        String representation of Keyword
-        """
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
+        """String representation of Keyword."""
         return str(self)
 
     @classmethod
     def from_dict(cls, d):
-        """
-        Initialize from dictionary
-        """
+        """Initialize from dictionary."""
         return Keyword(
             d["name"],
             *d["values"],
@@ -157,8 +154,13 @@ class Keyword(MSONable):
             verbose=d["verbose"],
         )
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(s):
+    def from_str(s):
         """
         Initialize from a string.
 
@@ -183,9 +185,7 @@ class Keyword(MSONable):
         return Keyword(*args, units=units[0], description=description)
 
     def verbosity(self, v):
-        """
-        Change the printing of this keyword's description.
-        """
+        """Change the printing of this keyword's description."""
         self.verbose = v
 
 
@@ -208,7 +208,7 @@ class KeywordList(MSONable):
         self.keywords = list(keywords)
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
@@ -225,27 +225,23 @@ class KeywordList(MSONable):
         return self.keywords[item]
 
     def append(self, item):
-        """
-        Append the keyword list
-        """
+        """Append the keyword list."""
         self.keywords.append(item)
 
     def extend(self, lst: Sequence[Keyword]) -> None:
-        """
-        Extend the keyword list
-        """
+        """Extend the keyword list."""
         self.keywords.extend(lst)
 
-    def get_string(self, indent=0):
-        """
-        String representation of Keyword
-        """
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, indent: int = 0) -> str:
+        """String representation of Keyword."""
         return " \n".join("\t" * indent + str(k) for k in self.keywords)
 
     def verbosity(self, verbosity):
-        """
-        Silence all keywords in keyword list
-        """
+        """Silence all keywords in keyword list."""
         for k in self.keywords:
             k.verbosity(verbosity)
 
@@ -318,7 +314,7 @@ class Section(MSONable):
             self.keywords[k] = Keyword(k, v)
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
     def __eq__(self, d):
         d2 = copy.deepcopy(d)
@@ -380,9 +376,9 @@ class Section(MSONable):
     def __delitem__(self, key):
         """
         Delete section with name matching key OR delete all keywords
-        with names matching this key
+        with names matching this key.
         """
-        lst = [ss for ss in self.subsections if ss.upper() == key.upper()]
+        lst = [sub_sec for sub_sec in self.subsections if sub_sec.upper() == key.upper()]
         if lst:
             del self.subsections[lst[0]]
             return
@@ -396,9 +392,7 @@ class Section(MSONable):
         return self.__delitem__(other)
 
     def add(self, other):
-        """
-        Add another keyword to the current section
-        """
+        """Add another keyword to the current section."""
         assert isinstance(other, (Keyword, KeywordList))
         self + other
 
@@ -412,17 +406,17 @@ class Section(MSONable):
              d: the key to retrieve, if present
              default: what to return if d is not found
         """
-        r = self.get_keyword(d)
-        if r:
-            return r
-        r = self.get_section(d)
-        if r:
-            return r
+        kw = self.get_keyword(d)
+        if kw:
+            return kw
+        sec = self.get_section(d)
+        if sec:
+            return sec
         return default
 
     def get_section(self, d, default=None):
         """
-        Get function, only for subsections
+        Get function, only for subsections.
 
         Args:
             d: Name of section to get
@@ -435,7 +429,7 @@ class Section(MSONable):
 
     def get_keyword(self, d, default=None):
         """
-        Get function, only for subsections
+        Get function, only for subsections.
 
         Args:
             d: Name of keyword to get
@@ -474,9 +468,7 @@ class Section(MSONable):
 
     @staticmethod
     def _update(d1, d2, strict=False):
-        """
-        Helper method for self.update(d) method (see above).
-        """
+        """Helper method for self.update(d) method (see above)."""
         for k, v in d2.items():
             if isinstance(v, (str, float, int, bool)):
                 d1.setitem(k, Keyword(k, v), strict=strict)
@@ -498,21 +490,15 @@ class Section(MSONable):
                 raise TypeError(f"Unrecognized type: {type(v)}")
 
     def set(self, d: dict):
-        """
-        Alias for update. Used by custodian.
-        """
+        """Alias for update. Used by custodian."""
         self.update(d)
 
     def safeset(self, d: dict):
-        """
-        Alias for update with strict (no insertions). Used by custodian.
-        """
+        """Alias for update with strict (no insertions). Used by custodian."""
         self.update(d, strict=True)
 
     def unset(self, d: dict):
-        """
-        Dict based deletion. Used by custodian.
-        """
+        """Dict based deletion. Used by custodian."""
         for k, v in d.items():
             if isinstance(v, (str, float, int, bool)):
                 del self[k][v]
@@ -524,9 +510,7 @@ class Section(MSONable):
                 TypeError("Can only add sections or keywords.")
 
     def inc(self, d: dict):
-        """
-        Mongo style dict modification. Include.
-        """
+        """Mongo style dict modification. Include."""
         for k, v in d.items():
             if isinstance(v, (str, float, bool, int, list)):
                 v = Keyword(k, v)
@@ -538,9 +522,7 @@ class Section(MSONable):
                 TypeError("Can only add sections or keywords.")
 
     def insert(self, d):
-        """
-        Insert a new section as a subsection of the current one
-        """
+        """Insert a new section as a subsection of the current one."""
         assert isinstance(d, (Section, SectionList))
         self.subsections[d.alias or d.name] = copy.deepcopy(d)
 
@@ -578,47 +560,46 @@ class Section(MSONable):
             s = s.get_section(p)
         return s
 
-    def get_string(self):
-        """
-        Get string representation of Section
-        """
-        return Section._get_string(self)
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
+        """Get string representation of Section."""
+        return Section._get_str(self)
 
     @staticmethod
-    def _get_string(d, indent=0):
+    def _get_str(d, indent=0):
         """
         Helper function to return a pretty string of the section. Includes indentation and
         descriptions (if present).
         """
         string = ""
         if d.description and d.verbose:
-            string += (
-                "\n"
-                + textwrap.fill(
-                    d.description,
-                    initial_indent="\t" * indent + "! ",
-                    subsequent_indent="\t" * indent + "! ",
-                    width=50,
-                )
-                + "\n"
+            filled = textwrap.fill(
+                d.description,
+                initial_indent="\t" * indent + "! ",
+                subsequent_indent="\t" * indent + "! ",
+                width=50,
             )
+            string += f"\n{filled}\n"
         string += "\t" * indent + "&" + d.name
-        string += " " + " ".join(map(str, d.section_parameters)) + "\n"
+        string += f" {' '.join(map(str, d.section_parameters))}\n"
 
         for v in d.keywords.values():
             if isinstance(v, KeywordList):
-                string += v.get_string(indent=indent + 1) + "\n"
+                string += f"{v.get_str(indent=indent + 1)}\n"
             else:
-                string += "\t" * (indent + 1) + v.get_string() + "\n"
+                string += "\t" * (indent + 1) + v.get_str() + "\n"
         for v in d.subsections.values():
-            string += v._get_string(v, indent + 1)
+            string += v._get_str(v, indent + 1)
         string += "\t" * indent + "&END " + d.name + "\n"
 
         return string
 
     def verbosity(self, verbosity):
         """
-        Change the section verbossity recursively by turning on/off the printing of descriptions.
+        Change the section verbosity recursively by turning on/off the printing of descriptions.
         Turning off descriptions may reduce the appealing documentation of input files, but also
         helps de-clutter them.
         """
@@ -629,9 +610,7 @@ class Section(MSONable):
             v.verbosity(verbosity)
 
     def silence(self):
-        """
-        Recursively delete all print sections so that only defaults are printed out.
-        """
+        """Recursively delete all print sections so that only defaults are printed out."""
         if self.subsections:
             if self.subsections.get("PRINT"):
                 del self.subsections["PRINT"]
@@ -640,9 +619,7 @@ class Section(MSONable):
 
 
 class SectionList(MSONable):
-    """
-    Section list
-    """
+    """Section list."""
 
     def __init__(self, sections: Sequence[Section]):
         """
@@ -657,7 +634,7 @@ class SectionList(MSONable):
         self.sections = list(sections)
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SectionList):
@@ -678,14 +655,16 @@ class SectionList(MSONable):
         return SectionList(sections=[d.__deepcopy__() for d in self.sections])
 
     @staticmethod
-    def _get_string(d, indent=0):
-        return " \n".join(s._get_string(s, indent) for s in d)
+    def _get_str(d, indent=0):
+        return " \n".join(s._get_str(s, indent) for s in d)
 
-    def get_string(self):
-        """
-        Return string representation of section list
-        """
-        return SectionList._get_string(self.sections)
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
+        """Return string representation of section list."""
+        return SectionList._get_str(self.sections)
 
     def get(self, d, index=-1):
         """
@@ -695,21 +674,15 @@ class SectionList(MSONable):
         return self.sections[index].get(d)
 
     def append(self, item) -> None:
-        """
-        Append the section list
-        """
+        """Append the section list."""
         self.sections.append(item)
 
     def extend(self, lst: list) -> None:
-        """
-        Extend the section list
-        """
+        """Extend the section list."""
         self.sections.extend(lst)
 
     def verbosity(self, verbosity) -> None:
-        """
-        Silence all sections in section list
-        """
+        """Silence all sections in section list."""
         for k in self.sections:
             k.verbosity(verbosity)
 
@@ -717,14 +690,12 @@ class SectionList(MSONable):
 class Cp2kInput(Section):
     """
     Special instance of 'Section' class that is meant to represent the overall cp2k input.
-    Distinguishes itself from Section by overriding get_string() to not print this section's
+    Distinguishes itself from Section by overriding get_str() to not print this section's
     title and by implementing the file i/o.
     """
 
     def __init__(self, name: str = "CP2K_INPUT", subsections: dict | None = None, **kwargs):
-        """
-        Initialize Cp2kInput by calling the super
-        """
+        """Initialize Cp2kInput by calling the super."""
         self.name = name
         self.subsections = subsections if subsections else {}
         self.kwargs = kwargs
@@ -739,20 +710,16 @@ class Cp2kInput(Section):
             **kwargs,
         )
 
-    def get_string(self):
-        """
-        Get string representation of the Cp2kInput
-        """
+    def get_str(self):
+        """Get string representation of the Cp2kInput."""
         s = ""
         for v in self.subsections.values():
-            s += v.get_string()
+            s += v.get_str()
         return s
 
     @classmethod
     def _from_dict(cls, d):
-        """
-        Initialize from a dictionary
-        """
+        """Initialize from a dictionary."""
         return Cp2kInput(
             "CP2K_INPUT",
             subsections=getattr(
@@ -765,18 +732,19 @@ class Cp2kInput(Section):
 
     @staticmethod
     def from_file(file: str):
-        """
-        Initialize from a file
-        """
+        """Initialize from a file."""
         with zopen(file, "rt") as f:
             txt = preprocessor(f.read(), os.path.dirname(f.name))
-            return Cp2kInput.from_string(txt)
+            return Cp2kInput.from_str(txt)
+
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
 
     @staticmethod
-    def from_string(s: str):
-        """
-        Initialize from a string
-        """
+    def from_str(s: str):
+        """Initialize from a string."""
         lines = s.splitlines()
         lines = [line.replace("\t", "") for line in lines]
         lines = [line.strip() for line in lines]
@@ -785,17 +753,13 @@ class Cp2kInput(Section):
 
     @classmethod
     def from_lines(cls, lines: list | tuple):
-        """
-        Helper method to read lines of file
-        """
+        """Helper method to read lines of file."""
         cp2k_input = Cp2kInput("CP2K_INPUT", subsections={})
         Cp2kInput._from_lines(cp2k_input, lines)
         return cp2k_input
 
     def _from_lines(self, lines):
-        """
-        Helper method, reads lines of text to get a Cp2kInput
-        """
+        """Helper method, reads lines of text to get a Cp2kInput."""
         current = self.name
         description = ""
         for line in lines:
@@ -829,7 +793,7 @@ class Cp2kInput(Section):
                     self.by_path(current).insert(s)
                 current = current + "/" + alias if alias else current + "/" + name
             else:
-                kwd = Keyword.from_string(line)
+                kwd = Keyword.from_str(line)
                 tmp = self.by_path(current).get(kwd.name)
                 if tmp:
                     if isinstance(tmp, KeywordList):
@@ -860,13 +824,11 @@ class Cp2kInput(Section):
             os.mkdir(output_dir)
         filepath = os.path.join(output_dir, input_filename)
         with open(filepath, "w") as f:
-            f.write(self.get_string())
+            f.write(self.get_str())
 
 
 class Global(Section):
-    """
-    Controls 'global' settings for cp2k execution such as RUN_TYPE and PROJECT_NAME
-    """
+    """Controls 'global' settings for cp2k execution such as RUN_TYPE and PROJECT_NAME."""
 
     def __init__(
         self,
@@ -875,7 +837,7 @@ class Global(Section):
         keywords: dict | None = None,
         **kwargs,
     ):
-        """Initialize the global section
+        """Initialize the global section.
 
         Args:
             project_name: Defaults to "CP2K".
@@ -906,12 +868,10 @@ class Global(Section):
 
 
 class ForceEval(Section):
-    """
-    Controls the calculation of energy and forces in Cp2k
-    """
+    """Controls the calculation of energy and forces in Cp2k."""
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
-        """Initialize the ForceEval section"""
+        """Initialize the ForceEval section."""
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
 
@@ -933,9 +893,7 @@ class ForceEval(Section):
 
 
 class Dft(Section):
-    """
-    Controls the DFT parameters in Cp2k
-    """
+    """Controls the DFT parameters in Cp2k."""
 
     def __init__(
         self,
@@ -993,12 +951,10 @@ class Dft(Section):
 
 
 class Subsys(Section):
-    """
-    Controls the definition of the system to be simulated
-    """
+    """Controls the definition of the system to be simulated."""
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
-        """Initialize the subsys section"""
+        """Initialize the subsys section."""
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
         description = "A subsystem: coordinates, topology, molecules and cell"
@@ -1006,7 +962,7 @@ class Subsys(Section):
 
 
 class QS(Section):
-    """Controls the quickstep settings (DFT driver)"""
+    """Controls the quickstep settings (DFT driver)."""
 
     def __init__(
         self,
@@ -1019,7 +975,7 @@ class QS(Section):
         **kwargs,
     ):
         """
-        Initialize the QS Section
+        Initialize the QS Section.
 
         Args:
             method ("GPW" | "GAPW"): What DFT methodology to use. GPW (Gaussian Plane Waves) for
@@ -1064,7 +1020,7 @@ class QS(Section):
 
 
 class Scf(Section):
-    """Controls the self consistent field loop"""
+    """Controls the self consistent field loop."""
 
     def __init__(
         self,
@@ -1076,7 +1032,7 @@ class Scf(Section):
         **kwargs,
     ):
         """
-        Initialize the Scf section
+        Initialize the Scf section.
 
         Args:
             max_scf (int): Maximum number of SCF loops before terminating. Defaults to 50.
@@ -1125,12 +1081,12 @@ class Scf(Section):
 
 
 class Mgrid(Section):
-    """Controls the multigrid for numerical integration"""
+    """Controls the multigrid for numerical integration."""
 
     def __init__(
         self,
-        cutoff: int | float = 1200,
-        rel_cutoff: int | float = 80,
+        cutoff: float = 1200,
+        rel_cutoff: float = 80,
         ngrids: int = 5,
         progression_factor: int = 3,
         keywords: dict | None = None,
@@ -1138,7 +1094,7 @@ class Mgrid(Section):
         **kwargs,
     ):
         """
-        Initialize the MGRID section
+        Initialize the MGRID section.
 
         Args:
             cutoff: Cutoff energy (in Rydbergs for historical reasons) defining how find of
@@ -1198,7 +1154,7 @@ class Diagonalization(Section):
         subsections: dict | None = None,
         **kwargs,
     ):
-        """Initialize the diagronalization section"""
+        """Initialize the diagronalization section."""
         self.eps_adapt = eps_adapt
         self.eps_iter = eps_iter
         self.eps_jacobi = eps_jacobi
@@ -1227,7 +1183,7 @@ class Diagonalization(Section):
 
 
 class Davidson(Section):
-    """Parameters for davidson diagonalization"""
+    """Parameters for davidson diagonalization."""
 
     def __init__(
         self,
@@ -1256,7 +1212,7 @@ class Davidson(Section):
                     yet equally expensive.
                 "NONE": skip preconditioning
             keywords: additional keywords
-            subsections: additional subsections
+            subsections: additional subsections.
         """
         self.new_prec_each = new_prec_each
         self.preconditioner = preconditioner
@@ -1302,7 +1258,7 @@ class OrbitalTransformation(Section):
         **kwargs,
     ):
         """
-        Initialize the OT section
+        Initialize the OT section.
 
         Args:
             minimizer: The minimizer to use with the OT method. Default is conjugate gradient
@@ -1374,7 +1330,7 @@ class OrbitalTransformation(Section):
 
 
 class Cell(Section):
-    """Defines the simulation cell (lattice)"""
+    """Defines the simulation cell (lattice)."""
 
     def __init__(self, lattice: Lattice, keywords: dict | None = None, **kwargs):
         """
@@ -1414,7 +1370,7 @@ class Kind(Section):
         **kwargs,
     ):
         """
-        Initialize a KIND section
+        Initialize a KIND section.
 
         Args:
             specie: Object representing the atom.
@@ -1510,7 +1466,7 @@ class Kind(Section):
 
 
 class DftPlusU(Section):
-    """Controls DFT+U for an atom kind"""
+    """Controls DFT+U for an atom kind."""
 
     def __init__(
         self,
@@ -1573,7 +1529,7 @@ class Coord(Section):
             alias (bool): whether or not to identify the sites by Element + number so you can do
                 things like assign unique magnetization do different elements.
             keywords: additional keywords
-            subsections: additional subsections
+            subsections: additional subsections.
         """
         self.structure = structure
         self.aliases = aliases
@@ -1606,7 +1562,7 @@ class DOS(Section):
 
     def __init__(self, ndigits: int = 6, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         """
-        Initialize the DOS section
+        Initialize the DOS section.
 
         Args:
             ndigits: how many digits of precision to print. As of 2022.1,
@@ -1631,7 +1587,7 @@ class PDOS(Section):
 
     def __init__(self, nlumo: int = -1, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         """
-        Initialize the PDOS section
+        Initialize the PDOS section.
 
         Args:
             nlumo: how many unoccupied orbitals to include (-1==ALL)
@@ -1652,9 +1608,7 @@ class PDOS(Section):
 
 
 class LDOS(Section):
-    """
-    Controls printing of the LDOS (List-Density of states). i.e. projects onto specific atoms.
-    """
+    """Controls printing of the LDOS (List-Density of states). i.e. projects onto specific atoms."""
 
     def __init__(
         self,
@@ -1665,7 +1619,7 @@ class LDOS(Section):
         **kwargs,
     ):
         """
-        Initialize the LDOS section
+        Initialize the LDOS section.
 
         Args:
             index: Index of the atom to project onto
@@ -1710,7 +1664,7 @@ class V_Hartree_Cube(Section):
 
 
 class MO_Cubes(Section):
-    """Controls printing of the molecular orbital eigenvalues"""
+    """Controls printing of the molecular orbital eigenvalues."""
 
     def __init__(
         self,
@@ -1721,9 +1675,7 @@ class MO_Cubes(Section):
         subsections: dict | None = None,
         **kwargs,
     ):
-        """
-        Initialize the MO_CUBES section
-        """
+        """Initialize the MO_CUBES section."""
         self.write_cube = write_cube
         self.nhomo = nhomo
         self.nlumo = nlumo
@@ -1751,7 +1703,7 @@ class MO_Cubes(Section):
 
 
 class E_Density_Cube(Section):
-    """Controls printing of the electron density cube file"""
+    """Controls printing of the electron density cube file."""
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         keywords = keywords if keywords else {}
@@ -1771,11 +1723,11 @@ class E_Density_Cube(Section):
 
 
 class Smear(Section):
-    """Control electron smearing"""
+    """Control electron smearing."""
 
     def __init__(
         self,
-        elec_temp: int | float = 300,
+        elec_temp: float = 300,
         method: str = "FERMI_DIRAC",
         fixed_magnetic_moment: float = -1e2,
         keywords: dict | None = None,
@@ -1821,7 +1773,7 @@ class BrokenSymmetry(Section):
         nel_beta: Sequence = (-1,),
     ):
         """
-        Initialize the broken symmetry section
+        Initialize the broken symmetry section.
 
         Args:
             l_alpha: Angular momentum quantum number of the orbitals whose occupation is changed
@@ -1869,9 +1821,7 @@ class BrokenSymmetry(Section):
 
     @classmethod
     def from_el(cls, el, oxi_state=0, spin=0):
-        """
-        Create section from element, oxidation state, and spin.
-        """
+        """Create section from element, oxidation state, and spin."""
         el = el if isinstance(el, Element) else Element(el)
 
         def f(x):
@@ -1969,8 +1919,8 @@ class PBE(Section):
     def __init__(
         self,
         parameterization: str = "ORIG",
-        scale_c: float | int = 1,
-        scale_x: float | int = 1,
+        scale_c: float = 1,
+        scale_x: float = 1,
         keywords: dict | None = None,
         subsections: dict | None = None,
     ):
@@ -1983,7 +1933,7 @@ class PBE(Section):
             scale_c (float): scales the correlation part of the functional.
             scale_x (float): scales the exchange part of the functional.
             keywords: additional keywords
-            subsections: additional subsections
+            subsections: additional subsections.
         """
         self.parameterization = parameterization
         self.scale_c = scale_c
@@ -2049,7 +1999,7 @@ class Kpoints(Section):
                 or cartesian). Default='B_VECTOR' (reciprocal)
             verbose (bool): verbose output for kpoints. Default=False
             wavefunctions (str): Whether to use complex or real valued wavefunctions
-                (if available). Default='complex'
+                (if available). Default='complex'.
         """
         description = "Sets up the kpoints"
         keywords = {}
@@ -2113,7 +2063,7 @@ class Kpoints(Section):
         kpts = kpoints.kpts
         weights = kpoints.kpts_weights
 
-        if kpoints.style == Kpoints_supported_modes.Monkhorst:
+        if kpoints.style == KpointsSupportedModes.Monkhorst:
             k = kpts[0]
             if isinstance(k, (int, float)):
                 x, y, z = k, k, k
@@ -2121,13 +2071,13 @@ class Kpoints(Section):
                 x, y, z = k
             scheme = f"MONKHORST-PACK {x} {y} {z}"
             units = "B_VECTOR"
-        elif kpoints.style == Kpoints_supported_modes.Reciprocal:
+        elif kpoints.style == KpointsSupportedModes.Reciprocal:
             units = "B_VECTOR"
             scheme = "GENERAL"
-        elif kpoints.style == Kpoints_supported_modes.Cartesian:
+        elif kpoints.style == KpointsSupportedModes.Cartesian:
             units = "CART_ANGSTROM"
             scheme = "GENERAL"
-        elif kpoints.style == Kpoints_supported_modes.Gamma:
+        elif kpoints.style == KpointsSupportedModes.Gamma:
             if (isinstance(kpts[0], Iterable) and tuple(kpts[0]) == (1, 1, 1)) or (
                 isinstance(kpts[0], (float, int)) and int(kpts[0]) == 1
             ):
@@ -2143,7 +2093,7 @@ class Kpoints(Section):
                 kpts = list(itertools.chain.from_iterable(_kpts))
                 scheme = "GENERAL"
                 units = "B_VECTOR"
-        elif kpoints.style == Kpoints_supported_modes.Line_mode:
+        elif kpoints.style == KpointsSupportedModes.Line_mode:
             scheme = "GENERAL"
             units = "B_VECTOR"
         else:
@@ -2162,7 +2112,7 @@ class Kpoint_Set(Section):
             units (str): Units for the kpoint coordinates.
                 Options: "B_VECTOR" (reciprocal coordinates)
                          "CART_ANGSTROM" (units of 2*Pi/Angstrom)
-                         "CART_BOHR" (units of 2*Pi/Bohr)
+                         "CART_BOHR" (units of 2*Pi/Bohr).
         """
         self.npoints = npoints
         self.kpoints = kpoints
@@ -2205,7 +2155,7 @@ class Band_Structure(Section):
             filename: Filename for the band structure output
             added_mos: Added (unoccupied) molecular orbitals for the calculation.
             keywords: additional keywords
-            subsections: additional subsections
+            subsections: additional subsections.
         """
         self.kpoint_sets = SectionList(kpoint_sets)
         self.filename = filename
@@ -2229,13 +2179,13 @@ class Band_Structure(Section):
     @staticmethod
     def from_kpoints(kpoints: VaspKpoints, kpoints_line_density=20):
         """
-        Initialize band structure section from a line-mode Kpoint object
+        Initialize band structure section from a line-mode Kpoint object.
 
         Args:
             kpoints: a kpoint object from the vasp module, which was constructed in line mode
             kpoints_line_density: Number of kpoints along each path
         """
-        if kpoints.style == Kpoints_supported_modes.Line_mode:
+        if kpoints.style == KpointsSupportedModes.Line_mode:
 
             def pairwise(iterable):
                 a = iter(iterable)
@@ -2250,8 +2200,8 @@ class Band_Structure(Section):
                 for lbls, kpts in zip(pairwise(kpoints.labels), pairwise(kpoints.kpts))
             ]
         elif kpoints.style in (
-            Kpoints_supported_modes.Reciprocal,
-            Kpoints_supported_modes.Cartesian,
+            KpointsSupportedModes.Reciprocal,
+            KpointsSupportedModes.Cartesian,
         ):
             kpoint_sets = [
                 Kpoint_Set(
@@ -2270,7 +2220,7 @@ class Band_Structure(Section):
 @dataclass
 class BasisInfo(MSONable):
     """
-    Summary info about a basis set
+    Summary info about a basis set.
 
     Attributes:
         electrons: Number of electrons
@@ -2316,8 +2266,13 @@ class BasisInfo(MSONable):
         return all(not (v is not None and v != d2[k]) for k, v in d1.items())
 
     @classmethod
-    def from_string(cls, string: str) -> BasisInfo:
-        """Get summary info from a string"""
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, string: str) -> BasisInfo:
+        """Get summary info from a string."""
         string = string.upper()
         data: dict[str, Any] = {}
         data["cc"] = "CC" in string
@@ -2371,7 +2326,7 @@ class BasisInfo(MSONable):
 @dataclass
 class AtomicMetadata(MSONable):
     """
-    Metadata for basis sets and potentials in cp2k
+    Metadata for basis sets and potentials in cp2k.
 
     Attributes:
         info: Info about this object
@@ -2415,18 +2370,26 @@ class AtomicMetadata(MSONable):
         return all(not (nm is not None and nm not in other_names) for nm in this_names)
 
     def get_hash(self) -> str:
-        """Get a hash of this object"""
-        return md5(self.get_string().lower().encode("utf-8")).hexdigest()
+        """Get a hash of this object."""
+        # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
+        # https://github.com/materialsproject/pymatgen/issues/2804
+        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5.update(self.get_str().lower().encode("utf-8"))
+        return md5.hexdigest()
 
-    def get_string(self):
-        """Get string representation"""
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
+        """Get string representation."""
         return str(self)
 
 
 @dataclass
 class GaussianTypeOrbitalBasisSet(AtomicMetadata):
     """
-    Model definition of a GTO basis set
+    Model definition of a GTO basis set.
 
     Attributes:
         info: Cardinality of this basis
@@ -2468,7 +2431,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
             self.coefficients = [cast(c) for c in self.coefficients]
 
     def get_keyword(self) -> Keyword:
-        """Convert basis to keyword object"""
+        """Convert basis to keyword object."""
         if not self.name:
             raise ValueError("No name attribute. Cannot create keyword")
         vals: Any = []
@@ -2479,15 +2442,25 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
 
     @property
     def nexp(self):
-        """Number of exponents"""
+        """Number of exponents."""
         return [len(e) for e in self.exponents]
 
     @typing.no_type_check
-    def get_string(self) -> str:
-        """Get standard cp2k GTO formatted string"""
-        if any(
-            getattr(self, x, None) is None
-            for x in ("info", "nset", "n", "lmax", "lmin", "nshell", "exponents", "coefficients")
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
+        """Get standard cp2k GTO formatted string."""
+        if (  # written verbosely so mypy can perform type narrowing
+            self.info is None
+            or self.nset is None
+            or self.n is None
+            or self.lmax is None
+            or self.lmin is None
+            or self.nshell is None
+            or self.exponents is None
+            or self.coefficients is None
         ):
             raise ValueError("Must have all attributes defined to get string representation")
 
@@ -2507,18 +2480,21 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         return out
 
     @classmethod
-    def from_string(cls, string: str) -> GaussianTypeOrbitalBasisSet:
-        """
-        Read from standard cp2k GTO formatted string
-        """
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, string: str) -> GaussianTypeOrbitalBasisSet:
+        """Read from standard cp2k GTO formatted string."""
         lines = [line for line in string.split("\n") if line]
         firstline = lines[0].split()
         element = Element(firstline[0])
         names = firstline[1:]
         name, aliases = names[0], names[1:]
-        _info = BasisInfo.from_string(name).as_dict()
+        _info = BasisInfo.from_str(name).as_dict()
         for alias in aliases:
-            for k, v in BasisInfo.from_string(alias).as_dict().items():
+            for k, v in BasisInfo.from_str(alias).as_dict().items():
                 if _info[k] is None:
                     _info[k] = v
         info = BasisInfo.from_dict(_info)
@@ -2582,7 +2558,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
 @dataclass
 class PotentialInfo(MSONable):
     """
-    Metadata for this potential
+    Metadata for this potential.
 
     Attributes:
         electrons: Total number of electrons
@@ -2609,8 +2585,13 @@ class PotentialInfo(MSONable):
         return all(not (v is not None and v != d2[k]) for k, v in d1.items())
 
     @classmethod
-    def from_string(cls, string):
-        """Get a cp2k formatted string representation"""
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, string):
+        """Get a cp2k formatted string representation."""
         string = string.upper()
         data = {}
         if "NLCC" in string:
@@ -2632,7 +2613,7 @@ class PotentialInfo(MSONable):
 @dataclass
 class GthPotential(AtomicMetadata):
     """
-    Representation of GTH-type (pseudo)potential
+    Representation of GTH-type (pseudo)potential.
 
     Attributes:
         info: Info about this potential
@@ -2682,20 +2663,18 @@ class GthPotential(AtomicMetadata):
             self.hprj_ppnl = cast(self.hprj_ppnl)
 
     def get_keyword(self) -> Keyword:
-        """Get keyword object for the potential"""
+        """Get keyword object for the potential."""
         if self.name is None:
             raise ValueError("Cannot get keyword without name attribute")
 
         return Keyword("POTENTIAL", self.name)
 
     def get_section(self) -> Section:
-        """
-        Convert model to a GTH-formatted section object for input files
-        """
+        """Convert model to a GTH-formatted section object for input files."""
         if self.name is None:
             raise ValueError("Cannot get section without name attribute")
 
-        keywords = {"POTENTIAL": Keyword("", self.get_string())}
+        keywords = {"POTENTIAL": Keyword("", self.get_str())}
         return Section(
             name=self.name,
             section_parameters=None,
@@ -2706,21 +2685,20 @@ class GthPotential(AtomicMetadata):
 
     @classmethod
     def from_section(cls, section: Section) -> GthPotential:
-        """
-        Extract GTH-formatted string from a section and convert it to model
-        """
+        """Extract GTH-formatted string from a section and convert it to model."""
         sec = copy.deepcopy(section)
         sec.verbosity(False)
-        s = sec.get_string()
-        s = [_ for _ in s.split("\n") if not _.startswith("&")]
-        s = "\n".join(s)
-        return cls.from_string(s)
+        lst = sec.get_str().split("\n")
+        string = "\n".join(line for line in lst if not line.startswith("&"))
+        return cls.from_str(string)
 
-    def get_string(self):
-        """
-        Convert model to a GTH-formatted string
-        """
-        if (
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
+        """Convert model to a GTH-formatted string."""
+        if (  # written verbosely so mypy can perform type narrowing
             self.info is None
             or self.n_elecs is None
             or self.r_loc is None
@@ -2733,9 +2711,9 @@ class GthPotential(AtomicMetadata):
         ):
             raise ValueError("Must initialize all attributes in order to get string")
 
-        out = f"{self.element!s} {self.name} {' '.join(self.alias_names)}\n"
+        out = f"{self.element} {self.name} {' '.join(self.alias_names)}\n"
         out += f"{' '.join(str(self.n_elecs[i]) for i in range(len(self.n_elecs)))}\n"
-        out += f"{self.r_loc: .14f} {self.nexp_ppl!s} "
+        out += f"{self.r_loc: .14f} {self.nexp_ppl} "
         for i in range(self.nexp_ppl):
             out += f"{self.c_exp_ppl[i]: .14f} "
         out += "\n"
@@ -2752,16 +2730,19 @@ class GthPotential(AtomicMetadata):
         return out
 
     @classmethod
-    def from_string(cls, string):
-        """
-        Initialize model from a GTH formatted string
-        """
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, string):
+        """Initialize model from a GTH formatted string."""
         lines = [line for line in string.split("\n") if line]
         firstline = lines[0].split()
         element, name, aliases = firstline[0], firstline[1], firstline[2:]
-        info = PotentialInfo.from_string(name).as_dict()
+        info = PotentialInfo.from_str(name).as_dict()
         for alias in aliases:
-            for k, v in PotentialInfo.from_string(alias).as_dict().items():
+            for k, v in PotentialInfo.from_str(alias).as_dict().items():
                 if info[k] is None:
                     info[k] = v
         info = PotentialInfo.from_dict(info)
@@ -2831,48 +2812,57 @@ class DataFile(MSONable):
 
     @classmethod
     def from_file(cls, fn):
-        """Load from a file"""
+        """Load from a file."""
         with open(fn) as f:
-            data = cls.from_string(f.read())
+            data = cls.from_str(f.read())
             for obj in data.objects:
                 obj.filename = fn
             return data
 
     @classmethod
-    def from_string(cls):
-        """Initialize from a string"""
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls):
+        """Initialize from a string."""
         raise NotImplementedError
 
     def write_file(self, fn):
-        """Write to a file"""
+        """Write to a file."""
         with open(fn, "w") as f:
-            f.write(self.get_string())
+            f.write(self.get_str())
 
-    def get_string(self):
-        """Get string representation"""
-        return "\n".join(b.get_string() for b in self.objects)
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
+        """Get string representation."""
+        return "\n".join(b.get_str() for b in self.objects or [])
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
 
 @dataclass
 class BasisFile(DataFile):
-    """Data file for basis sets only"""
+    """Data file for basis sets only."""
 
     @classmethod
-    def from_string(cls, string):
-        """Initialize from a string representation"""
-        basis_sets = [GaussianTypeOrbitalBasisSet.from_string(c) for c in chunk(string)]
+    def from_str(cls, string):
+        """Initialize from a string representation."""
+        basis_sets = [GaussianTypeOrbitalBasisSet.from_str(c) for c in chunk(string)]
         return cls(objects=basis_sets)
 
 
 @dataclass
 class PotentialFile(DataFile):
-    """Data file for potentials only"""
+    """Data file for potentials only."""
 
     @classmethod
-    def from_string(cls, string):
-        """Initialize from a string representation"""
-        basis_sets = [GthPotential.from_string(c) for c in chunk(string)]
+    def from_str(cls, string):
+        """Initialize from a string representation."""
+        basis_sets = [GthPotential.from_str(c) for c in chunk(string)]
         return cls(objects=basis_sets)

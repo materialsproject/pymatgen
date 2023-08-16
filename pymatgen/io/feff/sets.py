@@ -50,9 +50,7 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def header(self):
-        """
-        Returns header to be used in feff.inp file from a pymatgen structure
-        """
+        """Returns header to be used in feff.inp file from a pymatgen structure."""
 
     @property
     @abc.abstractmethod
@@ -67,22 +65,16 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
     @property
     @abc.abstractmethod
     def tags(self):
-        """
-        Returns standard calculation parameters.
-        """
+        """Returns standard calculation parameters."""
         return
 
     @property
     @abc.abstractmethod
     def potential(self):
-        """
-        Returns POTENTIAL section used in feff.inp from a structure.
-        """
+        """Returns POTENTIAL section used in feff.inp from a structure."""
 
     def all_input(self):
-        """
-        Returns all input files as a dict of {filename: feffio object}
-        """
+        """Returns all input files as a dict of {filename: feffio object}."""
         d = {"HEADER": self.header(), "PARAMETERS": self.tags}
 
         if "RECIPROCAL" not in self.tags:
@@ -110,7 +102,7 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
             with open(os.path.join(output_dir, k), "w") as f:
                 f.write(str(v))
 
-        with open(os.path.join(output_dir, "feff.inp"), "w") as f:
+        with open(f"{output_dir}/feff.inp", "w") as f:
             f.write(feff_input)
 
         # write the structure to cif file
@@ -157,7 +149,7 @@ class FEFFDictSet(AbstractFeffInputSet):
                     of tuples where the first element is the unique potential value (ipot value)
                     and the second element is the charge to be applied to atoms associated
                     with that potential, e.g. {"IONS": [(0, 0.1), (1, 0.1), (2, 0.1)]}
-                    will result in
+                    will result in.
 
                     ION 0 0.1
                     ION 1 0.1
@@ -220,7 +212,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
     def header(self, source: str = "", comment: str = ""):
         """
-        Creates header string from structure object
+        Creates header string from structure object.
 
         Args:
             source: Source identifier used to create structure, can be defined
@@ -267,7 +259,7 @@ class FEFFDictSet(AbstractFeffInputSet):
     @property
     def potential(self) -> Potential:
         """
-        FEFF potential
+        FEFF potential.
 
         Returns:
             Potential
@@ -277,7 +269,7 @@ class FEFFDictSet(AbstractFeffInputSet):
     @property
     def atoms(self) -> Atoms:
         """
-        absorber + the rest
+        absorber + the rest.
 
         Returns:
             Atoms
@@ -307,7 +299,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
         absorber_index = []
         radius = None
-        feffinp = zpath(os.path.join(input_dir, "feff.inp"))
+        feffinp = zpath(f"{input_dir}/feff.inp")
 
         if "RECIPROCAL" not in sub_d["parameters"]:
             input_atoms = Atoms.cluster_from_file(feffinp)
@@ -347,7 +339,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
         # Generate the input set
         if "XANES" in sub_d["parameters"]:
-            CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
+            CONFIG = loadfn(f"{MODULE_DIR}/MPXANESSet.yaml")
             if radius is None:
                 radius = 10
             return FEFFDictSet(
@@ -364,11 +356,9 @@ class FEFFDictSet(AbstractFeffInputSet):
 
 
 class MPXANESSet(FEFFDictSet):
-    """
-    FeffDictSet for XANES spectroscopy.
-    """
+    """FeffDictSet for XANES spectroscopy."""
 
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
+    CONFIG = loadfn(f"{MODULE_DIR}/MPXANESSet.yaml")
 
     def __init__(
         self,
@@ -389,7 +379,7 @@ class MPXANESSet(FEFFDictSet):
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
-            **kwargs: Passthrough to FEFFDictSet
+            **kwargs: Passthrough to FEFFDictSet.
         """
         super().__init__(
             absorbing_atom,
@@ -405,11 +395,9 @@ class MPXANESSet(FEFFDictSet):
 
 
 class MPEXAFSSet(FEFFDictSet):
-    """
-    FeffDictSet for EXAFS spectroscopy.
-    """
+    """FeffDictSet for EXAFS spectroscopy."""
 
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXAFSSet.yaml"))
+    CONFIG = loadfn(f"{MODULE_DIR}/MPEXAFSSet.yaml")
 
     def __init__(
         self,
@@ -430,7 +418,7 @@ class MPEXAFSSet(FEFFDictSet):
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
-            **kwargs: Passthrough to FEFFDictSet
+            **kwargs: Passthrough to FEFFDictSet.
         """
         super().__init__(
             absorbing_atom,
@@ -446,9 +434,7 @@ class MPEXAFSSet(FEFFDictSet):
 
 
 class MPEELSDictSet(FEFFDictSet):
-    """
-    FeffDictSet for ELNES spectroscopy.
-    """
+    """FeffDictSet for ELNES spectroscopy."""
 
     def __init__(
         self,
@@ -484,7 +470,7 @@ class MPEELSDictSet(FEFFDictSet):
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
-            **kwargs: Passthrough to FEFFDictSet
+            **kwargs: Passthrough to FEFFDictSet.
         """
         self.beam_energy = beam_energy
         self.beam_direction = beam_direction
@@ -519,11 +505,9 @@ class MPEELSDictSet(FEFFDictSet):
 
 
 class MPELNESSet(MPEELSDictSet):
-    """
-    FeffDictSet for ELNES spectroscopy.
-    """
+    """FeffDictSet for ELNES spectroscopy."""
 
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPELNESSet.yaml"))
+    CONFIG = loadfn(f"{MODULE_DIR}/MPELNESSet.yaml")
 
     def __init__(
         self,
@@ -556,7 +540,7 @@ class MPELNESSet(MPEELSDictSet):
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
-            **kwargs: Passthrough to FEFFDictSet
+            **kwargs: Passthrough to FEFFDictSet.
         """
         super().__init__(
             absorbing_atom,
@@ -577,11 +561,9 @@ class MPELNESSet(MPEELSDictSet):
 
 
 class MPEXELFSSet(MPEELSDictSet):
-    """
-    FeffDictSet for EXELFS spectroscopy.
-    """
+    """FeffDictSet for EXELFS spectroscopy."""
 
-    CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXELFSSet.yaml"))
+    CONFIG = loadfn(f"{MODULE_DIR}/MPEXELFSSet.yaml")
 
     def __init__(
         self,
@@ -614,7 +596,7 @@ class MPEXELFSSet(MPEELSDictSet):
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
-            **kwargs: Passthrough to FEFFDictSet
+            **kwargs: Passthrough to FEFFDictSet.
         """
         super().__init__(
             absorbing_atom,

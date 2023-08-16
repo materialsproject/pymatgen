@@ -1,6 +1,4 @@
-"""
-This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.
-"""
+"""This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis."""
 
 from __future__ import annotations
 
@@ -13,8 +11,8 @@ from scipy.spatial import Voronoi
 
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
     get_lower_and_upper_f,
-    my_solid_angle,
     rectangle_surface_intersection,
+    solid_angle,
 )
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.analysis.chemenv.utils.math_utils import normal_cdf_step
@@ -61,9 +59,7 @@ def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
 
 
 class DetailedVoronoiContainer(MSONable):
-    """
-    Class used to store the full Voronoi of a given structure.
-    """
+    """Class used to store the full Voronoi of a given structure."""
 
     AC = AdditionalConditions()
     default_voronoi_cutoff = 10.0
@@ -145,7 +141,7 @@ class DetailedVoronoiContainer(MSONable):
         t1 = time.process_time()
         logging.debug("Setting up Voronoi list :")
         for jj, isite in enumerate(indices):
-            logging.debug(f"  - Voronoi analysis for site #{isite:d} ({jj + 1:d}/{len(indices):d})")
+            logging.debug(f"  - Voronoi analysis for site #{isite} ({jj + 1}/{len(indices)})")
             site = self.structure[isite]
             neighbors1 = [(site, 0.0, isite)]
             neighbors1.extend(struct_neighbors[isite])
@@ -168,7 +164,7 @@ class DetailedVoronoiContainer(MSONable):
 
                     ridge_point2 = max(ridge_points)
                     facets = [all_vertices[i] for i in ridge_vertices_indices]
-                    sa = my_solid_angle(site.coords, facets)
+                    sa = solid_angle(site.coords, facets)
                     maxangle = max([sa, maxangle])
 
                     mindist = min([mindist, distances[ridge_point2]])
@@ -625,16 +621,14 @@ class DetailedVoronoiContainer(MSONable):
         Returns:
             List of neighbors of the given site for the given distance and angle factors.
         """
-        idist = None
-        dfact = None
+        idist = dfact = None
         for iwd, wd in enumerate(self.neighbors_normalized_distances[isite]):
             if distfactor >= wd["min"]:
                 idist = iwd
                 dfact = wd["max"]
             else:
                 break
-        iang = None
-        afact = None
+        iang = afact = None
         for iwa, wa in enumerate(self.neighbors_normalized_angles[isite]):
             if angfactor <= wa["max"]:
                 iang = iwa

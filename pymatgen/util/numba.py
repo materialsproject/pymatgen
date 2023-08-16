@@ -12,13 +12,9 @@ try:
 except ImportError:
 
     def njit(func):
-        """
-        Replacement for numba.njit when numba is not installed that does nothing.
-        """
+        """Replacement for numba.njit when numba is not installed that does nothing."""
         return func
 
     def jit(func):
-        """
-        Replacement for numba.jit when numba is not installed that does nothing.
-        """
+        """Replacement for numba.jit when numba is not installed that does nothing."""
         return func

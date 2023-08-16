@@ -1,6 +1,4 @@
-"""
-This module implements an XRD pattern calculator.
-"""
+"""This module implements an XRD pattern calculator."""
 
 from __future__ import annotations
 
@@ -135,7 +133,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             self.radiation = wavelength
             self.wavelength = WAVELENGTHS[wavelength]
         else:
-            raise TypeError("'wavelength' must be either of: float, int or str")
+            raise TypeError(f"{type(wavelength)=} must be either float, int or str")
         self.symprec = symprec
         self.debye_waller_factors = debye_waller_factors or {}
 

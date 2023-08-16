@@ -1,6 +1,4 @@
-"""
-This module provides utility classes for io operations.
-"""
+"""This module provides utility classes for io operations."""
 
 
 from __future__ import annotations

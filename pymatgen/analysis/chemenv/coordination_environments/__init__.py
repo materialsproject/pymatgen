@@ -1,3 +1,1 @@
-"""
-Package for analyzing coordination environments.
-"""
+"""Package for analyzing coordination environments."""

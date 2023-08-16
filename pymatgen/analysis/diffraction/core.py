@@ -1,6 +1,4 @@
-"""
-This module implements core classes for calculation of diffraction patterns.
-"""
+"""This module implements core classes for calculation of diffraction patterns."""
 
 from __future__ import annotations
 
@@ -18,9 +16,7 @@ if TYPE_CHECKING:
 
 
 class DiffractionPattern(Spectrum):
-    """
-    A representation of a diffraction pattern
-    """
+    """A representation of a diffraction pattern."""
 
     XLABEL = "$2\\Theta$"
     YLABEL = "Intensity"
@@ -43,9 +39,7 @@ class DiffractionPattern(Spectrum):
 
 
 class AbstractDiffractionPatternCalculator(abc.ABC):
-    """
-    Abstract base class for computing the diffraction pattern of a crystal.
-    """
+    """Abstract base class for computing the diffraction pattern of a crystal."""
 
     # Tolerance in which to treat two peaks as having the same two theta.
     TWO_THETA_TOL = 1e-5

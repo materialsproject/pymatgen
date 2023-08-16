@@ -1,6 +1,4 @@
-"""
-Provides analysis of site symmetries.
-"""
+"""Provides analysis of site symmetries."""
 
 from __future__ import annotations
 
@@ -18,7 +16,7 @@ if TYPE_CHECKING:
 def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[SymmOp]]:
     """
     Get all the point group operations centered on each atomic site
-    in the form [[point operations of site index 1]...[[point operations of site index N]]]
+    in the form [[point operations of site index 1]...[[point operations of site index N]]].
 
     Args:
         struct: Pymatgen structure
@@ -30,7 +28,7 @@ def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[
     point_ops: list[list[SymmOp]] = []
 
     # Point symmetries of each atom
-    for idx1, _site1 in enumerate(struct):
+    for idx1 in range(len(struct)):
         temp_struct = struct.copy()
 
         # Place the origin of the cell at each atomic site
@@ -45,16 +43,14 @@ def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[
 
         sga_struct = SpacegroupAnalyzer(temp_struct, symprec=precision)
         ops = sga_struct.get_symmetry_operations(cartesian=True)
-        for op in ops:
-            if list(op.translation_vector) == [0, 0, 0]:
-                point_ops[idx1].append(op)
+        point_ops[idx1] = [op for op in ops if list(op.translation_vector) == [0, 0, 0]]
     return point_ops
 
 
 def get_shared_symmetry_operations(struct: Structure, pointops: list[list[SymmOp]], tol: float = 0.1):
     """
     Get all the point group operations shared by a pair of atomic sites
-    in the form [[point operations of site index 1],[],...,[]]
+    in the form [[point operations of site index 1],[],...,[]].
 
     Args:
         struct: Pymatgen structure

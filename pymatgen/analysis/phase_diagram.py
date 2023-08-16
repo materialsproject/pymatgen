@@ -1,6 +1,4 @@
-"""
-This module defines tools to generate and analyze phase diagrams.
-"""
+"""This module defines tools to generate and analyze phase diagrams."""
 
 from __future__ import annotations
 
@@ -27,6 +25,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
+from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
 
@@ -92,7 +91,7 @@ class PDEntry(Entry):
     def as_dict(self):
         """
         Returns:
-            MSONable dictionary representation of PDEntry
+            MSONable dictionary representation of PDEntry.
         """
         return_dict = super().as_dict()
         return_dict.update({"name": self.name, "attribute": self.attribute})
@@ -102,7 +101,7 @@ class PDEntry(Entry):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): dictionary representation of PDEntry
+            dct (dict): dictionary representation of PDEntry.
 
         Returns:
             PDEntry
@@ -145,7 +144,7 @@ class GrandPotPDEntry(PDEntry):
 
     @property
     def composition(self) -> Composition:
-        """The composition after removing free species
+        """The composition after removing free species.
 
         Returns:
             Composition
@@ -154,7 +153,7 @@ class GrandPotPDEntry(PDEntry):
 
     @property
     def chemical_energy(self):
-        """The chemical energy term mu*N in the grand potential
+        """The chemical energy term mu*N in the grand potential.
 
         Returns:
             The chemical energy term mu*N in the grand potential
@@ -165,7 +164,7 @@ class GrandPotPDEntry(PDEntry):
     def energy(self):
         """
         Returns:
-            The grand potential energy
+            The grand potential energy.
         """
         return self._energy - self.chemical_energy
 
@@ -182,7 +181,7 @@ class GrandPotPDEntry(PDEntry):
     def as_dict(self):
         """
         Returns:
-            MSONable dictionary representation of GrandPotPDEntry
+            MSONable dictionary representation of GrandPotPDEntry.
         """
         return {
             "@module": type(self).__module__,
@@ -196,7 +195,7 @@ class GrandPotPDEntry(PDEntry):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): dictionary representation of GrandPotPDEntry
+            d (dict): dictionary representation of GrandPotPDEntry.
 
         Returns:
             GrandPotPDEntry
@@ -221,8 +220,7 @@ class TransformedPDEntry(PDEntry):
         """
         Args:
             entry (PDEntry): Original entry to be transformed.
-            sp_mapping ({Composition: DummySpecies}): dictionary
-                mapping Terminal Compositions to Dummy Species
+            sp_mapping ({Composition: DummySpecies}): dictionary mapping Terminal Compositions to Dummy Species.
         """
         super().__init__(
             entry.composition,
@@ -242,7 +240,7 @@ class TransformedPDEntry(PDEntry):
 
     @property
     def composition(self) -> Composition:
-        """The composition in the dummy species space
+        """The composition in the dummy species space.
 
         Returns:
             Composition
@@ -269,21 +267,20 @@ class TransformedPDEntry(PDEntry):
     def as_dict(self):
         """
         Returns:
-            MSONable dictionary representation of TransformedPDEntry
+            MSONable dictionary representation of TransformedPDEntry.
         """
-        d = {
+        return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "sp_mapping": self.sp_mapping,
+            **self.original_entry.as_dict(),
         }
-        d.update(self.original_entry.as_dict())
-        return d
 
     @classmethod
     def from_dict(cls, d):
         """
         Args:
-            d (dict): dictionary representation of TransformedPDEntry
+            d (dict): dictionary representation of TransformedPDEntry.
 
         Returns:
             TransformedPDEntry
@@ -295,11 +292,15 @@ class TransformedPDEntry(PDEntry):
 
 
 class TransformedPDEntryError(Exception):
-    """
-    An exception class for TransformedPDEntry.
-    """
+    """An exception class for TransformedPDEntry."""
 
 
+@due.dcite(Doi("10.1021/cm702327g"), description="Phase Diagram from First Principles Calculations")
+@due.dcite(
+    Doi("10.1016/j.elecom.2010.01.010"),
+    description="Thermal stabilities of delithiated olivine MPO4 (M=Fe, Mn) cathodes "
+    "investigated using first principles calculations",
+)
 class PhaseDiagram(MSONable):
     """
     Simple phase diagram class taking in elements and entries as inputs.
@@ -382,14 +383,14 @@ class PhaseDiagram(MSONable):
         self.dim = computed_data["dim"]
         self.el_refs = dict(computed_data["el_refs"])
         self.qhull_entries = tuple(computed_data["qhull_entries"])
-        self._qhull_spaces = tuple(frozenset(e.composition.elements) for e in self.qhull_entries)
+        self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
         self._stable_entries = tuple({self.qhull_entries[i] for i in set(itertools.chain(*self.facets))})
-        self._stable_spaces = tuple(frozenset(e.composition.elements) for e in self._stable_entries)
+        self._stable_spaces = tuple(frozenset(e.elements) for e in self._stable_entries)
 
     def as_dict(self):
         """
         Returns:
-            MSONable dictionary representation of PhaseDiagram
+            MSONable dictionary representation of PhaseDiagram.
         """
         return {
             "@module": type(self).__module__,
@@ -403,7 +404,7 @@ class PhaseDiagram(MSONable):
     def from_dict(cls, dct: dict[str, Any]) -> PhaseDiagram:
         """
         Args:
-            d (dict): dictionary representation of PhaseDiagram
+            d (dict): dictionary representation of PhaseDiagram.
 
         Returns:
             PhaseDiagram
@@ -415,7 +416,7 @@ class PhaseDiagram(MSONable):
 
     def _compute(self) -> dict[str, Any]:
         if self.elements == ():
-            self.elements = sorted({els for e in self.entries for els in e.composition.elements})
+            self.elements = sorted({els for e in self.entries for els in e.elements})
 
         elements = list(self.elements)
         dim = len(elements)
@@ -500,7 +501,7 @@ class PhaseDiagram(MSONable):
             The coordinates for a given composition in the PhaseDiagram's basis
         """
         if set(comp.elements) - set(self.elements):
-            raise ValueError(f"{comp} has elements not in the phase diagram {self.elements}")
+            raise ValueError(f"{comp} has elements not in the phase diagram {', '.join(map(str,self.elements))}")
         return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
 
     @property
@@ -531,26 +532,38 @@ class PhaseDiagram(MSONable):
         """
         return set(self._stable_entries)
 
-    @lru_cache(1)
+    @lru_cache(1)  # noqa: B019
     def _get_stable_entries_in_space(self, space) -> list[Entry]:
         """
         Args:
-            space (set[Element]): set of Element objects
+            space (set[Element]): set of Element objects.
 
         Returns:
             list[Entry]: stable entries in the space.
         """
         return [e for e, s in zip(self._stable_entries, self._stable_spaces) if space.issuperset(s)]
 
-    def get_reference_energy_per_atom(self, comp: Composition) -> float:
-        """
+    def get_reference_energy(self, comp: Composition) -> float:
+        """Sum of elemental reference energies over all elements in a composition.
+
         Args:
-            comp (Composition): Input composition
+            comp (Composition): Input composition.
 
         Returns:
-            Reference energy of the terminal species at a given composition.
+            float: Reference energy
         """
-        return sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements) / comp.num_atoms
+        return sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements)
+
+    def get_reference_energy_per_atom(self, comp: Composition) -> float:
+        """Sum of elemental reference energies over all elements in a composition.
+
+        Args:
+            comp (Composition): Input composition.
+
+        Returns:
+            float: Reference energy per atom
+        """
+        return self.get_reference_energy(comp) / comp.num_atoms
 
     def get_form_energy(self, entry: PDEntry) -> float:
         """
@@ -564,7 +577,7 @@ class PhaseDiagram(MSONable):
             float: Formation energy from the elemental references.
         """
         comp = entry.composition
-        return entry.energy - sum(comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements)
+        return entry.energy - self.get_reference_energy(comp)
 
     def get_form_energy_per_atom(self, entry: PDEntry) -> float:
         """
@@ -588,7 +601,7 @@ class PhaseDiagram(MSONable):
         ]
         return "\n".join(output)
 
-    @lru_cache(1)
+    @lru_cache(1)  # noqa: B019
     def _get_facet_and_simplex(self, comp: Composition) -> tuple[Simplex, Simplex]:
         """
         Get any facet that a composition falls into. Cached so successive
@@ -678,7 +691,7 @@ class PhaseDiagram(MSONable):
     def get_decomp_and_hull_energy_per_atom(self, comp: Composition) -> tuple[dict[PDEntry, float], float]:
         """
         Args:
-            comp (Composition): Input composition
+            comp (Composition): Input composition.
 
         Returns:
             Energy of lowest energy equilibrium at desired composition per atom
@@ -689,7 +702,7 @@ class PhaseDiagram(MSONable):
     def get_hull_energy_per_atom(self, comp: Composition, **kwargs) -> float:
         """
         Args:
-            comp (Composition): Input composition
+            comp (Composition): Input composition.
 
         Returns:
             Energy of lowest energy equilibrium at desired composition.
@@ -699,7 +712,7 @@ class PhaseDiagram(MSONable):
     def get_hull_energy(self, comp: Composition) -> float:
         """
         Args:
-            comp (Composition): Input composition
+            comp (Composition): Input composition.
 
         Returns:
             Energy of lowest energy equilibrium at desired composition. Not
@@ -768,7 +781,7 @@ class PhaseDiagram(MSONable):
 
     def get_e_above_hull(self, entry: PDEntry, **kwargs: Any) -> float | None:
         """
-        Provides the energy above convex hull for an entry
+        Provides the energy above convex hull for an entry.
 
         Args:
             entry (PDEntry): A PDEntry like object.
@@ -793,7 +806,7 @@ class PhaseDiagram(MSONable):
             float | None: Equilibrium reaction energy of entry. Stable entries should have
                 equilibrium reaction energy <= 0. The energy is given per atom.
         """
-        elem_space = entry.composition.elements
+        elem_space = entry.elements
 
         # NOTE scaled duplicates of stable_entries will not be caught.
         if entry not in self._get_stable_entries_in_space(frozenset(elem_space)):
@@ -1259,8 +1272,7 @@ class PhaseDiagram(MSONable):
         coeff = [-target_comp[e] for e in self.elements if e != open_elt]
         max_open = -float("inf")
         min_open = float("inf")
-        max_mus = None
-        min_mus = None
+        max_mus = min_mus = None
 
         for e, chempots in chempot_ranges.items():
             if e.composition.reduced_composition == target_comp.reduced_composition:
@@ -1356,13 +1368,19 @@ class PhaseDiagram(MSONable):
         )
 
 
+@due.dcite(Doi("10.1021/cm702327g"), description="Phase Diagram from First Principles Calculations")
+@due.dcite(
+    Doi("10.1016/j.elecom.2010.01.010"),
+    description="Thermal stabilities of delithiated olivine MPO4 (M=Fe, Mn) cathodes "
+    "investigated using first principles calculations",
+)
 class GrandPotentialPhaseDiagram(PhaseDiagram):
     """
     A class representing a Grand potential phase diagram. Grand potential phase
     diagrams are essentially phase diagrams that are open to one or more
     components. To construct such phase diagrams, the relevant free energy is
     the grand potential, which can be written as the Legendre transform of the
-    Gibbs free energy as follows
+    Gibbs free energy as follows.
 
     Grand potential = G - u_X N_X
 
@@ -1397,14 +1415,12 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                 when generated for the first time.
         """
         if elements is None:
-            elements = {els for e in entries for els in e.composition.elements}
+            elements = {els for e in entries for els in e.elements}
 
         self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
         elements = set(elements) - set(self.chempots)
 
-        all_entries = [
-            GrandPotPDEntry(e, self.chempots) for e in entries if len(elements.intersection(e.composition.elements)) > 0
-        ]
+        all_entries = [GrandPotPDEntry(e, self.chempots) for e in entries if len(elements.intersection(e.elements)) > 0]
 
         super().__init__(all_entries, elements, computed_data=None)
 
@@ -1422,7 +1438,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
     def as_dict(self):
         """
         Returns:
-            MSONable dictionary representation of GrandPotentialPhaseDiagram
+            MSONable dictionary representation of GrandPotentialPhaseDiagram.
         """
         return {
             "@module": type(self).__module__,
@@ -1436,7 +1452,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): dictionary representation of GrandPotentialPhaseDiagram
+            d (dict): dictionary representation of GrandPotentialPhaseDiagram.
 
         Returns:
             GrandPotentialPhaseDiagram
@@ -1524,7 +1540,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
     def as_dict(self):
         """
         Returns:
-            MSONable dictionary representation of CompoundPhaseDiagram
+            MSONable dictionary representation of CompoundPhaseDiagram.
         """
         return {
             "@module": type(self).__module__,
@@ -1538,7 +1554,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): dictionary representation of CompoundPhaseDiagram
+            d (dict): dictionary representation of CompoundPhaseDiagram.
 
         Returns:
             CompoundPhaseDiagram
@@ -1594,7 +1610,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             verbose (bool): Whether to show progress bar during convex hull construction.
         """
         if elements is None:
-            elements = sorted({els for e in entries for els in e.composition.elements})
+            elements = sorted({els for e in entries for els in e.elements})
 
         self.dim = len(elements)
 
@@ -1633,7 +1649,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self.qhull_entries = tuple(min_entries[i] for i in inds)
         # make qhull spaces frozensets since they become keys to self.pds dict and frozensets are hashable
         # prevent repeating elements in chemical space and avoid the ordering problem (i.e. Fe-O == O-Fe automatically)
-        self._qhull_spaces = tuple(frozenset(e.composition.elements) for e in self.qhull_entries)
+        self._qhull_spaces = tuple(frozenset(e.elements) for e in self.qhull_entries)
 
         # Get all unique chemical spaces
         spaces = {s for s in self._qhull_spaces if len(s) > 1}
@@ -1662,7 +1678,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # NOTE add el_refs in case no multielement entries are present for el
         _stable_entries = {se for pd in self.pds.values() for se in pd._stable_entries}
         self._stable_entries = tuple(_stable_entries | {*self.el_refs.values()})
-        self._stable_spaces = tuple(frozenset(e.composition.elements) for e in self._stable_entries)
+        self._stable_spaces = tuple(frozenset(e.elements) for e in self._stable_entries)
 
     def __repr__(self):
         return f"{type(self).__name__} covering {len(self.spaces)} sub-spaces"
@@ -1688,7 +1704,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
     def as_dict(self) -> dict[str, Any]:
         """
         Returns:
-            dict[str, Any]: MSONable dictionary representation of PatchedPhaseDiagram
+            dict[str, Any]: MSONable dictionary representation of PatchedPhaseDiagram.
         """
         return {
             "@module": type(self).__module__,
@@ -1701,7 +1717,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
     def from_dict(cls, dct):
         """
         Args:
-            d (dict): dictionary representation of PatchedPhaseDiagram
+            d (dict): dictionary representation of PatchedPhaseDiagram.
 
         Returns:
             PatchedPhaseDiagram
@@ -1726,7 +1742,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def get_pd_for_entry(self, entry: Entry | Composition) -> PhaseDiagram:
         """
-        Get the possible phase diagrams for an entry
+        Get the possible phase diagrams for an entry.
 
         Args:
             entry (PDEntry | Composition): A PDEntry or Composition-like object
@@ -1734,10 +1750,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Returns:
             PhaseDiagram: phase diagram that the entry is part of
         """
-        if isinstance(entry, Composition):
-            entry_space = frozenset(entry.elements)
-        else:
-            entry_space = frozenset(entry.composition.elements)
+        entry_space = frozenset(entry.elements) if isinstance(entry, Composition) else frozenset(entry.elements)
 
         try:
             return self.pds[entry_space]
@@ -1750,7 +1763,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def get_decomposition(self, comp: Composition) -> dict[PDEntry, float]:
         """
-        See PhaseDiagram
+        See PhaseDiagram.
 
         Args:
             comp (Composition): A composition
@@ -1770,7 +1783,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def get_equilibrium_reaction_energy(self, entry: Entry) -> float:
         """
-        See PhaseDiagram
+        See PhaseDiagram.
 
         NOTE this is only approximately the same as the what we would get
         from `PhaseDiagram` as we make use of the slsqp approach inside
@@ -1802,81 +1815,57 @@ class PatchedPhaseDiagram(PhaseDiagram):
         )
 
     def _get_facet_and_simplex(self):
-        """
-        Not Implemented - See PhaseDiagram
-        """
+        """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("_get_facet_and_simplex() not implemented for PatchedPhaseDiagram")
 
     def _get_all_facets_and_simplexes(self):
-        """
-        Not Implemented - See PhaseDiagram
-        """
+        """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("_get_all_facets_and_simplexes() not implemented for PatchedPhaseDiagram")
 
     def _get_facet_chempots(self):
-        """
-        Not Implemented - See PhaseDiagram
-        """
+        """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("_get_facet_chempots() not implemented for PatchedPhaseDiagram")
 
     def _get_simplex_intersections(self):
-        """
-        Not Implemented - See PhaseDiagram
-        """
+        """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("_get_simplex_intersections() not implemented for PatchedPhaseDiagram")
 
     def get_composition_chempots(self):
-        """
-        Not Implemented - See PhaseDiagram
-        """
+        """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("get_composition_chempots() not implemented for PatchedPhaseDiagram")
 
     def get_all_chempots(self):
-        """
-        Not Implemented - See PhaseDiagram
-        """
+        """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("get_all_chempots() not implemented for PatchedPhaseDiagram")
 
     def get_transition_chempots(self):
-        """
-        Not Implemented - See PhaseDiagram
-        """
+        """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("get_transition_chempots() not implemented for PatchedPhaseDiagram")
 
     def get_critical_compositions(self):
-        """
-        Not Implemented - See PhaseDiagram
-        """
+        """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("get_critical_compositions() not implemented for PatchedPhaseDiagram")
 
     def get_element_profile(self):
-        """
-        Not Implemented - See PhaseDiagram
-        """
+        """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("get_element_profile() not implemented for PatchedPhaseDiagram")
 
     def get_chempot_range_map(self):
-        """
-        Not Implemented - See PhaseDiagram
-        """
+        """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("get_chempot_range_map() not implemented for PatchedPhaseDiagram")
 
     def getmu_vertices_stability_phase(self):
-        """
-        Not Implemented - See PhaseDiagram
-        """
+        """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("getmu_vertices_stability_phase() not implemented for PatchedPhaseDiagram")
 
     def get_chempot_range_stability_phase(self):
-        """
-        Not Implemented - See PhaseDiagram
-        """
+        """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("get_chempot_range_stability_phase() not implemented for PatchedPhaseDiagram")
 
     def _get_pd_patch_for_space(self, space: frozenset[Element]) -> tuple[frozenset[Element], PhaseDiagram]:
         """
         Args:
-            space (frozenset[Element]): chemical space of the form A-B-X
+            space (frozenset[Element]): chemical space of the form A-B-X.
 
         Returns:
             space, PhaseDiagram for the given chemical space
@@ -1914,7 +1903,7 @@ class ReactionDiagram:
         """
         elem_set = set()
         for e in [entry1, entry2]:
-            elem_set.update([el.symbol for el in e.composition.elements])
+            elem_set.update([el.symbol for el in e.elements])
 
         elements = tuple(elem_set)  # Fix elements to ensure order.
 
@@ -2026,7 +2015,7 @@ class ReactionDiagram:
         entry1 = PDEntry(self.entry1.composition, 0)
         entry2 = PDEntry(self.entry2.composition, 0)
 
-        cpd = CompoundPhaseDiagram(
+        return CompoundPhaseDiagram(
             [*self.rxn_entries, entry1, entry2],
             [
                 Composition(entry1.composition.reduced_formula),
@@ -2034,13 +2023,10 @@ class ReactionDiagram:
             ],
             normalize_terminal_compositions=False,
         )
-        return cpd
 
 
 class PhaseDiagramError(Exception):
-    """
-    An exception class for Phase Diagram generation.
-    """
+    """An exception class for Phase Diagram generation."""
 
 
 def get_facets(qhull_data: ArrayLike, joggle: bool = False) -> ConvexHull:
@@ -2070,7 +2056,7 @@ def _get_slsqp_decomp(
 ):
     """
     Finds the amounts of competing compositions that minimize the energy of a
-    given composition
+    given composition.
 
     The algorithm is based on the work in the following paper:
 
@@ -2178,7 +2164,7 @@ class PDPlotter:
                         "markerfacecolor": "#4daf4a",
                         "markersize": 10,
                         "linewidth": 3
-                    }
+                    }.
         """
         dim = len(phasediagram.elements)
         if dim >= 5:
@@ -2541,7 +2527,7 @@ class PDPlotter:
         return plt
 
     @property  # type: ignore
-    @lru_cache(1)
+    @lru_cache(1)  # noqa: B019
     def pd_plot_data(self):
         """
         Plotting data for phase diagram. Cached for repetitive calls.
@@ -2592,10 +2578,7 @@ class PDPlotter:
             if entry not in stable:
                 if self._dim < 3:
                     x = [all_data[i][0], all_data[i][0]]
-                    y = [
-                        pd.get_form_energy_per_atom(entry),
-                        pd.get_form_energy_per_atom(entry),
-                    ]
+                    y = [pd.get_form_energy_per_atom(entry), pd.get_form_energy_per_atom(entry)]
                     coord = [x, y]
                 elif self._dim == 3:
                     coord = triangular_coord([all_data[i, 0:2], all_data[i, 0:2]])
@@ -2633,7 +2616,7 @@ class PDPlotter:
             layout = plotly_layouts["default_ternary_2d_layout"].copy()
             for el, axis in zip(self._pd.elements, ["a", "b", "c"]):
                 el_ref = self._pd.el_refs[el]
-                clean_formula = str(el_ref.composition.elements[0])
+                clean_formula = str(el_ref.elements[0])
                 if hasattr(el_ref, "original_entry"):  # for grand potential PDs, etc.
                     clean_formula = htmlify(el_ref.original_entry.composition.reduced_formula)
 
@@ -2835,8 +2818,7 @@ class PDPlotter:
             go.Scatter (or go.Scatter3d) plot
         """
         x, y, z, text, textpositions = [], [], [], [], []
-        stable_labels_plot = None
-        min_energy_x = None
+        stable_labels_plot = min_energy_x = None
         offset_2d = 0.008  # extra distance to offset label position for clarity
         offset_3d = 0.01
 
@@ -2942,7 +2924,7 @@ class PDPlotter:
                 z = coords[2]
 
             if entry.composition.is_element:
-                clean_formula = str(entry.composition.elements[0])
+                clean_formula = str(entry.elements[0])
                 if hasattr(entry, "original_entry"):
                     orig_comp = entry.original_entry.composition
                     clean_formula = htmlify(orig_comp.reduced_formula)
@@ -3771,7 +3753,7 @@ class PDPlotter:
             entry = labels[coords]
             label = entry.name
             if label_stable:
-                if len(entry.composition.elements) == 1:
+                if len(entry.elements) == 1:
                     ax.text(coords[0], coords[1], coords[2], label, fontproperties=font)
                 else:
                     ax.text(coords[0], coords[1], coords[2], str(count), fontsize=12)

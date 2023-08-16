@@ -1,6 +1,4 @@
-"""
-Development script to test the algorithms of all the model coordination environments
-"""
+"""Development script to test the algorithms of all the model coordination environments."""
 
 from __future__ import annotations
 
@@ -22,7 +20,7 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 if __name__ == "__main__":
-    allcg = AllCoordinationGeometries()
+    all_coord_geoms = AllCoordinationGeometries()
 
     test = input('Standard ("s", all permutations for cn <= 6, 500 random permutations for cn > 6) or on demand')
     if test == "s":
@@ -38,7 +36,7 @@ if __name__ == "__main__":
 
     for coordination in range(1, 13):
         print(f"IN COORDINATION {coordination}")
-        symbol_name_mapping = allcg.get_symbol_name_mapping(coordination=coordination)
+        symbol_name_mapping = all_coord_geoms.get_symbol_name_mapping(coordination=coordination)
 
         if perms_def == "standard":
             test = "500" if coordination > 6 else "all"
@@ -67,13 +65,13 @@ if __name__ == "__main__":
                 perms_iterator.append(list(indices))  # type: ignore[attr-defined]
 
         for cg_symbol, cg_name in symbol_name_mapping.items():
-            cg = allcg[cg_symbol]
+            cg = all_coord_geoms[cg_symbol]
             if cg.deactivate:
                 continue
 
             print(f"Testing {cg_symbol} ({cg_name})")
 
-            cg = allcg[cg_symbol]
+            cg = all_coord_geoms[cg_symbol]
             if cg.points is None:
                 continue
 
@@ -100,7 +98,7 @@ if __name__ == "__main__":
                 lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
                 points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
 
-                print(f"Perm # {i_perm:d}/{n_perms:d} : ", indices_perm)
+                print(f"Perm # {i_perm}/{n_perms} : ", indices_perm)
 
                 algos_results = []
                 for algo in cg.algorithms:

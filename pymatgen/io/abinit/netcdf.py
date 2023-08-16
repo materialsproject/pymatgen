@@ -75,11 +75,11 @@ def as_etsfreader(file):
 
 
 class NetcdfReaderError(Exception):
-    """Base error class for NetcdfReader"""
+    """Base error class for NetcdfReader."""
 
 
 class NO_DEFAULT:
-    """Signal that read_value should raise an Error"""
+    """Signal that read_value should raise an Error."""
 
 
 class NetcdfReader:
@@ -202,37 +202,33 @@ class NetcdfReader:
         assert var.shape[-1] == 2
         if cmode == "c":
             return var[..., 0] + 1j * var[..., 1]
-        raise ValueError(f"Wrong value for cmode {cmode}")
+        raise ValueError(f"Wrong value for {cmode=}")
 
     def read_variable(self, varname, path="/"):
         """Returns the variable with name varname in the group specified by path."""
         return self._read_variables(varname, path=path)[0]
 
-    def _read_dimensions(self, *dimnames, **kwargs):
+    def _read_dimensions(self, *dim_names, **kwargs):
         path = kwargs.get("path", "/")
         try:
             if path == "/":
-                return [self.rootgrp.dimensions[dname] for dname in dimnames]
+                return [self.rootgrp.dimensions[dname] for dname in dim_names]
             group = self.path2group[path]
-            return [group.dimensions[dname] for dname in dimnames]
+            return [group.dimensions[dname] for dname in dim_names]
 
         except KeyError:
-            raise self.Error(
-                f"In file {self.path}:\nError while reading dimensions: `{dimnames}` with kwargs: `{kwargs}`"
-            )
+            raise self.Error(f"In file {self.path}:\nError while reading dimensions: {dim_names} with {kwargs=}")
 
-    def _read_variables(self, *varnames, **kwargs):
+    def _read_variables(self, *var_names, **kwargs):
         path = kwargs.get("path", "/")
         try:
             if path == "/":
-                return [self.rootgrp.variables[vname] for vname in varnames]
+                return [self.rootgrp.variables[vname] for vname in var_names]
             group = self.path2group[path]
-            return [group.variables[vname] for vname in varnames]
+            return [group.variables[vname] for vname in var_names]
 
         except KeyError:
-            raise self.Error(
-                f"In file {self.path}:\nError while reading variables: `{varnames}` with kwargs `{kwargs}`."
-            )
+            raise self.Error(f"In file {self.path}:\nError while reading variables: {var_names} with {kwargs=}.")
 
     def read_keys(self, keys, dict_cls=AttrDict, path="/"):
         """
@@ -281,9 +277,7 @@ class ETSF_Reader(NetcdfReader):
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):
-        """
-        Read ixc from an Abinit file. Return :class:`XcFunc` object.
-        """
+        """Read ixc from an Abinit file. Return :class:`XcFunc` object."""
         ixc = int(self.read_value("ixc"))
         return XcFunc.from_abinit_ixc(ixc)
 
@@ -367,7 +361,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
 
 
 class _H:
-    __slots__ = ["name", "doc", "etsf_name"]
+    __slots__ = ("name", "doc", "etsf_name")
 
     def __init__(self, name, doc, etsf_name=None):
         self.name, self.doc, self.etsf_name = name, doc, etsf_name
@@ -478,9 +472,13 @@ class AbinitHeader(AttrDict):
     #        v.__doc__ = _HDR_VARIABLES[k].doc
 
     def __str__(self):
-        return self.to_string()
+        return self.to_str()
 
-    def to_string(self, verbose=0, title=None, **kwargs):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, verbose=0, title=None, **kwargs):
         """
         String representation. kwargs are passed to `pprint.pformat`.
 

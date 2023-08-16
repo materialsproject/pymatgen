@@ -1,5 +1,3 @@
-# Distributed under the terms of the MIT License
-
 """
 Module for implementing a CTRL file object class for the Stuttgart
 LMTO-ASA code. It will primarily be used to generate a pymatgen
@@ -10,6 +8,7 @@ Structure object in the pymatgen.electronic_structure.cohp.py module.
 from __future__ import annotations
 
 import re
+from typing import no_type_check
 
 import numpy as np
 from monty.io import zopen
@@ -34,16 +33,13 @@ class LMTOCtrl:
     Currently, only HEADER, VERS and the structure can be used.
     """
 
-    def __init__(self, structure: Structure, header=None, version="LMASA-47"):
+    def __init__(self, structure: Structure, header: str | None = None, version: str = "LMASA-47") -> None:
         """
         Args:
-            structure: The structure as a pymatgen Structure object.
-
-            header: The header for the CTRL file .
-                    Defaults to None.
-
-            version: The LMTO version that is used for the VERS category.
-                     Defaults to the newest version (4.7).
+            structure (Structure): pymatgen object.
+            header (str): The header for the CTRL file. Defaults to None.
+            version (str): The LMTO version that is used for the VERS category.
+                Defaults to version (4.7).
         """
         self.structure = structure
         self.header = header
@@ -52,31 +48,31 @@ class LMTOCtrl:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self.get_string() == other.get_string()
+        return self.get_str() == other.get_str()
 
     def __repr__(self):
-        """
-        Representation of the CTRL file is as a string.
-        """
-        return self.get_string()
+        """Representation of the CTRL file is as a string."""
+        return self.get_str()
 
     def __str__(self):
-        """
-        String representation of the CTRL file.
-        """
-        return self.get_string()
+        """String representation of the CTRL file."""
+        return self.get_str()
 
-    def get_string(self, sigfigs=8):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, sigfigs=8) -> str:
         """
         Generates the string representation of the CTRL file. This is
         the minimal CTRL file necessary to execute lmhart.run.
         """
         ctrl_dict = self.as_dict()
-        lines = [] if "HEADER" not in ctrl_dict else ["HEADER".ljust(10) + self.header]
+        lines = [] if "HEADER" not in ctrl_dict else [f"{'HEADER':<10}{self.header}"]
         if "VERS" in ctrl_dict:
             lines.append("VERS".ljust(10) + self.version)
 
-        lines.append("STRUC".ljust(10) + "ALAT=" + str(round(ctrl_dict["ALAT"], sigfigs)))
+        lines.append(f"{'STRUC'.ljust(10)}ALAT={ctrl_dict['ALAT']:.{sigfigs}f}")
         for idx, latt in enumerate(ctrl_dict["PLAT"]):
             line = "PLAT=".rjust(15) if idx == 0 else " ".ljust(15)
             line += " ".join(str(round(v, sigfigs)) for v in latt)
@@ -84,13 +80,13 @@ class LMTOCtrl:
 
         for cat in ["CLASS", "SITE"]:
             for a, atoms in enumerate(ctrl_dict[cat]):
-                line = [cat.ljust(9)] if a == 0 else [" ".ljust(9)]
+                lst = [cat.ljust(9)] if a == 0 else [" ".ljust(9)]
                 for token, val in sorted(atoms.items()):
                     if token == "POS":
-                        line.append("POS=" + " ".join(str(round(p, sigfigs)) for p in val))
+                        lst.append("POS=" + " ".join(str(round(p, sigfigs)) for p in val))
                     else:
-                        line.append(token + "=" + str(val))
-                line = " ".join(line)
+                        lst.append(f"{token}={val}")
+                line = " ".join(lst)
                 lines.append(line)
 
         return "\n".join(lines) + "\n"
@@ -104,23 +100,17 @@ class LMTOCtrl:
         a-lattice parameter as the scaling factor and not the a-lattice
         parameter of the primitive cell.
         """
-        ctrl_dict = {
-            "@module": type(self).__module__,
-            "@class": type(self).__name__,
-        }
+        ctrl_dict = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.header is not None:
             ctrl_dict["HEADER"] = self.header
         if self.version is not None:
             ctrl_dict["VERS"] = self.version
         sga = SpacegroupAnalyzer(self.structure)
-        alat = sga.get_conventional_standard_structure().lattice.a
-        plat = self.structure.lattice.matrix / alat
-        """
-        The following is to find the classes (atoms that are not symmetry
-        equivalent, and create labels. Note that LMTO only attaches
-        numbers with the second atom of the same species, e.g. "Bi", "Bi1",
-        "Bi2", etc.
-        """
+        a_len = sga.get_conventional_standard_structure().lattice.a
+        plat = self.structure.lattice.matrix / a_len
+        # The following is to find the classes (atoms that are not symmetry equivalent,
+        # and create labels. Note that LMTO only attaches numbers with the second atom
+        # of the same species, e.g. "Bi", "Bi1", "Bi2", etc.
         eq_atoms = sga.get_symmetry_dataset()["equivalent_atoms"]
         ineq_sites_index = list(set(eq_atoms))
         sites = []
@@ -132,22 +122,15 @@ class LMTOCtrl:
             if atom.symbol in num_atoms:
                 if label_index + 1 > sum(num_atoms.values()):
                     num_atoms[atom.symbol] += 1
-                    atom_label = atom.symbol + str(num_atoms[atom.symbol] - 1)
+                    atom_label = f"{atom.symbol}{num_atoms[atom.symbol] - 1}"
                     classes.append({"ATOM": atom_label, "Z": atom.Z})
             else:
                 num_atoms[atom.symbol] = 1
                 classes.append({"ATOM": atom.symbol, "Z": atom.Z})
-            sites.append({"ATOM": classes[label_index]["ATOM"], "POS": site.coords / alat})
+            sites.append({"ATOM": classes[label_index]["ATOM"], "POS": site.coords / a_len})
 
-        ctrl_dict.update(
-            {
-                "ALAT": alat / bohr_to_angstrom,
-                "PLAT": plat,
-                "CLASS": classes,
-                "SITE": sites,
-            }
-        )
-        return ctrl_dict
+        update = {"ALAT": a_len / bohr_to_angstrom, "PLAT": plat, "CLASS": classes, "SITE": sites}
+        return {**ctrl_dict, **update}
 
     def write_file(self, filename="CTRL", **kwargs):
         """
@@ -155,7 +138,7 @@ class LMTOCtrl:
         used as input for lmhart.run.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.get_string(**kwargs))
+            f.write(self.get_str(**kwargs))
 
     @classmethod
     def from_file(cls, filename="CTRL", **kwargs):
@@ -170,45 +153,44 @@ class LMTOCtrl:
         """
         with zopen(filename, "rt") as f:
             contents = f.read()
-        return LMTOCtrl.from_string(contents, **kwargs)
+        return LMTOCtrl.from_str(contents, **kwargs)
 
     @classmethod
-    def from_string(cls, data, sigfigs=8):
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    @no_type_check
+    def from_str(cls, data: str, sigfigs: int = 8) -> LMTOCtrl:
         """
         Creates a CTRL file object from a string. This will mostly be
         used to read an LMTOCtrl object from a CTRL file. Empty spheres
         are ignored.
 
         Args:
-            data: String representation of the CTRL file.
+            data (str): String representation of the CTRL file.
 
         Returns:
             An LMTOCtrl object.
         """
         lines = data.split("\n")[:-1]
-        struc_lines = {
-            "HEADER": [],
-            "VERS": [],
-            "SYMGRP": [],
-            "STRUC": [],
-            "CLASS": [],
-            "SITE": [],
-        }
+        struct_lines = {"HEADER": [], "VERS": [], "SYMGRP": [], "STRUC": [], "CLASS": [], "SITE": []}
         for line in lines:
             if line != "" and not line.isspace():
                 if not line[0].isspace():
                     cat = line.split()[0]
-                if cat in struc_lines:
-                    struc_lines[cat].append(line)
+                if cat in struct_lines:
+                    struct_lines[cat].append(line)
                 else:
                     pass
 
-        struc_lines = {k: " ".join(v).replace("= ", "=") for k, v in struc_lines.items()}
+        struct_lines = {k: " ".join(v).replace("= ", "=") for k, v in struct_lines.items()}
 
         structure_tokens = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
 
         for cat in ["STRUC", "CLASS", "SITE"]:
-            fields = struc_lines[cat].split("=")  # pylint: disable=E1101
+            fields = struct_lines[cat].split("=")  # pylint: disable=E1101
             for f, field in enumerate(fields):
                 token = field.split()[-1]
                 if token == "ALAT":
@@ -237,22 +219,22 @@ class LMTOCtrl:
                 else:
                     pass
         try:
-            spcgrp_index = struc_lines["SYMGRP"].index("SPCGRP")
-            spcgrp = struc_lines["SYMGRP"][spcgrp_index : spcgrp_index + 12]
+            spcgrp_index = struct_lines["SYMGRP"].index("SPCGRP")
+            spcgrp = struct_lines["SYMGRP"][spcgrp_index : spcgrp_index + 12]
             structure_tokens["SPCGRP"] = spcgrp.split("=")[1].split()[0]
         except ValueError:
             pass
 
         for token in ["HEADER", "VERS"]:
             try:
-                value = re.split(token + r"\s*", struc_lines[token])[1]
+                value = re.split(token + r"\s*", struct_lines[token])[1]
                 structure_tokens[token] = value.strip()
             except IndexError:
                 pass
         return LMTOCtrl.from_dict(structure_tokens)
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Creates a CTRL file object from a dictionary. The dictionary
         must contain the items "ALAT", PLAT" and "SITE".
@@ -260,73 +242,55 @@ class LMTOCtrl:
         Valid dictionary items are:
             ALAT: the a-lattice parameter
             PLAT: (3x3) array for the lattice vectors
-            SITE: list of dictionaries: {'ATOM': class label,
-                                         'POS': (3x1) array of fractional
-                                                coordinates}
+            SITE: list of dictionaries: {'ATOM': class label, 'POS': (3x1) array of fractional coordinates}
             CLASS (optional): list of unique atom labels as str
             SPCGRP (optional): space group symbol (str) or number (int)
             HEADER (optional): HEADER text as a str
             VERS (optional): LMTO version as a str
 
         Args:
-            d: The CTRL file as a dictionary.
+            dct: The CTRL file as a dictionary.
 
         Returns:
             An LMTOCtrl object.
         """
-        for cat in ["HEADER", "VERS"]:
-            if cat not in d:
-                d[cat] = None
-        alat = d["ALAT"] * bohr_to_angstrom
-        plat = d["PLAT"] * alat
+        dct.setdefault("HEADER", None)
+        dct.setdefault("VERS", None)
+        alat = dct["ALAT"] * bohr_to_angstrom
+        plat = dct["PLAT"] * alat
         species = []
         positions = []
-        for site in d["SITE"]:
+        for site in dct["SITE"]:
             species.append(re.split("[0-9*]", site["ATOM"])[0])
             positions.append(site["POS"] * alat)
 
         # Only check if the structure is to be generated from the space
         # group if the number of sites is the same as the number of classes.
         # If lattice and the spacegroup don't match, assume it's primitive.
-        if "CLASS" in d and "SPCGRP" in d and len(d["SITE"]) == len(d["CLASS"]):
+        if "CLASS" in dct and "SPCGRP" in dct and len(dct["SITE"]) == len(dct["CLASS"]):
             try:
-                structure = Structure.from_spacegroup(d["SPCGRP"], plat, species, positions, coords_are_cartesian=True)
-            except ValueError:
-                structure = Structure(
-                    plat,
-                    species,
-                    positions,
-                    coords_are_cartesian=True,
-                    to_unit_cell=True,
+                structure = Structure.from_spacegroup(
+                    dct["SPCGRP"], plat, species, positions, coords_are_cartesian=True
                 )
+            except ValueError:
+                structure = Structure(plat, species, positions, coords_are_cartesian=True, to_unit_cell=True)
         else:
             structure = Structure(plat, species, positions, coords_are_cartesian=True, to_unit_cell=True)
 
-        return cls(structure, header=d["HEADER"], version=d["VERS"])
+        return cls(structure, header=dct["HEADER"], version=dct["VERS"])
 
 
 class LMTOCopl:
-    """
-    Class for reading COPL files, which contain COHP data.
+    """Class for reading COPL files, which contain COHP data.
 
-    .. attribute: cohp_data
-
-         Dict that contains the COHP data of the form:
-           {bond: {"COHP": {Spin.up: cohps, Spin.down:cohps},
-                   "ICOHP": {Spin.up: icohps, Spin.down: icohps},
-                   "length": bond length}
-
-    .. attribute: efermi
-
-         The Fermi energy in Ry or eV.
-
-    .. attribute: energies
-
-         Sequence of energies in Ry or eV.
-
-    .. attribute: is_spin_polarized
-
-         Boolean to indicate if the calculation is spin polarized.
+    Attributes:
+        cohp_data (dict): Contains the COHP data of the form:
+            {bond: {"COHP": {Spin.up: cohps, Spin.down:cohps},
+                    "ICOHP": {Spin.up: icohps, Spin.down: icohps},
+                    "length": bond length}
+        efermi (float): The Fermi energy in Ry or eV.
+        energies (list): Sequence of energies in Ry or eV.
+        is_spin_polarized (bool): Boolean to indicate if the calculation is spin polarized.
     """
 
     def __init__(self, filename="COPL", to_eV=False):

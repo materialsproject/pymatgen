@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Implementation for `pmg potcar` CLI.
-"""
+"""Implementation for `pmg potcar` CLI."""
 
 
 from __future__ import annotations
@@ -41,7 +39,7 @@ def gen_potcar(dirname, filename):
             elements = f.readlines()
         symbols = [el.strip() for el in elements if el.strip() != ""]
         potcar = Potcar(symbols)
-        potcar.write_file(os.path.join(dirname, "POTCAR"))
+        potcar.write_file(f"{dirname}/POTCAR")
 
 
 def generate_potcar(args):
@@ -57,8 +55,8 @@ def generate_potcar(args):
         try:
             p = Potcar(args.symbols, functional=args.functional)
             p.write_file("POTCAR")
-        except Exception as ex:
-            print(f"An error has occurred: {ex}")
+        except Exception as exc:
+            print(f"An error has occurred: {exc}")
 
     else:
         print("No valid options selected.")

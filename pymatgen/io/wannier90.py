@@ -1,6 +1,4 @@
-"""
-Modules for working with wannier90 input and output.
-"""
+"""Modules for working with wannier90 input and output."""
 
 from __future__ import annotations
 

@@ -1,7 +1,7 @@
 """
-This module implements an interface to Thomas Manz's
-Chargemol code (https://sourceforge.net/projects/ddec/files) for
-calculating DDEC3, DDEC6, and CM5 population analyses.
+This module implements an interface to Thomas Manz's Chargemol code
+https://sourceforge.net/projects/ddec for calculating DDEC3, DDEC6, and CM5 population analyses.
+
 This module depends on a compiled chargemol executable being available in the path.
 If you use this module, please cite the following based on which modules you use:
 
@@ -40,17 +40,16 @@ and Non-Periodic Materials,” J. Chem. Theory Comput. 8 (2012) 2844-2867.
 Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theory Comput. 6
 (2010) 2455-2468.
 """
+
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 import warnings
 from glob import glob
 from shutil import which
 
 import numpy as np
-from monty.io import zopen
 from monty.tempfile import ScratchDir
 
 from pymatgen.core import Element
@@ -63,7 +62,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "01/18/21"
 
-CHARGEMOLEXE = (
+CHARGEMOL_EXE = (
     which("Chargemol_09_26_2017_linux_parallel") or which("Chargemol_09_26_2017_linux_serial") or which("chargemol")
 )
 
@@ -124,9 +123,7 @@ class ChargemolAnalysis:
             self.structure = self.chgcar.structure
             self.natoms = self.chgcar.poscar.natoms
         else:
-            self.chgcar = None
-            self.structure = None
-            self.natoms = None
+            self.chgcar = self.structure = self.natoms = None
             warnings.warn("No CHGCAR found. Some properties may be unavailable.", UserWarning)
         if self._potcarpath:
             self.potcar = Potcar.from_file(self._potcarpath)
@@ -169,7 +166,7 @@ class ChargemolAnalysis:
             fpath = paths[0]
         return fpath
 
-    def _execute_chargemol(self, **jobcontrol_kwargs):
+    def _execute_chargemol(self, **job_control_kwargs):
         """
         Internal function to run Chargemol.
 
@@ -178,32 +175,27 @@ class ChargemolAnalysis:
             required by Chargemol. If None, Pymatgen assumes that this is
             defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment variable.
                 Default: None.
-            jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
+            job_control_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
         with ScratchDir("."):
-            with zopen(self._chgcarpath, "rt") as f_in, open("CHGCAR", "w") as f_out:
-                shutil.copyfileobj(f_in, f_out)
-            with zopen(self._potcarpath, "rt") as f_in, open("POTCAR", "w") as f_out:
-                shutil.copyfileobj(f_in, f_out)
-            with zopen(self._aeccar0path, "rt") as f_in, open("AECCAR0", "w") as f_out:
-                shutil.copyfileobj(f_in, f_out)
-            with zopen(self._aeccar2path, "rt") as f_in, open("AECCAR2", "w") as f_out:
-                shutil.copyfileobj(f_in, f_out)
+            try:
+                os.symlink(self._chgcarpath, "./CHGCAR")
+                os.symlink(self._potcarpath, "./POTCAR")
+                os.symlink(self._aeccar0path, "./AECCAR0")
+                os.symlink(self._aeccar2path, "./AECCAR2")
+            except OSError as exc:
+                print(f"Error creating symbolic link: {exc}")
 
             # write job_script file:
-            self._write_jobscript_for_chargemol(**jobcontrol_kwargs)
+            self._write_jobscript_for_chargemol(**job_control_kwargs)
 
             # Run Chargemol
-            with subprocess.Popen(
-                CHARGEMOLEXE,
-                stdout=subprocess.PIPE,
-                stdin=subprocess.PIPE,
-                close_fds=True,
-            ) as rs:
-                rs.communicate()
+            with subprocess.Popen(CHARGEMOL_EXE, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
+                _stdout, stderr = rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
-                    f"Chargemol exited with return code {rs.returncode}. Please check your Chargemol installation."
+                    f"{CHARGEMOL_EXE} exit code: {rs.returncode}, error message: {stderr!s}. "
+                    "Please check your Chargemol installation."
                 )
 
             self._from_data_dir()
@@ -220,43 +212,42 @@ class ChargemolAnalysis:
         if chargemol_output_path is None:
             chargemol_output_path = ""
 
-        charge_path = os.path.join(chargemol_output_path, "DDEC6_even_tempered_net_atomic_charges.xyz")
+        charge_path = f"{chargemol_output_path}/DDEC6_even_tempered_net_atomic_charges.xyz"
         self.ddec_charges = self._get_data_from_xyz(charge_path)
         self.dipoles = self._get_dipole_info(charge_path)
 
-        bond_order_path = os.path.join(chargemol_output_path, "DDEC6_even_tempered_bond_orders.xyz")
+        bond_order_path = f"{chargemol_output_path}/DDEC6_even_tempered_bond_orders.xyz"
         if os.path.exists(bond_order_path):
             self.bond_order_sums = self._get_data_from_xyz(bond_order_path)
             self.bond_order_dict = self._get_bond_order_info(bond_order_path)
         else:
-            self.bond_order_sums = None
-            self.bond_order_dict = None
+            self.bond_order_sums = self.bond_order_dict = None
 
-        spin_moment_path = os.path.join(chargemol_output_path, "DDEC6_even_tempered_atomic_spin_moments.xyz")
+        spin_moment_path = f"{chargemol_output_path}/DDEC6_even_tempered_atomic_spin_moments.xyz"
         if os.path.exists(spin_moment_path):
             self.ddec_spin_moments = self._get_data_from_xyz(spin_moment_path)
         else:
             self.ddec_spin_moments = None
 
-        rsquared_path = os.path.join(chargemol_output_path, "DDEC_atomic_Rsquared_moments.xyz")
+        rsquared_path = f"{chargemol_output_path}/DDEC_atomic_Rsquared_moments.xyz"
         if os.path.exists(rsquared_path):
             self.ddec_rsquared_moments = self._get_data_from_xyz(rsquared_path)
         else:
             self.ddec_rsquared_moments = None
 
-        rcubed_path = os.path.join(chargemol_output_path, "DDEC_atomic_Rcubed_moments.xyz")
+        rcubed_path = f"{chargemol_output_path}/DDEC_atomic_Rcubed_moments.xyz"
         if os.path.exists(rcubed_path):
             self.ddec_rcubed_moments = self._get_data_from_xyz(rcubed_path)
         else:
             self.ddec_rcubed_moments = None
 
-        rfourth_path = os.path.join(chargemol_output_path, "DDEC_atomic_Rfourth_moments.xyz")
+        rfourth_path = f"{chargemol_output_path}/DDEC_atomic_Rfourth_moments.xyz"
         if os.path.exists(rfourth_path):
             self.ddec_rfourth_moments = self._get_data_from_xyz(rfourth_path)
         else:
             self.ddec_rfourth_moments = None
 
-        ddec_analysis_path = os.path.join(chargemol_output_path, "VASP_DDEC_analysis.output")
+        ddec_analysis_path = f"{chargemol_output_path}/VASP_DDEC_analysis.output"
         if os.path.exists(ddec_analysis_path):
             self.cm5_charges = self._get_cm5_data_from_output(ddec_analysis_path)
         else:
@@ -278,7 +269,7 @@ class ChargemolAnalysis:
             float: charge transferred at atom_index
         """
         if charge_type.lower() not in ["ddec", "cm5"]:
-            raise ValueError(f"Invalid charge_type: {charge_type}")
+            raise ValueError(f"Invalid {charge_type=}")
         if charge_type.lower() == "ddec":
             charge_transfer = -self.ddec_charges[atom_index]
         elif charge_type.lower() == "cm5":
@@ -348,8 +339,7 @@ class ChargemolAnalysis:
         """
         bonded_set = self.bond_order_dict[index_from]["bonded_to"]
         bond_orders = [v["bond_order"] for v in bonded_set if v["index"] == index_to]
-        sum_bo = 0.0 if bond_orders == [] else np.sum(bond_orders)
-        return sum_bo
+        return 0.0 if bond_orders == [] else np.sum(bond_orders)
 
     def _write_jobscript_for_chargemol(
         self,
@@ -359,7 +349,7 @@ class ChargemolAnalysis:
         compute_bond_orders=True,
     ):
         """
-        Writes job_script.txt for Chargemol execution
+        Writes job_script.txt for Chargemol execution.
 
         Args:
             net_charge (float): Net charge of the system.
@@ -425,7 +415,7 @@ class ChargemolAnalysis:
     @staticmethod
     def _get_dipole_info(filepath):
         """
-        Internal command to process dipoles
+        Internal command to process dipoles.
 
         Args:
             filepath (str): The path to the DDEC6_even_tempered_net_atomic_charges.xyz file
@@ -451,7 +441,7 @@ class ChargemolAnalysis:
     @staticmethod
     def _get_bond_order_info(filename):
         """
-        Internal command to process pairwise bond order information
+        Internal command to process pairwise bond order information.
 
         Args:
             filename (str): The path to the DDEC6_even_tempered_bond_orders.xyz file
@@ -523,7 +513,7 @@ class ChargemolAnalysis:
                 "cm5": {
                             "partial_charges": List[float],
                         }
-            }
+            }.
         """
         summary = {}
         ddec_summary = {
@@ -554,7 +544,7 @@ class ChargemolAnalysis:
     @staticmethod
     def _get_data_from_xyz(xyz_path):
         """
-        Internal command to process Chargemol XYZ files
+        Internal command to process Chargemol XYZ files.
 
         Args:
             xyz_path (str): Path to XYZ file
@@ -579,7 +569,7 @@ class ChargemolAnalysis:
     @staticmethod
     def _get_cm5_data_from_output(ddec_analysis_path):
         """
-        Internal command to process Chargemol CM5 data
+        Internal command to process Chargemol CM5 data.
 
         Args:
             ddec_analysis_path (str): Path VASP_DDEC_analysis.output file
