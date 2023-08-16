@@ -1701,12 +1701,12 @@ class _MPResterLegacy:
                 else:
                     m = re.match(r"([A-Z][a-z]*)[\.\d]*", sym)
                     explicit_els.append(m.group(1))
-            nelements = len(wild_card_els) + len(set(explicit_els))
+            n_elements = len(wild_card_els) + len(set(explicit_els))
             parts = re.split(r"(\*|\{.*\})", t)
             parts = [parse_sym(s) for s in parts if s != ""]
             for f in itertools.product(*parts):
                 c = Composition("".join(f))
-                if len(c) == nelements:
+                if len(c) == n_elements:
                     # Check for valid Elements in keys.
                     for e in c:
                         Element(e.symbol)
