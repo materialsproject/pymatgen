@@ -91,7 +91,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
 
     pbc = lattice.pbc
     cdef int n_pbc = sum(pbc)
-    cdef int n_pbc_im = 3 ** n_pbc
+    cdef int n_pbc_im = int(3 ** n_pbc)
 
     cdef np.float_t[:, ::1] frac_im
     cdef int i, j, k, l, I, J
