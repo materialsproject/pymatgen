@@ -882,13 +882,13 @@ direct
 
     def test_automatic_monkhorst_vs_gamma_style_selection(self):
         # bcc structures should allow *both* Monkhorst and Gamma.
-        filepath = f"{PymatgenTest.TEST_FILES_DIR}/POSCAR_bcc"
+        filepath = f"{TEST_FILES_DIR}/POSCAR_bcc"
         bcc_struct = Structure.from_file(filepath)
 
-        filepath = f"{PymatgenTest.TEST_FILES_DIR}/POSCAR_fcc"
+        filepath = f"{TEST_FILES_DIR}/POSCAR_fcc"
         fcc_struct = Structure.from_file(filepath)
 
-        filepath = f"{PymatgenTest.TEST_FILES_DIR}/POSCAR_hcp"
+        filepath = f"{TEST_FILES_DIR}/POSCAR_hcp"
         hcp_struct = Structure.from_file(filepath)
 
         ### Kpoints.automatic_density
@@ -918,24 +918,22 @@ direct
 
         ### Kpoints.automatic_density_by_lengths
         # bcc structures should allow both Monkhorst and Gamma
-        kpoints = Kpoints.automatic_density_by_lengths(bcc_struct, [50,50,50])
+        kpoints = Kpoints.automatic_density_by_lengths(bcc_struct, [50, 50, 50])
         assert kpoints.style == Kpoints.supported_modes.Monkhorst
-        kpoints = Kpoints.automatic_density_by_lengths(bcc_struct, [53,53,53])
+        kpoints = Kpoints.automatic_density_by_lengths(bcc_struct, [53, 53, 53])
         assert kpoints.style == Kpoints.supported_modes.Gamma
-        kpoints = Kpoints.automatic_density_by_lengths(bcc_struct, [56,56,56])
+        kpoints = Kpoints.automatic_density_by_lengths(bcc_struct, [56, 56, 56])
         assert kpoints.style == Kpoints.supported_modes.Monkhorst
 
-        # Overkill test to make sure these methods never set the style to 
+        # Overkill test to make sure these methods never set the style to
         # anything except for Gamma
-        for length_density in range(1,50):
+        for length_density in range(1, 50):
             # face-centered structures should allow only Gamma
-            kpoints = Kpoints.automatic_density_by_lengths(
-                fcc_struct, [length_density,length_density,length_density])
+            kpoints = Kpoints.automatic_density_by_lengths(fcc_struct, [length_density, length_density, length_density])
             assert kpoints.style == Kpoints.supported_modes.Gamma
 
             # hcp structures should allow only Gamma
-            kpoints = Kpoints.automatic_density_by_lengths(
-                hcp_struct, [length_density,length_density,length_density])
+            kpoints = Kpoints.automatic_density_by_lengths(hcp_struct, [length_density, length_density, length_density])
             assert kpoints.style == Kpoints.supported_modes.Gamma
 
 
