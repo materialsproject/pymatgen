@@ -446,7 +446,7 @@ class PhononBSPlotter:
 
         u = freq_units(units)
         fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
-        self._maketicks(plt)
+        self._maketicks(ax)
 
         data = self.bs_plot_data()
         k_dist = np.array(data["distances"]).flatten()
