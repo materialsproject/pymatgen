@@ -787,7 +787,7 @@ class DetailedVoronoiContainer(MSONable):
             step_function: Type of step function to be used for the RDF.
 
         Returns:
-            Matplotlib figure.
+            plt.figure: Matplotlib figure.
         """
 
         def dp_func(dp):
@@ -841,7 +841,7 @@ class DetailedVoronoiContainer(MSONable):
             step_function: Type of step function to be used for the SADF.
 
         Returns:
-            Matplotlib figure.
+            plt.figure: matplotlib figure.
         """
 
         def ap_func(ap):

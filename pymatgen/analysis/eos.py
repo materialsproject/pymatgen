@@ -230,7 +230,7 @@ class EOSBase(metaclass=ABCMeta):
             text (str): Legend text (options)
 
         Returns:
-            Matplotlib figure object.
+            plt.Figure: matplotlib figure.
         """
         # pylint: disable=E1307
         ax, fig, plt = get_ax_fig_plt(ax=ax)

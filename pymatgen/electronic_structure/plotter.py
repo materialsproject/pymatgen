@@ -2261,8 +2261,7 @@ class BSDOSPlotter:
                 CompleteDos) for projected plots.
 
         Returns:
-            matplotlib.pyplot object on which you can call commands like show()
-            and savefig()
+            tuple[plt.Axes, plt.Axes]: matplotlib axes for the band structure and DOS, resp.
         """
         import matplotlib.lines as mlines
         import matplotlib.pyplot as plt
@@ -3055,9 +3054,9 @@ class BoltztrapPlotter:
         output: str = "eig",
         relaxation_time: float = 1e-14,
         xlim: Sequence[float] | None = None,
-    ):
+    ) -> plt.Axes:
         """
-        Plot the ZT in function of Fermi level.
+        Plot the ZT as function of Fermi level.
 
         Args:
             temp (float): the temperature
@@ -3067,7 +3066,7 @@ class BoltztrapPlotter:
             xlim (tuple[float, float]): a 2-tuple of min and max fermi energy. Defaults to (0, band gap)
 
         Returns:
-            matplotlib.pyplot module
+            plt.Axes: matplotlib axes object
         """
         ax = pretty_plot(9, 7)
         zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output, doping_levels=False)[temp]

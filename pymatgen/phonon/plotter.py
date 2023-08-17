@@ -676,7 +676,7 @@ class ThermoPlotter:
             kwargs: kwargs passed to the matplotlib function 'plot'.
 
         Returns:
-            matplotlib figure
+            plt.figure: matplotlib figure
         """
         ax, fig, plt = get_ax_fig_plt(ax)
 
@@ -714,7 +714,7 @@ class ThermoPlotter:
             kwargs: kwargs passed to the matplotlib function 'plot'.
 
         Returns:
-            matplotlib figure
+            plt.figure: matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
@@ -735,7 +735,7 @@ class ThermoPlotter:
             kwargs: kwargs passed to the matplotlib function 'plot'.
 
         Returns:
-            matplotlib figure
+            plt.figure: matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
@@ -756,7 +756,7 @@ class ThermoPlotter:
             kwargs: kwargs passed to the matplotlib function 'plot'.
 
         Returns:
-            matplotlib figure
+            plt.figure: matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
@@ -779,7 +779,7 @@ class ThermoPlotter:
             kwargs: kwargs passed to the matplotlib function 'plot'.
 
         Returns:
-            matplotlib figure
+            plt.figure: matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
@@ -802,7 +802,7 @@ class ThermoPlotter:
             kwargs: kwargs passed to the matplotlib function 'plot'.
 
         Returns:
-            matplotlib figure
+            plt.figure: matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
