@@ -1599,7 +1599,7 @@ class BSPlotterProjected(BSPlotter):
             )
 
         band_linewidth = 0.5
-        plt = pretty_plot(w_h_size[0], w_h_size[1])
+        ax = pretty_plot(w_h_size[0], w_h_size[1])
         proj_br_d, dictio_d, dictpa_d, branches = self._get_projections_by_branches_patom_pmorb(
             dictio, dictpa, sum_atoms, sum_morbs, selected_branches
         )
@@ -1633,12 +1633,12 @@ class BSPlotterProjected(BSPlotter):
                     else:
                         raise ValueError("The invalid 'num_column' is assigned. It should be an integer.")
 
-                    plt, shift = self._maketicks_selected(plt, branches)
+                    ax, shift = self._maketicks_selected(ax, branches)
                     br = -1
                     for b in branches:
                         br += 1
                         for i in range(self._nb_bands):
-                            plt.plot(
+                            ax.plot(
                                 [x - shift[br] for x in data["distances"][b]],
                                 [data["energy"][str(Spin.up)][b][i][j] for j in range(len(data["distances"][b]))],
                                 "b-",
@@ -1646,14 +1646,14 @@ class BSPlotterProjected(BSPlotter):
                             )
 
                             if self._bs.is_spin_polarized:
-                                plt.plot(
+                                ax.plot(
                                     [x - shift[br] for x in data["distances"][b]],
                                     [data["energy"][str(Spin.down)][b][i][j] for j in range(len(data["distances"][b]))],
                                     "r--",
                                     linewidth=band_linewidth,
                                 )
                                 for j in range(len(data["energy"][str(Spin.up)][b][i])):
-                                    plt.plot(
+                                    ax.plot(
                                         data["distances"][b][j] - shift[br],
                                         data["energy"][str(Spin.down)][b][i][j],
                                         "co",
@@ -1661,7 +1661,7 @@ class BSPlotterProjected(BSPlotter):
                                     )
 
                             for j in range(len(data["energy"][str(Spin.up)][b][i])):
-                                plt.plot(
+                                ax.plot(
                                     data["distances"][b][j] - shift[br],
                                     data["energy"][str(Spin.up)][b][i][j],
                                     "go",
@@ -1671,23 +1671,23 @@ class BSPlotterProjected(BSPlotter):
                     if ylim is None:
                         if self._bs.is_metal():
                             if zero_to_efermi:
-                                plt.ylim(e_min, e_max)
+                                ax.set_ylim(e_min, e_max)
                             else:
-                                plt.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
+                                ax.set_ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
                         else:
                             if vbm_cbm_marker:
                                 for cbm in data["cbm"]:
-                                    plt.scatter(cbm[0], cbm[1], color="r", marker="o", s=100)
+                                    ax.scatter(cbm[0], cbm[1], color="r", marker="o", s=100)
 
                                 for vbm in data["vbm"]:
-                                    plt.scatter(vbm[0], vbm[1], color="g", marker="o", s=100)
+                                    ax.scatter(vbm[0], vbm[1], color="g", marker="o", s=100)
 
-                            plt.ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
+                            ax.set_ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
                     else:
-                        plt.ylim(ylim)
-                    plt.title(f"{elt} {numa} {o}")
+                        ax.set_ylim(ylim)
+                    ax.set_title(f"{elt} {numa} {o}")
 
-        return plt
+        return ax
 
     @classmethod
     def _Orbitals_SumOrbitals(cls, dictio, sum_morbs):
@@ -2836,12 +2836,12 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-        plt = pretty_plot(9, 7)
-        for T in temps:
-            sbk_mass = self._bz.get_seebeck_eff_mass(output=output, temp=T, Lambda=0.5)
+        ax = pretty_plot(9, 7)
+        for temp in temps:
+            sbk_mass = self._bz.get_seebeck_eff_mass(output=output, temp=temp, Lambda=0.5)
             # remove noise inside the gap
-            start = self._bz.mu_doping["p"][T][0]
-            stop = self._bz.mu_doping["n"][T][0]
+            start = self._bz.mu_doping["p"][temp][0]
+            stop = self._bz.mu_doping["n"][temp][0]
             mu_steps_1 = []
             mu_steps_2 = []
             sbk_mass_1 = []
@@ -2854,28 +2854,28 @@ class BoltztrapPlotter:
                     mu_steps_2.append(mu)
                     sbk_mass_2.append(sbk_mass[i])
 
-            plt.plot(mu_steps_1, sbk_mass_1, label=str(T) + "K", linewidth=3.0)
-            plt.plot(mu_steps_2, sbk_mass_2, linewidth=3.0)
+            ax.plot(mu_steps_1, sbk_mass_1, label=f"{temp}K", linewidth=3)
+            ax.plot(mu_steps_2, sbk_mass_2, linewidth=3.0)
             if output == "average":
-                plt.gca().get_lines()[1].set_c(plt.gca().get_lines()[0].get_c())
+                ax.get_lines()[1].set_c(ax.get_lines()[0].get_c())
             elif output == "tensor":
-                plt.gca().get_lines()[3].set_c(plt.gca().get_lines()[0].get_c())
-                plt.gca().get_lines()[4].set_c(plt.gca().get_lines()[1].get_c())
-                plt.gca().get_lines()[5].set_c(plt.gca().get_lines()[2].get_c())
+                ax.get_lines()[3].set_c(ax.get_lines()[0].get_c())
+                ax.get_lines()[4].set_c(ax.get_lines()[1].get_c())
+                ax.get_lines()[5].set_c(ax.get_lines()[2].get_c())
 
-        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
-        plt.ylabel("Seebeck effective mass", fontsize=30)
-        plt.xticks(fontsize=25)
-        plt.yticks(fontsize=25)
+        ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
+        ax.set_ylabel("Seebeck effective mass", fontsize=30)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         if output == "tensor":
-            plt.legend(
+            ax.legend(
                 [f"{dim}_{T}K" for T in temps for dim in ("x", "y", "z")],
                 fontsize=20,
             )
         elif output == "average":
-            plt.legend(fontsize=20)
+            ax.legend(fontsize=20)
         plt.tight_layout()
-        return plt
+        return ax
 
     def plot_complexity_factor_mu(self, temps=(300,), output="average", Lambda=0.5):
         """
@@ -2897,7 +2897,7 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-        plt = pretty_plot(9, 7)
+        ax = pretty_plot(9, 7)
         for T in temps:
             cmplx_fact = self._bz.get_complexity_factor(output=output, temp=T, Lambda=Lambda)
             start = self._bz.mu_doping["p"][T][0]
@@ -2914,28 +2914,28 @@ class BoltztrapPlotter:
                     mu_steps_2.append(mu)
                     cmplx_fact_2.append(cmplx_fact[i])
 
-            plt.plot(mu_steps_1, cmplx_fact_1, label=str(T) + "K", linewidth=3.0)
-            plt.plot(mu_steps_2, cmplx_fact_2, linewidth=3.0)
+            ax.plot(mu_steps_1, cmplx_fact_1, label=str(T) + "K", linewidth=3.0)
+            ax.plot(mu_steps_2, cmplx_fact_2, linewidth=3.0)
             if output == "average":
-                plt.gca().get_lines()[1].set_c(plt.gca().get_lines()[0].get_c())
+                ax.gca().get_lines()[1].set_c(ax.gca().get_lines()[0].get_c())
             elif output == "tensor":
-                plt.gca().get_lines()[3].set_c(plt.gca().get_lines()[0].get_c())
-                plt.gca().get_lines()[4].set_c(plt.gca().get_lines()[1].get_c())
-                plt.gca().get_lines()[5].set_c(plt.gca().get_lines()[2].get_c())
+                ax.gca().get_lines()[3].set_c(ax.gca().get_lines()[0].get_c())
+                ax.gca().get_lines()[4].set_c(ax.gca().get_lines()[1].get_c())
+                ax.gca().get_lines()[5].set_c(ax.gca().get_lines()[2].get_c())
 
-        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
-        plt.ylabel("Complexity Factor", fontsize=30)
-        plt.xticks(fontsize=25)
-        plt.yticks(fontsize=25)
+        ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
+        ax.ylabel("Complexity Factor", fontsize=30)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         if output == "tensor":
-            plt.legend(
+            ax.legend(
                 [f"{dim}_{T}K" for T in temps for dim in ("x", "y", "z")],
                 fontsize=20,
             )
         elif output == "average":
-            plt.legend(fontsize=20)
+            ax.legend(fontsize=20)
         plt.tight_layout()
-        return plt
+        return ax
 
     def plot_seebeck_mu(self, temp: float = 600, output: str = "eig", xlim: Sequence[float] | None = None):
         """
@@ -2950,24 +2950,24 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-        plt = pretty_plot(9, 7)
+        ax = pretty_plot(9, 7)
         seebeck = self._bz.get_seebeck(output=output, doping_levels=False)[temp]
-        plt.plot(self._bz.mu_steps, seebeck, linewidth=3.0)
+        ax.plot(self._bz.mu_steps, seebeck, linewidth=3.0)
 
-        self._plot_bg_limits(plt)
-        self._plot_doping(plt, temp)
+        self._plot_bg_limits(ax)
+        self._plot_doping(ax, temp)
         if output == "eig":
-            plt.legend(["S$_1$", "S$_2$", "S$_3$"])
+            ax.legend(["S$_1$", "S$_2$", "S$_3$"])
         if xlim is None:
-            plt.xlim(-0.5, self._bz.gap + 0.5)
+            ax.set_xlim(-0.5, self._bz.gap + 0.5)
         else:
-            plt.xlim(xlim[0], xlim[1])
-        plt.ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
-        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
-        plt.xticks(fontsize=25)
-        plt.yticks(fontsize=25)
+            ax.set_xlim(xlim[0], xlim[1])
+        ax.set_ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
+        ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         plt.tight_layout()
-        return plt
+        return ax
 
     def plot_conductivity_mu(
         self,
@@ -2991,23 +2991,23 @@ class BoltztrapPlotter:
             a matplotlib object
         """
         cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output=output, doping_levels=False)[temp]
-        plt = pretty_plot(9, 7)
-        plt.semilogy(self._bz.mu_steps, cond, linewidth=3.0)
-        self._plot_bg_limits(plt)
-        self._plot_doping(plt, temp)
+        ax = pretty_plot(9, 7)
+        ax.semilogy(self._bz.mu_steps, cond, linewidth=3.0)
+        self._plot_bg_limits(ax)
+        self._plot_doping(ax, temp)
         if output == "eig":
-            plt.legend(["$\\Sigma_1$", "$\\Sigma_2$", "$\\Sigma_3$"])
+            ax.legend(["$\\Sigma_1$", "$\\Sigma_2$", "$\\Sigma_3$"])
         if xlim is None:
-            plt.xlim(-0.5, self._bz.gap + 0.5)
+            ax.xlim(-0.5, self._bz.gap + 0.5)
         else:
-            plt.xlim(xlim)
-        plt.ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
-        plt.ylabel("conductivity,\n $\\Sigma$ (1/($\\Omega$ m))", fontsize=30.0)
-        plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
-        plt.xticks(fontsize=25)
-        plt.yticks(fontsize=25)
+            ax.xlim(xlim)
+        ax.ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
+        ax.ylabel("conductivity,\n $\\Sigma$ (1/($\\Omega$ m))", fontsize=30.0)
+        ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         plt.tight_layout()
-        return plt
+        return ax
 
     def plot_power_factor_mu(
         self,
@@ -3030,23 +3030,23 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-        plt = pretty_plot(9, 7)
+        ax = pretty_plot(9, 7)
         pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output=output, doping_levels=False)[temp]
-        plt.semilogy(self._bz.mu_steps, pf, linewidth=3.0)
-        self._plot_bg_limits(plt)
-        self._plot_doping(plt, temp)
+        ax.semilogy(self._bz.mu_steps, pf, linewidth=3.0)
+        self._plot_bg_limits(ax)
+        self._plot_doping(ax, temp)
         if output == "eig":
-            plt.legend(["PF$_1$", "PF$_2$", "PF$_3$"])
+            ax.legend(["PF$_1$", "PF$_2$", "PF$_3$"])
         if xlim is None:
-            plt.xlim(-0.5, self._bz.gap + 0.5)
+            ax.set_xlim(-0.5, self._bz.gap + 0.5)
         else:
-            plt.xlim(xlim)
-        plt.ylabel("Power factor, ($\\mu$W/(mK$^2$))", fontsize=30.0)
-        plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
-        plt.xticks(fontsize=25)
-        plt.yticks(fontsize=25)
+            ax.set_xlim(xlim)
+        ax.set_ylabel("Power factor, ($\\mu$W/(mK$^2$))", fontsize=30.0)
+        ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         plt.tight_layout()
-        return plt
+        return ax
 
     def plot_zt_mu(
         self,
@@ -3068,23 +3068,23 @@ class BoltztrapPlotter:
         Returns:
             matplotlib.pyplot module
         """
-        plt = pretty_plot(9, 7)
+        ax = pretty_plot(9, 7)
         zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output, doping_levels=False)[temp]
-        plt.plot(self._bz.mu_steps, zt, linewidth=3.0)
-        self._plot_bg_limits(plt)
-        self._plot_doping(plt, temp)
+        ax.plot(self._bz.mu_steps, zt, linewidth=3.0)
+        self._plot_bg_limits(ax)
+        self._plot_doping(ax, temp)
         if output == "eig":
-            plt.legend(["ZT$_1$", "ZT$_2$", "ZT$_3$"])
+            ax.legend(["ZT$_1$", "ZT$_2$", "ZT$_3$"])
         if xlim is None:
-            plt.xlim(-0.5, self._bz.gap + 0.5)
+            ax.xlim(-0.5, self._bz.gap + 0.5)
         else:
-            plt.xlim(xlim)
-        plt.ylabel("ZT", fontsize=30.0)
-        plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
-        plt.xticks(fontsize=25)
-        plt.yticks(fontsize=25)
+            ax.xlim(xlim)
+        ax.ylabel("ZT", fontsize=30.0)
+        ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         plt.tight_layout()
-        return plt
+        return ax
 
     def plot_seebeck_temp(self, doping="all", output="average"):
         """
@@ -3105,7 +3105,7 @@ class BoltztrapPlotter:
         elif output == "eigs":
             sbk = self._bz.get_seebeck(output="eigs")
 
-        plt = pretty_plot(22, 14)
+        ax = pretty_plot(22, 14)
         tlist = sorted(sbk["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
         for i, dt in enumerate(["n", "p"]):
@@ -3116,29 +3116,29 @@ class BoltztrapPlotter:
                 for temp in tlist:
                     sbk_temp.append(sbk[dt][temp][d])
                 if output == "average":
-                    plt.plot(tlist, sbk_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(tlist, sbk_temp, marker="s", label=str(dop) + " $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
-                        plt.plot(
+                        ax.plot(
                             tlist,
                             list(zip(*sbk_temp))[xyz],
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            plt.title(dt + "-type", fontsize=20)
+            ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                plt.ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
-            plt.xlabel("Temperature (K)", fontsize=30.0)
+                ax.set_ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
+            ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
             p = "lower right" if i == 0 else "best"
-            plt.legend(loc=p, fontsize=15)
-            plt.grid()
-            plt.xticks(fontsize=25)
-            plt.yticks(fontsize=25)
+            ax.legend(loc=p, fontsize=15)
+            ax.grid()
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
 
-        return plt
+        return ax
 
     def plot_conductivity_temp(self, doping="all", output="average", relaxation_time=1e-14):
         """
@@ -3159,7 +3159,7 @@ class BoltztrapPlotter:
         elif output == "eigs":
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="eigs")
 
-        plt = pretty_plot(22, 14)
+        ax = pretty_plot(22, 14)
         tlist = sorted(cond["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
         for i, dt in enumerate(["n", "p"]):
@@ -3170,30 +3170,30 @@ class BoltztrapPlotter:
                 for temp in tlist:
                     cond_temp.append(cond[dt][temp][d])
                 if output == "average":
-                    plt.plot(tlist, cond_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(tlist, cond_temp, marker="s", label=str(dop) + " $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
-                        plt.plot(
+                        ax.plot(
                             tlist,
                             list(zip(*cond_temp))[xyz],
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            plt.title(dt + "-type", fontsize=20)
+            ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                plt.ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
-            plt.xlabel("Temperature (K)", fontsize=30.0)
+                ax.ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
+            ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
             p = "best"  # 'lower right' if i == 0 else ''
-            plt.legend(loc=p, fontsize=15)
-            plt.grid()
-            plt.xticks(fontsize=25)
-            plt.yticks(fontsize=25)
-            plt.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
+            ax.legend(loc=p, fontsize=15)
+            ax.grid()
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
+            ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
         plt.tight_layout()
 
-        return plt
+        return ax
 
     def plot_power_factor_temp(self, doping="all", output="average", relaxation_time=1e-14):
         """
@@ -3214,7 +3214,7 @@ class BoltztrapPlotter:
         elif output == "eigs":
             pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output="eigs")
 
-        plt = pretty_plot(22, 14)
+        ax = pretty_plot(22, 14)
         tlist = sorted(pf["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
         for i, dt in enumerate(["n", "p"]):
@@ -3225,29 +3225,29 @@ class BoltztrapPlotter:
                 for temp in tlist:
                     pf_temp.append(pf[dt][temp][d])
                 if output == "average":
-                    plt.plot(tlist, pf_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(tlist, pf_temp, marker="s", label=str(dop) + " $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
-                        plt.plot(
+                        ax.plot(
                             tlist,
                             list(zip(*pf_temp))[xyz],
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            plt.title(dt + "-type", fontsize=20)
+            ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                plt.ylabel("Power Factor ($\\mu$W/(mK$^2$))", fontsize=30.0)
-            plt.xlabel("Temperature (K)", fontsize=30.0)
+                ax.ylabel("Power Factor ($\\mu$W/(mK$^2$))", fontsize=30.0)
+            ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
             p = "best"  # 'lower right' if i == 0 else ''
-            plt.legend(loc=p, fontsize=15)
-            plt.grid()
-            plt.xticks(fontsize=25)
-            plt.yticks(fontsize=25)
-            plt.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
+            ax.legend(loc=p, fontsize=15)
+            ax.grid()
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
+            ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
         plt.tight_layout()
-        return plt
+        return ax
 
     def plot_zt_temp(self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
         """
@@ -3270,7 +3270,7 @@ class BoltztrapPlotter:
             raise ValueError(f"{output=} must be 'average' or 'eigs'")
         zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output)
 
-        plt = pretty_plot(22, 14)
+        ax = pretty_plot(22, 14)
         tlist = sorted(zt["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
         for i, dt in enumerate(["n", "p"]):
@@ -3281,28 +3281,28 @@ class BoltztrapPlotter:
                 for temp in tlist:
                     zt_temp.append(zt[dt][temp][d])
                 if output == "average":
-                    plt.plot(tlist, zt_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(tlist, zt_temp, marker="s", label=str(dop) + " $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
-                        plt.plot(
+                        ax.plot(
                             tlist,
                             list(zip(*zt_temp))[xyz],
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            plt.title(dt + "-type", fontsize=20)
+            ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                plt.ylabel("zT", fontsize=30.0)
-            plt.xlabel("Temperature (K)", fontsize=30.0)
+                ax.ylabel("zT", fontsize=30.0)
+            ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
             p = "best"  # 'lower right' if i == 0 else ''
-            plt.legend(loc=p, fontsize=15)
-            plt.grid()
-            plt.xticks(fontsize=25)
-            plt.yticks(fontsize=25)
+            ax.legend(loc=p, fontsize=15)
+            ax.grid()
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
-        return plt
+        return ax
 
     def plot_eff_mass_temp(self, doping="all", output: Literal["average", "eigs"] = "average"):
         """
@@ -3368,36 +3368,31 @@ class BoltztrapPlotter:
             sbk = self._bz.get_seebeck(output="eigs")
 
         tlist = sorted(sbk["n"]) if temps == "all" else temps
-        plt = pretty_plot(22, 14)
+        ax = pretty_plot(22, 14)
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
             for temp in tlist:
                 if output == "eigs":
                     for xyz in range(3):
-                        plt.semilogx(
+                        ax.semilogx(
                             self._bz.doping[dt], list(zip(*sbk[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
-                    plt.semilogx(
-                        self._bz.doping[dt],
-                        sbk[dt][temp],
-                        marker="s",
-                        label=str(temp) + " K",
-                    )
-            plt.title(dt + "-type", fontsize=20)
+                    ax.semilogx(self._bz.doping[dt], sbk[dt][temp], marker="s", label=f"{temp} K")
+            ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                plt.ylabel("Seebeck coefficient ($\\mu$V/K)", fontsize=30.0)
-            plt.xlabel("Doping concentration (cm$^{-3}$)", fontsize=30.0)
+                ax.set_ylabel("Seebeck coefficient ($\\mu$V/K)", fontsize=30.0)
+            ax.set_xlabel("Doping concentration (cm$^{-3}$)", fontsize=30.0)
 
             p = "lower right" if i == 0 else "best"
-            plt.legend(loc=p, fontsize=15)
-            plt.grid()
-            plt.xticks(fontsize=25)
-            plt.yticks(fontsize=25)
+            ax.legend(loc=p, fontsize=15)
+            ax.grid()
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
 
-        return plt
+        return ax
 
     def plot_conductivity_dop(self, temps="all", output="average", relaxation_time=1e-14):
         """
@@ -3420,35 +3415,35 @@ class BoltztrapPlotter:
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="eigs")
 
         tlist = sorted(cond["n"]) if temps == "all" else temps
-        plt = pretty_plot(22, 14)
+        ax = pretty_plot(22, 14)
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
             for temp in tlist:
                 if output == "eigs":
                     for xyz in range(3):
-                        plt.semilogx(
+                        ax.semilogx(
                             self._bz.doping[dt], list(zip(*cond[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
-                    plt.semilogx(
+                    ax.semilogx(
                         self._bz.doping[dt],
                         cond[dt][temp],
                         marker="s",
-                        label=str(temp) + " K",
+                        label=f"{temp} K",
                     )
-            plt.title(dt + "-type", fontsize=20)
+            ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                plt.ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
-            plt.xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
-            plt.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
-            plt.legend(fontsize=15)
-            plt.grid()
-            plt.xticks(fontsize=25)
-            plt.yticks(fontsize=25)
+                ax.ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
+            ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
+            ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
+            ax.legend(fontsize=15)
+            ax.grid()
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
 
-        return plt
+        return ax
 
     def plot_power_factor_dop(self, temps="all", output="average", relaxation_time=1e-14):
         """
@@ -3470,31 +3465,31 @@ class BoltztrapPlotter:
             pf = self._bz.get_power_factor(relaxation_time=relaxation_time, output="eigs")
 
         tlist = sorted(pf["n"]) if temps == "all" else temps
-        plt = pretty_plot(22, 14)
+        ax = pretty_plot(22, 14)
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
             for temp in tlist:
                 if output == "eigs":
                     for xyz in range(3):
-                        plt.semilogx(
+                        ax.semilogx(
                             self._bz.doping[dt], list(zip(*pf[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
-                    plt.semilogx(self._bz.doping[dt], pf[dt][temp], marker="s", label=f"{temp} K")
-            plt.title(dt + "-type", fontsize=20)
+                    ax.semilogx(self._bz.doping[dt], pf[dt][temp], marker="s", label=f"{temp} K")
+            ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                plt.ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
-            plt.xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
-            plt.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
+                ax.ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
+            ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
+            ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
             p = "best"  # 'lower right' if i == 0 else ''
-            plt.legend(loc=p, fontsize=15)
-            plt.grid()
-            plt.xticks(fontsize=25)
-            plt.yticks(fontsize=25)
+            ax.legend(loc=p, fontsize=15)
+            ax.grid()
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
 
-        return plt
+        return ax
 
     def plot_zt_dop(self, temps="all", output="average", relaxation_time=1e-14):
         """
@@ -3517,36 +3512,36 @@ class BoltztrapPlotter:
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output="eigs")
 
         tlist = sorted(zt["n"]) if temps == "all" else temps
-        plt = pretty_plot(22, 14)
+        ax = pretty_plot(22, 14)
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
             for temp in tlist:
                 if output == "eigs":
                     for xyz in range(3):
-                        plt.semilogx(
+                        ax.semilogx(
                             self._bz.doping[dt], list(zip(*zt[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
-                    plt.semilogx(
+                    ax.semilogx(
                         self._bz.doping[dt],
                         zt[dt][temp],
                         marker="s",
-                        label=str(temp) + " K",
+                        label=f"{temp} K",
                     )
-            plt.title(dt + "-type", fontsize=20)
+            ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                plt.ylabel("zT", fontsize=30.0)
-            plt.xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
+                ax.ylabel("zT", fontsize=30.0)
+            ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
 
             p = "lower right" if i == 0 else "best"
-            plt.legend(loc=p, fontsize=15)
-            plt.grid()
-            plt.xticks(fontsize=25)
-            plt.yticks(fontsize=25)
+            ax.legend(loc=p, fontsize=15)
+            ax.grid()
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
 
-        return plt
+        return ax
 
     def plot_eff_mass_dop(self, temps="all", output="average"):
         """
@@ -3569,36 +3564,36 @@ class BoltztrapPlotter:
             em = self._bz.get_average_eff_mass(output="eigs")
 
         tlist = sorted(em["n"]) if temps == "all" else temps
-        plt = pretty_plot(22, 14)
+        ax = pretty_plot(22, 14)
         for i, dt in enumerate(["n", "p"]):
             plt.subplot(121 + i)
             for temp in tlist:
                 if output == "eigs":
                     for xyz in range(3):
-                        plt.semilogx(
+                        ax.semilogx(
                             self._bz.doping[dt], list(zip(*em[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
-                    plt.semilogx(
+                    ax.semilogx(
                         self._bz.doping[dt],
                         em[dt][temp],
                         marker="s",
-                        label=str(temp) + " K",
+                        label=f"{temp} K",
                     )
-            plt.title(dt + "-type", fontsize=20)
+            ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                plt.ylabel("Effective mass (m$_e$)", fontsize=30.0)
-            plt.xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
+                ax.ylabel("Effective mass (m$_e$)", fontsize=30.0)
+            ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
 
             p = "lower right" if i == 0 else "best"
-            plt.legend(loc=p, fontsize=15)
-            plt.grid()
-            plt.xticks(fontsize=25)
-            plt.yticks(fontsize=25)
+            ax.legend(loc=p, fontsize=15)
+            ax.grid()
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
 
-        return plt
+        return ax
 
     def plot_dos(self, sigma=0.05):
         """Plot dos.
@@ -3623,19 +3618,19 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-        plt = pretty_plot(9, 7)
+        ax = pretty_plot(9, 7)
         carriers = [abs(c / (self._bz.vol * 1e-24)) for c in self._bz._carrier_conc[temp]]
-        plt.semilogy(self._bz.mu_steps, carriers, linewidth=3.0, color="r")
-        self._plot_bg_limits(plt)
-        self._plot_doping(plt, temp)
-        plt.xlim(-0.5, self._bz.gap + 0.5)
-        plt.ylim(1e14, 1e22)
-        plt.ylabel("carrier concentration (cm-3)", fontsize=30.0)
-        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
-        plt.xticks(fontsize=25)
-        plt.yticks(fontsize=25)
+        ax.semilogy(self._bz.mu_steps, carriers, linewidth=3.0, color="r")
+        self._plot_bg_limits(ax)
+        self._plot_doping(ax, temp)
+        ax.xlim(-0.5, self._bz.gap + 0.5)
+        ax.ylim(1e14, 1e22)
+        ax.ylabel("carrier concentration (cm-3)", fontsize=30.0)
+        ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         plt.tight_layout()
-        return plt
+        return ax
 
     def plot_hall_carriers(self, temp=300):
         """
@@ -3647,19 +3642,19 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-        plt = pretty_plot(9, 7)
+        ax = pretty_plot(9, 7)
         hall_carriers = [abs(i) for i in self._bz.get_hall_carrier_concentration()[temp]]
-        plt.semilogy(self._bz.mu_steps, hall_carriers, linewidth=3.0, color="r")
-        self._plot_bg_limits(plt)
-        self._plot_doping(plt, temp)
-        plt.xlim(-0.5, self._bz.gap + 0.5)
-        plt.ylim(1e14, 1e22)
-        plt.ylabel("Hall carrier concentration (cm-3)", fontsize=30.0)
-        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
-        plt.xticks(fontsize=25)
-        plt.yticks(fontsize=25)
+        ax.semilogy(self._bz.mu_steps, hall_carriers, linewidth=3.0, color="r")
+        self._plot_bg_limits(ax)
+        self._plot_doping(ax, temp)
+        ax.xlim(-0.5, self._bz.gap + 0.5)
+        ax.ylim(1e14, 1e22)
+        ax.ylabel("Hall carrier concentration (cm-3)", fontsize=30.0)
+        ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         plt.tight_layout()
-        return plt
+        return ax
 
 
 class CohpPlotter:

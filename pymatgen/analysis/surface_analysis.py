@@ -1129,7 +1129,7 @@ class SurfaceEnergyPlotter:
             (Plot): Plot of clean surface energy vs binding energy for
                 all facets.
         """
-        plt = pretty_plot(width=8, height=7)
+        ax = pretty_plot(width=8, height=7)
         for hkl in self.all_slab_entries:
             for clean_entry in self.all_slab_entries[hkl]:
                 all_delu_dict = self.set_all_variables(delu_dict, delu_default)
@@ -1141,16 +1141,15 @@ class SurfaceEnergyPlotter:
                         be = ads_entry.gibbs_binding_energy(eads=plot_eads)
 
                         # Now plot the surface energy vs binding energy
-                        plt.scatter(se, be)
+                        ax.scatter(se, be)
                         if annotate_monolayer:
-                            plt.annotate(f"{ml:.2f}", xy=[se, be], xytext=[se, be])
+                            ax.annotate(f"{ml:.2f}", xy=[se, be], xytext=[se, be])
 
-        plt.xlabel(r"Surface energy ($J/m^2$)") if JPERM2 else plt.xlabel(r"Surface energy ($eV/\AA^2$)")
-        plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
+        ax.set_xlabel(r"Surface energy ($J/m^2$)") if JPERM2 else ax.xlabel(r"Surface energy ($eV/\AA^2$)")
+        ax.set_ylabel("Adsorption Energy (eV)") if plot_eads else ax.ylabel("Binding Energy (eV)")
         plt.tight_layout()
-        plt.xticks(rotation=60)
-
-        return plt
+        ax.set_xticks(rotation=60)
+        return ax
 
     def surface_chempot_range_map(
         self,
