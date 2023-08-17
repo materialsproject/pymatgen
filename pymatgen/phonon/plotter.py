@@ -182,7 +182,7 @@ class PhononDosPlotter:
             relevant_y = [p[1] for p in all_pts if xlim[0] < p[0] < xlim[1]]
             ax.set_ylim((min(relevant_y), max(relevant_y)))
 
-        ylim = ax.ylim()
+        ylim = ax.set_ylim()
         ax.plot([0, 0], ylim, "k--", linewidth=2)
 
         ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$")

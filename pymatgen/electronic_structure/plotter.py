@@ -2924,7 +2924,7 @@ class BoltztrapPlotter:
                 ax.gca().get_lines()[5].set_c(ax.gca().get_lines()[2].get_c())
 
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
-        ax.ylabel("Complexity Factor", fontsize=30)
+        ax.set_ylabel("Complexity Factor", fontsize=30)
         ax.set_xticks(fontsize=25)
         ax.set_yticks(fontsize=25)
         if output == "tensor":
@@ -2998,11 +2998,11 @@ class BoltztrapPlotter:
         if output == "eig":
             ax.legend(["$\\Sigma_1$", "$\\Sigma_2$", "$\\Sigma_3$"])
         if xlim is None:
-            ax.xlim(-0.5, self._bz.gap + 0.5)
+            ax.set_xlim(-0.5, self._bz.gap + 0.5)
         else:
-            ax.xlim(xlim)
-        ax.ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
-        ax.ylabel("conductivity,\n $\\Sigma$ (1/($\\Omega$ m))", fontsize=30.0)
+            ax.set_xlim(xlim)
+        ax.set_ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
+        ax.set_ylabel("conductivity,\n $\\Sigma$ (1/($\\Omega$ m))", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
         ax.set_xticks(fontsize=25)
         ax.set_yticks(fontsize=25)
@@ -3076,10 +3076,10 @@ class BoltztrapPlotter:
         if output == "eig":
             ax.legend(["ZT$_1$", "ZT$_2$", "ZT$_3$"])
         if xlim is None:
-            ax.xlim(-0.5, self._bz.gap + 0.5)
+            ax.set_xlim(-0.5, self._bz.gap + 0.5)
         else:
-            ax.xlim(xlim)
-        ax.ylabel("ZT", fontsize=30.0)
+            ax.set_xlim(xlim)
+        ax.set_ylabel("ZT", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
         ax.set_xticks(fontsize=25)
         ax.set_yticks(fontsize=25)
@@ -3181,7 +3181,7 @@ class BoltztrapPlotter:
                         )
             ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                ax.ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
+                ax.set_ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
             p = "best"  # 'lower right' if i == 0 else ''
@@ -3236,7 +3236,7 @@ class BoltztrapPlotter:
                         )
             ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                ax.ylabel("Power Factor ($\\mu$W/(mK$^2$))", fontsize=30.0)
+                ax.set_ylabel("Power Factor ($\\mu$W/(mK$^2$))", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
             p = "best"  # 'lower right' if i == 0 else ''
@@ -3292,7 +3292,7 @@ class BoltztrapPlotter:
                         )
             ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                ax.ylabel("zT", fontsize=30.0)
+                ax.set_ylabel("zT", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
 
             p = "best"  # 'lower right' if i == 0 else ''
@@ -3433,7 +3433,7 @@ class BoltztrapPlotter:
                     )
             ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                ax.ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
+                ax.set_ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
             ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
             ax.legend(fontsize=15)
@@ -3478,7 +3478,7 @@ class BoltztrapPlotter:
                     ax.semilogx(self._bz.doping[dt], pf[dt][temp], marker="s", label=f"{temp} K")
             ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                ax.ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
+                ax.set_ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
             ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
             p = "best"  # 'lower right' if i == 0 else ''
@@ -3530,7 +3530,7 @@ class BoltztrapPlotter:
                     )
             ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                ax.ylabel("zT", fontsize=30.0)
+                ax.set_ylabel("zT", fontsize=30.0)
             ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
 
             p = "lower right" if i == 0 else "best"
@@ -3582,7 +3582,7 @@ class BoltztrapPlotter:
                     )
             ax.set_title(dt + "-type", fontsize=20)
             if i == 0:
-                ax.ylabel("Effective mass (m$_e$)", fontsize=30.0)
+                ax.set_ylabel("Effective mass (m$_e$)", fontsize=30.0)
             ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
 
             p = "lower right" if i == 0 else "best"
@@ -3623,9 +3623,9 @@ class BoltztrapPlotter:
         ax.semilogy(self._bz.mu_steps, carriers, linewidth=3.0, color="r")
         self._plot_bg_limits(ax)
         self._plot_doping(ax, temp)
-        ax.xlim(-0.5, self._bz.gap + 0.5)
-        ax.ylim(1e14, 1e22)
-        ax.ylabel("carrier concentration (cm-3)", fontsize=30.0)
+        ax.set_xlim(-0.5, self._bz.gap + 0.5)
+        ax.set_ylim(1e14, 1e22)
+        ax.set_ylabel("carrier concentration (cm-3)", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
         ax.set_xticks(fontsize=25)
         ax.set_yticks(fontsize=25)
@@ -3647,9 +3647,9 @@ class BoltztrapPlotter:
         ax.semilogy(self._bz.mu_steps, hall_carriers, linewidth=3.0, color="r")
         self._plot_bg_limits(ax)
         self._plot_doping(ax, temp)
-        ax.xlim(-0.5, self._bz.gap + 0.5)
-        ax.ylim(1e14, 1e22)
-        ax.ylabel("Hall carrier concentration (cm-3)", fontsize=30.0)
+        ax.set_xlim(-0.5, self._bz.gap + 0.5)
+        ax.set_ylim(1e14, 1e22)
+        ax.set_ylabel("Hall carrier concentration (cm-3)", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
         ax.set_xticks(fontsize=25)
         ax.set_yticks(fontsize=25)

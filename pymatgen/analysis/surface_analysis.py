@@ -1059,10 +1059,9 @@ class SurfaceEnergyPlotter:
 
         adsorbates = tuple(ads_entry.ads_entries_dict)
         ax.set_xlabel(f"{' '.join(adsorbates)} Coverage (ML)")
-        ax.set_ylabel("Adsorption Energy (eV)") if plot_eads else ax.ylabel("Binding Energy (eV)")
+        ax.set_ylabel("Adsorption Energy (eV)" if plot_eads else "Binding Energy (eV)")
         ax.legend()
         plt.tight_layout()
-
         return ax
 
     @staticmethod
@@ -1145,8 +1144,8 @@ class SurfaceEnergyPlotter:
                         if annotate_monolayer:
                             ax.annotate(f"{ml:.2f}", xy=[se, be], xytext=[se, be])
 
-        ax.set_xlabel(r"Surface energy ($J/m^2$)") if JPERM2 else ax.xlabel(r"Surface energy ($eV/\AA^2$)")
-        ax.set_ylabel("Adsorption Energy (eV)") if plot_eads else ax.ylabel("Binding Energy (eV)")
+        ax.set_xlabel(r"Surface energy ($J/m^2$)" if JPERM2 else r"Surface energy ($eV/\AA^2$)")
+        ax.set_ylabel("Adsorption Energy (eV)" if plot_eads else "Binding Energy (eV)")
         plt.tight_layout()
         ax.set_xticks(rotation=60)
         return ax

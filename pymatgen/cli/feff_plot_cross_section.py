@@ -47,9 +47,9 @@ def main():
 
     data = xmu.as_dict()
 
-    ax.title(data["calc"] + " Feff9.6 Calculation for " + data["atom"] + " in " + data["formula"] + " unit cell")
-    ax.xlabel("Energies (eV)")
-    ax.ylabel("Absorption Cross-section")
+    ax.set_title(data["calc"] + " Feff9.6 Calculation for " + data["atom"] + " in " + data["formula"] + " unit cell")
+    ax.set_xlabel("Energies (eV)")
+    ax.set_ylabel("Absorption Cross-section")
 
     x = data["energies"]
     y = data["scross"]
