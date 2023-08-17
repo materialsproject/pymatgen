@@ -110,8 +110,8 @@ class SpectrumPlotter:
                     linewidth=3,
                 )
                 base = sp.y + base
-            ax.xlabel(sp.XLABEL)
-            ax.ylabel(sp.YLABEL)
+            ax.set_xlabel(sp.XLABEL)
+            ax.set_ylabel(sp.YLABEL)
             idx += 1
 
         if xlim:

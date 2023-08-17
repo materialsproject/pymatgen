@@ -223,10 +223,7 @@ class DosPlotter:
 
         if invert_axes:
             ax.set_ylabel("Energies (eV)")
-            if self._norm_val:
-                ax.xlabel("Density of states (states/eV/Å³)")
-            else:
-                ax.xlabel("Density of states (states/eV)")
+            ax.set_xlabel(f"Density of states (states/eV{'/Å³' if self._norm_val else ''})")
             ax.axvline(x=0, color="k", linestyle="--", linewidth=2)
         else:
             ax.set_xlabel("Energies (eV)")
@@ -237,7 +234,7 @@ class DosPlotter:
             ax.axhline(y=0, color="k", linestyle="--", linewidth=2)
 
         # Remove duplicate labels with a dictionary
-        handles, labels = ax.get_gca().get_legend_handles_labels()
+        handles, labels = ax.get_legend_handles_labels()
         label_dict = dict(zip(labels, handles))
         ax.legend(label_dict.values(), label_dict.keys())
         legend_text = ax.get_legend().get_texts()  # all the text.Text instance in the legend

@@ -62,11 +62,11 @@ class TestDosPlotter(PymatgenTest):
 
         rc("text", usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
-        plt = self.plotter.get_plot()
+        ax = self.plotter.get_plot()
+        assert len(ax.lines) == 2
         out_path = f"{self.tmp_path}/dosplot.png"
         self.plotter.save_plot(out_path)
         assert os.path.isfile(out_path)
-        plt.close("all")
 
     def test_get_plot_limits(self):
         # Tests limit determination and if inverted_axes case
