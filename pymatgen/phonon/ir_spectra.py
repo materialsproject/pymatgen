@@ -132,14 +132,14 @@ class IRDielectricTensor(MSONable):
             kwargs: keyword arguments passed to the plotter
         """
         plotter = self.get_plotter(components=components, reim=reim, **kwargs)
-        plt = plotter.get_plot(xlim=xlim, ylim=ylim)
+        ax = plotter.get_plot(xlim=xlim, ylim=ylim)
 
         if show_phonon_frequencies:
             ph_freqs_gamma = self.ph_freqs_gamma[3:]
-            plt.scatter(ph_freqs_gamma * 1000, np.zeros_like(ph_freqs_gamma))
-        plt.xlabel(r"$\epsilon(\omega)$")
-        plt.xlabel(r"Frequency (meV)")
-        return plt
+            ax.scatter(ph_freqs_gamma * 1000, np.zeros_like(ph_freqs_gamma))
+        ax.set_xlabel(r"$\epsilon(\omega)$")
+        ax.set_xlabel(r"Frequency (meV)")
+        return ax
 
     def get_spectrum(self, component, reim, broad=0.00005, emin=0, emax=None, divs=500, label=None):
         """

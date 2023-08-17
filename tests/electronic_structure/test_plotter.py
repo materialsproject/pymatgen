@@ -6,6 +6,7 @@ import unittest
 import warnings
 from shutil import which
 
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 from pytest import approx
@@ -61,11 +62,11 @@ class TestDosPlotter(PymatgenTest):
 
         rc("text", usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
-        plt = self.plotter.get_plot()
+        ax = self.plotter.get_plot()
+        assert len(ax.lines) == 2
         out_path = f"{self.tmp_path}/dosplot.png"
         self.plotter.save_plot(out_path)
         assert os.path.isfile(out_path)
-        plt.close("all")
 
     def test_get_plot_limits(self):
         # Tests limit determination and if inverted_axes case
@@ -79,21 +80,18 @@ class TestDosPlotter(PymatgenTest):
             limits_results = json.load(f)
 
         for item in limits_results:
-            plt = self.plotter.get_plot(xlim=item["energy_limit"], ylim=item["DOS_limit"])
-            param_dict = self.get_plot_attributes(plt)
-            plt_invert = self.plotter.get_plot(invert_axes=True, xlim=item["DOS_limit"], ylim=item["energy_limit"])
-            param_dict_invert = self.get_plot_attributes(plt_invert)
+            ax = self.plotter.get_plot(xlim=item["energy_limit"], ylim=item["DOS_limit"])
+            param_dict = self.get_plot_attributes(ax)
+            ax_invert = self.plotter.get_plot(invert_axes=True, xlim=item["DOS_limit"], ylim=item["energy_limit"])
+            param_dict_invert = self.get_plot_attributes(ax_invert)
             assert item["energy_result"] == approx(param_dict["xaxis_limits"])
             assert item["energy_result"] == approx(param_dict_invert["yaxis_limits"])
             assert item["DOS_result"] == approx(param_dict["yaxis_limits"])
             assert item["DOS_result"] == approx(param_dict_invert["xaxis_limits"])
 
     @staticmethod
-    def get_plot_attributes(plt):
-        if plt.axes:
-            ax = plt.gca()
-            return {"xaxis_limits": list(ax.get_xlim()), "yaxis_limits": list(ax.get_ylim())}
-        return None
+    def get_plot_attributes(ax: plt.Axes):
+        return {"xaxis_limits": list(ax.get_xlim()), "yaxis_limits": list(ax.get_ylim())}
 
 
 class TestBSPlotter(unittest.TestCase):
@@ -178,22 +176,22 @@ class TestBSPlotter(unittest.TestCase):
 
         rc("text", usetex=False)
 
-        plt = self.plotter.get_plot()
-        assert plt.ylim() == (-4.0, 7.6348), "wrong ylim"
-        plt = self.plotter.get_plot(smooth=True)
-        plt = self.plotter.get_plot(vbm_cbm_marker=True)
+        ax = self.plotter.get_plot()
+        assert ax.get_ylim() == (-4.0, 7.6348), "wrong ylim"
+        ax = self.plotter.get_plot(smooth=True)
+        ax = self.plotter.get_plot(vbm_cbm_marker=True)
         self.plotter.save_plot("bsplot.png")
         assert os.path.isfile("bsplot.png")
         os.remove("bsplot.png")
         plt.close("all")
 
         # test plotter with 2 bandstructures
-        plt = self.plotter_multi.get_plot()
-        assert len(plt.gca().get_lines()) == 874, "wrong number of lines"
-        assert plt.ylim() == (-10.0, 10.0), "wrong ylim"
-        plt = self.plotter_multi.get_plot(zero_to_efermi=False)
-        assert plt.ylim() == (-15.2379, 12.67141266), "wrong ylim"
-        plt = self.plotter_multi.get_plot(smooth=True)
+        ax = self.plotter_multi.get_plot()
+        assert len(ax.get_lines()) == 874, "wrong number of lines"
+        assert ax.get_ylim() == (-10.0, 10.0), "wrong ylim"
+        ax = self.plotter_multi.get_plot(zero_to_efermi=False)
+        assert ax.get_ylim() == (-15.2379, 12.67141266), "wrong ylim"
+        ax = self.plotter_multi.get_plot(smooth=True)
         self.plotter_multi.save_plot("bsplot.png")
         assert os.path.isfile("bsplot.png")
         os.remove("bsplot.png")
@@ -235,12 +233,14 @@ class TestBSDOSPlotter(unittest.TestCase):
     def test_methods(self):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun_Si_bands.xml")
         plotter = BSDOSPlotter()
-        plt = plotter.get_plot(vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands"))
+        ax = plotter.get_plot(vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands"))
+        assert isinstance(ax, plt.Axes)
         plt.close()
-        plt = plotter.get_plot(
+        ax = plotter.get_plot(
             vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands"),
             vasp_run.complete_dos,
         )
+        assert isinstance(ax, plt.Axes)
         plt.close("all")
 
         with open(f"{TEST_FILES_DIR}/SrBa2Sn2O7.json") as f:
@@ -263,8 +263,10 @@ class TestBSDOSPlotter(unittest.TestCase):
                     d[i][j][k][b] = np.random.rand()
                     # d[i][j][k][c] = np.random.rand()
         band_struct = BandStructureSymmLine.from_dict(band_struct_dict)
-        plt = plotter.get_plot(band_struct)
-        plt.show()
+        axs = bs_ax, dos_ax = plotter.get_plot(band_struct)
+        assert len(axs) == 2, "wrong number of axes"
+        assert isinstance(bs_ax, plt.Axes)
+        assert isinstance(dos_ax, plt.Axes)
 
 
 class TestPlotBZ(unittest.TestCase):
@@ -313,10 +315,7 @@ class TestPlotBZ(unittest.TestCase):
         )
 
 
-x_trans = which("x_trans")
-
-
-@unittest.skipIf(not x_trans, "No x_trans.")
+@unittest.skipIf(not which("x_trans"), "No x_trans executable found")
 class TestBoltztrapPlotter(unittest.TestCase):
     def setUp(self):
         bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")
@@ -327,136 +326,136 @@ class TestBoltztrapPlotter(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_plot_carriers(self):
-        plt = self.plotter.plot_carriers()
-        assert len(plt.gca().get_lines()) == 7, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 6.525490122298364e22, "wrong 1 data in line 0"
+        ax = self.plotter.plot_carriers()
+        assert len(ax.get_lines()) == 7, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 6.525490122298364e22, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_complexity_factor_mu(self):
-        plt = self.plotter.plot_complexity_factor_mu()
-        assert len(plt.gca().get_lines()) == 2, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 0.004708835456903449, "wrong 1 data in line 0"
+        ax = self.plotter.plot_complexity_factor_mu()
+        assert len(ax.get_lines()) == 2, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.004708835456903449, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_conductivity_dop(self):
-        plt = self.plotter.plot_conductivity_dop()
-        assert len(plt.gca().get_lines()) == 8, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 0.3801957596666667, "wrong 1 data in line 0"
+        ax = self.plotter.plot_conductivity_dop()
+        assert len(ax.get_lines()) == 8, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.3801957596666667, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_conductivity_mu(self):
-        plt = self.plotter.plot_conductivity_mu()
-        assert len(plt.gca().get_lines()) == 9, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 1965.1306, "wrong 1 data in line 0"
+        ax = self.plotter.plot_conductivity_mu()
+        assert len(ax.get_lines()) == 9, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 1965.1306, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_conductivity_temp(self):
-        plt = self.plotter.plot_conductivity_temp()
-        assert len(plt.gca().get_lines()) == 6, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 0.3801957596666667, "wrong 1 data in line 0"
+        ax = self.plotter.plot_conductivity_temp()
+        assert len(ax.get_lines()) == 6, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.3801957596666667, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_dos(self):
-        plt = self.plotter.plot_dos()
-        assert len(plt.gca().get_lines()) == 3, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == -2.4197044934588674, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 0.0, "wrong 1 data in line 0"
+        ax = self.plotter.plot_dos()
+        assert len(ax.get_lines()) == 3, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == -2.4197044934588674, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.0, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_eff_mass_dop(self):
-        plt = self.plotter.plot_eff_mass_dop()
-        assert len(plt.gca().get_lines()) == 8, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 1.4231240011719886, "wrong 1 data in line 0"
+        ax = self.plotter.plot_eff_mass_dop()
+        assert len(ax.get_lines()) == 8, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 1.4231240011719886, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_eff_mass_temp(self):
-        plt = self.plotter.plot_eff_mass_temp()
-        assert len(plt.gca().get_lines()) == 6, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 1.4231240011719886, "wrong 1 data in line 0"
+        ax = self.plotter.plot_eff_mass_temp()
+        assert len(ax.get_lines()) == 6, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 1.4231240011719886, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_hall_carriers(self):
-        plt = self.plotter.plot_hall_carriers()
-        assert len(plt.gca().get_lines()) == 7, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 9.538187273102463e17, "wrong 1 data in line 0"
+        ax = self.plotter.plot_hall_carriers()
+        assert len(ax.get_lines()) == 7, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 9.538187273102463e17, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_power_factor_dop(self):
-        plt = self.plotter.plot_power_factor_dop()
-        assert len(plt.gca().get_lines()) == 8, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 0.40606868935796925, "wrong 1 data in line 0"
+        ax = self.plotter.plot_power_factor_dop()
+        assert len(ax.get_lines()) == 8, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.40606868935796925, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_power_factor_mu(self):
-        plt = self.plotter.plot_power_factor_mu()
-        assert len(plt.gca().get_lines()) == 9, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 365.5514594136157, "wrong 1 data in line 0"
+        ax = self.plotter.plot_power_factor_mu()
+        assert len(ax.get_lines()) == 9, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 365.5514594136157, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_power_factor_temp(self):
-        plt = self.plotter.plot_power_factor_temp()
-        assert len(plt.gca().get_lines()) == 6, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 0.40606868935796925, "wrong 1 data in line 0"
+        ax = self.plotter.plot_power_factor_temp()
+        assert len(ax.get_lines()) == 6, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.40606868935796925, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_seebeck_dop(self):
-        plt = self.plotter.plot_seebeck_dop()
-        assert len(plt.gca().get_lines()) == 8, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 1050.8197666666667, "wrong 1 data in line 0"
+        ax = self.plotter.plot_seebeck_dop()
+        assert len(ax.get_lines()) == 8, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 1050.8197666666667, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_seebeck_eff_mass_mu(self):
-        plt = self.plotter.plot_seebeck_eff_mass_mu()
-        assert len(plt.gca().get_lines()) == 2, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 6412.881888198197, "wrong 1 data in line 0"
+        ax = self.plotter.plot_seebeck_eff_mass_mu()
+        assert len(ax.get_lines()) == 2, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 6412.881888198197, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_seebeck_mu(self):
-        plt = self.plotter.plot_seebeck_mu()
-        assert len(plt.gca().get_lines()) == 9, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == -433.11096000000003, "wrong 1 data in line 0"
+        ax = self.plotter.plot_seebeck_mu()
+        assert len(ax.get_lines()) == 9, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == -433.11096000000003, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_seebeck_temp(self):
-        plt = self.plotter.plot_seebeck_temp()
-        assert len(plt.gca().get_lines()) == 6, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 1050.8197666666667, "wrong 1 data in line 0"
+        ax = self.plotter.plot_seebeck_temp()
+        assert len(ax.get_lines()) == 6, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 1050.8197666666667, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_zt_dop(self):
-        plt = self.plotter.plot_zt_dop()
-        assert len(plt.gca().get_lines()) == 8, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 4.060682863129955e-05, "wrong 1 data in line 0"
+        ax = self.plotter.plot_zt_dop()
+        assert len(ax.get_lines()) == 8, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 4.060682863129955e-05, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_zt_mu(self):
-        plt = self.plotter.plot_zt_mu()
-        assert len(plt.gca().get_lines()) == 9, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 0.2153839699235254, "wrong 1 data in line 0"
+        ax = self.plotter.plot_zt_mu()
+        assert len(ax.get_lines()) == 9, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.2153839699235254, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_zt_temp(self):
-        plt = self.plotter.plot_zt_temp()
-        assert len(plt.gca().get_lines()) == 6, "wrong number of lines"
-        assert plt.gca().get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
-        assert plt.gca().get_lines()[0].get_data()[1][0] == 4.060682863129955e-05, "wrong 1 data in line 0"
+        ax = self.plotter.plot_zt_temp()
+        assert len(ax.get_lines()) == 6, "wrong number of lines"
+        assert ax.get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 4.060682863129955e-05, "wrong 1 data in line 0"
         plt.close()
 
 
@@ -514,8 +513,8 @@ class TestCohpPlotter(PymatgenTest):
 
     def test_get_plot(self):
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)
-        plt_cohp = self.cohp_plot.get_plot()
-        ax_cohp = plt_cohp.gca()
+        ax_cohp = self.cohp_plot.get_plot()
+
         assert ax_cohp.get_xlabel() == "-COHP"
         assert ax_cohp.get_ylabel() == "$E$ (eV)"
         legend_labels = ax_cohp.get_legend_handles_labels()[1]
@@ -532,20 +531,20 @@ class TestCohpPlotter(PymatgenTest):
             assert np.allclose(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
             assert np.allclose(lines.get_ydata(), self.cohp.energies)
             assert lines.get_linestyle() == linestyles[spin]
-        plt_cohp.close()
+        plt.close()
 
-        plt_cohp = self.cohp_plot.get_plot(invert_axes=False, plot_negative=False)
-        ax_cohp = plt_cohp.gca()
+        ax_cohp = self.cohp_plot.get_plot(invert_axes=False, plot_negative=False)
+
         assert ax_cohp.get_xlabel() == "$E$ (eV)"
         assert ax_cohp.get_ylabel() == "COHP"
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
             assert np.allclose(lines.get_xdata(), self.cohp.energies)
             assert np.allclose(lines.get_ydata(), cohp_fe_fe.cohp[spin])
-        plt_cohp.close()
+        plt.close()
 
-        plt_cohp = self.cohp_plot.get_plot(integrated=True)
-        ax_cohp = plt_cohp.gca()
+        ax_cohp = self.cohp_plot.get_plot(integrated=True)
+
         assert ax_cohp.get_xlabel() == "-ICOHP (eV)"
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
@@ -553,8 +552,7 @@ class TestCohpPlotter(PymatgenTest):
 
         coop_dict = {"Bi5-Bi6": self.coop.all_cohps["10"]}
         self.coop_plot.add_cohp_dict(coop_dict)
-        plt_coop = self.coop_plot.get_plot()
-        ax_coop = plt_coop.gca()
+        ax_coop = self.coop_plot.get_plot()
         assert ax_coop.get_xlabel() == "COOP"
         assert ax_coop.get_ylabel() == "$E - E_f$ (eV)"
         lines_coop = ax_coop.get_lines()[0]
@@ -563,13 +561,13 @@ class TestCohpPlotter(PymatgenTest):
         assert np.allclose(lines_coop.get_xdata(), coop_bi_bi)
 
         # Cleanup.
-        plt_cohp.close()
-        plt_coop.close("all")
+        plt.close("all")
 
     def test_save_plot(self):
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)
-        plt_cohp = self.cohp_plot.get_plot()
+        ax = self.cohp_plot.get_plot()
+        assert isinstance(ax, plt.Axes)
         self.cohp_plot.save_plot("cohpplot.png")
         assert os.path.isfile("cohpplot.png")
         os.remove("cohpplot.png")
-        plt_cohp.close("all")
+        plt.close("all")

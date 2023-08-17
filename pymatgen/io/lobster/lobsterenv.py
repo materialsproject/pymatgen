@@ -450,14 +450,14 @@ class LobsterNeighbors(NearNeighbors):
         )
 
         cp.add_cohp(plotlabel, summed_cohp)
-        plot = cp.get_plot(integrated=integrated)
+        ax = cp.get_plot(integrated=integrated)
         if xlim is not None:
-            plot.xlim(xlim)
+            ax.set_xlim(xlim)
 
         if ylim is not None:
-            plot.ylim(ylim)
+            ax.set_ylim(ylim)
 
-        return plot
+        return ax
 
     def get_info_cohps_to_neighbors(
         self,

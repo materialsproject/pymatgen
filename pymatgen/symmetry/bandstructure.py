@@ -302,17 +302,13 @@ class HighSymmKpath(KPathBase):
         for more details.
 
         Args:
-        bandstructure (BandstructureSymmLine): BandstructureSymmLine object.
+            bandstructure (BandstructureSymmLine): BandstructureSymmLine object.
 
         Returns:
-        bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continuous path.
+            bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continuous path.
         """
         G = nx.Graph()
-
-        labels = []
-        for point in bandstructure.kpoints:
-            if point.label is not None:
-                labels.append(point.label)
+        labels = [point.label for point in bandstructure.kpoints if point.label is not None]
 
         plot_axis = []
         for i in range(int(len(labels) / 2)):

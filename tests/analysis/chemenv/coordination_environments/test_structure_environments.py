@@ -32,26 +32,26 @@ class TestStructureEnvironments(PymatgenTest):
 
         struct_envs = StructureEnvironments.from_dict(dd)
         isite = 6
-        csm_and_maps_fig, csm_and_maps_subplot = struct_envs.get_csm_and_maps(isite=isite)
-        assert_array_almost_equal(csm_and_maps_subplot.lines[0].get_xydata().flatten(), [0, 0.53499332])
-        assert_array_almost_equal(csm_and_maps_subplot.lines[1].get_xydata().flatten(), [1, 0.47026441])
-        assert_array_almost_equal(csm_and_maps_subplot.lines[2].get_xydata().flatten(), [2, 0.00988778])
+        _csm_and_maps_fig, csm_and_maps_ax = struct_envs.get_csm_and_maps(isite=isite)
+        assert_array_almost_equal(csm_and_maps_ax.lines[0].get_xydata().flatten(), [0, 0.53499332])
+        assert_array_almost_equal(csm_and_maps_ax.lines[1].get_xydata().flatten(), [1, 0.47026441])
+        assert_array_almost_equal(csm_and_maps_ax.lines[2].get_xydata().flatten(), [2, 0.00988778])
 
-        environments_figure, environments_subplot = struct_envs.get_environments_figure(isite=isite)
+        _envs_fig, envs_ax = struct_envs.get_environments_figure(isite=isite)
         assert_array_almost_equal(
-            np.array(environments_subplot.patches[0].get_xy()),
+            np.array(envs_ax.patches[0].get_xy()),
             [[1, 1], [1, 0.99301365], [1.00179228, 0.99301365], [1.00179228, 1], [1, 1]],
         )
         assert_array_almost_equal(
-            np.array(environments_subplot.patches[1].get_xy()),
+            np.array(envs_ax.patches[1].get_xy()),
             [[1, 0.99301365], [1, 0], [1.00179228, 0], [1.00179228, 0.99301365], [1, 0.99301365]],
         )
         assert_array_almost_equal(
-            np.array(environments_subplot.patches[2].get_xy()),
+            np.array(envs_ax.patches[2].get_xy()),
             [[1.00179228, 1], [1.00179228, 0.99301365], [2.25, 0.99301365], [2.25, 1], [1.00179228, 1]],
         )
         assert_array_almost_equal(
-            np.array(environments_subplot.patches[3].get_xy()),
+            np.array(envs_ax.patches[3].get_xy()),
             [
                 [1.00179228, 0.99301365],
                 [1.00179228, 0],
@@ -63,7 +63,7 @@ class TestStructureEnvironments(PymatgenTest):
             ],
         )
         assert_array_almost_equal(
-            np.array(environments_subplot.patches[4].get_xy()),
+            np.array(envs_ax.patches[4].get_xy()),
             [[2.22376156, 0.0060837], [2.22376156, 0], [2.25, 0], [2.25, 0.0060837], [2.22376156, 0.0060837]],
         )
 

@@ -11,11 +11,14 @@ import os
 import re
 import warnings
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, Collection, Iterator, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Collection, Iterator, Literal, Sequence, no_type_check
 
+import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objs as go
+from matplotlib import cm
 from monty.json import MontyDecoder, MSONable
+from scipy import interpolate
 from scipy.optimize import minimize
 from scipy.spatial import ConvexHull
 from tqdm import tqdm
@@ -1309,10 +1312,10 @@ class PhaseDiagram(MSONable):
         ordering: Sequence[str] | None = None,
         energy_colormap=None,
         process_attributes: bool = False,
-        plt=None,
+        ax: plt.Axes = None,
         label_uncertainties: bool = False,
         fill: bool = True,
-        **plotkwargs,
+        **kwargs,
     ):
         """
         Convenient wrapper for PDPlotter. Initializes a PDPlotter object and calls
@@ -1337,22 +1340,15 @@ class PhaseDiagram(MSONable):
             energy_colormap: Colormap for coloring energy (matplotlib backend only).
             process_attributes: Whether to process the attributes (matplotlib
                 backend only).
-            plt: Existing plt object if plotting multiple phase diagrams (
-                matplotlib backend only).
+            ax: Existing Axes object if plotting multiple phase diagrams (matplotlib backend only).
             label_uncertainties: Whether to add error bars to the hull (plotly
                 backend only). For binaries, this also shades the hull with the
                 uncertainty window.
             fill: Whether to shade the hull. For ternary_2d and quaternary plots, this
                 colors facets arbitrarily for visual clarity. For ternary_3d plots, this
                 shades the hull by formation energy (plotly backend only).
-            **plotkwargs (dict): Keyword args passed to matplotlib.pyplot.plot (only
-                applies when backend="matplotlib"). Can be used to customize markers
-                etc. If not set, the default is:
-                    {
-                        "markerfacecolor": "#4daf4a",
-                        "markersize": 10,
-                        "linewidth": 3
-                    }
+            **kwargs (dict): Keyword args passed to PDPlotter.get_plot(). Can be used to customize markers
+                etc. If not set, the default is { "markerfacecolor": "#4daf4a", "markersize": 10, "linewidth": 3 }
         """
         plotter = PDPlotter(self, show_unstable=show_unstable, backend=backend, ternary_style=ternary_style)
         return plotter.get_plot(
@@ -1361,10 +1357,10 @@ class PhaseDiagram(MSONable):
             ordering=ordering,
             energy_colormap=energy_colormap,
             process_attributes=process_attributes,
-            plt=plt,
+            ax=ax,
             label_uncertainties=label_uncertainties,
             fill=fill,
-            **plotkwargs,
+            **kwargs,
         )
 
 
@@ -2192,11 +2188,11 @@ class PDPlotter:
         ordering: Sequence[str] | None = None,
         energy_colormap=None,
         process_attributes: bool = False,
-        plt=None,
+        ax: plt.Axes = None,
         label_uncertainties: bool = False,
         fill: bool = True,
         highlight_entries: Collection[PDEntry] | None = None,
-    ):
+    ) -> go.Figure | plt.Axes:
         """
         Args:
             label_stable: Whether to label stable compounds.
@@ -2205,7 +2201,7 @@ class PDPlotter:
                 'Left','Right'] (matplotlib only).
             energy_colormap: Colormap for coloring energy (matplotlib only).
             process_attributes: Whether to process the attributes (matplotlib only).
-            plt: Existing matplotlib.pyplot object if plotting multiple phase diagrams
+            ax: Existing matplotlib Axes object if plotting multiple phase diagrams
                 (matplotlib only).
             label_uncertainties: Whether to add error bars to the hull.
                 For binaries, this also shades the hull with the uncertainty window.
@@ -2217,7 +2213,7 @@ class PDPlotter:
                 create a new marker trace that is separate from the other entries.
 
         Returns:
-            go.Figure (backend="plotly") or matplotlib.pyplot (backend="matplotlib")
+            go.Figure | plt.Axes: Plotly figure or matplotlib axes object depending on backend.
         """
         fig = None
         data = []
@@ -2259,11 +2255,11 @@ class PDPlotter:
                     label_unstable,
                     ordering,
                     energy_colormap,
-                    plt=plt,
+                    ax=ax,
                     process_attributes=process_attributes,
                 )
             elif self._dim == 4:
-                fig = self._get_matplotlib_3d_plot(label_stable)
+                fig = self._get_matplotlib_3d_plot(label_stable, ax=ax)
 
         return fig
 
@@ -2291,10 +2287,9 @@ class PDPlotter:
             **kwargs: Optinoal kwargs passed to the get_plot function.
         """
         if self.backend == "matplotlib":
-            plt = self.get_plot(**kwargs)
-            f = plt.gcf()
-            f.set_size_inches((12, 10))
-            plt.savefig(stream, format=image_format)
+            ax = self.get_plot(**kwargs)
+            ax.figure.set_size_inches((12, 10))
+            ax.figure.savefig(stream, format=image_format)
         elif self.backend == "plotly":
             fig = self.get_plot(**kwargs)
             fig.write_image(stream, format=image_format)
@@ -2328,7 +2323,7 @@ class PDPlotter:
             Plot of element profile evolution by varying the chemical potential
             of an element.
         """
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
         pd = self._pd
         evolution = pd.get_element_profile(element, comp)
         num_atoms = evolution[0]["reaction"].reactants[0].num_atoms
@@ -2337,7 +2332,7 @@ class PDPlotter:
         for i, d in enumerate(evolution):
             v = -(d["chempot"] - element_energy)
             if i != 0:
-                plt.plot([x2, x2], [y1, d["evolution"] / num_atoms], "k", linewidth=2.5)
+                ax.plot([x2, x2], [y1, d["evolution"] / num_atoms], "k", linewidth=2.5)
             x1 = v
             y1 = d["evolution"] / num_atoms
 
@@ -2348,21 +2343,21 @@ class PDPlotter:
                     for p in d["reaction"].products
                     if p.reduced_formula != element.symbol
                 ]
-                plt.annotate(
+                ax.annotate(
                     ", ".join(products),
                     xy=(v + 0.05, y1 + 0.05),
                     fontsize=24,
                     color="r",
                 )
-                plt.plot([x1, x2], [y1, y1], "r", linewidth=3)
+                ax.plot([x1, x2], [y1, y1], "r", linewidth=3)
             else:
-                plt.plot([x1, x2], [y1, y1], "k", linewidth=2.5)
+                ax.plot([x1, x2], [y1, y1], "k", linewidth=2.5)
 
-        plt.xlim((0, xlim))
-        plt.xlabel("-$\\Delta{\\mu}$ (eV)")
-        plt.ylabel("Uptake per atom")
+        ax.set_xlim((0, xlim))
+        ax.set_xlabel("-$\\Delta{\\mu}$ (eV)")
+        ax.set_ylabel("Uptake per atom")
 
-        return plt
+        return ax
 
     def plot_chempot_range_map(self, elements, referenced=True) -> None:
         """
@@ -2396,12 +2391,12 @@ class PDPlotter:
                 all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
             referenced: if True, gives the results with a reference being the
-                        energy of the elemental phase. If False, gives absolute values.
+                energy of the elemental phase. If False, gives absolute values.
 
         Returns:
-            A matplotlib plot object.
+            plt.Axes: matplotlib axes object.
         """
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
         chempot_ranges = self._pd.get_chempot_range_map(elements, referenced=referenced)
         missing_lines = {}
         excluded_region = []
@@ -2431,7 +2426,6 @@ class PDPlotter:
                 xy = (center_x / len(coords), center_y / len(coords))
                 plt.annotate(latexify(entry.name), xy, fontsize=22)
 
-        ax = plt.gca()
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
 
@@ -2476,7 +2470,7 @@ class PDPlotter:
                 center_y = sum(coord[1] for coord in coords) + ylim[0]
                 xy = (center_x / (n + 1), center_y / (n + 1))
 
-            plt.annotate(
+            ax.annotate(
                 latexify(entry.name),
                 xy,
                 horizontalalignment="center",
@@ -2484,10 +2478,10 @@ class PDPlotter:
                 fontsize=22,
             )
 
-        plt.xlabel(f"$\\mu_{{{el0.symbol}}} - \\mu_{{{el0.symbol}}}^0$ (eV)")
-        plt.ylabel(f"$\\mu_{{{el1.symbol}}} - \\mu_{{{el1.symbol}}}^0$ (eV)")
+        ax.set_xlabel(f"$\\mu_{{{el0.symbol}}} - \\mu_{{{el0.symbol}}}^0$ (eV)")
+        ax.set_ylabel(f"$\\mu_{{{el1.symbol}}} - \\mu_{{{el1.symbol}}}^0$ (eV)")
         plt.tight_layout()
-        return plt
+        return ax
 
     def get_contour_pd_plot(self):
         """
@@ -2498,14 +2492,11 @@ class PDPlotter:
         Returns:
             A matplotlib plot object.
         """
-        from matplotlib import cm
-        from scipy import interpolate
-
         pd = self._pd
         entries = pd.qhull_entries
         data = np.array(pd.qhull_data)
 
-        plt = self._get_matplotlib_2d_plot()
+        ax = self._get_matplotlib_2d_plot()
         data[:, 0:2] = triangular_coord(data[:, 0:2]).transpose()
         for i, e in enumerate(entries):
             data[i, 2] = self._pd.get_e_above_hull(e)
@@ -2520,11 +2511,11 @@ class PDPlotter:
             for j, yval in enumerate(ynew):
                 znew[j, i] = f(xval, yval)
 
-        # pylint: disable=no-member
-        plt.contourf(xnew, ynew, znew, 1000, cmap=cm.autumn_r)
+        contourf = ax.contourf(xnew, ynew, znew, 1000, cmap=cm.autumn_r)
 
-        plt.colorbar()
-        return plt
+        plt.colorbar(contourf)
+
+        return ax
 
     @property  # type: ignore
     @lru_cache(1)  # noqa: B019
@@ -3520,6 +3511,7 @@ class PDPlotter:
             showlegend=False,
         )
 
+    @no_type_check
     def _get_matplotlib_2d_plot(
         self,
         label_stable=True,
@@ -3530,15 +3522,14 @@ class PDPlotter:
         vmax_mev=60.0,
         show_colorbar=True,
         process_attributes=False,
-        plt=None,
+        ax: plt.Axes = None,
     ):
         """
         Shows the plot using matplotlib.
 
         Imports are done within the function as matplotlib is no longer the default.
         """
-        if plt is None:
-            plt = pretty_plot(8, 6)
+        ax = ax or pretty_plot(8, 6)
         from matplotlib.font_manager import FontProperties
 
         if ordering is None:
@@ -3718,22 +3709,27 @@ class PDPlotter:
                 ha="center",
                 va="bottom",
             )
-        f = plt.gcf()
-        f.set_size_inches((8, 6))
+        fig = plt.gcf()
+        fig.set_size_inches((8, 6))
         plt.subplots_adjust(left=0.09, right=0.98, top=0.98, bottom=0.07)
-        return plt
+        return ax
 
-    def _get_matplotlib_3d_plot(self, label_stable=True):
+    @no_type_check
+    def _get_matplotlib_3d_plot(self, label_stable=True, ax: plt.Axes = None):
         """
         Shows the plot using matplotlib.
 
-        Imports are done within the function as matplotlib is no longer the default.
+        Args:
+            label_stable (bool): Whether to label stable compounds.
+            ax (plt.Axes): An existing axes object (optional). If not provided, a new one will be created.
+
+        Returns:
+            plt.Axes: The axes object with the plot.
         """
-        import matplotlib.pyplot as plt
         from matplotlib.font_manager import FontProperties
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection="3d")
+        ax = ax or plt.figure().add_subplot(111, projection="3d")
+
         font = FontProperties(weight="bold", size=13)
         lines, labels, _ = self.pd_plot_data
         count = 1
@@ -3761,10 +3757,8 @@ class PDPlotter:
                     count += 1
         plt.figtext(0.01, 0.01, "\n".join(newlabels), fontproperties=font)
         ax.axis("off")
-        ax.set_xlim(-0.1, 0.72)
-        ax.set_ylim(0, 0.66)
-        ax.set_zlim(0, 0.56)  # pylint: disable=no-member
-        return plt
+        ax.set(xlim=(-0.1, 0.72), ylim=(0, 0.66), zlim=(0, 0.56))
+        return ax
 
 
 def uniquelines(q):

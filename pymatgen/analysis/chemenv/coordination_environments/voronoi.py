@@ -787,7 +787,7 @@ class DetailedVoronoiContainer(MSONable):
             step_function: Type of step function to be used for the RDF.
 
         Returns:
-            Matplotlib figure.
+            plt.figure: Matplotlib figure.
         """
 
         def dp_func(dp):
@@ -800,7 +800,7 @@ class DetailedVoronoiContainer(MSONable):
 
         # Initializes the figure
         fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
-        subplot = fig.add_subplot(111)
+        ax = fig.add_subplot(111)
         dists = self.neighbors_normalized_distances[isite] if normalized else self.neighbors_distances[isite]
 
         if step_function["type"] == "step_function":
@@ -826,7 +826,7 @@ class DetailedVoronoiContainer(MSONable):
                 yy += mydcns[idist] * normal_cdf_step(xx, mean=dist, scale=scale)
         else:
             raise ValueError(f"Step function of type {step_function['type']!r} is not allowed")
-        subplot.plot(xx, yy)
+        ax.plot(xx, yy)
 
         return fig
 
@@ -841,7 +841,7 @@ class DetailedVoronoiContainer(MSONable):
             step_function: Type of step function to be used for the SADF.
 
         Returns:
-            Matplotlib figure.
+            plt.figure: matplotlib figure.
         """
 
         def ap_func(ap):
@@ -854,7 +854,7 @@ class DetailedVoronoiContainer(MSONable):
 
         # Initializes the figure
         fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
-        subplot = fig.add_subplot(111)
+        ax = fig.add_subplot(111)
         angs = self.neighbors_normalized_angles[isite] if normalized else self.neighbors_angles[isite]
 
         if step_function["type"] == "step_function":
@@ -880,7 +880,7 @@ class DetailedVoronoiContainer(MSONable):
                 yy += mydcns[iang] * normal_cdf_step(xx, mean=ang, scale=scale)
         else:
             raise ValueError(f"Step function of type {step_function['type']!r} is not allowed")
-        subplot.plot(xx, yy)
+        ax.plot(xx, yy)
 
         return fig
 

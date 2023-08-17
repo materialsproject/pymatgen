@@ -1031,7 +1031,7 @@ class BztPlotter:
         doping=None,
         temps=None,
         xlim=(-2, 2),
-        ax=None,
+        ax: plt.Axes = None,
     ):
         """
         Function to plot the transport properties.
@@ -1126,7 +1126,7 @@ class BztPlotter:
                 for temp in temps:
                     ti = temps_all.index(temp)
                     prop_out = p_array[ti] if idx_prop == 6 else np.abs(p_array[ti])
-                    plt.semilogy(mu, prop_out, label=str(temp) + " K")
+                    plt.semilogy(mu, prop_out, label=f"{temp} K")
 
                 plt.xlabel(r"$\mu$ (eV)", fontsize=30)
                 plt.xlim(xlim)
@@ -1141,7 +1141,7 @@ class BztPlotter:
                 ti = temps_all.index(temp)
                 prop_out = np.linalg.eigh(p_array[ti])[0]
                 if output == "avg_eigs":
-                    plt.plot(mu, prop_out.mean(axis=1), label=str(temp) + " K")
+                    plt.plot(mu, prop_out.mean(axis=1), label=f"{temp} K")
                 elif output == "eigs":
                     for i in range(3):
                         plt.plot(
@@ -1158,7 +1158,7 @@ class BztPlotter:
                 ti = temps_all.index(temp)
                 prop_out = np.linalg.eigh(p_array[dop_type][ti])[0]
                 if output == "avg_eigs":
-                    plt.semilogx(doping_all, prop_out.mean(axis=1), "s-", label=str(temp) + " K")
+                    plt.semilogx(doping_all, prop_out.mean(axis=1), "s-", label=f"{temp} K")
                 elif output == "eigs":
                     for i in range(3):
                         plt.plot(
@@ -1191,7 +1191,7 @@ class BztPlotter:
                         )
 
             plt.xlabel(r"Temperature (K)", fontsize=30)
-            leg_title = dop_type + "-type"
+            leg_title = f"{dop_type}-type"
 
         plt.ylabel(props_lbl[idx_prop] + " " + props_unit[idx_prop], fontsize=30)
         plt.xticks(fontsize=25)
