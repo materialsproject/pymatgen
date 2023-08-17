@@ -212,13 +212,13 @@ class TestBSPlotterProjected(unittest.TestCase):
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
-        self.plotter.get_elt_projected_plots().close()
-        self.plotter.get_elt_projected_plots_color().close()
-        self.plotter.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]}).close()
+        self.plotter.get_elt_projected_plots()
+        self.plotter.get_elt_projected_plots_color()
+        self.plotter.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]})
         self.plotter.get_projected_plots_dots_patom_pmorb(
             {"Cu": ["dxy", "s", "px"], "O": ["px", "py", "pz"]},
             {"Cu": [3, 5], "O": [1]},
-        ).close()
+        )
 
 
 class TestBSDOSPlotter(unittest.TestCase):
@@ -233,14 +233,13 @@ class TestBSDOSPlotter(unittest.TestCase):
     def test_methods(self):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun_Si_bands.xml")
         plotter = BSDOSPlotter()
-        ax = plotter.get_plot(vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands"))
+        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
+        ax = plotter.get_plot(band_struct)
         assert isinstance(ax, plt.Axes)
         plt.close()
-        ax = plotter.get_plot(
-            vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands"),
-            vasp_run.complete_dos,
-        )
-        assert isinstance(ax, plt.Axes)
+        bs_ax, dos_ax = plotter.get_plot(band_struct, vasp_run.complete_dos)
+        assert isinstance(bs_ax, plt.Axes)
+        assert isinstance(dos_ax, plt.Axes)
         plt.close("all")
 
         with open(f"{TEST_FILES_DIR}/SrBa2Sn2O7.json") as f:
@@ -263,10 +262,8 @@ class TestBSDOSPlotter(unittest.TestCase):
                     d[i][j][k][b] = np.random.rand()
                     # d[i][j][k][c] = np.random.rand()
         band_struct = BandStructureSymmLine.from_dict(band_struct_dict)
-        axs = bs_ax, dos_ax = plotter.get_plot(band_struct)
-        assert len(axs) == 2, "wrong number of axes"
-        assert isinstance(bs_ax, plt.Axes)
-        assert isinstance(dos_ax, plt.Axes)
+        ax = plotter.get_plot(band_struct)
+        assert isinstance(ax, plt.Axes)
 
 
 class TestPlotBZ(unittest.TestCase):
