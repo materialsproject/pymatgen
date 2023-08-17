@@ -318,7 +318,8 @@ class PeriodicSite(Site, MSONable):
             iii.Dict of elements/species and occupancies, e.g.,
                 {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
                 disordered structures.
-        :param coords: Cartesian coordinates of site.
+        :param coords: Coordinates of site, fractional coordinates
+            by default. See ``coords_are_cartesian`` for more details.
         :param lattice: Lattice associated with the site.
         :param to_unit_cell: Translates fractional coordinate to the
             basic unit cell, i.e. all fractional coordinates satisfy 0
