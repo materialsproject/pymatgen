@@ -82,19 +82,16 @@ class TestDosPlotter(PymatgenTest):
         for item in limits_results:
             plt = self.plotter.get_plot(xlim=item["energy_limit"], ylim=item["DOS_limit"])
             param_dict = self.get_plot_attributes(plt)
-            plt_invert = self.plotter.get_plot(invert_axes=True, xlim=item["DOS_limit"], ylim=item["energy_limit"])
-            param_dict_invert = self.get_plot_attributes(plt_invert)
+            ax_invert = self.plotter.get_plot(invert_axes=True, xlim=item["DOS_limit"], ylim=item["energy_limit"])
+            param_dict_invert = self.get_plot_attributes(ax_invert)
             assert item["energy_result"] == approx(param_dict["xaxis_limits"])
             assert item["energy_result"] == approx(param_dict_invert["yaxis_limits"])
             assert item["DOS_result"] == approx(param_dict["yaxis_limits"])
             assert item["DOS_result"] == approx(param_dict_invert["xaxis_limits"])
 
     @staticmethod
-    def get_plot_attributes(plt):
-        if plt.axes:
-            ax = plt.gca()
-            return {"xaxis_limits": list(ax.get_xlim()), "yaxis_limits": list(ax.get_ylim())}
-        return None
+    def get_plot_attributes(ax: plt.Axes):
+        return {"xaxis_limits": list(ax.get_xlim()), "yaxis_limits": list(ax.get_ylim())}
 
 
 class TestBSPlotter(unittest.TestCase):
@@ -237,11 +234,13 @@ class TestBSDOSPlotter(unittest.TestCase):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun_Si_bands.xml")
         plotter = BSDOSPlotter()
         ax = plotter.get_plot(vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands"))
+        assert isinstance(ax, plt.Axes)
         plt.close()
         ax = plotter.get_plot(
             vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands"),
             vasp_run.complete_dos,
         )
+        assert isinstance(ax, plt.Axes)
         plt.close("all")
 
         with open(f"{TEST_FILES_DIR}/SrBa2Sn2O7.json") as f:
@@ -264,8 +263,10 @@ class TestBSDOSPlotter(unittest.TestCase):
                     d[i][j][k][b] = np.random.rand()
                     # d[i][j][k][c] = np.random.rand()
         band_struct = BandStructureSymmLine.from_dict(band_struct_dict)
-        ax = plotter.get_plot(band_struct)
-        assert isinstance(ax, plt.Axes)
+        axs = bs_ax, dos_ax = plotter.get_plot(band_struct)
+        assert len(axs) == 2, "wrong number of axes"
+        assert isinstance(bs_ax, plt.Axes)
+        assert isinstance(dos_ax, plt.Axes)
 
 
 class TestPlotBZ(unittest.TestCase):
@@ -512,8 +513,8 @@ class TestCohpPlotter(PymatgenTest):
 
     def test_get_plot(self):
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)
-        plt_cohp = self.cohp_plot.get_plot()
-        ax_cohp = plt_cohp.gca()
+        ax_cohp = self.cohp_plot.get_plot()
+
         assert ax_cohp.get_xlabel() == "-COHP"
         assert ax_cohp.get_ylabel() == "$E$ (eV)"
         legend_labels = ax_cohp.get_legend_handles_labels()[1]
@@ -530,20 +531,20 @@ class TestCohpPlotter(PymatgenTest):
             assert np.allclose(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
             assert np.allclose(lines.get_ydata(), self.cohp.energies)
             assert lines.get_linestyle() == linestyles[spin]
-        plt_cohp.close()
+        plt.close()
 
-        plt_cohp = self.cohp_plot.get_plot(invert_axes=False, plot_negative=False)
-        ax_cohp = plt_cohp.gca()
+        ax_cohp = self.cohp_plot.get_plot(invert_axes=False, plot_negative=False)
+
         assert ax_cohp.get_xlabel() == "$E$ (eV)"
         assert ax_cohp.get_ylabel() == "COHP"
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
             assert np.allclose(lines.get_xdata(), self.cohp.energies)
             assert np.allclose(lines.get_ydata(), cohp_fe_fe.cohp[spin])
-        plt_cohp.close()
+        plt.close()
 
-        plt_cohp = self.cohp_plot.get_plot(integrated=True)
-        ax_cohp = plt_cohp.gca()
+        ax_cohp = self.cohp_plot.get_plot(integrated=True)
+
         assert ax_cohp.get_xlabel() == "-ICOHP (eV)"
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
@@ -551,8 +552,7 @@ class TestCohpPlotter(PymatgenTest):
 
         coop_dict = {"Bi5-Bi6": self.coop.all_cohps["10"]}
         self.coop_plot.add_cohp_dict(coop_dict)
-        plt_coop = self.coop_plot.get_plot()
-        ax_coop = plt_coop.gca()
+        ax_coop = self.coop_plot.get_plot()
         assert ax_coop.get_xlabel() == "COOP"
         assert ax_coop.get_ylabel() == "$E - E_f$ (eV)"
         lines_coop = ax_coop.get_lines()[0]
@@ -561,13 +561,13 @@ class TestCohpPlotter(PymatgenTest):
         assert np.allclose(lines_coop.get_xdata(), coop_bi_bi)
 
         # Cleanup.
-        plt_cohp.close()
-        plt_coop.close("all")
+        plt.close("all")
 
     def test_save_plot(self):
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)
-        plt_cohp = self.cohp_plot.get_plot()
+        ax = self.cohp_plot.get_plot()
+        assert isinstance(ax, plt.Axes)
         self.cohp_plot.save_plot("cohpplot.png")
         assert os.path.isfile("cohpplot.png")
         os.remove("cohpplot.png")
-        plt_cohp.close("all")
+        plt.close("all")

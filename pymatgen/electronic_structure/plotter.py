@@ -1066,7 +1066,8 @@ class BSPlotterProjected(BSPlotter):
         band_linewidth = 1.0
         proj = self._get_projections_by_branches({e.symbol: ["s", "p", "d"] for e in self._bs.structure.elements})
         data = self.bs_plot_data(zero_to_efermi)
-        ax = pretty_plot(12, 8)
+        _fig, axs = plt.subplots(2, 2, figsize=(12, 8))  # Adjust the layout as needed
+        ax = pretty_plot(12, 8, ax=axs[0])
         e_min, e_max = -4, 4
         if self._bs.is_metal():
             e_min, e_max = -10, 10
@@ -2249,7 +2250,7 @@ class BSDOSPlotter:
         self.rgb_legend = rgb_legend
         self.fig_size = fig_size
 
-    def get_plot(self, bs: BandStructureSymmLine, dos: Dos | CompleteDos | None = None):
+    def get_plot(self, bs: BandStructureSymmLine, dos: Dos | CompleteDos | None = None) -> tuple[plt.Axes, plt.Axes]:
         """
         Get a matplotlib plot object.
 
@@ -2518,7 +2519,7 @@ class BSDOSPlotter:
             )
 
         plt.subplots_adjust(wspace=0.1)
-        return plt
+        return bs_ax, dos_ax
 
     @staticmethod
     def _rgbline(ax, k, e, red, green, blue, alpha=1, linestyles="solid"):
