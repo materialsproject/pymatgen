@@ -3757,9 +3757,7 @@ class PDPlotter:
                     count += 1
         plt.figtext(0.01, 0.01, "\n".join(newlabels), fontproperties=font)
         ax.axis("off")
-        ax.set_xlim(-0.1, 0.72)
-        ax.set_ylim(0, 0.66)
-        ax.set_zlim(0, 0.56)  # pylint: disable=no-member
+        ax.set(xlim=(-0.1, 0.72), ylim=(0, 0.66), zlim=(0, 0.56))
         return ax
 
 

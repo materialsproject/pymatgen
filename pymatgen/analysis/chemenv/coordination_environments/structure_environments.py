@@ -687,8 +687,8 @@ class StructureEnvironments(MSONable):
         # Initializes the figure
         fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
         gs = GridSpec(2, 1, hspace=0.0, wspace=0.0)
-        subplot = fig.add_subplot(gs[:])
-        subplot_distang = subplot.twinx()
+        ax = fig.add_subplot(gs[:])
+        ax_distang = ax.twinx()
 
         idx = 0
         cn_maps = []
@@ -709,8 +709,8 @@ class StructureEnvironments(MSONable):
                 all_was.append(nb_set.normalized_angles)
                 for mp_symbol, cg_dict in min_geoms:
                     csm = cg_dict["other_symmetry_measures"][symmetry_measure_type]
-                    subplot.plot(idx, csm, "ob")
-                    subplot.annotate(mp_symbol, xy=(idx, csm))
+                    ax.plot(idx, csm, "ob")
+                    ax.annotate(mp_symbol, xy=(idx, csm))
                 cn_maps.append((cn, inb_set))
                 idx += 1
 
@@ -756,9 +756,9 @@ class StructureEnvironments(MSONable):
             return (np.array(wd) - 1.0) / (ymax_wd - 1.0) * (ydmax - ydmin) + ydmin
 
         for idx, was in enumerate(all_was):
-            subplot_distang.plot(0.2 + idx * np.ones_like(was), yang(was), "<g")
+            ax_distang.plot(0.2 + idx * np.ones_like(was), yang(was), "<g")
             alpha = 0.3 if np.mod(idx, 2) == 0 else 0.1
-            subplot_distang.fill_between(
+            ax_distang.fill_between(
                 [-0.5 + idx, 0.5 + idx],
                 [1.0, 1.0],
                 0.0,
@@ -767,16 +767,16 @@ class StructureEnvironments(MSONable):
                 zorder=-1000,
             )
         for idx, wds in enumerate(all_wds):
-            subplot_distang.plot(0.2 + idx * np.ones_like(wds), ydist(wds), "sm")
+            ax_distang.plot(0.2 + idx * np.ones_like(wds), ydist(wds), "sm")
 
-        subplot_distang.plot([-0.5, len(cn_maps)], [0.5, 0.5], "k--", alpha=0.5)
+        ax_distang.plot([-0.5, len(cn_maps)], [0.5, 0.5], "k--", alpha=0.5)
 
         yticks = yang(yticks_wa).tolist()
         yticks.extend(ydist(yticks_wd).tolist())
         yticklabels = yticks_wa.tolist()
         yticklabels.extend(yticks_wd.tolist())
-        subplot_distang.set_yticks(yticks)
-        subplot_distang.set_yticklabels(yticklabels)
+        ax_distang.set_yticks(yticks)
+        ax_distang.set_yticklabels(yticklabels)
 
         fake_subplot_ang = fig.add_subplot(gs[1], frame_on=False)
         fake_subplot_dist = fig.add_subplot(gs[0], frame_on=False)
@@ -789,14 +789,14 @@ class StructureEnvironments(MSONable):
         fake_subplot_ang.yaxis.set_label_position("right")
         fake_subplot_dist.yaxis.set_label_position("right")
 
-        subplot_distang.set_ylim([0.0, 1.0])
-        subplot.set_xticks(range(len(cn_maps)))
-        subplot.set_ylabel("Continuous symmetry measure")
-        subplot.set_xlim([-0.5, len(cn_maps) - 0.5])
-        subplot_distang.set_xlim([-0.5, len(cn_maps) - 0.5])
-        subplot.set_xticklabels([str(cn_map) for cn_map in cn_maps])
+        ax_distang.set_ylim([0.0, 1.0])
+        ax.set_xticks(range(len(cn_maps)))
+        ax.set_ylabel("Continuous symmetry measure")
+        ax.set_xlim([-0.5, len(cn_maps) - 0.5])
+        ax_distang.set_xlim([-0.5, len(cn_maps) - 0.5])
+        ax.set_xticklabels([str(cn_map) for cn_map in cn_maps])
 
-        return fig, subplot
+        return fig, ax
 
     def get_environments_figure(
         self,
@@ -1015,7 +1015,7 @@ class StructureEnvironments(MSONable):
             figsize: Size of the figure.
             strategy: Whether to plot information about one of the Chemenv Strategies.
         """
-        fig, subplot = self.get_environments_figure(
+        fig, _ax = self.get_environments_figure(
             isite=isite,
             plot_type=plot_type,
             title=title,
@@ -1050,7 +1050,7 @@ class StructureEnvironments(MSONable):
                 distance while in the second case, the real distance is used).
             figsize: Size of the figure.
         """
-        fig, subplot = self.get_environments_figure(
+        fig, _ax = self.get_environments_figure(
             isite=isite,
             plot_type=plot_type,
             title=title,

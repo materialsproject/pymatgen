@@ -1282,8 +1282,7 @@ class SurfaceEnergyPlotter:
                 ax.annotate(label, xy=[x, y], xytext=[x, y], fontsize=fontsize)
 
         # Label plot
-        ax.set_xlim(range1)
-        ax.set_ylim(range2)
+        ax.set(xlim=range1, ylim=range2)
         ax.set_xlabel(rf"$\Delta\mu_{{{el1}}} (eV)$", fontsize=25)
         ax.set_ylabel(rf"$\Delta\mu_{{{el2}}} (eV)$", fontsize=25)
         ax.set_xticks(rotation=60)
