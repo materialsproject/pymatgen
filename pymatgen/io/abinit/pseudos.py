@@ -1673,7 +1673,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
     @property
     def zlist(self):
         """Ordered list with the atomic numbers available in the table."""
-        return sorted(list(self._pseudos_with_z))
+        return sorted(self._pseudos_with_z)
 
     # def max_ecut_pawecutdg(self, accuracy):
     # """Return the maximum value of ecut and pawecutdg based on the hints available in the pseudos."""
