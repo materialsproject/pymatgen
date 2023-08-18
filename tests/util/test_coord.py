@@ -183,27 +183,24 @@ class TestCoordUtils:
         o_dot_s = np.sum(output2[:, :, None] * simplex2[None, :, :], axis=1)
         assert_allclose(pts2, o_dot_s)
         # test single point
-        assert_allclose(output2[2], coord.barycentric_coords(pts2[2], simplex2))
+        assert_allclose(output2[2], coord.barycentric_coords(pts2[2], simplex2).squeeze())
 
     def test_pbc_shortest_vectors(self):
-        frac_coords = np.array(
-            [
-                [0.3, 0.3, 0.5],
-                [0.1, 0.1, 0.3],
-                [0.9, 0.9, 0.8],
-                [0.1, 0.0, 0.5],
-                [0.9, 0.7, 0.0],
-            ]
-        )
+        frac_coords = [
+            [0.3, 0.3, 0.5],
+            [0.1, 0.1, 0.3],
+            [0.9, 0.9, 0.8],
+            [0.1, 0.0, 0.5],
+            [0.9, 0.7, 0.0],
+        ]
+
         lattice = Lattice.from_parameters(8, 8, 4, 90, 76, 58)
-        expected = np.array(
-            [
-                [0.000, 3.015, 4.072, 3.519, 3.245],
-                [3.015, 0.000, 3.207, 1.131, 4.453],
-                [4.072, 3.207, 0.000, 2.251, 1.788],
-                [3.519, 1.131, 2.251, 0.000, 3.852],
-            ]
-        )
+        expected = [
+            [0.000, 3.015, 4.072, 3.519, 3.245],
+            [3.015, 0.000, 3.207, 1.131, 4.453],
+            [4.072, 3.207, 0.000, 2.251, 1.788],
+            [3.519, 1.131, 2.251, 0.000, 3.852],
+        ]
 
         vectors = coord.pbc_shortest_vectors(lattice, frac_coords[:-1], frac_coords)
         dists = np.sum(vectors**2, axis=-1) ** 0.5

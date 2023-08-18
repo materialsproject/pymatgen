@@ -48,11 +48,11 @@ TITLE sites: 4
                 s = " ".join(line.split()[2:])
                 assert s in last4
 
-    def test_getfefftags(self):
+    def test_get_feff_tags(self):
         tags = self.mp_xanes.tags.as_dict()
         assert tags["COREHOLE"] == "FSR", "Failed to generate PARAMETERS string"
 
-    def test_get_feffPot(self):
+    def test_get_feff_pot(self):
         POT = str(self.mp_xanes.potential)
         d, dr = Potential.pot_dict_from_string(POT)
         assert d["Co"] == 1, "Wrong symbols read in for Potential"

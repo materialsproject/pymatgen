@@ -224,7 +224,7 @@ class TestThermalDisplacement(PymatgenTest):
                 [4.88e-03, 4.97e-03, 3.97e-03, 7.00e-04, -7.00e-04, -1.44e-03],
                 [4.88e-03, 4.97e-03, 3.97e-03, -7.00e-04, -7.00e-04, 1.44e-03],
             ],
-            5,
+            atol=1e-5,
         )
 
     def test_compute_directionality_quality_criterion(self):
@@ -284,7 +284,11 @@ class TestThermalDisplacement(PymatgenTest):
         structure = self.thermal.to_structure_with_site_properties_Ucif()
         # test reading of structure with site properties
         new_thermals = ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif(structure)
-        assert_allclose(self.thermal.thermal_displacement_matrix_cart, new_thermals.thermal_displacement_matrix_cart)
+        assert_allclose(
+            self.thermal.thermal_displacement_matrix_cart,
+            new_thermals.thermal_displacement_matrix_cart,
+            atol=1e-9,
+        )
         assert_allclose(self.thermal.structure.frac_coords, new_thermals.structure.frac_coords)
         assert_allclose(self.thermal.structure.volume, new_thermals.structure.volume)
 
