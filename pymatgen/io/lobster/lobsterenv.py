@@ -184,7 +184,7 @@ class LobsterNeighbors(NearNeighbors):
                         )
         else:
             self.valences = valences
-        if np.allclose(self.valences, np.zeros_like(self.valences)) and additional_condition in [1, 3, 5, 6]:
+        if np.allclose(self.valences or [], np.zeros_like(self.valences)) and additional_condition in [1, 3, 5, 6]:
             raise ValueError("All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work")
 
         if limits is None:
