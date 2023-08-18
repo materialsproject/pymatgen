@@ -719,12 +719,9 @@ class BztTransportProperties:
             )
 
             # Compute the Onsager coefficients from those Fermi integrals
-            (
-                self.Conductivity_mu,
-                self.Seebeck_mu,
-                self.Kappa_mu,
-                Hall_mu,
-            ) = BL.calc_Onsager_coefficients(L0, L1, L2, self.mu_r, temp_r, self.volume, Lm11=Lm11)
+            self.Conductivity_mu, self.Seebeck_mu, self.Kappa_mu, Hall_mu = BL.calc_Onsager_coefficients(
+                L0, L1, L2, self.mu_r, temp_r, self.volume, Lm11=Lm11
+            )
 
             # Common properties rescaling
             self.Conductivity_mu *= CRTA  # S / m
@@ -785,12 +782,7 @@ class BztTransportProperties:
         if temp_r is None:
             temp_r = self.temp_r
 
-        (
-            self.Conductivity_doping,
-            self.Seebeck_doping,
-            self.Kappa_doping,
-            self.Carriers_conc_doping,
-        ) = ({}, {}, {}, {})
+        self.Conductivity_doping, self.Seebeck_doping, self.Kappa_doping, self.Carriers_conc_doping = {}, {}, {}, {}
 
         self.Power_Factor_doping, self.Effective_mass_doping = {}, {}
 

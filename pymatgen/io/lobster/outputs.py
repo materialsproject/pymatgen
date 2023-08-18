@@ -762,11 +762,7 @@ class Lobsterout:
         self.charge_spilling = chargespilling
         self.total_spilling = totalspilling
 
-        (
-            elements,
-            basistype,
-            basisfunctions,
-        ) = self._get_elements_basistype_basisfunctions(data=data)
+        elements, basistype, basisfunctions = self._get_elements_basistype_basisfunctions(data=data)
         self.elements = elements
         self.basis_type = basistype
         self.basis_functions = basisfunctions
@@ -1440,14 +1436,7 @@ class Wavefunction:
         """
         self.filename = filename
         self.structure = structure
-
-        (
-            self.grid,
-            self.points,
-            self.real,
-            self.imaginary,
-            self.distance,
-        ) = Wavefunction._parse_file(filename)
+        self.grid, self.points, self.real, self.imaginary, self.distance = Wavefunction._parse_file(filename)
 
     @staticmethod
     def _parse_file(filename):

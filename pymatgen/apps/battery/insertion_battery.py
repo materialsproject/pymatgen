@@ -441,10 +441,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
         valence_list = Element(ion_sym).oxidation_states
         working_ion_valence = abs(max(valence_list))
 
-        (
-            framework,
-            norm_charge,
-        ) = frame_charge_comp.get_reduced_composition_and_factor()
+        framework, norm_charge = frame_charge_comp.get_reduced_composition_and_factor()
         norm_discharge = frame_discharge_comp.get_reduced_composition_and_factor()[1]
 
         # Initialize normalized properties

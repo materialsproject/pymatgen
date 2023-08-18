@@ -1931,13 +1931,7 @@ class BoltztrapAnalyzer:
         Returns:
             a BoltztrapAnalyzer object
         """
-        (
-            run_type,
-            warning,
-            efermi,
-            gap,
-            doping_levels,
-        ) = BoltztrapAnalyzer.parse_outputtrans(path_dir)
+        run_type, warning, efermi, gap, doping_levels = BoltztrapAnalyzer.parse_outputtrans(path_dir)
 
         vol = BoltztrapAnalyzer.parse_struct(path_dir)
 
