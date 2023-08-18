@@ -5,8 +5,7 @@ import os
 import shutil
 import unittest
 
-import numpy as np
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_allclose, assert_array_almost_equal
 from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
@@ -94,7 +93,7 @@ class TestReadWriteChemenv(unittest.TestCase):
             [2.25, 0.99301365328679292],
         ]
 
-        assert np.allclose(nb_set.voronoi_grid_surface_points(), nb_set_surface_points)
+        assert_allclose(nb_set.voronoi_grid_surface_points(), nb_set_surface_points)
 
         neighb_sites = nb_set.neighb_sites
         coords = [

@@ -10,6 +10,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from monty.serialization import dumpfn, loadfn
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.phase_diagram import (
@@ -978,9 +979,9 @@ class TestUtilityFunction(unittest.TestCase):
     def test_triangular_coord(self):
         coord = [0.5, 0.5]
         coord = triangular_coord(coord)
-        assert np.allclose(coord, [0.75, 0.4330127])
+        assert_allclose(coord, [0.75, 0.4330127])
 
     def test_tet_coord(self):
         coord = [0.5, 0.5, 0.5]
         coord = tet_coord(coord)
-        assert np.allclose(coord, [1.0, 0.57735027, 0.40824829])
+        assert_allclose(coord, [1.0, 0.57735027, 0.40824829])

@@ -6,6 +6,7 @@ import unittest
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 
 from pymatgen.core.structure import Lattice, Molecule, Structure
 from pymatgen.io.cif import CifParser
@@ -200,7 +201,7 @@ TITLE sites: 4
         original_mole_shell = [x.species_string for x in origin_mole]
         output_mole_shell = [x.species_string for x in output_mole]
 
-        assert np.allclose(original_mole_dist, output_mole_dist)
+        assert_allclose(original_mole_dist, output_mole_dist)
         assert origin_tags == output_tags
         assert original_mole_shell == output_mole_shell
 
@@ -244,7 +245,7 @@ TITLE sites: 4
         original_mole_shell = [x.species_string for x in origin_mole]
         output_mole_shell = [x.species_string for x in output_mole]
 
-        assert np.allclose(original_mole_dist, output_mole_dist)
+        assert_allclose(original_mole_dist, output_mole_dist)
         assert origin_tags == output_tags
         assert original_mole_shell == output_mole_shell
 

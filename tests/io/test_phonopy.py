@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.core.periodic_table import Element
@@ -48,7 +48,7 @@ class TestPhonopyParser(PymatgenTest):
         assert ph_bs.bands[5][100] == approx(5.2548379776)
         assert_array_equal(ph_bs.bands.shape, (6, 204))
         assert_array_equal(ph_bs.eigendisplacements.shape, (6, 204, 2, 3))
-        assert np.allclose(
+        assert_allclose(
             ph_bs.eigendisplacements[3][50][0],
             [0.0 + 0.0j, 0.14166569 + 0.04098339j, -0.14166569 - 0.04098339j],
         )
@@ -57,14 +57,14 @@ class TestPhonopyParser(PymatgenTest):
         assert ph_bs.min_freq()[1] == approx(-0.03700895020)
         assert ph_bs.has_imaginary_freq()
         assert not ph_bs.has_imaginary_freq(tol=0.5)
-        assert np.allclose(ph_bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
+        assert_allclose(ph_bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
         assert ph_bs.nb_bands == 6
         assert ph_bs.nb_qpoints == 204
-        assert np.allclose(ph_bs.qpoints[1].frac_coords, [0.01, 0, 0])
+        assert_allclose(ph_bs.qpoints[1].frac_coords, [0.01, 0, 0])
         assert ph_bs.has_nac
         assert ph_bs.get_nac_frequencies_along_dir([1, 1, 0])[3] == approx(4.6084532143)
         assert ph_bs.get_nac_frequencies_along_dir([1, 0, 1]) is None
-        assert np.allclose(
+        assert_allclose(
             ph_bs.get_nac_eigendisplacements_along_dir([1, 1, 0])[3][1],
             [(0.1063906409128248 + 0j), 0j, 0j],
         )
@@ -110,8 +110,8 @@ class TestStructureConversion(PymatgenTest):
         assert s_pmg.lattice._matrix[1, 1] == approx(s_pmg2.lattice._matrix[1, 1], abs=1e-7)
         assert symbols_pmg == set(s_ph.symbols)
         assert symbols_pmg == symbols_pmg2
-        assert np.allclose(coords_ph[3], s_pmg.frac_coords[3])
-        assert np.allclose(s_pmg.frac_coords[3], s_pmg2.frac_coords[3])
+        assert_allclose(coords_ph[3], s_pmg.frac_coords[3])
+        assert_allclose(s_pmg.frac_coords[3], s_pmg2.frac_coords[3])
         assert s_ph.get_number_of_atoms() == len(s_pmg)
         assert len(s_pmg) == len(s_pmg2)
 
@@ -124,19 +124,19 @@ class TestGetDisplacedStructures(PymatgenTest):
         structures = get_displaced_structures(pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix)
 
         assert len(structures) == 49
-        assert np.allclose(
+        assert_allclose(
             structures[4].frac_coords[0],
             np.array([0.10872682, 0.21783039, 0.12595286]),
             atol=1e-7,
         )
-        assert np.allclose(
+        assert_allclose(
             structures[-1].frac_coords[9],
             np.array([0.89127318, 0.78130015, 0.37404715]),
             atol=1e-7,
         )
         assert len(structures[0]) == 128
         assert len(structures[10]) == 128
-        assert np.allclose(structures[0].lattice._matrix, structures[8].lattice._matrix, atol=1e-8)
+        assert_allclose(structures[0].lattice._matrix, structures[8].lattice._matrix, atol=1e-8)
 
         # test writing output
         structures = get_displaced_structures(
@@ -241,20 +241,20 @@ class TestThermalDisplacementMatrices(PymatgenTest):
             f"{TEST_FILES_DIR}/thermal_displacement_matrices/POSCAR",
         )
 
-        assert np.allclose(
+        assert_allclose(
             list(list_matrices[0].thermal_displacement_matrix_cart[0]),
             [0.00516, 0.00613, 0.00415, -0.00011, -0.00158, -0.00081],
         )
-        assert np.allclose(
+        assert_allclose(
             list(list_matrices[0].thermal_displacement_matrix_cart[21]),
             [0.00488, 0.00497, 0.00397, -0.00070, -0.00070, 0.00144],
         )
 
-        assert np.allclose(
+        assert_allclose(
             list(list_matrices[0].thermal_displacement_matrix_cif[0]),
             [0.00457, 0.00613, 0.00415, -0.00011, -0.00081, -0.00082],
         )
-        assert np.allclose(
+        assert_allclose(
             list(list_matrices[0].thermal_displacement_matrix_cif[21]),
             [0.00461, 0.00497, 0.00397, -0.00070, 0.00002, 0.00129],
         )

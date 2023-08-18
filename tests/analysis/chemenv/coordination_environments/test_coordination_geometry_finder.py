@@ -4,6 +4,7 @@ import os
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
@@ -38,9 +39,9 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         cg_ts3 = self.lgf.allcg["TS:3"]
         cg_tet = self.lgf.allcg["T:4"]
         abstract_geom = AbstractGeometry.from_cg(cg=cg_ts3, centering_type="central_site")
-        assert np.allclose(abstract_geom.centre, [0.0, 0.0, 0.0])
+        assert_allclose(abstract_geom.centre, [0.0, 0.0, 0.0])
         abstract_geom = AbstractGeometry.from_cg(cg=cg_ts3, centering_type="centroid")
-        assert np.allclose(abstract_geom.centre, [0.0, 0.0, 0.33333333333])
+        assert_allclose(abstract_geom.centre, [0.0, 0.0, 0.33333333333])
         with pytest.raises(
             ValueError,
             match="The center is the central site, no calculation of the centroid, "
@@ -54,7 +55,7 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         abstract_geom = AbstractGeometry.from_cg(
             cg=cg_ts3, centering_type="centroid", include_central_site_in_centroid=True
         )
-        assert np.allclose(abstract_geom.centre, [0.0, 0.0, 0.25])
+        assert_allclose(abstract_geom.centre, [0.0, 0.0, 0.25])
 
         # WHY ARE WE TESTING STRINGS????
         # assert (

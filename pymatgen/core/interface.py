@@ -5,6 +5,7 @@ from __future__ import annotations
 from itertools import chain, combinations, product
 
 import numpy as np
+from numpy.testing import assert_allclose
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 
@@ -339,10 +340,10 @@ class Interface(Structure):
             substrate_slab = substrate_slab.get_orthogonal_c_slab()
         if isinstance(film_slab, Slab):
             film_slab = film_slab.get_orthogonal_c_slab()
-        assert np.allclose(film_slab.lattice.alpha, 90, 0.1)
-        assert np.allclose(film_slab.lattice.beta, 90, 0.1)
-        assert np.allclose(substrate_slab.lattice.alpha, 90, 0.1)
-        assert np.allclose(substrate_slab.lattice.beta, 90, 0.1)
+        assert_allclose(film_slab.lattice.alpha, 90, 0.1)
+        assert_allclose(film_slab.lattice.beta, 90, 0.1)
+        assert_allclose(substrate_slab.lattice.alpha, 90, 0.1)
+        assert_allclose(substrate_slab.lattice.beta, 90, 0.1)
 
         # Ensure sub is right-handed
         # IE sub has surface facing "up"

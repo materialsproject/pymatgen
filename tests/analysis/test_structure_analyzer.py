@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 import numpy as np
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.structure_analyzer import (
@@ -70,15 +71,15 @@ class TestVoronoiConnectivity(PymatgenTest):
         vc = VoronoiConnectivity(self.get_structure("LiFePO4"))
         ca = vc.connectivity_array
         expected = np.array([0, 1.96338392, 0, 0.04594495])
-        assert np.allclose(ca[15, :4, ca.shape[2] // 2], expected)
+        assert_allclose(ca[15, :4, ca.shape[2] // 2], expected)
 
         expected = np.array([0, 0, 0])
-        assert np.allclose(ca[1, -3:, 51], expected)
+        assert_allclose(ca[1, -3:, 51], expected)
 
         site = vc.get_sitej(27, 51)
         assert site.specie == Element("O")
         expected = np.array([-0.29158, 0.74889, 0.95684])
-        assert np.allclose(site.frac_coords, expected)
+        assert_allclose(site.frac_coords, expected)
 
 
 class TestMiscFunction(PymatgenTest):

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
@@ -102,7 +103,7 @@ class TestCoordinationGeometries(PymatgenTest):
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, -1.0, 0.0]],
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]],
         ]
-        assert np.allclose(cg_oct.faces(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), faces)
+        assert_allclose(cg_oct.faces(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), faces)
 
         faces = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
@@ -114,7 +115,7 @@ class TestCoordinationGeometries(PymatgenTest):
             [[0.0, 0.0, -1.0], [-1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             [[0.0, 0.0, -1.0], [-1.0, 0.0, 0.0], [0.0, -1.0, 0.0]],
         ]
-        assert np.allclose(cg_oct.faces(sites=sites), faces)
+        assert_allclose(cg_oct.faces(sites=sites), faces)
 
         edges = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
@@ -130,7 +131,7 @@ class TestCoordinationGeometries(PymatgenTest):
             [[0.0, 1.0, 0.0], [0.0, -1.0, 0.0]],
             [[0.0, 1.0, 0.0], [0.0, 0.0, -1.0]],
         ]
-        assert np.allclose(cg_oct.edges(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), edges)
+        assert_allclose(cg_oct.edges(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), edges)
 
         edges = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
@@ -146,9 +147,9 @@ class TestCoordinationGeometries(PymatgenTest):
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0]],
         ]
-        assert np.allclose(cg_oct.edges(sites=sites), edges)
+        assert_allclose(cg_oct.edges(sites=sites), edges)
 
-        assert np.allclose(
+        assert_allclose(
             cg_oct.solid_angles(),
             [2.0943951, 2.0943951, 2.0943951, 2.0943951, 2.0943951, 2.0943951],
         )

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from numpy.testing import assert_allclose
 
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder, generate_all_slabs, get_rot, reorient_z
 from pymatgen.core.lattice import Lattice
@@ -90,7 +91,7 @@ class TestAdsorbateSiteFinder(PymatgenTest):
             self.asf_111.slab
         )
         for n, structure in enumerate(structures):
-            assert np.allclose(structure[-2].coords, sites["all"][n])
+            assert_allclose(structure[-2].coords, sites["all"][n])
         find_args = {"positions": ["hollow"]}
         structures_hollow = self.asf_111.generate_adsorption_structures(co, find_args=find_args)
         assert len(structures_hollow) == len(sites["hollow"])
@@ -105,14 +106,14 @@ class TestAdsorbateSiteFinder(PymatgenTest):
         ads_site_coords = sites["all"][0]
         c_site = structures[0][-2]
         assert str(c_site.specie) == "C"
-        assert np.allclose(c_site.coords, sites["all"][0])
+        assert_allclose(c_site.coords, sites["all"][0])
         # Check no translation
         structures = self.asf_111.generate_adsorption_structures(co, translate=False)
         assert co == Molecule("CO", [[1.0, -0.5, 3], [0.8, 0.46, 3.75]])
         sites = self.asf_111.find_adsorption_sites()
         ads_site_coords = sites["all"][0]
         c_site = structures[0][-2]
-        assert np.allclose(c_site.coords, ads_site_coords + np.array([1.0, -0.5, 3]))
+        assert_allclose(c_site.coords, ads_site_coords + np.array([1.0, -0.5, 3]))
 
     def test_adsorb_both_surfaces(self):
         # Test out for monatomic adsorption

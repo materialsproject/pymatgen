@@ -22,6 +22,7 @@ from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
+from numpy.testing import assert_allclose
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -4611,7 +4612,7 @@ class Wavecar:
                     if ispin == 0:
                         self.kpoints.append(kpoint)
                     else:
-                        assert np.allclose(self.kpoints[ink], kpoint)
+                        assert_allclose(self.kpoints[ink], kpoint)
 
                     if verbose:
                         print(f"kpoint {ink: 4} with {nplane: 5} plane waves at {kpoint}")

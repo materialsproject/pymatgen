@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 
-import numpy as np
+from numpy.testing import assert_allclose
 
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.exciting import ExcitingInput
@@ -30,7 +30,7 @@ class TestExcitingInput(PymatgenTest):
         lattice = [[0.0, 2.81, 2.81], [2.81, 0.0, 2.81], [2.81, 2.81, 0.0]]
         atoms = ["Na", "Cl"]
         fraccoords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-        assert np.allclose(lattice, excin.structure.lattice.matrix.tolist())
+        assert_allclose(lattice, excin.structure.lattice.matrix.tolist())
         assert atoms == [site.specie.symbol for site in excin.structure]
         assert fraccoords == [site.frac_coords.tolist() for site in excin.structure]
 
