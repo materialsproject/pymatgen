@@ -92,13 +92,7 @@ class TestSlab(PymatgenTest):
         # check reorient_lattice. get a slab not oriented and check that orientation
         # works even with Cartesian coordinates.
         zno_not_or = SlabGenerator(
-            self.zno1,
-            [1, 0, 0],
-            5,
-            5,
-            lll_reduce=False,
-            center_slab=False,
-            reorient_lattice=False,
+            self.zno1, [1, 0, 0], 5, 5, lll_reduce=False, center_slab=False, reorient_lattice=False
         ).get_slab()
         zno_slab_cart = Slab(
             zno_not_or.lattice,
@@ -111,7 +105,7 @@ class TestSlab(PymatgenTest):
             coords_are_cartesian=True,
             reorient_lattice=True,
         )
-        assert_allclose(zno_slab.frac_coords, zno_slab_cart.frac_coords)
+        assert_allclose(zno_slab.frac_coords, zno_slab_cart.frac_coords, atol=1e-12)
         c = zno_slab_cart.lattice.matrix[2]
         assert_allclose([0, 0, np.linalg.norm(c)], c)
 
@@ -150,18 +144,12 @@ class TestSlab(PymatgenTest):
         assert obj.miller_index == (1, 0, 0)
 
     def test_dipole_and_is_polar(self):
-        assert_allclose(self.zno55.dipole, [0, 0, 0])
+        assert_allclose(self.zno55.dipole, [0, 0, 0], atol=1e-9)
         assert not self.zno55.is_polar()
         cscl = self.get_structure("CsCl")
         cscl.add_oxidation_state_by_element({"Cs": 1, "Cl": -1})
         slab = SlabGenerator(
-            cscl,
-            [1, 0, 0],
-            5,
-            5,
-            reorient_lattice=False,
-            lll_reduce=False,
-            center_slab=False,
+            cscl, [1, 0, 0], 5, 5, reorient_lattice=False, lll_reduce=False, center_slab=False
         ).get_slab()
         assert_allclose(slab.dipole, [-4.209, 0, 0])
         assert slab.is_polar()

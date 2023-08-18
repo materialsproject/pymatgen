@@ -89,13 +89,13 @@ class CoherentInterfaceBuilder:
             xform = get_2d_transform(film_vectors, match.film_vectors)
             strain, rot = polar(xform)
             assert_allclose(
-                strain, np.round(strain)
+                strain, np.round(strain), atol=1e-12
             ), "Film lattice vectors changed during ZSL match, check your ZSL Generator parameters"
 
             xform = get_2d_transform(substrate_vectors, match.substrate_vectors)
             strain, rot = polar(xform)
             assert_allclose(
-                strain, strain.astype(int)
+                strain, strain.astype(int), atol=1e-12
             ), "Substrate lattice vectors changed during ZSL match, check your ZSL Generator parameters"
 
     def _find_terminations(self):

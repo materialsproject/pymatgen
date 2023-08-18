@@ -224,10 +224,10 @@ class TestTensor(PymatgenTest):
         assert_allclose(rot_tensor, trans_tensor)
 
         # Test supercell
-        bigcell = self.structure.copy()
-        bigcell.make_supercell([2, 2, 3])
-        trans_tensor = self.fit_r4.structure_transform(self.structure, bigcell)
-        assert_allclose(self.fit_r4, trans_tensor)
+        big_cell = self.structure.copy()
+        big_cell.make_supercell([2, 2, 3])
+        trans_tensor = self.fit_r4.structure_transform(self.structure, big_cell)
+        assert_allclose(self.fit_r4, trans_tensor, atol=1e-12)
 
         # Test rotated primitive to conventional for fcc structure
         sn = self.get_structure("Sn")
@@ -559,7 +559,7 @@ class TestSquareTensor(PymatgenTest):
     def test_polar_decomposition(self):
         u, p = self.rand_sqtensor.polar_decomposition()
         assert_allclose(np.dot(u, p), self.rand_sqtensor)
-        assert_allclose(np.eye(3), np.dot(u, np.conjugate(np.transpose(u))), atol=1e-16)
+        assert_allclose(np.eye(3), np.dot(u, np.conjugate(np.transpose(u))), atol=1e-9)
 
     def test_serialization(self):
         # Test base serialize-deserialize

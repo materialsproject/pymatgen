@@ -115,11 +115,11 @@ class LatticeTestCase(PymatgenTest):
 
     def test_reciprocal_lattice(self):
         recip_latt = self.lattice.reciprocal_lattice
-        assert_allclose(recip_latt.matrix, 0.628319 * np.eye(3), 5)
+        assert_allclose(recip_latt.matrix, 0.628319 * np.eye(3), atol=1e-6)
         assert_allclose(
             self.tetragonal.reciprocal_lattice.matrix,
             [[0.628319, 0.0, 0.0], [0.0, 0.628319, 0], [0.0, 0.0, 0.3141590]],
-            5,
+            atol=1e-6,
         )
 
         # Test the crystallographic version.
@@ -260,7 +260,7 @@ class LatticeTestCase(PymatgenTest):
         latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
 
         for aligned_out, rot_out, scale_out in lattice.find_all_mappings(latt2):
-            assert_allclose(np.inner(latt2.matrix, rot_out), aligned_out.matrix, 5)
+            assert_allclose(np.inner(latt2.matrix, rot_out), aligned_out.matrix, atol=1e-12)
             assert_allclose(np.dot(scale_out, lattice.matrix), aligned_out.matrix)
             assert_allclose(aligned_out.parameters, latt2.parameters)
             assert not np.allclose(aligned_out.parameters, lattice.parameters)

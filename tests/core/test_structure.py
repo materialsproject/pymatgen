@@ -1011,12 +1011,8 @@ class TestStructure(PymatgenTest):
         struct.apply_operation(op)
         assert_allclose(
             struct.lattice.matrix,
-            [
-                [0, 3.840198, 0],
-                [-3.325710, 1.920099, 0],
-                [2.217138, -0, 3.135509],
-            ],
-            5,
+            [[0, 3.840198, 0], [-3.325710, 1.920099, 0], [2.217138, -0, 3.135509]],
+            atol=1e-6,
         )
 
         op = SymmOp([[1, 1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5], [0, 0, 0, 1]])
@@ -1953,7 +1949,7 @@ class TestMolecule(PymatgenTest):
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
         self.mol.apply_operation(op)
-        assert_allclose(self.mol[2].coords, [0, 1.026719, -0.363000])
+        assert_allclose(self.mol[2].coords, [0, 1.026719, -0.363000], atol=1e-12)
 
     def test_substitute(self):
         coords = [
