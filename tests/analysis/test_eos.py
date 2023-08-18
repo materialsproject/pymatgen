@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
-from numpy.testing import assert_allclose, assert_array_almost_equal
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.eos import EOS, NumericalEOS
@@ -217,7 +217,7 @@ class TestEOS(PymatgenTest):
 
         fit = eos.fit(mp153_volumes, mp153_energies)
 
-        assert_array_almost_equal(fit.func(mp153_volumes), mp153_known_energies_vinet, decimal=5)
+        assert_allclose(fit.func(mp153_volumes), mp153_known_energies_vinet, atol=1e-5)
 
         assert mp153_known_e0_vinet == approx(fit.e0, abs=1e-4)
         assert mp153_known_v0_vinet == approx(fit.v0, abs=1e-4)
@@ -276,27 +276,10 @@ class TestEOS(PymatgenTest):
         ]
 
         mp149_known_energies_vinet = [
-            -4.866834585,
-            -4.711786499,
-            -5.109642598,
-            -5.420093739,
-            -5.274605844,
-            -5.201025714,
-            -5.331899365,
-            -5.374315789,
-            -5.419671568,
-            -4.998827503,
-            -5.383703409,
-            -5.406038887,
-            -5.353926272,
-            -5.317484252,
-            -5.424963418,
-            -5.175090887,
-            -5.403166824,
-            -5.275096644,
-            -5.227427635,
-            -5.058639193,
-            -5.118654229,
+            *[-4.866834585, -4.711786499, -5.109642598, -5.420093739, -5.274605844, -5.201025714],
+            *[-5.331899365, -5.374315789, -5.419671568, -4.998827503, -5.383703409, -5.406038887],
+            *[-5.353926272, -5.317484252, -5.424963418, -5.175090887, -5.403166824, -5.275096644],
+            *[-5.227427635, -5.058639193, -5.118654229],
         ]
 
         # C: 4.986513158
@@ -308,7 +291,7 @@ class TestEOS(PymatgenTest):
 
         fit = eos.fit(mp149_volumes, mp149_energies)
 
-        assert_array_almost_equal(fit.func(mp149_volumes), mp149_known_energies_vinet, decimal=5)
+        assert_allclose(fit.func(mp149_volumes), mp149_known_energies_vinet, atol=1e-5)
 
         assert mp149_known_e0_vinet == approx(fit.e0, abs=1e-4)
         assert mp149_known_v0_vinet == approx(fit.v0, abs=1e-4)
@@ -399,7 +382,7 @@ class TestEOS(PymatgenTest):
 
         fit = eos.fit(mp72_volumes, mp72_energies)
 
-        assert_array_almost_equal(fit.func(mp72_volumes), mp72_known_energies_vinet, decimal=5)
+        assert_allclose(fit.func(mp72_volumes), mp72_known_energies_vinet, atol=1e-5)
 
         assert mp72_known_e0_vinet == approx(fit.e0, abs=1e-4)
         assert mp72_known_v0_vinet == approx(fit.v0, abs=1e-4)
