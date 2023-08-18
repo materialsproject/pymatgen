@@ -1591,11 +1591,11 @@ class BSPlotterProjected(BSPlotter):
             f_3 = 9 f_2 = 10 f_1 = 11 f0 = 12 f1 = 13 f2 = 14 f3 = 15
         """
         dictio, sum_morbs = self._Orbitals_SumOrbitals(dictio, sum_morbs)
-        dictpa, sum_atoms, number_figs = self._number_of_subfigures(dictio, dictpa, sum_atoms, sum_morbs)
-        print(f"Number of subfigures: {number_figs}")
-        if number_figs > 9:
+        dictpa, sum_atoms, n_figs = self._number_of_subfigures(dictio, dictpa, sum_atoms, sum_morbs)
+        print(f"Number of subfigures: {n_figs}")
+        if n_figs > 9:
             print(
-                f"The number of sub-figures {number_figs} might be too manny and the implementation might take a long "
+                f"The number of subfigures {n_figs} might be too manny and the implementation might take a long "
                 f"time.\n A smaller number or a plot with selected symmetry lines (selected_branches) might be better."
             )
 
@@ -1617,17 +1617,17 @@ class BSPlotterProjected(BSPlotter):
                 for o in dictio_d[elt]:
                     count += 1
                     if num_column is None:
-                        if number_figs == 1:
+                        if n_figs == 1:
                             plt.subplot(1, 1, 1)
                         else:
-                            row = number_figs // 2
-                            if number_figs % 2 == 0:
+                            row = n_figs // 2
+                            if n_figs % 2 == 0:
                                 plt.subplot(row, 2, count)
                             else:
                                 plt.subplot(row + 1, 2, count)
                     elif isinstance(num_column, int):
-                        row = number_figs / num_column
-                        if number_figs % num_column == 0:
+                        row = n_figs / num_column
+                        if n_figs % num_column == 0:
                             plt.subplot(row, num_column, count)
                         else:
                             plt.subplot(row + 1, num_column, count)
@@ -2101,6 +2101,10 @@ class BSPlotterProjected(BSPlotter):
 
     def _maketicks_selected(self, ax: plt.Axes, branches: list[int]) -> tuple[plt.Axes, list[float]]:
         """Utility private method to add ticks to a band structure with selected branches."""
+        if not ax.figure:
+            fig = plt.figure()  # Create a figure object
+            ax.set_figure(fig)
+
         ticks = self.get_ticks()
         distance = []
         label = []
