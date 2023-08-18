@@ -17,8 +17,7 @@ __date__ = "Jun 27, 2012"
 
 
 class ExpEntry(PDEntry, MSONable):
-    """
-    An lightweight ExpEntry object containing experimental data for a
+    """An lightweight ExpEntry object containing experimental data for a
     composition for many purposes. Extends a PDEntry so that it can be used for
     phase diagram generation and reaction calculation.
 
@@ -53,8 +52,7 @@ class ExpEntry(PDEntry, MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        :param d: Dict representation.
+        """:param d: Dict representation.
         :return: ExpEntry
         """
         thermodata = [ThermoData.from_dict(td) for td in d["thermodata"]]

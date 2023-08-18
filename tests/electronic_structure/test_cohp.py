@@ -159,10 +159,8 @@ class TestIcohpValue(unittest.TestCase):
         assert str(self.icohpvalue) == "ICOHP 1 between K1 and F2 ([-1, 0, 0]): -2.0 eV (Spin up)"
 
         # with spin polarization
-        assert (
-            str(self.icohpvalue_sp)
-            == "ICOHP 1 between K1 and F2 ([-1, 0, 0]): -1.1 eV (Spin up) and -1.0 eV (Spin down)"
-        )
+        expected = "ICOHP 1 between K1 and F2 ([-1, 0, 0]): -1.1 eV (Spin up) and -1.0 eV (Spin down)"
+        assert str(self.icohpvalue_sp) == expected
 
 
 class TestCombinedIcohp(unittest.TestCase):

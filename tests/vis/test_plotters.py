@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 
+import matplotlib.pyplot as plt
 import numpy as np
 from monty.json import MontyDecoder
 
@@ -27,10 +28,11 @@ class TestSpectrumPlotter(PymatgenTest):
         xanes.y += np.random.randn(len(xanes.y)) * 0.005
         self.plotter.add_spectrum("LiCoO2 + noise", xanes)
         self.plotter.add_spectrum("LiCoO2 - replot", xanes, "k")
-        plt = self.plotter.get_plot()
-        self.plotter.save_plot("spectrum_plotter_test.eps")
-        os.remove("spectrum_plotter_test.eps")
-        plt.close("all")
+        ax = self.plotter.get_plot()
+        assert len(ax.lines) == 3
+        img_path = f"{self.tmp_path}/spectrum_plotter_test.png"
+        self.plotter.save_plot(img_path)
+        assert os.path.isfile(img_path)
 
     def test_get_stacked_plot(self):
         self.plotter = SpectrumPlotter(yshift=0.2, stack=True)
@@ -38,5 +40,6 @@ class TestSpectrumPlotter(PymatgenTest):
         xanes = self.xanes.copy()
         xanes.y += np.random.randn(len(xanes.y)) * 0.005
         self.plotter.add_spectrum("LiCoO2 + noise", xanes, "r")
-        plt = self.plotter.get_plot()
-        plt.close("all")
+        ax = self.plotter.get_plot()
+        assert isinstance(ax, plt.Axes)
+        assert len(ax.lines) == 0

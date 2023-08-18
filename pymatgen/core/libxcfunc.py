@@ -1,5 +1,4 @@
-"""
-Enumerator with the libxc identifiers.
+"""Enumerator with the libxc identifiers.
 This is a low level object, client code should not interact with LibxcFunc directly
 but use the API provided by the Xcfunc object defined in core.xcfunc.py.
 Part of this module is automatically generated so be careful when refactoring stuff.
@@ -32,8 +31,7 @@ with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as fh:
 
 # @unique
 class LibxcFunc(Enum):
-    """
-    Enumerator with the identifiers. This object is used by Xcfunc
+    """Enumerator with the identifiers. This object is used by Xcfunc
     declared in xcfunc.py to create an internal representation of the XC functional.
     This is a low level object, client code should not interact with LibxcFunc directly
     but use the API provided by Xcfunc.
@@ -419,16 +417,14 @@ class LibxcFunc(Enum):
 
     @staticmethod
     def all_families():
-        """
-        List of strings with the libxc families.
+        """List of strings with the libxc families.
         Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA.
         """
         return sorted({d["Family"] for d in _all_xcfuncs.values()})
 
     @staticmethod
     def all_kinds():
-        """
-        List of strings with the libxc kinds.
+        """List of strings with the libxc kinds.
         Also in this case, the string is obtained by remove the XC_ prefix.
         XC_CORRELATION --> CORRELATION.
         """
@@ -485,8 +481,7 @@ class LibxcFunc(Enum):
         return self.family == "HYB_MGGA"
 
     def as_dict(self):
-        """
-        Makes LibxcFunc obey the general json interface used in pymatgen for
+        """Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
         return {
@@ -497,8 +492,7 @@ class LibxcFunc(Enum):
 
     @staticmethod
     def from_dict(d):
-        """
-        Makes LibxcFunc obey the general json interface used in pymatgen for
+        """Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
         return LibxcFunc[d["name"]]

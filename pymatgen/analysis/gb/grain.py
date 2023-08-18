@@ -799,7 +799,7 @@ class GrainBoundaryGenerator:
                 0-a, 1-b, 2-c. Only may be needed for orthorhombic system.
 
         Returns:
-               axial ratio needed for GB generator (list of integers).
+            axial ratio needed for GB generator (list of integers).
         """
         structure = self.initial_structure
         lat_type = self.lat_type

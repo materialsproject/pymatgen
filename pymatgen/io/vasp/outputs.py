@@ -514,7 +514,7 @@ class Vasprun(MSONable):
     def structures(self):
         """
         Returns:
-             List of Structure objects for the structure at each ionic step.
+            List of Structure objects for the structure at each ionic step.
         """
         return [step["structure"] for step in self.ionic_steps]
 
@@ -606,15 +606,17 @@ class Vasprun(MSONable):
             True if electronic step convergence has been reached in the final
             ionic step.
         """
-        final_esteps = self.ionic_steps[-1]["electronic_steps"] if self.incar not in ["CHI"] else 0
+        final_elec_steps = (
+            self.ionic_steps[-1]["electronic_steps"] if self.incar.get("ALGO", "").lower() != "chi" else 0
+        )
         # In a response function run there is no ionic steps, there is no scf step
         if self.incar.get("LEPSILON"):
-            i = 1
+            idx = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
-            while set(final_esteps[i]) == to_check:
-                i += 1
-            return i + 1 != self.parameters["NELM"]
-        return len(final_esteps) < self.parameters["NELM"]
+            while set(final_elec_steps[idx]) == to_check:
+                idx += 1
+            return idx + 1 != self.parameters["NELM"]
+        return len(final_elec_steps) < self.parameters["NELM"]
 
     @property
     def converged_ionic(self):
@@ -1571,10 +1573,7 @@ class BSVasprun(Vasprun):
                 elif tag == "eigenvalues":
                     self.eigenvalues = self._parse_eigen(elem)
                 elif parse_projected_eigen and tag == "projected":
-                    (
-                        self.projected_eigenvalues,
-                        self.projected_magnetisation,
-                    ) = self._parse_projected_eigen(elem)
+                    self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
                 elif tag == "structure" and elem.attrib.get("name") == "finalpos":
                     self.final_structure = self._parse_structure(elem)
         self.vasp_version = self.generator["version"]

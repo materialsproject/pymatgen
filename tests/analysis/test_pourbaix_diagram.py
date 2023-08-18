@@ -5,6 +5,7 @@ import multiprocessing
 import unittest
 import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
 from monty.serialization import dumpfn, loadfn
 from pytest import approx
@@ -310,5 +311,5 @@ class TestPourbaixPlotter(unittest.TestCase):
         # binary system
         pd_binary = PourbaixDiagram(self.test_data["Ag-Te"], comp_dict={"Ag": 0.5, "Te": 0.5})
         binary_plotter = PourbaixPlotter(pd_binary)
-        plt = binary_plotter.plot_entry_stability(self.test_data["Ag-Te"][53])
-        plt.close()
+        ax = binary_plotter.plot_entry_stability(self.test_data["Ag-Te"][53])
+        assert isinstance(ax, plt.Axes)

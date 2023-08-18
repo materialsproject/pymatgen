@@ -37,9 +37,7 @@ class TestPhononDosPlotter(unittest.TestCase):
         self.plotter.add_dos("Total", self.dos)
         self.plotter.get_plot(units="mev")
         self.plotter_nostack.add_dos("Total", self.dos)
-        plt = self.plotter_nostack.get_plot(units="mev")
-
-        ax = plt.gca()
+        ax = self.plotter_nostack.get_plot(units="mev")
         assert isinstance(ax, axes.Axes)
         assert ax.get_ylabel() == "$\\mathrm{Density\\ of\\ states}$"
         assert ax.get_xlabel() == "$\\mathrm{Frequencies\\ (meV)}$"

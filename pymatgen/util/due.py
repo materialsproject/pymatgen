@@ -1,5 +1,4 @@
-"""
-Stub file for a guaranteed safe import of duecredit constructs: if duecredit
+"""Stub file for a guaranteed safe import of duecredit constructs: if duecredit
 is not available.
 
 Then use in your code as

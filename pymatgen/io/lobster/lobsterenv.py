@@ -450,14 +450,14 @@ class LobsterNeighbors(NearNeighbors):
         )
 
         cp.add_cohp(plotlabel, summed_cohp)
-        plot = cp.get_plot(integrated=integrated)
+        ax = cp.get_plot(integrated=integrated)
         if xlim is not None:
-            plot.xlim(xlim)
+            ax.set_xlim(xlim)
 
         if ylim is not None:
-            plot.ylim(ylim)
+            ax.set_ylim(ylim)
 
-        return plot
+        return ax
 
     def get_info_cohps_to_neighbors(
         self,
@@ -484,14 +484,9 @@ class LobsterNeighbors(NearNeighbors):
         as given by isites and the other parameters
         """
         # TODO: add options for orbital-resolved cohps
-        (
-            summed_icohps,
-            list_icohps,
-            number_bonds,
-            labels,
-            atoms,
-            final_isites,
-        ) = self.get_info_icohps_to_neighbors(isites=isites, onlycation_isites=onlycation_isites)
+        summed_icohps, list_icohps, number_bonds, labels, atoms, final_isites = self.get_info_icohps_to_neighbors(
+            isites=isites, onlycation_isites=onlycation_isites
+        )
 
         import tempfile
 
@@ -720,14 +715,9 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("Please give two limits or leave them both at None")
 
         # find environments based on ICOHP values
-        (
-            list_icohps,
-            list_keys,
-            list_lengths,
-            list_neighisite,
-            list_neighsite,
-            list_coords,
-        ) = self._find_environments(additional_condition, lowerlimit, upperlimit, only_bonds_to)
+        list_icohps, list_keys, list_lengths, list_neighisite, list_neighsite, list_coords = self._find_environments(
+            additional_condition, lowerlimit, upperlimit, only_bonds_to
+        )
 
         self.list_icohps = list_icohps
         self.list_lengths = list_lengths

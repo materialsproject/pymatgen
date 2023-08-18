@@ -51,12 +51,10 @@ class LatticeTestCase(PymatgenTest):
         assert (
             format(self.lattice, ".3fl") == "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
         )
-        assert (
-            format(self.lattice, ".3f")
-            == """10.000 0.000 0.000
+        lattice_str = """10.000 0.000 0.000
 0.000 10.000 0.000
 0.000 0.000 10.000"""
-        )
+        assert format(self.lattice, ".3f") == lattice_str
         assert format(self.lattice, ".1fp") == "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}"
 
     def test_init(self):
