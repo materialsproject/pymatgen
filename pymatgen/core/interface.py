@@ -171,8 +171,9 @@ class Interface(Structure):
         return Structure.from_sites(self.film_sites)
 
     def copy(self):
-        """Returns:
-        Interface: A copy of the Interface.
+        """
+        Returns:
+            Interface: A copy of the Interface.
         """
         return Interface.from_dict(self.as_dict())
 

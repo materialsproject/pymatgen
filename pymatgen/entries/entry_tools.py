@@ -224,8 +224,9 @@ class EntrySet(collections.abc.MutableSet, MSONable):
 
     @property
     def chemsys(self) -> set:
-        """Returns:
-        set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}.
+        """
+        Returns:
+            set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}.
         """
         chemsys = set()
         for e in self.entries:

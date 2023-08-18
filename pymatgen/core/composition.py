@@ -629,9 +629,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return cls(comp_dict)
 
     def get_el_amt_dict(self) -> dict[str, float]:
-        """Returns:
-        dict[str, float]: element symbol and (unreduced) amount. E.g.
-        {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}.
+        """
+        Returns:
+            dict[str, float]: element symbol and (unreduced) amount. E.g.
+            {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}.
         """
         dic: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
@@ -653,24 +654,27 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def to_reduced_dict(self) -> dict[str, float]:
-        """Returns:
-        dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O":3.0}.
+        """
+        Returns:
+            dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O":3.0}.
         """
         return self.reduced_composition.as_dict()
 
     @property
     def to_weight_dict(self) -> dict[str, float]:
-        """Returns:
-        dict[str, float] with weight fraction of each component {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
+        """
+        Returns:
+            dict[str, float] with weight fraction of each component {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
         """
         return {str(el): self.get_wt_fraction(el) for el in self.elements}
 
     @property
     def to_data_dict(self) -> dict:
-        """Returns:
-        A dict with many keys and values relating to Composition/Formula,
-        including reduced_cell_composition, unit_cell_composition,
-        reduced_cell_formula, elements and nelements.
+        """
+        Returns:
+            A dict with many keys and values relating to Composition/Formula,
+            including reduced_cell_composition, unit_cell_composition,
+            reduced_cell_formula, elements and nelements.
         """
         return {
             "reduced_cell_composition": self.reduced_composition,
