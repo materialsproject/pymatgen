@@ -1,6 +1,5 @@
-"""
-Parsers for XTB output files and directories
-"""
+"""Parsers for XTB output files and directories."""
+
 from __future__ import annotations
 
 import logging
@@ -23,13 +22,11 @@ logger = logging.getLogger(__name__)
 
 
 class CRESTOutput(MSONable):
-    """
-    Class to parse CREST output files
-    """
+    """Class to parse CREST output files."""
 
     def __init__(self, output_filename, path="."):
         """
-        Assumes runtype is iMTD-GC [default]
+        Assumes runtype is iMTD-GC [default].
 
         Args:
             output_filename (str): Filename to parse
@@ -53,7 +50,7 @@ class CRESTOutput(MSONable):
             sorted_structrues_energies: n x m x 2 list, for n conformers,
                 m rotamers per conformer, and tuple of
                 [Molecule, energy]
-            properly_terminated: True or False if run properly terminated
+            properly_terminated: True or False if run properly terminated.
         """
         output_filepath = os.path.join(self.path, self.filename)
 

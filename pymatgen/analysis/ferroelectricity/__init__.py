@@ -1,3 +1,1 @@
-"""
-Package for analyzing ferroelectricity.
-"""
+"""Package for analyzing ferroelectricity."""

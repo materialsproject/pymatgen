@@ -1,3 +1,1 @@
-"""
-Optimization utilities.
-"""
+"""Optimization utilities."""

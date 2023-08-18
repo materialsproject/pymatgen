@@ -1,6 +1,4 @@
-"""
-A module to perform experimental thermochemical data analysis.
-"""
+"""A module to perform experimental thermochemical data analysis."""
 
 
 from __future__ import annotations
@@ -18,9 +16,7 @@ STANDARD_TEMP = 298.0
 
 
 class ThermoData:
-    """
-    A object container for an experimental Thermochemical Data.
-    """
+    """A object container for an experimental Thermochemical Data."""
 
     def __init__(
         self,
@@ -71,7 +67,7 @@ class ThermoData:
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             ThermoData
@@ -89,9 +85,7 @@ class ThermoData:
         )
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

@@ -1,5 +1,4 @@
-"""
-Common test support for pymatgen test scripts.
+"""Common test support for pymatgen test scripts.
 
 This single module should provide all the common functionality for pymatgen
 tests in a single location, so that test scripts can just import it and work
@@ -9,9 +8,11 @@ right away.
 from __future__ import annotations
 
 import json
+import string
 import tempfile
 import unittest
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 from monty.json import MontyDecoder, MSONable
@@ -20,30 +21,18 @@ from numpy.testing import assert_allclose
 
 from pymatgen.core import SETTINGS, Structure
 
+MODULE_DIR = Path(__file__).absolute().parent
+
+TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / ".." / "tests" / "files"))
+
 
 class PymatgenTest(unittest.TestCase):
-    """
-    Extends unittest.TestCase with functions (taken from numpy.testing.utils)
-    that support the comparison of arrays.
-    """
+    """Extends unittest.TestCase with several assert methods for array and str comparison."""
 
     _multiprocess_shared_ = True
-    MODULE_DIR = Path(__file__).absolute().parent
     STRUCTURES_DIR = MODULE_DIR / "structures"
-    try:
-        TEST_FILES_DIR = Path(SETTINGS["PMG_TEST_FILES_DIR"])
-    except KeyError:
-        import warnings
 
-        warnings.warn(
-            "It is recommended that you set the PMG_TEST_FILES_DIR environment variable explicitly. "
-            "Now using a fallback location based on relative path from this module."
-        )
-        TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
-
-    TEST_STRUCTURES = {}  # Dict for test structures to aid testing.
-    for fn in STRUCTURES_DIR.iterdir():
-        TEST_STRUCTURES[fn.name.rsplit(".", 1)[0]] = loadfn(str(fn))
+    TEST_STRUCTURES: ClassVar[dict[str, Structure]] = {}  # Dict for test structures to aid testing.
 
     @pytest.fixture(autouse=True)  # make all tests run a in a temporary directory accessible via self.tmp_path
     def _tmp_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -53,8 +42,7 @@ class PymatgenTest(unittest.TestCase):
 
     @classmethod
     def get_structure(cls, name: str) -> Structure:
-        """
-        Get a structure from the template directories.
+        """Get a structure from the template directories.
 
         Args:
             name (str): Name of structure file.
@@ -62,34 +50,24 @@ class PymatgenTest(unittest.TestCase):
         Returns:
             Structure
         """
+        if name not in cls.TEST_STRUCTURES:
+            cls.TEST_STRUCTURES[name] = loadfn(cls.STRUCTURES_DIR / f"{name}.json")
         return cls.TEST_STRUCTURES[name].copy()
 
     @staticmethod
     def assert_all_close(actual, desired, decimal=7, err_msg="", verbose=True):
-        """
-        Tests if two arrays are almost equal up to some relative or absolute tolerance.
-        """
+        """Tests if two arrays are almost equal up to some relative or absolute tolerance."""
         # TODO (janosh): replace the decimal kwarg with assert_allclose() atol and rtol kwargs
         return assert_allclose(actual, desired, atol=10**-decimal, err_msg=err_msg, verbose=verbose)
 
     @staticmethod
-    def assert_str_content_equal(actual, desired, err_msg="", verbose=True):
-        """
-        Tests if two strings are equal, ignoring things like trailing spaces, etc.
-        """
-        lines1 = actual.split("\n")
-        lines2 = desired.split("\n")
-        if len(lines1) != len(lines2):
-            return False
-        failed = []
-        for l1, l2 in zip(lines1, lines2):
-            if l1.strip() != l2.strip():
-                failed.append(f"{l1} != {l2}")
-        return len(failed) == 0
+    def assert_str_content_equal(actual, expected):
+        """Tests if two strings are equal, ignoring things like trailing spaces, etc."""
+        strip_whitespace = {ord(c): None for c in string.whitespace}
+        return actual.translate(strip_whitespace) == expected.translate(strip_whitespace)
 
     def serialize_with_pickle(self, objects, protocols=None, test_eq=True):
-        """
-        Test whether the object(s) can be serialized and deserialized with
+        """Test whether the object(s) can be serialized and deserialized with
         pickle. This method tries to serialize the objects with pickle and the
         protocols specified in input. Then it deserializes the pickle format
         and compares the two objects with the __eq__ operator if
@@ -157,14 +135,13 @@ class PymatgenTest(unittest.TestCase):
             return [o[0] for o in objects_by_protocol]
         return objects_by_protocol
 
-    def assert_msonable(self, obj, test_if_subclass=True):
-        """
-        Test if obj is MSONable and verify the contract is fulfilled.
+    def assert_msonable(self, obj, test_is_subclass=True):
+        """Test if obj is MSONable and verify the contract is fulfilled.
 
         By default, the method tests whether obj is an instance of MSONable.
-        This check can be deactivated by setting test_if_subclass=False.
+        This check can be deactivated by setting test_is_subclass=False.
         """
-        if test_if_subclass:
+        if test_is_subclass:
             assert isinstance(obj, MSONable)
         assert obj.as_dict() == obj.__class__.from_dict(obj.as_dict()).as_dict()
         json.loads(obj.to_json(), cls=MontyDecoder)

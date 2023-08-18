@@ -1,5 +1,4 @@
-"""
-This module implements a Composition class to represent compositions,
+"""This module implements a Composition class to represent compositions,
 and a ChemicalPotential class to represent potentials.
 """
 
@@ -27,8 +26,7 @@ SpeciesLike = Union[str, Element, Species, DummySpecies]
 
 @total_ordering
 class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, Stringify):
-    """
-    Represents a Composition, which is essentially a {element:amount} mapping
+    """Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
     unlike a standard Python dict.
 
@@ -72,25 +70,24 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     # Special formula handling for peroxides and certain elements. This is so
     # that formula output does not write LiO instead of Li2O2 for example.
-    special_formulas = {
-        "LiO": "Li2O2",
-        "NaO": "Na2O2",
-        "KO": "K2O2",
-        "HO": "H2O2",
-        "CsO": "Cs2O2",
-        "RbO": "Rb2O2",
-        "O": "O2",
-        "N": "N2",
-        "F": "F2",
-        "Cl": "Cl2",
-        "H": "H2",
-    }
+    special_formulas = dict(
+        LiO="Li2O2",
+        NaO="Na2O2",
+        KO="K2O2",
+        HO="H2O2",
+        CsO="Cs2O2",
+        RbO="Rb2O2",
+        O="O2",
+        N="N2",
+        F="F2",
+        Cl="Cl2",
+        H="H2",
+    )
 
     oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
 
     def __init__(self, *args, strict: bool = False, **kwargs) -> None:
-        """
-        Very flexible Composition construction, similar to the built-in Python
+        """Very flexible Composition construction, similar to the built-in Python
         dict(). Also extended to allow simple string init.
 
         Takes any inputs supported by the Python built-in dict function.
@@ -135,12 +132,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if strict and not self.valid:
             raise ValueError(f"Composition is not valid, contains: {', '.join(map(str, self.elements))}")
 
-    def __getitem__(self, item: SpeciesLike) -> float:
+    def __getitem__(self, key: SpeciesLike) -> float:
         try:
-            sp = get_el_sp(item)
+            sp = get_el_sp(key)
             return self._data.get(sp, 0)
-        except ValueError as ex:
-            raise TypeError(f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}")
+        except ValueError as exc:
+            raise KeyError(f"Invalid {key=}") from exc
 
     def __len__(self) -> int:
         return len(self._data)
@@ -148,29 +145,31 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def __iter__(self) -> Iterator[Species | Element | DummySpecies]:
         return self._data.__iter__()
 
-    def __contains__(self, item) -> bool:
+    def __contains__(self, key) -> bool:
         try:
-            sp = get_el_sp(item)
-            return sp in self._data
-        except ValueError as ex:
-            raise TypeError(f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}")
+            sp = get_el_sp(key)
+            if isinstance(sp, Species):
+                return sp in self._data
+            # Element or str
+            return any(sp.symbol == s.symbol for s in self._data)
+        except ValueError as exc:
+            raise TypeError(f"Invalid {key=} for Composition") from exc
 
     def __eq__(self, other: object) -> bool:
         """Defines == for Compositions."""
         if not isinstance(other, (Composition, dict)):
             return NotImplemented
 
-        #  elements with amounts < Composition.amount_tolerance don't show up
-        #  in the el_map, so checking len enables us to only check one
-        #  composition's elements
+        # elements with amounts < Composition.amount_tolerance don't show up
+        # in the el_map, so checking len enables us to only check one
+        # composition's elements
         if len(self) != len(other):
             return False
 
         return all(abs(amt - other[el]) <= Composition.amount_tolerance for el, amt in self.items())
 
     def __ge__(self, other: object) -> bool:
-        """
-        Defines >= for Compositions. Should ONLY be used for defining a sort
+        """Defines >= for Compositions. Should ONLY be used for defining a sort
         order (the behavior is probably not what you'd expect).
         """
         if not isinstance(other, Composition):
@@ -184,8 +183,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return True
 
     def __add__(self, other: object) -> Composition:
-        """
-        Adds two compositions. For example, an Fe2O3 composition + an FeO
+        """Adds two compositions. For example, an Fe2O3 composition + an FeO
         composition gives a Fe3O4 composition.
         """
         if not isinstance(other, (Composition, dict)):
@@ -198,8 +196,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return Composition(new_el_map, allow_negative=self.allow_negative)
 
     def __sub__(self, other: object) -> Composition:
-        """
-        Subtracts two compositions. For example, an Fe2O3 composition - an FeO
+        """Subtracts two compositions. For example, an Fe2O3 composition - an FeO
         composition gives an FeO2 composition.
 
         Raises:
@@ -217,9 +214,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return Composition(new_el_map, allow_negative=self.allow_negative)
 
     def __mul__(self, other: object) -> Composition:
-        """
-        Multiply a Composition by an integer or a float.
-        Fe2O3 * 4 -> Fe8O12
+        """Multiply a Composition by an integer or a float.
+        Fe2O3 * 4 -> Fe8O12.
         """
         if not isinstance(other, (int, float)):
             return NotImplemented
@@ -235,28 +231,21 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     __div__ = __truediv__
 
     def __hash__(self) -> int:
-        """
-        Hash based on the chemical system
-        """
+        """Hash based on the chemical system."""
         return hash(frozenset(self._data))
 
     @property
     def average_electroneg(self) -> float:
-        """
-        :return: Average electronegativity of the composition.
-        """
+        """Average electronegativity of the composition."""
         return sum((el.X * abs(amt) for el, amt in self.items())) / self.num_atoms
 
     @property
     def total_electrons(self) -> float:
-        """
-        :return: Total number of electrons in composition.
-        """
+        """Total number of electrons in composition."""
         return sum((el.Z * abs(amt) for el, amt in self.items()))
 
     def almost_equals(self, other: Composition, rtol: float = 0.1, atol: float = 1e-8) -> bool:
-        """
-        Returns true if compositions are equal within a tolerance.
+        """Returns true if compositions are equal within a tolerance.
 
         Args:
             other (Composition): Other composition to check
@@ -274,21 +263,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def is_element(self) -> bool:
-        """
-        True if composition is an element.
-        """
+        """True if composition is an element."""
         return len(self) == 1
 
     def copy(self) -> Composition:
-        """
-        :return: A copy of the composition.
-        """
+        """A copy of the composition."""
         return Composition(self, allow_negative=self.allow_negative)
 
     @property
     def formula(self) -> str:
-        """
-        Returns a formula string, with elements sorted by electronegativity,
+        """Returns a formula string, with elements sorted by electronegativity,
         e.g., Li4 Fe4 P4 O16.
         """
         sym_amt = self.get_el_amt_dict()
@@ -298,22 +282,20 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def alphabetical_formula(self) -> str:
-        """
-        Returns a formula string, with elements sorted by alphabetically
+        """Returns a formula string, with elements sorted by alphabetically
         e.g., Fe4 Li4 O16 P4.
         """
-        return " ".join(sorted(self.formula.split(" ")))
+        return " ".join(sorted(self.formula.split()))
 
     @property
     def iupac_formula(self) -> str:
-        """
-        Returns a formula string, with elements sorted by the iupac
+        """Returns a formula string, with elements sorted by the iupac
         electronegativity ordering defined in Table VI of "Nomenclature of
         Inorganic Chemistry (IUPAC Recommendations 2005)". This ordering
         effectively follows the groups and rows of the periodic table, except
         the Lanthanides, Actinides and hydrogen. Polyanions are still determined
         based on the true electronegativity of the elements.
-        e.g. CH2(SO4)2
+        e.g. CH2(SO4)2.
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda s: get_el_sp(s).iupac_ordering)
@@ -322,16 +304,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def element_composition(self) -> Composition:
-        """
-        Returns the composition replacing any species by the corresponding
+        """Returns the composition replacing any species by the corresponding
         element.
         """
         return Composition(self.get_el_amt_dict(), allow_negative=self.allow_negative)
 
     @property
     def fractional_composition(self) -> Composition:
-        """
-        Returns the normalized composition in which the amounts of each species sum to
+        """Returns the normalized composition in which the amounts of each species sum to
         1.
         E.g. "Fe2 O3".fractional_composition = "Fe0.4 O0.6".
         """
@@ -339,15 +319,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def reduced_composition(self) -> Composition:
-        """
-        Returns the reduced composition, i.e. amounts normalized by greatest common denominator.
+        """Returns the reduced composition, i.e. amounts normalized by greatest common denominator.
         E.g. "Fe4 P4 O16".reduced_composition = "Fe P O4".
         """
         return self.get_reduced_composition_and_factor()[0]
 
     def get_reduced_composition_and_factor(self) -> tuple[Composition, float]:
-        """
-        Calculates a reduced composition and factor.
+        """Calculates a reduced composition and factor.
 
         Returns:
             A normalized composition and a multiplicative factor, i.e.,
@@ -357,8 +335,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return self / factor, factor
 
     def get_reduced_formula_and_factor(self, iupac_ordering: bool = False) -> tuple[str, float]:
-        """
-        Calculates a reduced formula and factor.
+        """Calculates a reduced formula and factor.
 
         Args:
             iupac_ordering (bool, optional): Whether to order the
@@ -389,8 +366,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def get_integer_formula_and_factor(
         self, max_denominator: int = 10000, iupac_ordering: bool = False
     ) -> tuple[str, float]:
-        """
-        Calculates an integer formula and factor.
+        """Calculates an integer formula and factor.
 
         Args:
             max_denominator (int): all amounts in the el:amt dict are
@@ -409,27 +385,25 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)
         """
         el_amt = self.get_el_amt_dict()
-        g = gcd_float(list(el_amt.values()), 1 / max_denominator)
+        gcd = gcd_float(list(el_amt.values()), 1 / max_denominator)
 
-        d = {k: round(v / g) for k, v in el_amt.items()}
-        formula, factor = reduce_formula(d, iupac_ordering=iupac_ordering)
+        dct = {k: round(v / gcd) for k, v in el_amt.items()}
+        formula, factor = reduce_formula(dct, iupac_ordering=iupac_ordering)
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
             factor /= 2
-        return formula, factor * g
+        return formula, factor * gcd
 
     @property
     def reduced_formula(self) -> str:
-        """
-        Returns a pretty normalized formula, i.e., LiFePO4 instead of
+        """Returns a pretty normalized formula, i.e., LiFePO4 instead of
         Li4Fe4P4O16.
         """
         return self.get_reduced_formula_and_factor()[0]
 
     @property
     def hill_formula(self) -> str:
-        """
-        :return: Hill formula. The Hill system (or Hill notation) is a system
+        """:return: Hill formula. The Hill system (or Hill notation) is a system
         of writing empirical chemical formulas, molecular chemical formulas and
         components of a condensed formula such that the number of carbon atoms
         in a molecule is indicated first, the number of hydrogen atoms next,
@@ -438,49 +412,48 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         no carbon, all the elements, including hydrogen, are listed
         alphabetically.
         """
-        c = self.element_composition
-        elements = sorted(el.symbol for el in c)
+        elem_comp = self.element_composition
+        elements = sorted(el.symbol for el in elem_comp)
+        hill_elements = []
         if "C" in elements:
-            elements = ["C"] + [el for el in elements if el != "C"]
+            hill_elements.append("C")
+            elements.remove("C")
+            if "H" in elements:
+                hill_elements.append("H")
+                elements.remove("H")
+        hill_elements += elements
 
-        formula = [f"{el}{formula_double_format(c[el]) if c[el] != 1 else ''}" for el in elements]
+        formula = [f"{el}{formula_double_format(elem_comp[el]) if elem_comp[el] != 1 else ''}" for el in hill_elements]
         return " ".join(formula)
 
     @property
     def elements(self) -> list[Element | Species | DummySpecies]:
-        """
-        Returns view of elements in Composition.
-        """
+        """Returns list of elements in Composition."""
         return list(self)
 
     def __str__(self):
         return " ".join(f"{k}{formula_double_format(v, ignore_ones=False)}" for k, v in self.as_dict().items())
 
     def to_pretty_string(self) -> str:
-        """
-        Returns:
-            str: Same as output __str__() but without spaces.
+        """Returns:
+        str: Same as output __str__() but without spaces.
         """
         return re.sub(r"\s+", "", str(self))
 
     @property
     def num_atoms(self) -> float:
-        """
-        Total number of atoms in Composition. For negative amounts, sum
-        of absolute values
+        """Total number of atoms in Composition. For negative amounts, sum
+        of absolute values.
         """
         return self._natoms
 
     @property
     def weight(self) -> float:
-        """
-        Total molecular weight of Composition
-        """
+        """Total molecular weight of Composition."""
         return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), "amu")
 
     def get_atomic_fraction(self, el: SpeciesLike) -> float:
-        """
-        Calculate atomic fraction of an Element or Species.
+        """Calculate atomic fraction of an Element or Species.
 
         Args:
             el (Element/Species): Element or Species to get fraction for.
@@ -491,8 +464,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return abs(self[el]) / self._natoms
 
     def get_wt_fraction(self, el: SpeciesLike) -> float:
-        """
-        Calculate weight fraction of an Element or Species.
+        """Calculate weight fraction of an Element or Species.
 
         Args:
             el (Element | Species): Element or Species to get fraction for.
@@ -504,8 +476,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return el_mass * abs(self[el]) / self.weight
 
     def contains_element_type(self, category: str) -> bool:
-        """
-        Check if Composition contains any elements matching a given category.
+        """Check if Composition contains any elements matching a given category.
 
         Args:
             category (str): one of "noble_gas", "transition_metal",
@@ -546,7 +517,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def _parse_formula(self, formula: str) -> dict[str, float]:
         """
         Args:
-            formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
+            formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3.
 
         Returns:
             Composition with that formula.
@@ -558,7 +529,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # for Metallofullerene like "Y3N@C80"
         formula = formula.replace("@", "")
 
-        def get_sym_dict(form: str, factor: int | float) -> dict[str, float]:
+        def get_sym_dict(form: str, factor: float) -> dict[str, float]:
             sym_dict: dict[str, float] = collections.defaultdict(float)
             for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.e\d]*)", form):
                 el = m.group(1)
@@ -584,8 +555,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def anonymized_formula(self) -> str:
-        """
-        An anonymized formula. Unique species are arranged in ordering of
+        """An anonymized formula. Unique species are arranged in ordering of
         increasing amounts and assigned ascending alphabets. Useful for
         prototyping formulas. For example, all stoichiometric perovskites have
         anonymized_formula ABC3.
@@ -607,8 +577,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def chemical_system(self) -> str:
-        """
-        Get the chemical system of a Composition, for example "O-Si" for
+        """Get the chemical system of a Composition, for example "O-Si" for
         SiO2. Chemical system is a string of a list of elements
         sorted alphabetically and joined by dashes, by convention for use
         in database keys.
@@ -617,19 +586,19 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def valid(self) -> bool:
-        """
-        Returns True if Composition contains valid elements or species and
+        """Returns True if Composition contains valid elements or species and
         False if the Composition contains any dummy species.
         """
         return not any(isinstance(el, DummySpecies) for el in self.elements)
 
-    def __repr__(self) -> str:
-        return "Comp: " + self.formula
+    def __repr__(self):
+        formula = " ".join(f"{k}{':' if hasattr(k, 'oxi_state') else ''}{v:g}" for k, v in self.items())
+        cls_name = type(self).__name__
+        return f"{cls_name}({formula!r})"
 
     @classmethod
     def from_dict(cls, d) -> Composition:
-        """
-        Creates a composition from a dict generated by as_dict(). Strictly not
+        """Creates a composition from a dict generated by as_dict(). Strictly not
         necessary given that the standard constructor already takes in such an
         input, but this method preserves the standard pymatgen API of having
         from_dict methods to reconstitute objects generated by as_dict(). Allows
@@ -642,8 +611,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @classmethod
     def from_weight_dict(cls, weight_dict) -> Composition:
-        """
-        Creates a Composition based on a dict of atomic fractions calculated
+        """Creates a Composition based on a dict of atomic fractions calculated
         from a dict of weight fractions. Allows for quick creation of the class
         from weight-based notations commonly used in the industry, such as
         Ti6V4Al and Ni60Ti40.
@@ -660,10 +628,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return cls(comp_dict)
 
     def get_el_amt_dict(self) -> dict[str, float]:
-        """
-        Returns:
-            dict[str, float]: element symbol and (unreduced) amount. E.g.
-                {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
+        """Returns:
+        dict[str, float]: element symbol and (unreduced) amount. E.g.
+        {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}.
         """
         dic: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
@@ -671,8 +638,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return dic
 
     def as_dict(self) -> dict[str, float]:
-        """
-        Note: Subtly different from get_el_amt_dict in that they keys here are str(Element) instead of Element.symbol.
+        """Subtly different from get_el_amt_dict in that they keys here are str(Element)
+        instead of Element.symbol.
 
         Returns:
             dict[str, float]: element symbol and (unreduced) amount. E.g.
@@ -685,27 +652,24 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def to_reduced_dict(self) -> dict[str, float]:
-        """
-        Returns:
-            dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O":3.0}.
+        """Returns:
+        dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O":3.0}.
         """
         return self.reduced_composition.as_dict()
 
     @property
     def to_weight_dict(self) -> dict[str, float]:
-        """
-        Returns:
-            dict[str, float] with weight fraction of each component {"Ti": 0.90, "V": 0.06, "Al": 0.04}
+        """Returns:
+        dict[str, float] with weight fraction of each component {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
         """
         return {str(el): self.get_wt_fraction(el) for el in self.elements}
 
     @property
     def to_data_dict(self) -> dict:
-        """
-        Returns:
-            A dict with many keys and values relating to Composition/Formula,
-            including reduced_cell_composition, unit_cell_composition,
-            reduced_cell_formula, elements and nelements.
+        """Returns:
+        A dict with many keys and values relating to Composition/Formula,
+        including reduced_cell_composition, unit_cell_composition,
+        reduced_cell_formula, elements and nelements.
         """
         return {
             "reduced_cell_composition": self.reduced_composition,
@@ -722,8 +686,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         all_oxi_states: bool = False,
         max_sites: int | None = None,
     ) -> list[dict[str, float]]:
-        """
-        Checks if the composition is charge-balanced and returns back all
+        """Checks if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
         more degrees of freedom. e.g., if possible oxidation states of
@@ -754,14 +717,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
-        return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
+        return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
-    def replace(self, elem_map: dict[str, str | dict[str, int | float]]) -> Composition:
-        """
-        Replace elements in a composition. Returns a new Composition, leaving the old one unchanged.
+    def replace(self, elem_map: dict[str, str | dict[str, float]]) -> Composition:
+        """Replace elements in a composition. Returns a new Composition, leaving the old one unchanged.
 
         Args:
-            elem_map (dict[str, str | dict[str, int | float]]): dict of elements or species to swap. E.g.
+            elem_map (dict[str, str | dict[str, float]]): dict of elements or species to swap. E.g.
                 {"Li": "Na"} performs a Li for Na substitution. The target can be a {species: factor} dict. For
                 example, in Fe2O3 you could map {"Fe": {"Mg": 0.5, "Cu":0.5}} to obtain MgCuO3.
 
@@ -815,8 +777,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         all_oxi_states: bool = False,
         max_sites: int | None = None,
     ) -> Composition:
-        """
-        Assign oxidation states based on guessed oxidation states.
+        """Assign oxidation states based on guessed oxidation states.
 
         See `oxi_state_guesses` for an explanation of how oxidation states are
         guessed. This operation uses the set of oxidation states for each site
@@ -846,9 +807,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             on the results form guessing oxidation states. If no oxidation state
             is possible, returns a Composition where all oxidation states are 0.
         """
-        _, oxidation_states = self._get_oxid_state_guesses(
-            all_oxi_states, max_sites, oxi_states_override, target_charge
-        )
+        _, oxidation_states = self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)
 
         # Special case: No charged compound is possible
         if not oxidation_states:
@@ -863,21 +822,19 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return Composition(collections.Counter(species))
 
     def remove_charges(self) -> Composition:
-        """
-        Removes the charges from any species in a Composition object.
+        """Returns a new Composition with charges from each Species removed.
 
         Returns:
             Composition object without charge decoration, for example
             {"Fe3+": 2.0, "O2-":3.0} becomes {"Fe": 2.0, "O":3.0}
         """
-        d: dict[Element, float] = collections.defaultdict(float)
-        for e, a in self.items():
-            d[Element(e.symbol)] += a
-        return Composition(d)
+        dct: dict[Element, float] = collections.defaultdict(float)
+        for specie, amt in self.items():
+            dct[Element(specie.symbol)] += amt
+        return Composition(dct)
 
-    def _get_oxid_state_guesses(self, all_oxi_states, max_sites, oxi_states_override, target_charge):
-        """
-        Utility operation for guessing oxidation states.
+    def _get_oxi_state_guesses(self, all_oxi_states, max_sites, oxi_states_override, target_charge):
+        """Utility operation for guessing oxidation states.
 
         See `oxi_state_guesses` for full details. This operation does the
         calculation of the most likely oxidation states
@@ -901,13 +858,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 formula is greater than abs(max_sites).
 
         Returns:
-            A list of dicts - each dict reports an element symbol and average
-                oxidation state across all sites in that composition. If the
-                composition is not charge balanced, an empty list is returned.
-            A list of dicts - each dict maps the element symbol to a list of
+            list[dict]: Each dict maps the element symbol to a list of
                 oxidation states for each site of that element. For example, Fe3O4 could
-                return a list of [2,2,2,3,3,3] for the oxidation states of If the composition
-                is
+                return a list of [2,2,2,3,3,3] for the oxidation states of the 6 Fe sites.
+                If the composition is not charge balanced, an empty list is returned.
         """
         comp = self.copy()
         # reduce Composition if necessary
@@ -928,8 +882,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # Load prior probabilities of oxidation states, used to rank solutions
         if not Composition.oxi_prob:
             module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-            all_data = loadfn(os.path.join(module_dir, "..", "analysis", "icsd_bv.yaml"))
-            Composition.oxi_prob = {Species.from_string(sp): data for sp, data in all_data["occurrence"].items()}
+            all_data = loadfn(f"{module_dir}/../analysis/icsd_bv.yaml")
+            Composition.oxi_prob = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
         oxi_states_override = oxi_states_override or {}
         # assert: Composition only has integer amounts
         if not all(amt == int(amt) for amt in comp.values()):
@@ -1011,10 +965,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def ranked_compositions_from_indeterminate_formula(
         fuzzy_formula: str, lock_if_strict: bool = True
     ) -> list[Composition]:
-        """
-        Takes in a formula where capitalization might not be correctly entered,
+        """Takes in a formula where capitalization might not be correctly entered,
         and suggests a ranked list of potential Composition matches.
-        Author: Anubhav Jain
+        Author: Anubhav Jain.
 
         Args:
             fuzzy_formula (str): A formula string, such as "co2o3" or "MN",
@@ -1051,12 +1004,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         fuzzy_formula: str,
         m_dict: dict[str, float] | None = None,
         m_points: int = 0,
-        factor: int | float = 1,
+        factor: float = 1,
     ) -> Generator[tuple[Composition, int], None, None]:
-        """
-        A recursive helper method for formula parsing that helps in
+        """A recursive helper method for formula parsing that helps in
         interpreting and ranking indeterminate formulas.
-        Author: Anubhav Jain
+        Author: Anubhav Jain.
 
         Args:
             fuzzy_formula (str): A formula string, such as "co2o3" or "MN",
@@ -1075,10 +1027,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         m_dict = m_dict or {}
 
         def _parse_chomp_and_rank(m, f, m_dict, m_points):
-            """
-            A helper method for formula parsing that helps in interpreting and
+            """A helper method for formula parsing that helps in interpreting and
             ranking indeterminate formulas
-            Author: Anubhav Jain
+            Author: Anubhav Jain.
 
             Args:
                 m: A regex match, with the first group being the element and
@@ -1190,8 +1141,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
 
 def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
-    """
-    Helper method to reduce a sym_amt dict to a reduced formula and factor.
+    """Helper method to reduce a sym_amt dict to a reduced formula and factor.
 
     Args:
         sym_amt (dict): {symbol: amount}.
@@ -1240,8 +1190,7 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
 
 
 class ChemicalPotential(dict, MSONable):
-    """
-    Class to represent set of chemical potentials. Can be: multiplied/divided by a Number
+    """Class to represent set of chemical potentials. Can be: multiplied/divided by a Number
     multiplied by a Composition (returns an energy) added/subtracted with other ChemicalPotentials.
     """
 
@@ -1249,7 +1198,7 @@ class ChemicalPotential(dict, MSONable):
         """
         Args:
             *args: any valid dict init arguments
-            **kwargs: any valid dict init arguments
+            **kwargs: any valid dict init arguments.
         """
         dct = dict(*args, **kwargs)
         super().__init__((get_el_sp(k), v) for k, v in dct.items())
@@ -1283,8 +1232,7 @@ class ChemicalPotential(dict, MSONable):
         return NotImplemented
 
     def get_energy(self, composition: Composition, strict: bool = True) -> float:
-        """
-        Calculates the energy of a composition.
+        """Calculates the energy of a composition.
 
         Args:
             composition (Composition): input composition
@@ -1300,10 +1248,4 @@ class ChemicalPotential(dict, MSONable):
 
 
 class CompositionError(Exception):
-    """Exception class for composition errors"""
-
-
-if __name__ == "__main__":
-    import doctest
-
-    doctest.testmod()
+    """Exception class for composition errors."""

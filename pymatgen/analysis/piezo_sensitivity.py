@@ -1,6 +1,4 @@
-"""
-Piezo sensitivity analysis module.
-"""
+"""Piezo sensitivity analysis module."""
 
 from __future__ import annotations
 
@@ -11,7 +9,7 @@ import numpy as np
 from monty.dev import requires
 
 from pymatgen.core.tensors import Tensor
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 try:
     from phonopy import Phonopy
@@ -33,9 +31,7 @@ __date__ = "Feb, 2019"
 
 
 class BornEffectiveCharge:
-    """
-    This class describes the Nx3x3 born effective charge tensor
-    """
+    """This class describes the Nx3x3 born effective charge tensor."""
 
     def __init__(self, structure: Structure, bec, pointops, tol: float = 1e-3):
         """
@@ -60,7 +56,7 @@ class BornEffectiveCharge:
         Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1, site index 2, [Symmops mapping from site
-        index 1 to site index 2]]
+        index 1 to site index 2]].
 
 
         Args:
@@ -75,10 +71,8 @@ class BornEffectiveCharge:
         """
         bec = self.bec
         struct = self.structure
-        ops = sga(struct).get_symmetry_operations(cartesian=True)
-        uniq_point_ops = []
-        for op in ops:
-            uniq_point_ops.append(op)
+        ops = SpacegroupAnalyzer(struct).get_symmetry_operations(cartesian=True)
+        uniq_point_ops = list(ops)
 
         for ops in self.pointops:
             for op in ops:
@@ -119,7 +113,7 @@ class BornEffectiveCharge:
     def get_rand_BEC(self, max_charge=1):
         """
         Generate a random born effective charge tensor which obeys a structure's
-        symmetry and the acoustic sum rule
+        symmetry and the acoustic sum rule.
 
         Args:
             max_charge (float): maximum born effective charge value
@@ -198,7 +192,7 @@ class InternalStrainTensor:
         Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1, site index 2, [Symmops mapping from site
-        index 1 to site index 2]]
+        index 1 to site index 2]].
 
 
         Args:
@@ -210,21 +204,19 @@ class InternalStrainTensor:
             the indexes of those sites.
         """
         struct = self.structure
-        ops = sga(struct).get_symmetry_operations(cartesian=True)
-        uniquepointops = []
-        for op in ops:
-            uniquepointops.append(op)
+        ops = SpacegroupAnalyzer(struct).get_symmetry_operations(cartesian=True)
+        uniq_point_ops = list(ops)
 
         for ops in self.pointops:
             for op in ops:
-                if op not in uniquepointops:
-                    uniquepointops.append(op)
+                if op not in uniq_point_ops:
+                    uniq_point_ops.append(op)
 
         IST_operations = []
         for atom in range(len(self.ist)):  # pylint: disable=C0200
             IST_operations.append([])
             for j in range(0, atom):
-                for op in uniquepointops:
+                for op in uniq_point_ops:
                     new = op.transform_tensor(self.ist[j])
 
                     # Check the matrix it references
@@ -236,7 +228,7 @@ class InternalStrainTensor:
     def get_rand_IST(self, max_force=1):
         """
         Generate a random internal strain tensor which obeys a structure's
-        symmetry and the acoustic sum rule
+        symmetry and the acoustic sum rule.
 
         Args:
             max_force(float): maximum born effective charge value
@@ -291,7 +283,7 @@ class ForceConstantMatrix:
         Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1a, site index 1b, site index 2a, site index 2b,
-        [Symmops mapping from site index 1a, 1b to site index 2a, 2b]]
+        [Symmops mapping from site index 1a, 1b to site index 2a, 2b]].
 
 
         Args:
@@ -305,40 +297,38 @@ class ForceConstantMatrix:
             the indexes of those sites.
         """
         struct = self.structure
-        ops = sga(struct).get_symmetry_operations(cartesian=True)
-        uniquepointops = []
-        for op in ops:
-            uniquepointops.append(op)
+        ops = SpacegroupAnalyzer(struct).get_symmetry_operations(cartesian=True)
+        uniq_point_ops = list(ops)
 
         for ops in self.pointops:
             for op in ops:
-                if op not in uniquepointops:
-                    uniquepointops.append(op)
+                if op not in uniq_point_ops:
+                    uniq_point_ops.append(op)
 
         passed = []
         relations = []
         for atom1 in range(len(self.fcm)):  # pylint: disable=C0200
             for atom2 in range(atom1, len(self.fcm)):
                 unique = 1
-                eig1, vecs1 = np.linalg.eig(self.fcm[atom1][atom2])
+                eig1, _vecs1 = np.linalg.eig(self.fcm[atom1][atom2])
                 index = np.argsort(eig1)
-                neweig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
+                new_eig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
 
                 for p in passed:
-                    if np.allclose(neweig, p[2], atol=eigtol):
+                    if np.allclose(new_eig, p[2], atol=eigtol):
                         relations.append([atom1, atom2, p[0], p[1]])
                         unique = 0
                         break
                 if unique == 1:
                     relations.append([atom1, atom2, atom2, atom1])
-                    passed.append([atom1, atom2, np.real(neweig)])
+                    passed.append([atom1, atom2, np.real(new_eig)])
         FCM_operations = []
         for entry, r in enumerate(relations):
             FCM_operations.append(r)
             FCM_operations[entry].append([])
 
             good = 0
-            for op in uniquepointops:
+            for op in uniq_point_ops:
                 new = op.transform_tensor(self.fcm[r[2]][r[3]])
 
                 if np.allclose(new, self.fcm[r[0]][r[1]], atol=opstol):
@@ -351,7 +341,7 @@ class ForceConstantMatrix:
             if good == 0:
                 FCM_operations[entry] = [r[0], r[1], r[3], r[2]]
                 FCM_operations[entry].append([])
-                for op in uniquepointops:
+                for op in uniq_point_ops:
                     new = op.transform_tensor(self.fcm[r[2]][r[3]])
                     if np.allclose(
                         new.T,
@@ -365,7 +355,7 @@ class ForceConstantMatrix:
 
     def get_unstable_FCM(self, max_force=1):
         """
-        Generate an unsymmeterized force constant matrix
+        Generate an unsymmeterized force constant matrix.
 
         Args:
             max_charge (float): maximum born effective charge value
@@ -424,7 +414,7 @@ class ForceConstantMatrix:
 
     def get_symmetrized_FCM(self, unsymmetrized_fcm, max_force=1):
         """
-        Generate a symmeterized force constant matrix from an unsymmeterized matrix
+        Generate a symmeterized force constant matrix from an unsymmeterized matrix.
 
         Args:
             unsymmetrized_fcm (numpy array): unsymmeterized force constant matrix
@@ -484,7 +474,7 @@ class ForceConstantMatrix:
         """
         Generate a symmeterized force constant matrix that obeys the objects symmetry
         constraints, has no unstable modes and also obeys the acoustic sum rule through an
-        iterative procedure
+        iterative procedure.
 
         Args:
             fcm (numpy array): unsymmeterized force constant matrix
@@ -532,7 +522,7 @@ class ForceConstantMatrix:
     def get_asum_FCM(self, fcm: np.ndarray, numiter: int = 15):
         """
         Generate a symmeterized force constant matrix that obeys the objects symmetry
-        constraints and obeys the acoustic sum rule through an iterative procedure
+        constraints and obeys the acoustic sum rule through an iterative procedure.
 
         Args:
             fcm (numpy array): 3Nx3N unsymmeterized force constant matrix
@@ -544,21 +534,22 @@ class ForceConstantMatrix:
         """
         # set max force in reciprocal space
         operations = self.FCM_operations
-        assert operations is not None, "No symmetry operations found"
+        if operations is None:
+            raise RuntimeError("No symmetry operations found. Run get_FCM_operations first.")
 
-        numsites = len(self.structure)
+        n_sites = len(self.structure)
 
-        D = np.ones([numsites * 3, numsites * 3])
+        D = np.ones([n_sites * 3, n_sites * 3])
         for _ in range(numiter):
             X = np.real(fcm)
 
             # symmetry operations
             pastrow = 0
             total = np.zeros([3, 3])
-            for col in range(numsites):
+            for col in range(n_sites):
                 total = total + X[0:3, col * 3 : col * 3 + 3]
 
-            total = total / (numsites)
+            total = total / (n_sites)
             for op in operations:
                 same = 0
                 transpose = 0
@@ -584,15 +575,15 @@ class ForceConstantMatrix:
                     ].T
                     continue
                 # Get the difference in the sum up to this point
-                currrow = op[0]
-                if currrow != pastrow:
+                curr_row = op[0]
+                if curr_row != pastrow:
                     total = np.zeros([3, 3])
-                    for col in range(numsites):
-                        total = total + X[currrow * 3 : currrow * 3 + 3, col * 3 : col * 3 + 3]
-                    for col in range(currrow):
-                        total = total - D[currrow * 3 : currrow * 3 + 3, col * 3 : col * 3 + 3]
-                    total = total / (numsites - currrow)
-                pastrow = currrow
+                    for col in range(n_sites):
+                        total = total + X[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
+                    for col in range(curr_row):
+                        total = total - D[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
+                    total = total / (n_sites - curr_row)
+                pastrow = curr_row
 
                 # Apply the point symmetry operations of the site
                 temp_tensor = Tensor(total)
@@ -622,7 +613,7 @@ class ForceConstantMatrix:
         """
         Generate a symmeterized force constant matrix from an unsymmeterized matrix
         that has no unstable modes and also obeys the acoustic sum rule through an
-        iterative procedure
+        iterative procedure.
 
         Args:
             force (float): maximum force constant
@@ -662,15 +653,13 @@ class ForceConstantMatrix:
         converter.set_dynamical_matrices(dynmat=[dyn])
 
         converter.run()
-        fc = converter.get_force_constants()
-
-        return fc
+        return converter.get_force_constants()
 
 
 def get_piezo(BEC, IST, FCM, rcond=0.0001):
     """
     Generate a random piezoelectric tensor based on a structure and corresponding
-    symmetry
+    symmetry.
 
     Args:
         BEC (numpy array): Nx3x3 array representing the born effective charge tensor
@@ -681,8 +670,8 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     Return:
         3x3x3 calculated Piezo tensor
     """
-    numsites = len(BEC)
-    temp_fcm = np.reshape(np.swapaxes(FCM, 1, 2), (numsites * 3, numsites * 3))
+    n_sites = len(BEC)
+    temp_fcm = np.reshape(np.swapaxes(FCM, 1, 2), (n_sites * 3, n_sites * 3))
 
     eigs, vecs = np.linalg.eig(temp_fcm)
     K = np.linalg.pinv(
@@ -690,7 +679,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
         rcond=np.abs(eigs[np.argsort(np.abs(eigs))[2]]) / np.abs(eigs[np.argsort(np.abs(eigs))[-1]]) + rcond,
     )
 
-    K = np.reshape(K, (numsites, 3, numsites, 3)).swapaxes(1, 2)
+    K = np.reshape(K, (n_sites, 3, n_sites, 3)).swapaxes(1, 2)
     return np.einsum("ikl,ijlm,jmno->kno", BEC, K, IST) * 16.0216559424
 
 
@@ -698,7 +687,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
 def rand_piezo(struct, pointops, sharedops, BEC, IST, FCM, anumiter=10):
     """
     Generate a random piezoelectric tensor based on a structure and corresponding
-    symmetry
+    symmetry.
 
     Args:
         struct (pymatgen structure): structure whose symmetry operations the piezo tensor must obey

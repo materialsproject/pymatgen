@@ -1,5 +1,4 @@
-"""
-This module provides classes to define a simulation trajectory, which could come from
+"""This module provides classes to define a simulation trajectory, which could come from
 either relaxation or molecular dynamics.
 """
 
@@ -28,8 +27,7 @@ SitePropsType = Union[List[Dict[Any, Sequence[Any]]], Dict[Any, Sequence[Any]]]
 
 
 class Trajectory(MSONable):
-    """
-    Trajectory of a geometry optimization or molecular dynamics simulation.
+    """Trajectory of a geometry optimization or molecular dynamics simulation.
 
     Provides basic functions such as slicing trajectory, combining trajectories, and
     obtaining displacements.
@@ -39,19 +37,18 @@ class Trajectory(MSONable):
         self,
         species: list[str | Element | Species | DummySpecies | Composition],
         coords: list[list[Vector3D]] | np.ndarray | list[np.ndarray],
-        charge: int | float | None = None,
-        spin_multiplicity: int | float | None = None,
+        charge: float | None = None,
+        spin_multiplicity: float | None = None,
         lattice: Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray | None = None,
         *,
         site_properties: SitePropsType | None = None,
         frame_properties: list[dict] | None = None,
         constant_lattice: bool | None = True,
-        time_step: int | float | None = None,
+        time_step: float | None = None,
         coords_are_displacement: bool = False,
         base_positions: list[list[Vector3D]] | np.ndarray | None = None,
     ):
-        """
-        In below, `N` denotes the number of sites in the structure, and `M` denotes the
+        """In below, `N` denotes the number of sites in the structure, and `M` denotes the
         number of frames in the trajectory.
 
         Args:
@@ -105,10 +102,7 @@ class Trajectory(MSONable):
                 `coords_are_displacement=True`. Defaults to the first index of
                 `coords` when `coords_are_displacement=False`.
         """
-        self.charge = None
-        self.spin_multiplicity = None
-        self.lattice = None
-        self.constant_lattice = None
+        self.charge = self.spin_multiplicity = self.lattice = self.constant_lattice = None
 
         # First, sanity check that the necessary inputs have been provided
         if lattice is None:
@@ -160,8 +154,7 @@ class Trajectory(MSONable):
         self.frame_properties = frame_properties
 
     def get_structure(self, idx: int) -> Structure:
-        """
-        Get structure at specified index.
+        """Get structure at specified index.
 
         Args:
             idx: Index of structure.
@@ -176,8 +169,7 @@ class Trajectory(MSONable):
         return struct
 
     def get_molecule(self, idx: int) -> Molecule:
-        """
-        Get molecule at specified index.
+        """Get molecule at specified index.
 
         Args:
             idx: Index of molecule.
@@ -192,8 +184,7 @@ class Trajectory(MSONable):
         return mol
 
     def to_positions(self) -> None:
-        """
-        Convert displacements between consecutive frames into positions.
+        """Convert displacements between consecutive frames into positions.
 
         `base_positions` and `coords` should both be in fractional coords or
         absolute coords.
@@ -208,8 +199,7 @@ class Trajectory(MSONable):
         self.coords_are_displacement = False
 
     def to_displacements(self) -> None:
-        """
-        Converts positions of trajectory into displacements between consecutive frames.
+        """Converts positions of trajectory into displacements between consecutive frames.
 
         `base_positions` and `coords` should both be in fractional coords. Does
         not work for absolute coords because the atoms are to be wrapped into the
@@ -236,8 +226,7 @@ class Trajectory(MSONable):
         self.coords_are_displacement = True
 
     def extend(self, trajectory: Trajectory) -> None:
-        """
-        Append a trajectory to the current one.
+        """Append a trajectory to the current one.
 
         The lattice, coords, and all other properties are combined.
 
@@ -296,21 +285,16 @@ class Trajectory(MSONable):
         self.coords = np.concatenate((self.coords, trajectory.coords))
 
     def __iter__(self) -> Iterator[Structure | Molecule]:
-        """
-        Iterator of the trajectory, yielding a pymatgen Structure or Molecule for each frame.
-        """
+        """Iterator of the trajectory, yielding a pymatgen Structure or Molecule for each frame."""
         for idx in range(len(self)):
             yield self[idx]
 
     def __len__(self) -> int:
-        """
-        Number of frames in the trajectory.
-        """
+        """Number of frames in the trajectory."""
         return len(self.coords)
 
     def __getitem__(self, frames: int | slice | list[int]) -> Molecule | Structure | Trajectory:
-        """
-        Get a subset of the trajectory.
+        """Get a subset of the trajectory.
 
         The output depends on the type of the input `frames`. If an int is given, return
         a pymatgen Molecule or Structure at the specified frame. If a list or a slice, return a new
@@ -408,8 +392,7 @@ class Trajectory(MSONable):
         system: str | None = None,
         significant_figures: int = 6,
     ):
-        """
-        Writes to Xdatcar file.
+        """Writes to Xdatcar file.
 
         The supported kwargs are the same as those for the
         Xdatcar_from_structs.get_string method and are passed through directly.
@@ -483,8 +466,7 @@ class Trajectory(MSONable):
 
     @classmethod
     def from_structures(cls, structures: list[Structure], constant_lattice: bool = True, **kwargs) -> Trajectory:
-        """
-        Create trajectory from a list of structures.
+        """Create trajectory from a list of structures.
 
         Note: Assumes no atoms removed during simulation.
 
@@ -517,8 +499,7 @@ class Trajectory(MSONable):
 
     @classmethod
     def from_molecules(cls, molecules: list[Molecule], **kwargs) -> Trajectory:
-        """
-        Create trajectory from a list of molecules.
+        """Create trajectory from a list of molecules.
 
         Note: Assumes no atoms removed during simulation.
 
@@ -544,8 +525,7 @@ class Trajectory(MSONable):
 
     @classmethod
     def from_file(cls, filename: str | Path, constant_lattice: bool = True, **kwargs) -> Trajectory:
-        """
-        Create trajectory from XDATCAR or vasprun.xml file.
+        """Create trajectory from XDATCAR or vasprun.xml file.
 
         Args:
             filename: Path to the file to read from.
@@ -574,9 +554,7 @@ class Trajectory(MSONable):
 
     @staticmethod
     def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
-        """
-        Helper function to combine trajectory lattice.
-        """
+        """Helper function to combine trajectory lattice."""
         if lat1.ndim == lat2.ndim == 2:
             constant_lat = True
             lat = lat1
@@ -594,8 +572,7 @@ class Trajectory(MSONable):
     def _combine_site_props(
         prop1: SitePropsType | None, prop2: SitePropsType | None, len1: int, len2: int
     ) -> SitePropsType | None:
-        """
-        Combine site properties.
+        """Combine site properties.
 
         Either one of prop1 or prop2 can be None, dict, or a list of dict. All
         possibilities of combining them are considered.
@@ -630,9 +607,7 @@ class Trajectory(MSONable):
 
     @staticmethod
     def _combine_frame_props(prop1: list[dict] | None, prop2: list[dict] | None, len1: int, len2: int) -> list | None:
-        """
-        Combine frame properties.
-        """
+        """Combine frame properties."""
         if prop1 is None and prop2 is None:
             return None
         if prop1 is None:
@@ -642,8 +617,7 @@ class Trajectory(MSONable):
         return list(prop1) + list(prop2)  # type:ignore
 
     def _check_site_props(self, site_props: SitePropsType | None) -> None:
-        """
-        Check data shape of site properties.
+        """Check data shape of site properties.
 
         Args:
             site_props (dict | list[dict] | None): Returns immediately if None.
@@ -671,9 +645,7 @@ class Trajectory(MSONable):
                 )
 
     def _check_frame_props(self, frame_props: list[dict] | None) -> None:
-        """
-        Check data shape of site properties.
-        """
+        """Check data shape of site properties."""
         if frame_props is None:
             return
 
@@ -682,9 +654,7 @@ class Trajectory(MSONable):
         ), f"Size of the frame properties {len(frame_props)} does not equal to the number of frames {len(self)}."
 
     def _get_site_props(self, frames: int | list[int]) -> SitePropsType | None:
-        """
-        Slice site properties.
-        """
+        """Slice site properties."""
         if self.site_properties is None:
             return None
         if isinstance(self.site_properties, dict):

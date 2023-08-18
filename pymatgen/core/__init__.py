@@ -1,5 +1,5 @@
 # pylint: disable=C0414,W0718,C0301
-
+# ruff: noqa: PLC0414
 """This package contains core modules and classes for representing structures and operations on them."""
 
 from __future__ import annotations
@@ -32,11 +32,14 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong, Matthew Horton, Janosh Riebesell"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2023.5.10"
+__version__ = "2023.7.17"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".config", ".pmgrc.yaml")
 OLD_SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+PKG_DIR = os.path.dirname(MODULE_DIR)
+ROOT = os.path.dirname(PKG_DIR)
 
 
 def _load_pmg_settings() -> dict[str, Any]:

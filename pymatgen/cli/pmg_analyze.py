@@ -1,6 +1,4 @@
-"""
-Implementation for `pmg analyze` CLI.
-"""
+"""Implementation for `pmg analyze` CLI."""
 
 from __future__ import annotations
 
@@ -26,8 +24,7 @@ SAVE_FILE = "vasp_data.gz"
 
 
 def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
-    """
-    Get energies of all vaspruns in directory (nested).
+    """Get energies of all vaspruns in directory (nested).
 
     Args:
         rootdir (str): Root directory.
@@ -95,8 +92,7 @@ def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
 
 
 def get_magnetizations(dir: str, ion_list: list[int]):
-    """
-    Get magnetization info from OUTCARs.
+    """Get magnetization info from OUTCARs.
 
     Args:
         dir (str): Directory name
@@ -139,8 +135,7 @@ def get_magnetizations(dir: str, ion_list: list[int]):
 
 
 def analyze(args):
-    """
-    Master function controlling which analysis to call.
+    """Master function controlling which analysis to call.
 
     Args:
         args (dict): args from argparse.

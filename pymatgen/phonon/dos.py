@@ -1,6 +1,4 @@
-"""
-This module defines classes to represent the phonon density of states, etc.
-"""
+"""This module defines classes to represent the phonon density of states, etc."""
 
 from __future__ import annotations
 
@@ -17,8 +15,7 @@ THZ_TO_J = const.value("hertz-joule relationship") * const.tera
 
 
 def coth(x):
-    """
-    Coth function.
+    """Coth function.
 
     Args:
         x (): value
@@ -30,8 +27,7 @@ def coth(x):
 
 
 class PhononDos(MSONable):
-    """
-    Basic DOS object. All other DOS objects are extended versions of this
+    """Basic DOS object. All other DOS objects are extended versions of this
     object.
     """
 
@@ -45,8 +41,7 @@ class PhononDos(MSONable):
         self.densities = np.array(densities)
 
     def get_smeared_densities(self, sigma):
-        """
-        Returns the densities, but with a Gaussian smearing of
+        """Returns the densities, but with a Gaussian smearing of
         std dev sigma applied.
 
         Args:
@@ -60,12 +55,10 @@ class PhononDos(MSONable):
         diff = [self.frequencies[i + 1] - self.frequencies[i] for i in range(len(self.frequencies) - 1)]
         avgdiff = sum(diff) / len(diff)
 
-        smeared_dens = gaussian_filter1d(self.densities, sigma / avgdiff)
-        return smeared_dens
+        return gaussian_filter1d(self.densities, sigma / avgdiff)
 
     def __add__(self, other):
-        """
-        Adds two DOS together. Checks that frequency scales are the same.
+        """Adds two DOS together. Checks that frequency scales are the same.
         Otherwise, a ValueError is thrown.
 
         Args:
@@ -80,8 +73,7 @@ class PhononDos(MSONable):
         return PhononDos(self.frequencies, densities)
 
     def __radd__(self, other):
-        """
-        Reflected addition of two DOS objects
+        """Reflected addition of two DOS objects.
 
         Args:
             other: Another DOS object.
@@ -92,8 +84,7 @@ class PhononDos(MSONable):
         return self.__add__(other)
 
     def get_interpolated_value(self, frequency):
-        """
-        Returns interpolated density for a particular frequency.
+        """Returns interpolated density for a particular frequency.
 
         Args:
             frequency: frequency to return the density for.
@@ -101,9 +92,7 @@ class PhononDos(MSONable):
         return get_linear_interpolated_value(self.frequencies, self.densities, frequency)
 
     def __str__(self):
-        """
-        Returns a string which can be easily plotted (using gnuplot).
-        """
+        """Returns a string which can be easily plotted (using gnuplot)."""
         stringarray = [f"#{'Frequency':30s} {'Density':30s}"]
         for i, frequency in enumerate(self.frequencies):
             stringarray.append(f"{frequency:.5f} {self.densities[i]:.5f}")
@@ -111,15 +100,11 @@ class PhononDos(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        Returns PhononDos object from dict representation of PhononDos.
-        """
+        """Returns PhononDos object from dict representation of PhononDos."""
         return cls(d["frequencies"], d["densities"])
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of PhononDos.
-        """
+        """JSON-serializable dict representation of PhononDos."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -129,9 +114,7 @@ class PhononDos(MSONable):
 
     @lazy_property
     def ind_zero_freq(self):
-        """
-        Index of the first point for which the frequencies are equal or greater than zero.
-        """
+        """Index of the first point for which the frequencies are equal or greater than zero."""
         ind = np.searchsorted(self.frequencies, 0)
         if ind >= len(self.frequencies):
             raise ValueError("No positive frequencies found")
@@ -139,26 +122,21 @@ class PhononDos(MSONable):
 
     @lazy_property
     def _positive_frequencies(self):
-        """
-        Numpy array containing the list of positive frequencies
-        """
+        """Numpy array containing the list of positive frequencies."""
         return self.frequencies[self.ind_zero_freq :]
 
     @lazy_property
     def _positive_densities(self):
-        """
-        Numpy array containing the list of densities corresponding to positive frequencies
-        """
+        """Numpy array containing the list of densities corresponding to positive frequencies."""
         return self.densities[self.ind_zero_freq :]
 
     def cv(self, t, structure=None):
-        """
-        Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.
+        """Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
-        the division is performed internally and the result is in J/(K*mol)
+        the division is performed internally and the result is in J/(K*mol).
 
         Args:
             t: a temperature in K
@@ -187,13 +165,12 @@ class PhononDos(MSONable):
         return cv
 
     def entropy(self, t, structure=None):
-        """
-        Vibrational entropy at temperature T obtained from the integration of the DOS.
+        """Vibrational entropy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
-        the division is performed internally and the result is in J/(K*mol)
+        the division is performed internally and the result is in J/(K*mol).
 
         Args:
             t: a temperature in K
@@ -220,13 +197,12 @@ class PhononDos(MSONable):
         return s
 
     def internal_energy(self, t, structure=None):
-        """
-        Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.
+        """Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
-        the division is performed internally and the result is in J/mol
+        the division is performed internally and the result is in J/mol.
 
         Args:
             t: a temperature in K
@@ -253,13 +229,12 @@ class PhononDos(MSONable):
         return e
 
     def helmholtz_free_energy(self, t, structure=None):
-        """
-        Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.
+        """Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
-        the division is performed internally and the result is in J/mol
+        the division is performed internally and the result is in J/mol.
 
         Args:
             t: a temperature in K
@@ -286,12 +261,11 @@ class PhononDos(MSONable):
         return f
 
     def zero_point_energy(self, structure=None):
-        """
-        Zero point energy of the system. Only positive frequencies will be used.
+        """Zero point energy of the system. Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
-        the division is performed internally and the result is in J/mol
+        the division is performed internally and the result is in J/mol.
 
         Args:
             structure: the structure of the system. If not None it will be used to determine the number of
@@ -313,8 +287,7 @@ class PhononDos(MSONable):
 
 
 class CompletePhononDos(PhononDos):
-    """
-    This wrapper class defines a total dos, and also provides a list of PDos.
+    """This wrapper class defines a total dos, and also provides a list of PDos.
 
     .. attribute:: pdos
 
@@ -326,15 +299,14 @@ class CompletePhononDos(PhononDos):
         Args:
             structure: Structure associated with this particular DOS.
             total_dos: total Dos for structure
-            pdoss: The pdoss are supplied as an {Site: Densities}
+            pdoss: The pdoss are supplied as an {Site: Densities}.
         """
         super().__init__(frequencies=total_dos.frequencies, densities=total_dos.densities)
         self.pdos = {site: np.array(dens) for site, dens in pdoss.items()}
         self.structure = structure
 
     def get_site_dos(self, site):
-        """
-        Get the Dos for a site.
+        """Get the Dos for a site.
 
         Args:
             site: Site in Structure associated with CompletePhononDos.
@@ -345,8 +317,7 @@ class CompletePhononDos(PhononDos):
         return PhononDos(self.frequencies, self.pdos[site])
 
     def get_element_dos(self):
-        """
-        Get element projected Dos.
+        """Get element projected Dos.
 
         Returns:
             dict of {Element: Dos}
@@ -362,9 +333,7 @@ class CompletePhononDos(PhononDos):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        Returns CompleteDos object from dict representation.
-        """
+        """Returns CompleteDos object from dict representation."""
         tdos = PhononDos.from_dict(d)
         struct = Structure.from_dict(d["structure"])
         pdoss = {}
@@ -374,9 +343,7 @@ class CompletePhononDos(PhononDos):
         return cls(struct, tdos, pdoss)
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of CompletePhononDos.
-        """
+        """JSON-serializable dict representation of CompletePhononDos."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -391,4 +358,4 @@ class CompletePhononDos(PhononDos):
         return d
 
     def __str__(self):
-        return "Complete phonon DOS for " + str(self.structure)
+        return f"Complete phonon DOS for {self.structure}"

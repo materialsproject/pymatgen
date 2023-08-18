@@ -1,5 +1,4 @@
-"""
-This module implements an interface to the critic2 Bader analysis code.
+"""This module implements an interface to the critic2 Bader analysis code.
 
 For most Bader analysis purposes, users are referred to
 pymatgen.command_line.bader_caller instead, this module is for advanced
@@ -26,7 +25,7 @@ appropriate (e.g. the two nucleus critical points linked to
  a bond critical point)
 * critic2 can do many other things besides
 
-If you use this module, please cite the following:
+If you use this module, please cite:
 
 A. Otero-de-la-Roza, E. R. Johnson and V. Luaña,
 Comput. Phys. Communications 185, 1007-1018 (2014)
@@ -59,6 +58,7 @@ from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -66,11 +66,18 @@ if TYPE_CHECKING:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+due.cite(
+    Doi("10.1016/j.cpc.2008.07.018"),
+    description="Critic: a new program for the topological analysis of solid-state electron densities",
+)
+due.cite(
+    Doi("10.1016/j.cpc.2013.10.026"),
+    description="Critic2: A program for real-space analysis of quantum chemical interactions in solids",
+)
+
 
 class Critic2Caller:
-    """
-    Class to call critic2 and store standard output for further processing.
-    """
+    """Class to call critic2 and store standard output for further processing."""
 
     @requires(
         which("critic2"),
@@ -78,8 +85,7 @@ class Critic2Caller:
         "Please follow the instructions at https://github.com/aoterodelaroza/critic2.",
     )
     def __init__(self, input_script):
-        """
-        Run Critic2 on a given input script
+        """Run Critic2 on a given input script.
 
         :param input_script: string defining the critic2 input
         """
@@ -122,8 +128,7 @@ class Critic2Caller:
         write_json=True,
         zpsp=None,
     ):
-        """
-        Run Critic2 in automatic mode on a supplied structure, charge
+        """Run Critic2 in automatic mode on a supplied structure, charge
         density (chgcar) and reference charge density (chgcar_ref).
 
         The reason for a separate reference field is that in
@@ -244,9 +249,8 @@ class Critic2Caller:
 
     @classmethod
     def from_path(cls, path, suffix="", zpsp=None):
-        """
-        Convenience method to run critic2 analysis on a folder containing
-        typical VASP output files.
+        """Convenience method to run critic2 analysis on a folder with typical VASP output files.
+
         This method will:
 
         1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped
@@ -304,9 +308,7 @@ class Critic2Caller:
 
 
 class CriticalPointType(Enum):
-    """
-    Enum type for the different varieties of critical point.
-    """
+    """Enum type for the different varieties of critical point."""
 
     nucleus = "nucleus"  # (3, -3)
     bond = "bond"  # (3, -1)
@@ -334,14 +336,11 @@ def get_filepath(filename, warning, path, suffix):
         # however, better to use 'suffix' kwarg to avoid this!
         paths.sort(reverse=True)
         warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
-    path = paths[0]
-    return path
+    return paths[0]
 
 
 class CriticalPoint(MSONable):
-    """
-    Access information about a critical point and the field values at that point.
-    """
+    """Access information about a critical point and the field values at that point."""
 
     def __init__(
         self,
@@ -355,8 +354,7 @@ class CriticalPoint(MSONable):
         coords=None,
         field_hessian=None,
     ):
-        """
-        Class to characterise a critical point from a topological
+        """Class to characterise a critical point from a topological
         analysis of electron charge density.
 
         Note this class is usually associated with a Structure, so
@@ -384,9 +382,7 @@ class CriticalPoint(MSONable):
 
     @property
     def type(self):
-        """
-        Returns: Instance of CriticalPointType
-        """
+        """Returns: Instance of CriticalPointType."""
         return CriticalPointType(self._type)
 
     def __str__(self):
@@ -394,19 +390,16 @@ class CriticalPoint(MSONable):
 
     @property
     def laplacian(self):
-        """
-        Returns: The Laplacian of the field at the critical point
-        """
+        """Returns: The Laplacian of the field at the critical point."""
         return np.trace(self.field_hessian)
 
     @property
     def ellipticity(self):
-        """
-        Most meaningful for bond critical points,
+        """Most meaningful for bond critical points,
         can be physically interpreted as e.g. degree
         of pi-bonding in organic molecules. Consult
         literature for more information.
-        Returns: The ellpiticity of the field at the critical point
+        Returns: The ellpiticity of the field at the critical point.
         """
         eig, _ = np.linalg.eig(self.field_hessian)
         eig.sort()
@@ -414,13 +407,10 @@ class CriticalPoint(MSONable):
 
 
 class Critic2Analysis(MSONable):
-    """
-    Class to process the standard output from critic2 into pymatgen-compatible objects.
-    """
+    """Class to process the standard output from critic2 into pymatgen-compatible objects."""
 
     def __init__(self, structure: Structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None):
-        """
-        This class is used to store results from the Critic2Caller.
+        """This class is used to store results from the Critic2Caller.
 
         To explore the bond graph, use the "structure_graph"
         method, which returns a user-friendly StructureGraph
@@ -479,8 +469,7 @@ class Critic2Analysis(MSONable):
         self._remap_indices()
 
     def structure_graph(self, include_critical_points=("bond", "ring", "cage")):
-        """
-        A StructureGraph object describing bonding information
+        """A StructureGraph object describing bonding information
         in the crystal.
 
         Args:
@@ -599,7 +588,7 @@ class Critic2Analysis(MSONable):
     def get_critical_point_for_site(self, n: int):
         """
         Args:
-            n (int): Site index
+            n (int): Site index.
 
         Returns: A CriticalPoint instance
         """
@@ -608,7 +597,7 @@ class Critic2Analysis(MSONable):
     def get_volume_and_charge_for_site(self, n):
         """
         Args:
-            n: Site index n
+            n: Site index n.
 
         Returns: A dict containing "volume" and "charge" keys,
         or None if YT integration not performed
@@ -667,8 +656,7 @@ class Critic2Analysis(MSONable):
                 )
 
     def _remap_indices(self):
-        """
-        Re-maps indices on self.nodes and self.edges such that node indices match
+        """Re-maps indices on self.nodes and self.edges such that node indices match
         that of structure, and then sorts self.nodes by index.
         """
         # Order of nuclei provided by critic2 doesn't
@@ -700,8 +688,7 @@ class Critic2Analysis(MSONable):
 
     @staticmethod
     def _annotate_structure_with_yt(yt, structure: Structure, zpsp):
-        volume_idx = None
-        charge_idx = None
+        volume_idx = charge_idx = None
 
         for prop in yt["integration"]["properties"]:
             if prop["label"] == "Volume":
@@ -861,8 +848,7 @@ class Critic2Analysis(MSONable):
                     )
 
     def _add_node(self, idx, unique_idx, frac_coords):
-        """
-        Add information about a node describing a critical point.
+        """Add information about a node describing a critical point.
 
         :param idx: index
         :param unique_idx: index of unique CriticalPoint,
@@ -873,8 +859,7 @@ class Critic2Analysis(MSONable):
         self.nodes[idx] = {"unique_idx": unique_idx, "frac_coords": frac_coords}
 
     def _add_edge(self, idx, from_idx, from_lvec, to_idx, to_lvec):
-        """
-        Add information about an edge linking two critical points.
+        """Add information about an edge linking two critical points.
 
         This actually describes two edges:
 

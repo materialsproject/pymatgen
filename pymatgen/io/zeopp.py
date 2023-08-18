@@ -27,6 +27,7 @@ from __future__ import annotations
 import os
 import re
 
+import numpy as np
 from monty.dev import requires
 from monty.io import zopen
 from monty.tempfile import ScratchDir
@@ -63,7 +64,7 @@ class ZeoCssr(Cssr):
     def __init__(self, structure: Structure):
         """
         Args:
-            structure: A structure to create ZeoCssr object
+            structure: A structure to create ZeoCssr object.
         """
         super().__init__(structure)
 
@@ -72,7 +73,7 @@ class ZeoCssr(Cssr):
         CSSR.__str__ method is modified to pad 0's to the CSSR site data.
         The padding is to conform with the CSSR format supported Zeo++.
         The oxidation state is stripped from site.specie
-        Also coordinate system is rotated from xyz to zxy
+        Also coordinate system is rotated from xyz to zxy.
         """
         a, b, c = self.structure.lattice.lengths
         alpha, beta, gamma = self.structure.lattice.angles
@@ -90,8 +91,13 @@ class ZeoCssr(Cssr):
 
         return "\n".join(output)
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(string):
+    def from_str(string):
         """
         Reads a string representation to a ZeoCssr object.
 
@@ -140,7 +146,7 @@ class ZeoCssr(Cssr):
             ZeoCssr object.
         """
         with zopen(filename, "r") as f:
-            return ZeoCssr.from_string(f.read())
+            return ZeoCssr.from_str(f.read())
 
 
 class ZeoVoronoiXYZ(XYZ):
@@ -153,12 +159,12 @@ class ZeoVoronoiXYZ(XYZ):
     def __init__(self, mol):
         """
         Args:
-            mol: Input molecule holding the voronoi node information
+            mol: Input molecule holding the voronoi node information.
         """
         super().__init__(mol)
 
     @staticmethod
-    def from_string(contents):
+    def from_str(contents):
         """
         Creates Zeo++ Voronoi XYZ object from a string.
         from_string method of XYZ class is being redefined.
@@ -196,21 +202,15 @@ class ZeoVoronoiXYZ(XYZ):
             XYZ object
         """
         with zopen(filename) as f:
-            return ZeoVoronoiXYZ.from_string(f.read())
+            return ZeoVoronoiXYZ.from_str(f.read())
 
-    def __str__(self):
+    def __str__(self) -> str:
         output = [str(len(self._mols[0])), self._mols[0].composition.formula]
-        fmtstr = f"{{}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}}"
+        prec = self.precision
         for site in self._mols[0]:
-            output.append(
-                fmtstr.format(
-                    site.specie.symbol,
-                    site.z,
-                    site.x,
-                    site.y,
-                    site.properties["voronoi_radius"],
-                )
-            )
+            x, y, z = site.coords
+            symbol, voronoi_radius = site.specie.symbol, site.properties["voronoi_radius"]
+            output.append(f"{symbol} {z:.{prec}f} {x:.{prec}f} {y:.{prec}f} {voronoi_radius:.{prec}f}")
         return "\n".join(output)
 
 
@@ -354,7 +354,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         prop.append(site.properties["voronoi_radius"])
 
     lattice = Lattice.from_parameters(*structure.lattice.parameters)
-    vor_node_struct = Structure(
+    return Structure(
         lattice,
         species,
         coords,
@@ -362,8 +362,6 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         to_unit_cell=True,
         site_properties={"voronoi_radius": prop},
     )
-
-    return vor_node_struct
 
 
 @requires(

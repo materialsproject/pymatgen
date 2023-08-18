@@ -42,7 +42,7 @@ class TemplateInputGen(InputGenerator):
                 text to replaced with the values, e.g. {"TEMPERATURE": 298} will
                 replace the text $TEMPERATURE in the template. See Python's
                 Template.safe_substitute() method documentation for more details.
-            filename: name of the file to be written
+            filename: name of the file to be written.
         """
         self.template = template
         self.variables = variables or {}

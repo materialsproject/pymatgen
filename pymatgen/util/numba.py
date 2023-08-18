@@ -1,5 +1,4 @@
-"""
-This module provides a wrapper for numba such that no functionality
+"""This module provides a wrapper for numba such that no functionality
 is lost if numba is not available. Numba is a just-in-time compiler
 that can significantly accelerate the evaluation of certain functions
 if installed.
@@ -12,13 +11,9 @@ try:
 except ImportError:
 
     def njit(func):
-        """
-        Replacement for numba.njit when numba is not installed that does nothing.
-        """
+        """Replacement for numba.njit when numba is not installed that does nothing."""
         return func
 
     def jit(func):
-        """
-        Replacement for numba.jit when numba is not installed that does nothing.
-        """
+        """Replacement for numba.jit when numba is not installed that does nothing."""
         return func

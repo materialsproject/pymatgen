@@ -1,6 +1,4 @@
-"""
-This module defines an excitation spectrum class.
-"""
+"""This module defines an excitation spectrum class."""
 
 from __future__ import annotations
 
@@ -26,6 +24,6 @@ class ExcitationSpectrum(Spectrum):
         """
         Args:
             x: A sequence of x-ray energies in eV
-            y: A sequence of intensity values
+            y: A sequence of intensity values.
         """
         super().__init__(x, y)
