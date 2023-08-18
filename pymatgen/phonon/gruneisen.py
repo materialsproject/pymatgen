@@ -267,8 +267,9 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         self.gruneisen = gruneisenparameters
 
     def as_dict(self):
-        """Returns:
-        MSONable (dict).
+        """
+        Returns:
+            MSONable (dict).
         """
         dct = {
             "@module": type(self).__module__,

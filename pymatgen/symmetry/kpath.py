@@ -64,35 +64,40 @@ class KPathBase(metaclass=abc.ABCMeta):
 
     @property
     def structure(self):
-        """Returns:
-        The input structure.
+        """
+        Returns:
+            The input structure.
         """
         return self._structure
 
     @property
     def lattice(self):
-        """Returns:
-        The real space lattice.
+        """
+        Returns:
+            The real space lattice.
         """
         return self._latt
 
     @property
     def rec_lattice(self):
-        """Returns:
-        The reciprocal space lattice.
+        """
+        Returns:
+            The reciprocal space lattice.
         """
         return self._rec_lattice
 
     @property
     def kpath(self):
-        """Returns:
-        The symmetry line path in reciprocal space.
+        """
+        Returns:
+            The symmetry line path in reciprocal space.
         """
         return self._kpath
 
     def get_kpoints(self, line_density=20, coords_are_cartesian=True):
-        """Returns:
-        kpoints along the path in Cartesian coordinates
+        """
+        Returns:
+            kpoints along the path in Cartesian coordinates
         together with the critical-point labels.
         """
         list_k_points = []
@@ -277,22 +282,25 @@ class KPathSetyawanCurtarolo(KPathBase):
 
     @property
     def conventional(self):
-        """Returns:
-        The conventional cell structure.
+        """
+        Returns:
+            The conventional cell structure.
         """
         return self._conv
 
     @property
     def prim(self):
-        """Returns:
-        The primitive cell structure.
+        """
+        Returns:
+            The primitive cell structure.
         """
         return self._prim
 
     @property
     def prim_rec(self):
-        """Returns:
-        The primitive reciprocal cell structure.
+        """
+        Returns:
+            The primitive reciprocal cell structure.
         """
         return self._rec_lattice
 
@@ -1085,11 +1093,11 @@ class KPathLatimerMunro(KPathBase):
 
     @property
     def mag_type(self):
-        """Returns:
-        The type of magnetic space group as a string.
-        Current implementation does not distinguish
-        between types 3 and 4, so return value is '3/4'.
-        If has_magmoms is False, returns '0'.
+        """
+        Returns:
+            The type of magnetic space group as a string. Current implementation does not
+            distinguish between types 3 and 4, so return value is '3/4'. If has_magmoms is
+            False, returns '0'.
         """
         return self._mag_type
 

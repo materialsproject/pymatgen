@@ -1632,16 +1632,12 @@ class CubicSupercellTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Returns:
-        None.
-        """
+        """Returns None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns:
-        False.
-        """
+        """Returns False."""
         return False
 
 

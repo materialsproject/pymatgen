@@ -140,46 +140,52 @@ class HighSymmKpath(KPathBase):
 
     @property
     def path_type(self):
-        """Returns:
-        The type of kpath chosen.
+        """
+        Returns:
+            The type of kpath chosen.
         """
         return self._path_type
 
     @property
     def label_index(self):
-        """Returns:
-        The correspondence between numbers and kpoint symbols for the
+        """
+        Returns:
+            The correspondence between numbers and kpoint symbols for the
         combined kpath generated when path_type = 'all'. None otherwise.
         """
         return self._label_index
 
     @property
     def equiv_labels(self):
-        """Returns:
-        The correspondence between the kpoint symbols in the Latimer and
-        Munro convention, Setyawan and Curtarolo, and Hinuma
-        conventions respectively. Only generated when path_type = 'all'.
+        """
+        Returns:
+            The correspondence between the kpoint symbols in the Latimer and
+            Munro convention, Setyawan and Curtarolo, and Hinuma
+            conventions respectively. Only generated when path_type = 'all'.
         """
         return self._equiv_labels
 
     @property
     def path_lengths(self):
-        """Returns:
-        List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
-        conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
-        None otherwise.
+        """
+        Returns:
+            List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
+            conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
+            None otherwise.
         """
         return self._path_lengths
 
     def _get_lm_kpath(self, has_magmoms, magmom_axis, symprec, angle_tolerance, atol):
-        """Returns:
-        Latimer and Munro k-path with labels.
+        """
+        Returns:
+            Latimer and Munro k-path with labels.
         """
         return KPathLatimerMunro(self._structure, has_magmoms, magmom_axis, symprec, angle_tolerance, atol)
 
     def _get_sc_kpath(self, symprec, angle_tolerance, atol):
-        """Returns:
-        Setyawan and Curtarolo k-path with labels.
+        """
+        Returns:
+            Setyawan and Curtarolo k-path with labels.
         """
         kpath = KPathSetyawanCurtarolo(self._structure, symprec, angle_tolerance, atol)
 
@@ -191,8 +197,9 @@ class HighSymmKpath(KPathBase):
         return kpath
 
     def _get_hin_kpath(self, symprec, angle_tolerance, atol, tri):
-        """Returns:
-        Hinuma et al. k-path with labels.
+        """
+        Returns:
+            Hinuma et al. k-path with labels.
         """
         bs = KPathSeek(self._structure, symprec, angle_tolerance, atol, tri)
 
@@ -212,8 +219,9 @@ class HighSymmKpath(KPathBase):
         return bs
 
     def _get_klabels(self, lm_bs, sc_bs, hin_bs, rpg):
-        """Returns:
-        labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen.
+        """
+        Returns:
+            labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen.
             If an exact kpoint match cannot be found, symmetric equivalency will be
             searched for and indicated with an asterisk in the equivalent label.
             If an equivalent label can still not be found, or the point is not in
