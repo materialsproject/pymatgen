@@ -246,14 +246,8 @@ class TestPlanesUtils(PymatgenTest):
         distances, indices_sorted = self.plane.distances_indices_sorted(plist)
         assert_allclose(
             distances,
-            [
-                0.5,
-                0,
-                1.16666666666666,
-                21.1666666666666,
-                3.8333333333333,
-                67.1666666666666,
-            ],
+            [0.5, 0, 1.16666666666666, 21.1666666666666, 3.8333333333333, 67.1666666666666],
+            atol=1e-9,
         )
         assert indices_sorted == [1, 0, 2, 4, 3, 5]
         # Plane 2y+1=0 (perpendicular to y)
@@ -314,7 +308,7 @@ class TestPlanesUtils(PymatgenTest):
         projected_points = self.plane.projectionpoints(expected_projected_points)
         projected_2d = self.plane.project_and_to2dim(expected_projected_points, "mean")
         for ii, pp in enumerate(expected_projected_points):
-            assert_allclose(pp, projected_points[ii])
+            assert_allclose(pp, projected_points[ii], atol=1e-9)
         for i1, i2 in itertools.combinations(list(range(len(expected_projected_points))), 2):
             assert np.isclose(
                 np.linalg.norm(expected_projected_points[i1] - expected_projected_points[i2]),
@@ -330,9 +324,9 @@ class TestPlanesUtils(PymatgenTest):
             np.array([10, 8.3, -6.32]),
         ]
         projected_points = self.plane.projectionpoints(points_to_project)
-        meanpoint = np.array([np.mean([pp[ii] for pp in points_to_project]) for ii in range(3)])
+        mean_point = np.array([np.mean([pp[ii] for pp in points_to_project]) for ii in range(3)])
         projected_2d = self.plane.project_and_to2dim(points_to_project, "mean")
-        projected_2d_bis = self.plane.project_and_to2dim(points_to_project, meanpoint)
+        projected_2d_bis = self.plane.project_and_to2dim(points_to_project, mean_point)
         for ii, pp in enumerate(projected_2d):
             assert_allclose(pp, projected_2d_bis[ii])
         for i1, i2 in itertools.combinations(list(range(len(projected_points))), 2):

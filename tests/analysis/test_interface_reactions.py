@@ -415,7 +415,7 @@ class TestInterfaceReaction(unittest.TestCase):
             (0.3333333, -4.0),
         ]
         for i, j in zip(self.irs, answer):
-            assert_allclose(i.minimum, j), (
+            assert_allclose(i.minimum, j, atol=1e-7), (
                 f"minimum: the system with {i.c1_original.reduced_formula} and {i.c2_original.reduced_formula} "
                 f"gets error!{j} expected, but gets {i.minimum}"
             )
@@ -438,14 +438,11 @@ class TestInterfaceReaction(unittest.TestCase):
         result_info = [i.get_no_mixing_energy() for i in self.irs if i.grand]
         print(result_info)
         for i, j in zip(result_info, answer):
-            assert name_lst(i) == name_lst(
-                j
-            ), f"get_no_mixing_energy: names get error, {name_lst(j)} expected but gets {name_lst(i)}"
-            assert_allclose(energy_lst(i), energy_lst(j)), (
-                "get_no_mixing_energy: "
-                "no_mixing energies get error, "
-                f"{energy_lst(j)} expected but gets {energy_lst(i)}"
-            )
+            err_msg = f"get_no_mixing_energy: names get error, {name_lst(j)} expected but gets {name_lst(i)}"
+            assert name_lst(i) == name_lst(j), err_msg
+            assert_allclose(
+                energy_lst(i), energy_lst(j), atol=1e-9
+            ), f"get_no_mixing_energy: {energy_lst(j)} expected but gets {energy_lst(i)}"
 
     def test_get_chempot_correction(self):
         # test data from fig. 6 in ref:

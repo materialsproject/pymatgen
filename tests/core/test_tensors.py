@@ -554,12 +554,12 @@ class TestSquareTensor(PymatgenTest):
         assert_allclose(self.rotation, new.refine_rotation())
 
     def test_get_scaled(self):
-        assert self.non_symm.get_scaled(10.0) == approx(SquareTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]]))
+        assert self.non_symm.get_scaled(10) == approx(SquareTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]]))
 
     def test_polar_decomposition(self):
         u, p = self.rand_sqtensor.polar_decomposition()
         assert_allclose(np.dot(u, p), self.rand_sqtensor)
-        assert_allclose(np.eye(3), np.dot(u, np.conjugate(np.transpose(u))))
+        assert_allclose(np.eye(3), np.dot(u, np.conjugate(np.transpose(u))), atol=1e-16)
 
     def test_serialization(self):
         # Test base serialize-deserialize

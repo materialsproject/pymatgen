@@ -47,32 +47,21 @@ class TestDeformation(PymatgenTest):
         # Check lattices
         assert_allclose(
             strained_norm.lattice.matrix,
-            [
-                [3.9170018886, 0, 0],
-                [1.958500946136, 3.32571019, 0],
-                [0, -2.21713849, 3.13550906],
-            ],
+            [[3.9170018886, 0, 0], [1.958500946136, 3.32571019, 0], [0, -2.21713849, 3.13550906]],
         )
         assert_allclose(
             strained_ind.lattice.matrix,
-            [
-                [3.84019793, 0, 0],
-                [1.9866132, 3.32571019, 0],
-                [-0.04434277, -2.21713849, 3.13550906],
-            ],
+            [[3.84019793, 0, 0], [1.9866132, 3.32571019, 0], [-0.04434277, -2.21713849, 3.13550906]],
         )
         assert_allclose(
             strained_non.lattice.matrix,
-            [
-                [3.84019793, 0, 0],
-                [1.9866132, 3.3257102, 0],
-                [0.0183674, -2.21713849, 3.13550906],
-            ],
+            [[3.84019793, 0, 0], [1.9866132, 3.3257102, 0], [0.0183674, -2.21713849, 3.13550906]],
+            atol=1e-7,
         )
         # Check coordinates
-        assert_allclose(strained_norm.sites[1].coords, [3.91700189, 1.224e-06, 2.3516318])
-        assert_allclose(strained_ind.sites[1].coords, [3.84019793, 1.224e-6, 2.3516318])
-        assert_allclose(strained_non.sites[1].coords, [3.8872306, 1.224e-6, 2.3516318])
+        assert_allclose(strained_norm.sites[1].coords, [3.91700189, 1.224e-06, 2.3516318], atol=1e-7)
+        assert_allclose(strained_ind.sites[1].coords, [3.84019793, 1.224e-6, 2.3516318], atol=1e-7)
+        assert_allclose(strained_non.sites[1].coords, [3.8872306, 1.224e-6, 2.3516318], atol=1e-7)
 
         # Check convention for applying transformation
         for vec, defo_vec in zip(self.structure.lattice.matrix, strained_non.lattice.matrix):

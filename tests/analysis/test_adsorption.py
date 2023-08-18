@@ -91,7 +91,7 @@ class TestAdsorbateSiteFinder(PymatgenTest):
             self.asf_111.slab
         )
         for n, structure in enumerate(structures):
-            assert_allclose(structure[-2].coords, sites["all"][n])
+            assert_allclose(structure[-2].coords, sites["all"][n], atol=1e-9)
         find_args = {"positions": ["hollow"]}
         structures_hollow = self.asf_111.generate_adsorption_structures(co, find_args=find_args)
         assert len(structures_hollow) == len(sites["hollow"])

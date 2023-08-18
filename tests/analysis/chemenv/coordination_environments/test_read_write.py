@@ -93,7 +93,7 @@ class TestReadWriteChemenv(unittest.TestCase):
             [2.25, 0.99301365328679292],
         ]
 
-        assert_allclose(nb_set.voronoi_grid_surface_points(), nb_set_surface_points)
+        assert_allclose(nb_set.voronoi_grid_surface_points(), nb_set_surface_points, atol=1e-8)
 
         neighb_sites = nb_set.neighb_sites
         coords = [

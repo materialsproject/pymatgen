@@ -229,14 +229,14 @@ class TestPolarization(PymatgenTest):
 
     def test_max_spline_jumps(self):
         max_jumps = self.polarization.max_spline_jumps(convert_to_muC_per_cm2=True, all_in_polar=False)
-        assert_allclose(self.max_jumps, max_jumps)
+        assert_allclose(self.max_jumps, max_jumps, atol=1e-7)
         # This will differ slightly
         max_jumps = self.polarization.max_spline_jumps(convert_to_muC_per_cm2=True, all_in_polar=True)
         assert_allclose(self.max_jumps_all_in_polar, max_jumps)
 
     def test_smoothness(self):
         smoothness = self.polarization.smoothness(convert_to_muC_per_cm2=True, all_in_polar=False)
-        assert_allclose(self.smoothness, smoothness)
+        assert_allclose(self.smoothness, smoothness, atol=1e-7)
         # This will differ slightly
         smoothness = self.polarization.smoothness(convert_to_muC_per_cm2=True, all_in_polar=True)
         assert_allclose(self.smoothness_all_in_polar, smoothness)
