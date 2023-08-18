@@ -1192,7 +1192,7 @@ class Kpoints(MSONable):
     def automatic_density(structure: Structure, kppa: float, force_gamma: bool = False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
-        density. Uses Gamma centered meshes for hexagonal cells and
+        density. Uses Gamma centered meshes for hexagonal cells and face-centered cells,
         Monkhorst-Pack grids otherwise.
 
         Algorithm:
@@ -1219,9 +1219,9 @@ class Kpoints(MSONable):
         num_div = [int(math.floor(max(mult / length, 1))) for length in lengths]
 
         is_hexagonal = latt.is_hexagonal()
-
+        is_face_centered = structure.get_space_group_info()[0][0] == "F"
         has_odd = any(i % 2 == 1 for i in num_div)
-        if has_odd or is_hexagonal or force_gamma:
+        if has_odd or is_hexagonal or is_face_centered or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
             style = Kpoints.supported_modes.Monkhorst
@@ -1310,8 +1310,9 @@ class Kpoints(MSONable):
         abc = lattice.abc
         num_div = [np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities)]
         is_hexagonal = lattice.is_hexagonal()
+        is_face_centered = structure.get_space_group_info()[0][0] == "F"
         has_odd = any(idx % 2 == 1 for idx in num_div)
-        if has_odd or is_hexagonal or force_gamma:
+        if has_odd or is_hexagonal or is_face_centered or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
             style = Kpoints.supported_modes.Monkhorst

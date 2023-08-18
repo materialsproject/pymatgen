@@ -878,6 +878,34 @@ direct
 
             assert kpoints.style == expected_style
 
+    def test_automatic_monkhorst_vs_gamma_style_selection(self):
+        structs = {key: Structure.from_file(f"{TEST_FILES_DIR}/POSCAR_{key}") for key in ("bcc", "fcc", "hcp")}
+
+        # bcc structures should allow both Monkhorst and Gamma
+        for struct_type, struct in structs.items():
+            for density in (500, 600, 700):
+                kpoints = Kpoints.automatic_density(struct, density)
+                if struct_type == "bcc" and density in (500, 600):
+                    assert kpoints.style == Kpoints.supported_modes.Monkhorst
+                else:
+                    assert kpoints.style == Kpoints.supported_modes.Gamma
+
+        # Kpoints.automatic_density_by_lengths
+        for struct_type, struct in structs.items():
+            for lengths in [50, 50, 50], [53, 53, 53], [56, 56, 56]:
+                kpoints = Kpoints.automatic_density_by_lengths(struct, lengths)
+                if struct_type == "bcc" and all(length % 2 == 0 for length in lengths):
+                    assert kpoints.style == Kpoints.supported_modes.Monkhorst
+                else:
+                    assert kpoints.style == Kpoints.supported_modes.Gamma
+
+        # Overkill test to make sure these methods always set the style to Gamma
+        for len_density in range(1, 50):
+            for struct_type, struct in structs.items():
+                if struct_type != "bcc":
+                    kpoints = Kpoints.automatic_density_by_lengths(struct, [len_density] * 3)
+                    assert kpoints.style == Kpoints.supported_modes.Gamma
+
 
 class TestPotcarSingle:
     _multiprocess_shared_ = True
