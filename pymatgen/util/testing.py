@@ -17,7 +17,6 @@ from typing import ClassVar
 import pytest
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
-from numpy.testing import assert_allclose
 
 from pymatgen.core import SETTINGS, Structure
 
@@ -53,12 +52,6 @@ class PymatgenTest(unittest.TestCase):
         if name not in cls.TEST_STRUCTURES:
             cls.TEST_STRUCTURES[name] = loadfn(cls.STRUCTURES_DIR / f"{name}.json")
         return cls.TEST_STRUCTURES[name].copy()
-
-    @staticmethod
-    def assert_all_close(actual, desired, decimal=7, err_msg="", verbose=True):
-        """Tests if two arrays are almost equal up to some relative or absolute tolerance."""
-        # TODO (janosh): replace the decimal kwarg with assert_allclose() atol and rtol kwargs
-        return assert_allclose(actual, desired, atol=10**-decimal, err_msg=err_msg, verbose=verbose)
 
     @staticmethod
     def assert_str_content_equal(actual, expected):
