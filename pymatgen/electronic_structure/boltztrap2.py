@@ -1,5 +1,4 @@
-"""
-BoltzTraP2 is a python software interpolating band structures and
+"""BoltzTraP2 is a python software interpolating band structures and
 computing materials properties from dft band structure using Boltzmann
 semi-classical transport theory.
 This module provides a pymatgen interface to BoltzTraP2.
@@ -279,8 +278,7 @@ class BandstructureLoader:
         return accepted
 
     def set_upper_lower_bands(self, e_lower, e_upper):
-        """
-        Set fake upper/lower bands, useful to set the same energy
+        """Set fake upper/lower bands, useful to set the same energy
         range in the spin up/down bands when calculating the DOS.
         """
         warnings.warn(
@@ -495,8 +493,7 @@ class BztInterpolator:
             dumpfn([self.equivalences, [self.coeffs.real, self.coeffs.imag]], fname)
 
     def get_band_structure(self, kpaths=None, kpoints_lbls_dict=None, density=20):
-        """
-        Return a BandStructureSymmLine object interpolating bands along a
+        """Return a BandStructureSymmLine object interpolating bands along a
         High symmetry path calculated from the structure using HighSymmKpath
         function. If kpaths and kpoints_lbls_dict are provided, a custom
         path is interpolated.
@@ -543,8 +540,7 @@ class BztInterpolator:
         )
 
     def get_dos(self, partial_dos=False, npts_mu=10000, T=None, progress=False):
-        """
-        Return a Dos object interpolating bands.
+        """Return a Dos object interpolating bands.
 
         Args:
             partial_dos: if True, projections will be interpolated as well
@@ -583,8 +579,7 @@ class BztInterpolator:
         return tdos
 
     def get_partial_doses(self, tdos, eband_ud, spins, enr, npts_mu, T, progress):
-        """
-        Return a CompleteDos object interpolating the projections.
+        """Return a CompleteDos object interpolating the projections.
 
         tdos: total dos previously calculated
         npts_mu: number of energy points of the Dos
@@ -630,8 +625,7 @@ class BztInterpolator:
 
 
 class BztTransportProperties:
-    """
-    Compute Seebeck, Conductivity, Electrical part of thermal conductivity
+    """Compute Seebeck, Conductivity, Electrical part of thermal conductivity
     and Hall coefficient, conductivity effective mass, Power Factor tensors
     w.r.t. the chemical potential and temperatures, from dft band structure via
     interpolation.
@@ -725,12 +719,9 @@ class BztTransportProperties:
             )
 
             # Compute the Onsager coefficients from those Fermi integrals
-            (
-                self.Conductivity_mu,
-                self.Seebeck_mu,
-                self.Kappa_mu,
-                Hall_mu,
-            ) = BL.calc_Onsager_coefficients(L0, L1, L2, self.mu_r, temp_r, self.volume, Lm11=Lm11)
+            self.Conductivity_mu, self.Seebeck_mu, self.Kappa_mu, Hall_mu = BL.calc_Onsager_coefficients(
+                L0, L1, L2, self.mu_r, temp_r, self.volume, Lm11=Lm11
+            )
 
             # Common properties rescaling
             self.Conductivity_mu *= CRTA  # S / m
@@ -774,8 +765,7 @@ class BztTransportProperties:
                 self.save(fname)
 
     def compute_properties_doping(self, doping, temp_r=None):
-        """
-        Calculate all the properties w.r.t. the doping levels in input.
+        """Calculate all the properties w.r.t. the doping levels in input.
 
         Args:
             doping: numpy array specifying the doping levels
@@ -792,12 +782,7 @@ class BztTransportProperties:
         if temp_r is None:
             temp_r = self.temp_r
 
-        (
-            self.Conductivity_doping,
-            self.Seebeck_doping,
-            self.Kappa_doping,
-            self.Carriers_conc_doping,
-        ) = ({}, {}, {}, {})
+        self.Conductivity_doping, self.Seebeck_doping, self.Kappa_doping, self.Carriers_conc_doping = {}, {}, {}, {}
 
         self.Power_Factor_doping, self.Effective_mass_doping = {}, {}
 
@@ -1003,8 +988,7 @@ class BztTransportProperties:
 
 
 class BztPlotter:
-    """
-    Plotter to plot transport properties, interpolated bands along some high
+    """Plotter to plot transport properties, interpolated bands along some high
     symmetry k-path, and DOS.
 
     Example:
@@ -1014,8 +998,7 @@ class BztPlotter:
     """
 
     def __init__(self, bzt_transP=None, bzt_interp=None):
-        """
-        :param bzt_transP:
+        """:param bzt_transP:
         :param bzt_interp:
         """
         self.bzt_transP = bzt_transP
@@ -1033,8 +1016,7 @@ class BztPlotter:
         xlim=(-2, 2),
         ax: plt.Axes = None,
     ):
-        """
-        Function to plot the transport properties.
+        """Function to plot the transport properties.
 
         Args:
             prop_y: property to plot among ("Conductivity","Seebeck","Kappa","Carrier_conc",
@@ -1223,8 +1205,7 @@ class BztPlotter:
 
 
 def merge_up_down_doses(dos_up, dos_dn):
-    """
-    Merge the up and down DOSs.
+    """Merge the up and down DOSs.
 
     Args:
     dos_up: Up DOS.

@@ -1,5 +1,4 @@
-"""
-This module defines convenience types for type hinting purposes.
+"""This module defines convenience types for type hinting purposes.
 Type hinting is new to pymatgen, so this module is subject to
 change until best practices are established.
 """

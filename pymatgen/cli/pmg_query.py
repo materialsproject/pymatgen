@@ -13,8 +13,7 @@ from tabulate import tabulate
 
 
 def do_query(args):
-    """
-    Perform query to the Materials Project.
+    """Perform query to the Materials Project.
 
     Args:
         args (dict): Args from argparse.

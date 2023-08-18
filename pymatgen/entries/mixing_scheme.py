@@ -1,5 +1,4 @@
-"""
-This module implements Compatibility corrections for mixing runs of different
+"""This module implements Compatibility corrections for mixing runs of different
 functionals.
 """
 
@@ -34,8 +33,7 @@ __date__ = "October 2021"
 
 
 class MaterialsProjectDFTMixingScheme(Compatibility):
-    """
-    This class implements the Materials Project mixing scheme, which allows mixing of
+    """This class implements the Materials Project mixing scheme, which allows mixing of
     energies from different DFT functionals. Note that this should only be used for
     VASP calculations using the MaterialsProject parameters (e.g. MPRelaxSet or
     MPScanRelaxSet). Using this compatibility scheme on runs with different parameters
@@ -56,8 +54,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         fuzzy_matching: bool = True,
         check_potcar: bool = True,
     ) -> None:
-        """
-        Instantiate the mixing scheme. The init method creates a generator class that
+        """Instantiate the mixing scheme. The init method creates a generator class that
         contains relevant settings (e.g., StructureMatcher instance, Compatibility settings
         for each functional) for processing groups of entries.
 
@@ -125,8 +122,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         inplace: bool = True,
         mixing_state_data=None,
     ) -> list[AnyComputedEntry]:
-        """
-        Process a sequence of entries with the DFT mixing scheme. Note
+        """Process a sequence of entries with the DFT mixing scheme. Note
         that this method will change the data of the original entries.
 
         Args:
@@ -253,8 +249,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         return processed_entry_list
 
     def get_adjustments(self, entry, mixing_state_data: pd.DataFrame | None = None):
-        """
-        Returns the corrections applied to a particular entry. Note that get_adjustments is not
+        """Returns the corrections applied to a particular entry. Note that get_adjustments is not
         intended to be called directly in the R2SCAN mixing scheme. Call process_entries instead,
         and it will pass the required arguments to get_adjustments.
 
@@ -453,8 +448,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         )
 
     def get_mixing_state_data(self, entries: list[ComputedStructureEntry]):
-        """
-        Generate internal state data to be passed to get_adjustments.
+        """Generate internal state data to be passed to get_adjustments.
 
         Args:
             entries: The list of ComputedStructureEntry to process. It is assumed that the entries have
@@ -570,8 +564,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         return mixing_state_data.sort_values(["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True)
 
     def _filter_and_sort_entries(self, entries, verbose=True):
-        """
-        Given a single list of entries, separate them by run_type and return two lists, one containing
+        """Given a single list of entries, separate them by run_type and return two lists, one containing
         only entries of each run_type.
         """
         filtered_entries = []
@@ -661,8 +654,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         return list(entries_type_1), list(entries_type_2)
 
     def _populate_df_row(self, struct_group, comp, sg, n, pd_type_1, pd_type_2, all_entries):
-        """
-        Helper function to populate a row of the mixing state DataFrame, given
+        """Helper function to populate a row of the mixing state DataFrame, given
         a list of matched structures.
         """
         # within the group of matched structures, keep the lowest energy entry from

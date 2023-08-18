@@ -15,8 +15,7 @@ from pymatgen.util.plotting import pretty_plot
 
 
 def get_dos_plot(args):
-    """
-    Plot DOS.
+    """Plot DOS.
 
     Args:
         args (dict): Args from argparse.
@@ -48,8 +47,7 @@ def get_dos_plot(args):
 
 
 def get_chgint_plot(args, ax: plt.Axes = None) -> plt.Axes:
-    """
-    Plot integrated charge.
+    """Plot integrated charge.
 
     Args:
         args (dict): args from argparse.
@@ -80,8 +78,7 @@ def get_chgint_plot(args, ax: plt.Axes = None) -> plt.Axes:
 
 
 def get_xrd_plot(args):
-    """
-    Plot XRD.
+    """Plot XRD.
 
     Args:
         args (dict): Args from argparse
@@ -92,8 +89,7 @@ def get_xrd_plot(args):
 
 
 def plot(args):
-    """
-    Master control method calling other plot methods based on args.
+    """Master control method calling other plot methods based on args.
 
     Args:
         args (dict): Args from argparse.

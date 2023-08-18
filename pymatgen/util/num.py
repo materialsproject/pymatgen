@@ -6,8 +6,7 @@ import numpy as np
 
 
 def abs_cap(val, max_abs_val=1):
-    """
-    Returns the value with its absolute value capped at max_abs_val.
+    """Returns the value with its absolute value capped at max_abs_val.
     Particularly useful in passing values to trigonometric functions where
     numerical errors may result in an argument > 1 being passed in.
 
@@ -22,8 +21,7 @@ def abs_cap(val, max_abs_val=1):
 
 
 def minloc(seq):
-    """
-    Return the index of the (first) minimum in seq.
+    """Return the index of the (first) minimum in seq.
 
     >>> assert minloc(range(3)) == 0
     """
@@ -31,8 +29,7 @@ def minloc(seq):
 
 
 def maxloc(seq):
-    """
-    Return the index of the (first) maximum in seq.
+    """Return the index of the (first) maximum in seq.
 
     >>> assert maxloc([1,3,2,3]) == 1
     """
@@ -40,8 +37,7 @@ def maxloc(seq):
 
 
 def min_max_indexes(seq):
-    """
-    Uses enumerate, max, and min to return the indices of the values
+    """Uses enumerate, max, and min to return the indices of the values
     in a list with the maximum and minimum value.
 
     Args:
@@ -62,8 +58,7 @@ def strictly_decreasing(values):
 
 
 def round_to_sigfigs(num, sig_figs):
-    """
-    Rounds a number rounded to a specific number of significant
+    """Rounds a number rounded to a specific number of significant
     figures instead of to a specific precision.
     """
     if not isinstance(sig_figs, int):
@@ -80,8 +75,7 @@ def round_to_sigfigs(num, sig_figs):
 
 
 def make_symmetric_matrix_from_upper_tri(val):
-    """
-    Given a symmetric matrix in upper triangular matrix form as flat array indexes as:
+    """Given a symmetric matrix in upper triangular matrix form as flat array indexes as:
     [A_xx,A_yy,A_zz,A_xy,A_xz,A_yz]
     This will generate the full matrix:
     [[A_xx,A_xy,A_xz],[A_xy,A_yy,A_yz],[A_xz,A_yz,A_zz].

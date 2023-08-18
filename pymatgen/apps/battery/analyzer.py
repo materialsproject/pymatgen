@@ -26,8 +26,7 @@ class BatteryAnalyzer:
     """A suite of methods for starting with an oxidized structure and determining its potential as a battery."""
 
     def __init__(self, struc_oxid, working_ion="Li", oxi_override=None):
-        """
-        Pass in a structure for analysis.
+        """Pass in a structure for analysis.
 
         Arguments:
             struc_oxid: a Structure object; oxidation states *must* be assigned for this structure; disordered
@@ -54,8 +53,7 @@ class BatteryAnalyzer:
 
     @property
     def max_ion_removal(self):
-        """
-        Maximum number of ion A that can be removed while maintaining charge-balance.
+        """Maximum number of ion A that can be removed while maintaining charge-balance.
 
         Returns:
             integer amount of ion. Depends on cell size (this is an 'extrinsic' function!)
@@ -87,8 +85,7 @@ class BatteryAnalyzer:
 
     @property
     def max_ion_insertion(self):
-        """
-        Maximum number of ion A that can be inserted while maintaining charge-balance.
+        """Maximum number of ion A that can be inserted while maintaining charge-balance.
         No consideration is given to whether there (geometrically speaking) are ion sites to actually accommodate the
         extra ions.
 
@@ -117,8 +114,7 @@ class BatteryAnalyzer:
         return pot_sum / self.working_ion_charge
 
     def _get_max_cap_ah(self, remove, insert):
-        """
-        Give max capacity in mAh for inserting and removing a charged ion
+        """Give max capacity in mAh for inserting and removing a charged ion
         This method does not normalize the capacity and intended as a helper method.
         """
         num_working_ions = 0
@@ -129,8 +125,7 @@ class BatteryAnalyzer:
         return num_working_ions * abs(self.working_ion_charge) * ELECTRON_TO_AMPERE_HOURS
 
     def get_max_capgrav(self, remove=True, insert=True):
-        """
-        Give max capacity in mAh/g for inserting and removing a charged ion
+        """Give max capacity in mAh/g for inserting and removing a charged ion
         Note that the weight is normalized to the most ion-packed state,
         thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li into FePO4.
 
@@ -147,8 +142,7 @@ class BatteryAnalyzer:
         return self._get_max_cap_ah(remove, insert) / (weight / 1000)
 
     def get_max_capvol(self, remove=True, insert=True, volume=None):
-        """
-        Give max capacity in mAh/cc for inserting and removing a charged ion into base structure.
+        """Give max capacity in mAh/cc for inserting and removing a charged ion into base structure.
 
         Args:
             remove: (bool) whether to allow ion removal
@@ -162,8 +156,7 @@ class BatteryAnalyzer:
         return self._get_max_cap_ah(remove, insert) * 1000 * 1e24 / (vol * const.N_A)
 
     def get_removals_int_oxid(self):
-        """
-        Returns a set of ion removal steps, e.g. set([1 2 4]) etc. in order to
+        """Returns a set of ion removal steps, e.g. set([1 2 4]) etc. in order to
         produce integer oxidation states of the redox metals.
         If multiple redox metals are present, all combinations of reduction/oxidation are tested.
         Note that having more than 3 redox metals will likely slow down the algorithm.
@@ -187,8 +180,7 @@ class BatteryAnalyzer:
         return {num_working_ion - a for a in num_a}
 
     def _get_int_removals_helper(self, spec_amts_oxi, redox_el, redox_els, num_a):
-        """
-        This is a helper method for get_removals_int_oxid!
+        """This is a helper method for get_removals_int_oxid!
 
         Args:
             spec_amts_oxi: a dict of species to their amounts in the structure
@@ -240,8 +232,7 @@ class BatteryAnalyzer:
 
 
 def is_redox_active_intercalation(element) -> bool:
-    """
-    True if element is redox active and interesting for intercalation materials.
+    """True if element is redox active and interesting for intercalation materials.
 
     Args:
         element: Element object

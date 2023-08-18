@@ -1210,9 +1210,9 @@ class PhaseDiagram(MSONable):
             tol_en: a tolerance on the energy to set
 
         Returns:
-             [{Element: mu}]: An array of conditions on simplex vertices for
-             which each element has a chemical potential set to a given
-             value. "absolute" values (i.e., not referenced to element energies)
+            [{Element: mu}]: An array of conditions on simplex vertices for
+            which each element has a chemical potential set to a given
+            value. "absolute" values (i.e., not referenced to element energies)
         """
         mu_ref = np.array([self.el_refs[e].energy_per_atom for e in self.elements if e != dep_elt])
         chempot_ranges = self.get_chempot_range_map([e for e in self.elements if e != dep_elt])
@@ -1263,8 +1263,8 @@ class PhaseDiagram(MSONable):
             open_elt: Element that you want to constrain to be max or min
 
         Returns:
-             {Element: (mu_min, mu_max)}: Chemical potentials are given in
-             "absolute" values (i.e., not referenced to 0)
+            {Element: (mu_min, mu_max)}: Chemical potentials are given in
+                "absolute" values (i.e., not referenced to 0)
         """
         muref = np.array([self.el_refs[e].energy_per_atom for e in self.elements if e != open_elt])
         chempot_ranges = self.get_chempot_range_map([e for e in self.elements if e != open_elt])

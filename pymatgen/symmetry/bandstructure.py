@@ -1,5 +1,4 @@
-"""
-Provides a class for interacting with KPath classes to
+"""Provides a class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.
 """
 
@@ -27,8 +26,7 @@ __date__ = "March 2020"
 
 @cite_conventional_cell_algo
 class HighSymmKpath(KPathBase):
-    """
-    This class generates path along high symmetry lines in the
+    """This class generates path along high symmetry lines in the
     Brillouin zone according to different conventions.
     The class is designed to be used with a specific primitive
     cell setting. The definitions for the primitive cell
@@ -142,16 +140,14 @@ class HighSymmKpath(KPathBase):
 
     @property
     def path_type(self):
-        """
-        Returns:
+        """Returns:
         The type of kpath chosen.
         """
         return self._path_type
 
     @property
     def label_index(self):
-        """
-        Returns:
+        """Returns:
         The correspondence between numbers and kpoint symbols for the
         combined kpath generated when path_type = 'all'. None otherwise.
         """
@@ -159,8 +155,7 @@ class HighSymmKpath(KPathBase):
 
     @property
     def equiv_labels(self):
-        """
-        Returns:
+        """Returns:
         The correspondence between the kpoint symbols in the Latimer and
         Munro convention, Setyawan and Curtarolo, and Hinuma
         conventions respectively. Only generated when path_type = 'all'.
@@ -169,8 +164,7 @@ class HighSymmKpath(KPathBase):
 
     @property
     def path_lengths(self):
-        """
-        Returns:
+        """Returns:
         List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
         conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
         None otherwise.
@@ -178,15 +172,13 @@ class HighSymmKpath(KPathBase):
         return self._path_lengths
 
     def _get_lm_kpath(self, has_magmoms, magmom_axis, symprec, angle_tolerance, atol):
-        """
-        Returns:
+        """Returns:
         Latimer and Munro k-path with labels.
         """
         return KPathLatimerMunro(self._structure, has_magmoms, magmom_axis, symprec, angle_tolerance, atol)
 
     def _get_sc_kpath(self, symprec, angle_tolerance, atol):
-        """
-        Returns:
+        """Returns:
         Setyawan and Curtarolo k-path with labels.
         """
         kpath = KPathSetyawanCurtarolo(self._structure, symprec, angle_tolerance, atol)
@@ -199,8 +191,7 @@ class HighSymmKpath(KPathBase):
         return kpath
 
     def _get_hin_kpath(self, symprec, angle_tolerance, atol, tri):
-        """
-        Returns:
+        """Returns:
         Hinuma et al. k-path with labels.
         """
         bs = KPathSeek(self._structure, symprec, angle_tolerance, atol, tri)
@@ -221,8 +212,7 @@ class HighSymmKpath(KPathBase):
         return bs
 
     def _get_klabels(self, lm_bs, sc_bs, hin_bs, rpg):
-        """
-        Returns:
+        """Returns:
         labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen.
             If an exact kpoint match cannot be found, symmetric equivalency will be
             searched for and indicated with an asterisk in the equivalent label.
@@ -293,8 +283,7 @@ class HighSymmKpath(KPathBase):
 
     @staticmethod
     def get_continuous_path(bandstructure):
-        """
-        Obtain a continuous version of an inputted path using graph theory.
+        """Obtain a continuous version of an inputted path using graph theory.
         This routine will attempt to add connections between nodes of
         odd-degree to ensure a Eulerian path can be formed. Initial
         k-path must be able to be converted to a connected graph. See

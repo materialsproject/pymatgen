@@ -1,5 +1,4 @@
-"""
-This module is used for analysis of materials with potential application as
+"""This module is used for analysis of materials with potential application as
 intercalation batteries.
 """
 
@@ -24,8 +23,7 @@ __copyright__ = "Copyright 2012, The Materials Project"
 
 @dataclass
 class InsertionElectrode(AbstractElectrode):
-    """
-    A set of topotactically related compounds, with different amounts of a
+    """A set of topotactically related compounds, with different amounts of a
     single element, e.g. TiO2 and LiTiO2, that can be used to define an
     insertion battery electrode.
     """
@@ -40,8 +38,7 @@ class InsertionElectrode(AbstractElectrode):
         working_ion_entry: ComputedEntry | ComputedStructureEntry | PDEntry,
         strip_structures: bool = False,
     ):
-        """
-        Create a new InsertionElectrode.
+        """Create a new InsertionElectrode.
 
         Args:
             entries: A list of ComputedEntries, ComputedStructureEntries, or
@@ -116,8 +113,7 @@ class InsertionElectrode(AbstractElectrode):
         )
 
     def get_stable_entries(self, charge_to_discharge=True):
-        """
-        Get the stable entries.
+        """Get the stable entries.
 
         Args:
             charge_to_discharge: order from most charge to most discharged
@@ -131,8 +127,7 @@ class InsertionElectrode(AbstractElectrode):
         return list_copy if charge_to_discharge else list_copy.reverse()
 
     def get_unstable_entries(self, charge_to_discharge=True):
-        """
-        Returns the unstable entries for the electrode.
+        """Returns the unstable entries for the electrode.
 
         Args:
             charge_to_discharge: Order from most charge to most discharged
@@ -146,8 +141,7 @@ class InsertionElectrode(AbstractElectrode):
         return list_copy if charge_to_discharge else list_copy.reverse()
 
     def get_all_entries(self, charge_to_discharge=True):
-        """
-        Return all entries input for the electrode.
+        """Return all entries input for the electrode.
 
         Args:
             charge_to_discharge:
@@ -178,8 +172,7 @@ class InsertionElectrode(AbstractElectrode):
         return self.stable_entries[-1]
 
     def get_max_instability(self, min_voltage=None, max_voltage=None):
-        """
-        The maximum instability along a path for a specific voltage range.
+        """The maximum instability along a path for a specific voltage range.
 
         Args:
             min_voltage: The minimum allowable voltage.
@@ -198,8 +191,7 @@ class InsertionElectrode(AbstractElectrode):
         return max(data) if len(data) > 0 else None
 
     def get_min_instability(self, min_voltage=None, max_voltage=None):
-        """
-        The minimum instability along a path for a specific voltage range.
+        """The minimum instability along a path for a specific voltage range.
 
         Args:
             min_voltage: The minimum allowable voltage.
@@ -218,8 +210,7 @@ class InsertionElectrode(AbstractElectrode):
         return min(data) if len(data) > 0 else None
 
     def get_max_muO2(self, min_voltage=None, max_voltage=None):
-        """
-        Maximum critical oxygen chemical potential along path.
+        """Maximum critical oxygen chemical potential along path.
 
         Args:
             min_voltage: The minimum allowable voltage.
@@ -239,8 +230,7 @@ class InsertionElectrode(AbstractElectrode):
         return max(data) if len(data) > 0 else None
 
     def get_min_muO2(self, min_voltage=None, max_voltage=None):
-        """
-        Minimum critical oxygen chemical potential along path.
+        """Minimum critical oxygen chemical potential along path.
 
         Args:
             min_voltage: The minimum allowable voltage for a given step
@@ -261,8 +251,7 @@ class InsertionElectrode(AbstractElectrode):
         return min(data) if len(data) > 0 else None
 
     def get_sub_electrodes(self, adjacent_only=True, include_myself=True):
-        """
-        If this electrode contains multiple voltage steps, then it is possible
+        """If this electrode contains multiple voltage steps, then it is possible
         to use only a subset of the voltage steps to define other electrodes.
         For example, an LiTiO2 electrode might contain three subelectrodes:
         [LiTiO2 --> TiO2, LiTiO2 --> Li0.5TiO2, Li0.5TiO2 --> TiO2]
@@ -309,8 +298,7 @@ class InsertionElectrode(AbstractElectrode):
         return battery_list
 
     def get_summary_dict(self, print_subelectrodes=True) -> dict:
-        """
-        Generate a summary dict.
+        """Generate a summary dict.
         Populates the summary dict with the basic information from the parent method then populates more information.
         Since the parent method calls self.get_summary_dict(print_subelectrodes=True) for the subelectrodes.
         The current method will be called from within super().get_summary_dict.
@@ -453,10 +441,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
         valence_list = Element(ion_sym).oxidation_states
         working_ion_valence = abs(max(valence_list))
 
-        (
-            framework,
-            norm_charge,
-        ) = frame_charge_comp.get_reduced_composition_and_factor()
+        framework, norm_charge = frame_charge_comp.get_reduced_composition_and_factor()
         norm_discharge = frame_discharge_comp.get_reduced_composition_and_factor()[1]
 
         # Initialize normalized properties

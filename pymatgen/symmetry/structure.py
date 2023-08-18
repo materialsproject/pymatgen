@@ -14,8 +14,7 @@ if TYPE_CHECKING:
 
 
 class SymmetrizedStructure(Structure):
-    """
-    This class represents a symmetrized structure, i.e. a structure
+    """This class represents a symmetrized structure, i.e. a structure
     where the spacegroup and symmetry operations are defined. This class is
     typically not called but instead is typically obtained by calling
     pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure.
@@ -72,8 +71,7 @@ class SymmetrizedStructure(Structure):
         )
 
     def find_equivalent_sites(self, site: PeriodicSite) -> list[PeriodicSite]:
-        """
-        Finds all symmetrically equivalent sites for a particular site.
+        """Finds all symmetrically equivalent sites for a particular site.
 
         Args:
             site (PeriodicSite): A site in the structure
@@ -135,8 +133,7 @@ class SymmetrizedStructure(Structure):
 
     @classmethod
     def from_dict(cls, dct):
-        """
-        :param d: Dict representation
+        """:param d: Dict representation
         :return: SymmetrizedStructure
         """
         return cls(
