@@ -100,7 +100,7 @@ class DftSet(Cp2kInput):
         linesearch: str = "2PNT",
         rotation: bool = True,
         occupation_preconditioner: bool = False,
-        cutoff: int | float | None = None,
+        cutoff: float | None = None,
         rel_cutoff: int = 50,
         ngrids: int = 5,
         progression_factor: int = 3,
@@ -547,7 +547,7 @@ class DftSet(Cp2kInput):
         return data
 
     @staticmethod
-    def get_cutoff_from_basis(basis_sets, rel_cutoff) -> int | float:
+    def get_cutoff_from_basis(basis_sets, rel_cutoff) -> float:
         """Given a basis and a relative cutoff. Determine the ideal cutoff variable."""
         for basis in basis_sets:
             if not basis.exponents:
@@ -988,8 +988,8 @@ class DftSet(Cp2kInput):
         trust_radius: float = 0.25,
         line_search: str = "2PNT",
         ensemble: str = "NVE",
-        temperature: float | int = 300,
-        timestep: float | int = 0.5,
+        temperature: float = 300,
+        timestep: float = 0.5,
         nsteps: int = 3,
         thermostat: str = "NOSE",
         nproc_rep: int = 1,

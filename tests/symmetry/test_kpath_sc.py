@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 from pytest import approx
 
 from pymatgen.core.lattice import Lattice
@@ -44,7 +42,7 @@ class TestBandStructureSC(PymatgenTest):
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
             _ = KPathSetyawanCurtarolo(struct)  # Throws error if something doesn't work, causing test to fail.
 
-        struct_file_path = os.path.join(test_dir_structs, "ICSD_170.cif")
+        struct_file_path = f"{test_dir_structs}/ICSD_170.cif"
         struct = Structure.from_file(struct_file_path)
         hkp = KPathSetyawanCurtarolo(struct)
         assert hkp.name == "MCLC5"

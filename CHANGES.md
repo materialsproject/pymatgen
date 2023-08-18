@@ -6,6 +6,59 @@ nav_order: 4
 
 # Changelog
 
+## v2023.8.10
+
+- fix `estimate_nbands` function by @matthewkuner in <https://github.com/materialsproject/pymatgen/pull/3149>
+- Add `CifParser.get_structures(on_error='warn')` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3175>
+- `ruff . --fix` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3176>
+- `AseAtomsAdaptor`: Retain `tags` property when interconverting `Atoms` and `Structure`/`Molecule` by @arosen93 in <https://github.com/materialsproject/pymatgen/pull/3151>
+- Fix a bug in pwscf.py. The proc_val function modifies string values. by @pablogalaviz in <https://github.com/materialsproject/pymatgen/pull/3172>
+- Delete commented out print statements by @janosh in <https://github.com/materialsproject/pymatgen/pull/3178>
+- lots of `from_string` should be `classmethod` by @njzjz in <https://github.com/materialsproject/pymatgen/pull/3177>
+- Extend lobsterenv for coop/cobi by @naik-aakash in <https://github.com/materialsproject/pymatgen/pull/3050>
+- BUG: fix setting zero magmoms by @lbluque in <https://github.com/materialsproject/pymatgen/pull/3179>
+- Prefer `pymatviz` interactive plotly version of periodic table heatmap if available by @janosh in <https://github.com/materialsproject/pymatgen/pull/3180>
+- Better Composition `repr` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3182>
+- Breaking: Return True for `Element in Composition` if `Species.symbol` matches `Element` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3184>
+- Revert `LMAXMIX` "fix" added in #3041 by @janosh in <https://github.com/materialsproject/pymatgen/pull/3189>
+- Add `bader_exe_path` keyword to `BaderAnalysis` and run `bader` tests in CI by @janosh in <https://github.com/materialsproject/pymatgen/pull/3191>
+- Unskip and fix `packmol` tests by @janosh in <https://github.com/materialsproject/pymatgen/pull/3195>
+- Propagate labels through various Structure operations by @stefsmeets in <https://github.com/materialsproject/pymatgen/pull/3183>
+- Delete variable self assignments by @janosh in <https://github.com/materialsproject/pymatgen/pull/3196>
+- Improve `Structure` tests by @janosh in <https://github.com/materialsproject/pymatgen/pull/3197>
+- Bump pypa/cibuildwheel from 2.12.3 to 2.14.1 by @dependabot in <https://github.com/materialsproject/pymatgen/pull/3202>
+- Bump numpy from 1.24.3 to 1.25.2 by @dependabot in <https://github.com/materialsproject/pymatgen/pull/3201>
+- Bump matplotlib from 3.5.2 to 3.7.2 by @dependabot in <https://github.com/materialsproject/pymatgen/pull/3200>
+- Bump scipy from 1.9.0 to 1.11.1 by @dependabot in <https://github.com/materialsproject/pymatgen/pull/3199>
+- Test `class XYZ` edge cases by @janosh in <https://github.com/materialsproject/pymatgen/pull/3206>
+- Fix `EnergyAdjustment.__repr__` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3207>
+- Markdownlint by @janosh in <https://github.com/materialsproject/pymatgen/pull/3209>
+- Fix codecov by @janosh in <https://github.com/materialsproject/pymatgen/pull/3210>
+- Update `pytest-split` durations by @janosh in <https://github.com/materialsproject/pymatgen/pull/3211>
+- Fix GitHub language statistics after test files migration by @janosh in <https://github.com/materialsproject/pymatgen/pull/3214>
+- Fix `automatic_density_by_lengths` and add tests for it by @janosh in <https://github.com/materialsproject/pymatgen/pull/3218>
+- Prefer `len(structure)` over `structure.num_sites` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3219>
+- Add `PhaseDiagram` method `get_reference_energy`  by @janosh in <https://github.com/materialsproject/pymatgen/pull/3222>
+- Fix isomorphic for molecular graphs by @rohithsrinivaas in <https://github.com/materialsproject/pymatgen/pull/3221>
+- Add `Structure.elements` property by @janosh in <https://github.com/materialsproject/pymatgen/pull/3223>
+- Add keyword `in_place: bool = True` to `SiteCollection.replace_species` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3224>
+- list offending elements in `BVAnalyzer.get_valences` error message by @janosh in <https://github.com/materialsproject/pymatgen/pull/3225>
+- Add `Entry.elements` property by @janosh in <https://github.com/materialsproject/pymatgen/pull/3226>
+- Move `PymatgenTest.TEST_FILES_DIR` attribute into module scope by @janosh in <https://github.com/materialsproject/pymatgen/pull/3227>
+- f-string path construction everywhere, no need for `os.path.join(...)` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3229>
+- speed up `bader_caller` and `chargemol_caller` by @chiang-yuan in <https://github.com/materialsproject/pymatgen/pull/3192>
+- Fix `ruff` PYI041 and ignore PYI024 by @janosh in <https://github.com/materialsproject/pymatgen/pull/3232>
+- Deprecate `get_string()` methods in favor of `get_str()` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3231>
+- `Structure/Molecule.to()` now always return same string written to file by @janosh in <https://github.com/materialsproject/pymatgen/pull/3236>
+
+### New Contributors
+
+- @matthewkuner made their first contribution in <https://github.com/materialsproject/pymatgen/pull/3149>
+- @pablogalaviz made their first contribution in <https://github.com/materialsproject/pymatgen/pull/3172>
+- @rohithsrinivaas made their first contribution in <https://github.com/materialsproject/pymatgen/pull/3221>
+
+**Full Changelog**: <https://github.com/materialsproject/pymatgen/compare/v2023.7.20...v2023.08.10>
+
 ## v2023.7.20
 
 - Unreadable string concat ops to f-string by @janosh in <https://github.com/materialsproject/pymatgen/pull/3162>
@@ -309,7 +362,7 @@ Welcome to new contributors @naveensrinivasan, @xivh, @dgaines2, @yang-ruoxi, @c
 - Fix: bug in Grüneisen parameter calculation, PR #2543 by @ab5424
 - Fix: allow a comment on final line of KPOINTS file, PR #2549 by @xivh
 - Fix: for `Composition.replace` with complex mappings, PR #2555 by @jacksund
-- Fix: Implement equality method and fix __iter__ for InputSet, PR #2575 by @rkingsbury
+- Fix: Implement equality method and fix **iter** for InputSet, PR #2575 by @rkingsbury
 - Fix: use negative charge convention for electron in "update_charge_from_potcar", PR #2577 by @jmmshn
 - Fix: ensure charge is applied to initial and final structures parsed from vasprun.xml, PR #2579 by @jmmshn
 - Chore: Set permissions for GitHub actions, PR #2547 by @naveensrinivasan
@@ -646,7 +699,7 @@ you are acknowledged appropriately by filling out the linked form.
 
 ## v2021.3.4 (Yanked)
 
-- __Backwards incompatible__: Pymatgen root imports have been removed from
+- **Backwards incompatible**: Pymatgen root imports have been removed from
   v2021.3.4 in preparation for a change to a more modular, extensible
   architecture that will allow more developers to contribute.
 
@@ -683,10 +736,10 @@ you are acknowledged appropriately by filling out the linked form.
 
 ## v2021.3.3
 
-- __Backwards incompatible__: pymatgen.SETTINGS have been moved to
+- **Backwards incompatible**: pymatgen.SETTINGS have been moved to
   pymatgen.settings.SETTINGS. In general, this should not lead to many breakages
   since most of these settings are used within pymatgen itself.
-- __Backwards incompatible__: pymatgen.loadfn and get_structure_from_mp have been
+- **Backwards incompatible**: pymatgen.loadfn and get_structure_from_mp have been
   removed since no one was using them.
 - critic2_caller has been refactored. (@samblau)
 - Improved hash for Composition (@CompRhys)
@@ -2357,7 +2410,7 @@ for more information (@dwinston)
 
 ## v2.8.0
 
-- __Units__. Pymatgen now has a new system of managing units,
+- **Units**. Pymatgen now has a new system of managing units,
   defined in pymatgen.core.units. Typical energy, length, time,
   temperature and charge units are supported. Units subclass float,
   which makes the usage transparent in all functions. The value that they
@@ -2367,7 +2420,7 @@ for more information (@dwinston)
   easy conversion. Please see :mod:`pymatgen.core.units` and the
   :doc:`examples </examples>` for a demonstration of house to use units in
   pymatgen.
-- __Minor backwards-incompatible change__. Structures are now sorted by
+- **Minor backwards-incompatible change**. Structures are now sorted by
   default when generating VASP input files using vaspio_set. Old behavior can
   be obtained by setting sort_structure=False in the constructor. This is
   typically the desired behavior and prevents the generation of large
@@ -2417,13 +2470,13 @@ for more information (@dwinston)
 
 ## v2.7.1
 
-- __Major backwards-incompatible change.__ With effect from v2.7.1,
+- **Major backwards-incompatible change.** With effect from v2.7.1,
   the default Structure and Molecule classes are now _mutable_ objects. All
   functionality in the :mod:`pymatgen.core.structure_modifier` has been
   ported over to the new mutable classes. This change was implemented
   because the immutability of Structure and Molecule has resulted in very
   awkward code to make changes to them. The main cost of this change is that
-  Structure and Molecule can no longer be used as dict keys (__hash__ has
+  Structure and Molecule can no longer be used as dict keys (**hash** has
   been set to None). However, we believe this is a minor cost given that we
   have rarely seen the use of Structure or Molecule as dict keys in any case.
   For the rare instances where such functionality is needed,
@@ -2465,7 +2518,7 @@ for more information (@dwinston)
 - Added a command_line caller to do Bader charge analysis using Henkelmann
   et al.'s algorithm.
 - Bug fix for POSCAR parsing when title line is an empty string.
-- Added __rmul__ operator for Composition.
+- Added **rmul** operator for Composition.
 - Vastly expanded available aliases.
 
 ## v2.6.4

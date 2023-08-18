@@ -64,6 +64,13 @@ dec = MontyDecoder()
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
 skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set.")
 
+_dummy_structure = Structure(
+    [1, 0, 0, 0, 1, 0, 0, 0, 1],
+    ["I"],
+    [[0, 0, 0]],
+    site_properties={"magmom": [[0, 0, 1]]},
+)
+
 
 @pytest.mark.parametrize(
     "input_set",
@@ -107,7 +114,7 @@ class TestSetChangeCheck(PymatgenTest):
             "MVLRelax52Set.yaml": "4cfc6b1bd0548e45da3bde4a9c65b3249da13ecd",
             "MPHSERelaxSet.yaml": "0d0d96a620461071cfd416ec9d5d6a8d2dfd0855",
             "VASPIncarBase.yaml": "19762515f8deefb970f2968fca48a0d67f7964d4",
-            "MPSCANRelaxSet.yaml": "6bdda39a8802166ed5407916dc217b138b3602e9",
+            "MPSCANRelaxSet.yaml": "2d31ee637cb5d4d96f2e0aba3772a52cbcceb348",
             "MPRelaxSet.yaml": "f2949cdc5dc8cd0bee6d39a5df0d6a6b7c144821",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
             "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
@@ -339,7 +346,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         incar = MITRelaxSet(struct, sort_structure=False).incar
         assert incar["MAGMOM"] == [5.2, -4.5]
 
-        struct = Structure(lattice, [Species("Fe", 2, {"spin": 4.1}), "Mn"], coords)
+        struct = Structure(lattice, [Species("Fe2+", spin=4.1), "Mn"], coords)
         incar = MPRelaxSet(struct).incar
         assert incar["MAGMOM"] == [5, 4.1]
 
@@ -1031,10 +1038,7 @@ class TestMITNEBSet(PymatgenTest):
         c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
         s1 = Structure(Lattice.cubic(5), ["Si", "Si"], c1)
         s2 = Structure(Lattice.cubic(5), ["Si", "Si"], c2)
-        structs = []
-        for s in s1.interpolate(s2, 3, pbc=True):
-            structs.append(Structure.from_sites(s.sites, to_unit_cell=True))
-        self.structures = structs
+        self.structures = [Structure.from_sites(s.sites, to_unit_cell=True) for s in s1.interpolate(s2, 3, pbc=True)]
         self.vis = MITNEBSet(self.structures)
         warnings.simplefilter("ignore")
 
@@ -1755,7 +1759,7 @@ class TestLobsterSet(PymatgenTest):
             self.lobsterset6 = LobsterSet(self.struct, user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s"})
         self.lobsterset7 = LobsterSet(
             self.struct,
-            address_basis_file=os.path.join(MODULE_DIR, "../lobster/lobster_basis/BASIS_PBE_54_standard.yaml"),
+            address_basis_file=f"{MODULE_DIR}/../lobster/lobster_basis/BASIS_PBE_54_standard.yaml",
         )
         with pytest.warns(BadInputSetWarning, match="Overriding the POTCAR"):
             self.lobsterset6 = LobsterSet(self.struct)
@@ -1824,47 +1828,39 @@ class TestMPAbsorptionSet(PymatgenTest):
 
     def test_ipa(self):
         prev_run = f"{TEST_FILES_DIR}/absorption/static"
-        absorptionipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, copy_wavecar=True, mode="IPA")
-        absorptionipa.write_input(self.tmp)
+        absorption_ipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, copy_wavecar=True, mode="IPA")
+        absorption_ipa.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
-        assert absorptionipa.incar["NBANDS"] == 32
-        assert absorptionipa.incar["ALGO"] == "Exact"
-        assert absorptionipa.incar["LOPTICS"]
+        assert absorption_ipa.incar["NBANDS"] == 32
+        assert absorption_ipa.incar["ALGO"] == "Exact"
+        assert absorption_ipa.incar["LOPTICS"]
 
         # test override_from_prev_calc
-        absorptionipa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="IPA")
-        absorptionipa.override_from_prev_calc(prev_calc_dir=prev_run)
-        absorptionipa.write_input(self.tmp)
+        absorption_ipa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="IPA")
+        absorption_ipa.override_from_prev_calc(prev_calc_dir=prev_run)
+        absorption_ipa.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
-        assert absorptionipa.incar["NBANDS"] == 32
-        assert absorptionipa.incar["ALGO"] == "Exact"
-        assert absorptionipa.incar["LOPTICS"]
+        assert absorption_ipa.incar["NBANDS"] == 32
+        assert absorption_ipa.incar["ALGO"] == "Exact"
+        assert absorption_ipa.incar["LOPTICS"]
 
     def test_rpa(self):
         prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
-        absorptionrpa = MPAbsorptionSet.from_prev_calc(prev_run, copy_wavecar=True, mode="RPA")
-        absorptionrpa.write_input(self.tmp)
+        absorption_rpa = MPAbsorptionSet.from_prev_calc(prev_run, copy_wavecar=True, mode="RPA")
+        absorption_rpa.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
         assert os.path.isfile(os.path.join(self.tmp, "WAVEDER"))
-        assert absorptionrpa.incar["NOMEGA"] == 1000
-        assert absorptionrpa.incar["NBANDS"] == 48
-        assert absorptionrpa.incar["ALGO"] == "CHI"
+        assert absorption_rpa.incar["NOMEGA"] == 1000
+        assert absorption_rpa.incar["NBANDS"] == 48
+        assert absorption_rpa.incar["ALGO"] == "CHI"
 
         # test override_from_prev_calc
         prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
-        absorptionrpa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="RPA")
-        absorptionrpa.override_from_prev_calc(prev_calc_dir=prev_run)
-        absorptionrpa.write_input(self.tmp)
+        absorption_rpa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="RPA")
+        absorption_rpa.override_from_prev_calc(prev_calc_dir=prev_run)
+        absorption_rpa.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
         assert os.path.isfile(os.path.join(self.tmp, "WAVEDER"))
-        assert absorptionrpa.incar["NOMEGA"] == 1000
-        assert absorptionrpa.incar["NBANDS"] == 48
-        assert absorptionrpa.incar["ALGO"] == "CHI"
-
-
-_dummy_structure = Structure(
-    [1, 0, 0, 0, 1, 0, 0, 0, 1],
-    ["I"],
-    [[0, 0, 0]],
-    site_properties={"magmom": [[0, 0, 1]]},
-)
+        assert absorption_rpa.incar["NOMEGA"] == 1000
+        assert absorption_rpa.incar["NBANDS"] == 48
+        assert absorption_rpa.incar["ALGO"] == "CHI"

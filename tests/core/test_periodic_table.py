@@ -359,8 +359,10 @@ class SpeciesTestCase(PymatgenTest):
         self.specie4 = Species("Fe", 2, spin=5)
 
     def test_init(self):
-        with pytest.raises(ValueError, match="magmom is not a supported property"):
-            Species("Fe", 2, {"magmom": 5})
+        assert Species("Fe", 2) == Species("Fe2+")
+        assert Species("Fe", 2, spin=2) == Species("Fe2+", spin=2)
+        assert Species("O2-") == Species("O", -2)
+        assert Species("O0+", spin=2) == Species("O", 0, spin=2)
 
     def test_ionic_radius(self):
         assert self.specie2.ionic_radius == 78.5 / 100
@@ -547,7 +549,6 @@ class DummySpeciesTestCase(unittest.TestCase):
         assert r == [DummySpecies("X"), Element.Fe]
         assert DummySpecies("X", 3) < DummySpecies("X", 4)
 
-    def test_immutable(self):
         sp = Species("Fe", 2, spin=5)
         with pytest.raises(AttributeError) as exc:
             sp.spin = 6
@@ -555,7 +556,6 @@ class DummySpeciesTestCase(unittest.TestCase):
         assert "can't set attribute" in str(exc.value) or "property 'spin' of 'Species' object has no setter" in str(
             exc.value
         )  # 'can't set attribute' on Linux, for some reason different message on Windows and Mac
-        sp.properties["spin"] = 7
         assert sp.spin == 5
 
 

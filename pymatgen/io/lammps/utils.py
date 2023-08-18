@@ -299,7 +299,7 @@ class PackmolRunner:
                 for the final packed molecule will be restored.
 
         Returns:
-                Molecule object
+            Molecule object
         """
         with tempfile.TemporaryDirectory() as scratch_dir:
             self._write_input(input_dir=scratch_dir)

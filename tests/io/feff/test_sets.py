@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 import pytest
 
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.structure import Lattice, Molecule, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
@@ -186,15 +186,15 @@ TITLE sites: 4
         assert "TARGET" not in elnes.tags
 
     def test_postfeffset(self):
-        self.mp_xanes.write_input(os.path.join(".", "xanes_3"))
-        feff_dict_input = FEFFDictSet.from_directory(os.path.join(".", "xanes_3"))
-        assert feff_dict_input.tags == Tags.from_file(os.path.join(".", "xanes_3/feff.inp"))
-        assert str(feff_dict_input.header()) == str(Header.from_file(os.path.join(".", "xanes_3/HEADER")))
+        self.mp_xanes.write_input("xanes_3")
+        feff_dict_input = FEFFDictSet.from_directory("xanes_3")
+        assert feff_dict_input.tags == Tags.from_file("xanes_3/feff.inp")
+        assert str(feff_dict_input.header()) == str(Header.from_file("xanes_3/HEADER"))
         feff_dict_input.write_input("xanes_3_regen")
-        origin_tags = Tags.from_file(os.path.join(".", "xanes_3/PARAMETERS"))
-        output_tags = Tags.from_file(os.path.join(".", "xanes_3_regen/PARAMETERS"))
-        origin_mole = Atoms.cluster_from_file(os.path.join(".", "xanes_3/feff.inp"))
-        output_mole = Atoms.cluster_from_file(os.path.join(".", "xanes_3_regen/feff.inp"))
+        origin_tags = Tags.from_file("xanes_3/PARAMETERS")
+        output_tags = Tags.from_file("xanes_3_regen/PARAMETERS")
+        origin_mole = Atoms.cluster_from_file("xanes_3/feff.inp")
+        output_mole = Atoms.cluster_from_file("xanes_3_regen/feff.inp")
         original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(np.float64)
         output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(np.float64)
         original_mole_shell = [x.species_string for x in origin_mole]
@@ -204,31 +204,31 @@ TITLE sites: 4
         assert origin_tags == output_tags
         assert original_mole_shell == output_mole_shell
 
-        shutil.rmtree(os.path.join(".", "xanes_3"))
-        shutil.rmtree(os.path.join(".", "xanes_3_regen"))
+        shutil.rmtree("xanes_3")
+        shutil.rmtree("xanes_3_regen")
 
         reci_mp_xanes = MPXANESSet(self.absorbing_atom, self.structure, user_tag_settings={"RECIPROCAL": ""})
         reci_mp_xanes.write_input("xanes_reci")
-        feff_reci_input = FEFFDictSet.from_directory(os.path.join(".", "xanes_reci"))
+        feff_reci_input = FEFFDictSet.from_directory("xanes_reci")
         assert "RECIPROCAL" in feff_reci_input.tags
 
         feff_reci_input.write_input("Dup_reci")
-        assert os.path.exists(os.path.join(".", "Dup_reci", "HEADER"))
-        assert os.path.exists(os.path.join(".", "Dup_reci", "feff.inp"))
-        assert os.path.exists(os.path.join(".", "Dup_reci", "PARAMETERS"))
-        assert not os.path.exists(os.path.join(".", "Dup_reci", "ATOMS"))
-        assert not os.path.exists(os.path.join(".", "Dup_reci", "POTENTIALS"))
+        assert os.path.exists("Dup_reci/HEADER")
+        assert os.path.exists("Dup_reci/feff.inp")
+        assert os.path.exists("Dup_reci/PARAMETERS")
+        assert not os.path.exists("Dup_reci/ATOMS")
+        assert not os.path.exists("Dup_reci/POTENTIALS")
 
-        tags_original = Tags.from_file(os.path.join(".", "xanes_reci/feff.inp"))
-        tags_output = Tags.from_file(os.path.join(".", "Dup_reci/feff.inp"))
+        tags_original = Tags.from_file("xanes_reci/feff.inp")
+        tags_output = Tags.from_file("Dup_reci/feff.inp")
         assert tags_original == tags_output
 
-        stru_orig = Structure.from_file(os.path.join(".", "xanes_reci/Co2O2.cif"))
-        stru_reci = Structure.from_file(os.path.join(".", "Dup_reci/Co2O2.cif"))
-        assert stru_orig == stru_reci
+        struct_orig = Structure.from_file("xanes_reci/Co2O2.cif")
+        struct_reci = Structure.from_file("Dup_reci/Co2O2.cif")
+        assert struct_orig == struct_reci
 
-        shutil.rmtree(os.path.join(".", "Dup_reci"))
-        shutil.rmtree(os.path.join(".", "xanes_reci"))
+        shutil.rmtree("Dup_reci")
+        shutil.rmtree("xanes_reci")
 
     def test_post_distdiff(self):
         feff_dict_input = FEFFDictSet.from_directory(f"{TEST_FILES_DIR}/feff_dist_test")
@@ -236,9 +236,9 @@ TITLE sites: 4
         assert str(feff_dict_input.header()) == str(Header.from_file(f"{TEST_FILES_DIR}/feff_dist_test/HEADER"))
         feff_dict_input.write_input("feff_dist_regen")
         origin_tags = Tags.from_file(f"{TEST_FILES_DIR}/feff_dist_test/PARAMETERS")
-        output_tags = Tags.from_file(os.path.join(".", "feff_dist_regen/PARAMETERS"))
+        output_tags = Tags.from_file("feff_dist_regen/PARAMETERS")
         origin_mole = Atoms.cluster_from_file(f"{TEST_FILES_DIR}/feff_dist_test/feff.inp")
-        output_mole = Atoms.cluster_from_file(os.path.join(".", "feff_dist_regen/feff.inp"))
+        output_mole = Atoms.cluster_from_file("feff_dist_regen/feff.inp")
         original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(np.float64)
         output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(np.float64)
         original_mole_shell = [x.species_string for x in origin_mole]
@@ -248,4 +248,23 @@ TITLE sites: 4
         assert origin_tags == output_tags
         assert original_mole_shell == output_mole_shell
 
-        shutil.rmtree(os.path.join(".", "feff_dist_regen"))
+        shutil.rmtree("feff_dist_regen")
+
+    def test_big_radius(self):
+        struct = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3.033043), ["Ti", "O"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        dict_set = FEFFDictSet(
+            absorbing_atom="Ti",
+            structure=struct,
+            radius=10.0,
+            config_dict={
+                "S02": "0",
+                "COREHOLE": "regular",
+                "CONTROL": "1 1 1 1 1 1",
+                "XANES": "4 0.04 0.1",
+                "SCF": "7.0 0 100 0.2 3",
+                "FMS": "9.0 0",
+                "EXCHANGE": "0 0.0 0.0 2",
+                "RPATH": "-1",
+            },
+        )
+        assert str(dict_set) is not None

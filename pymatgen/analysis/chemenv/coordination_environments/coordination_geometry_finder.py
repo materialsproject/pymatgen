@@ -267,12 +267,12 @@ class AbstractGeometry:
 
     @property
     def cn(self):
-        """:return: Coordination number"""
+        """Coordination number"""
         return len(self.coords)
 
     @property
     def coordination_number(self):
-        """:return: Coordination number"""
+        """Coordination number"""
         return len(self.coords)
 
 

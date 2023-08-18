@@ -64,10 +64,10 @@ class TestIsingModel(unittest.TestCase):
         from pymatgen.core.periodic_table import Species
 
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
-        struct.replace_species({"Fe": Species("Fe", 2, {"spin": 4})})
+        struct.replace_species({"Fe": Species("Fe", 2, spin=4)})
         assert m.get_energy(struct) == approx(172.81260515787977)
-        struct[4] = Species("Fe", 2, {"spin": -4})
-        struct[5] = Species("Fe", 2, {"spin": -4})
+        struct[4] = Species("Fe", 2, spin=-4)
+        struct[5] = Species("Fe", 2, spin=-4)
         assert m.get_energy(struct) == approx(51.97424405382921)
 
     def test_to_from_dict(self):

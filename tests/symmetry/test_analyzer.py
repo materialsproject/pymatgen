@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 
 import numpy as np
@@ -568,7 +567,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         a = PointGroupAnalyzer(PF6)
         assert a.sch_symbol == "Oh"
         assert len(a.get_pointgroup()) == 48
-        m = Molecule.from_file(os.path.join(test_dir_mol, "c60.xyz"))
+        m = Molecule.from_file(f"{test_dir_mol}/c60.xyz")
         a = PointGroupAnalyzer(m)
         assert a.sch_symbol == "Ih"
 
@@ -589,7 +588,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         assert a.sch_symbol == "Oh"
 
     def test_tricky(self):
-        m = Molecule.from_file(os.path.join(test_dir_mol, "dh.xyz"))
+        m = Molecule.from_file(f"{test_dir_mol}/dh.xyz")
         a = PointGroupAnalyzer(m, 0.1)
         assert a.sch_symbol == "D*h"
 
@@ -643,7 +642,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         a = PointGroupAnalyzer(NH3)
         assert a.sch_symbol == "C3v"
         assert len(a.get_pointgroup()) == 6
-        cs2 = Molecule.from_file(os.path.join(test_dir_mol, "Carbon_Disulfide.xyz"))
+        cs2 = Molecule.from_file(f"{test_dir_mol}/Carbon_Disulfide.xyz")
         a = PointGroupAnalyzer(cs2, eigen_tolerance=0.001)
         assert a.sch_symbol == "C2v"
 
@@ -654,7 +653,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         a = PointGroupAnalyzer(BF3)
         assert a.sch_symbol == "D3h"
         assert len(a.get_pointgroup()) == 12
-        m = Molecule.from_file(os.path.join(test_dir_mol, "b12h12.xyz"))
+        m = Molecule.from_file(f"{test_dir_mol}/b12h12.xyz")
         a = PointGroupAnalyzer(m)
         assert a.sch_symbol == "Ih"
 

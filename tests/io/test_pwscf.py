@@ -366,10 +366,7 @@ CELL_PARAMETERS angstrom
         pwin = PWInput.from_str(string)
 
         # generate list of coords
-        pw_sites = []
-        for site in pwin.structure:
-            pw_sites.append(list(site.coords))
-        pw_sites = np.array(pw_sites)
+        pw_sites = np.array([list(site.coords) for site in pwin.structure])
 
         np.testing.assert_allclose(sites, pw_sites)
 

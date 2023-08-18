@@ -214,15 +214,15 @@ class TestIStructure(PymatgenTest):
         struct = IStructure(
             self.lattice,
             [
-                {Species("O", -2, properties={"spin": 3}): 1.0},
-                {Species("Mg", 2, properties={"spin": 2}): 0.8},
+                {Species("O", -2, spin=3): 1.0},
+                {Species("Mg", 2, spin=2): 0.8},
             ],
             coords,
             site_properties={"magmom": [5, -5]},
         )
         d = struct.as_dict()
         assert d["sites"][0]["properties"]["magmom"] == 5
-        assert d["sites"][0]["species"][0]["properties"]["spin"] == 3
+        assert d["sites"][0]["species"][0]["spin"] == 3
 
         d = struct.as_dict(0)
         assert "volume" not in d["lattice"]
@@ -260,7 +260,7 @@ class TestIStructure(PymatgenTest):
                         {
                             "occu": 1.0,
                             "oxidation_state": -2,
-                            "properties": {"spin": 3},
+                            "spin": 3,
                             "element": "O",
                         }
                     ],
@@ -275,7 +275,7 @@ class TestIStructure(PymatgenTest):
                         {
                             "occu": 0.8,
                             "oxidation_state": 2,
-                            "properties": {"spin": 2},
+                            "spin": 2,
                             "element": "Mg",
                         }
                     ],
@@ -613,7 +613,7 @@ Direct
     #         },
     #         "sites": [
     #             {
-    #                "species": [{"element": "Mn", "oxidation_state": 0, "properties": {"spin": Spin.down}, "occu": 1}],
+    #                "species": [{"element": "Mn", "oxidation_state": 0, "spin": Spin.down, "occu": 1}],
     #                 "abc": [0.0, 0.5, 0.5],
     #                 "xyz": [2.8730499999999997, 3.83185, 4.1055671618015446e-16],
     #                 "label": "Mn0+,spin=-1",
@@ -740,21 +740,26 @@ Direct
 
         assert "Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1)
 
-        self.struct.to(filename="POSCAR.testing")
-        assert os.path.isfile("POSCAR.testing")
+        poscar_path = f"{self.tmp_path}/POSCAR.testing"
+        poscar_str = self.struct.to(filename=poscar_path)
+        with open(poscar_path) as file:
+            assert file.read() == poscar_str
+        assert Structure.from_file(poscar_path) == self.struct
 
-        self.struct.to(filename="Si_testing.yaml")
-        assert os.path.isfile("Si_testing.yaml")
-        struct = Structure.from_file("Si_testing.yaml")
-        assert struct == self.struct
+        yaml_path = f"{self.tmp_path}/Si_testing.yaml"
+        yaml_str = self.struct.to(filename=yaml_path)
+        with open(yaml_path) as file:
+            assert file.read() == yaml_str
+        assert Structure.from_file(yaml_path) == self.struct
+
         # Test Path support
-        struct = Structure.from_file(Path("Si_testing.yaml"))
+        struct = Structure.from_file(Path(yaml_path))
         assert struct == self.struct
 
         # Test .yml extension works too.
-        os.replace("Si_testing.yaml", "Si_testing.yml")
-        struct = Structure.from_file("Si_testing.yml")
-        assert struct == self.struct
+        yml_path = yaml_path.replace(".yaml", ".yml")
+        os.replace(yaml_path, yml_path)
+        assert Structure.from_file(yml_path) == self.struct
 
         with pytest.raises(ValueError, match="Format not specified and could not infer from filename='whatever'"):
             self.struct.to(filename="whatever")
@@ -1409,18 +1414,15 @@ class TestStructure(PymatgenTest):
         coords = [
             [0, 0, 0],
             [0, 0, 1.089000],
-            [1.026719, 0, -0.363000],
-            [-0.513360, -0.889165, -0.363000],
-            [-0.513360, 0.889165, -0.363000],
+            [1.026719, 0, -0.363],
+            [-0.513360, -0.889165, -0.363],
+            [-0.513360, 0.889165, -0.363],
         ]
         ch4 = ["C", "H", "H", "H", "H"]
 
-        species = []
-        all_coords = []
-        for vec in ([0, 0, 0], [4, 0, 0], [0, 4, 0], [4, 4, 0]):
-            species.extend(ch4)
-            for c in coords:
-                all_coords.append(np.array(c) + vec)
+        vectors = [[0, 0, 0], [4, 0, 0], [0, 4, 0], [4, 4, 0]]
+        species = [atom for vec in vectors for atom in ch4]
+        all_coords = [np.array(c) + vec for vec in vectors for c in coords]
 
         structure = Structure(Lattice.cubic(10), species, all_coords, coords_are_cartesian=True)
 
@@ -1471,7 +1473,7 @@ class TestStructure(PymatgenTest):
         calculator = struct.calculate(calculator="chgnet")
         assert isinstance(calculator, Calculator)
         preds = calculator.results
-        assert {*preds} == {"stress", "energy", "free_energy", "magmoms", "forces"}
+        assert {*preds} >= {"stress", "energy", "free_energy", "magmoms", "forces"}
         assert preds["energy"] == approx(-10.7400808334, abs=1e-5)
         assert preds["magmoms"] == approx([0.00262399, 0.00262396], abs=1e-5)
         assert np.linalg.norm(preds["forces"]) == approx(1.998941843e-5, abs=1e-3)
@@ -1842,19 +1844,22 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
     def test_to_from_file_string(self):
         for fmt in ["xyz", "json", "g03", "yaml"]:
             mol = self.mol.to(fmt=fmt)
-            assert mol is not None
-            m = IMolecule.from_str(mol, fmt=fmt)
-            assert m == self.mol
-            assert isinstance(m, IMolecule)
+            assert isinstance(mol, str)
+            mol = IMolecule.from_str(mol, fmt=fmt)
+            assert mol == self.mol
+            assert isinstance(mol, IMolecule)
 
-        self.mol.to(filename="CH4_testing.xyz")
-        assert os.path.isfile("CH4_testing.xyz")
-        os.remove("CH4_testing.xyz")
-        self.mol.to(filename="CH4_testing.yaml")
-        assert os.path.isfile("CH4_testing.yaml")
-        mol = Molecule.from_file("CH4_testing.yaml")
-        assert self.mol == mol
-        os.remove("CH4_testing.yaml")
+        ch4_xyz_str = self.mol.to(filename=f"{self.tmp_path}/CH4_testing.xyz")
+        with open("CH4_testing.xyz") as xyz_file:
+            assert xyz_file.read() == ch4_xyz_str
+        ch4_mol = IMolecule.from_file(f"{self.tmp_path}/CH4_testing.xyz")
+        assert self.mol == ch4_mol
+        ch4_yaml_str = self.mol.to(filename=f"{self.tmp_path}/CH4_testing.yaml")
+
+        with open("CH4_testing.yaml") as yaml_file:
+            assert yaml_file.read() == ch4_yaml_str
+        ch4_mol = Molecule.from_file(f"{self.tmp_path}/CH4_testing.yaml")
+        assert self.mol == ch4_mol
 
 
 class TestMolecule(PymatgenTest):

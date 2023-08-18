@@ -1239,7 +1239,7 @@ class CifParser:
         return BibliographyData(entries).to_string(bib_format="bibtex")
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         dct = {}
         for k, v in self._cif.data.items():
             dct[k] = {}
@@ -1249,7 +1249,7 @@ class CifParser:
 
     @property
     def has_errors(self):
-        """:return: Whether there are errors/warnings detected in CIF parsing."""
+        """Whether there are errors/warnings detected in CIF parsing."""
         return len(self.warnings) > 0
 
 

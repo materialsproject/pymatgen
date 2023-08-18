@@ -1,5 +1,4 @@
-"""
-This module implements an interface to enumlib, Gus Hart's excellent Fortran
+"""This module implements an interface to enumlib, Gus Hart's excellent Fortran
 code for enumerating derivative structures.
 
 This module depends on a compiled enumlib with the executables enum.x and
@@ -64,8 +63,7 @@ makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
     "in the README to compile these two executables accordingly.",
 )
 class EnumlibAdaptor:
-    """
-    An adaptor for enumlib.
+    """An adaptor for enumlib.
 
     .. attribute:: structures
 
@@ -85,8 +83,7 @@ class EnumlibAdaptor:
         check_ordered_symmetry=True,
         timeout=None,
     ):
-        """
-        Initializes the adapter with a structure and some parameters.
+        """Initializes the adapter with a structure and some parameters.
 
         Args:
             structure: An input structure.
@@ -146,8 +143,7 @@ class EnumlibAdaptor:
                 raise EnumError("Unable to enumerate structure.")
 
     def _gen_input_file(self):
-        """
-        Generate the necessary struct_enum.in file for enumlib. See enumlib
+        """Generate the necessary struct_enum.in file for enumlib. See enumlib
         documentation for details.
         """
         coord_format = "{:.6f} {:.6f} {:.6f}"

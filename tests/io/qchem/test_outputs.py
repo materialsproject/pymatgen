@@ -264,10 +264,7 @@ class TestQCOutput(PymatgenTest):
             outputs = QCOutput.multiple_outputs_from_file(
                 os.path.join(TEST_FILES_DIR, "molecules", file), keep_sub_files=False
             )
-            data = []
-            for sub_output in outputs:
-                data.append(sub_output.data)
-            multi_job_dict[file] = data
+            multi_job_dict[file] = [sub_output.data for sub_output in outputs]
         dumpfn(multi_job_dict, "multi_job.json")
 
     def _test_property(self, key, single_outs, multi_outs):

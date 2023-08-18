@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import pickle
 
 import numpy as np
@@ -36,15 +35,15 @@ test_dir = f"{TEST_FILES_DIR}/piezo_sensitivity"
 class TestPiezoSensitivity(PymatgenTest):
     def setUp(self):
         self.piezo_struc = self.get_structure("Pb2TiZrO6")
-        self.IST = np.load(os.path.join(test_dir, "pztist.npy"), allow_pickle=True)
-        self.BEC = np.load(os.path.join(test_dir, "pztborn.npy"), allow_pickle=True)
-        self.FCM = np.load(os.path.join(test_dir, "pztfcm.npy"), allow_pickle=True)
-        self.pointops = np.load(os.path.join(test_dir, "pointops.npy"), allow_pickle=True)
-        self.sharedops = np.load(os.path.join(test_dir, "sharedops.npy"), allow_pickle=True)
-        self.IST_operations = np.load(os.path.join(test_dir, "istops.npy"), allow_pickle=True)
-        with open(os.path.join(test_dir, "becops.pkl"), "rb") as file:
+        self.IST = np.load(f"{test_dir}/pztist.npy", allow_pickle=True)
+        self.BEC = np.load(f"{test_dir}/pztborn.npy", allow_pickle=True)
+        self.FCM = np.load(f"{test_dir}/pztfcm.npy", allow_pickle=True)
+        self.pointops = np.load(f"{test_dir}/pointops.npy", allow_pickle=True)
+        self.sharedops = np.load(f"{test_dir}/sharedops.npy", allow_pickle=True)
+        self.IST_operations = np.load(f"{test_dir}/istops.npy", allow_pickle=True)
+        with open(f"{test_dir}/becops.pkl", "rb") as file:
             self.BEC_operations = pickle.load(file)
-        with open(os.path.join(test_dir, "fcmops.pkl"), "rb") as file:
+        with open(f"{test_dir}/fcmops.pkl", "rb") as file:
             self.FCM_operations = pickle.load(file)
         self.piezo = np.array(
             [
@@ -81,7 +80,7 @@ class TestPiezoSensitivity(PymatgenTest):
     def test_get_BEC_operations(self):
         bec = BornEffectiveCharge(self.piezo_struc, self.BEC, self.pointops)
         # update test file
-        # with open(os.path.join(test_dir, "becops.pkl"), "wb") as file:
+        # with open(f"{test_dir}/becops.pkl", "wb") as file:
         #     pickle.dump(bec.get_BEC_operations(), file)
         bec.get_BEC_operations()
         assert np.all(self.BEC_operations == bec.BEC_operations)
@@ -113,7 +112,7 @@ class TestPiezoSensitivity(PymatgenTest):
     def test_get_FCM_operations(self):
         fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
         # update test file
-        # with open(os.path.join(test_dir, "fcmops.pkl"), "wb") as file:
+        # with open(f"{test_dir}/fcmops.pkl", "wb") as file:
         #     pickle.dump(fcm.get_FCM_operations(), file)
         fcm.get_FCM_operations()
         assert np.all(fcm.FCM_operations == self.FCM_operations)

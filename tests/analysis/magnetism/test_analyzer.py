@@ -90,10 +90,7 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
         assert "magmom" not in Fe_spin.site_properties
 
         # test with disorder on magnetic site
-        self.Fe[0] = {
-            Species("Fe", oxidation_state=0, properties={"spin": 5}): 0.5,
-            "Ni": 0.5,
-        }
+        self.Fe[0] = {Species("Fe", 0, spin=5): 0.5, "Ni": 0.5}
         with pytest.raises(
             NotImplementedError,
             match="CollinearMagneticStructureAnalyzer not implemented for disordered structures,"
@@ -270,7 +267,7 @@ class TestMagneticStructureEnumerator(unittest.TestCase):
         # afm requiring large cell size
         # (enable for further development of workflow, too slow for CI)
 
-        # structure = Structure.from_file(os.path.join(ref_dir, "CuO.json"))
+        # structure = Structure.from_file(f"{ref_dir}/CuO.json")
         # enumerator = MagneticOrderingsenumerator(
         #     structure, default_magmoms={"Cu": 1.73}, transformation_kwargs={"max_cell_size": 4}
         # )

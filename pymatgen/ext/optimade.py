@@ -33,8 +33,7 @@ _logger.setLevel(logging.WARNING)
     description="OPTIMADE, an API for exchanging materials data",
 )
 class OptimadeRester:
-    """
-    Class to call OPTIMADE-compliant APIs, see https://optimade.org and [1].
+    """Class to call OPTIMADE-compliant APIs, see https://optimade.org and [1].
 
     This class is ready to use but considered in-development and subject to change.
 
@@ -76,8 +75,7 @@ class OptimadeRester:
     def __init__(
         self, aliases_or_resource_urls: str | list[str] | None = None, refresh_aliases: bool = False, timeout: int = 5
     ):
-        """
-        OPTIMADE is an effort to provide a standardized interface to retrieve information
+        """OPTIMADE is an effort to provide a standardized interface to retrieve information
         from many different materials science databases.
 
         This is a client to retrieve structures from OPTIMADE v1 compliant endpoints. It
@@ -158,8 +156,7 @@ class OptimadeRester:
 
     # @retry(stop_max_attempt_number=3, wait_random_min=1000, wait_random_max=2000)
     def _get_json(self, url):
-        """
-        Retrieves JSON, will attempt to (politely) try again on failure subject to a
+        """Retrieves JSON, will attempt to (politely) try again on failure subject to a
         random delay and a maximum number of attempts.
         """
         return self.session.get(url, timeout=self._timeout).json()
@@ -209,8 +206,7 @@ class OptimadeRester:
         chemical_formula_anonymous: str | None = None,
         chemical_formula_hill: str | None = None,
     ) -> dict[str, dict[str, Structure]]:
-        """
-        Retrieve Structures from OPTIMADE providers.
+        """Retrieve Structures from OPTIMADE providers.
 
         Not all functionality of OPTIMADE is currently exposed in this convenience method. To
         use a custom filter, call get_structures_with_filter().
@@ -243,8 +239,7 @@ class OptimadeRester:
         chemical_formula_hill: str | None = None,
         additional_response_fields: str | list[str] | set[str] | None = None,
     ) -> dict[str, dict[str, StructureNL]]:
-        """
-        Retrieve StructureNL from OPTIMADE providers.
+        """Retrieve StructureNL from OPTIMADE providers.
 
         A StructureNL is an object provided by pymatgen which combines Structure with
         associated metadata, such as the URL is was downloaded from and any additional namespaced
@@ -275,8 +270,7 @@ class OptimadeRester:
         return self.get_snls_with_filter(optimade_filter, additional_response_fields=additional_response_fields)
 
     def get_structures_with_filter(self, optimade_filter: str) -> dict[str, dict[str, Structure]]:
-        """
-        Get structures satisfying a given OPTIMADE filter.
+        """Get structures satisfying a given OPTIMADE filter.
 
         Args:
             optimade_filter: An OPTIMADE-compliant filter
@@ -296,8 +290,7 @@ class OptimadeRester:
         optimade_filter: str,
         additional_response_fields: str | list[str] | set[str] | None = None,
     ) -> dict[str, dict[str, StructureNL]]:
-        """
-        Get structures satisfying a given OPTIMADE filter.
+        """Get structures satisfying a given OPTIMADE filter.
 
         Args:
             optimade_filter: An OPTIMADE-compliant filter
@@ -423,8 +416,7 @@ class OptimadeRester:
         return snls
 
     def _validate_provider(self, provider_url) -> Provider | None:
-        """
-        Checks that a given URL is indeed an OPTIMADE provider,
+        """Checks that a given URL is indeed an OPTIMADE provider,
         returning None if it is not a provider, or the provider
         prefix if it is.
 
@@ -464,8 +456,7 @@ class OptimadeRester:
             return None
 
     def _parse_provider(self, provider, provider_url) -> dict[str, Provider]:
-        """
-        Used internally to update the list of providers or to
+        """Used internally to update the list of providers or to
         check a given URL is valid.
 
         It does not raise exceptions but will instead _logger.warning and provide
@@ -513,8 +504,7 @@ class OptimadeRester:
         return _parse_provider_link(provider, provider_link_json)
 
     def _handle_response_fields(self, additional_response_fields: str | list[str] | set[str] | None = None) -> str:
-        """
-        Used internally to handle the mandatory and additional response fields.
+        """Used internally to handle the mandatory and additional response fields.
 
         Args:
             additional_response_fields: A set of additional fields to request.
@@ -529,8 +519,7 @@ class OptimadeRester:
         return ",".join({*additional_response_fields, *self.mandatory_response_fields})
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
-        """
-        Updates available OPTIMADE structure resources based on the current list of OPTIMADE
+        """Updates available OPTIMADE structure resources based on the current list of OPTIMADE
         providers.
         """
         json = self._get_json(providers_url)

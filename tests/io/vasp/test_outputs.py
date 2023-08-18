@@ -90,6 +90,7 @@ class TestVasprun(PymatgenTest):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.BSE.xml.gz")
         absorption_coeff = vasp_run.optical_absorption_coeff
         assert absorption_coeff[1] == 0.8327903762077188
+        assert vasp_run.final_structure == vasp_run.initial_structure
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
         with pytest.raises(NotImplementedError, match="This vasprun.xml has >2 unlabelled dielectric functions"):
@@ -1639,7 +1640,7 @@ class TestXdatcar(PymatgenTest):
 
         x.concatenate(f"{TEST_FILES_DIR}/XDATCAR_4")
         assert len(x.structures) == 8
-        assert x.get_string() is not None
+        assert x.get_str() is not None
 
         filepath = f"{TEST_FILES_DIR}/XDATCAR_6"
         x = Xdatcar(filepath)

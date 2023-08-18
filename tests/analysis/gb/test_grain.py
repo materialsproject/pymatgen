@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import warnings
 
 import numpy as np
@@ -22,7 +21,7 @@ class TestGrainBoundary(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         warnings.filterwarnings("ignore")
-        cls.Cu_conv = Structure.from_file(os.path.join(test_dir, "Cu_mp-30_conventional_standard.cif"))
+        cls.Cu_conv = Structure.from_file(f"{test_dir}/Cu_mp-30_conventional_standard.cif")
         GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
         cls.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
             [1, 2, 3],
@@ -119,17 +118,17 @@ class TestGrainBoundaryGenerator(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         warnings.filterwarnings("ignore")
-        cls.Cu_prim = Structure.from_file(os.path.join(test_dir, "Cu_mp-30_primitive.cif"))
+        cls.Cu_prim = Structure.from_file(f"{test_dir}/Cu_mp-30_primitive.cif")
         cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
-        cls.Cu_conv = Structure.from_file(os.path.join(test_dir, "Cu_mp-30_conventional_standard.cif"))
+        cls.Cu_conv = Structure.from_file(f"{test_dir}/Cu_mp-30_conventional_standard.cif")
         cls.GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
-        cls.Be = Structure.from_file(os.path.join(test_dir, "Be_mp-87_conventional_standard.cif"))
+        cls.Be = Structure.from_file(f"{test_dir}/Be_mp-87_conventional_standard.cif")
         cls.GB_Be = GrainBoundaryGenerator(cls.Be)
-        cls.Pa = Structure.from_file(os.path.join(test_dir, "Pa_mp-62_conventional_standard.cif"))
+        cls.Pa = Structure.from_file(f"{test_dir}/Pa_mp-62_conventional_standard.cif")
         cls.GB_Pa = GrainBoundaryGenerator(cls.Pa)
-        cls.Br = Structure.from_file(os.path.join(test_dir, "Br_mp-23154_conventional_standard.cif"))
+        cls.Br = Structure.from_file(f"{test_dir}/Br_mp-23154_conventional_standard.cif")
         cls.GB_Br = GrainBoundaryGenerator(cls.Br)
-        cls.Bi = Structure.from_file(os.path.join(test_dir, "Bi_mp-23152_primitive.cif"))
+        cls.Bi = Structure.from_file(f"{test_dir}/Bi_mp-23152_primitive.cif")
         cls.GB_Bi = GrainBoundaryGenerator(cls.Bi)
 
     @classmethod

@@ -23,8 +23,7 @@ class AbstractTransformation(MSONable, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def apply_transformation(self, structure: Structure):
-        """
-        Applies the transformation to a structure. Depending on whether a
+        """Applies the transformation to a structure. Depending on whether a
         transformation is one-to-many, there may be an option to return a
         ranked list of structures.
 
@@ -52,16 +51,14 @@ class AbstractTransformation(MSONable, metaclass=abc.ABCMeta):
     @property
     @abc.abstractmethod
     def inverse(self) -> AbstractTransformation | None:
-        """
-        Returns the inverse transformation if available.
+        """Returns the inverse transformation if available.
         Otherwise, should return None.
         """
 
     @property
     @abc.abstractmethod
     def is_one_to_many(self) -> bool:
-        """
-        Determines if a Transformation is a one-to-many transformation. If a
+        """Determines if a Transformation is a one-to-many transformation. If a
         Transformation is a one-to-many transformation, the
         apply_transformation method should have a keyword arg
         "return_ranked_list" which allows for the transformed structures to be
@@ -71,8 +68,7 @@ class AbstractTransformation(MSONable, metaclass=abc.ABCMeta):
 
     @property
     def use_multiprocessing(self) -> bool:
-        """
-        Indicates whether the transformation can be applied by a
+        """Indicates whether the transformation can be applied by a
         subprocessing pool. This should be overridden to return True for
         transformations that the transmuter can parallelize.
         """

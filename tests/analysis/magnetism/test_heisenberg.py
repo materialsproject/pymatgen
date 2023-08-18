@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 import warnings
 
@@ -16,10 +15,10 @@ test_dir = f"{TEST_FILES_DIR}/magnetic_orderings"
 class TestHeisenbergMapper(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.df = pd.read_json(os.path.join(test_dir, "mag_orderings_test_cases.json"))
+        cls.df = pd.read_json(f"{test_dir}/mag_orderings_test_cases.json")
 
         # Good tests
-        cls.Mn3Al = pd.read_json(os.path.join(test_dir, "Mn3Al.json"))
+        cls.Mn3Al = pd.read_json(f"{test_dir}/Mn3Al.json")
 
         cls.compounds = [cls.Mn3Al]
 

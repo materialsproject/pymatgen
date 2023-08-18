@@ -206,7 +206,7 @@ direct
    0.75    0.50    0.75 Si
 """
 
-        actual_str = poscar.get_string(significant_figures=2)
+        actual_str = poscar.get_str(significant_figures=2)
         assert actual_str == expected_str, "Wrong POSCAR output!"
 
     def test_str(self):
@@ -574,8 +574,8 @@ class TestIncar:
         assert i == self.incar
         tempfname.unlink()
 
-    def test_get_string(self):
-        s = self.incar.get_string(pretty=True, sort_keys=True)
+    def test_get_str(self):
+        s = self.incar.get_str(pretty=True, sort_keys=True)
         expected = """ALGO       =  Damped
 EDIFF      =  0.0001
 ENCUT      =  500
@@ -759,16 +759,14 @@ class TestKpoints:
         filepath = f"{TEST_FILES_DIR}/KPOINTS.explicit"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts_weights is not None
-        assert (
-            str(kpoints).strip()
-            == """Example file
+        expected_kpt_str = """Example file
 4
 Cartesian
 0.0 0.0 0.0 1 None
 0.0 0.0 0.5 1 None
 0.0 0.5 0.5 2 None
 0.5 0.5 0.5 4 None"""
-        )
+        assert str(kpoints).strip() == expected_kpt_str
 
         filepath = f"{TEST_FILES_DIR}/KPOINTS.explicit_tet"
         kpoints = Kpoints.from_file(filepath)
@@ -1029,8 +1027,8 @@ class TestPotcarSingle:
     def test_verify_correct_potcar_with_hash(self):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash.gz"
         vaspdir = os.path.abspath(os.path.dirname(pymatgen.io.vasp.__file__))
-        file_hash_db = loadfn(os.path.join(vaspdir, "vasp_potcar_file_hashes.json"))
-        metadata_hash_db = loadfn(os.path.join(vaspdir, "vasp_potcar_pymatgen_hashes.json"))
+        file_hash_db = loadfn(f"{vaspdir}/vasp_potcar_file_hashes.json")
+        metadata_hash_db = loadfn(f"{vaspdir}/vasp_potcar_pymatgen_hashes.json")
 
         psingle = PotcarSingle.from_file(filename)
         assert psingle.hash in metadata_hash_db
@@ -1040,7 +1038,7 @@ class TestPotcarSingle:
     def test_multi_potcar_with_and_without_hash(self):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_O.gz"
         vaspdir = os.path.abspath(os.path.dirname(pymatgen.io.vasp.__file__))
-        loadfn(os.path.join(vaspdir, "vasp_potcar_file_hashes.json"))
+        loadfn(f"{vaspdir}/vasp_potcar_file_hashes.json")
         Potcar.from_file(filename)
         # Still need to test the if POTCAR can be read.
         # No longer testing for hashes

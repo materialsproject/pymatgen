@@ -164,24 +164,24 @@ class ElasticTensor(NthOrderElasticTensor):
         return ComplianceTensor.from_voigt(s_voigt)
 
     @property
-    def k_voigt(self):
+    def k_voigt(self) -> float:
         """Returns the K_v bulk modulus."""
         return self.voigt[:3, :3].mean()
 
     @property
-    def g_voigt(self):
+    def g_voigt(self) -> float:
         """Returns the G_v shear modulus."""
         return (
             2 * self.voigt[:3, :3].trace() - np.triu(self.voigt[:3, :3]).sum() + 3 * self.voigt[3:, 3:].trace()
         ) / 15.0
 
     @property
-    def k_reuss(self):
+    def k_reuss(self) -> float:
         """Returns the K_r bulk modulus."""
         return 1 / self.compliance_tensor.voigt[:3, :3].sum()
 
     @property
-    def g_reuss(self):
+    def g_reuss(self) -> float:
         """Returns the G_r shear modulus."""
         return 15 / (
             8 * self.compliance_tensor.voigt[:3, :3].trace()
@@ -190,17 +190,17 @@ class ElasticTensor(NthOrderElasticTensor):
         )
 
     @property
-    def k_vrh(self):
+    def k_vrh(self) -> float:
         """Returns the K_vrh (Voigt-Reuss-Hill) average bulk modulus."""
         return 0.5 * (self.k_voigt + self.k_reuss)
 
     @property
-    def g_vrh(self):
+    def g_vrh(self) -> float:
         """Returns the G_vrh (Voigt-Reuss-Hill) average shear modulus."""
         return 0.5 * (self.g_voigt + self.g_reuss)
 
     @property
-    def y_mod(self):
+    def y_mod(self) -> float:
         """
         Calculates Young's modulus (in SI units) using the
         Voigt-Reuss-Hill averages of bulk and shear moduli.

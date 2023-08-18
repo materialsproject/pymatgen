@@ -44,13 +44,13 @@ class TestLammpsBox(PymatgenTest):
         assert self.peptide.volume == ov
         assert self.quartz.volume == approx(113.007331)
 
-    def test_get_string(self):
-        peptide = self.peptide.get_string(5)
+    def test_get_str(self):
+        peptide = self.peptide.get_str(5)
         peptide_5 = """36.84019 64.21156  xlo xhi
 41.01369 68.38506  ylo yhi
 29.76809 57.13946  zlo zhi"""
         assert peptide == peptide_5
-        quartz = self.quartz.get_string(4)
+        quartz = self.quartz.get_str(4)
         quartz_4 = """0.0000 4.9134  xlo xhi
 0.0000 4.2551  ylo yhi
 0.0000 5.4052  zlo zhi
@@ -80,12 +80,12 @@ class TestLammpsBox(PymatgenTest):
 class TestLammpsData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.peptide = LammpsData.from_file(filename=os.path.join(test_dir, "data.peptide"))
-        cls.ethane = LammpsData.from_file(filename=os.path.join(test_dir, "ethane.data"))
-        cls.quartz = LammpsData.from_file(filename=os.path.join(test_dir, "data.quartz"), atom_style="atomic")
-        cls.virus = LammpsData.from_file(filename=os.path.join(test_dir, "virus.data"), atom_style="angle")
+        cls.peptide = LammpsData.from_file(filename=f"{test_dir}/data.peptide")
+        cls.ethane = LammpsData.from_file(filename=f"{test_dir}/ethane.data")
+        cls.quartz = LammpsData.from_file(filename=f"{test_dir}/data.quartz", atom_style="atomic")
+        cls.virus = LammpsData.from_file(filename=f"{test_dir}/virus.data", atom_style="angle")
         cls.tatb = LammpsData.from_file(
-            filename=os.path.join(test_dir, "tatb.data"),
+            filename=f"{test_dir}/tatb.data",
             atom_style="charge",
             sort_id=True,
         )
@@ -134,8 +134,8 @@ class TestLammpsData(unittest.TestCase):
         lmp2 = LammpsData.from_file("test1.data", atom_style="charge")
         assert lmp2.atoms["type"].tolist() == [1, 2]
 
-    def test_get_string(self):
-        pep = self.peptide.get_string(distance=7, velocity=5, charge=4)
+    def test_get_str(self):
+        pep = self.peptide.get_str(distance=7, velocity=5, charge=4)
         pep_lines = pep.split("\n")
         pep_kws = [
             "Masses",
@@ -188,7 +188,7 @@ class TestLammpsData(unittest.TestCase):
         pep_topos = "\n".join(pep_lines[kw_inds["Bonds"] :])
         assert "." not in pep_topos
 
-        c2h6 = self.ethane.get_string(distance=5, charge=3)
+        c2h6 = self.ethane.get_str(distance=5, charge=3)
         c2h6_lines = c2h6.split("\n")
         c2h6_kws = [
             "Masses",
@@ -242,7 +242,7 @@ class TestLammpsData(unittest.TestCase):
         c2h6_topos = "\n".join(c2h6_lines[kw_inds["Bonds"] :])
         assert "." not in c2h6_topos
 
-        quartz = self.quartz.get_string(distance=4)
+        quartz = self.quartz.get_str(distance=4)
         quartz_lines = quartz.split("\n")
         quartz_kws = ["Masses", "Atoms"]
         kw_inds = {line: idx for idx, line in enumerate(quartz_lines) if line in quartz_kws}
@@ -264,7 +264,7 @@ class TestLammpsData(unittest.TestCase):
         quartz_atom = quartz_lines[kw_inds["Atoms"] + 2]
         assert quartz_atom == "1  1  2.3088  0.0000  3.6035"
 
-        virus = self.virus.get_string()
+        virus = self.virus.get_str()
         virus_lines = virus.split("\n")
         pairij_coeff = virus_lines[virus_lines.index("PairIJ Coeffs") + 5]
         assert pairij_coeff.strip().split() == ["1", "4", "1", "1.000", "1.12250"]
@@ -286,7 +286,7 @@ class TestLammpsData(unittest.TestCase):
 
     def test_disassemble(self):
         # general tests
-        c = LammpsData.from_file(os.path.join(test_dir, "crambin.data"))
+        c = LammpsData.from_file(f"{test_dir}/crambin.data")
         _, c_ff, topos = c.disassemble()
         mass_info = [
             ("N1", 14.0067),
@@ -450,7 +450,7 @@ class TestLammpsData(unittest.TestCase):
             "Angle Coeffs": [{"coeffs": [42.1845, 109.4712], "types": [("H", "O", "H")]}],
         }
         ff = ForceField(mass.items(), nonbond_coeffs, topo_coeffs)
-        with gzip.open(os.path.join(test_dir, "topologies_ice.json.gz")) as f:
+        with gzip.open(f"{test_dir}/topologies_ice.json.gz") as f:
             topo_dicts = json.load(f)
         topologies = [Topology.from_dict(d) for d in topo_dicts]
         box = LammpsBox([[-0.75694412, 44.165558], [0.38127473, 47.066074], [0.17900842, 44.193867]])
@@ -691,7 +691,7 @@ class TestForceField(unittest.TestCase):
             ]
         }
         cls.virus = ForceField(mass_info=mass_info, nonbond_coeffs=nonbond_coeffs, topo_coeffs=topo_coeffs)
-        cls.ethane = ForceField.from_file(os.path.join(test_dir, "ff_ethane.yaml"))
+        cls.ethane = ForceField.from_file(f"{test_dir}/ff_ethane.yaml")
 
     def test_init(self):
         v = self.virus
@@ -817,19 +817,19 @@ class TestFunc(unittest.TestCase):
 class TestCombinedData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.ec = LammpsData.from_file(filename=os.path.join(test_dir, "ec.data.gz"))
-        cls.fec = LammpsData.from_file(filename=os.path.join(test_dir, "fec.data.gz"))
-        cls.li = LammpsData.from_file(filename=os.path.join(test_dir, "li.data"))
-        cls.li_minimal = LammpsData.from_file(filename=os.path.join(test_dir, "li_minimal.data"))
-        cls.coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz.gz"))
-        cls.small_coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec.xyz"))
-        cls.small_coord_2 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec_2.xyz"))
-        cls.small_coord_3 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_2.xyz"))
+        cls.ec = LammpsData.from_file(filename=f"{test_dir}/ec.data.gz")
+        cls.fec = LammpsData.from_file(filename=f"{test_dir}/fec.data.gz")
+        cls.li = LammpsData.from_file(filename=f"{test_dir}/li.data")
+        cls.li_minimal = LammpsData.from_file(filename=f"{test_dir}/li_minimal.data")
+        cls.coord = CombinedData.parse_xyz(filename=f"{test_dir}/ec_fec.xyz.gz")
+        cls.small_coord = CombinedData.parse_xyz(filename=f"{test_dir}/li_ec.xyz")
+        cls.small_coord_2 = CombinedData.parse_xyz(filename=f"{test_dir}/li_ec_2.xyz")
+        cls.small_coord_3 = CombinedData.parse_xyz(filename=f"{test_dir}/li_2.xyz")
         cls.ec_fec1 = CombinedData.from_files(
-            os.path.join(test_dir, "ec_fec.xyz.gz"),
+            f"{test_dir}/ec_fec.xyz.gz",
             [1200, 300],
-            os.path.join(test_dir, "ec.data.gz"),
-            os.path.join(test_dir, "fec.data.gz"),
+            f"{test_dir}/ec.data.gz",
+            f"{test_dir}/fec.data.gz",
         )
         cls.ec_fec2 = CombinedData.from_lammpsdata([cls.ec, cls.fec], ["EC", "FEC"], [1200, 300], cls.coord)
         cls.ec_fec_ld = cls.ec_fec1.as_lammpsdata()
@@ -997,10 +997,10 @@ class TestCombinedData(unittest.TestCase):
         assert li_2_minimal.force_field is None, "Empty ff info should be none"
         assert li_2_minimal.topology is None, "Empty topo info should be none"
 
-    def test_get_string(self):
+    def test_get_str(self):
         # general tests
-        ec_fec_lines = self.ec_fec1.get_string().splitlines()
-        ec_fec_double_lines = self.ec_fec3.get_string().splitlines()
+        ec_fec_lines = self.ec_fec1.get_str().splitlines()
+        ec_fec_double_lines = self.ec_fec3.get_str().splitlines()
         # header information
         assert ec_fec_lines[1] == "# 1200 cluster1 + 300 cluster2"
         assert ec_fec_double_lines[1] == "# 2(1500) EC_FEC"
@@ -1146,7 +1146,7 @@ class TestCombinedData(unittest.TestCase):
         assert topo["Dihedrals"].loc[41991, "type"] == 30
         assert topo["Dihedrals"].loc[41991, "atom2"] == 14994
         assert topo["Impropers"].loc[4, "atom4"] == 34
-        ec_fec_lines = self.ec_fec_ld.get_string().splitlines()
+        ec_fec_lines = self.ec_fec_ld.get_str().splitlines()
         # header information
         assert ec_fec_lines[1] == ""
         # data type consistency tests

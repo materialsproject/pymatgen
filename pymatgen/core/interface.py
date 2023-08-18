@@ -17,8 +17,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 class Interface(Structure):
-    """
-    This class stores data for defining an interface between two structures.
+    """This class stores data for defining an interface between two structures.
     It is a subclass of pymatgen.core.structure.Structure.
     """
 
@@ -36,8 +35,7 @@ class Interface(Structure):
         vacuum_over_film: float = 0,
         interface_properties: dict | None = None,
     ):
-        """
-        Makes an interface structure, a structure object with additional information
+        """Makes an interface structure, a structure object with additional information
         and methods pertaining to interfaces.
 
         Args:
@@ -97,8 +95,7 @@ class Interface(Structure):
 
     @property
     def in_plane_offset(self) -> np.ndarray:
-        """
-        The shift between the film and substrate in fractional
+        """The shift between the film and substrate in fractional
         coordinates.
         """
         return self._in_plane_offset
@@ -174,15 +171,13 @@ class Interface(Structure):
         return Structure.from_sites(self.film_sites)
 
     def copy(self):
-        """
-        Returns:
-            Interface: A copy of the Interface.
+        """Returns:
+        Interface: A copy of the Interface.
         """
         return Interface.from_dict(self.as_dict())
 
     def get_sorted_structure(self, key=None, reverse=False) -> Structure:
-        """
-        Get a sorted structure for the interface. The parameters have the same
+        """Get a sorted structure for the interface. The parameters have the same
         meaning as in list.sort. By default, sites are sorted by the
         electronegativity of the species.
 
@@ -198,8 +193,7 @@ class Interface(Structure):
         return struct_copy
 
     def get_shifts_based_on_adsorbate_sites(self, tolerance: float = 0.1) -> list[tuple[float, float]]:
-        """
-        Computes possible in-plane shifts based on an adsorbate site  algorithm.
+        """Computes possible in-plane shifts based on an adsorbate site  algorithm.
 
         Args:
             tolerance: tolerance for "uniqueness" for shifts in Cartesian unit
@@ -263,8 +257,7 @@ class Interface(Structure):
         return count_layers(self.substrate, sorted_element_list[0][0])
 
     def __update_c(self, new_c: float) -> None:
-        """
-        Modifies the c-direction of the lattice without changing the site Cartesian coordinates
+        """Modifies the c-direction of the lattice without changing the site Cartesian coordinates
         Be careful you can mess up the interface by setting a c-length that can't accommodate all the sites.
         """
         if new_c <= 0:
@@ -279,7 +272,7 @@ class Interface(Structure):
             site.coords = c_coords  # Put back into original Cartesian space
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict."""
         d = super().as_dict()
         d["in_plane_offset"] = self.in_plane_offset.tolist()
         d["gap"] = self.gap
@@ -289,8 +282,7 @@ class Interface(Structure):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        :param d: dict
+        """:param d: dict
         :return: Creates slab from dict.
         """
         lattice = Lattice.from_dict(d["lattice"])
@@ -322,8 +314,7 @@ class Interface(Structure):
         interface_properties: dict | None = None,
         center_slab: bool = True,
     ) -> Interface:
-        """
-        Makes an interface structure by merging a substrate and film slabs
+        """Makes an interface structure by merging a substrate and film slabs
         The film a- and b-vectors will be forced to be the substrate slab's
         a- and b-vectors.
 

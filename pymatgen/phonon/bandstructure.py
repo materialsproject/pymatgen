@@ -11,8 +11,7 @@ from pymatgen.electronic_structure.bandstructure import Kpoint
 
 
 def get_reasonable_repetitions(n_atoms: int) -> tuple[int, int, int]:
-    """
-    Choose the number of repetitions in a supercell
+    """Choose the number of repetitions in a supercell
     according to the number of atoms in the system.
     """
     if n_atoms < 4:
@@ -50,8 +49,7 @@ def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order):
 
 
 class PhononBandStructure(MSONable):
-    """
-    This is the most generic phonon band structure data possible
+    """This is the most generic phonon band structure data possible
     it's defined by a list of qpoints + frequencies for each of them.
     Additional information may be given for frequencies at Gamma, where
     non-analytical contribution may be taken into account.
@@ -160,8 +158,7 @@ class PhononBandStructure(MSONable):
         return len(self.eigendisplacements) > 0
 
     def get_nac_frequencies_along_dir(self, direction):
-        """
-        Returns the nac_frequencies for the given direction (not necessarily a versor).
+        """Returns the nac_frequencies for the given direction (not necessarily a versor).
         None if the direction is not present or nac_frequencies has not been calculated.
 
         Args:
@@ -178,8 +175,7 @@ class PhononBandStructure(MSONable):
         return None
 
     def get_nac_eigendisplacements_along_dir(self, direction):
-        """
-        Returns the nac_eigendisplacements for the given direction (not necessarily a versor).
+        """Returns the nac_eigendisplacements for the given direction (not necessarily a versor).
         None if the direction is not present or nac_eigendisplacements has not been calculated.
 
         Args:
@@ -196,8 +192,7 @@ class PhononBandStructure(MSONable):
         return None
 
     def asr_breaking(self, tol_eigendisplacements=1e-5):
-        """
-        Returns the breaking of the acoustic sum rule for the three acoustic modes,
+        """Returns the breaking of the acoustic sum rule for the three acoustic modes,
         if Gamma is present. None otherwise.
         If eigendisplacements are available they are used to determine the acoustic
         modes: selects the bands corresponding  to the eigendisplacements that
@@ -224,7 +219,7 @@ class PhononBandStructure(MSONable):
         return None
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -258,8 +253,7 @@ class PhononBandStructure(MSONable):
 
     @classmethod
     def from_dict(cls, dct):
-        """
-        :param dct: Dict representation
+        """:param dct: Dict representation
         :return: PhononBandStructure
         """
         lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
@@ -285,8 +279,7 @@ class PhononBandStructure(MSONable):
 
 
 class PhononBandStructureSymmLine(PhononBandStructure):
-    r"""
-    This object stores phonon band structures along selected (symmetry) lines in the
+    r"""This object stores phonon band structures along selected (symmetry) lines in the
     Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)
     "branches".
     """
@@ -400,8 +393,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             self.nac_eigendisplacements = np.array(nac_eigendisplacements, dtype=object)
 
     def get_equivalent_qpoints(self, index):
-        """
-        Returns the list of qpoint indices equivalent (meaning they are the
+        """Returns the list of qpoint indices equivalent (meaning they are the
         same frac coords) to the given one.
 
         Args:
@@ -427,8 +419,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return list_index_qpoints
 
     def get_branch(self, index):
-        r"""
-        Returns in what branch(es) is the qpoint. There can be several
+        r"""Returns in what branch(es) is the qpoint. There can be several
         branches.
 
         Args:
@@ -455,8 +446,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return to_return
 
     def write_phononwebsite(self, filename):
-        """
-        Write a json file for the phononwebsite:
+        """Write a json file for the phononwebsite:
         http://henriquemiranda.github.io/phononwebsite.
         """
         import json
@@ -465,8 +455,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             json.dump(self.as_phononwebsite(), f)
 
     def as_phononwebsite(self):
-        """
-        Return a dictionary with the phononwebsite format:
+        """Return a dictionary with the phononwebsite format:
         http://henriquemiranda.github.io/phononwebsite.
         """
         dct = {}

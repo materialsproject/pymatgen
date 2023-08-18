@@ -14,8 +14,7 @@ if TYPE_CHECKING:
 
 
 def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[SymmOp]]:
-    """
-    Get all the point group operations centered on each atomic site
+    """Get all the point group operations centered on each atomic site
     in the form [[point operations of site index 1]...[[point operations of site index N]]].
 
     Args:
@@ -48,8 +47,7 @@ def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[
 
 
 def get_shared_symmetry_operations(struct: Structure, pointops: list[list[SymmOp]], tol: float = 0.1):
-    """
-    Get all the point group operations shared by a pair of atomic sites
+    """Get all the point group operations shared by a pair of atomic sites
     in the form [[point operations of site index 1],[],...,[]].
 
     Args:

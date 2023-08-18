@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import functools
 import json
-import os
 import random
 import unittest
 import warnings
 from shutil import which
 
+import numpy as np
 import pytest
 from monty.json import MontyDecoder
 from pytest import approx
@@ -158,6 +158,43 @@ class TestSupercellTransformation(unittest.TestCase):
         trafo = SupercellTransformation.from_scaling_factors(*scale_factors)
         struct = trafo.apply_transformation(self.struct)
         assert len(struct) == 4 * functools.reduce(lambda a, b: a * b, scale_factors)
+
+    def test_from_boundary_distance(self):
+        struct_cubic = Structure.from_spacegroup("Pm-3m", 4 * np.eye(3), ["H"], [[0, 0, 0]])
+
+        for struct in [struct_cubic, self.struct]:
+            for min_dist in range(6, 19, 4):
+                trafo = SupercellTransformation.from_boundary_distance(
+                    structure=struct, min_boundary_dist=min_dist, allow_rotation=False
+                )
+                trafo_allow_rotate = SupercellTransformation.from_boundary_distance(
+                    structure=struct, min_boundary_dist=min_dist, allow_rotation=True
+                )
+                struct_super = trafo.apply_transformation(struct.copy())
+                struct_super_allow_rotate = trafo_allow_rotate.apply_transformation(struct.copy())
+
+                if min_dist == 9 and struct is struct_cubic:
+                    assert len(struct_super_allow_rotate) == 14
+                    assert len(struct_super) == 27
+
+                min_expand_allow_rotate_true = np.int8(
+                    min_dist / np.array([struct_super_allow_rotate.lattice.d_hkl(plane) for plane in np.eye(3)])
+                )
+                min_expand_allow_rotate_false = np.int8(
+                    min_dist / np.array([struct_super.lattice.d_hkl(plane) for plane in np.eye(3)])
+                )
+
+                assert sum(min_expand_allow_rotate_true != 0) == 0
+                assert sum(min_expand_allow_rotate_false != 0) == 0
+                assert len(struct_super_allow_rotate) <= len(struct_super)
+
+        max_atoms = 10
+        with pytest.raises(
+            RuntimeError,
+            match=f"{max_atoms=} exceeded while trying to solve for supercell. "
+            f"You can try lowering min_boundary_dist=6",
+        ):
+            SupercellTransformation.from_boundary_distance(structure=self.struct, max_atoms=max_atoms)
 
 
 class TestOxidationStateDecorationTransformation(unittest.TestCase):
@@ -585,27 +622,27 @@ class TestScaleToRelaxedTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         # Test on slab relaxation where volume is fixed
         f = f"{TEST_FILES_DIR}/surface_tests"
-        Cu_fin = Structure.from_file(os.path.join(f, "Cu_slab_fin.cif"))
-        Cu_init = Structure.from_file(os.path.join(f, "Cu_slab_init.cif"))
+        Cu_fin = Structure.from_file(f"{f}/Cu_slab_fin.cif")
+        Cu_init = Structure.from_file(f"{f}/Cu_slab_init.cif")
         slab_scaling = ScaleToRelaxedTransformation(Cu_init, Cu_fin)
-        Au_init = Structure.from_file(os.path.join(f, "Au_slab_init.cif"))
+        Au_init = Structure.from_file(f"{f}/Au_slab_init.cif")
         Au_fin = slab_scaling.apply_transformation(Au_init)
         assert Au_fin.volume == approx(Au_init.volume)
 
         # Test on gb relaxation
         f = f"{TEST_FILES_DIR}/grain_boundary"
-        Be_fin = Structure.from_file(os.path.join(f, "Be_gb_fin.cif"))
-        Be_init = Structure.from_file(os.path.join(f, "Be_gb_init.cif"))
-        Zn_init = Structure.from_file(os.path.join(f, "Zn_gb_init.cif"))
+        Be_fin = Structure.from_file(f"{f}/Be_gb_fin.cif")
+        Be_init = Structure.from_file(f"{f}/Be_gb_init.cif")
+        Zn_init = Structure.from_file(f"{f}/Zn_gb_init.cif")
         gb_scaling = ScaleToRelaxedTransformation(Be_init, Be_fin)
         Zn_fin = gb_scaling.apply_transformation(Zn_init)
         assert all(site.species_string == "Zn" for site in Zn_fin)
         assert (Be_init.lattice.a < Be_fin.lattice.a) == (Zn_init.lattice.a < Zn_fin.lattice.a)
         assert (Be_init.lattice.b < Be_fin.lattice.b) == (Zn_init.lattice.b < Zn_fin.lattice.b)
         assert (Be_init.lattice.c < Be_fin.lattice.c) == (Zn_init.lattice.c < Zn_fin.lattice.c)
-        Fe_fin = Structure.from_file(os.path.join(f, "Fe_gb_fin.cif"))
-        Fe_init = Structure.from_file(os.path.join(f, "Fe_gb_init.cif"))
-        Mo_init = Structure.from_file(os.path.join(f, "Mo_gb_init.cif"))
+        Fe_fin = Structure.from_file(f"{f}/Fe_gb_fin.cif")
+        Fe_init = Structure.from_file(f"{f}/Fe_gb_init.cif")
+        Mo_init = Structure.from_file(f"{f}/Mo_gb_init.cif")
         gb_scaling = ScaleToRelaxedTransformation(Fe_init, Fe_fin)
         Mo_fin = gb_scaling.apply_transformation(Mo_init)
         assert all(site.species_string == "Mo" for site in Mo_fin)

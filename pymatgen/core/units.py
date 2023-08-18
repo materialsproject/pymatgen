@@ -1,5 +1,4 @@
-"""
-This module implements a FloatWithUnit, which is a subclass of float. It
+"""This module implements a FloatWithUnit, which is a subclass of float. It
 also defines supported units for some commonly used units for energy, length,
 temperature, time and charge. FloatWithUnit also support conversion to one
 another, and additions and subtractions perform automatic conversion if
@@ -157,16 +156,14 @@ def _check_mappings(u):
 
 
 class Unit(collections.abc.Mapping):
-    """
-    Represents a unit, e.g., "m" for meters, etc. Supports compound units.
+    """Represents a unit, e.g., "m" for meters, etc. Supports compound units.
     Only integer powers are supported for units.
     """
 
     Error = UnitError
 
     def __init__(self, unit_def):
-        """
-        Constructs a unit.
+        """Constructs a unit.
 
         Args:
             unit_def: A definition for the unit. Either a mapping of unit to
@@ -227,8 +224,7 @@ class Unit(collections.abc.Mapping):
 
     @property
     def as_base_units(self):
-        """
-        Converts all units to base SI units, including derived units.
+        """Converts all units to base SI units, including derived units.
 
         Returns:
             (base_units_dict, scaling factor). base_units_dict will not
@@ -254,8 +250,7 @@ class Unit(collections.abc.Mapping):
         return {k: v for k, v in b.items() if v != 0}, factor
 
     def get_conversion_factor(self, new_unit):
-        """
-        Returns a conversion factor between this unit and a new unit.
+        """Returns a conversion factor between this unit and a new unit.
         Compound units are supported, but must have the same powers in each
         unit type.
 
@@ -276,8 +271,7 @@ class Unit(collections.abc.Mapping):
 
 
 class FloatWithUnit(float):
-    """
-    Subclasses float to attach a unit type. Typically, you should use the
+    """Subclasses float to attach a unit type. Typically, you should use the
     pre-defined unit type subclasses such as Energy, Length, etc. instead of
     using FloatWithUnit directly.
 
@@ -338,8 +332,7 @@ class FloatWithUnit(float):
         return new
 
     def __init__(self, val, unit, unit_type=None):
-        """
-        Initializes a float with unit.
+        """Initializes a float with unit.
 
         Args:
             val (float): Value
@@ -419,17 +412,16 @@ class FloatWithUnit(float):
 
     @property
     def unit_type(self) -> str:
-        """:return: The type of unit. Energy, Charge, etc."""
+        """The type of unit. Energy, Charge, etc."""
         return self._unit_type
 
     @property
     def unit(self) -> str:
-        """:return: The unit, e.g., "eV"."""
+        """The unit, e.g., "eV"."""
         return self._unit
 
     def to(self, new_unit):
-        """
-        Conversion to a new_unit. Right now, only supports 1 to 1 mapping of
+        """Conversion to a new_unit. Right now, only supports 1 to 1 mapping of
         units of each type.
 
         Args:
@@ -452,8 +444,7 @@ class FloatWithUnit(float):
 
     @property
     def as_base_units(self):
-        """
-        Returns this FloatWithUnit in base SI units, including derived units.
+        """Returns this FloatWithUnit in base SI units, including derived units.
 
         Returns:
             A FloatWithUnit object in base SI units
@@ -467,8 +458,7 @@ class FloatWithUnit(float):
 
 
 class ArrayWithUnit(np.ndarray):
-    """
-    Subclasses numpy.ndarray to attach a unit type. Typically, you should
+    """Subclasses numpy.ndarray to attach a unit type. Typically, you should
     use the pre-defined unit type subclasses such as EnergyArray,
     LengthArray, etc. instead of using ArrayWithFloatWithUnit directly.
 
@@ -498,8 +488,7 @@ class ArrayWithUnit(np.ndarray):
         return obj
 
     def __array_finalize__(self, obj):
-        """
-        See http://docs.scipy.org/doc/numpy/user/basics.subclassing.html for
+        """See http://docs.scipy.org/doc/numpy/user/basics.subclassing.html for
         comments.
         """
         if obj is None:
@@ -509,12 +498,12 @@ class ArrayWithUnit(np.ndarray):
 
     @property
     def unit_type(self) -> str:
-        """:return: The type of unit. Energy, Charge, etc."""
+        """The type of unit. Energy, Charge, etc."""
         return self._unit_type
 
     @property
     def unit(self) -> str:
-        """:return: The unit, e.g., "eV"."""
+        """The unit, e.g., "eV"."""
         return self._unit
 
     def __reduce__(self):
@@ -604,8 +593,7 @@ class ArrayWithUnit(np.ndarray):
         return self.__class__(-np.array(self), unit_type=self.unit_type, unit=self.unit)
 
     def to(self, new_unit):
-        """
-        Conversion to a new_unit.
+        """Conversion to a new_unit.
 
         Args:
             new_unit:
@@ -627,8 +615,7 @@ class ArrayWithUnit(np.ndarray):
 
     @property
     def as_base_units(self):
-        """
-        Returns this ArrayWithUnit in base SI units, including derived units.
+        """Returns this ArrayWithUnit in base SI units, including derived units.
 
         Returns:
             An ArrayWithUnit object in base SI units
@@ -643,16 +630,14 @@ class ArrayWithUnit(np.ndarray):
 
     # TODO abstract base class method?
     def conversions(self):
-        """
-        Returns a string showing the available conversions.
+        """Returns a string showing the available conversions.
         Useful tool in interactive mode.
         """
         return "\n".join(str(self.to(unit)) for unit in self.supported_units)
 
 
 def _my_partial(func, *args, **kwargs):
-    """
-    Partial returns a partial object and therefore we cannot inherit class
+    """Partial returns a partial object and therefore we cannot inherit class
     methods defined in FloatWithUnit. This function calls partial and patches
     the new class before returning.
     """
@@ -738,8 +723,7 @@ Args:
 
 
 def obj_with_unit(obj: Any, unit: str) -> FloatWithUnit | ArrayWithUnit | dict[str, FloatWithUnit | ArrayWithUnit]:
-    """
-    Returns a FloatWithUnit instance if obj is scalar, a dictionary of
+    """Returns a FloatWithUnit instance if obj is scalar, a dictionary of
     objects with units if obj is a dict, else an instance of
     ArrayWithFloatWithUnit.
 
@@ -757,8 +741,7 @@ def obj_with_unit(obj: Any, unit: str) -> FloatWithUnit | ArrayWithUnit | dict[s
 
 
 def unitized(unit):
-    """
-    Useful decorator to assign units to the output of a function. You can also
+    """Useful decorator to assign units to the output of a function. You can also
     use it to standardize the output units of a function that already returns
     a FloatWithUnit or ArrayWithUnit. For sequences, all values in the sequences
     are assigned the same unit. It works with Python sequences only. The creation

@@ -1,5 +1,4 @@
-"""
-This module implements functions to perform various useful operations on
+"""This module implements functions to perform various useful operations on
 entries, such as grouping entries by structure.
 """
 
@@ -81,8 +80,7 @@ def group_entries_by_structure(
     comparator=None,
     ncpus=None,
 ):
-    """
-    Given a sequence of ComputedStructureEntries, use structure fitter to group
+    """Given a sequence of ComputedStructureEntries, use structure fitter to group
     them by structural similarity.
 
     Args:
@@ -165,8 +163,7 @@ def group_entries_by_structure(
 
 
 def group_entries_by_composition(entries, sort_by_e_per_atom=True):
-    """
-    Given a sequence of Entry-like objects, group them by composition and
+    """Given a sequence of Entry-like objects, group them by composition and
         optionally sort by energy above hull.
 
     Args:
@@ -191,8 +188,7 @@ def group_entries_by_composition(entries, sort_by_e_per_atom=True):
 
 
 class EntrySet(collections.abc.MutableSet, MSONable):
-    """
-    A convenient container for manipulating entries. Allows for generating
+    """A convenient container for manipulating entries. Allows for generating
     subsets, dumping into files, etc.
     """
 
@@ -213,16 +209,14 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return len(self.entries)
 
     def add(self, element):
-        """
-        Add an entry.
+        """Add an entry.
 
         :param element: Entry
         """
         self.entries.add(element)
 
     def discard(self, element):
-        """
-        Discard an entry.
+        """Discard an entry.
 
         :param element: Entry
         """
@@ -230,9 +224,8 @@ class EntrySet(collections.abc.MutableSet, MSONable):
 
     @property
     def chemsys(self) -> set:
-        """
-        Returns:
-            set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}.
+        """Returns:
+        set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}.
         """
         chemsys = set()
         for e in self.entries:
@@ -241,8 +234,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
 
     @property
     def ground_states(self) -> set:
-        """
-        A set containing only the entries that are ground states, i.e., the lowest energy
+        """A set containing only the entries that are ground states, i.e., the lowest energy
         per atom entry at each composition.
         """
         entries = sorted(self.entries, key=lambda e: e.composition.reduced_formula)
@@ -252,8 +244,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return ground_states
 
     def remove_non_ground_states(self):
-        """
-        Removes all non-ground state entries, i.e., only keep the lowest energy
+        """Removes all non-ground state entries, i.e., only keep the lowest energy
         per atom entry at each composition.
         """
         self.entries = self.ground_states
@@ -263,8 +254,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return entry in self.ground_states
 
     def get_subset_in_chemsys(self, chemsys: list[str]):
-        """
-        Returns an EntrySet containing only the set of entries belonging to
+        """Returns an EntrySet containing only the set of entries belonging to
         a particular chemical system (in this definition, it includes all sub
         systems). For example, if the entries are from the
         Li-Fe-P-O system, and chemsys=["Li", "O"], only the Li, O,
@@ -294,8 +284,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return {"entries": list(self.entries)}
 
     def to_csv(self, filename: str, latexify_names: bool = False) -> None:
-        """
-        Exports PDEntries to a csv.
+        """Exports PDEntries to a csv.
 
         Args:
             filename: Filename to write to.
@@ -323,8 +312,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
 
     @classmethod
     def from_csv(cls, filename: str):
-        """
-        Imports PDEntries from a csv.
+        """Imports PDEntries from a csv.
 
         Args:
             filename: Filename to import from.

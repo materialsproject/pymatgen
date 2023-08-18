@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 import warnings
 
@@ -29,16 +28,16 @@ except Exception:
 test_dir = f"{TEST_FILES_DIR}/boltztrap2"
 
 
-vrunfile = os.path.join(test_dir, "vasprun.xml")
+vrunfile = f"{test_dir}/vasprun.xml"
 vrun = Vasprun(vrunfile, parse_projected_eigen=True)
 
-vrunfile_sp = os.path.join(test_dir, "vasprun_spin.xml")
+vrunfile_sp = f"{test_dir}/vasprun_spin.xml"
 vrun_sp = Vasprun(vrunfile_sp, parse_projected_eigen=True)
-bs = loadfn(os.path.join(test_dir, "PbTe_bandstructure.json"))
-bs_sp = loadfn(os.path.join(test_dir, "N2_bandstructure.json"))
+bs = loadfn(f"{test_dir}/PbTe_bandstructure.json")
+bs_sp = loadfn(f"{test_dir}/N2_bandstructure.json")
 
-bztinterp_fn = os.path.join(test_dir, "bztInterp.json.gz")
-bzttransp_fn = os.path.join(test_dir, "bztTranspProps.json.gz")
+bztinterp_fn = f"{test_dir}/bztInterp.json.gz"
+bzttransp_fn = f"{test_dir}/bztTranspProps.json.gz"
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
