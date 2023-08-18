@@ -72,9 +72,7 @@ class RotationTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Returns:
-        Inverse Transformation.
-        """
+        """Returns inverse Transformation."""
         return RotationTransformation(self.axis, -self.angle, self.angle_in_radians)
 
     @property
@@ -357,9 +355,7 @@ class SubstitutionTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Returns:
-        Inverse Transformation.
-        """
+        """Returns inverse Transformation."""
         inverse_map = {v: k for k, v in self._species_map.items()}
         return SubstitutionTransformation(inverse_map)
 
@@ -850,9 +846,7 @@ class DeformStructureTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Returns:
-        Inverse Transformation.
-        """
+        """Returns inverse Transformation."""
         return DeformStructureTransformation(self._deform.inv)
 
     @property

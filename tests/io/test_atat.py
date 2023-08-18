@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import numpy as np
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.structure import Structure
@@ -93,7 +93,7 @@ class TestAtat(PymatgenTest):
         struc_from_out = Structure.from_file(f"{test_dir}/bestsqs_nacl.out")
 
         assert struc_from_cif.matches(struc_from_out)
-        assert np.allclose(
+        assert_allclose(
             struc_from_out.lattice.parameters,
             struc_from_cif.lattice.parameters,
             atol=1e-4,
@@ -107,7 +107,7 @@ class TestAtat(PymatgenTest):
         struc_from_out = Structure.from_file(f"{test_dir}/bestsqs_pzt.out")
 
         assert struc_from_cif.matches(struc_from_out)
-        assert np.allclose(
+        assert_allclose(
             struc_from_out.lattice.parameters,
             struc_from_cif.lattice.parameters,
             atol=1e-4,

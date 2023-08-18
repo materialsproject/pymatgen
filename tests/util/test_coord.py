@@ -4,7 +4,7 @@ import random
 
 import numpy as np
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.core.lattice import Lattice
@@ -44,7 +44,7 @@ class TestCoordUtils:
         a = np.array([c1, c2])
         b = np.array([c3, c2, c1])
         inds = coord.coord_list_mapping(a, b)
-        assert np.allclose(a, b[inds])
+        assert_allclose(a, b[inds])
         with pytest.raises(ValueError, match="not a subset of superset"):
             coord.coord_list_mapping([c1, c2], [c2, c3])
         with pytest.raises(ValueError, match="Something wrong with the inputs, likely duplicates in superset"):
@@ -62,7 +62,7 @@ class TestCoordUtils:
         inds = coord.coord_list_mapping_pbc(a, b)
         diff = a - b[inds]
         diff -= np.round(diff)
-        assert np.allclose(diff, 0)
+        assert_allclose(diff, 0)
         with pytest.raises(ValueError, match="not a subset of superset"):
             coord.coord_list_mapping_pbc([c1, c2], [c2, c3])
         with pytest.raises(ValueError, match="Something wrong with the inputs, likely duplicates in superset"):
@@ -84,19 +84,15 @@ class TestCoordUtils:
         coords1 = [[0, 0, 0], [0.5, 0.5, 0.5]]
         coords2 = [[1, 2, -1], [1, 0, 0], [1, 0, 0]]
         result = [[2.44948974, 1, 1], [2.17944947, 0.8660254, 0.8660254]]
-        assert np.allclose(coord.all_distances(coords1, coords2), result, 4)
+        assert_allclose(coord.all_distances(coords1, coords2), result, 4)
 
     def test_pbc_diff(self):
-        assert np.allclose(coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]), [-0.2, -0.4, 0.2])
-        assert np.allclose(coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]), [-0.4, -0.4, 0.11])
-        assert np.allclose(coord.pbc_diff([0.1, 0.6, 1.01], [0.6, 0.1, 0.9]), [-0.5, 0.5, 0.11])
-        assert np.allclose(coord.pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]), [-0.3, -0.3, -0.3])
-        assert np.allclose(
-            coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9], pbc=(True, True, False)), [-0.2, -0.4, -0.8]
-        )
-        assert np.allclose(
-            coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9], pbc=(True, True, False)), [-0.4, -0.4, 0.11]
-        )
+        assert_allclose(coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]), [-0.2, -0.4, 0.2])
+        assert_allclose(coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]), [-0.4, -0.4, 0.11])
+        assert_allclose(coord.pbc_diff([0.1, 0.6, 1.01], [0.6, 0.1, 0.9]), [-0.5, 0.5, 0.11])
+        assert_allclose(coord.pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]), [-0.3, -0.3, -0.3])
+        assert_allclose(coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9], pbc=(True, True, False)), [-0.2, -0.4, -0.8])
+        assert_allclose(coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9], pbc=(True, True, False)), [-0.4, -0.4, 0.11])
 
     def test_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -176,49 +172,46 @@ class TestCoordUtils:
         output1 = coord.barycentric_coords(pts1, simplex1)
         # do back conversion to cartesian
         o_dot_s = np.sum(output1[:, :, None] * simplex1[None, :, :], axis=1)
-        assert np.allclose(pts1, o_dot_s)
+        assert_allclose(pts1, o_dot_s)
 
         # do 3d tests
         simplex2 = np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0], [0, 0, 0]])
         pts2 = np.array([[0, 0, 1], [0, 0.5, 0.5], [1.0 / 3, 1.0 / 3, 1.0 / 3]])
         output2 = coord.barycentric_coords(pts2, simplex2)
-        assert np.allclose(output2[1], [0.5, 0.5, 0, 0])
+        assert_allclose(output2[1], [0.5, 0.5, 0, 0])
         # do back conversion to cartesian
         o_dot_s = np.sum(output2[:, :, None] * simplex2[None, :, :], axis=1)
-        assert np.allclose(pts2, o_dot_s)
+        assert_allclose(pts2, o_dot_s)
         # test single point
-        assert np.allclose(output2[2], coord.barycentric_coords(pts2[2], simplex2))
+        assert_allclose(output2[2], coord.barycentric_coords(pts2[2], simplex2).squeeze())
 
     def test_pbc_shortest_vectors(self):
-        frac_coords = np.array(
-            [
-                [0.3, 0.3, 0.5],
-                [0.1, 0.1, 0.3],
-                [0.9, 0.9, 0.8],
-                [0.1, 0.0, 0.5],
-                [0.9, 0.7, 0.0],
-            ]
-        )
+        frac_coords = [
+            [0.3, 0.3, 0.5],
+            [0.1, 0.1, 0.3],
+            [0.9, 0.9, 0.8],
+            [0.1, 0.0, 0.5],
+            [0.9, 0.7, 0.0],
+        ]
+
         lattice = Lattice.from_parameters(8, 8, 4, 90, 76, 58)
-        expected = np.array(
-            [
-                [0.000, 3.015, 4.072, 3.519, 3.245],
-                [3.015, 0.000, 3.207, 1.131, 4.453],
-                [4.072, 3.207, 0.000, 2.251, 1.788],
-                [3.519, 1.131, 2.251, 0.000, 3.852],
-            ]
-        )
+        expected = [
+            [0.000, 3.015, 4.072, 3.519, 3.245],
+            [3.015, 0.000, 3.207, 1.131, 4.453],
+            [4.072, 3.207, 0.000, 2.251, 1.788],
+            [3.519, 1.131, 2.251, 0.000, 3.852],
+        ]
 
         vectors = coord.pbc_shortest_vectors(lattice, frac_coords[:-1], frac_coords)
         dists = np.sum(vectors**2, axis=-1) ** 0.5
-        assert np.allclose(dists, expected, 3)
+        assert_allclose(dists, expected, 3)
 
         prev_threshold = coord.LOOP_THRESHOLD
         coord.LOOP_THRESHOLD = 0
 
         vectors = coord.pbc_shortest_vectors(lattice, frac_coords[:-1], frac_coords)
         dists = np.sum(vectors**2, axis=-1) ** 0.5
-        assert np.allclose(dists, expected, 3)
+        assert_allclose(dists, expected, 3)
 
         coord.LOOP_THRESHOLD = prev_threshold
 
@@ -233,7 +226,7 @@ class TestCoordUtils:
         )
         vectors = coord.pbc_shortest_vectors(lattice_pbc, frac_coords[:-1], frac_coords)
         dists = np.sum(vectors**2, axis=-1) ** 0.5
-        assert np.allclose(dists, expected_pbc, 3)
+        assert_allclose(dists, expected_pbc, 3)
 
     def test_get_angle(self):
         v1 = (1, 0, 0)
@@ -265,10 +258,10 @@ class TestSimplex:
 
     def test_2dtriangle(self):
         simplex = coord.Simplex([[0, 1], [1, 1], [1, 0]])
-        assert np.allclose(simplex.bary_coords([0.5, 0.5]), [0.5, 0, 0.5])
-        assert np.allclose(simplex.bary_coords([0.5, 1]), [0.5, 0.5, 0])
-        assert np.allclose(simplex.bary_coords([0.5, 0.75]), [0.5, 0.25, 0.25])
-        assert np.allclose(simplex.bary_coords([0.75, 0.75]), [0.25, 0.5, 0.25])
+        assert_allclose(simplex.bary_coords([0.5, 0.5]), [0.5, 0, 0.5])
+        assert_allclose(simplex.bary_coords([0.5, 1]), [0.5, 0.5, 0])
+        assert_allclose(simplex.bary_coords([0.5, 0.75]), [0.5, 0.25, 0.25])
+        assert_allclose(simplex.bary_coords([0.75, 0.75]), [0.25, 0.5, 0.25])
 
         simplex = coord.Simplex([[1, 1], [1, 0]])
         with pytest.raises(ValueError, match="Simplex is not full-dimensional"):
@@ -286,9 +279,9 @@ class TestSimplex:
         s = coord.Simplex([[0, 2], [3, 1], [1, 0]])
         point = [0.7, 0.5]
         bc = s.bary_coords(point)
-        assert np.allclose(bc, [0.26, -0.02, 0.76])
+        assert_allclose(bc, [0.26, -0.02, 0.76])
         new_point = s.point_from_bary_coords(bc)
-        assert np.allclose(point, new_point)
+        assert_allclose(point, new_point)
 
     def test_intersection(self):
         # simple test, with 2 intersections at faces
@@ -297,56 +290,56 @@ class TestSimplex:
         point2 = [0.5, 0.7]
         intersections = s.line_intersection(point1, point2)
         expected = np.array([[1.13333333, 0.06666667], [0.8, 0.4]])
-        assert np.allclose(intersections, expected)
+        assert_allclose(intersections, expected)
 
         # intersection through point and face
         point1 = [0, 2]  # simplex point
         point2 = [1, 1]  # inside simplex
         expected = np.array([[1.66666667, 0.33333333], [0, 2]])
         intersections = s.line_intersection(point1, point2)
-        assert np.allclose(intersections, expected)
+        assert_allclose(intersections, expected)
 
         # intersection through point only
         point1 = [0, 2]  # simplex point
         point2 = [0.5, 0.7]
         expected = np.array([[0, 2]])
         intersections = s.line_intersection(point1, point2)
-        assert np.allclose(intersections, expected)
+        assert_allclose(intersections, expected)
 
         # 3d intersection through edge and face
         point1 = [0.5, 0, 0]  # edge point
         point2 = [0.5, 0.5, 0.5]  # in simplex
         expected = np.array([[0.5, 0.25, 0.25], [0.5, 0.0, 0.0]])
         intersections = self.simplex.line_intersection(point1, point2)
-        assert np.allclose(intersections, expected)
+        assert_allclose(intersections, expected)
 
         # 3d intersection through edge only
         point1 = [0.5, 0, 0]  # edge point
         point2 = [0.5, 0.5, -0.5]  # outside simplex
         expected = np.array([[0.5, 0.0, 0.0]])
         intersections = self.simplex.line_intersection(point1, point2)
-        assert np.allclose(intersections, expected)
+        assert_allclose(intersections, expected)
 
         # coplanar to face (no intersection)
         point1 = [-1, 2]
         point2 = [0, 0]
         expected = np.array([])
         intersections = s.line_intersection(point1, point2)
-        assert np.allclose(intersections, expected)
+        assert_allclose(intersections, expected)
 
         # coplanar to face (with intersection line)
         point1 = [0, 2]  # simplex point
         point2 = [1, 0]
         expected = np.array([[1, 0], [0, 2]])
         intersections = s.line_intersection(point1, point2)
-        assert np.allclose(intersections, expected)
+        assert_allclose(intersections, expected)
 
         # coplanar to face (with intersection points)
         point1 = [0.1, 2]
         point2 = [1.1, 0]
         expected = np.array([[1.08, 0.04], [0.12, 1.96]])
         intersections = s.line_intersection(point1, point2)
-        assert np.allclose(intersections, expected)
+        assert_allclose(intersections, expected)
 
     def test_to_json(self):
         assert isinstance(self.simplex.to_json(), str)

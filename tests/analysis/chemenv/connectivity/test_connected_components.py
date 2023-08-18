@@ -7,6 +7,7 @@ import os
 import networkx as nx
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 
 from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
 from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
@@ -379,7 +380,7 @@ class TestConnectedComponent(PymatgenTest):
         assert not cc.is_3d
         assert cc.is_periodic
         assert cc.periodicity == "2D"
-        assert np.allclose(cc.periodicity_vectors, [np.array([0, 1, 0]), np.array([1, 1, 0])])
+        assert_allclose(cc.periodicity_vectors, [np.array([0, 1, 0]), np.array([1, 1, 0])])
         assert isinstance(cc.periodicity_vectors, list)
         assert cc.periodicity_vectors[0].dtype is np.dtype(int)
 
@@ -449,7 +450,7 @@ class TestConnectedComponent(PymatgenTest):
         assert cc.is_3d
         assert cc.is_periodic
         assert cc.periodicity == "3D"
-        assert np.allclose(
+        assert_allclose(
             cc.periodicity_vectors,
             [np.array([0, 1, 0]), np.array([1, 1, 0]), np.array([1, 1, 1])],
         )

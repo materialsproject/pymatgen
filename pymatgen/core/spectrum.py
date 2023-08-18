@@ -130,8 +130,9 @@ class Spectrum(MSONable):
         return [get_linear_interpolated_value(self.x, self.y[:, k], x) for k in range(self.ydim[1])]
 
     def copy(self):
-        """Returns:
-        Copy of Spectrum object.
+        """
+        Returns:
+            Copy of Spectrum object.
         """
         return self.__class__(self.x, self.y, *self._args, **self._kwargs)
 

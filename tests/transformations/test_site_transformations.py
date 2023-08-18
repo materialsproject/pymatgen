@@ -5,6 +5,7 @@ from shutil import which
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
@@ -48,22 +49,22 @@ class TestTranslateSitesTransformation(PymatgenTest):
     def test_apply_transformation(self):
         trafo = TranslateSitesTransformation([0, 1], [0.1, 0.2, 0.3])
         s = trafo.apply_transformation(self.struct)
-        assert np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3])
-        assert np.allclose(s[1].frac_coords, [0.475, 0.575, 0.675])
+        assert_allclose(s[0].frac_coords, [0.1, 0.2, 0.3])
+        assert_allclose(s[1].frac_coords, [0.475, 0.575, 0.675])
         inv_t = trafo.inverse
         s = inv_t.apply_transformation(s)
         assert s[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
-        assert np.allclose(s[1].frac_coords, [0.375, 0.375, 0.375])
+        assert_allclose(s[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_apply_transformation_site_by_site(self):
         trafo = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075]])
         s = trafo.apply_transformation(self.struct)
-        assert np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3])
-        assert np.allclose(s[1].frac_coords, [0.3, 0.3, 0.3])
+        assert_allclose(s[0].frac_coords, [0.1, 0.2, 0.3])
+        assert_allclose(s[1].frac_coords, [0.3, 0.3, 0.3])
         inv_t = trafo.inverse
         s = inv_t.apply_transformation(s)
         assert s[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
-        assert np.allclose(s[1].frac_coords, [0.375, 0.375, 0.375])
+        assert_allclose(s[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_to_from_dict(self):
         d1 = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
@@ -72,9 +73,9 @@ class TestTranslateSitesTransformation(PymatgenTest):
         t2 = TranslateSitesTransformation.from_dict(d2)
         s1 = t1.apply_transformation(self.struct)
         s2 = t2.apply_transformation(self.struct)
-        assert np.allclose(s1[0].frac_coords, [0.1, 0.2, 0.3])
-        assert np.allclose(s2[0].frac_coords, [0.1, 0.2, 0.3])
-        assert np.allclose(s2[1].frac_coords, [0.3, 0.3, 0.3])
+        assert_allclose(s1[0].frac_coords, [0.1, 0.2, 0.3])
+        assert_allclose(s2[0].frac_coords, [0.1, 0.2, 0.3])
+        assert_allclose(s2[1].frac_coords, [0.3, 0.3, 0.3])
         str(t1)
         str(t2)
 
@@ -271,7 +272,7 @@ class TestAddSitePropertyTransformation(PymatgenTest):
             manually_set.add_site_property(prop, value)
         trans_set = trans.apply_transformation(struct)
         for prop in site_props:
-            assert np.allclose(trans_set.site_properties[prop], manually_set.site_properties[prop])
+            assert_allclose(trans_set.site_properties[prop], manually_set.site_properties[prop])
 
 
 class TestRadialSiteDistortionTransformation(PymatgenTest):

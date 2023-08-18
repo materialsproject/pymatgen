@@ -14,6 +14,7 @@ import pytest
 from _pytest.monkeypatch import MonkeyPatch
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
+from numpy.testing import assert_allclose
 from pytest import approx, mark
 
 import pymatgen
@@ -484,7 +485,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert incar["ISMEAR"] == 1
         assert incar["SIGMA"] == 0.2
         kpoints = mp_metal_set.kpoints
-        assert np.allclose(kpoints.kpts[0], [5, 5, 5])
+        assert_allclose(kpoints.kpts[0], [5, 5, 5])
 
     def test_as_from_dict(self):
         mit_set = MITRelaxSet(self.structure)
@@ -1204,7 +1205,7 @@ class TestMVLSlabSet(PymatgenTest):
         # Test auto-dipole
         dipole_incar = self.d_dipole["INCAR"]
         assert dipole_incar["LDIPOL"]
-        assert np.allclose(dipole_incar["DIPOL"], [0.2323, 0.2323, 0.2165], atol=1e-4)
+        assert_allclose(dipole_incar["DIPOL"], [0.2323, 0.2323, 0.2165], atol=1e-4)
         assert dipole_incar["IDIPOL"] == 3
 
     def test_kpoints(self):

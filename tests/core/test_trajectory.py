@@ -4,6 +4,7 @@ import copy
 import os
 
 import numpy as np
+from numpy.testing import assert_allclose
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
@@ -430,7 +431,7 @@ class TestTrajectory(PymatgenTest):
         traj = Trajectory.from_structures(structures, constant_lattice=True)
         traj.to_displacements()
 
-        assert np.allclose(traj.coords, displacements)
+        assert_allclose(traj.coords, displacements)
 
     def test_variable_lattice(self):
         structure = self.structures[0]

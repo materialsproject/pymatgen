@@ -326,8 +326,9 @@ class ComputedEntry(Entry):
 
     @property
     def uncorrected_energy(self) -> float:
-        """Returns:
-        float: the *uncorrected* energy of the entry.
+        """
+        Returns:
+            float: the *uncorrected* energy of the entry.
         """
         return self._energy
 
@@ -338,17 +339,17 @@ class ComputedEntry(Entry):
 
     @property
     def uncorrected_energy_per_atom(self) -> float:
-        """Returns:
-        float: the *uncorrected* energy of the entry, normalized by atoms
-        (units of eV/atom).
+        """
+        Returns:
+            float: the *uncorrected* energy of the entry, normalized by atoms in eV/atom.
         """
         return self.uncorrected_energy / self.composition.num_atoms
 
     @property
     def correction(self) -> float:
-        """Returns:
-        float: the total energy correction / adjustment applied to the entry,
-        in eV.
+        """
+        Returns:
+            float: the total energy correction / adjustment applied to the entry in eV.
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         corr = ufloat(0.0, 0.0) + sum(ufloat(ea.value, ea.uncertainty) for ea in self.energy_adjustments)
@@ -361,16 +362,17 @@ class ComputedEntry(Entry):
 
     @property
     def correction_per_atom(self) -> float:
-        """Returns:
-        float: the total energy correction / adjustment applied to the entry,
-        normalized by atoms (units of eV/atom).
+        """
+        Returns:
+            float: the total energy correction / adjustment applied to the entry in eV/atom.
         """
         return self.correction / self.composition.num_atoms
 
     @property
     def correction_uncertainty(self) -> float:
-        """Returns:
-        float: the uncertainty of the energy adjustments applied to the entry, in eV.
+        """
+        Returns:
+            float: the uncertainty of the energy adjustments applied to the entry in eV.
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         unc = ufloat(0.0, 0.0) + sum(
@@ -385,9 +387,9 @@ class ComputedEntry(Entry):
 
     @property
     def correction_uncertainty_per_atom(self) -> float:
-        """Returns:
-        float: the uncertainty of the energy adjustments applied to the entry,
-        normalized by atoms (units of eV/atom).
+        """
+        Returns:
+            float: the uncertainty of the energy adjustments applied to the entry in eV/atom.
         """
         return self.correction_uncertainty / self.composition.num_atoms
 

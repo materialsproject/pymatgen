@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from numpy.testing import assert_allclose
 from pytest import approx
 from scipy import stats
 
@@ -32,18 +33,18 @@ class TestSpectrum(PymatgenTest):
 
     def test_operators(self):
         scaled_spect = 3 * self.spec1 + self.spec2
-        assert np.allclose(scaled_spect.y, 3 * self.spec1.y + self.spec2.y)
+        assert_allclose(scaled_spect.y, 3 * self.spec1.y + self.spec2.y)
         assert self.spec1.get_interpolated_value(0.05) == approx((self.spec1.y[0] + self.spec1.y[1]) / 2)
 
         scaled_spect = self.spec1 - self.spec2
-        assert np.allclose(scaled_spect.y, self.spec1.y - self.spec2.y)
+        assert_allclose(scaled_spect.y, self.spec1.y - self.spec2.y)
 
         scaled_spect = self.spec1 / 3
-        assert np.allclose(scaled_spect.y, self.spec1.y / 3)
+        assert_allclose(scaled_spect.y, self.spec1.y / 3)
 
         scaled_spect = 3 * self.multi_spec1 + self.multi_spec2
-        assert np.allclose(scaled_spect.y, 3 * self.multi_spec1.y + self.multi_spec2.y)
-        assert np.allclose(
+        assert_allclose(scaled_spect.y, 3 * self.multi_spec1.y + self.multi_spec2.y)
+        assert_allclose(
             self.multi_spec1.get_interpolated_value(0.05),
             (self.multi_spec1.y[0, :] + self.multi_spec1.y[1, :]) / 2,
         )
@@ -61,7 +62,7 @@ class TestSpectrum(PymatgenTest):
         # Test direct callable use of smearing.
         spec2 = Spectrum(np.linspace(-10, 10, 100), y)
         spec2.smear(0, func=lambda x: stats.norm.pdf(x, scale=0.3))
-        assert np.allclose(spec.y, spec2.y)
+        assert_allclose(spec.y, spec2.y)
 
         spec = Spectrum(np.linspace(-10, 10, 100), y)
         spec.smear(0.3, func="lorentzian")
@@ -71,7 +72,7 @@ class TestSpectrum(PymatgenTest):
         y = np.array(self.multi_spec1.y)
         self.multi_spec1.smear(0.2)
         assert not np.allclose(y, self.multi_spec1.y)
-        assert np.allclose(np.sum(y, axis=0), np.sum(self.multi_spec1.y, axis=0))
+        assert_allclose(np.sum(y, axis=0), np.sum(self.multi_spec1.y, axis=0))
 
     def test_str(self):
         # Just make sure that these methods work.

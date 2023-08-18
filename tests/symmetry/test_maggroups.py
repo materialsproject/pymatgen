@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from numpy.testing import assert_allclose
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.groups import SpaceGroup
@@ -163,7 +164,7 @@ x+1/2, y, z, -1
                 pp_msg = np.array(msg.get_orbit(p, 0)[0])  # discarding magnetic moment information
                 pp_sg = pp_sg[np.lexsort(np.transpose(pp_sg)[::-1])]  # sorting arrays so we can compare them
                 pp_msg = pp_msg[np.lexsort(np.transpose(pp_msg)[::-1])]
-                assert np.allclose(pp_sg, pp_msg)
+                assert_allclose(pp_sg, pp_msg)
 
     def test_str(self):
         msg = MagneticSpaceGroup([4, 11])

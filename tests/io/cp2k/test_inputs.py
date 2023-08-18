@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
@@ -102,7 +102,7 @@ class TestBasisAndPotential(PymatgenTest):
         # Basis file can read from strings
         bf = BasisFile.from_str(basis)
         for obj in [mol_opt, bf.objects[0]]:
-            assert np.allclose(
+            assert_allclose(
                 obj.exponents[0],
                 [
                     11.478000339908,
@@ -131,7 +131,7 @@ class TestBasisAndPotential(PymatgenTest):
         assert pot.potential == "Pseudopotential"
         assert pot.r_loc == approx(0.2)
         assert pot.nexp_ppl == approx(2)
-        assert np.allclose(pot.c_exp_ppl, [-4.17890044, 0.72446331])
+        assert_allclose(pot.c_exp_ppl, [-4.17890044, 0.72446331])
 
         # Basis file can read from strings
         pf = PotentialFile.from_str(pot_H)
