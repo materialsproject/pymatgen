@@ -200,8 +200,7 @@ class Interface(Structure):
             tolerance: tolerance for "uniqueness" for shifts in Cartesian unit
                 This is usually Angstroms.
         """
-        substrate = self.substrate
-        film = self.film
+        substrate, film = self.substrate, self.film
 
         substrate_surface_sites = np.dot(
             list(chain.from_iterable(AdsorbateSiteFinder(substrate).find_adsorption_sites().values())),
