@@ -800,7 +800,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         at specified temperature, as acquired from "g_els.json".
 
         Returns:
-             float: sum of weighted chemical potentials [eV]
+            float: sum of weighted chemical potentials [eV]
         """
         elems = self.composition.get_el_amt_dict()
 

@@ -955,9 +955,10 @@ class IcohpValue(MSONable):
 
     @property
     def summed_icohp(self):
-        """Sums ICOHPs of both spin channels for spin polarized compounds
+        """Sums ICOHPs of both spin channels for spin polarized compounds.
+
         Returns:
-             icohp value in eV.
+            float: icohp value in eV.
         """
         return self._icohp[Spin.down] + self._icohp[Spin.up] if self._is_spin_polarized else self._icohp[Spin.up]
 
@@ -1091,7 +1092,7 @@ class IcohpCollection(MSONable):
             spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
 
         Returns:
-             float that is a sum of all ICOHPs/ICOOPs as indicated with label_list
+            float that is a sum of all ICOHPs/ICOOPs as indicated with label_list
         """
         sum_icohp = 0
         for label in label_list:
@@ -1143,7 +1144,7 @@ class IcohpCollection(MSONable):
             only_bonds_to: list of strings describing the bonding partners that are allowed, e.g. ['O']
 
         Returns:
-             dict of IcohpValues, the keys correspond to the values from the initial list_labels
+            dict of IcohpValues, the keys correspond to the values from the initial list_labels
         """
         newicohp_dict = {}
         for key, value in self._icohplist.items():

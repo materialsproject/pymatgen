@@ -529,15 +529,14 @@ class Slab(Structure):
                     to all sites of slab. Defaults to False
 
         Returns:
-                A dictionary grouping sites on top and bottom of the slab
-                together.
+            A dictionary grouping sites on top and bottom of the slab together.
                 {"top": [sites with indices], "bottom": [sites with indices}
 
         Todo:
             Is there a way to determine site equivalence between sites in a slab
             and bulk system? This would allow us get the coordination number of
             a specific site for multi-elemental systems or systems with more
-            than one unequivalent site. This will allow us to use this for
+            than one inequivalent site. This will allow us to use this for
             compound systems.
         """
         from pymatgen.analysis.local_env import VoronoiNN

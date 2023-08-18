@@ -1292,10 +1292,12 @@ class Bandoverlaps:
     def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """
         Will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation
+
         Args:
-         limit_maxDeviation: limit of the maxDeviation
+            limit_maxDeviation: limit of the maxDeviation
+
         Returns:
-             Boolean that will give you information about the quality of the projection.
+            Boolean that will give you information about the quality of the projection.
         """
         return all(deviation <= limit_maxDeviation for deviation in self.max_deviation)
 
@@ -1307,16 +1309,17 @@ class Bandoverlaps:
         limit_deviation: float = 0.1,
     ) -> bool:
         """
-        Will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
-        limit_deviation.
+        Will check if the deviation from the ideal bandoverlap of all occupied bands
+        is smaller or equal to limit_deviation.
 
         Args:
-        number_occ_bands_spin_up (int): number of occupied bands of spin up
-        number_occ_bands_spin_down (int): number of occupied bands of spin down
-        spin_polarized (bool):  If True, then it was a spin polarized calculation
-        limit_deviation (float): limit of the maxDeviation
+            number_occ_bands_spin_up (int): number of occupied bands of spin up
+            number_occ_bands_spin_down (int): number of occupied bands of spin down
+            spin_polarized (bool):  If True, then it was a spin polarized calculation
+            limit_deviation (float): limit of the maxDeviation
+
         Returns:
-             Boolean that will give you information about the quality of the projection
+            Boolean that will give you information about the quality of the projection
         """
         for matrix in self.bandoverlapsdict[Spin.up].values():
             for iband1, band1 in enumerate(matrix["matrix"]):

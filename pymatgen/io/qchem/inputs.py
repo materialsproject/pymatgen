@@ -1131,7 +1131,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-             (list of lists of dicts) cdft parameters
+            list[list[dict]]: cdft parameters
         """
         pattern_sec = {
             "full_section": r"\$cdft((:?(:?\s*[0-9\.\-]+\s+[0-9]+\s+[0-9]+(:?\s+[A-Za-z]+)?\s*\n)+|"

@@ -514,7 +514,7 @@ class BandStructure:
         """Returns the direct band gap.
 
         Returns:
-             the value of the direct band gap
+            the value of the direct band gap
         """
         if self.is_metal():
             return 0.0
