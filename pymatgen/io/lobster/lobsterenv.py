@@ -184,7 +184,7 @@ class LobsterNeighbors(NearNeighbors):
                         )
         else:
             self.valences = valences
-        if np.allclose(np.array(self.valences), np.zeros_like(self.valences)) and additional_condition in [1, 3, 5, 6]:
+        if np.allclose(self.valences, np.zeros_like(self.valences)) and additional_condition in [1, 3, 5, 6]:
             raise ValueError("All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work")
 
         if limits is None:
@@ -204,18 +204,12 @@ class LobsterNeighbors(NearNeighbors):
 
     @property
     def structures_allowed(self):
-        """
-        Boolean property: can this NearNeighbors class be used with Structure
-        objects?
-        """
+        """Whether this NearNeighbors class can be used with Structure objects?"""
         return True
 
     @property
     def molecules_allowed(self):
-        """
-        Boolean property: can this NearNeighbors class be used with Molecule
-        objects?
-        """
+        """Whether this NearNeighbors class can be used with Molecule objects?"""
         return False
 
     @property

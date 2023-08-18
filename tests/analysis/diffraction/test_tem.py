@@ -221,7 +221,7 @@ class TestTEMCalculator(PymatgenTest):
         # Test if x * p1 + y * p2 yields p3.
         c = TEMCalculator()
         coeffs = c.get_plot_coeffs((1, 1, 0), (1, -1, 0), (2, 0, 0))
-        assert_allclose(np.array([1, 1]), coeffs)
+        assert_allclose([1, 1], coeffs)
 
     def test_get_positions(self):
         c = TEMCalculator()

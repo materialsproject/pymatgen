@@ -1510,10 +1510,10 @@ class TestChgcar(PymatgenTest):
         import h5py
 
         with h5py.File("chgcar_test.hdf5", "r") as f:
-            assert_allclose(np.array(f["vdata"]["total"]), chgcar.data["total"])
-            assert_allclose(np.array(f["vdata"]["diff"]), chgcar.data["diff"])
-            assert_allclose(np.array(f["lattice"]), chgcar.structure.lattice.matrix)
-            assert_allclose(np.array(f["fcoords"]), chgcar.structure.frac_coords)
+            assert_allclose(f["vdata"]["total"], chgcar.data["total"])
+            assert_allclose(f["vdata"]["diff"], chgcar.data["diff"])
+            assert_allclose(f["lattice"], chgcar.structure.lattice.matrix)
+            assert_allclose(f["fcoords"], chgcar.structure.frac_coords)
             for z in f["Z"]:
                 assert z in [Element.Ni.Z, Element.O.Z]
 
