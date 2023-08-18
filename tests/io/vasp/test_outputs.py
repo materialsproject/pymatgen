@@ -1422,11 +1422,18 @@ class TestBSVasprun(PymatgenTest):
 
 class TestOszicar(PymatgenTest):
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/OSZICAR"
-        oszicar = Oszicar(filepath)
+        fpath = f"{TEST_FILES_DIR}/OSZICAR"
+        oszicar = Oszicar(fpath)
         assert len(oszicar.electronic_steps) == len(oszicar.ionic_steps)
         assert len(oszicar.all_energies) == 60
         assert oszicar.final_energy == approx(-526.63928)
+        assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
+
+    def test_static(self):
+        fpath = f"{TEST_FILES_DIR}/static_silicon/OSZICAR"
+        oszicar = Oszicar(fpath)
+        assert oszicar.final_energy == approx(-10.645278)
+        assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
 
 
 class TestLocpot(PymatgenTest):
