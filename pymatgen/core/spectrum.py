@@ -1,5 +1,4 @@
-"""
-This module defines classes to represent any type of spectrum, essentially any
+"""This module defines classes to represent any type of spectrum, essentially any
 x y value pairs.
 """
 
@@ -19,8 +18,7 @@ if TYPE_CHECKING:
 
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
-    """
-    :param x: x values
+    """:param x: x values
     :param x_0: Center
     :param sigma: FWHM
     :return: Value of lorentzian at x.
@@ -29,8 +27,7 @@ def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
 
 
 class Spectrum(MSONable):
-    """
-    Base class for any type of xas, essentially just x, y values. Examples
+    """Base class for any type of xas, essentially just x, y values. Examples
     include XRD patterns, XANES, EXAFS, NMR, DOS, etc.
 
     Implements basic tools like application of smearing, normalization, addition
@@ -75,8 +72,7 @@ class Spectrum(MSONable):
         return self.ydim[0]
 
     def normalize(self, mode: Literal["max", "sum"] = "max", value: float = 1.0):
-        """
-        Normalize the spectrum with respect to the sum of intensity.
+        """Normalize the spectrum with respect to the sum of intensity.
 
         Args:
             mode ("max" | "sum"): Normalization mode. "max" sets the max y value to value,
@@ -94,8 +90,7 @@ class Spectrum(MSONable):
         self.y /= factor / value
 
     def smear(self, sigma: float = 0.0, func: str | Callable = "gaussian"):
-        """
-        Apply Gaussian/Lorentzian smearing to spectrum y value.
+        """Apply Gaussian/Lorentzian smearing to spectrum y value.
 
         Args:
             sigma: Std dev for Gaussian smear function
@@ -122,8 +117,7 @@ class Spectrum(MSONable):
             self.y *= total / np.sum(self.y, axis=0)  # renormalize to maintain the same integrated sum as before.
 
     def get_interpolated_value(self, x: float) -> list[float]:
-        """
-        Returns an interpolated y value for a particular x value.
+        """Returns an interpolated y value for a particular x value.
 
         Args:
              x: x value to return the y value for
@@ -136,15 +130,13 @@ class Spectrum(MSONable):
         return [get_linear_interpolated_value(self.x, self.y[:, k], x) for k in range(self.ydim[1])]
 
     def copy(self):
-        """
-        Returns:
-            Copy of Spectrum object.
+        """Returns:
+        Copy of Spectrum object.
         """
         return self.__class__(self.x, self.y, *self._args, **self._kwargs)
 
     def __add__(self, other):
-        """
-        Add two Spectrum object together. Checks that x scales are the same.
+        """Add two Spectrum object together. Checks that x scales are the same.
         Otherwise, a ValueError is thrown.
 
         Args:
@@ -158,8 +150,7 @@ class Spectrum(MSONable):
         return self.__class__(self.x, self.y + other.y, *self._args, **self._kwargs)
 
     def __sub__(self, other):
-        """
-        Subtract one Spectrum object from another. Checks that x scales are
+        """Subtract one Spectrum object from another. Checks that x scales are
         the same.
         Otherwise, a ValueError is thrown.
 
@@ -174,8 +165,7 @@ class Spectrum(MSONable):
         return self.__class__(self.x, self.y - other.y, *self._args, **self._kwargs)
 
     def __mul__(self, other):
-        """
-        Scale the Spectrum's y values.
+        """Scale the Spectrum's y values.
 
         Args:
             other: scalar, The scale amount
@@ -187,8 +177,7 @@ class Spectrum(MSONable):
     __rmul__ = __mul__
 
     def __truediv__(self, other):
-        """
-        True division of y
+        """True division of y
         Args:
             other: The divisor.
 
@@ -198,8 +187,7 @@ class Spectrum(MSONable):
         return self.__class__(self.x, self.y.__truediv__(other), *self._args, **self._kwargs)
 
     def __floordiv__(self, other):
-        """
-        True division of y
+        """True division of y
         Args:
             other: The divisor.
 
@@ -211,8 +199,7 @@ class Spectrum(MSONable):
     __div__ = __truediv__
 
     def __str__(self):
-        """
-        Returns a string containing values and labels of spectrum object for
+        """Returns a string containing values and labels of spectrum object for
         plotting.
         """
         return f"{type(self).__name__}\n{self.XLABEL}: {self.x}\n{self.YLABEL}: {self.y}"

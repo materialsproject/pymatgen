@@ -19,8 +19,7 @@ def pretty_plot(
     dpi: float | None = None,
     color_cycle: tuple[str, str] = ("qualitative", "Set1_9"),
 ) -> plt.Axes:
-    """
-    Provides a publication quality plot, with nice defaults for font sizes etc.
+    """Provides a publication quality plot, with nice defaults for font sizes etc.
 
     Args:
         width (float): Width of plot in inches. Defaults to 8in.
@@ -70,8 +69,7 @@ def pretty_plot(
 def pretty_plot_two_axis(
     x, y1, y2, xlabel=None, y1label=None, y2label=None, width=8, height=None, dpi=300, **plot_kwargs
 ):
-    """
-    Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
+    """Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
     examples. Makes it easier to create plots with different axes.
 
     Args:
@@ -150,8 +148,7 @@ def pretty_plot_two_axis(
 
 
 def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
-    """
-    Convenience method to plot data with trend lines based on polynomial fit.
+    """Convenience method to plot data with trend lines based on polynomial fit.
 
     Args:
         x: Sequence of x data.
@@ -200,8 +197,7 @@ def periodic_table_heatmap(
     pymatviz: bool = True,
     **kwargs,
 ):
-    """
-    A static method that generates a heat map overlaid on a periodic table.
+    """A static method that generates a heat map overlaid on a periodic table.
 
     Args:
         elemental_data (dict): A dictionary with the element as a key and a
@@ -381,8 +377,7 @@ def periodic_table_heatmap(
 
 
 def format_formula(formula):
-    """
-    Converts str of chemical formula into
+    """Converts str of chemical formula into
     latex format for labelling purposes.
 
     Args:
@@ -409,8 +404,7 @@ def format_formula(formula):
 
 
 def van_arkel_triangle(list_of_materials, annotate=True):
-    """
-    A static method that generates a binary van Arkel-Ketelaar triangle to
+    """A static method that generates a binary van Arkel-Ketelaar triangle to
         quantify the ionic, metallic and covalent character of a compound
         by plotting the electronegativity difference (y) vs average (x).
         See:
@@ -541,8 +535,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
 
 
 def get_ax_fig_plt(ax: plt.Axes = None, **kwargs):
-    """
-    Helper function used in plot functions supporting an optional Axes argument.
+    """Helper function used in plot functions supporting an optional Axes argument.
     If ax is None, we build the `matplotlib` figure and create the Axes else
     we return the current active figure.
 
@@ -567,8 +560,7 @@ def get_ax_fig_plt(ax: plt.Axes = None, **kwargs):
 
 
 def get_ax3d_fig_plt(ax: plt.Axes = None, **kwargs):
-    """
-    Helper function used in plot functions supporting an optional Axes3D
+    """Helper function used in plot functions supporting an optional Axes3D
     argument. If ax is None, we build the `matplotlib` figure and create the
     Axes3D else we return the current active figure.
 
@@ -596,8 +588,7 @@ def get_ax3d_fig_plt(ax: plt.Axes = None, **kwargs):
 def get_axarray_fig_plt(
     ax_array, nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True, subplot_kw=None, gridspec_kw=None, **fig_kw
 ):
-    """
-    Helper function used in plot functions that accept an optional array of Axes
+    """Helper function used in plot functions that accept an optional array of Axes
     as argument. If ax_array is None, we build the `matplotlib` figure and
     create the array of Axes by calling plt.subplots else we return the
     current active figure.
@@ -633,8 +624,7 @@ def get_axarray_fig_plt(
 
 
 def add_fig_kwargs(func):
-    """
-    Decorator that adds keyword arguments for functions returning matplotlib
+    """Decorator that adds keyword arguments for functions returning matplotlib
     figures.
 
     The function should return either a matplotlib figure or None to signal

@@ -20,8 +20,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class ConversionElectrode(AbstractElectrode):
-    """
-    Class representing a ConversionElectrode, since it is dataclass
+    """Class representing a ConversionElectrode, since it is dataclass
     this object can be constructed for the attributes.
     However, it is usually easier to construct a ConversionElectrode using one of the classmethod
     constructors provided.
@@ -44,8 +43,7 @@ class ConversionElectrode(AbstractElectrode):
 
     @classmethod
     def from_composition_and_pd(cls, comp, pd, working_ion_symbol="Li", allow_unstable=False):
-        """
-        Convenience constructor to make a ConversionElectrode from a
+        """Convenience constructor to make a ConversionElectrode from a
         composition and a phase diagram.
 
         Args:
@@ -101,8 +99,7 @@ class ConversionElectrode(AbstractElectrode):
 
     @classmethod
     def from_composition_and_entries(cls, comp, entries_in_chemsys, working_ion_symbol="Li", allow_unstable=False):
-        """
-        Convenience constructor to make a ConversionElectrode from a
+        """Convenience constructor to make a ConversionElectrode from a
         composition and all entries in a chemical system.
 
         Args:
@@ -119,8 +116,7 @@ class ConversionElectrode(AbstractElectrode):
         return ConversionElectrode.from_composition_and_pd(comp, pd, working_ion_symbol, allow_unstable)
 
     def get_sub_electrodes(self, adjacent_only=True):
-        """
-        If this electrode contains multiple voltage steps, then it is possible
+        """If this electrode contains multiple voltage steps, then it is possible
         to use only a subset of the voltage steps to define other electrodes.
         For example, an LiTiO2 electrode might contain three subelectrodes:
         [LiTiO2 --> TiO2, LiTiO2 --> Li0.5TiO2, Li0.5TiO2 --> TiO2]
@@ -161,8 +157,7 @@ class ConversionElectrode(AbstractElectrode):
         return sub_electrodes
 
     def is_super_electrode(self, conversion_electrode) -> bool:
-        """
-        Checks if a particular conversion electrode is a sub electrode of the
+        """Checks if a particular conversion electrode is a sub electrode of the
         current electrode. Starting from a more lithiated state may result in
         a subelectrode that is essentially on the same path. For example, a
         ConversionElectrode formed by starting from an FePO4 composition would
@@ -220,8 +215,7 @@ class ConversionElectrode(AbstractElectrode):
         return "\n".join(output)
 
     def get_summary_dict(self, print_subelectrodes=True) -> dict:
-        """
-        Generate a summary dict.
+        """Generate a summary dict.
         Populates the summary dict with the basic information from the parent method then populates more information.
         Since the parent method calls self.get_summary_dict(print_subelectrodes=True) for the subelectrodes.
         The current method will be called from within super().get_summary_dict.
@@ -255,8 +249,7 @@ class ConversionElectrode(AbstractElectrode):
 
 @dataclass
 class ConversionVoltagePair(AbstractVoltagePair):
-    """
-    A VoltagePair representing a Conversion Reaction with a defined voltage.
+    """A VoltagePair representing a Conversion Reaction with a defined voltage.
     Typically not initialized directly but rather used by ConversionElectrode.
 
     Attributes:
@@ -286,8 +279,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
 
     @classmethod
     def from_steps(cls, step1, step2, normalization_els, framework_formula):
-        """
-        Creates a ConversionVoltagePair from two steps in the element profile
+        """Creates a ConversionVoltagePair from two steps in the element profile
         from a PD analysis.
 
         Args:

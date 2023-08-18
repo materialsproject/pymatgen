@@ -22,7 +22,6 @@ FreqUnits = namedtuple("FreqUnits", ["factor", "label"])
 
 def freq_units(units):
     """
-
     Args:
         units: str, accepted values: thz, ev, mev, ha, cm-1, cm^-1.
 
@@ -54,8 +53,7 @@ def freq_units(units):
 
 
 class PhononDosPlotter:
-    """
-    Class for plotting phonon DOSs. The interface is extremely flexible given there are many
+    """Class for plotting phonon DOSs. The interface is extremely flexible given there are many
     different ways in which people want to view DOS.
     Typical usage is:
         # Initializes plotter with some optional args. Defaults are usually fine
@@ -80,8 +78,7 @@ class PhononDosPlotter:
         self._doses = {}
 
     def add_dos(self, label, dos):
-        """
-        Adds a dos for plotting.
+        """Adds a dos for plotting.
 
         Args:
             label:
@@ -93,8 +90,7 @@ class PhononDosPlotter:
         self._doses[label] = {"frequencies": dos.frequencies, "densities": densities}
 
     def add_dos_dict(self, dos_dict, key_sort_func=None):
-        """
-        Add a dictionary of doses, with an optional sorting function for the
+        """Add a dictionary of doses, with an optional sorting function for the
         keys.
 
         Args:
@@ -106,8 +102,7 @@ class PhononDosPlotter:
             self.add_dos(label, dos_dict[label])
 
     def get_dos_dict(self):
-        """
-        Returns the added doses as a json-serializable dict. Note that if you
+        """Returns the added doses as a json-serializable dict. Note that if you
         have specified smearing for the DOS plot, the densities returned will
         be the smeared densities, not the original densities.
 
@@ -118,8 +113,7 @@ class PhononDosPlotter:
         return jsanitize(self._doses)
 
     def get_plot(self, xlim=None, ylim=None, units="thz"):
-        """
-        Get a matplotlib plot showing the DOS.
+        """Get a matplotlib plot showing the DOS.
 
         Args:
             xlim: Specifies the x-axis limits. Set to None for automatic
@@ -195,8 +189,7 @@ class PhononDosPlotter:
         return ax
 
     def save_plot(self, filename, img_format="eps", xlim=None, ylim=None, units="thz"):
-        """
-        Save matplotlib plot to a file.
+        """Save matplotlib plot to a file.
 
         Args:
             filename: Filename to write to.
@@ -211,8 +204,7 @@ class PhononDosPlotter:
         plt.close()
 
     def show(self, xlim=None, ylim=None, units="thz"):
-        """
-        Show the plot using matplotlib.
+        """Show the plot using matplotlib.
 
         Args:
             xlim: Specifies the x-axis limits. Set to None for automatic
@@ -279,8 +271,7 @@ class PhononBSPlotter:
         return ax
 
     def bs_plot_data(self):
-        """
-        Get the data nicely formatted for a plot.
+        """Get the data nicely formatted for a plot.
 
         Returns:
             A dict of the following format:
@@ -311,8 +302,7 @@ class PhononBSPlotter:
         }
 
     def get_plot(self, ylim=None, units="thz") -> plt.Axes:
-        """
-        Get a matplotlib object for the bandstructure plot.
+        """Get a matplotlib object for the bandstructure plot.
 
         Args:
             ylim: Specify the y-axis (frequency) limits; by default None let
@@ -358,8 +348,7 @@ class PhononBSPlotter:
         return ax
 
     def _get_weight(self, vec: np.ndarray, indices: list[list[int]]) -> np.ndarray:
-        """
-        compute the weight for each combination of sites according to the
+        """Compute the weight for each combination of sites according to the
         eigenvector.
         """
         num_atom = int(self._nb_bands / 3)
@@ -402,8 +391,7 @@ class PhononBSPlotter:
         units: str = "thz",
         rgb_labels: tuple[None | str] | None = None,
     ) -> plt.Axes:
-        """
-        Get a matplotlib object for the bandstructure plot projected along atomic
+        """Get a matplotlib object for the bandstructure plot projected along atomic
         sites.
 
         Args:
@@ -495,8 +483,7 @@ class PhononBSPlotter:
         return ax
 
     def show(self, ylim=None, units="thz"):
-        """
-        Show the plot using matplotlib.
+        """Show the plot using matplotlib.
 
         Args:
             ylim: Specify the y-axis (frequency) limits; by default None let
@@ -507,8 +494,7 @@ class PhononBSPlotter:
         plt.show()
 
     def save_plot(self, filename, img_format="eps", ylim=None, units="thz"):
-        """
-        Save matplotlib plot to a file.
+        """Save matplotlib plot to a file.
 
         Args:
             filename: Filename to write to.
@@ -527,8 +513,7 @@ class PhononBSPlotter:
         units: str = "thz",
         rgb_labels: tuple[str] | None = None,
     ):
-        """
-        Show the projected plot using matplotlib.
+        """Show the projected plot using matplotlib.
 
         Args:
             site_comb: A list of list of indices of sites to combine. For example,
@@ -546,8 +531,7 @@ class PhononBSPlotter:
         plt.show()
 
     def get_ticks(self):
-        """
-        Get all ticks and labels for a band structure plot.
+        """Get all ticks and labels for a band structure plot.
 
         Returns:
             A dict with 'distance': a list of distance at which ticks should
@@ -584,8 +568,7 @@ class PhononBSPlotter:
         return {"distance": tick_distance, "label": tick_labels}
 
     def plot_compare(self, other_plotter, units="thz"):
-        """
-        plot two band structure for comparison. One is in red the other in blue.
+        """Plot two band structure for comparison. One is in red the other in blue.
         The two band structures need to be defined on the same symmetry lines!
         and the distance between symmetry lines is the one of the band structure
         used to build the PhononBSPlotter.
@@ -643,8 +626,7 @@ class PhononBSPlotter:
 
 
 class ThermoPlotter:
-    """
-    Plotter for thermodynamic properties obtained from phonon DOS.
+    """Plotter for thermodynamic properties obtained from phonon DOS.
     If the structure corresponding to the DOS, it will be used to extract the formula unit and provide
     the plots in units of mol instead of mole-cell.
     """
@@ -661,8 +643,7 @@ class ThermoPlotter:
     def _plot_thermo(
         self, func, temperatures, factor=1, ax: plt.Axes = None, ylabel=None, label=None, ylim=None, **kwargs
     ):
-        """
-        Plots a thermodynamic property for a generic function from a PhononDos instance.
+        """Plots a thermodynamic property for a generic function from a PhononDos instance.
 
         Args:
             func: the thermodynamic function to be used to calculate the property
@@ -703,8 +684,7 @@ class ThermoPlotter:
 
     @add_fig_kwargs
     def plot_cv(self, tmin, tmax, ntemp, ylim=None, **kwargs):
-        """
-        Plots the constant volume specific heat C_v in a temperature range.
+        """Plots the constant volume specific heat C_v in a temperature range.
 
         Args:
             tmin: minimum temperature
@@ -724,8 +704,7 @@ class ThermoPlotter:
 
     @add_fig_kwargs
     def plot_entropy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
-        """
-        Plots the vibrational entrpy in a temperature range.
+        """Plots the vibrational entrpy in a temperature range.
 
         Args:
             tmin: minimum temperature
@@ -745,8 +724,7 @@ class ThermoPlotter:
 
     @add_fig_kwargs
     def plot_internal_energy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
-        """
-        Plots the vibrational internal energy in a temperature range.
+        """Plots the vibrational internal energy in a temperature range.
 
         Args:
             tmin: minimum temperature
@@ -768,8 +746,7 @@ class ThermoPlotter:
 
     @add_fig_kwargs
     def plot_helmholtz_free_energy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
-        """
-        Plots the vibrational contribution to the Helmoltz free energy in a temperature range.
+        """Plots the vibrational contribution to the Helmoltz free energy in a temperature range.
 
         Args:
             tmin: minimum temperature
@@ -791,8 +768,7 @@ class ThermoPlotter:
 
     @add_fig_kwargs
     def plot_thermodynamic_properties(self, tmin, tmax, ntemp, ylim=None, **kwargs):
-        """
-        Plots all the thermodynamic properties in a temperature range.
+        """Plots all the thermodynamic properties in a temperature range.
 
         Args:
             tmin: minimum temperature
@@ -847,16 +823,14 @@ class GruneisenPlotter:
     """Class to plot Gruneisenparameter Object."""
 
     def __init__(self, gruneisen):
-        """
-        Class to plot information from Gruneisenparameter Object
+        """Class to plot information from Gruneisenparameter Object
         Args:
             gruneisen: GruneisenParameter Object.
         """
         self._gruneisen = gruneisen
 
     def get_plot(self, marker="o", markersize=None, units="thz"):
-        """
-        will produce a plot
+        """Will produce a plot
         Args:
             marker: marker for the depiction
             markersize: size of the marker
@@ -887,8 +861,7 @@ class GruneisenPlotter:
         return ax
 
     def show(self, units="thz"):
-        """
-        will show the plot
+        """Will show the plot
         Args:
             units: units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
 
@@ -898,8 +871,7 @@ class GruneisenPlotter:
         plt.show()
 
     def save_plot(self, filename, img_format="pdf", units="thz"):
-        """
-        Will save the plot to a file
+        """Will save the plot to a file
         Args:
             filename: name of the filename
             img_format: format of the saved plot
@@ -927,8 +899,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         super().__init__(bs)
 
     def bs_plot_data(self):
-        """
-        Get the data nicely formatted for a plot.
+        """Get the data nicely formatted for a plot.
 
         Returns:
             A dict of the following format:
@@ -962,8 +933,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         }
 
     def get_plot_gs(self, ylim=None):
-        """
-        Get a matplotlib object for the gruneisen bandstructure plot.
+        """Get a matplotlib object for the gruneisen bandstructure plot.
 
         Args:
             ylim: Specify the y-axis (gruneisen) limits; by default None let
@@ -1008,8 +978,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         return ax
 
     def show_gs(self, ylim=None):
-        """
-        Show the plot using matplotlib.
+        """Show the plot using matplotlib.
 
         Args:
             ylim: Specifies the y-axis limits.
@@ -1018,8 +987,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         plt.show()
 
     def save_plot_gs(self, filename, img_format="eps", ylim=None):
-        """
-        Save matplotlib plot to a file.
+        """Save matplotlib plot to a file.
 
         Args:
             filename: Filename to write to.
@@ -1031,8 +999,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         plt.close()
 
     def plot_compare_gs(self, other_plotter: GruneisenPhononBSPlotter) -> plt:
-        """
-        plot two band structure for comparison. One is in red the other in blue.
+        """Plot two band structure for comparison. One is in red the other in blue.
         The two band structures need to be defined on the same symmetry lines!
         and the distance between symmetry lines is
         the one of the band structure used to build the PhononBSPlotter.

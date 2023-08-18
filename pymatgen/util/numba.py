@@ -1,5 +1,4 @@
-"""
-This module provides a wrapper for numba such that no functionality
+"""This module provides a wrapper for numba such that no functionality
 is lost if numba is not available. Numba is a just-in-time compiler
 that can significantly accelerate the evaluation of certain functions
 if installed.

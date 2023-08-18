@@ -1,5 +1,4 @@
-"""
-This module calculates corrections for the species listed below, fitted to the experimental and computed
+"""This module calculates corrections for the species listed below, fitted to the experimental and computed
 entries given to the CorrectionCalculator constructor.
 """
 
@@ -21,8 +20,7 @@ from pymatgen.core.periodic_table import Element
 
 
 class CorrectionCalculator:
-    """
-    A CorrectionCalculator contains experimental and computed entries which it uses to compute corrections.
+    """A CorrectionCalculator contains experimental and computed entries which it uses to compute corrections.
 
     It graphs residual errors after applying the computed corrections and creates the MPCompatibility.yaml
     file the Correction classes use.
@@ -43,8 +41,7 @@ class CorrectionCalculator:
         allow_unstable: float | bool = 0.1,
         exclude_polyanions: list[str] | None = None,
     ) -> None:
-        """
-        Initializes a CorrectionCalculator.
+        """Initializes a CorrectionCalculator.
 
         Args:
             species: list of species to calculate corrections for
@@ -101,8 +98,7 @@ class CorrectionCalculator:
         return self.compute_corrections(exp_entries, calc_entries)
 
     def compute_corrections(self, exp_entries: list, calc_entries: dict) -> dict:
-        """
-        Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
+        """Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
 
         Args:
             exp_entries: list of dictionary objects with the following keys/values:
@@ -297,8 +293,7 @@ class CorrectionCalculator:
         return fig
 
     def graph_residual_error_per_species(self, specie: str) -> go.Figure:
-        """
-        Graphs the residual errors for each compound that contains specie after applying computed corrections.
+        """Graphs the residual errors for each compound that contains specie after applying computed corrections.
 
         Args:
             specie: the specie/group that residual errors are being plotted for
@@ -365,8 +360,7 @@ class CorrectionCalculator:
         return fig
 
     def make_yaml(self, name: str = "MP2020", dir: str | None = None) -> None:
-        """
-        Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
+        """Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
         for correction uncertainties.
 
         Args:

@@ -1,5 +1,4 @@
-"""
-This module implements equivalents of the basic ComputedEntry objects, which
+"""This module implements equivalents of the basic ComputedEntry objects, which
 is the basic entity that can be used to perform many analyses. ComputedEntries
 contain calculated information, typically from VASP or other electronic
 structure codes. For example, ComputedEntries can be used as inputs for phase
@@ -40,8 +39,7 @@ with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json")) as f
 
 
 class EnergyAdjustment(MSONable):
-    """
-    Lightweight class to contain information about an energy adjustment or
+    """Lightweight class to contain information about an energy adjustment or
     energy correction.
     """
 
@@ -80,8 +78,7 @@ class EnergyAdjustment(MSONable):
 
     @abc.abstractmethod
     def normalize(self, factor):
-        """
-        Scale the value of the current energy adjustment by factor in-place.
+        """Scale the value of the current energy adjustment by factor in-place.
 
         This method is utilized in ComputedEntry.normalize() to scale the energies to a formula unit basis
         (e.g. E_Fe6O9 = 3 x E_Fe2O3).
@@ -105,8 +102,7 @@ class EnergyAdjustment(MSONable):
 
 
 class ConstantEnergyAdjustment(EnergyAdjustment):
-    """
-    A constant energy adjustment applied to a ComputedEntry. Useful in energy referencing
+    """A constant energy adjustment applied to a ComputedEntry. Useful in energy referencing
     schemes such as the Aqueous energy referencing scheme.
     """
 
@@ -138,8 +134,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         return f"{self.description} ({self.value:.3f} eV)"
 
     def normalize(self, factor):
-        """
-        Normalize energy adjustment (in place), dividing value/uncertainty by a
+        """Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
         :param factor: factor to divide by.
         """
@@ -161,8 +156,7 @@ class ManualEnergyAdjustment(ConstantEnergyAdjustment):
 
 
 class CompositionEnergyAdjustment(EnergyAdjustment):
-    """
-    An energy adjustment applied to a ComputedEntry based on the atomic composition.
+    """An energy adjustment applied to a ComputedEntry based on the atomic composition.
     Used in various DFT energy correction schemes.
     """
 
@@ -210,8 +204,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         return f"{self.description} ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
-        """
-        Normalize energy adjustment (in place), dividing value/uncertainty by a
+        """Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
         :param factor: factor to divide by.
         """
@@ -219,8 +212,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
 
 
 class TemperatureEnergyAdjustment(EnergyAdjustment):
-    """
-    An energy adjustment applied to a ComputedEntry based on the temperature.
+    """An energy adjustment applied to a ComputedEntry based on the temperature.
     Used, for example, to add entropy to DFT energies.
     """
 
@@ -271,8 +263,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         return f"{self.description} ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
-        """
-        Normalize energy adjustment (in place), dividing value/uncertainty by a
+        """Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
         :param factor: factor to divide by.
         """
@@ -280,8 +271,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
 
 
 class ComputedEntry(Entry):
-    """
-    Lightweight Entry object for computed data. Contains facilities
+    """Lightweight Entry object for computed data. Contains facilities
     for applying corrections to the energy attribute and for storing
     calculation parameters.
     """
@@ -296,8 +286,7 @@ class ComputedEntry(Entry):
         data: dict | None = None,
         entry_id: object | None = None,
     ):
-        """
-        Initializes a ComputedEntry.
+        """Initializes a ComputedEntry.
 
         Args:
             composition (Composition): Composition of the entry. For
@@ -337,9 +326,8 @@ class ComputedEntry(Entry):
 
     @property
     def uncorrected_energy(self) -> float:
-        """
-        Returns:
-            float: the *uncorrected* energy of the entry.
+        """Returns:
+        float: the *uncorrected* energy of the entry.
         """
         return self._energy
 
@@ -350,19 +338,17 @@ class ComputedEntry(Entry):
 
     @property
     def uncorrected_energy_per_atom(self) -> float:
-        """
-        Returns:
-            float: the *uncorrected* energy of the entry, normalized by atoms
-                (units of eV/atom).
+        """Returns:
+        float: the *uncorrected* energy of the entry, normalized by atoms
+        (units of eV/atom).
         """
         return self.uncorrected_energy / self.composition.num_atoms
 
     @property
     def correction(self) -> float:
-        """
-        Returns:
-            float: the total energy correction / adjustment applied to the entry,
-                in eV.
+        """Returns:
+        float: the total energy correction / adjustment applied to the entry,
+        in eV.
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         corr = ufloat(0.0, 0.0) + sum(ufloat(ea.value, ea.uncertainty) for ea in self.energy_adjustments)
@@ -375,18 +361,16 @@ class ComputedEntry(Entry):
 
     @property
     def correction_per_atom(self) -> float:
-        """
-        Returns:
-            float: the total energy correction / adjustment applied to the entry,
-                normalized by atoms (units of eV/atom).
+        """Returns:
+        float: the total energy correction / adjustment applied to the entry,
+        normalized by atoms (units of eV/atom).
         """
         return self.correction / self.composition.num_atoms
 
     @property
     def correction_uncertainty(self) -> float:
-        """
-        Returns:
-            float: the uncertainty of the energy adjustments applied to the entry, in eV.
+        """Returns:
+        float: the uncertainty of the energy adjustments applied to the entry, in eV.
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         unc = ufloat(0.0, 0.0) + sum(
@@ -401,16 +385,14 @@ class ComputedEntry(Entry):
 
     @property
     def correction_uncertainty_per_atom(self) -> float:
-        """
-        Returns:
-            float: the uncertainty of the energy adjustments applied to the entry,
-                normalized by atoms (units of eV/atom).
+        """Returns:
+        float: the uncertainty of the energy adjustments applied to the entry,
+        normalized by atoms (units of eV/atom).
         """
         return self.correction_uncertainty / self.composition.num_atoms
 
     def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> ComputedEntry:
-        """
-        Normalize the entry's composition and energy.
+        """Normalize the entry's composition and energy.
 
         Args:
             mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
@@ -488,8 +470,7 @@ class ComputedEntry(Entry):
 
     @classmethod
     def from_dict(cls, d) -> ComputedEntry:
-        """
-        :param d: Dict representation.
+        """:param d: Dict representation.
         :return: ComputedEntry
         """
         dec = MontyDecoder()
@@ -552,8 +533,7 @@ class ComputedEntry(Entry):
 
 
 class ComputedStructureEntry(ComputedEntry):
-    """
-    A heavier version of ComputedEntry which contains a structure as well. The
+    """A heavier version of ComputedEntry which contains a structure as well. The
     structure is needed for some analyses.
     """
 
@@ -568,8 +548,7 @@ class ComputedStructureEntry(ComputedEntry):
         data: dict | None = None,
         entry_id: object | None = None,
     ) -> None:
-        """
-        Initializes a ComputedStructureEntry.
+        """Initializes a ComputedStructureEntry.
 
         Args:
             structure (Structure): The actual structure of an entry.
@@ -624,8 +603,7 @@ class ComputedStructureEntry(ComputedEntry):
 
     @classmethod
     def from_dict(cls, d) -> ComputedStructureEntry:
-        """
-        :param d: Dict representation.
+        """:param d: Dict representation.
         :return: ComputedStructureEntry
         """
         dec = MontyDecoder()
@@ -656,8 +634,7 @@ class ComputedStructureEntry(ComputedEntry):
         )
 
     def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> ComputedStructureEntry:
-        """
-        Normalize the entry's composition and energy. The structure remains unchanged.
+        """Normalize the entry's composition and energy. The structure remains unchanged.
 
         Args:
             mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.
@@ -692,8 +669,7 @@ class ComputedStructureEntry(ComputedEntry):
 
 
 class GibbsComputedStructureEntry(ComputedStructureEntry):
-    """
-    An extension to ComputedStructureEntry which includes the estimated Gibbs
+    """An extension to ComputedStructureEntry which includes the estimated Gibbs
     free energy of formation via a machine-learned model.
     """
 
@@ -771,8 +747,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @due.dcite(Doi("10.1038/s41467-018-06682-4", "Gibbs free energy SISSO descriptor"))
     def gf_sisso(self) -> float:
-        """
-        Gibbs Free Energy of formation as calculated by SISSO descriptor from Bartel
+        """Gibbs Free Energy of formation as calculated by SISSO descriptor from Bartel
         et al. (2018). Units: eV (not normalized).
 
         WARNING: This descriptor only applies to solids. The implementation here
@@ -821,8 +796,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return gibbs_energy
 
     def _sum_g_i(self) -> float:
-        """
-        Sum of the stoichiometrically weighted chemical potentials of the elements
+        """Sum of the stoichiometrically weighted chemical potentials of the elements
         at specified temperature, as acquired from "g_els.json".
 
         Returns:
@@ -845,8 +819,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @staticmethod
     def _reduced_mass(structure) -> float:
-        """
-        Reduced mass as calculated via Eq. 6 in Bartel et al. (2018).
+        """Reduced mass as calculated via Eq. 6 in Bartel et al. (2018).
 
         Args:
             structure (Structure): The pymatgen Structure object of the entry.
@@ -875,8 +848,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @staticmethod
     def _g_delta_sisso(vol_per_atom, reduced_mass, temp) -> float:
-        """
-        G^delta as predicted by SISSO-learned descriptor from Eq. (4) in
+        """G^delta as predicted by SISSO-learned descriptor from Eq. (4) in
         Bartel et al. (2018).
 
         Args:
@@ -896,8 +868,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @classmethod
     def from_pd(cls, pd, temp=300, gibbs_model="SISSO") -> list[GibbsComputedStructureEntry]:
-        """
-        Constructor method for initializing a list of GibbsComputedStructureEntry
+        """Constructor method for initializing a list of GibbsComputedStructureEntry
         objects from an existing T = 0 K phase diagram composed of
         ComputedStructureEntry objects, as acquired from a thermochemical database;
         (e.g.. The Materials Project).
@@ -931,8 +902,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @classmethod
     def from_entries(cls, entries, temp=300, gibbs_model="SISSO") -> list[GibbsComputedStructureEntry]:
-        """
-        Constructor method for initializing GibbsComputedStructureEntry objects from
+        """Constructor method for initializing GibbsComputedStructureEntry objects from
         T = 0 K ComputedStructureEntry objects, as acquired from a thermochemical
         database e.g. The Materials Project.
 
@@ -963,8 +933,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @classmethod
     def from_dict(cls, d) -> GibbsComputedStructureEntry:
-        """
-        :param d: Dict representation.
+        """:param d: Dict representation.
         :return: GibbsComputedStructureEntry
         """
         dec = MontyDecoder()

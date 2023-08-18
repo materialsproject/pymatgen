@@ -1,5 +1,4 @@
-"""
-This module provides classes to interface with the Crystallography Open
+"""This module provides classes to interface with the Crystallography Open
 Database. If you use data from the COD, please cite the following works (as
 stipulated by the COD developers).
 
@@ -48,8 +47,7 @@ class COD:
         self.url = "www.crystallography.net"
 
     def query(self, sql: str) -> str:
-        """
-        Perform a query.
+        """Perform a query.
 
         :param sql: SQL string
         :return: Response from SQL query.
@@ -59,8 +57,7 @@ class COD:
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
     def get_cod_ids(self, formula):
-        """
-        Queries the COD for all cod ids associated with a formula. Requires
+        """Queries the COD for all cod ids associated with a formula. Requires
         mysql executable to be in the path.
 
         Args:
@@ -83,8 +80,7 @@ class COD:
         return cod_ids
 
     def get_structure_by_id(self, cod_id, **kwargs):
-        """
-        Queries the COD for a structure by id.
+        """Queries the COD for a structure by id.
 
         Args:
             cod_id (int): COD id.
@@ -99,8 +95,7 @@ class COD:
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
     def get_structure_by_formula(self, formula: str, **kwargs) -> list[dict[str, str | int | Structure]]:
-        """
-        Queries the COD for structures by formula. Requires mysql executable to
+        """Queries the COD for structures by formula. Requires mysql executable to
         be in the path.
 
         Args:

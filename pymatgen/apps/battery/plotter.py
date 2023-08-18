@@ -34,8 +34,7 @@ class VoltageProfilePlotter:
         self.hide_negative = hide_negative
 
     def add_electrode(self, electrode, label=None):
-        """
-        Add an electrode to the plot.
+        """Add an electrode to the plot.
 
         Args:
             electrode: An electrode. All electrodes satisfying the
@@ -87,8 +86,7 @@ class VoltageProfilePlotter:
         return x, y
 
     def get_plot(self, width=8, height=8, term_zero=True, ax: plt.Axes = None):
-        """
-        Returns a plot object.
+        """Returns a plot object.
 
         Args:
             width: Width of the plot. Defaults to 8 in.
@@ -123,8 +121,7 @@ class VoltageProfilePlotter:
         term_zero=True,
         **kwargs,
     ):
-        """
-        Return plotly Figure object.
+        """Return plotly Figure object.
 
         Args:
             width: Width of the plot. Defaults to 800 px.
@@ -191,8 +188,7 @@ class VoltageProfilePlotter:
         raise RuntimeError("No xaxis label can be determined")
 
     def show(self, width=8, height=6):
-        """
-        Show the voltage profile plot.
+        """Show the voltage profile plot.
 
         Args:
             width: Width of the plot. Defaults to 8 in.
@@ -201,8 +197,7 @@ class VoltageProfilePlotter:
         self.get_plot(width, height).show()
 
     def save(self, filename, image_format="eps", width=8, height=6):
-        """
-        Save the plot to an image file.
+        """Save the plot to an image file.
 
         Args:
             filename: Filename to save to.

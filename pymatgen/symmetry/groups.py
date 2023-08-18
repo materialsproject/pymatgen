@@ -1,5 +1,4 @@
-"""
-Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.
+"""Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.
 Shyue Ping Ong thanks Marc De Graef for his generous sharing of his
 SpaceGroup data as published in his textbook "Structure of Materials".
 """
@@ -38,9 +37,8 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
     @property
     @abstractmethod
     def symmetry_ops(self) -> set[SymmOp]:
-        """
-        Returns:
-            List of symmetry operations associated with the group.
+        """Returns:
+        List of symmetry operations associated with the group.
         """
 
     def __contains__(self, item: object) -> bool:
@@ -67,8 +65,7 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         return len(self.symmetry_ops)
 
     def is_subgroup(self, supergroup: SymmetryGroup) -> bool:
-        """
-        True if this group is a subgroup of the supplied group.
+        """True if this group is a subgroup of the supplied group.
 
         Args:
             supergroup (SymmetryGroup): Supergroup to test.
@@ -80,8 +77,7 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         return set(self.symmetry_ops).issubset(supergroup.symmetry_ops)
 
     def is_supergroup(self, subgroup: SymmetryGroup) -> bool:
-        """
-        True if this group is a supergroup of the supplied group.
+        """True if this group is a supergroup of the supplied group.
 
         Args:
             subgroup (SymmetryGroup): Subgroup to test.
@@ -93,9 +89,8 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         return set(subgroup.symmetry_ops).issubset(self.symmetry_ops)
 
     def to_latex_string(self) -> str:
-        """
-        Returns:
-            A latex formatted group symbol with proper subscripts and overlines.
+        """Returns:
+        A latex formatted group symbol with proper subscripts and overlines.
         """
         sym = re.sub(r"_(\d+)", r"$_{\1}$", self.to_pretty_string())
         return re.sub(r"-(\d)", r"$\\overline{\1}$", sym)
@@ -103,8 +98,7 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
 
 @cached_class
 class PointGroup(SymmetryGroup):
-    """
-    Class representing a Point Group, with generators and symmetry operations.
+    """Class representing a Point Group, with generators and symmetry operations.
 
     .. attribute:: symbol
 
@@ -121,8 +115,7 @@ class PointGroup(SymmetryGroup):
     """
 
     def __init__(self, int_symbol: str) -> None:
-        """
-        Initializes a Point Group from its international symbol.
+        """Initializes a Point Group from its international symbol.
 
         Args:
             int_symbol (str): International or Hermann-Mauguin Symbol.
@@ -138,9 +131,8 @@ class PointGroup(SymmetryGroup):
 
     @property
     def symmetry_ops(self) -> set[SymmOp]:
-        """
-        Returns:
-            List of symmetry operations associated with the group.
+        """Returns:
+        List of symmetry operations associated with the group.
         """
         return self._symmetry_ops
 
@@ -158,8 +150,7 @@ class PointGroup(SymmetryGroup):
         return symm_ops
 
     def get_orbit(self, p: ArrayLike, tol: float = 1e-5) -> list[np.ndarray]:
-        """
-        Returns the orbit for a point.
+        """Returns the orbit for a point.
 
         Args:
             p: Point as a 3x1 array.
@@ -180,8 +171,7 @@ class PointGroup(SymmetryGroup):
 
 @cached_class
 class SpaceGroup(SymmetryGroup):
-    """
-    Class representing a SpaceGroup.
+    """Class representing a SpaceGroup.
 
     .. attribute:: symbol
 
@@ -217,8 +207,7 @@ class SpaceGroup(SymmetryGroup):
     full_sg_mapping = {v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
 
     def __init__(self, int_symbol: str) -> None:
-        """
-        Initializes a Space Group from its full or abbreviated international
+        """Initializes a Space Group from its full or abbreviated international
         symbol. Only standard settings are supported.
 
         Args:
@@ -308,8 +297,7 @@ class SpaceGroup(SymmetryGroup):
 
     @classmethod
     def get_settings(cls, int_symbol: str) -> set[str]:
-        """
-        Returns all the settings for a particular international symbol.
+        """Returns all the settings for a particular international symbol.
 
         Args:
             int_symbol (str): Full International (e.g., "P2/m2/m2/m") or
@@ -344,8 +332,7 @@ class SpaceGroup(SymmetryGroup):
 
     @property
     def symmetry_ops(self) -> set[SymmOp]:
-        """
-        Full set of symmetry operations as matrices. Lazily initialized as
+        """Full set of symmetry operations as matrices. Lazily initialized as
         generation sometimes takes a bit of time.
         """
         from pymatgen.core.operations import SymmOp
@@ -355,8 +342,7 @@ class SpaceGroup(SymmetryGroup):
         return self._symmetry_ops
 
     def get_orbit(self, p: ArrayLike, tol: float = 1e-5) -> list[np.ndarray]:
-        """
-        Returns the orbit for a point.
+        """Returns the orbit for a point.
 
         Args:
             p: Point as a 3x1 array.
@@ -376,8 +362,7 @@ class SpaceGroup(SymmetryGroup):
         return orbit
 
     def get_orbit_and_generators(self, p: ArrayLike, tol: float = 1e-5) -> tuple[list, list]:
-        """
-        Returns the orbit and its generators for a point.
+        """Returns the orbit and its generators for a point.
 
         Args:
             p: Point as a 3x1 array.
@@ -402,8 +387,7 @@ class SpaceGroup(SymmetryGroup):
         return orbit, generators
 
     def is_compatible(self, lattice: Lattice, tol: float = 1e-5, angle_tol: float = 5) -> bool:
-        """
-        Checks whether a particular lattice is compatible with the
+        """Checks whether a particular lattice is compatible with the
         *conventional* unit cell.
 
         Args:
@@ -449,9 +433,8 @@ class SpaceGroup(SymmetryGroup):
     def crystal_system(
         self,
     ) -> Literal["cubic", "hexagonal", "trigonal", "tetragonal", "orthorhombic", "monoclinic", "triclinic"]:
-        """
-        Returns:
-            str: Crystal system of the space group, e.g., cubic, hexagonal, etc.
+        """Returns:
+        str: Crystal system of the space group, e.g., cubic, hexagonal, etc.
         """
         num = self.int_number
         if num <= 2:
@@ -501,8 +484,7 @@ class SpaceGroup(SymmetryGroup):
         return False
 
     def is_supergroup(self, subgroup: SymmetryGroup) -> bool:
-        """
-        True if this space group is a supergroup of the supplied group.
+        """True if this space group is a supergroup of the supplied group.
 
         Args:
             subgroup (Spacegroup): Subgroup to test.
@@ -514,8 +496,7 @@ class SpaceGroup(SymmetryGroup):
 
     @classmethod
     def from_int_number(cls, int_number: int, hexagonal: bool = True) -> SpaceGroup:
-        """
-        Obtains a SpaceGroup from its international number.
+        """Obtains a SpaceGroup from its international number.
 
         Args:
             int_number (int): International number.
@@ -545,16 +526,14 @@ class SpaceGroup(SymmetryGroup):
         )
 
     def to_pretty_string(self) -> str:
-        """
-        Returns:
-            (str): A pretty string representation of the space group.
+        """Returns:
+        (str): A pretty string representation of the space group.
         """
         return self.symbol
 
 
 def sg_symbol_from_int_number(int_number: int, hexagonal: bool = True) -> str:
-    """
-    Obtains a SpaceGroup name from its international number.
+    """Obtains a SpaceGroup name from its international number.
 
     Args:
         int_number (int): International number.
@@ -582,8 +561,7 @@ def sg_symbol_from_int_number(int_number: int, hexagonal: bool = True) -> str:
 
 
 def in_array_list(array_list: list[np.ndarray] | np.ndarray, arr: np.ndarray, tol: float = 1e-5) -> bool:
-    """
-    Extremely efficient nd-array comparison using numpy's broadcasting. This
+    """Extremely efficient nd-array comparison using numpy's broadcasting. This
     function checks if a particular array a, is present in a list of arrays.
     It works for arrays of any size, e.g., even matrix searches.
 
