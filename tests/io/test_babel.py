@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import unittest
-import warnings
 
 import pytest
 from pytest import approx
@@ -27,10 +26,6 @@ class TestBabelMolAdaptor(unittest.TestCase):
             [-0.513360, 0.889165, -0.363000],
         ]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_init(self):
         adaptor = BabelMolAdaptor(self.mol)

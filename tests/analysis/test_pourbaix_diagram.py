@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import multiprocessing
 import unittest
-import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -289,13 +288,9 @@ class TestPourbaixDiagram(unittest.TestCase):
 
 class TestPourbaixPlotter(unittest.TestCase):
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.test_data = loadfn(f"{TEST_FILES_DIR}/pourbaix_test_data.json")
         self.pd = PourbaixDiagram(self.test_data["Zn"])
         self.plotter = PourbaixPlotter(self.pd)
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_plot_pourbaix(self):
         plotter = PourbaixPlotter(self.pd)

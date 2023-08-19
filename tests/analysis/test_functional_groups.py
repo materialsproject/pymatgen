@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 import pytest
 
@@ -27,8 +26,6 @@ __credit__ = "Peiyuan Yu"
 
 class TestFunctionalGroupExtractor(unittest.TestCase):
     def setUp(self):
-        warnings.simplefilter("ignore")
-
         self.file = f"{test_dir}/func_group_test.mol"
         self.mol = Molecule.from_file(self.file)
         self.strategy = OpenBabelNN()
@@ -36,7 +33,6 @@ class TestFunctionalGroupExtractor(unittest.TestCase):
         self.extractor = FunctionalGroupExtractor(self.mg)
 
     def tearDown(self):
-        warnings.simplefilter("default")
         del self.extractor
         del self.mg
         del self.strategy

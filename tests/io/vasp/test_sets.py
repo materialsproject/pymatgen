@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 import os
 import tempfile
-import warnings
 from glob import glob
 from pathlib import Path
 from zipfile import ZipFile
@@ -166,12 +165,6 @@ class TestMITMPRelaxSet(PymatgenTest):
         cls.mit_set = MITRelaxSet(cls.structure)
         cls.mit_set_unsorted = MITRelaxSet(cls.structure, sort_structure=False)
         cls.mp_set = MPRelaxSet(cls.structure)
-
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_metal_check(self):
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Cu"], [[0, 0, 0]])
@@ -624,7 +617,6 @@ class TestMITMPRelaxSet(PymatgenTest):
 class TestMPStaticSet(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
-        warnings.simplefilter("ignore")
 
     def test_init(self):
         prev_run = f"{TEST_FILES_DIR}/relaxation"
@@ -761,7 +753,6 @@ class TestMPStaticSet(PymatgenTest):
 class TestMPNonSCFSet(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
-        warnings.simplefilter("ignore")
 
     @skip_if_no_psp_dir
     def test_init(self):
@@ -912,12 +903,6 @@ class TestMPNonSCFSet(PymatgenTest):
 
 
 class TestMagmomLdau(PymatgenTest):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_structure_from_prev_run(self):
         vrun = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.magmom_ldau")
         structure = vrun.final_structure
@@ -958,10 +943,6 @@ class TestMITMDSet(PymatgenTest):
         poscar = Poscar.from_file(filepath)
         self.struct = poscar.structure
         self.mitmdparam = MITMDSet(self.struct, 300, 1200, 10000)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_params(self):
         param = self.mitmdparam
@@ -989,10 +970,6 @@ class TestMVLNPTMDSet(PymatgenTest):
         poscar = Poscar.from_file(file_path)
         self.struct = poscar.structure
         self.mvl_npt_set = MVLNPTMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_incar(self):
         npt_set = self.mvl_npt_set
@@ -1032,10 +1009,6 @@ class TestMITNEBSet(PymatgenTest):
         s2 = Structure(Lattice.cubic(5), ["Si", "Si"], c2)
         self.structures = [Structure.from_sites(s.sites, to_unit_cell=True) for s in s1.interpolate(s2, 3, pbc=True)]
         self.vis = MITNEBSet(self.structures)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_potcar_symbols(self):
         syms = self.vis.potcar_symbols
@@ -1065,12 +1038,6 @@ class TestMITNEBSet(PymatgenTest):
 
 
 class TestMPSOCSet(PymatgenTest):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_from_prev_calc(self):
         prev_run = f"{TEST_FILES_DIR}/fe_monomer"
         vis = MPSOCSet.from_prev_calc(
@@ -1105,12 +1072,6 @@ class TestMPSOCSet(PymatgenTest):
 
 
 class TestMPNMRSet(PymatgenTest):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_incar(self):
         filepath = f"{TEST_FILES_DIR}/Li.cif"
         structure = Structure.from_file(filepath)
@@ -1147,10 +1108,6 @@ class TestMVLSlabSet(PymatgenTest):
         self.d_slab = vis.get_vasp_input()
         self.d_dipole = vis_dipole.get_vasp_input()
         self.vis = vis
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_user_incar_settings(self):
         # Make sure user incar settings properly override AMIX.
@@ -1206,12 +1163,6 @@ class TestMVLSlabSet(PymatgenTest):
 
 
 class TestMVLElasticSet(PymatgenTest):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_incar(self):
         mvlparam = MVLElasticSet(self.get_structure("Graphite"))
         incar = mvlparam.incar
@@ -1226,7 +1177,6 @@ class TestMVLGWSet(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         self.struct = PymatgenTest.get_structure("Li2O")
-        warnings.simplefilter("ignore")
 
     def test_static(self):
         mvlgwsc = MVLGWSet(self.struct)
@@ -1297,10 +1247,6 @@ class TestMVLGWSet(PymatgenTest):
 class TestMPHSEBS(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_init(self):
         prev_run = f"{TEST_FILES_DIR}/static_silicon"
@@ -1352,10 +1298,6 @@ class TestMVLScanRelaxSet(PymatgenTest):
         self.mvl_scan_set = MVLScanRelaxSet(
             self.struct, user_potcar_functional="PBE_52", user_incar_settings={"NSW": 500}
         )
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_incar(self):
         incar = self.mvl_scan_set.incar
@@ -1410,10 +1352,6 @@ class TestMPScanRelaxSet(PymatgenTest):
         self.mp_scan_set = MPScanRelaxSet(
             self.struct, user_potcar_functional="PBE_52", user_incar_settings={"NSW": 500}
         )
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_incar(self):
         incar = self.mp_scan_set.incar
@@ -1526,7 +1464,6 @@ class TestMPScanRelaxSet(PymatgenTest):
 class TestMPScanStaticSet(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
-        warnings.simplefilter("ignore")
 
     def test_init(self):
         # test inheriting from a previous SCAN relaxation
@@ -1647,10 +1584,6 @@ class TestMVLGBSet(PymatgenTest):
 
         self.d_bulk = self.bulk.get_vasp_input()
         self.d_slab = self.slab.get_vasp_input()
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_bulk(self):
         incar_bulk = self.d_bulk["INCAR"]
@@ -1673,10 +1606,6 @@ class TestMVLRelax52Set(PymatgenTest):
         poscar = Poscar.from_file(file_path)
         self.struct = poscar.structure
         self.mvl_rlx_set = MVLRelax52Set(self.struct, user_potcar_functional="PBE_54", user_incar_settings={"NSW": 500})
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_incar(self):
         incar = self.mvl_rlx_set.incar
@@ -1791,7 +1720,6 @@ class TestMPAbsorptionSet(PymatgenTest):
         file_path = f"{TEST_FILES_DIR}/absorption/static/POSCAR"
         poscar = Poscar.from_file(file_path)
         self.structure = poscar.structure
-        warnings.simplefilter("ignore")
 
     def test_ipa(self):
         prev_run = f"{TEST_FILES_DIR}/absorption/static"

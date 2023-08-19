@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import warnings
-
 import numpy as np
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -21,7 +19,6 @@ test_dir = f"{TEST_FILES_DIR}/grain_boundary"
 class TestGrainBoundary(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        warnings.filterwarnings("ignore")
         cls.Cu_conv = Structure.from_file(f"{test_dir}/Cu_mp-30_conventional_standard.cif")
         GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
         cls.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
@@ -41,10 +38,6 @@ class TestGrainBoundary(PymatgenTest):
             ab_shift=[0.2, 0.2],
             rm_ratio=0.0,
         )
-
-    @classmethod
-    def tearDownClass(cls):
-        warnings.simplefilter("default")
 
     def test_init(self):
         assert self.Cu_GB1.rotation_angle == approx(123.74898859588858)
@@ -114,7 +107,6 @@ class TestGrainBoundary(PymatgenTest):
 class TestGrainBoundaryGenerator(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        warnings.filterwarnings("ignore")
         cls.Cu_prim = Structure.from_file(f"{test_dir}/Cu_mp-30_primitive.cif")
         cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
         cls.Cu_conv = Structure.from_file(f"{test_dir}/Cu_mp-30_conventional_standard.cif")
@@ -127,10 +119,6 @@ class TestGrainBoundaryGenerator(PymatgenTest):
         cls.GB_Br = GrainBoundaryGenerator(cls.Br)
         cls.Bi = Structure.from_file(f"{test_dir}/Bi_mp-23152_primitive.cif")
         cls.GB_Bi = GrainBoundaryGenerator(cls.Bi)
-
-    @classmethod
-    def tearDownClass(cls):
-        warnings.simplefilter("default")
 
     def test_gb_from_parameters(self):
         # from fcc primitive cell,axis[1,2,3],sigma 9.

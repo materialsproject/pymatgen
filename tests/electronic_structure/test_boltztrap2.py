@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 import numpy as np
 from monty.serialization import loadfn
@@ -50,19 +49,12 @@ class TestVasprunBSLoader(unittest.TestCase):
         self.loader = VasprunBSLoader.from_file(vrunfile)
         assert self.loader is not None
 
-        warnings.simplefilter("ignore")
-
         self.loader_sp = VasprunBSLoader(vrun_sp)
         assert self.loader_sp is not None
         self.loader_sp = VasprunBSLoader(bs_sp, vrun_sp.final_structure)
         assert self.loader_sp is not None
         self.loader_sp = VasprunBSLoader.from_file(vrunfile_sp)
         assert self.loader_sp is not None
-
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_properties(self):
         assert self.loader.is_spin_polarized is False
@@ -97,11 +89,6 @@ class TestBandstructureLoader(unittest.TestCase):
         assert self.loader_sp is not None
         assert self.loader_sp.ebands_all.shape == (24, 198)
 
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_properties(self):
         assert self.loader.ebands_all.shape == (20, 120)
         assert self.loader.fermi == approx(0.185266535678, abs=1e-5)
@@ -127,10 +114,6 @@ class TestVasprunLoader(unittest.TestCase):
         self.loader = VasprunLoader(vrun)
         assert self.loader.proj.shape == (120, 20, 2, 9)
         assert self.loader is not None
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_properties(self):
         assert self.loader.ebands.shape == (20, 120)
@@ -156,8 +139,6 @@ class TestBztInterpolator(unittest.TestCase):
         self.bztInterp = BztInterpolator(self.loader, load_bztInterp=True, fname=bztinterp_fn)
         assert self.bztInterp is not None
 
-        warnings.simplefilter("ignore")
-
         self.loader_sp = VasprunBSLoader(vrun_sp)
         self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2)
         assert self.bztInterp_sp is not None
@@ -165,11 +146,6 @@ class TestBztInterpolator(unittest.TestCase):
         assert self.bztInterp_sp is not None
         self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, load_bztInterp=True, fname=bztinterp_fn)
         assert self.bztInterp_sp is not None
-
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_properties(self):
         assert self.bztInterp.cband.shape == (6, 3, 3, 3, 29791)
@@ -236,15 +212,12 @@ class TestBztTransportProperties(unittest.TestCase):
         bztInterp = BztInterpolator(loader, lpfac=2)
         self.bztTransp = BztTransportProperties(bztInterp, temp_r=np.arange(300, 600, 100))
         assert self.bztTransp is not None
-        warnings.simplefilter("ignore")
 
         self.bztTransp = BztTransportProperties(
             bztInterp, doping=10.0 ** np.arange(20, 22), temp_r=np.arange(300, 600, 100)
         )
         assert self.bztTransp is not None
         assert self.bztTransp.contain_props_doping
-
-        warnings.simplefilter("ignore")
 
         bztInterp = BztInterpolator(loader, lpfac=2)
         self.bztTransp = BztTransportProperties(
@@ -254,18 +227,15 @@ class TestBztTransportProperties(unittest.TestCase):
             fname=bzttransp_fn,
         )
         assert self.bztTransp is not None
-        warnings.simplefilter("ignore")
 
         bztInterp = BztInterpolator(loader, lpfac=2)
         self.bztTransp = BztTransportProperties(bztInterp, load_bztTranspProps=True, fname=bzttransp_fn)
         assert self.bztTransp is not None
-        warnings.simplefilter("ignore")
 
         loader_sp = VasprunBSLoader(vrun_sp)
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
         self.bztTransp_sp = BztTransportProperties(bztInterp_sp, temp_r=np.arange(300, 600, 100))
         assert self.bztTransp_sp is not None
-        warnings.simplefilter("ignore")
 
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
         self.bztTransp_sp = BztTransportProperties(
@@ -275,15 +245,10 @@ class TestBztTransportProperties(unittest.TestCase):
             fname=bzttransp_fn,
         )
         assert self.bztTransp_sp is not None
-        warnings.simplefilter("ignore")
 
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
         self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=bzttransp_fn)
         assert self.bztTransp_sp is not None
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_properties(self):
         for p in [

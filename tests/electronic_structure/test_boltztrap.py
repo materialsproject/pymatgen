@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import unittest
-import warnings
 from shutil import which
 
 from monty.serialization import loadfn
@@ -40,11 +39,6 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
             d = json.load(f)
             cls.bs = BandStructure.from_dict(d)
             cls.btr = BoltztrapRunner(cls.bs, 1)
-        warnings.simplefilter("ignore")
-
-    @classmethod
-    def tearDownClass(cls):
-        warnings.simplefilter("default")
 
     def test_properties(self):
         assert self.bz.gap == approx(1.6644932121620404, abs=1e-4)

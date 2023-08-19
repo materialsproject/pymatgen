@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 from math import pi
 from shutil import which
 from typing import get_args
@@ -1219,8 +1218,6 @@ class TestCrystalNN(PymatgenTest):
         self.lifepo4.add_oxidation_state_by_guess()
         self.he_bcc = self.get_structure("He_BCC")
         self.he_bcc.add_oxidation_state_by_guess()
-        self.prev_warnings = warnings.filters
-        warnings.simplefilter("ignore")
 
         self.disordered_struct = Structure(
             Lattice.cubic(3), [{"Fe": 0.4, "C": 0.3, "Mn": 0.3}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -1228,9 +1225,6 @@ class TestCrystalNN(PymatgenTest):
         self.disordered_struct_with_majority = Structure(
             Lattice.cubic(3), [{"Fe": 0.6, "C": 0.4}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
         )
-
-    def tearDown(self):
-        warnings.filters = self.prev_warnings
 
     def test_sanity(self):
         cnn = CrystalNN()
@@ -1371,11 +1365,6 @@ class TestCutOffDictNN(PymatgenTest):
             [[2.554, 1.806, 4.423], [0.365, 0.258, 0.632]],
             coords_are_cartesian=True,
         )
-        self.prev_warnings = warnings.filters
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.filters = self.prev_warnings
 
     def test_cn(self):
         nn = CutOffDictNN({("C", "C"): 2})
@@ -1402,11 +1391,6 @@ class TestCritic2NN(PymatgenTest):
             [[2.554, 1.806, 4.423], [0.365, 0.258, 0.632]],
             coords_are_cartesian=True,
         )
-        self.prev_warnings = warnings.filters
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.filters = self.prev_warnings
 
     def test_cn(self):
         Critic2NN()

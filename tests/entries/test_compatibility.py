@@ -4,7 +4,6 @@ import copy
 import json
 import os
 import unittest
-import warnings
 from collections import defaultdict
 from math import sqrt
 from pathlib import Path
@@ -37,7 +36,6 @@ class TestCorrectionSpecificity(unittest.TestCase):
     """Make sure corrections are only applied to GGA or GGA+U entries."""
 
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
@@ -178,7 +176,6 @@ def test_overlapping_adjustments():
 
 class TestMaterialsProjectCompatibility(unittest.TestCase):
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
@@ -257,9 +254,6 @@ class TestMaterialsProjectCompatibility(unittest.TestCase):
 
         self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
         self.gga_compat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_process_entry(self):
         # Correct parameters
@@ -489,7 +483,6 @@ class TestMaterialsProjectCompatibility(unittest.TestCase):
 
 class TestMaterialsProjectCompatibility2020(unittest.TestCase):
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
@@ -550,9 +543,6 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
 
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
         self.gga_compat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_process_entry(self):
         # Correct parameters
@@ -1025,11 +1015,7 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
 
 
 class TestMITCompatibility(unittest.TestCase):
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.gga_compat = MITCompatibility("GGA", check_potcar_hash=True)
         self.entry_O = ComputedEntry(
@@ -1963,7 +1949,6 @@ class TestMITAqueousCompatibility(unittest.TestCase):
 
 class TestCorrectionErrors2020Compatibility(unittest.TestCase):
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.compat = MaterialsProject2020Compatibility()
 
         params = {
@@ -2018,9 +2003,6 @@ class TestCorrectionErrors2020Compatibility(unittest.TestCase):
             correction=0.0,
             parameters={"is_hubbard": False, "run_type": "GGA", "potcar_spec": potcar_spec},
         )
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_errors(self):
         for entry, expected in (
