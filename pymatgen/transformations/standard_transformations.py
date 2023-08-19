@@ -500,7 +500,7 @@ class RandomStructureTransformation(AbstractTransformation):
 
                 el_list = list(subl_comp_dict.keys())
                 el_concs = list(subl_comp_dict.values())
-                lengths = [int(el_conc * len(subl_indices)) for el_conc in el_concs]
+                lengths = [round(el_conc * len(subl_indices)) for el_conc in el_concs]
 
                 # randomly choose site indices for each element present in the sublattice
 
