@@ -484,15 +484,10 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
 
 class RandomStructureTransformation(AbstractTransformation):
-    """
-    Transform a disordered structure into a given number of ordered random structures.
-    """
+    """Transform a disordered structure into a given number of ordered random structures."""
 
     def __init__(self):
-        """
-        Default __init__ method.
-        """
-        pass
+        """Default __init__ method."""
 
     def apply_transformation(self, structure: Structure, n_copies: int) -> list[Structure]:
         """
@@ -504,7 +499,7 @@ class RandomStructureTransformation(AbstractTransformation):
             n_copies (int): number of copies of ordered random structures to be returned
 
         Returns:
-            A list of ordered random structures based on the input disordered structure. 
+            A list of ordered random structures based on the input disordered structure.
         """
         subl = structure.sublattices
 
@@ -535,16 +530,12 @@ class RandomStructureTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """
-        Returns: None
-        """
+        """Returns: None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """
-        Returns: True
-        """
+        """Returns: True."""
         return True
 
     def random_assign(self, sequence: list[int], lengths: list[int]):
@@ -575,7 +566,6 @@ class RandomStructureTransformation(AbstractTransformation):
         start_pos = 0
 
         for length in lengths:
-
             end_pos = min(start_pos + length, len(sequence))
 
             ## check if end_pos is greater than start_pos

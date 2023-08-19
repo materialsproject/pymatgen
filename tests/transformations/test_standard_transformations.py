@@ -29,9 +29,9 @@ from pymatgen.transformations.standard_transformations import (
     OxidationStateDecorationTransformation,
     OxidationStateRemovalTransformation,
     PartialRemoveSpecieTransformation,
-    RandomStructureTransformation,
     PerturbStructureTransformation,
     PrimitiveCellTransformation,
+    RandomStructureTransformation,
     RemoveSpeciesTransformation,
     RotationTransformation,
     ScaleToRelaxedTransformation,
@@ -328,23 +328,13 @@ class TestRandomStructureTransformation(unittest.TestCase):
         coords.append([0, 0, 0])
         coords.append([0.25, 0.25, 0.25])
         lattice = Lattice(
-            [
-                [3.521253, 0.000000, 2.032996],
-                [1.173751, 3.319869, 2.032996],
-                [0.000000, 0.000000, 4.065993]
-            ]
+            [[3.521253, 0.000000, 2.032996], [1.173751, 3.319869, 2.032996], [0.000000, 0.000000, 4.065993]]
         )
-        
-        struct = Structure(
-            lattice,
-            [
-                {"Ga3+": 0.5, "In3+": 0.5},
-                {"As3-": 0.5, "P3-": 0.5}
-            ],
-            coords)
-        
+
+        struct = Structure(lattice, [{"Ga3+": 0.5, "In3+": 0.5}, {"As3-": 0.5, "P3-": 0.5}], coords)
+
         struct.make_supercell([3, 3, 3])
-        
+
         output = trafo.apply_transformation(struct, n_copies=5)
         assert len(output) == 5
         assert isinstance(output[0], Structure)
