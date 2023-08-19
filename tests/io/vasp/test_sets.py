@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import os
-import shutil
 import tempfile
 import warnings
 from glob import glob
@@ -65,7 +64,7 @@ dec = MontyDecoder()
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
 skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set.")
 
-_dummy_structure = Structure(
+dummy_structure = Structure(
     [1, 0, 0, 0, 1, 0, 0, 0, 1],
     ["I"],
     [[0, 0, 0]],
@@ -711,14 +710,14 @@ class TestMPStaticSet(PymatgenTest):
         # test override_from_prev
         prev_run = f"{TEST_FILES_DIR}/relaxation"
 
-        vis = MPStaticSet(_dummy_structure)
+        vis = MPStaticSet(dummy_structure)
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert vis.incar["NSW"] == 0
         assert vis.incar["ENCUT"] == 600
         assert vis.kpoints.style == Kpoints.supported_modes.Monkhorst
 
         # Check LCALCPOL flag
-        lcalcpol_vis = MPStaticSet(_dummy_structure, lcalcpol=True)
+        lcalcpol_vis = MPStaticSet(dummy_structure, lcalcpol=True)
         lcalcpol_vis = lcalcpol_vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert lcalcpol_vis.incar["LCALCPOL"]
 
@@ -757,10 +756,6 @@ class TestMPStaticSet(PymatgenTest):
             static_set = MPStaticSet(struct)
             matched = static_set.calculate_ng() == (ng, ngf)
             assert matched
-
-    def tearDown(self):
-        shutil.rmtree(self.tmp)
-        warnings.simplefilter("default")
 
 
 class TestMPNonSCFSet(PymatgenTest):
@@ -826,22 +821,22 @@ class TestMPNonSCFSet(PymatgenTest):
         prev_run = f"{TEST_FILES_DIR}/relaxation"
 
         # test override_from_prev
-        vis = MPNonSCFSet(_dummy_structure, mode="Boltztrap")
+        vis = MPNonSCFSet(dummy_structure, mode="Boltztrap")
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert vis.incar["ISMEAR"] == 0
 
-        vis = MPNonSCFSet(_dummy_structure, mode="Uniform")
+        vis = MPNonSCFSet(dummy_structure, mode="Uniform")
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert vis.incar["ISMEAR"] == -5
         assert vis.incar["ISYM"] == 2
 
-        vis = MPNonSCFSet(_dummy_structure, mode="Uniform", nedos=0)
+        vis = MPNonSCFSet(dummy_structure, mode="Uniform", nedos=0)
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert vis.incar["NEDOS"] == 12217
 
         # test line mode
         vis = MPNonSCFSet(
-            _dummy_structure,
+            dummy_structure,
             mode="Line",
             copy_chgcar=False,
             user_incar_settings={"SIGMA": 0.025},
@@ -853,14 +848,14 @@ class TestMPNonSCFSet(PymatgenTest):
         assert vis.incar["SIGMA"] == 0.025
         assert vis.kpoints.style == Kpoints.supported_modes.Reciprocal
 
-        vis = MPNonSCFSet(_dummy_structure, mode="Line", copy_chgcar=True)
+        vis = MPNonSCFSet(dummy_structure, mode="Line", copy_chgcar=True)
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert vis.incar["ISMEAR"] == 0
         vis.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "CHGCAR"))
         os.remove(os.path.join(self.tmp, "CHGCAR"))
 
-        vis = MPNonSCFSet(_dummy_structure, standardize=True, mode="Line", copy_chgcar=True)
+        vis = MPNonSCFSet(dummy_structure, standardize=True, mode="Line", copy_chgcar=True)
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         vis.write_input(self.tmp)
         assert not os.path.isfile(os.path.join(self.tmp, "CHGCAR"))
@@ -914,10 +909,6 @@ class TestMPNonSCFSet(PymatgenTest):
             user_kpoints_settings=user_kpoints_override,
         )
         assert vis.kpoints.style == Kpoints.supported_modes.Gamma
-
-    def tearDown(self):
-        shutil.rmtree(self.tmp)
-        warnings.simplefilter("default")
 
 
 class TestMagmomLdau(PymatgenTest):
@@ -1068,20 +1059,9 @@ class TestMITNEBSet(PymatgenTest):
     @skip_if_no_psp_dir
     def test_write_input(self):
         self.vis.write_input(".", write_cif=True, write_endpoint_inputs=True, write_path_cif=True)
-        assert os.path.isfile("INCAR")
-        assert os.path.isfile("KPOINTS")
-        assert os.path.isfile("POTCAR")
-        assert os.path.isfile("00/POSCAR")
-        assert os.path.isfile("01/POSCAR")
-        assert os.path.isfile("02/POSCAR")
-        assert os.path.isfile("03/POSCAR")
+        for file in "INCAR KPOINTS POTCAR 00/POSCAR 01/POSCAR 02/POSCAR 03/POSCAR 00/INCAR path.cif".split():
+            assert os.path.isfile(file), f"{file=} not written"
         assert not os.path.isfile("04/POSCAR")
-        assert os.path.isfile("00/INCAR")
-        assert os.path.isfile("path.cif")
-        for d in ["00", "01", "02", "03"]:
-            shutil.rmtree(d)
-        for f in ["INCAR", "KPOINTS", "POTCAR", "path.cif"]:
-            os.remove(f)
 
 
 class TestMPSOCSet(PymatgenTest):
@@ -1110,7 +1090,7 @@ class TestMPSOCSet(PymatgenTest):
         # test override_from_prev_calc
         prev_run = f"{TEST_FILES_DIR}/fe_monomer"
         vis = MPSOCSet(
-            _dummy_structure,
+            dummy_structure,
             magmom=[3],
             saxis=(1, 0, 0),
             user_incar_settings={"SIGMA": 0.025},
@@ -1248,10 +1228,6 @@ class TestMVLGWSet(PymatgenTest):
         self.struct = PymatgenTest.get_structure("Li2O")
         warnings.simplefilter("ignore")
 
-    def tearDown(self):
-        warnings.simplefilter("default")
-        shutil.rmtree(self.tmp)
-
     def test_static(self):
         mvlgwsc = MVLGWSet(self.struct)
         incar = mvlgwsc.incar
@@ -1271,7 +1247,7 @@ class TestMVLGWSet(PymatgenTest):
         assert mvlgwdiag.incar["LOPTICS"]
 
         # test override_from_prev_calc
-        mvlgwdiag = MVLGWSet(_dummy_structure, copy_wavecar=True, mode="diag")
+        mvlgwdiag = MVLGWSet(dummy_structure, copy_wavecar=True, mode="diag")
         mvlgwdiag.override_from_prev_calc(prev_calc_dir=prev_run)
         mvlgwdiag.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
@@ -1298,20 +1274,20 @@ class TestMVLGWSet(PymatgenTest):
 
         # test override_from_prev_calc
         prev_run = f"{TEST_FILES_DIR}/relaxation"
-        mvlgwgbse = MVLGWSet(_dummy_structure, copy_wavecar=True, mode="BSE")
+        mvlgwgbse = MVLGWSet(dummy_structure, copy_wavecar=True, mode="BSE")
         mvlgwgbse.override_from_prev_calc(prev_calc_dir=prev_run)
         mvlgwgbse.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
         assert os.path.isfile(os.path.join(self.tmp, "WAVEDER"))
 
         prev_run = f"{TEST_FILES_DIR}/relaxation"
-        mvlgwgbse = MVLGWSet(_dummy_structure, copy_wavecar=True, mode="GW")
+        mvlgwgbse = MVLGWSet(dummy_structure, copy_wavecar=True, mode="GW")
         mvlgwgbse.override_from_prev_calc(prev_calc_dir=prev_run)
         assert mvlgwgbse.incar["NOMEGA"] == 80
         assert mvlgwgbse.incar["ENCUTGW"] == 250
         assert mvlgwgbse.incar["ALGO"] == "GW0"
 
-        mvlgwgbse1 = MVLGWSet(_dummy_structure, copy_wavecar=False, mode="BSE")
+        mvlgwgbse1 = MVLGWSet(dummy_structure, copy_wavecar=False, mode="BSE")
         mvlgwgbse1.override_from_prev_calc(prev_calc_dir=prev_run)
         assert mvlgwgbse1.incar["ANTIRES"] == 0
         assert mvlgwgbse1.incar["NBANDSO"] == 20
@@ -1349,17 +1325,17 @@ class TestMPHSEBS(PymatgenTest):
 
     def test_override_from_prev_calc(self):
         prev_run = f"{TEST_FILES_DIR}/static_silicon"
-        vis = MPHSEBSSet(_dummy_structure, mode="uniform")
+        vis = MPHSEBSSet(dummy_structure, mode="uniform")
         vis = vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert vis.incar["LHFCALC"]
         assert len(vis.kpoints.kpts) == 16
 
-        vis = MPHSEBSSet(_dummy_structure, mode="gap")
+        vis = MPHSEBSSet(dummy_structure, mode="gap")
         vis = vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert vis.incar["LHFCALC"]
         assert len(vis.kpoints.kpts) == 18
 
-        vis = MPHSEBSSet(_dummy_structure, mode="line")
+        vis = MPHSEBSSet(dummy_structure, mode="line")
         vis = vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert vis.incar["LHFCALC"]
         assert vis.incar["HFSCREEN"] == 0.2
@@ -1619,7 +1595,7 @@ class TestMPScanStaticSet(PymatgenTest):
         # test override_from_prev
         prev_run = f"{TEST_FILES_DIR}/scan_relaxation"
 
-        vis = MPScanStaticSet(_dummy_structure)
+        vis = MPScanStaticSet(dummy_structure)
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         # check that StaticSet settings were applied
         assert vis.incar["NSW"] == 0
@@ -1633,22 +1609,18 @@ class TestMPScanStaticSet(PymatgenTest):
         assert vis.incar["KSPACING"] == 0.34292842
 
         # Check LCALCPOL flag
-        lcalcpol_vis = MPScanStaticSet(_dummy_structure, lcalcpol=True)
+        lcalcpol_vis = MPScanStaticSet(dummy_structure, lcalcpol=True)
         lcalcpol_vis = lcalcpol_vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert lcalcpol_vis.incar["LCALCPOL"]
 
         # Check LEPSILON flag
-        lepsilon_vis = MPScanStaticSet(_dummy_structure, lepsilon=True)
+        lepsilon_vis = MPScanStaticSet(dummy_structure, lepsilon=True)
         lepsilon_vis = lepsilon_vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert lepsilon_vis.incar["LEPSILON"]
         assert lepsilon_vis.incar["LPEAD"]
         assert lepsilon_vis.incar["IBRION"] == 8
         assert lepsilon_vis.incar.get("NSW") is None
         assert lepsilon_vis.incar.get("NPAR") is None
-
-    def tearDown(self):
-        shutil.rmtree(self.tmp)
-        warnings.simplefilter("default")
 
 
 class TestFunc(PymatgenTest):
@@ -1662,8 +1634,6 @@ class TestFunc(PymatgenTest):
         for d in ["Li4Fe4P4O16_1", "Li2O1_0"]:
             for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
                 assert os.path.isfile(os.path.join(d, f))
-        for d in ["Li4Fe4P4O16_1", "Li2O1_0"]:
-            shutil.rmtree(d)
 
 
 @skip_if_no_psp_dir
@@ -1823,10 +1793,6 @@ class TestMPAbsorptionSet(PymatgenTest):
         self.structure = poscar.structure
         warnings.simplefilter("ignore")
 
-    def tearDown(self):
-        warnings.simplefilter("default")
-        shutil.rmtree(self.tmp)
-
     def test_ipa(self):
         prev_run = f"{TEST_FILES_DIR}/absorption/static"
         absorption_ipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, copy_wavecar=True, mode="IPA")
@@ -1837,7 +1803,7 @@ class TestMPAbsorptionSet(PymatgenTest):
         assert absorption_ipa.incar["LOPTICS"]
 
         # test override_from_prev_calc
-        absorption_ipa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="IPA")
+        absorption_ipa = MPAbsorptionSet(dummy_structure, copy_wavecar=True, mode="IPA")
         absorption_ipa.override_from_prev_calc(prev_calc_dir=prev_run)
         absorption_ipa.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
@@ -1857,7 +1823,7 @@ class TestMPAbsorptionSet(PymatgenTest):
 
         # test override_from_prev_calc
         prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
-        absorption_rpa = MPAbsorptionSet(_dummy_structure, copy_wavecar=True, mode="RPA")
+        absorption_rpa = MPAbsorptionSet(dummy_structure, copy_wavecar=True, mode="RPA")
         absorption_rpa.override_from_prev_calc(prev_calc_dir=prev_run)
         absorption_rpa.write_input(self.tmp)
         assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))

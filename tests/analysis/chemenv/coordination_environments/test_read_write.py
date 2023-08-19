@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import unittest
 
 from numpy.testing import assert_allclose, assert_array_almost_equal
@@ -221,8 +220,8 @@ class TestReadWriteChemenv(unittest.TestCase):
         assert multi_weights_strategy_2 != multi_weights_strategy_3
 
     def test_read_write_voronoi(self):
-        with open(f"{json_dir}/test_T--4_FePO4_icsd_4266.json") as f:
-            dd = json.load(f)
+        with open(f"{json_dir}/test_T--4_FePO4_icsd_4266.json") as file:
+            dd = json.load(file)
 
         struct = Structure.from_dict(dd["structure"])
 
@@ -230,17 +229,12 @@ class TestReadWriteChemenv(unittest.TestCase):
 
         detailed_voronoi_container = DetailedVoronoiContainer(structure=struct, valences=valences)
 
-        with open("tmp_dir/se.json", "w") as f:
-            json.dump(detailed_voronoi_container.as_dict(), f)
+        with open("tmp_dir/se.json", "w") as file:
+            json.dump(detailed_voronoi_container.as_dict(), file)
 
-        with open("tmp_dir/se.json") as f:
-            dd = json.load(f)
+        with open("tmp_dir/se.json") as file:
+            dd = json.load(file)
 
         detailed_voronoi_container2 = DetailedVoronoiContainer.from_dict(dd)
 
         assert detailed_voronoi_container == detailed_voronoi_container2
-
-    @classmethod
-    def tearDownClass(cls):
-        # Remove the directory in which the temporary files have been created
-        shutil.rmtree("tmp_dir")
