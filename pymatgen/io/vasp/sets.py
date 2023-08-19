@@ -1223,7 +1223,7 @@ class MatPESStaticSet(MPStaticSet):
     def __init__(
         self,
         structure: str,
-        functional: Literal["R2SCAN", "R2SCAN+U", "PBE", "PBE+U"] | None = None,
+        functional: Literal["R2SCAN", "R2SCAN+U", "PBE", "PBE+U", ""] = "",
         **kwargs: Any,
     ) -> None:
         """
@@ -1235,13 +1235,12 @@ class MatPESStaticSet(MPStaticSet):
         """
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
         kwargs.setdefault("user_potcar_functional", "PBE_54")
-        if isinstance(functional, str):
-            if functional == "R2SCAN":
-                self.user_incar_settings = {"METAGGA": "R2SCAN"}
-            if functional == "R2SCAN+U":
-                self.user_incar_settings = {"METAGGA": "R2SCAN", "LDAU": True}
-            if functional == "PBE+U":
-                self.user_incar_settings = {"LDAU": True}
+        if functional.startswith("R2SCAN"):
+            self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
+        if functional.startswith("PBE"):
+            self.user_incar_settings.setdefault("GGA", "PE")
+        if functional.endswith("+U"):
+            self.user_incar_settings.setdefault("LDAU", True)
 
         self.kwargs = kwargs
         self.functional = functional
