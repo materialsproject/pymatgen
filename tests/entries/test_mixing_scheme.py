@@ -2,6 +2,7 @@
 Tests for the Materials Project DFT mixing scheme.
 
 **NOTE FOR FUTURE DEVELOPERS**
+from numpy.testing import assert_allclose
 
 PLEASE DO NOT CHANGE THESE TESTS WITHOUT READING THIS ENTIRE DOCUMENTATION!
 
@@ -1638,7 +1639,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         for entry in entries:
             if entry.parameters["run_type"] == "GGA":
                 assert "onto the R2SCAN hull" in entry.energy_adjustments[0].description
-                assert np.allclose(pd_mixed.get_e_above_hull(entry), gga_hull_e[entry.entry_id])
+                assert_allclose(pd_mixed.get_e_above_hull(entry), gga_hull_e[entry.entry_id])
             else:
                 assert entry.correction == 0
 

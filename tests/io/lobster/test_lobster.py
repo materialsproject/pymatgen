@@ -8,7 +8,7 @@ import warnings
 
 import numpy as np
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Structure
@@ -364,12 +364,12 @@ class TestCohpcar(PymatgenTest):
             [self.orb.orb_res_cohp["1"][orbs]["COHP"][Spin.up] for orbs in self.orb.orb_res_cohp["1"]],
             axis=0,
         )
-        assert np.allclose(tot, cohp, atol=1e-3)
+        assert_allclose(tot, cohp, atol=1e-3)
         tot = np.sum(
             [self.orb.orb_res_cohp["1"][orbs]["ICOHP"][Spin.up] for orbs in self.orb.orb_res_cohp["1"]],
             axis=0,
         )
-        assert np.allclose(tot, icohp, atol=1e-3)
+        assert_allclose(tot, icohp, atol=1e-3)
 
         # Lobster 3.1
         cohp_KF = self.cohp_KF.cohp_data["1"]["COHP"][Spin.up]
@@ -378,12 +378,12 @@ class TestCohpcar(PymatgenTest):
             [self.cohp_KF.orb_res_cohp["1"][orbs]["COHP"][Spin.up] for orbs in self.cohp_KF.orb_res_cohp["1"]],
             axis=0,
         )
-        assert np.allclose(tot_KF, cohp_KF, atol=1e-3)
+        assert_allclose(tot_KF, cohp_KF, atol=1e-3)
         tot_KF = np.sum(
             [self.cohp_KF.orb_res_cohp["1"][orbs]["ICOHP"][Spin.up] for orbs in self.cohp_KF.orb_res_cohp["1"]],
             axis=0,
         )
-        assert np.allclose(tot_KF, icohp_KF, atol=1e-3)
+        assert_allclose(tot_KF, icohp_KF, atol=1e-3)
 
         # d and f orbitals
         cohp_Na2UO4 = self.cohp_Na2UO4.cohp_data["49"]["COHP"][Spin.up]
@@ -395,7 +395,7 @@ class TestCohpcar(PymatgenTest):
             ],
             axis=0,
         )
-        assert np.allclose(tot_Na2UO4, cohp_Na2UO4, atol=1e-3)
+        assert_allclose(tot_Na2UO4, cohp_Na2UO4, atol=1e-3)
         tot_Na2UO4 = np.sum(
             [
                 self.cohp_Na2UO4.orb_res_cohp["49"][orbs]["ICOHP"][Spin.up]
@@ -403,7 +403,7 @@ class TestCohpcar(PymatgenTest):
             ],
             axis=0,
         )
-        assert np.allclose(tot_Na2UO4, icohp_Na2UO4, atol=1e-3)
+        assert_allclose(tot_Na2UO4, icohp_Na2UO4, atol=1e-3)
 
 
 class TestIcohplist(unittest.TestCase):
@@ -716,11 +716,11 @@ class TestDoscar(unittest.TestCase):
         assert tdos_down == self.DOSCAR_spin_pol.completedos.densities[Spin.down].tolist()
         assert fermi == approx(self.DOSCAR_spin_pol.completedos.efermi)
 
-        assert np.allclose(
+        assert_allclose(
             self.DOSCAR_spin_pol.completedos.structure.frac_coords,
             self.structure.frac_coords,
         )
-        assert np.allclose(
+        assert_allclose(
             self.DOSCAR_spin_pol2.completedos.structure.frac_coords,
             self.structure.frac_coords,
         )
@@ -2273,7 +2273,7 @@ class TestGrosspop(unittest.TestCase):
         }
 
         new_structure = self.grosspop1.get_structure_with_total_grosspop(f"{TEST_FILES_DIR}/cohp/POSCAR.SiO2")
-        assert np.allclose(new_structure.frac_coords, Structure.from_dict(struct_dict).frac_coords)
+        assert_allclose(new_structure.frac_coords, Structure.from_dict(struct_dict).frac_coords)
 
 
 class TestUtils(PymatgenTest):

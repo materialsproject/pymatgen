@@ -59,8 +59,7 @@ class GruneisenParameter(MSONable):
         self.structure = structure
 
     def average_gruneisen(self, t=None, squared=True, limit_frequencies=None):
-        """
-        Calculates the average of the Gruneisen based on the values on the regular grid.
+        """Calculates the average of the Gruneisen based on the values on the regular grid.
         If squared is True the average will use the squared value of the Gruneisen and a squared root
         is performed on the final result.
         Values associated to negative frequencies will be ignored.
@@ -113,8 +112,7 @@ class GruneisenParameter(MSONable):
         return g
 
     def thermal_conductivity_slack(self, squared=True, limit_frequencies=None, theta_d=None, t=None):
-        """
-        Calculates the thermal conductivity at the acoustic Debye temperature with the Slack formula,
+        """Calculates the thermal conductivity at the acoustic Debye temperature with the Slack formula,
         using the average Gruneisen.
         Adapted from abipy.
 
@@ -187,8 +185,7 @@ class GruneisenParameter(MSONable):
         return np.sqrt(5 / 3 * integrals) / const.value("Boltzmann constant in Hz/K")
 
     def debye_temp_phonopy(self, freq_max_fit=None):
-        """
-        Get Debye temperature in K as implemented in phonopy.
+        """Get Debye temperature in K as implemented in phonopy.
 
         Args:
             freq_max_fit: Maximum frequency to include for fitting.
@@ -206,16 +203,14 @@ class GruneisenParameter(MSONable):
 
     @property
     def acoustic_debye_temp(self):
-        """
-        Acoustic Debye temperature in K, i.e. the Debye temperature divided by n_sites**(1/3).
+        """Acoustic Debye temperature in K, i.e. the Debye temperature divided by n_sites**(1/3).
         Adapted from abipy.
         """
         return self.debye_temp_limit / len(self.structure) ** (1 / 3)
 
 
 class GruneisenPhononBandStructure(PhononBandStructure):
-    """
-    This is the most generic phonon band structure data possible
+    """This is the most generic phonon band structure data possible
     it's defined by a list of qpoints + frequencies for each of them.
     Additional information may be given for frequencies at Gamma, where
     non-analytical contribution may be taken into account.
@@ -320,8 +315,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
 
 
 class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononBandStructureSymmLine):
-    """
-    This object stores a GruneisenPhononBandStructureSymmLine together with Grueneisen parameters
+    """This object stores a GruneisenPhononBandStructureSymmLine together with Grueneisen parameters
     for every frequency.
     """
 

@@ -245,8 +245,8 @@ def compute_environments(chemenv_configuration):
                 input_source = input('Enter materials project id (e.g. "mp-1902") : ')
             from pymatgen.ext.matproj import MPRester
 
-            mpr = MPRester()
-            structure = mpr.get_structure_by_material_id(input_source)
+            with MPRester() as mpr:
+                structure = mpr.get_structure_by_material_id(input_source)
         lgf.setup_structure(structure)
         print(f"Computing environments for {structure.composition.reduced_formula} ... ")
         se = lgf.compute_structure_environments(maximum_distance_factor=max_dist_factor)

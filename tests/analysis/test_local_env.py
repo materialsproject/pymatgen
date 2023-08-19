@@ -8,6 +8,7 @@ from typing import get_args
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
@@ -127,14 +128,14 @@ class TestVoronoiNN(PymatgenTest):
         # Test the 2nd NN shell
         nns = self.nn.get_nn_shell_info(struct, 0, 2)
         assert len(nns) == 18
-        assert np.allclose([1] * 6, [x["weight"] for x in nns if max(np.abs(x["image"])) == 2])
-        assert np.allclose([2] * 12, [x["weight"] for x in nns if max(np.abs(x["image"])) == 1])
+        assert_allclose([1] * 6, [x["weight"] for x in nns if max(np.abs(x["image"])) == 2])
+        assert_allclose([2] * 12, [x["weight"] for x in nns if max(np.abs(x["image"])) == 1])
 
         # Test the 3rd NN shell
         nns = self.nn.get_nn_shell_info(struct, 0, 3)
         for nn in nns:
             #  Check that the coordinates were set correctly
-            assert np.allclose(nn["site"].frac_coords, nn["image"])
+            assert_allclose(nn["site"].frac_coords, nn["image"])
 
         # Test with a structure that has unequal faces
         cscl = Structure(
@@ -186,7 +187,7 @@ class TestVoronoiNN(PymatgenTest):
             all_coords = np.sort([x["site"].coords for x in site.values()], axis=0)
             by_one_coords = np.sort([x["site"].coords for x in by_one.values()], axis=0)
 
-            assert np.allclose(all_coords, by_one_coords)
+            assert_allclose(all_coords, by_one_coords)
 
         # Test the nn_info operation
         all_nn_info = self.nn.get_all_nn_info(self.struct)
@@ -198,7 +199,7 @@ class TestVoronoiNN(PymatgenTest):
             all_weights = sorted(x["weight"] for x in info)
             by_one_weights = sorted(x["weight"] for x in by_one)
 
-            assert np.allclose(all_weights, by_one_weights)
+            assert_allclose(all_weights, by_one_weights)
 
     def test_Cs2O(self):
         """A problematic structure in the Materials Project."""
@@ -1264,7 +1265,7 @@ class TestCrystalNN(PymatgenTest):
         for idx, _ in enumerate(self.lifepo4):
             cn_array.append(cnn.get_cn(self.lifepo4, idx, use_weights=True))
 
-        assert np.allclose(expected_array, cn_array, 2)
+        assert_allclose(expected_array, cn_array, 2)
 
     def test_weighted_cn_no_oxid(self):
         cnn = CrystalNN(weighted_cn=True)
@@ -1281,7 +1282,7 @@ class TestCrystalNN(PymatgenTest):
         for idx, _ in enumerate(s):
             cn_array.append(cnn.get_cn(s, idx, use_weights=True))
 
-        assert np.allclose(expected_array, cn_array, 2)
+        assert_allclose(expected_array, cn_array, 2)
 
     def test_fixed_length(self):
         cnn = CrystalNN(fingerprint_length=30)

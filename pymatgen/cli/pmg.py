@@ -21,8 +21,7 @@ from pymatgen.io.vasp import Incar, Potcar
 
 
 def parse_view(args):
-    """
-    Handle view commands.
+    """Handle view commands.
 
     :param args: Args from command.
     """
@@ -37,8 +36,7 @@ def parse_view(args):
 
 
 def diff_incar(args):
-    """
-    Handle diff commands.
+    """Handle diff commands.
 
     :param args: Args from command.
     """

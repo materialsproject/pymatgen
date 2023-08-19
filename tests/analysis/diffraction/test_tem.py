@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.diffraction.tem import TEMCalculator
@@ -220,7 +221,7 @@ class TestTEMCalculator(PymatgenTest):
         # Test if x * p1 + y * p2 yields p3.
         c = TEMCalculator()
         coeffs = c.get_plot_coeffs((1, 1, 0), (1, -1, 0), (2, 0, 0))
-        assert np.allclose(np.array([1, 1]), coeffs)
+        assert_allclose([1, 1], coeffs)
 
     def test_get_positions(self):
         c = TEMCalculator()
@@ -230,7 +231,7 @@ class TestTEMCalculator(PymatgenTest):
         assert [0, 0] == positions[(0, 0, 0)].tolist()
         # Test silicon diffraction data spot rough positions:
         # see https://www.doitpoms.ac.uk/tlplib/diffraction-patterns/printall.php
-        assert np.allclose([1, 0], positions[(-1, 0, 0)], atol=1)
+        assert_allclose([1, 0], positions[(-1, 0, 0)], atol=1)
 
     def test_TEM_dots(self):
         # All dependencies in TEM_dots method are tested. Only make sure each object created is

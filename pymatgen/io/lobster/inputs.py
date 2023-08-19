@@ -114,7 +114,7 @@ class Lobsterin(dict, MSONable):
     LISTKEYWORDS = ("basisfunctions", "cohpbetween", "createFatband")
 
     # all keywords known to this class so far
-    AVAILABLEKEYWORDS = FLOAT_KEYWORDS + STRING_KEYWORDS + BOOLEAN_KEYWORDS + LISTKEYWORDS
+    AVAILABLE_KEYWORDS = FLOAT_KEYWORDS + STRING_KEYWORDS + BOOLEAN_KEYWORDS + LISTKEYWORDS
 
     def __init__(self, settingsdict: dict):
         """
@@ -123,15 +123,15 @@ class Lobsterin(dict, MSONable):
         """
         super().__init__()
         # check for duplicates
-        listkey = [key.lower() for key in settingsdict]
-        if len(listkey) != len(list(set(listkey))):
+        keys = [key.lower() for key in settingsdict]
+        if len(keys) != len(set(keys)):
             raise OSError("There are duplicates for the keywords! The program will stop here.")
         self.update(settingsdict)
 
     def __setitem__(self, key, val):
         """
         Add parameter-val pair to Lobsterin. Warns if parameter is not in list of
-        valid lobsterintags. Also cleans the parameter and val by stripping
+        valid lobsterin tags. Also cleans the parameter and val by stripping
         leading and trailing white spaces. Similar to INCAR class.
         """
         # due to the missing case sensitivity of lobster, the following code is necessary
@@ -142,7 +142,7 @@ class Lobsterin(dict, MSONable):
                 found = True
         if not found:
             new_key = key
-        if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLEKEYWORDS]:
+        if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
             raise ValueError("Key is currently not available")
 
         super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
@@ -264,7 +264,7 @@ class Lobsterin(dict, MSONable):
 
         filename = path
         with open(filename, "w") as f:
-            for key in Lobsterin.AVAILABLEKEYWORDS:
+            for key in Lobsterin.AVAILABLE_KEYWORDS:
                 if key.lower() in [element.lower() for element in self]:
                     if key.lower() in [element.lower() for element in Lobsterin.FLOAT_KEYWORDS]:
                         f.write(f"{key} {self.get(key)}\n")

@@ -7,6 +7,7 @@ import warnings
 import numpy as np
 import pytest
 from monty.serialization import loadfn
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.lattice import Lattice
@@ -72,8 +73,8 @@ class TestBandStructureSymmLine(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_basic(self):
-        assert np.allclose(self.bs.projections[Spin.up][10][12][0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-        assert np.allclose(
+        assert_allclose(self.bs.projections[Spin.up][10][12][0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        assert_allclose(
             self.bs.projections[Spin.up][25][0][Orbital.dyz.value],
             [0.0, 0.0, 0.0011, 0.0219, 0.0219, 0.069],
         )

@@ -11,6 +11,7 @@ from __future__ import annotations
 import os
 from glob import glob
 
+import matplotlib.pyplot as plt
 import numpy as np
 from monty.json import MSONable, jsanitize
 from scipy.interpolate import CubicSpline
@@ -150,7 +151,7 @@ class NEBAnalysis(MSONable):
                 max_extrema.append((x[i] * scale, y[i]))
         return min_extrema, max_extrema
 
-    def get_plot(self, normalize_rxn_coordinate=True, label_barrier=True):
+    def get_plot(self, normalize_rxn_coordinate: bool = True, label_barrier: bool = True) -> plt.Axes:
         """
         Returns the NEB plot. Uses Henkelman's approach of spline fitting
         each section of the reaction path based on tangent force and energies.
@@ -161,14 +162,14 @@ class NEBAnalysis(MSONable):
             label_barrier (bool): Whether to label the maximum barrier.
 
         Returns:
-            matplotlib.pyplot object.
+            plt.Axes: matplotlib axes object.
         """
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
         scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
         x = np.arange(0, np.max(self.r), 0.01)
         y = self.spline(x) * 1000
         relative_energies = self.energies - self.energies[0]
-        plt.plot(
+        ax.plot(
             self.r * scale,
             relative_energies * 1000,
             "ro",
@@ -178,21 +179,21 @@ class NEBAnalysis(MSONable):
             linewidth=2,
             markersize=10,
         )
-        plt.xlabel("Reaction coordinate")
-        plt.ylabel("Energy (meV)")
-        plt.ylim((np.min(y) - 10, np.max(y) * 1.02 + 20))
+        ax.set_xlabel("Reaction coordinate")
+        ax.set_ylabel("Energy (meV)")
+        ax.set_ylim((np.min(y) - 10, np.max(y) * 1.02 + 20))
         if label_barrier:
             data = zip(x * scale, y)
             barrier = max(data, key=lambda d: d[1])
-            plt.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--")
-            plt.annotate(
+            ax.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--")
+            ax.annotate(
                 f"{np.max(y) - np.min(y):.0f} meV",
                 xy=(barrier[0] / 2, barrier[1] * 1.02),
                 xytext=(barrier[0] / 2, barrier[1] * 1.02),
                 horizontalalignment="center",
             )
         plt.tight_layout()
-        return plt
+        return ax
 
     @classmethod
     def from_dir(cls, root_dir, relaxation_dirs=None, **kwargs):

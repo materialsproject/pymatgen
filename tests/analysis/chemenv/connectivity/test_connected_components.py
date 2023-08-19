@@ -7,6 +7,7 @@ import os
 import networkx as nx
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 
 from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
 from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
@@ -379,7 +380,7 @@ class TestConnectedComponent(PymatgenTest):
         assert not cc.is_3d
         assert cc.is_periodic
         assert cc.periodicity == "2D"
-        assert np.allclose(cc.periodicity_vectors, [np.array([0, 1, 0]), np.array([1, 1, 0])])
+        assert_allclose(cc.periodicity_vectors, [np.array([0, 1, 0]), np.array([1, 1, 0])])
         assert isinstance(cc.periodicity_vectors, list)
         assert cc.periodicity_vectors[0].dtype is np.dtype(int)
 
@@ -449,7 +450,7 @@ class TestConnectedComponent(PymatgenTest):
         assert cc.is_3d
         assert cc.is_periodic
         assert cc.periodicity == "3D"
-        assert np.allclose(
+        assert_allclose(
             cc.periodicity_vectors,
             [np.array([0, 1, 0]), np.array([1, 1, 0]), np.array([1, 1, 1])],
         )
@@ -487,9 +488,7 @@ class TestConnectedComponent(PymatgenTest):
         cc = ccs[0]
         assert len(cc) == 12
         assert cc.periodicity == "3D"
-        assert (
-            cc.description()
-            == """Connected component with environment nodes :
+        expected_desc = """Connected component with environment nodes :
 Node #0 Li (O:6)
 Node #1 Li (O:6)
 Node #2 Li (O:6)
@@ -502,10 +501,9 @@ Node #8 P (T:4)
 Node #9 P (T:4)
 Node #10 P (T:4)
 Node #11 P (T:4)"""
-        )
-        assert (
-            cc.description(full=True)
-            == """Connected component with environment nodes :
+        assert cc.description() == expected_desc
+
+        expected_full_desc = """Connected component with environment nodes :
 Node #0 Li (O:6), connected to :
   - Node #1 Li (O:6) with delta image cells
      (-1 0 1)
@@ -742,7 +740,7 @@ Node #11 P (T:4), connected to :
   - Node #7 Fe (O:6) with delta image cells
      (0 -1 0)
      (0 0 0)"""
-        )
+        assert cc.description(full=True) == expected_full_desc
         # Get the connectivity for T:4 and O:6 separately and check results
         # Only tetrahedral
         sc.setup_environment_subgraph(environments_symbols=["T:4"])
@@ -810,9 +808,7 @@ Node #11 P (T:4), connected to :
         # come in a different order depending on
         # the algorithm used to get them.
         sorted_ccs = sorted(ccs, key=lambda x: sorted(x.graph.nodes())[0])
-        assert (
-            sorted_ccs[0].description(full=True)
-            == """Connected component with environment nodes :
+        expected_full_desc_0 = """Connected component with environment nodes :
 Node #0 Li (O:6), connected to :
   - Node #1 Li (O:6) with delta image cells
      (1 -1 1)
@@ -821,10 +817,9 @@ Node #1 Li (O:6), connected to :
   - Node #0 Li (O:6) with delta image cells
      (-1 0 -1)
      (-1 1 -1)"""
-        )
-        assert (
-            sorted_ccs[1].description(full=True)
-            == """Connected component with environment nodes :
+        assert sorted_ccs[0].description(full=True) == expected_full_desc_0
+
+        expected_full_desc_1 = """Connected component with environment nodes :
 Node #2 Li (O:6), connected to :
   - Node #3 Li (O:6) with delta image cells
      (0 -1 0)
@@ -833,7 +828,7 @@ Node #3 Li (O:6), connected to :
   - Node #2 Li (O:6) with delta image cells
      (0 0 0)
      (0 1 0)"""
-        )
+        assert sorted_ccs[1].description(full=True) == expected_full_desc_1
         # Get the connectivity for Mn octahedral only
         ccs = sc.get_connected_components(environments_symbols=["O:6"], only_atoms=["Mn"])
         assert list(sc.environment_subgraphs) == ["O:6-T:4", "O:6#Li", "O:6#Mn"]

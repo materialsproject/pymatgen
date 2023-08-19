@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 
-import numpy as np
+from numpy.testing import assert_allclose
 from pytest import approx
 from sympy import Number, Symbol
 
@@ -102,7 +102,7 @@ class TestSlabEntry(PymatgenTest):
             all_se.append(se)
             # Manually calculate surface energy
             manual_se = (slab_entry.energy - ECu * len(slab_entry.structure)) / (2 * slab_entry.surface_area)
-            assert np.allclose(float(se), manual_se, 10)
+            assert_allclose(float(se), manual_se, 10)
 
         # The (111) facet should be the most stable
         clean111_entry = next(iter(self.Cu_entry_dict[(1, 1, 1)]))

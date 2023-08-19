@@ -31,8 +31,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     """Representation of a magnetic space group."""
 
     def __init__(self, label, setting_transformation="a,b,c;0,0,0"):
-        """
-        Initializes a MagneticSpaceGroup from its Belov, Neronova and
+        """Initializes a MagneticSpaceGroup from its Belov, Neronova and
         Smirnova (BNS) number supplied as a list or its label supplied
         as a string. To create a magnetic structure in pymatgen, the
         Structure.from_magnetic_spacegroup() method can be used, which
@@ -279,8 +278,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     @classmethod
     def from_og(cls, label: Sequence[int] | str) -> MagneticSpaceGroup:
-        """
-        Initialize from Opechowski and Guccione (OG) label or number.
+        """Initialize from Opechowski and Guccione (OG) label or number.
 
         :param id: OG number supplied as list of 3 ints or
             or OG label as str
@@ -330,8 +328,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     @property
     def symmetry_ops(self):
-        """
-        Retrieve magnetic symmetry operations of the space group.
+        """Retrieve magnetic symmetry operations of the space group.
         :return: List of :class:`pymatgen.core.operations.MagSymmOp`.
         """
         ops = [op_data["op"] for op_data in self._data["bns_operators"]]
@@ -357,8 +354,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         return [self.jf.transform_symmop(op) for op in ops]
 
     def get_orbit(self, p, magmom, tol: float = 1e-5):
-        """
-        Returns the orbit for a point and its associated magnetic moment.
+        """Returns the orbit for a point and its associated magnetic moment.
 
         Args:
             p: Point as a 3x1 array.
@@ -383,8 +379,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         return orbit, orbit_magmoms
 
     def is_compatible(self, lattice: Lattice, tol: float = 1e-5, angle_tol: float = 5) -> bool:
-        """
-        Checks whether a particular lattice is compatible with the
+        """Checks whether a particular lattice is compatible with the
         *conventional* unit cell.
 
         Args:
@@ -423,8 +418,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         return True
 
     def data_str(self, include_og=True):
-        """
-        Get description of all data, including information for OG setting.
+        """Get description of all data, including information for OG setting.
         :return: str.
         """
         # __str__() omits information on OG setting to reduce confusion
@@ -535,8 +529,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         return description
 
     def __str__(self):
-        """
-        String representation of the space group, specifying the setting
+        """String representation of the space group, specifying the setting
         of the space group, its magnetic symmetry operators and Wyckoff
         positions.
         :return: str.
@@ -545,8 +538,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
 
 def _write_all_magnetic_space_groups_to_file(filename):
-    """
-    Write all magnetic space groups to a human-readable text file.
+    """Write all magnetic space groups to a human-readable text file.
     Should contain same information as text files provided by ISO-MAG.
     """
     out = (

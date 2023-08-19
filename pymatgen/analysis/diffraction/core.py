@@ -7,9 +7,10 @@ import collections
 from typing import TYPE_CHECKING
 
 import numpy as np
+from matplotlib import pyplot as plt
 
 from pymatgen.core.spectrum import Spectrum
-from pymatgen.util.plotting import add_fig_kwargs
+from pymatgen.util.plotting import add_fig_kwargs, pretty_plot
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -72,21 +73,20 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
 
     def get_plot(
         self,
-        structure,
-        two_theta_range=(0, 90),
+        structure: Structure,
+        two_theta_range: tuple[float, float] = (0, 90),
         annotate_peaks="compact",
-        ax=None,
+        ax: plt.Axes = None,
         with_labels=True,
         fontsize=16,
-    ):
+    ) -> plt.Axes:
         """
-        Returns the diffraction plot as a matplotlib.pyplot.
+        Returns the diffraction plot as a matplotlib Axes.
 
         Args:
             structure: Input structure
-            two_theta_range ([float of length 2]): Tuple for range of
-                two_thetas to calculate in degrees. Defaults to (0, 90). Set to
-                None if you want all diffracted beams within the limiting
+            two_theta_range (tuple[float, float]): Range of two_thetas to calculate in degrees.
+                Defaults to (0, 90). Set to None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
             annotate_peaks (str or None): Whether and how to annotate the peaks
                 with hkl indices. Default is 'compact', i.e. show short
@@ -98,16 +98,9 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
             fontsize: (int) fontsize for peak labels.
 
         Returns:
-            (matplotlib.pyplot)
+            plt.Axes: matplotlib Axes object
         """
-        if ax is None:
-            from pymatgen.util.plotting import pretty_plot
-
-            plt = pretty_plot(16, 10)
-            ax = plt.gca()
-        else:
-            # This to maintain the type of the return value.
-            import matplotlib.pyplot as plt
+        ax = ax or pretty_plot(16, 10)
 
         xrd = self.get_pattern(structure, two_theta_range=two_theta_range)
         imax = max(xrd.y)
@@ -155,10 +148,9 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
             ax.set_xlabel(r"$2\theta$ ($^\circ$)")
             ax.set_ylabel("Intensities (scaled)")
 
-        if hasattr(ax, "tight_layout"):
-            ax.tight_layout()
+        plt.tight_layout()
 
-        return plt
+        return ax
 
     def show_plot(self, structure: Structure, **kwargs):
         """

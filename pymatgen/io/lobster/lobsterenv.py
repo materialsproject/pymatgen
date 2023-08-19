@@ -184,7 +184,7 @@ class LobsterNeighbors(NearNeighbors):
                         )
         else:
             self.valences = valences
-        if np.allclose(np.array(self.valences), np.zeros_like(self.valences)) and additional_condition in [1, 3, 5, 6]:
+        if np.allclose(self.valences or [], np.zeros_like(self.valences)) and additional_condition in [1, 3, 5, 6]:
             raise ValueError("All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work")
 
         if limits is None:
@@ -204,18 +204,12 @@ class LobsterNeighbors(NearNeighbors):
 
     @property
     def structures_allowed(self):
-        """
-        Boolean property: can this NearNeighbors class be used with Structure
-        objects?
-        """
+        """Whether this NearNeighbors class can be used with Structure objects?"""
         return True
 
     @property
     def molecules_allowed(self):
-        """
-        Boolean property: can this NearNeighbors class be used with Molecule
-        objects?
-        """
+        """Whether this NearNeighbors class can be used with Molecule objects?"""
         return False
 
     @property
@@ -450,14 +444,14 @@ class LobsterNeighbors(NearNeighbors):
         )
 
         cp.add_cohp(plotlabel, summed_cohp)
-        plot = cp.get_plot(integrated=integrated)
+        ax = cp.get_plot(integrated=integrated)
         if xlim is not None:
-            plot.xlim(xlim)
+            ax.set_xlim(xlim)
 
         if ylim is not None:
-            plot.ylim(ylim)
+            ax.set_ylim(ylim)
 
-        return plot
+        return ax
 
     def get_info_cohps_to_neighbors(
         self,
@@ -484,14 +478,9 @@ class LobsterNeighbors(NearNeighbors):
         as given by isites and the other parameters
         """
         # TODO: add options for orbital-resolved cohps
-        (
-            summed_icohps,
-            list_icohps,
-            number_bonds,
-            labels,
-            atoms,
-            final_isites,
-        ) = self.get_info_icohps_to_neighbors(isites=isites, onlycation_isites=onlycation_isites)
+        summed_icohps, list_icohps, number_bonds, labels, atoms, final_isites = self.get_info_icohps_to_neighbors(
+            isites=isites, onlycation_isites=onlycation_isites
+        )
 
         import tempfile
 
@@ -720,14 +709,9 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("Please give two limits or leave them both at None")
 
         # find environments based on ICOHP values
-        (
-            list_icohps,
-            list_keys,
-            list_lengths,
-            list_neighisite,
-            list_neighsite,
-            list_coords,
-        ) = self._find_environments(additional_condition, lowerlimit, upperlimit, only_bonds_to)
+        list_icohps, list_keys, list_lengths, list_neighisite, list_neighsite, list_coords = self._find_environments(
+            additional_condition, lowerlimit, upperlimit, only_bonds_to
+        )
 
         self.list_icohps = list_icohps
         self.list_lengths = list_lengths

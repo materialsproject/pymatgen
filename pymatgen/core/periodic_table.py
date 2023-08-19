@@ -43,8 +43,7 @@ class ElementBase(Enum):
     """
 
     def __init__(self, symbol: SpeciesLike):
-        """
-        Basic immutable element object with all relevant properties.
+        """Basic immutable element object with all relevant properties.
 
         Only one instance of Element for each symbol is stored after creation,
         ensuring that a particular element behaves like a singleton. For all
@@ -212,9 +211,8 @@ class ElementBase(Enum):
 
     @property
     def X(self) -> float:
-        """
-        :return: Pauling electronegativity of element. Note that if an element does not
-            have an Pauling electronegativity, a NaN float is returned.
+        """:return: Pauling electronegativity of element. Note that if an element does not
+        have an Pauling electronegativity, a NaN float is returned.
         """
         if "X" in self._data:
             return self._data["X"]
@@ -229,7 +227,7 @@ class ElementBase(Enum):
         """
         Returns:
             float | None: The atomic radius of the element in Ångstroms. Can be None for
-                some elements like noble gases.
+            some elements like noble gases.
         """
         return self._atomic_radius
 
@@ -335,16 +333,14 @@ class ElementBase(Enum):
 
     @property
     def electronic_structure(self) -> str:
-        """
-        Electronic structure as string, with only valence electrons.
+        """Electronic structure as string, with only valence electrons.
         E.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'.
         """
         return re.sub("</*sup>", "", self._data["Electronic structure"])
 
     @property
     def average_ionic_radius(self) -> FloatWithUnit:
-        """
-        Average ionic radius for element (with units). The average is taken
+        """Average ionic radius for element (with units). The average is taken
         over all oxidation states of the element for which data is present.
         """
         if "Ionic radii" in self._data:
@@ -356,8 +352,7 @@ class ElementBase(Enum):
 
     @property
     def average_cationic_radius(self) -> FloatWithUnit:
-        """
-        Average cationic radius for element (with units). The average is
+        """Average cationic radius for element (with units). The average is
         taken over all positive oxidation states of the element for which
         data is present.
         """
@@ -369,8 +364,7 @@ class ElementBase(Enum):
 
     @property
     def average_anionic_radius(self) -> float:
-        """
-        Average anionic radius for element (with units). The average is
+        """Average anionic radius for element (with units). The average is
         taken over all negative oxidation states of the element for which
         data is present.
         """
@@ -382,8 +376,7 @@ class ElementBase(Enum):
 
     @property
     def ionic_radii(self) -> dict[int, float]:
-        """
-        All ionic radii of the element as a dict of
+        """All ionic radii of the element as a dict of
         {oxidation state: ionic radii}. Radii are given in angstrom.
         """
         if "Ionic radii" in self._data:
@@ -433,8 +426,7 @@ class ElementBase(Enum):
 
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """
-        Full electronic structure as tuple.
+        """Full electronic structure as tuple.
         E.g., The electronic structure for Fe is represented as:
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
         (3, "d", 6), (4, "s", 2)].
@@ -476,8 +468,7 @@ class ElementBase(Enum):
 
     @property
     def term_symbols(self) -> list[list[str]]:
-        """
-        All possible  Russell-Saunders term symbol of the Element.
+        """All possible  Russell-Saunders term symbol of the Element.
         eg. L = 1, n_e = 2 (s2) returns [['1D2'], ['3P0', '3P1', '3P2'], ['1S0']].
         """
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
@@ -521,8 +512,7 @@ class ElementBase(Enum):
 
     @property
     def ground_state_term_symbol(self):
-        """
-        Ground state term symbol
+        """Ground state term symbol
         Selected based on Hund's Rule.
         """
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
@@ -564,8 +554,7 @@ class ElementBase(Enum):
         return self.symbol
 
     def __lt__(self, other):
-        """
-        Sets a default sort order for atomic species by Pauling electronegativity. Very
+        """Sets a default sort order for atomic species by Pauling electronegativity. Very
         useful for getting correct formulas. For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
@@ -582,8 +571,7 @@ class ElementBase(Enum):
 
     @staticmethod
     def from_Z(Z: int) -> Element:
-        """
-        Get an element from an atomic number.
+        """Get an element from an atomic number.
 
         Args:
             Z (int): Atomic number
@@ -598,8 +586,7 @@ class ElementBase(Enum):
 
     @staticmethod
     def from_name(name: str) -> Element:
-        """
-        Get an element from its long name.
+        """Get an element from its long name.
 
         Args:
             name: Long name of the element, e.g. 'Hydrogen' or
@@ -615,8 +602,7 @@ class ElementBase(Enum):
 
     @staticmethod
     def from_row_and_group(row: int, group: int) -> Element:
-        """
-        Returns an element from a row and group number.
+        """Returns an element from a row and group number.
         Important Note: For lanthanoids and actinoids, the row number must
         be 8 and 9, respectively, and the group number must be
         between 3 (La, Ac) and 17 (Lu, Lr). This is different than the
@@ -651,8 +637,7 @@ class ElementBase(Enum):
 
     @staticmethod
     def is_valid_symbol(symbol: str) -> bool:
-        """
-        Returns true if symbol is a valid element symbol.
+        """Returns true if symbol is a valid element symbol.
 
         Args:
             symbol (str): Element symbol
@@ -665,8 +650,7 @@ class ElementBase(Enum):
 
     @property
     def row(self) -> int:
-        """
-        Returns the periodic table row of the element.
+        """Returns the periodic table row of the element.
         Note: For lanthanoids and actinoids, the row is always 6 or 7,
         respectively.
         """
@@ -684,8 +668,7 @@ class ElementBase(Enum):
 
     @property
     def group(self) -> int:
-        """
-        Returns the periodic table group of the element.
+        """Returns the periodic table group of the element.
         Note: For lanthanoids and actinoids, the group is always 3.
         """
         z = self.Z
@@ -810,16 +793,14 @@ class ElementBase(Enum):
 
     @property
     def nmr_quadrupole_moment(self) -> dict[str, FloatWithUnit]:
-        """
-        Get a dictionary the nuclear electric quadrupole moment in units of
+        """Get a dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes.
         """
         return {k: FloatWithUnit(v, "mbarn") for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
 
     @property
     def iupac_ordering(self):
-        """
-        Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
+        """Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
         (IUPAC Recommendations 2005)". This ordering effectively follows the
         groups and rows of the periodic table, except the Lanthanides, Actinides
         and hydrogen.
@@ -831,15 +812,13 @@ class ElementBase(Enum):
 
     @staticmethod
     def from_dict(d) -> Element:
-        """
-        Makes Element obey the general json interface used in pymatgen for
+        """Makes Element obey the general json interface used in pymatgen for
         easier serialization.
         """
         return Element(d["element"])
 
     def as_dict(self) -> dict[Literal["element", "@module", "@class"], str]:
-        """
-        Makes Element obey the general json interface used in pymatgen for
+        """Makes Element obey the general json interface used in pymatgen for
         easier serialization.
         """
         return {
@@ -850,8 +829,7 @@ class ElementBase(Enum):
 
     @staticmethod
     def print_periodic_table(filter_function: Callable | None = None):
-        """
-        A pretty ASCII printer for the periodic table, based on some
+        """A pretty ASCII printer for the periodic table, based on some
         filter_function.
 
         Args:
@@ -1003,8 +981,7 @@ class Element(ElementBase):
 
 @functools.total_ordering
 class Species(MSONable, Stringify):
-    """
-    An extension of Element with optional oxidation state and spin. Properties associated
+    """An extension of Element with optional oxidation state and spin. Properties associated
     with Species should be "idealized" values, not calculated values. For example,
     high-spin Fe2+ may be assigned an idealized spin of +5, but an actual Fe2+ site may be
     calculated to have a magmom of +4.5. Calculated properties should be assigned to Site
@@ -1062,16 +1039,14 @@ class Species(MSONable, Stringify):
         )
 
     def __hash__(self) -> int:
-        """
-        Equal Species should have the same str representation, hence
+        """Equal Species should have the same str representation, hence
         should hash equally. Unequal Species will have different str
         representations.
         """
         return hash(str(self))
 
     def __lt__(self, other: object) -> bool:
-        """
-        Sets a default sort order for atomic species by Pauling electronegativity,
+        """Sets a default sort order for atomic species by Pauling electronegativity,
         followed by oxidation state, followed by spin.
         """
         if not isinstance(other, type(self)):
@@ -1135,8 +1110,7 @@ class Species(MSONable, Stringify):
 
     @staticmethod
     def from_str(species_string: str) -> Species:
-        """
-        Returns a Species from a string representation.
+        """Returns a Species from a string representation.
 
         Args:
             species_string (str): A typical string representation of a
@@ -1198,8 +1172,7 @@ class Species(MSONable, Stringify):
         return output
 
     def get_nmr_quadrupole_moment(self, isotope: str | None = None) -> float:
-        """
-        Gets the nuclear electric quadrupole moment in units of e * millibarns.
+        """Gets the nuclear electric quadrupole moment in units of e * millibarns.
 
         Args:
             isotope (str): the isotope to get the quadrupole moment for
@@ -1225,8 +1198,7 @@ class Species(MSONable, Stringify):
         spin: Literal["", "Low Spin", "High Spin"] = "",
         radius_type: Literal["ionic", "crystal"] = "ionic",
     ) -> float:
-        """
-        Get the local environment specific ionic radius for species.
+        """Get the local environment specific ionic radius for species.
 
         Args:
             cn (str): Coordination using roman letters. Supported values are
@@ -1257,8 +1229,7 @@ class Species(MSONable, Stringify):
     def get_crystal_field_spin(
         self, coordination: Literal["oct", "tet"] = "oct", spin_config: Literal["low", "high"] = "high"
     ) -> float:
-        """
-        Calculate the crystal field spin based on coordination and spin
+        """Calculate the crystal field spin based on coordination and spin
         configuration. Only works for transition metal species.
 
         Args:
@@ -1319,8 +1290,7 @@ class Species(MSONable, Stringify):
 
     @classmethod
     def from_dict(cls, d) -> Species:
-        """
-        :param d: Dict representation.
+        """:param d: Dict representation.
         :return: Species.
         """
         return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
@@ -1328,8 +1298,7 @@ class Species(MSONable, Stringify):
 
 @functools.total_ordering
 class DummySpecies(Species):
-    """
-    A special specie for representing non-traditional elements or species. For
+    """A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
     sites, etc.
 
@@ -1386,8 +1355,7 @@ class DummySpecies(Species):
         raise AttributeError
 
     def __lt__(self, other):
-        """
-        Sets a default sort order for atomic species by Pauling electronegativity,
+        """Sets a default sort order for atomic species by Pauling electronegativity,
         followed by oxidation state.
         """
         if self.X != other.X:
@@ -1401,8 +1369,7 @@ class DummySpecies(Species):
 
     @property
     def Z(self) -> int:
-        """
-        DummySpecies is always assigned an atomic number equal to the hash of
+        """DummySpecies is always assigned an atomic number equal to the hash of
         the symbol. The expectation is that someone would be an actual dummy
         to use atomic numbers for a Dummy specie.
         """
@@ -1415,8 +1382,7 @@ class DummySpecies(Species):
 
     @property
     def X(self) -> float:
-        """
-        DummySpecies is always assigned a Pauling electronegativity of 0. The effect of
+        """DummySpecies is always assigned a Pauling electronegativity of 0. The effect of
         this is that DummySpecies are always sorted in front of actual Species.
         """
         return 0.0
@@ -1431,8 +1397,7 @@ class DummySpecies(Species):
 
     @staticmethod
     def from_str(species_string: str) -> DummySpecies:
-        """
-        Returns a Dummy from a string representation.
+        """Returns a Dummy from a string representation.
 
         Args:
             species_string (str): A string representation of a dummy
@@ -1471,8 +1436,7 @@ class DummySpecies(Species):
 
     @classmethod
     def from_dict(cls, d) -> DummySpecies:
-        """
-        :param d: Dict representation
+        """:param d: Dict representation
         :return: DummySpecies
         """
         return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
@@ -1491,16 +1455,14 @@ class DummySpecies(Species):
 
 @functools.total_ordering
 class Specie(Species):
-    """
-    This maps the historical grammatically inaccurate Specie to Species
+    """This maps the historical grammatically inaccurate Specie to Species
     to maintain backwards compatibility.
     """
 
 
 @functools.total_ordering
 class DummySpecie(DummySpecies):
-    """
-    This maps the historical grammatically inaccurate DummySpecie to DummySpecies
+    """This maps the historical grammatically inaccurate DummySpecie to DummySpecies
     to maintain backwards compatibility.
     """
 

@@ -24,8 +24,7 @@ class JonesFaithfulTransformation:
     """Transformation for space-groups defined in a non-standard setting."""
 
     def __init__(self, P, p):
-        """
-        Transform between settings using matrix P and origin shift vector p,
+        """Transform between settings using matrix P and origin shift vector p,
         using same notation as reference.
 
         Should initialize using `from_transformation_string` in Jones

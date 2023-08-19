@@ -110,7 +110,7 @@ class Substitutor(MSONable):
         target_species = [get_el_sp(sp) for sp in target_species]
         result = []
         transmuter = StandardTransmuter([])
-        if len(list(set(target_species) & set(self.get_allowed_species()))) != len(target_species):
+        if len(set(target_species) & set(self.get_allowed_species())) != len(target_species):
             raise ValueError("the species in target_species are not allowed for the probability model you are using")
 
         for permutation in itertools.permutations(target_species):
@@ -120,7 +120,7 @@ class Substitutor(MSONable):
                 els = s["structure"].elements
                 if (
                     len(els) == len(permutation)
-                    and len(list(set(els) & set(self.get_allowed_species()))) == len(els)
+                    and len(set(els) & set(self.get_allowed_species())) == len(els)
                     and self._sp.cond_prob_list(permutation, els) > self._threshold
                 ):
                     clean_subst = {els[i]: permutation[i] for i in range(0, len(els)) if els[i] != permutation[i]}
