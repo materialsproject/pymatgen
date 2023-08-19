@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import PymatgenTest
 
 try:
     import bson
@@ -9,8 +9,6 @@ except ModuleNotFoundError:
     bson = None  # type: ignore
 
 __author__ = "waroquiers"
-
-json_files_dir = f"{TEST_FILES_DIR}/chemenv/json"
 
 
 class TestEnvironmentNodes(PymatgenTest):
