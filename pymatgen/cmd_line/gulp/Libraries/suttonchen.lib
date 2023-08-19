@@ -1,0 +1,84 @@
+#
+#  SUTTON-CHEN - library of potentials for GULP
+#
+#  from A.P. Sutton and J. Chen
+#  Phil. Mag. Lett., 61, 139 (1990)
+#
+#  These potentials use the Embedded Atom Model
+#
+#  NB: The library file is set up to run calculations
+#      involving a single metal species. To run an 
+#      alloy it is important to add in the cross terms
+#      between the metals of interest.
+#
+species
+Ni core  0.000
+Cu core  0.000
+Rh core  0.000
+Pd core  0.000
+Ag core  0.000
+Ir core  0.000
+Pt core  0.000
+Au core  0.000
+Pb core  0.000
+Al core  0.000
+manybody
+Ni core Ni core  0.0 12.0
+Cu core Cu core  0.0 12.0
+Rh core Rh core  0.0 12.0
+Pd core Pd core  0.0 12.0
+Ag core Ag core  0.0 12.0
+Ir core Ir core  0.0 12.0
+Pt core Pt core  0.0 12.0
+Au core Au core  0.0 12.0
+Pb core Pb core  0.0 12.0
+Al core Al core  0.0 12.0
+#
+#  EAM functional
+#
+eam_functional square_root
+Ni core  1.000
+Cu core  1.000
+Rh core  1.000
+Pd core  1.000
+Ag core  1.000
+Ir core  1.000
+Pt core  1.000
+Au core  1.000
+Pb core  1.000
+Al core  1.000
+#
+#  Density term
+#
+eam_density power 6
+Ni core   729.6928296
+Cu core   527.6214232
+Rh core  1530.5233630
+Ag core   630.5428597
+Ir core  2157.0662340
+Al core  1303.9271480
+eam_density power 7
+Pd core  2759.359115
+Pb core  4745.406658
+eam_density power 8
+Pt core  25964.75440
+Au core  14878.01402
+#
+#  Repulsive two-body components -
+#  second power is a dummy argument
+#
+lennard 9 6
+Ni core Ni core 1303.09841 0.0 0.0 12.0
+Cu core Cu core 1289.04851 0.0 0.0 12.0
+lennard 12 6
+Rh core Rh core 44758.45463 0.0 0.0 12.0
+Pd core Pd core 50172.71320 0.0 0.0 12.0
+Ag core Ag core 55689.05010 0.0 0.0 12.0
+lennard 14 6
+Ir core Ir core 371200.1922 0.0 0.0 12.0
+lennard 10 6
+Pt core Pt core 16992.17930 0.0 0.0 12.0
+Au core Au core 16352.11869 0.0 0.0 12.0
+Pb core Pb core 49250.84611 0.0 0.0 12.0
+lennard 7 6
+Al core Al core 592.4195621 0.0 0.0 12.0

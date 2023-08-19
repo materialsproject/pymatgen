@@ -1,0 +1,1092 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.entries.compatibility &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="../entries.html" accesskey="U">pymatgen.entries</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.entries.compatibility</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.entries.compatibility</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements Compatibility corrections for mixing runs of different</span>
+<span class="sd">functionals.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">monty.design_patterns</span> <span class="kn">import</span> <span class="n">cached_class</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.sets</span> <span class="kn">import</span> <span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">MPRelaxSet</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_analyzer</span> <span class="kn">import</span> <span class="n">oxide_type</span><span class="p">,</span> <span class="n">sulfide_type</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="kn">import</span> <span class="n">ComputedEntry</span><span class="p">,</span> \
+    <span class="n">ConstantEnergyAdjustment</span><span class="p">,</span> <span class="n">CompositionEnergyAdjustment</span><span class="p">,</span> <span class="n">TemperatureEnergyAdjustment</span>
+
+
+<span class="n">MODULE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">MU_H2O</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.4583</span>  <span class="c1"># Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012-2020, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;April 2020&quot;</span>
+
+
+<div class="viewcode-block" id="CompatibilityError"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CompatibilityError">[docs]</a><span class="k">class</span> <span class="nc">CompatibilityError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception class for Compatibility. Raised by attempting correction</span>
+<span class="sd">    on incompatible calculation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Correction"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction">[docs]</a><span class="k">class</span> <span class="nc">Correction</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Correction class is a pre-defined scheme for correction a computed</span>
+<span class="sd">    entry based on the type and chemistry of the structure and the</span>
+<span class="sd">    calculation parameters. All Correction classes must implement a</span>
+<span class="sd">    correct_entry method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Correction.get_correction"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction.get_correction">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns correction for a single entry.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entry: A ComputedEntry object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The energy correction to be applied.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CompatibilityError if entry is not compatible.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="Correction.correct_entry"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Correction.correct_entry">[docs]</a>    <span class="k">def</span> <span class="nf">correct_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Corrects a single entry.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entry: A ComputedEntry object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An processed entry.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CompatibilityError if entry is not compatible.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">correction</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_correction</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">entry</span></div></div>
+
+
+<div class="viewcode-block" id="PotcarCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.PotcarCorrection">[docs]</a><span class="k">class</span> <span class="nc">PotcarCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks that POTCARs are valid within a pre-defined input set. This</span>
+<span class="sd">    ensures that calculations performed using different InputSets are not</span>
+<span class="sd">    compared against each other.</span>
+
+<span class="sd">    Entry.parameters must contain a &quot;potcar_symbols&quot; key that is a list of</span>
+<span class="sd">    all POTCARs used in the run. Again, using the example of an Fe2O3 run</span>
+<span class="sd">    using Materials Project parameters, this would look like</span>
+<span class="sd">    entry.parameters[&quot;potcar_symbols&quot;] = [&#39;PAW_PBE Fe_pv 06Sep2000&#39;,</span>
+<span class="sd">    &#39;PAW_PBE O 08Apr2002&#39;].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_set</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            input_set: InputSet object used to generate the runs (used to check</span>
+<span class="sd">                for correct potcar symbols)</span>
+
+<span class="sd">            check_hash (bool): If true, uses the potcar hash to check for valid</span>
+<span class="sd">                potcars. If false, uses the potcar symbol (Less reliable).</span>
+<span class="sd">                Defaults to True</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError if entry do not contain &quot;potcar_symbols&quot; key.</span>
+<span class="sd">            CombatibilityError if wrong potcar symbols</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">potcar_settings</span> <span class="o">=</span> <span class="n">input_set</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">[</span><span class="s2">&quot;POTCAR&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">potcar_settings</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                      <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">check_hash</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">valid_potcars</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;hash&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span>
+                                      <span class="n">potcar_settings</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">valid_potcars</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;symbol&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span>
+                                      <span class="n">potcar_settings</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">check_hash</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot check hashes of potcars,&#39;</span>
+                                 <span class="s1">&#39; hashes are not set&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">valid_potcars</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">d</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span>
+                                      <span class="n">potcar_settings</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_set</span> <span class="o">=</span> <span class="n">input_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_hash</span> <span class="o">=</span> <span class="n">check_hash</span>
+
+<div class="viewcode-block" id="PotcarCorrection.get_correction"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.PotcarCorrection.get_correction">[docs]</a>    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param entry: A ComputedEntry/ComputedStructureEntry</span>
+<span class="sd">        :return: Correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_hash</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;potcar_spec&quot;</span><span class="p">):</span>
+                <span class="n">psp_settings</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hash&quot;</span><span class="p">)</span>
+                                    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span>
+                                        <span class="s2">&quot;potcar_spec&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">d</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot check hash &#39;</span>
+                                 <span class="s1">&#39;without potcar_spec field&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;potcar_spec&quot;</span><span class="p">):</span>
+                <span class="n">psp_settings</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;titel&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+                                    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span>
+                                        <span class="s2">&quot;potcar_spec&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">d</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">psp_settings</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">sym</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+                                    <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span>
+                                        <span class="s2">&quot;potcar_symbols&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">sym</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">valid_potcars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">}</span> <span class="o">!=</span> <span class="n">psp_settings</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span><span class="s1">&#39;Incompatible potcar&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Potcar Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_set</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GasCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.GasCorrection">[docs]</a><span class="nd">@cached_class</span>
+<span class="k">class</span> <span class="nc">GasCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Correct gas energies to obtain the right formation energies. Note that</span>
+<span class="sd">    this depends on calculations being run within the same input set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            config_file: Path to the selected compatibility.yaml config file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpd_energies</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;Advanced&#39;</span><span class="p">][</span><span class="s1">&#39;CompoundEnergies&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param entry: A ComputedEntry/ComputedStructureEntry</span>
+<span class="sd">        :return: Correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span>
+
+        <span class="n">rform</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
+        <span class="k">if</span> <span class="n">rform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpd_energies</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpd_energies</span><span class="p">[</span><span class="n">rform</span><span class="p">]</span> <span class="o">*</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span> \
+                   <span class="o">-</span> <span class="n">entry</span><span class="o">.</span><span class="n">uncorrected_energy</span>
+
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Gas Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AnionCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.AnionCorrection">[docs]</a><span class="nd">@cached_class</span>
+<span class="k">class</span> <span class="nc">AnionCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Correct anion energies to obtain the right formation energies. Note that</span>
+<span class="sd">    this depends on calculations being run within the same input set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            config_file: Path to the selected compatibility.yaml config file.</span>
+<span class="sd">            correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
+<span class="sd">                corrections are to be applied or not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;OxideCorrections&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sulfide_correction</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SulfideCorrections&#39;</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">(</span>
+            <span class="nb">float</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
+
+    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param entry: A ComputedEntry/ComputedStructureEntry</span>
+<span class="sd">        :return: Correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Skip element entry</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="n">correction</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Check for sulfide corrections</span>
+        <span class="k">if</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">:</span>
+            <span class="n">sf_type</span> <span class="o">=</span> <span class="s2">&quot;sulfide&quot;</span>
+            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sulfide_type&quot;</span><span class="p">):</span>
+                <span class="n">sf_type</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;sulfide_type&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s2">&quot;structure&quot;</span><span class="p">):</span>
+                <span class="n">sf_type</span> <span class="o">=</span> <span class="n">sulfide_type</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sf_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sulfide_correction</span><span class="p">:</span>
+                <span class="n">correction</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sulfide_correction</span><span class="p">[</span><span class="n">sf_type</span><span class="p">]</span> <span class="o">*</span> <span class="n">comp</span><span class="p">[</span><span class="s2">&quot;S&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Check for oxide, peroxide, superoxide, and ozonide corrections.</span>
+        <span class="k">if</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;oxide_type&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;oxide_type&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span><span class="p">:</span>
+                        <span class="n">ox_corr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span><span class="p">[</span>
+                            <span class="n">entry</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;oxide_type&quot;</span><span class="p">]]</span>
+                        <span class="n">correction</span> <span class="o">+=</span> <span class="n">ox_corr</span> <span class="o">*</span> <span class="n">comp</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;oxide_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;hydroxide&quot;</span><span class="p">:</span>
+                        <span class="n">ox_corr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span><span class="p">[</span><span class="s2">&quot;oxide&quot;</span><span class="p">]</span>
+                        <span class="n">correction</span> <span class="o">+=</span> <span class="n">ox_corr</span> <span class="o">*</span> <span class="n">comp</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]</span>
+
+                <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="s2">&quot;structure&quot;</span><span class="p">):</span>
+                    <span class="n">ox_type</span><span class="p">,</span> <span class="n">nbonds</span> <span class="o">=</span> <span class="n">oxide_type</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">,</span>
+                                                 <span class="n">return_nbonds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">ox_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span><span class="p">:</span>
+                        <span class="n">correction</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span><span class="p">[</span><span class="n">ox_type</span><span class="p">]</span> <span class="o">*</span> \
+                                      <span class="n">nbonds</span>
+                    <span class="k">elif</span> <span class="n">ox_type</span> <span class="o">==</span> <span class="s2">&quot;hydroxide&quot;</span><span class="p">:</span>
+                        <span class="n">correction</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span><span class="p">[</span><span class="s2">&quot;oxide&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                                      <span class="n">comp</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="s2">&quot;No structure or oxide_type parameter present. Note &quot;</span>
+                        <span class="s2">&quot;that peroxide/superoxide corrections are not as &quot;</span>
+                        <span class="s2">&quot;reliable and relies only on detection of special&quot;</span>
+                        <span class="s2">&quot;formulas, e.g., Li2O2.&quot;</span><span class="p">)</span>
+                    <span class="n">rform</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
+                    <span class="k">if</span> <span class="n">rform</span> <span class="ow">in</span> <span class="n">UCorrection</span><span class="o">.</span><span class="n">common_peroxides</span><span class="p">:</span>
+                        <span class="n">correction</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span><span class="p">[</span><span class="s2">&quot;peroxide&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                                      <span class="n">comp</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="n">rform</span> <span class="ow">in</span> <span class="n">UCorrection</span><span class="o">.</span><span class="n">common_superoxides</span><span class="p">:</span>
+                        <span class="n">correction</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span><span class="p">[</span><span class="s2">&quot;superoxide&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                                      <span class="n">comp</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="n">rform</span> <span class="ow">in</span> <span class="n">UCorrection</span><span class="o">.</span><span class="n">ozonides</span><span class="p">:</span>
+                        <span class="n">correction</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span><span class="p">[</span><span class="s2">&quot;ozonide&quot;</span><span class="p">]</span> <span class="o">*</span> \
+                                      <span class="n">comp</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">comp</span><span class="o">.</span><span class="n">elements</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span> \
+                            <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">correction</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span><span class="p">[</span><span class="s1">&#39;oxide&#39;</span><span class="p">]</span> <span class="o">*</span> \
+                                      <span class="n">comp</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">correction</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oxide_correction</span><span class="p">[</span><span class="s1">&#39;oxide&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">comp</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">correction</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Anion Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AqueousCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.AqueousCorrection">[docs]</a><span class="nd">@cached_class</span>
+<span class="k">class</span> <span class="nc">AqueousCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class implements aqueous phase compound corrections for elements</span>
+<span class="sd">    and H2O.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            config_file: Path to the selected compatibility.yaml config file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpd_energies</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;AqueousCompoundEnergies&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param entry: A ComputedEntry/ComputedStructureEntry</span>
+<span class="sd">        :return: Correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span>
+        <span class="n">rform</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">reduced_formula</span>
+        <span class="n">cpdenergies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpd_energies</span>
+        <span class="n">correction</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">rform</span> <span class="ow">in</span> <span class="n">cpdenergies</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">rform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;H2&quot;</span><span class="p">,</span> <span class="s2">&quot;H2O&quot;</span><span class="p">]:</span>
+                <span class="n">correction</span> <span class="o">=</span> <span class="n">cpdenergies</span><span class="p">[</span><span class="n">rform</span><span class="p">]</span> <span class="o">*</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span> \
+                             <span class="o">-</span> <span class="n">entry</span><span class="o">.</span><span class="n">uncorrected_energy</span> <span class="o">-</span> <span class="n">entry</span><span class="o">.</span><span class="n">correction</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">correction</span> <span class="o">+=</span> <span class="n">cpdenergies</span><span class="p">[</span><span class="n">rform</span><span class="p">]</span> <span class="o">*</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rform</span> <span class="o">==</span> <span class="s2">&quot;H2O&quot;</span><span class="p">:</span>
+            <span class="n">correction</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="mf">2.46</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">comp</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">comp</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">correction</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Aqueous Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="UCorrection"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.UCorrection">[docs]</a><span class="nd">@cached_class</span>
+<span class="k">class</span> <span class="nc">UCorrection</span><span class="p">(</span><span class="n">Correction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class implements the GGA/GGA+U mixing scheme, which allows mixing of</span>
+<span class="sd">    entries. Entry.parameters must contain a &quot;hubbards&quot; key which is a dict</span>
+<span class="sd">    of all non-zero Hubbard U values used in the calculation. For example,</span>
+<span class="sd">    if you ran a Fe2O3 calculation with Materials Project parameters,</span>
+<span class="sd">    this would look like entry.parameters[&quot;hubbards&quot;] = {&quot;Fe&quot;: 5.3}</span>
+<span class="sd">    If the &quot;hubbards&quot; key is missing, a GGA run is assumed.</span>
+
+<span class="sd">    It should be noted that ComputedEntries assimilated using the</span>
+<span class="sd">    pymatgen.apps.borg package and obtained via the MaterialsProject REST</span>
+<span class="sd">    interface using the pymatgen.matproj.rest package will automatically have</span>
+<span class="sd">    these fields populated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">common_peroxides</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Li2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;Na2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;K2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;Cs2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;Rb2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;BeO2&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;MgO2&quot;</span><span class="p">,</span> <span class="s2">&quot;CaO2&quot;</span><span class="p">,</span> <span class="s2">&quot;SrO2&quot;</span><span class="p">,</span> <span class="s2">&quot;BaO2&quot;</span><span class="p">]</span>
+    <span class="n">common_superoxides</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LiO2&quot;</span><span class="p">,</span> <span class="s2">&quot;NaO2&quot;</span><span class="p">,</span> <span class="s2">&quot;KO2&quot;</span><span class="p">,</span> <span class="s2">&quot;RbO2&quot;</span><span class="p">,</span> <span class="s2">&quot;CsO2&quot;</span><span class="p">]</span>
+    <span class="n">ozonides</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LiO3&quot;</span><span class="p">,</span> <span class="s2">&quot;NaO3&quot;</span><span class="p">,</span> <span class="s2">&quot;KO3&quot;</span><span class="p">,</span> <span class="s2">&quot;NaO5&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">input_set</span><span class="p">,</span> <span class="n">compat_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            config_file: Path to the selected compatibility.yaml config file.</span>
+<span class="sd">            input_set: InputSet object (to check for the +U settings)</span>
+<span class="sd">            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
+<span class="sd">                entries are excluded.  Advanced means mixing scheme is</span>
+<span class="sd">                implemented to make entries compatible with each other,</span>
+<span class="sd">                but entries which are supposed to be done in GGA+U will have the</span>
+<span class="sd">                equivalent GGA entries excluded. For example, Fe oxides should</span>
+<span class="sd">                have a U value under the Advanced scheme. A GGA Fe oxide run</span>
+<span class="sd">                will therefore be excluded under the scheme.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">compat_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;GGA&#39;</span><span class="p">,</span> <span class="s1">&#39;Advanced&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span><span class="s2">&quot;Invalid compat_type </span><span class="si">{}</span><span class="s2">&quot;</span>
+                                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">compat_type</span><span class="p">))</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_set</span> <span class="o">=</span> <span class="n">input_set</span>
+        <span class="k">if</span> <span class="n">compat_type</span> <span class="o">==</span> <span class="s1">&#39;Advanced&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_set</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">][</span><span class="s2">&quot;LDAUU&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u_corrections</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;Advanced&quot;</span><span class="p">][</span><span class="s2">&quot;UCorrections&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u_settings</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u_corrections</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
+
+    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param entry: A ComputedEntry/ComputedStructureEntry</span>
+<span class="sd">        :return: Correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;run_type&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;GGA+U&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span><span class="s1">&#39;Entry </span><span class="si">{}</span><span class="s1"> has invalid run type </span><span class="si">{}</span><span class="s1">. Discarding.&#39;</span>
+                                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">,</span>
+                                             <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;run_type&quot;</span><span class="p">)))</span>
+
+        <span class="n">calc_u</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hubbards&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">calc_u</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="k">if</span> <span class="n">calc_u</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">calc_u</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span>
+
+        <span class="n">elements</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">comp</span><span class="o">.</span><span class="n">elements</span> <span class="k">if</span> <span class="n">comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">],</span>
+                          <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">el</span><span class="p">:</span> <span class="n">el</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">most_electroneg</span> <span class="o">=</span> <span class="n">elements</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">symbol</span>
+        <span class="n">correction</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">ucorr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_corrections</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">most_electroneg</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">usettings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">most_electroneg</span><span class="p">,</span> <span class="p">{})</span>
+
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">comp</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
+            <span class="n">sym</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">symbol</span>
+            <span class="c1"># Check for bad U values</span>
+            <span class="k">if</span> <span class="n">calc_u</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">usettings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span><span class="s1">&#39;Invalid U value of </span><span class="si">%s</span><span class="s1"> on </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                                         <span class="p">(</span><span class="n">calc_u</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">sym</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">ucorr</span><span class="p">:</span>
+                <span class="n">correction</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ucorr</span><span class="p">[</span><span class="n">sym</span><span class="p">])</span> <span class="o">*</span> <span class="n">comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">correction</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> Correction&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Compatibility"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility">[docs]</a><span class="k">class</span> <span class="nc">Compatibility</span><span class="p">(</span><span class="n">MSONable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract Compatibility class, not intended for direct use.</span>
+<span class="sd">    Compatibility classes are used to correct the energies of an entry or a set</span>
+<span class="sd">    of entries. All Compatibility classes must implement .get_adjustments method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Compatibility.get_adjustments"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.get_adjustments">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_adjustments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">ComputedEntry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the energy adjustments for a ComputedEntry.</span>
+
+<span class="sd">        This method must generate a list of EnergyAdjustment objects</span>
+<span class="sd">        of the appropriate type (constant, composition-based, or temperature-based)</span>
+<span class="sd">        to be applied to the ComputedEntry, and must raise a CompatibilityError</span>
+<span class="sd">        if the entry is not compatible.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entry: A ComputedEntry object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [EnergyAdjustment]: A list of EnergyAdjustment to be applied to the</span>
+<span class="sd">                Entry.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CompatibilityError if the entry is not compatible</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="Compatibility.process_entry"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.process_entry">[docs]</a>    <span class="k">def</span> <span class="nf">process_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process a single entry with the chosen Corrections.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entry: A ComputedEntry object.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            An adjusted entry if entry is compatible, otherwise None is</span>
+<span class="sd">            returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_entries</span><span class="p">(</span><span class="n">entry</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_entries</span><span class="p">(</span><span class="n">entry</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Compatibility.process_entries"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.process_entries">[docs]</a>    <span class="k">def</span> <span class="nf">process_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ComputedEntry</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">clean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process a sequence of entries with the chosen Compatibility scheme.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entries: ComputedEntry or [ComputedEntry]</span>
+<span class="sd">            clean: bool, whether to remove any previously-applied energy adjustments.</span>
+<span class="sd">                If True, all EnergyAdjustment are removed prior to processing the Entry.</span>
+<span class="sd">                Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of adjusted entries.  Entries in the original list which</span>
+<span class="sd">            are not compatible are excluded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># convert input arg to a list if not already</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">ComputedEntry</span><span class="p">):</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">entries</span><span class="p">]</span>
+
+        <span class="n">processed_entry_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+            <span class="n">ignore_entry</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># if clean is True, remove all previous adjustments, other than Manual adjustments, from the entry</span>
+            <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">ea</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">energy_adjustments</span><span class="p">:</span>
+                    <span class="n">entry</span><span class="o">.</span><span class="n">energy_adjustments</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ea</span><span class="p">)</span>
+
+            <span class="c1"># get the energy adjustments</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">adjustments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_adjustments</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">CompatibilityError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">ignore_entry</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">ea</span> <span class="ow">in</span> <span class="n">adjustments</span><span class="p">:</span>
+                <span class="c1"># Has this correction already been applied?</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">ea</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ea</span><span class="o">.</span><span class="n">cls</span><span class="p">,</span> <span class="n">ea</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">ea</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ea</span><span class="o">.</span><span class="n">cls</span><span class="p">,</span> <span class="n">ea</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">ea</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">energy_adjustments</span><span class="p">]:</span>
+                    <span class="c1"># we already applied this exact correction. Do nothing.</span>
+                    <span class="k">pass</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="n">ea</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ea</span><span class="o">.</span><span class="n">cls</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">ea</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ea</span><span class="o">.</span><span class="n">cls</span><span class="p">)</span> <span class="k">for</span> <span class="n">ea</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">energy_adjustments</span><span class="p">]:</span>
+                    <span class="c1"># we already applied a correction with the same name</span>
+                    <span class="c1"># but a different value. Something is wrong.</span>
+                    <span class="n">ignore_entry</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Entry </span><span class="si">{}</span><span class="s2"> already has an energy adjustment called </span><span class="si">{}</span><span class="s2">, but its &quot;</span>
+                                  <span class="s2">&quot;value differs from the value of </span><span class="si">{:.3f}</span><span class="s2"> calculated here. This &quot;</span>
+                                  <span class="s2">&quot;Entry will be discarded.&quot;</span>
+                                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">,</span>
+                                          <span class="n">ea</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                          <span class="n">ea</span><span class="o">.</span><span class="n">value</span>
+                                          <span class="p">)</span>
+                                  <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Add the correction to the energy_adjustments list</span>
+                    <span class="n">entry</span><span class="o">.</span><span class="n">energy_adjustments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ea</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_entry</span><span class="p">:</span>
+                <span class="n">processed_entry_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">processed_entry_list</span></div>
+
+<div class="viewcode-block" id="Compatibility.explain"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.Compatibility.explain">[docs]</a>    <span class="k">def</span> <span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints an explanation of the energy adjustments applied by the</span>
+<span class="sd">        Compatibility class. Inspired by the &quot;explain&quot; methods in many database</span>
+<span class="sd">        methodologies.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entry: A ComputedEntry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The uncorrected energy of </span><span class="si">{}</span><span class="s2"> is </span><span class="si">{:.3f}</span><span class="s2"> eV (</span><span class="si">{:.3f}</span><span class="s2"> eV/atom).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span>
+                <span class="n">entry</span><span class="o">.</span><span class="n">uncorrected_energy</span><span class="p">,</span>
+                <span class="n">entry</span><span class="o">.</span><span class="n">uncorrected_energy</span> <span class="o">/</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span><span class="p">)</span>
+              <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">energy_adjustments</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The following energy adjustments have been applied to this entry:&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">energy_adjustments</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t\t</span><span class="si">{}</span><span class="s2">: </span><span class="si">{:.3f}</span><span class="s2"> eV (</span><span class="si">{:.3f}</span><span class="s2"> eV/atom)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                                  <span class="n">e</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                                  <span class="n">e</span><span class="o">.</span><span class="n">value</span> <span class="o">/</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span><span class="p">)</span>
+                      <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">entry</span><span class="o">.</span><span class="n">correction</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No energy adjustments have been applied to this entry.&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The final energy after adjustments is </span><span class="si">{:.3f}</span><span class="s2"> eV (</span><span class="si">{:.3f}</span><span class="s2"> eV/atom).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">entry</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span>
+                <span class="n">entry</span><span class="o">.</span><span class="n">energy_per_atom</span><span class="p">)</span>
+              <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CorrectionsList"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList">[docs]</a><span class="k">class</span> <span class="nc">CorrectionsList</span><span class="p">(</span><span class="n">Compatibility</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The CorrectionsList class combines a list of corrections to be applied to</span>
+<span class="sd">    an entry or a set of entries. Note that some of the Corrections have</span>
+<span class="sd">    interdependencies. For example, PotcarCorrection must always be used</span>
+<span class="sd">    before any other compatibility. Also, GasCorrection(&quot;MP&quot;) must be used</span>
+<span class="sd">    with PotcarCorrection(&quot;MP&quot;) (similarly with &quot;MIT&quot;). Typically,</span>
+<span class="sd">    you should use the specific MaterialsProjectCompatibility and</span>
+<span class="sd">    MITCompatibility subclasses instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">corrections</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            corrections: List of corrections to apply.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span> <span class="o">=</span> <span class="n">corrections</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CorrectionsList.get_adjustments"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList.get_adjustments">[docs]</a>    <span class="k">def</span> <span class="nf">get_adjustments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the list of energy adjustments to be applied to an entry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">adjustment_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># try:</span>
+        <span class="n">corrections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_corrections_dict</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">corrections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">adjustment_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ConstantEnergyAdjustment</span><span class="p">(</span><span class="n">v</span><span class="p">,</span>
+                                                            <span class="n">name</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
+                                                            <span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                                                            <span class="p">)</span>
+                                   <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">adjustment_list</span></div>
+
+<div class="viewcode-block" id="CorrectionsList.get_corrections_dict"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList.get_corrections_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_corrections_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the corrections applied to a particular entry.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entry: A ComputedEntry object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ({correction_name: value})</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">corrections</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_correction</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+            <span class="n">corrections</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">return</span> <span class="n">corrections</span></div>
+
+<div class="viewcode-block" id="CorrectionsList.get_explanation_dict"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList.get_explanation_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_explanation_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Provides an explanation dict of the corrections that are being applied</span>
+<span class="sd">        for a given compatibility scheme. Inspired by the &quot;explain&quot; methods</span>
+<span class="sd">        in many database methodologies.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entry: A ComputedEntry.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (dict) of the form</span>
+<span class="sd">            {&quot;Compatibility&quot;: &quot;string&quot;,</span>
+<span class="sd">            &quot;Uncorrected_energy&quot;: float,</span>
+<span class="sd">            &quot;Corrected_energy&quot;: float,</span>
+<span class="sd">            &quot;Corrections&quot;: [{&quot;Name of Correction&quot;: {</span>
+<span class="sd">            &quot;Value&quot;: float, &quot;Explanation&quot;: &quot;string&quot;}]}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">centry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_entry</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">centry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">uncorrected_energy</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">uncorrected_energy</span>
+            <span class="n">corrected_energy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">uncorrected_energy</span> <span class="o">=</span> <span class="n">centry</span><span class="o">.</span><span class="n">uncorrected_energy</span>
+            <span class="n">corrected_energy</span> <span class="o">=</span> <span class="n">centry</span><span class="o">.</span><span class="n">energy</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;compatibility&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="s2">&quot;uncorrected_energy&quot;</span><span class="p">:</span> <span class="n">uncorrected_energy</span><span class="p">,</span>
+             <span class="s2">&quot;corrected_energy&quot;</span><span class="p">:</span> <span class="n">corrected_energy</span><span class="p">}</span>
+        <span class="n">corrections</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">corr_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_corrections_dict</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span><span class="p">:</span>
+            <span class="n">cd</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">),</span>
+                  <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;Args&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                  <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">corr_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="mi">0</span><span class="p">)}</span>
+            <span class="n">corrections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cd</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;corrections&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">corrections</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="CorrectionsList.explain"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.CorrectionsList.explain">[docs]</a>    <span class="k">def</span> <span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints an explanation of the corrections that are being applied for a</span>
+<span class="sd">        given compatibility scheme. Inspired by the &quot;explain&quot; methods in many</span>
+<span class="sd">        database methodologies.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entry: A ComputedEntry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_explanation_dict</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The uncorrected value of the energy of </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%f</span><span class="s2"> eV&quot;</span> <span class="o">%</span>
+              <span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;uncorrected_energy&quot;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The following corrections / screening are applied for </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span>
+              <span class="n">d</span><span class="p">[</span><span class="s2">&quot;compatibility&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;corrections&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> correction: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+                                           <span class="n">c</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;For the entry, this correction has the value </span><span class="si">%f</span><span class="s2"> eV.&quot;</span> <span class="o">%</span> <span class="n">c</span><span class="p">[</span>
+                <span class="s2">&quot;value&quot;</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The final energy after corrections is </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">d</span><span class="p">[</span>
+            <span class="s2">&quot;corrected_energy&quot;</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="MaterialsProjectCompatibility"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectCompatibility">[docs]</a><span class="k">class</span> <span class="nc">MaterialsProjectCompatibility</span><span class="p">(</span><span class="n">CorrectionsList</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class implements the GGA/GGA+U mixing scheme, which allows mixing of</span>
+<span class="sd">    entries. Note that this should only be used for VASP calculations using the</span>
+<span class="sd">    MaterialsProject parameters (see pymatgen.io.vaspio_set.MPVaspInputSet).</span>
+<span class="sd">    Using this compatibility scheme on runs with different parameters is not</span>
+<span class="sd">    valid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
+<span class="sd">                entries are excluded.  Advanced means mixing scheme is</span>
+<span class="sd">                implemented to make entries compatible with each other,</span>
+<span class="sd">                but entries which are supposed to be done in GGA+U will have the</span>
+<span class="sd">                equivalent GGA entries excluded. For example, Fe oxides should</span>
+<span class="sd">                have a U value under the Advanced scheme. A GGA Fe oxide run</span>
+<span class="sd">                will therefore be excluded under the scheme.</span>
+<span class="sd">            correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
+<span class="sd">                corrections are to be applied or not.</span>
+<span class="sd">            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MPCompatibility.yaml&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">PotcarCorrection</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_potcar_hash</span><span class="p">),</span>
+             <span class="n">GasCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span>
+             <span class="n">AnionCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="n">correct_peroxide</span><span class="p">),</span>
+             <span class="n">UCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">MPRelaxSet</span><span class="p">,</span> <span class="n">compat_type</span><span class="p">)])</span></div>
+
+
+<div class="viewcode-block" id="MITCompatibility"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MITCompatibility">[docs]</a><span class="k">class</span> <span class="nc">MITCompatibility</span><span class="p">(</span><span class="n">CorrectionsList</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class implements the GGA/GGA+U mixing scheme, which allows mixing of</span>
+<span class="sd">    entries. Note that this should only be used for VASP calculations using the</span>
+<span class="sd">    MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using</span>
+<span class="sd">    this compatibility scheme on runs with different parameters is not valid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
+<span class="sd">                entries are excluded.  Advanced means mixing scheme is</span>
+<span class="sd">                implemented to make entries compatible with each other,</span>
+<span class="sd">                but entries which are supposed to be done in GGA+U will have the</span>
+<span class="sd">                equivalent GGA entries excluded. For example, Fe oxides should</span>
+<span class="sd">                have a U value under the Advanced scheme. A GGA Fe oxide run</span>
+<span class="sd">                will therefore be excluded under the scheme.</span>
+<span class="sd">            correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
+<span class="sd">                corrections are to be applied or not.</span>
+<span class="sd">            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MITCompatibility.yaml&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">PotcarCorrection</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_potcar_hash</span><span class="p">),</span>
+             <span class="n">GasCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span>
+             <span class="n">AnionCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="n">correct_peroxide</span><span class="p">),</span>
+             <span class="n">UCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">compat_type</span><span class="p">)])</span></div>
+
+
+<div class="viewcode-block" id="MITAqueousCompatibility"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MITAqueousCompatibility">[docs]</a><span class="k">class</span> <span class="nc">MITAqueousCompatibility</span><span class="p">(</span><span class="n">CorrectionsList</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class implements the GGA/GGA+U mixing scheme, which allows mixing of</span>
+<span class="sd">    entries. Note that this should only be used for VASP calculations using the</span>
+<span class="sd">    MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using</span>
+<span class="sd">    this compatibility scheme on runs with different parameters is not valid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compat_type</span><span class="o">=</span><span class="s2">&quot;Advanced&quot;</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">check_potcar_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U</span>
+<span class="sd">                entries are excluded.  Advanced means mixing scheme is</span>
+<span class="sd">                implemented to make entries compatible with each other,</span>
+<span class="sd">                but entries which are supposed to be done in GGA+U will have the</span>
+<span class="sd">                equivalent GGA entries excluded. For example, Fe oxides should</span>
+<span class="sd">                have a U value under the Advanced scheme. A GGA Fe oxide run</span>
+<span class="sd">                will therefore be excluded under the scheme.</span>
+<span class="sd">            correct_peroxide: Specify whether peroxide/superoxide/ozonide</span>
+<span class="sd">                corrections are to be applied or not.</span>
+<span class="sd">            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compat_type</span> <span class="o">=</span> <span class="n">compat_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correct_peroxide</span> <span class="o">=</span> <span class="n">correct_peroxide</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_potcar_hash</span> <span class="o">=</span> <span class="n">check_potcar_hash</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MITCompatibility.yaml&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">PotcarCorrection</span><span class="p">(</span><span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">check_hash</span><span class="o">=</span><span class="n">check_potcar_hash</span><span class="p">),</span>
+             <span class="n">GasCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span>
+             <span class="n">AnionCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">correct_peroxide</span><span class="o">=</span><span class="n">correct_peroxide</span><span class="p">),</span>
+             <span class="n">UCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">MITRelaxSet</span><span class="p">,</span> <span class="n">compat_type</span><span class="p">),</span> <span class="n">AqueousCorrection</span><span class="p">(</span><span class="n">fp</span><span class="p">)])</span></div>
+
+
+<div class="viewcode-block" id="MaterialsProjectAqueousCompatibility"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectAqueousCompatibility">[docs]</a><span class="k">class</span> <span class="nc">MaterialsProjectAqueousCompatibility</span><span class="p">(</span><span class="n">Compatibility</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class implements the Aqueous energy referencing scheme for constructing</span>
+<span class="sd">    Pourbaix diagrams from DFT energies, as described in Persson et al.</span>
+
+<span class="sd">    This scheme applies various energy adjustments to convert DFT energies into</span>
+<span class="sd">    Gibbs free energies of formation at 298 K and to guarantee that the experimental</span>
+<span class="sd">    formation free energy of H2O is reproduced. Briefly, the steps are:</span>
+
+<span class="sd">        1. Beginning with the DFT energy of O2, adjust the energy of H2 so that</span>
+<span class="sd">           the experimental reaction energy of -2.458 eV/H2O is reproduced.</span>
+<span class="sd">        2. Add entropy to the DFT energy of any compounds that are liquid or</span>
+<span class="sd">           gaseous at room temperature</span>
+<span class="sd">        3. Adjust the energy of H2O for consistency with the adjusted H2 energy.</span>
+<span class="sd">        4. Adjust the DFT energies of solid hydrate compounds (compounds that</span>
+<span class="sd">           contain water, e.g. FeO.nH2O) such that the energies of the embedded</span>
+<span class="sd">           H2O molecules are equal to the experimental free energy</span>
+
+<span class="sd">    The above energy adjustments are computed dynamically based on the input</span>
+<span class="sd">    Entries.</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        K.A. Persson, B. Waldwick, P. Lazic, G. Ceder, Prediction of solid-aqueous</span>
+<span class="sd">        equilibria: Scheme to combine first-principles calculations of solids with</span>
+<span class="sd">        experimental aqueous states, Phys. Rev. B - Condens. Matter Mater. Phys.</span>
+<span class="sd">        85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">solid_compat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Compatibility</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">o2_energy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">h2o_energy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">h2o_adjustments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the MaterialsProjectAqueousCompatibility class.</span>
+
+<span class="sd">        Note that this class requires as inputs the ground-state DFT energies of O2 and H2O, plus the value of any</span>
+<span class="sd">        energy adjustments applied to an H2O molecule. If these parameters are not provided in __init__, they can</span>
+<span class="sd">        be automatically populated by included ComputedEntry for the ground state of O2 and H2O in a list of entries</span>
+<span class="sd">        passed to process_entries. process_entries will fail if one or the other is not provided.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous</span>
+<span class="sd">                energy adjustments. Default: MaterialsProjectCompatibility.</span>
+<span class="sd">            o2_energy: The ground-state DFT energy of oxygen gas, including any adjustments or corrections, in eV/atom.</span>
+<span class="sd">                If not set, this value will be determined from any O2 entries passed to process_entries.</span>
+<span class="sd">                Default: None</span>
+<span class="sd">            h2o_energy: The ground-state DFT energy of water, including any adjstments or corrections, in eV/atom.</span>
+<span class="sd">                If not set, this value will be determined from any H2O entries passed to process_entries.</span>
+<span class="sd">                Default: None</span>
+<span class="sd">            h2o_adjustments: Total energy adjustments applied to one water molecule, in eV/atom.</span>
+<span class="sd">                If not set, this value will be determined from any H2O entries passed to process_entries.</span>
+<span class="sd">                Default: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solid_compat</span> <span class="o">=</span> <span class="n">solid_compat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">o2_energy</span> <span class="o">=</span> <span class="n">o2_energy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h2o_energy</span> <span class="o">=</span> <span class="n">h2o_energy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h2o_adjustments</span> <span class="o">=</span> <span class="n">h2o_adjustments</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">o2_energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h2o_energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h2o_adjustments</span><span class="p">]):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;You did not provide the required O2 and H2O energies. </span><span class="si">{}</span><span class="s2"> &quot;</span>
+                          <span class="s2">&quot;needs these energies in order to compute the appropriate energy adjustments. It will try &quot;</span>
+                          <span class="s2">&quot;to determine the values from ComputedEntry for O2 and H2O passed to process_entries, but &quot;</span>
+                          <span class="s2">&quot;will fail if these entries are not provided.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+        <span class="c1"># Standard state entropy of molecular-like compounds at 298K (-T delta S)</span>
+        <span class="c1"># from Kubaschewski Tables (eV/atom)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpd_entropies</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;O2&quot;</span><span class="p">:</span> <span class="mf">0.316731</span><span class="p">,</span>
+                              <span class="s2">&quot;N2&quot;</span><span class="p">:</span> <span class="mf">0.295729</span><span class="p">,</span>
+                              <span class="s2">&quot;F2&quot;</span><span class="p">:</span> <span class="mf">0.313025</span><span class="p">,</span>
+                              <span class="s2">&quot;Cl2&quot;</span><span class="p">:</span> <span class="mf">0.344373</span><span class="p">,</span>
+                              <span class="s2">&quot;Br&quot;</span><span class="p">:</span> <span class="mf">0.235039</span><span class="p">,</span>
+                              <span class="s2">&quot;Hg&quot;</span><span class="p">:</span> <span class="mf">0.234421</span><span class="p">,</span>
+                              <span class="s2">&quot;H2O&quot;</span><span class="p">:</span> <span class="mf">0.071963</span><span class="p">,</span>  <span class="c1"># 0.215891 eV/H2O</span>
+                              <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;MP Aqueous free energy adjustment&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MaterialsProjectAqueousCompatibility.get_adjustments"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectAqueousCompatibility.get_adjustments">[docs]</a>    <span class="k">def</span> <span class="nf">get_adjustments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">ComputedEntry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the corrections applied to a particular entry.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entry: A ComputedEntry object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            [EnergyAdjustment]: Energy adjustments to be applied to entry.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CompatibilityError if the required O2 and H2O energies have not been provided to</span>
+<span class="sd">            MaterialsProjectAqueousCompatibility during init or in the list of entries passed to process_entries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">adjustments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">o2_energy</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">h2o_energy</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">h2o_adjustments</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span><span class="s2">&quot;You did not provide the required O2 and H2O energies. &quot;</span>
+                                     <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> needs these energies in order to compute &quot;</span>
+                                     <span class="s2">&quot;the appropriate energy adjustments. Either specify the energies as arguments &quot;</span>
+                                     <span class="s2">&quot;to </span><span class="si">{}</span><span class="s2">.__init__ or run process_entries on a list that includes ComputedEntry for &quot;</span>
+                                     <span class="s2">&quot;the ground state of O2 and H2O.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+        <span class="c1"># compute the free energies of H2 and H2O (eV/atom) to guarantee that the</span>
+        <span class="c1"># formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments</span>
+        <span class="c1"># (MU_H2O from pourbaix module)</span>
+
+        <span class="c1"># Free energy of H2 in eV/atom, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)</span>
+        <span class="c1"># for this calculation ONLY, we need the (corrected) DFT energy of water</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h2_energy</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span>
+            <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h2o_energy</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpd_entropies</span><span class="p">[</span><span class="s2">&quot;H2O&quot;</span><span class="p">])</span> <span class="o">-</span>
+                   <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o2_energy</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpd_entropies</span><span class="p">[</span><span class="s2">&quot;O2&quot;</span><span class="p">])</span> <span class="o">-</span>
+                   <span class="n">MU_H2O</span>
+                   <span class="p">),</span> <span class="mi">6</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Free energy of H2O, fitted for consistency with the O2 and H2 energies.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_h2o_energy</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">h2_energy</span> <span class="o">+</span>
+                                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">o2_energy</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpd_entropies</span><span class="p">[</span><span class="s2">&quot;O2&quot;</span><span class="p">])</span> <span class="o">+</span>
+                                    <span class="n">MU_H2O</span>
+                                     <span class="p">)</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span>
+                                    <span class="mi">6</span>
+                                    <span class="p">)</span>
+
+        <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span>
+        <span class="n">rform</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">reduced_formula</span>
+
+        <span class="c1"># pin the energy of all H2 entries to h2_energy</span>
+        <span class="k">if</span> <span class="n">rform</span> <span class="o">==</span> <span class="s2">&quot;H2&quot;</span><span class="p">:</span>
+            <span class="n">adjustments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ConstantEnergyAdjustment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h2_energy</span> <span class="o">*</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">-</span> <span class="n">entry</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span>
+                                         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MP Aqueous H2 / H2O referencing&quot;</span><span class="p">,</span>
+                                         <span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                                         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Adjusts the H2 and H2O energy to reproduce the experimental &quot;</span>
+                                                     <span class="s2">&quot;Gibbs formation free energy of H2O, based on the DFT energy &quot;</span>
+                                                     <span class="s2">&quot;of Oxygen&quot;</span>
+                                         <span class="p">))</span>
+
+        <span class="c1"># pin the energy of all H2O entries to fit_h2o_energy</span>
+        <span class="k">elif</span> <span class="n">rform</span> <span class="o">==</span> <span class="s2">&quot;H2O&quot;</span><span class="p">:</span>
+            <span class="n">adjustments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ConstantEnergyAdjustment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_h2o_energy</span> <span class="o">*</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">-</span> <span class="n">entry</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span>
+                                         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MP Aqueous H2 / H2O referencing&quot;</span><span class="p">,</span>
+                                         <span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                                         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Adjusts the H2 and H2O energy to reproduce the experimental &quot;</span>
+                                                     <span class="s2">&quot;Gibbs formation free energy of H2O, based on the DFT energy &quot;</span>
+                                                     <span class="s2">&quot;of Oxygen&quot;</span>
+                                         <span class="p">))</span>
+
+        <span class="c1"># add minus T delta S to the DFT energy (enthalpy) of compounds that are</span>
+        <span class="c1"># molecular-like at room temperature</span>
+        <span class="k">elif</span> <span class="n">rform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpd_entropies</span> <span class="ow">and</span> <span class="n">rform</span> <span class="o">!=</span> <span class="s2">&quot;H2O&quot;</span><span class="p">:</span>
+            <span class="n">adjustments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">TemperatureEnergyAdjustment</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpd_entropies</span><span class="p">[</span><span class="n">rform</span><span class="p">]</span> <span class="o">/</span> <span class="mi">298</span><span class="p">,</span> <span class="mi">298</span><span class="p">,</span>
+                                            <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span><span class="p">,</span>
+                                            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Compound entropy at room temperature&quot;</span><span class="p">,</span>
+                                            <span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                                            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Adds the entropy (T delta S) to energies of compounds that &quot;</span>
+                                                        <span class="s2">&quot;are gaseous or liquid at standard state&quot;</span>
+                                            <span class="p">))</span>
+
+        <span class="c1"># TODO - detection of embedded water molecules is not very sophisticated</span>
+        <span class="c1"># Should be replaced with some kind of actual structure detection</span>
+
+        <span class="c1"># For any compound except water, check to see if it is a hydrate (contains)</span>
+        <span class="c1"># H2O in its structure. If so, adjust the energy to remove MU_H2O ev per</span>
+        <span class="c1"># embedded water molecule.</span>
+        <span class="c1"># in other words, we assume that the DFT energy of such a compound is really</span>
+        <span class="c1"># a superposition of the &quot;real&quot; solid DFT energy (FeO in this case) and the free</span>
+        <span class="c1"># energy of some water molecules</span>
+        <span class="c1"># e.g. that E_FeO.nH2O = E_FeO + n * g_H2O</span>
+        <span class="c1"># so, to get the most accurate gibbs free energy, we want to replace</span>
+        <span class="c1"># g_FeO.nH2O = E_FeO.nH2O + dE_Fe + (n+1) * dE_O + 2n dE_H</span>
+        <span class="c1"># with</span>
+        <span class="c1"># g_FeO = E_FeO.nH2O + dE_Fe + dE_O + n g_H2O</span>
+        <span class="c1"># where E is DFT energy, dE is an energy correction, and g is gibbs free energy</span>
+        <span class="c1"># This means we have to 1) remove energy corrections associated with H and O in water</span>
+        <span class="c1"># and then 2) remove the free energy of the water molecules</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rform</span> <span class="o">==</span> <span class="s2">&quot;H2O&quot;</span><span class="p">:</span>
+            <span class="c1"># count the number of whole water molecules in the composition</span>
+            <span class="n">nH2O</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">comp</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">comp</span><span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="n">nH2O</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># first, remove any H or O corrections already applied to H2O in the</span>
+                <span class="c1"># formation energy so that we don&#39;t double count them</span>
+                <span class="c1"># next, remove MU_H2O for each water molecule present</span>
+                <span class="n">hydrate_adjustment</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h2o_adjustments</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="n">MU_H2O</span><span class="p">)</span>
+
+                <span class="n">adjustments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">CompositionEnergyAdjustment</span><span class="p">(</span>
+                        <span class="n">hydrate_adjustment</span><span class="p">,</span>
+                        <span class="n">nH2O</span><span class="p">,</span>
+                        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MP Aqueous hydrate&quot;</span><span class="p">,</span>
+                        <span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Adjust the energy of solid hydrate compounds (compounds &quot;</span>
+                                    <span class="s2">&quot;containing H2O molecules in their structure) so that the &quot;</span>
+                                    <span class="s2">&quot;free energies of embedded H2O molecules match the experimental&quot;</span>
+                                    <span class="s2">&quot; value enforced by the MP Aqueous energy referencing scheme.&quot;</span>
+                        <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">adjustments</span></div>
+
+<div class="viewcode-block" id="MaterialsProjectAqueousCompatibility.process_entries"><a class="viewcode-back" href="../../../pymatgen.entries.compatibility.html#pymatgen.entries.compatibility.MaterialsProjectAqueousCompatibility.process_entries">[docs]</a>    <span class="k">def</span> <span class="nf">process_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ComputedEntry</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">clean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process a sequence of entries with the chosen Compatibility scheme.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entries: ComputedEntry or [ComputedEntry]</span>
+<span class="sd">            clean: bool, whether to remove any previously-applied energy adjustments.</span>
+<span class="sd">                If True, all EnergyAdjustment are removed prior to processing the Entry.</span>
+<span class="sd">                Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of adjusted entries.  Entries in the original list which</span>
+<span class="sd">            are not compatible are excluded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># convert input arg to a list if not already</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">ComputedEntry</span><span class="p">):</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">entries</span><span class="p">]</span>
+
+        <span class="c1"># pre-process entries with the given solid compatibility class</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">solid_compat</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solid_compat</span><span class="o">.</span><span class="n">process_entries</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># extract the DFT energies of oxygen and water from the list of entries, if present</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">o2_energy</span><span class="p">:</span>
+            <span class="n">o2_entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">==</span> <span class="s1">&#39;O2&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">o2_entries</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">o2_energy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">energy_per_atom</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">o2_entries</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">h2o_energy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">h2o_adjustments</span><span class="p">:</span>
+            <span class="n">h2o_entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">==</span> <span class="s1">&#39;H2O&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">h2o_entries</span><span class="p">:</span>
+                <span class="n">h2o_entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">h2o_entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">energy_per_atom</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">h2o_energy</span> <span class="o">=</span> <span class="n">h2o_entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy_per_atom</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">h2o_adjustments</span> <span class="o">=</span> <span class="n">h2o_entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">correction</span> <span class="o">/</span> <span class="n">h2o_entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">process_entries</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="../entries.html" >pymatgen.entries</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.entries.compatibility</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

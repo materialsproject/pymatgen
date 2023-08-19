@@ -1,0 +1,621 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.symmetry.maggroups &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.symmetry.maggroups</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.symmetry.maggroups</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Magnetic space groups.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">monty.design_patterns</span> <span class="kn">import</span> <span class="n">cached_class</span>
+
+<span class="kn">import</span> <span class="nn">textwrap</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Magmom</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.groups</span> <span class="kn">import</span> <span class="n">SymmetryGroup</span><span class="p">,</span> <span class="n">in_array_list</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.settings</span> <span class="kn">import</span> <span class="n">JonesFaithfulTransformation</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">MagSymmOp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">transformation_to_string</span>
+
+<span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton, Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;mkhorton@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Beta&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 2017&quot;</span>
+
+<span class="n">MAGSYMM_DATA</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;symm_data_magnetic.sqlite&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MagneticSpaceGroup"><a class="viewcode-back" href="../../../pymatgen.symmetry.maggroups.html#pymatgen.symmetry.maggroups.MagneticSpaceGroup">[docs]</a><span class="nd">@cached_class</span>
+<span class="k">class</span> <span class="nc">MagneticSpaceGroup</span><span class="p">(</span><span class="n">SymmetryGroup</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Representation of a magnetic space group.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">setting_transformation</span><span class="o">=</span><span class="s2">&quot;a,b,c;0,0,0&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a MagneticSpaceGroup from its Belov, Neronova and</span>
+<span class="sd">        Smirnova (BNS) number supplied as a list or its label supplied</span>
+<span class="sd">        as a string. To create a magnetic structure in pymatgen, the</span>
+<span class="sd">        Structure.from_magnetic_spacegroup() method can be used, which</span>
+<span class="sd">        relies on this class.</span>
+
+<span class="sd">        The main difference between magnetic space groups and normal</span>
+<span class="sd">        crystallographic space groups is the inclusion of a time reversal</span>
+<span class="sd">        operator that acts on an atom&#39;s magnetic moment. This is</span>
+<span class="sd">        indicated by a prime symbol (&#39;) next to the respective symmetry</span>
+<span class="sd">        operation in its label, e.g. the standard crystallographic</span>
+<span class="sd">        space group Pnma has magnetic subgroups Pn&#39;ma, Pnm&#39;a, Pnma&#39;,</span>
+<span class="sd">        Pn&#39;m&#39;a, Pnm&#39;a&#39;, Pn&#39;ma&#39;, Pn&#39;m&#39;a&#39;.</span>
+
+<span class="sd">        The magnetic space groups are classified as one of 4 types</span>
+<span class="sd">        where G = magnetic space group, and F = parent crystallographic</span>
+<span class="sd">        space group:</span>
+
+<span class="sd">        1.  G=F no time reversal, i.e. the same as corresponding</span>
+<span class="sd">            crystallographic group</span>
+<span class="sd">        2.  G=F+F1&#39;, &quot;grey&quot; groups, where avg. magnetic moment is zero,</span>
+<span class="sd">            e.g. a paramagnet in zero ext. mag. field</span>
+<span class="sd">        3.  G=D+(F-D)1&#39;, where D is an equi-translation subgroup of F of</span>
+<span class="sd">            index 2, lattice translations do not include time reversal</span>
+<span class="sd">        4.  G=D+(F-D)1&#39;, where D is an equi-class subgroup of F of index 2</span>
+
+<span class="sd">        There are two common settings for magnetic space groups, BNS</span>
+<span class="sd">        and OG. In case 4, the BNS setting != OG setting, and so a</span>
+<span class="sd">        transformation to go between the two settings is required:</span>
+<span class="sd">        specifically, the BNS setting is derived from D, and the OG</span>
+<span class="sd">        setting is derived from F.</span>
+
+<span class="sd">        This means that the OG setting refers to the unit cell if magnetic</span>
+<span class="sd">        order is neglected, and requires multiple unit cells to reproduce</span>
+<span class="sd">        the full crystal periodicity when magnetic moments are present.</span>
+<span class="sd">        This does not make the OG setting, in general, useful for</span>
+<span class="sd">        electronic structure calculations and the BNS setting is preferred.</span>
+<span class="sd">        However, this class does contain information on the OG setting and</span>
+<span class="sd">        can be initialized from OG labels or numbers if required.</span>
+
+<span class="sd">        Conventions: ITC monoclinic unique axis b, monoclinic cell choice 1,</span>
+<span class="sd">        hexagonal axis for trigonal groups, origin choice 2 for groups with</span>
+<span class="sd">        more than one origin choice (ISO-MAG).</span>
+
+<span class="sd">        Raw data comes from ISO-MAG, ISOTROPY Software Suite, iso.byu.edu</span>
+<span class="sd">        http://stokes.byu.edu/iso/magnetic_data.txt</span>
+<span class="sd">        with kind permission from Professor Branton Campbell, BYU</span>
+
+<span class="sd">        Data originally compiled from:</span>
+<span class="sd">        (1) Daniel B. Litvin, Magnetic Group Tables (International Union</span>
+<span class="sd">            of Crystallography, 2013) www.iucr.org/publ/978-0-9553602-2-0.</span>
+<span class="sd">        (2) C. J. Bradley and A. P. Cracknell, The Mathematical Theory of</span>
+<span class="sd">            Symmetry in Solids (Clarendon Press, Oxford, 1972).</span>
+
+<span class="sd">        See http://stokes.byu.edu/iso/magneticspacegroupshelp.php for more</span>
+<span class="sd">        information on magnetic symmetry.</span>
+
+<span class="sd">        :param id: BNS number supplied as list of 2 ints or BNS label as</span>
+<span class="sd">            str or index as int (1-1651) to iterate over all space groups&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Datafile is stored as sqlite3 database since (a) it can be easily</span>
+        <span class="c1"># queried for various different indexes (BNS/OG number/labels) and (b)</span>
+        <span class="c1"># allows binary data to be stored in a compact form similar to that in</span>
+        <span class="c1"># the source data file, significantly reducing file size.</span>
+        <span class="c1"># Note that a human-readable JSON format was tested first but was 20x</span>
+        <span class="c1"># larger and required *much* longer initial loading times.</span>
+
+        <span class="c1"># retrieve raw data</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MAGSYMM_DATA</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">id</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>  <span class="c1"># remove any white space</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM space_groups WHERE BNS_label=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">,))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM space_groups WHERE BNS1=? AND BNS2=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">id</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="c1"># OG3 index is a &#39;master&#39; index, going from 1 to 1651</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM space_groups WHERE OG3=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">,))</span>
+        <span class="n">raw_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">())</span>
+
+        <span class="c1"># Jones Faithful transformation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jf</span> <span class="o">=</span> <span class="n">JonesFaithfulTransformation</span><span class="o">.</span><span class="n">from_transformation_string</span><span class="p">(</span><span class="s2">&quot;a,b,c;0,0,0&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">setting_transformation</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">setting_transformation</span> <span class="o">!=</span> <span class="s2">&quot;a,b,c;0,0,0&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">jf</span> <span class="o">=</span> <span class="n">JonesFaithfulTransformation</span><span class="o">.</span><span class="n">from_transformation_string</span><span class="p">(</span><span class="n">setting_transformation</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">setting_transformation</span><span class="p">,</span> <span class="n">JonesFaithfulTransformation</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">setting_transformation</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jf</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">jf</span> <span class="o">=</span> <span class="n">setting_transformation</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># int from 1 to 4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">raw_data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">raw_data</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">6</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>  <span class="c1"># can differ from BNS_label</span>
+
+        <span class="k">def</span> <span class="nf">_get_point_operator</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Retrieve information on point operator (rotation matrix and Seitz label).&quot;&quot;&quot;</span>
+            <span class="nb">hex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_number&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">143</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_number&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">194</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT symbol, matrix FROM point_operators WHERE idx=? AND hex=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">hex</span><span class="p">))</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;symbol&#39;</span><span class="p">:</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;matrix&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)}</span>
+            <span class="k">return</span> <span class="n">op</span>
+
+        <span class="k">def</span> <span class="nf">_parse_operators</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Parses compact binary representation into list of MagSymmOps.&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># e.g. if magtype != 4, OG setting == BNS setting, and b == [] for OG symmops</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">raw_symops</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="mi">6</span><span class="p">)]</span>
+
+            <span class="n">symops</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">raw_symops</span><span class="p">:</span>
+                <span class="n">point_operator</span> <span class="o">=</span> <span class="n">_get_point_operator</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">translation_vec</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span>
+                <span class="n">time_reversal</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+                <span class="n">op</span> <span class="o">=</span> <span class="n">MagSymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation_and_time_reversal</span><span class="p">(</span><span class="n">rotation_matrix</span><span class="o">=</span><span class="n">point_operator</span><span class="p">[</span><span class="s1">&#39;matrix&#39;</span><span class="p">],</span>
+                                                                               <span class="n">translation_vec</span><span class="o">=</span><span class="n">translation_vec</span><span class="p">,</span>
+                                                                               <span class="n">time_reversal</span><span class="o">=</span><span class="n">time_reversal</span><span class="p">)</span>
+                <span class="c1"># store string representation, e.g. (2x|1/2,1/2,1/2)&#39;</span>
+                <span class="n">seitz</span> <span class="o">=</span> <span class="s1">&#39;(</span><span class="si">{0}</span><span class="s1">|</span><span class="si">{1}</span><span class="s1">,</span><span class="si">{2}</span><span class="s1">,</span><span class="si">{3}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">point_operator</span><span class="p">[</span><span class="s1">&#39;symbol&#39;</span><span class="p">],</span>
+                                                   <span class="n">Fraction</span><span class="p">(</span><span class="n">translation_vec</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                                                   <span class="n">Fraction</span><span class="p">(</span><span class="n">translation_vec</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                                                   <span class="n">Fraction</span><span class="p">(</span><span class="n">translation_vec</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">time_reversal</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">seitz</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;</span>
+                <span class="n">symops</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;op&#39;</span><span class="p">:</span> <span class="n">op</span><span class="p">,</span> <span class="s1">&#39;str&#39;</span><span class="p">:</span> <span class="n">seitz</span><span class="p">})</span>
+
+            <span class="k">return</span> <span class="n">symops</span>
+
+        <span class="k">def</span> <span class="nf">_parse_wyckoff</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Parses compact binary representation into list of Wyckoff sites.&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+            <span class="n">wyckoff_sites</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;=</span> <span class="mi">25</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">97</span> <span class="o">+</span> <span class="n">idx</span><span class="p">)</span>  <span class="c1"># returns a-z when idx 0-25</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;alpha&#39;</span>  <span class="c1"># when a-z labels exhausted, use alpha, only relevant for a few space groups</span>
+
+            <span class="n">o</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># offset</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># nth Wyckoff site</span>
+            <span class="n">num_wyckoff</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">wyckoff_sites</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_wyckoff</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span> <span class="o">+</span> <span class="n">o</span><span class="p">]</span>  <span class="c1"># multiplicity</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span> <span class="o">+</span> <span class="n">o</span><span class="p">]</span> <span class="o">*</span> <span class="n">m</span><span class="p">)</span> <span class="o">+</span> <span class="n">get_label</span><span class="p">(</span><span class="n">num_wyckoff</span> <span class="o">-</span> <span class="n">n</span><span class="p">)</span>
+                <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="mi">3</span> <span class="o">+</span> <span class="n">o</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span> <span class="o">*</span> <span class="mi">22</span><span class="p">):</span><span class="mi">3</span> <span class="o">+</span> <span class="n">o</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span> <span class="o">*</span> <span class="mi">22</span><span class="p">)</span> <span class="o">+</span> <span class="mi">22</span><span class="p">]</span>  <span class="c1"># data corresponding to specific Wyckoff position</span>
+                    <span class="n">translation_vec</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
+                    <span class="n">matrix</span> <span class="o">=</span> <span class="p">[[</span><span class="n">s</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">10</span><span class="p">]],</span>
+                              <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">11</span><span class="p">]],</span>
+                              <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">12</span><span class="p">]]]</span>
+                    <span class="n">matrix_magmom</span> <span class="o">=</span> <span class="p">[[</span><span class="n">s</span><span class="p">[</span><span class="mi">13</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">16</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">19</span><span class="p">]],</span>
+                                     <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">14</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">17</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">20</span><span class="p">]],</span>
+                                     <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">15</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">18</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">21</span><span class="p">]]]</span>
+                    <span class="c1"># store string representation, e.g. (x,y,z;mx,my,mz)</span>
+                    <span class="n">wyckoff_str</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">{}</span><span class="s2">;</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">transformation_to_string</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">translation_vec</span><span class="p">),</span>
+                                                   <span class="n">transformation_to_string</span><span class="p">(</span><span class="n">matrix_magmom</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">))</span>
+                    <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;translation_vec&#39;</span><span class="p">:</span> <span class="n">translation_vec</span><span class="p">,</span>
+                                  <span class="s1">&#39;matrix&#39;</span><span class="p">:</span> <span class="n">matrix</span><span class="p">,</span>
+                                  <span class="s1">&#39;matrix_magnetic&#39;</span><span class="p">:</span> <span class="n">matrix_magmom</span><span class="p">,</span>
+                                  <span class="s1">&#39;str&#39;</span><span class="p">:</span> <span class="n">wyckoff_str</span><span class="p">})</span>
+
+                <span class="c1"># only keeping string representation of Wyckoff sites for now</span>
+                <span class="c1"># could do something else with these in future</span>
+                <span class="n">wyckoff_sites</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
+                                      <span class="s1">&#39;str&#39;</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;str&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">])})</span>
+                <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">o</span> <span class="o">+=</span> <span class="n">m</span> <span class="o">*</span> <span class="mi">22</span> <span class="o">+</span> <span class="mi">2</span>
+
+            <span class="k">return</span> <span class="n">wyckoff_sites</span>
+
+        <span class="k">def</span> <span class="nf">_parse_lattice</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Parses compact binary representation into list of lattice vectors/centerings.&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">raw_lattice</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="mi">4</span><span class="p">)]</span>
+
+            <span class="n">lattice</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">raw_lattice</span><span class="p">:</span>
+                <span class="n">lattice</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;vector&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
+                                <span class="s1">&#39;str&#39;</span><span class="p">:</span> <span class="s1">&#39;(</span><span class="si">{0}</span><span class="s1">,</span><span class="si">{1}</span><span class="s1">,</span><span class="si">{2}</span><span class="s1">)+&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Fraction</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(),</span>
+                                                               <span class="n">Fraction</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(),</span>
+                                                               <span class="n">Fraction</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">())})</span>
+
+            <span class="k">return</span> <span class="n">lattice</span>
+
+        <span class="k">def</span> <span class="nf">_parse_transformation</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Parses compact binary representation into transformation between OG and BNS settings.&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="c1"># capital letters used here by convention,</span>
+            <span class="c1"># IUCr defines P and p specifically</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="p">[[</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">6</span><span class="p">]],</span>
+                 <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">7</span><span class="p">]],</span>
+                 <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">8</span><span class="p">]]]</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">/</span> <span class="n">b</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">/</span> <span class="n">b</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">/</span> <span class="n">b</span><span class="p">[</span><span class="mi">12</span><span class="p">]]</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">P</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+            <span class="n">P_string</span> <span class="o">=</span> <span class="n">transformation_to_string</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">))</span>
+            <span class="n">p_string</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Fraction</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(),</span>
+                                         <span class="n">Fraction</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(),</span>
+                                         <span class="n">Fraction</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">P_string</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span> <span class="o">+</span> <span class="n">p_string</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">raw_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>  <span class="c1"># construct array from sql binary blobs</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="c1"># array() behavior changed, need to explicitly convert buffer to str in earlier Python</span>
+                <span class="n">raw_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">raw_data</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_bns_transform&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_transformation</span><span class="p">(</span><span class="n">raw_data</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_operators&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_operators</span><span class="p">(</span><span class="n">raw_data</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_lattice&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_lattice</span><span class="p">(</span><span class="n">raw_data</span><span class="p">[</span><span class="mi">10</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_wyckoff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_wyckoff</span><span class="p">(</span><span class="n">raw_data</span><span class="p">[</span><span class="mi">11</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_operators&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_operators</span><span class="p">(</span><span class="n">raw_data</span><span class="p">[</span><span class="mi">12</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_lattice&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_lattice</span><span class="p">(</span><span class="n">raw_data</span><span class="p">[</span><span class="mi">13</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_wyckoff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_wyckoff</span><span class="p">(</span><span class="n">raw_data</span><span class="p">[</span><span class="mi">14</span><span class="p">])</span>
+
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_og</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize from Opechowski and Guccione (OG) label or number.</span>
+
+<span class="sd">        :param id: OG number supplied as list of 3 ints or</span>
+<span class="sd">            or OG label as str</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">db</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MAGSYMM_DATA</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT BNS_label FROM space_groups WHERE OG_label=?&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">,))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT BNS_label FROM space_groups WHERE OG1=? and OG2=? and OG3=?&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">id</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">id</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="n">bns_label</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">bns_label</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">crystal_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Crystal system, e.g., cubic, hexagonal, etc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;bns_number&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;triclinic&quot;</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">15</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;monoclinic&quot;</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">74</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;orthorhombic&quot;</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">142</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;tetragonal&quot;</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">167</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;trigonal&quot;</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">194</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;hexagonal&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;cubic&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sg_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Space group symbol</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;bns_label&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">symmetry_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve magnetic symmetry operations of the space group.</span>
+<span class="sd">        :return: List of :class:`pymatgen.core.operations.MagSymmOp`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">op_data</span><span class="p">[</span><span class="s1">&#39;op&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">op_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_operators&#39;</span><span class="p">]]</span>
+
+        <span class="c1"># add lattice centerings</span>
+        <span class="n">centered_ops</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">lattice_vectors</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="s1">&#39;vector&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_lattice&#39;</span><span class="p">]]</span>
+
+        <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="n">lattice_vectors</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                    <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                    <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])):</span>
+                <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
+                    <span class="n">new_vec</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">translation_vector</span> <span class="o">+</span> <span class="n">vec</span>
+                    <span class="n">new_op</span> <span class="o">=</span> <span class="n">MagSymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation_and_time_reversal</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">,</span>
+                                                                                       <span class="n">translation_vec</span><span class="o">=</span><span class="n">new_vec</span><span class="p">,</span>
+                                                                                       <span class="n">time_reversal</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">time_reversal</span><span class="p">)</span>
+                    <span class="n">centered_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_op</span><span class="p">)</span>
+
+        <span class="n">ops</span> <span class="o">=</span> <span class="n">ops</span> <span class="o">+</span> <span class="n">centered_ops</span>
+
+        <span class="c1"># apply jones faithful transformation</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">jf</span><span class="o">.</span><span class="n">transform_symmop</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">ops</span>
+
+    <span class="k">def</span> <span class="nf">get_orbit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the orbit for a point and its associated magnetic moment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            p: Point as a 3x1 array.</span>
+<span class="sd">            m: A magnetic moment, compatible with</span>
+<span class="sd">            :class:`pymatgen.electronic_structure.core.Magmom`</span>
+<span class="sd">            tol: Tolerance for determining if sites are the same. 1e-5 should</span>
+<span class="sd">                be sufficient for most purposes. Set to 0 for exact matching</span>
+<span class="sd">                (and also needed for symbolic orbits).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (([array], [array])) Tuple of orbit for point and magnetic moments for orbit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orbit</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">orbit_magmoms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">Magmom</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">:</span>
+            <span class="n">pp</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="n">pp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">pp</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">mm</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">operate_magmom</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">in_array_list</span><span class="p">(</span><span class="n">orbit</span><span class="p">,</span> <span class="n">pp</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">):</span>
+                <span class="n">orbit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span>
+                <span class="n">orbit_magmoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">orbit</span><span class="p">,</span> <span class="n">orbit_magmoms</span>
+
+    <span class="k">def</span> <span class="nf">is_compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">angle_tol</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks whether a particular lattice is compatible with the</span>
+<span class="sd">        *conventional* unit cell.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lattice (Lattice): A Lattice.</span>
+<span class="sd">            tol (float): The tolerance to check for equality of lengths.</span>
+<span class="sd">            angle_tol (float): The tolerance to check for equality of angles</span>
+<span class="sd">                in degrees.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># function from pymatgen.symmetry.groups.SpaceGroup</span>
+        <span class="n">abc</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
+        <span class="n">crys_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crystal_system</span>
+
+        <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">all</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tolerance</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ref</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">j</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;cubic&quot;</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;hexagonal&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;trigonal&quot;</span> <span class="ow">and</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">)):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;trigonal&quot;</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;tetragonal&quot;</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;orthorhombic&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;monoclinic&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">data_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_og</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get description of all data, including information for OG setting.</span>
+<span class="sd">        :return: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># __str__() omits information on OG setting to reduce confusion</span>
+        <span class="c1"># as to which set of symops are active, this property gives</span>
+        <span class="c1"># all stored data including OG setting</span>
+
+        <span class="n">desc</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># dictionary to hold description strings</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="c1"># parse data into strings</span>
+
+        <span class="c1"># indicate if non-standard setting specified</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jf</span> <span class="o">!=</span> <span class="n">JonesFaithfulTransformation</span><span class="o">.</span><span class="n">from_transformation_string</span><span class="p">(</span><span class="s2">&quot;a,b,c;0,0,0&quot;</span><span class="p">):</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="s2">&quot;Non-standard setting: .....</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jf</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Standard setting information: </span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span>
+        <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;bns_number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;bns_number&quot;</span><span class="p">]))</span>
+        <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;bns_label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;bns_label&quot;</span><span class="p">]</span>
+        <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;og_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\t\t</span><span class="s2">OG: &quot;</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;og_number&quot;</span><span class="p">]))</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;og_label&quot;</span><span class="p">]</span>
+                         <span class="k">if</span> <span class="n">include_og</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;bns_operators&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">op_data</span><span class="p">[</span><span class="s1">&#39;str&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">op_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_operators&#39;</span><span class="p">]])</span>
+
+        <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;bns_lattice&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">lattice_data</span><span class="p">[</span><span class="s1">&#39;str&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">lattice_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_lattice&#39;</span><span class="p">][</span><span class="mi">3</span><span class="p">:]])</span>
+                               <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_lattice&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>  <span class="c1"># don&#39;t show (1,0,0)+ (0,1,0)+ (0,0,1)+</span>
+
+        <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;bns_wyckoff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">wyckoff_data</span><span class="p">[</span><span class="s1">&#39;str&#39;</span><span class="p">],</span>
+                                                       <span class="n">initial_indent</span><span class="o">=</span><span class="n">wyckoff_data</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span><span class="p">,</span>
+                                                       <span class="n">subsequent_indent</span><span class="o">=</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">wyckoff_data</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span><span class="p">),</span>
+                                                       <span class="n">break_long_words</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">break_on_hyphens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                                         <span class="k">for</span> <span class="n">wyckoff_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_wyckoff&#39;</span><span class="p">]])</span>
+
+        <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;og_bns_transformation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;OG-BNS Transform: (</span><span class="si">{}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_bns_transform&#39;</span><span class="p">])</span>
+                                         <span class="k">if</span> <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">include_og</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="n">bns_operators_prefix</span> <span class="o">=</span> <span class="s2">&quot;Operators</span><span class="si">{}</span><span class="s2">: &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39; (BNS)&#39;</span> <span class="k">if</span> <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">include_og</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">bns_wyckoff_prefix</span> <span class="o">=</span> <span class="s2">&quot;Wyckoff Positions</span><span class="si">{}</span><span class="s2">: &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39; (BNS)&#39;</span> <span class="k">if</span> <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">include_og</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="c1"># apply textwrap on long lines</span>
+        <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;bns_operators&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="s1">&#39;bns_operators&#39;</span><span class="p">],</span>
+                                              <span class="n">initial_indent</span><span class="o">=</span><span class="n">bns_operators_prefix</span><span class="p">,</span>
+                                              <span class="n">subsequent_indent</span><span class="o">=</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">bns_operators_prefix</span><span class="p">),</span>
+                                              <span class="n">break_long_words</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">break_on_hyphens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">description</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;BNS: </span><span class="si">{d[bns_number]}</span><span class="s2"> </span><span class="si">{d[bns_label]}{d[og_id]}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{d[og_bns_transformation]}</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{d[bns_operators]}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{bns_wyckoff_prefix}{d[bns_lattice]}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{d[bns_wyckoff]}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">desc</span><span class="p">,</span> <span class="n">bns_wyckoff_prefix</span><span class="o">=</span><span class="n">bns_wyckoff_prefix</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">include_og</span><span class="p">:</span>
+
+            <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;og_operators&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">op_data</span><span class="p">[</span><span class="s1">&#39;str&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">op_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_operators&#39;</span><span class="p">]])</span>
+
+            <span class="c1"># include all lattice vectors because (1,0,0)+ (0,1,0)+ (0,0,1)+</span>
+            <span class="c1"># not always present in OG setting</span>
+            <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;og_lattice&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">lattice_data</span><span class="p">[</span><span class="s1">&#39;str&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">lattice_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_lattice&#39;</span><span class="p">]])</span>
+
+            <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;og_wyckoff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">wyckoff_data</span><span class="p">[</span><span class="s1">&#39;str&#39;</span><span class="p">],</span>
+                                                          <span class="n">initial_indent</span><span class="o">=</span><span class="n">wyckoff_data</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span><span class="p">,</span>
+                                                          <span class="n">subsequent_indent</span><span class="o">=</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">wyckoff_data</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span><span class="p">),</span>
+                                                          <span class="n">break_long_words</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">break_on_hyphens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                                            <span class="k">for</span> <span class="n">wyckoff_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;og_wyckoff&#39;</span><span class="p">]])</span>
+
+            <span class="n">og_operators_prefix</span> <span class="o">=</span> <span class="s2">&quot;Operators (OG): &quot;</span>
+
+            <span class="c1"># apply textwrap on long lines</span>
+            <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;og_operators&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="s1">&#39;og_operators&#39;</span><span class="p">],</span>
+                                                 <span class="n">initial_indent</span><span class="o">=</span><span class="n">og_operators_prefix</span><span class="p">,</span>
+                                                 <span class="n">subsequent_indent</span><span class="o">=</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">og_operators_prefix</span><span class="p">),</span>
+                                                 <span class="n">break_long_words</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">break_on_hyphens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">description</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{d[og_operators]}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="s2">&quot;Wyckoff Positions (OG): </span><span class="si">{d[og_lattice]}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="s2">&quot;</span><span class="si">{d[og_wyckoff]}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">desc</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Alternative OG setting exists for this space group.&#39;</span>
+
+        <span class="k">return</span> <span class="n">description</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation of the space group, specifying the setting</span>
+<span class="sd">        of the space group, its magnetic symmetry operators and Wyckoff</span>
+<span class="sd">        positions.</span>
+<span class="sd">        :return: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_str</span><span class="p">(</span><span class="n">include_og</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_write_all_magnetic_space_groups_to_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write all magnetic space groups to a human-readable text file.</span>
+<span class="sd">    Should contain same information as text files provided by ISO-MAG.</span>
+<span class="sd">    :param filename:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Data parsed from raw data from:</span><span class="se">\n</span><span class="s1">&#39;</span>
+         <span class="s1">&#39;ISO-MAG, ISOTROPY Software Suite, iso.byu.edu</span><span class="se">\n</span><span class="s1">&#39;</span>
+         <span class="s1">&#39;http://stokes.byu.edu/iso/magnetic_data.txt</span><span class="se">\n</span><span class="s1">&#39;</span>
+         <span class="s1">&#39;Used with kind permission from Professor Branton Campbell, BYU</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">all_msgs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1652</span><span class="p">):</span>
+        <span class="n">all_msgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MagneticSpaceGroup</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">all_msgs</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n\n</span><span class="s1">--------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">data_str</span><span class="p">())</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.symmetry.maggroups</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

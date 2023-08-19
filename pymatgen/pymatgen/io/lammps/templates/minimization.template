@@ -1,0 +1,25 @@
+# 1) Initialization
+units $units
+atom_style $atom_style
+dimension $dimension
+boundary $boundary
+
+# 2) System definition
+read_data $read_data
+neigh_modify every 1 delay 5 check yes
+
+# 3) Simulation settings
+$force_field
+
+# 4) Energy minimization
+thermo 5
+thermo_style custom step lx ly lz press pxx pyy pzz pe
+dump dmp all atom 5 run.dump
+
+min_style cg
+fix 1 all box/relax iso 0.0 vmax 0.001
+minimize 1.0e-16 1.0e-16 5000 100000
+
+# 5) Write output data
+write_data run.data
+write_restart run.restart

@@ -1,0 +1,227 @@
+##CIF_1.1
+
+data_sm_global
+#Used dictionaries
+loop_
+_audit_conform_dict_name
+_audit_conform_dict_version
+_audit_conform_dict_location
+cif_core.dic 	2.4.2 	.
+cif_pd.dic 		1.0.1 	.
+cif_sm.dic 		0.1 	'redaktion.landolt-boernstein(at)springer.com'
+
+#About this content and reference
+_sm_credits_copyright
+;PAULING FILE Multinaries Edition - 2012. SpringerMaterials Release 2014.
+http://www.paulingfile.com
+Unique LPF ID Number SD1615854
+Project Coordinator: Shuichi Iwata
+Section-Editors: Karin Cenzual (Crystal Structures), Hiroaki Okamoto (Phase
+Diagrams), Fritz Hulliger (Physical Properties)
+(c) Springer & Material Phases Data System (MPDS), Switzerland & National
+Institute for Materials Science (NIMS), Japan 2014.
+(Data generated pre-2002: (c) Springer & MPDS & NIMS;
+post-2001: (c) Springer & MPDS)
+All Rights Reserved. Version 2014.06.
+;
+
+_audit_creation_method
+;This data have been compiled from the crystallographic datasheet for
+"Ab99.75Or0.25 (NaAlSi3O8 alb, <i>T</i> = 1243 K) Crystal Structure"
+taken from SpringerMaterials (sm_isp_sd_1615854).
+;
+
+_publ_section_references
+;Winter J.K., Ghose S., Okamura F.P.: <i>A high-temperature study of the thermal expansion and the anisotropy of the sodium atom in low albite</i>. American Mineralogist <b>62</b> (1977) 921-931.
+;
+
+#Phase classification
+_sm_phase_labels				'NaAlSi3O8 alb'
+_chemical_name_mineral			'albite'
+_sm_chemical_compound_class		'silicate'
+_sm_phase_prototype				'NaAlSi3 O8 '
+_sm_pearson_symbol				'aP26'
+_symmetry_Int_Tables_number		2
+_sm_sample_details
+;albite low sample from U.S.A. California, Marin County, Tiburon Peninsula,
+single crystal (determination of cell parameters),
+single crystal, 0.25 mm diameter (determination of structural parameters)
+;
+_sm_measurement_details
+;automatic diffractometer (determination of cell parameters),
+automatic diffractometer; Syntex P1 (determination of structural parameters),
+X-rays, Mo K&#x03b1; (determination of cell and structural parameters),
+<i>T</i> = 1243 K (determination of cell and structural parameters)
+;
+_sm_interpretation_details
+;complete structure determined; temperature dependence studied,
+least-squares refinement; 2002 reflections,
+<i>R</i> = 0.039
+;
+
+data_sm_isp_SD1615854-standardized_unitcell
+#Cell Parameters
+_cell_length_a					7.181
+_cell_length_b					7.4971
+_cell_length_c					7.7934
+_cell_angle_alpha				114.487
+_cell_angle_beta				106.377
+_cell_angle_gamma				101.155
+_sm_length_ratio_ab				0.958
+_sm_length_ratio_bc				0.962
+_sm_length_ratio_ca				1.085
+_cell_volume 					342.42
+_symmetry_space_group_name_H-M	'P-1'
+_symmetry_Int_Tables_number		2
+_cell_formula_units_Z			2
+_sm_cell_transformation
+;new axes c,a/2-b/2,a/2+b/2; origin shift 0 1/2 1/2
+;
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+Oa1 'O' .2i .1 0.0283 0.6326 0.3584 1 2 'non-collinear, Si<sub>2</sub>'
+Obo 'O' .2i .1 0.2012 0.1932 0.4378 1 2 'non-collinear, Si<sub>2</sub>'
+T1(o) '0.75Si + 0.25Al' .2i .1 0.2113 0.3351 0.6845 1 4 'tetrahedron, O<sub>4</sub>'
+Ocm 'O' .2i .1 0.2466 0.8351 0.2245 1 2 'non-collinear, Si<sub>2</sub>'
+T1(m) '0.75Si + 0.25Al' .2i .1 0.237 0.6858 0.3258 1 4 'tetrahedron, O<sub>4</sub>'
+Obm 'O' .2i .1 0.2549 0.4721 0.1783 1 2 'non-collinear, Si<sub>2</sub>'
+Oco 'O' .2i .1 0.2679 0.2145 0.8305 1 2 'non-collinear, Si<sub>2</sub>'
+Oa2 'O' .2i .1 0.2841 0.1077 0.1079 1 2 'non-collinear, Si<sub>2</sub>'
+T2(o) '0.75Si + 0.25Al' .2i .1 0.3252 0.0862 0.3132 1 4 'tetrahedron, O<sub>4</sub>'
+T2(m) '0.75Si + 0.25Al' .2i .1 0.3596 0.3081 0.0741 1 4 'tetrahedron, O<sub>4</sub>'
+Odm 'O' .2i .1 0.572 0.1911 0.4499 1 2 'non-collinear, Si<sub>2</sub>'
+Odo 'O' .2i .1 0.6066 0.4122 0.185 1 2 'non-collinear, Si<sub>2</sub>'
+Na 'Na' .2i .1 0.8532 0.2101 0.2335 1 5 'trigonal bipyramid, O<sub>5</sub>'
+
+_sm_atom_site_transformation
+;new axes c,a/2-b/2,a/2+b/2; origin shift 0 1/2 1/2
+;
+
+#Anisotropic Displacement Parameters
+loop_
+_atom_site_aniso_label
+_atom_site_aniso_U_11
+_atom_site_aniso_U_12
+_atom_site_aniso_U_13
+_atom_site_aniso_U_22
+_atom_site_aniso_U_23
+_atom_site_aniso_U_33
+Na 2.36(5) -0.2(3) 1.37(5) 2.03(3) -1.24(4) 6.12(9)
+T1(o) 1.11(1) -0.1(1) 0.5(1) 0.32(1) 0.02(1) 1.13(2)
+T1(m) 1.01(1) 0.08(1) 0.47(1) 0.3(1) 0.05(1) 1.02(1)
+T2(o) 0.92(1) -0.05(1) 0.4(1) 0.25(1) 0.02(1) 1.36(1)
+T2(m) 0.91(1) 0.02(1) 0.44(1) 0.25(1) 0.06(1) 1.39(1)
+Oa1 2.42(1) -0.02(2) 1.06(4) 0.61(1) 0.11(2) 1.33(4)
+Oa2 1.17(3) -0.02(1) 0.43(3) 0.25(1) 0.12(2) 2.3(5)
+Obo 1.64(4) -0.34(2) 1.37(4) 0.73(2) -0.05(3) 2.82(6)
+Obm 1.78(5) 0.31(2) 1.75(5) 0.81(2) 0.09(3) 3.59(8)
+Oco 1.51(4) -0.19(2) 0.74(4) 0.36(1) -0.07(2) 2.85(6)
+Ocm 1.52(4) 0.21(2) 0.74(4) 0.33(1) 0.18(2) 2.9(6)
+Odo 1.75(4) 0.15(2) 0.23(4) 0.61(1) 0.16(2) 1.52(5)
+Odm 1.9(5) -0.23(2) 0.06(4) 0.68(2) -0.07(2) 1.53(5)
+
+data_sm_isp_SD1615854-published_cell
+#Cell Parameters
+_cell_length_a					8.277(1)
+_cell_length_b					12.86(2)
+_cell_length_c					7.181(1)
+_cell_angle_alpha				93.33(1)
+_cell_angle_beta				116.15(1)
+_cell_angle_gamma				87.56(1)
+_sm_length_ratio_ab				0.644
+_sm_length_ratio_bc				1.791
+_sm_length_ratio_ca				0.868
+_cell_volume 					684.84
+_symmetry_space_group_name_H-M	'C-1'
+_symmetry_Int_Tables_number		2
+_cell_formula_units_Z			2
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+Na 'Na' .4i .1 0.2782(3) 0.9883(2) 0.1468(4) 1 ? '?'
+T1(o) '0.75Si + 0.25Al' .4i .1 0.0098(1) 0.1747(1) 0.2113(1) 1 ? '?'
+T1(m) '0.75Si + 0.25Al' .4i .1 0.0058(1) 0.82(1) 0.237(1) 1 ? '?'
+T2(o) '0.75Si + 0.25Al' .4i .1 0.6997(1) 0.1135(1) 0.3252(1) 1 ? '?'
+T2(m) '0.75Si + 0.25Al' .4i .1 0.6911(1) 0.883(1) 0.3596(1) 1 ? '?'
+Oa1 'O' .4i .1 0.0045(3) 0.1371(2) 0.9717(3) 1 ? '?'
+Oa2 'O' .4i .1 0.6078(2) 0.0001(3) 0.2841(3) 1 ? '?'
+Obo 'O' .4i .1 0.8155(3) 0.1223(2) 0.2012(4) 1 ? '?'
+Obm 'O' .4i .1 0.8252(3) 0.8531(3) 0.2549(4) 1 ? '?'
+Oco 'O' .4i .1 0.0225(3) 0.308(1) 0.2679(3) 1 ? '?'
+Ocm 'O' .4i .1 0.0298(3) 0.6947(1) 0.2466(3) 1 ? '?'
+Odo 'O' .4i .1 0.2014(3) 0.1136(2) 0.3934(3) 1 ? '?'
+Odm 'O' .4i .1 0.1795(3) 0.8706(2) 0.428(3) 1 ? '?'
+
+#Anisotropic Displacement Parameters
+loop_
+_atom_site_aniso_label
+_atom_site_aniso_U_11
+_atom_site_aniso_U_12
+_atom_site_aniso_U_13
+_atom_site_aniso_U_22
+_atom_site_aniso_U_23
+_atom_site_aniso_U_33
+Na 2.36(5) -0.2(3) 1.37(5) 2.03(3) -1.24(4) 6.12(9)
+T1(o) 1.11(1) -0.1(1) 0.5(1) 0.32(1) 0.02(1) 1.13(2)
+T1(m) 1.01(1) 0.08(1) 0.47(1) 0.3(1) 0.05(1) 1.02(1)
+T2(o) 0.92(1) -0.05(1) 0.4(1) 0.25(1) 0.02(1) 1.36(1)
+T2(m) 0.91(1) 0.02(1) 0.44(1) 0.25(1) 0.06(1) 1.39(1)
+Oa1 2.42(1) -0.02(2) 1.06(4) 0.61(1) 0.11(2) 1.33(4)
+Oa2 1.17(3) -0.02(1) 0.43(3) 0.25(1) 0.12(2) 2.3(5)
+Obo 1.64(4) -0.34(2) 1.37(4) 0.73(2) -0.05(3) 2.82(6)
+Obm 1.78(5) 0.31(2) 1.75(5) 0.81(2) 0.09(3) 3.59(8)
+Oco 1.51(4) -0.19(2) 0.74(4) 0.36(1) -0.07(2) 2.85(6)
+Ocm 1.52(4) 0.21(2) 0.74(4) 0.33(1) 0.18(2) 2.9(6)
+Odo 1.75(4) 0.15(2) 0.23(4) 0.61(1) 0.16(2) 1.52(5)
+Odm 1.9(5) -0.23(2) 0.06(4) 0.68(2) -0.07(2) 1.53(5)
+
+data_sm_isp_SD1615854-niggli_reduced_cell
+#Cell Parameters
+_cell_length_a					7.181
+_cell_length_b					7.4971
+_cell_length_c					7.7934
+_cell_angle_alpha				114.487
+_cell_angle_beta				106.377
+_cell_angle_gamma				101.155
+_sm_length_ratio_ab				0.958
+_sm_length_ratio_bc				0.962
+_sm_length_ratio_ca				1.085
+_cell_volume 					342.42
+_symmetry_space_group_name_H-M	''
+_symmetry_Int_Tables_number		?
+_cell_formula_units_Z			2
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+? ? ? ? ? ? ? ? ? ?

@@ -1,0 +1,231 @@
+  ABINIT 
+  
+  Give name for formatted input file: 
+/Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t1/run.abi
+  Give name for formatted output file:
+/Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t1/run.abo
+  Give root name for generic input files:
+/Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t1/indata/in
+  Give root name for generic output files:
+/Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t1/outdata/out
+  Give root name for generic temporary files:
+/Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t1/tmpdata/tmp
+
+.Version 7.11.5 of ABINIT 
+.(MPI version, prepared for a x86_64_darwin10.8.0_gnu4.7 computer) 
+
+.Copyright (C) 1998-2015 ABINIT group . 
+ ABINIT comes with ABSOLUTELY NO WARRANTY.
+ It is free software, and you are welcome to redistribute it
+ under certain conditions (GNU General Public License,
+ see ~abinit/COPYING or http://www.gnu.org/copyleft/gpl.txt).
+
+ ABINIT is a project of the Universite Catholique de Louvain,
+ Corning Inc. and other collaborators, see ~abinit/doc/developers/contributors.txt .
+ Please read ~abinit/doc/users/acknowledgments.html for suggested
+ acknowledgments of the ABINIT effort.
+ For more information, see http://www.abinit.org .
+
+.Starting date : Fri 13 Mar 2015.
+- ( at 20h08 )
+  
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ === Build Information === 
+  Version       : 7.11.5
+  Build target  : x86_64_darwin10.8.0_gnu4.7
+  Build date    : 20150309
+
+ === Compiler Suite === 
+  C compiler       : gnu4.7
+  C++ compiler     : gnu4.7
+  Fortran compiler : gnu4.7
+  CFLAGS           :  -g -O2 -mtune=native -march=native
+  CXXFLAGS         :  -g -O2 -mtune=native -march=native
+  FCFLAGS          :  -g -ffree-line-length-none
+  FC_LDFLAGS       : 
+
+ === Optimizations === 
+  Debug level        : basic
+  Optimization level : standard
+  Architecture       : unknown_unknown
+
+ === Multicore === 
+  Parallel build : yes
+  Parallel I/O   : yes
+  openMP support : no
+  GPU support    : no
+
+ === Connectors / Fallbacks === 
+  Connectors on : yes
+  Fallbacks on  : yes
+  DFT flavor    : libxc-fallback
+  FFT flavor    : fftw3
+  LINALG flavor : netlib-fallback
+  MATH flavor   : none
+  TIMER flavor  : abinit
+  TRIO flavor   : netcdf-fallback+etsf_io-fallback
+
+ === Experimental features === 
+  Bindings            : @enable_bindings@
+  Exports             : no
+  GW double-precision : yes
+
+ === Bazaar branch information === 
+  Branch ID : gmatteo@cenaero-20150309121815-5lbj8ihq15ffcsbb
+  Revision  : 939
+  Committed : 0
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Default optimizations:
+   -O2 -mtune=native -march=native
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ CPP options activated during the build:
+
+                    CC_GNU                   CXX_GNU           HAVE_BZR_BRANCH
+ 
+                 HAVE_CLIB            HAVE_DFT_LIBXC HAVE_FC_ALLOCATABLE_DT...
+ 
+             HAVE_FC_ASYNC  HAVE_FC_COMMAND_ARGUMENT      HAVE_FC_COMMAND_LINE
+ 
+        HAVE_FC_CONTIGUOUS           HAVE_FC_CPUTIME              HAVE_FC_EXIT
+ 
+             HAVE_FC_FLUSH             HAVE_FC_GAMMA            HAVE_FC_GETENV
+ 
+          HAVE_FC_INT_QUAD             HAVE_FC_IOMSG     HAVE_FC_ISO_C_BINDING
+ 
+        HAVE_FC_LONG_LINES        HAVE_FC_MOVE_ALLOC           HAVE_FC_PRIVATE
+ 
+         HAVE_FC_PROTECTED         HAVE_FC_STREAM_IO            HAVE_FC_SYSTEM
+ 
+                  HAVE_FFT            HAVE_FFT_FFTW3              HAVE_FFT_MPI
+ 
+           HAVE_FFT_SERIAL               HAVE_GW_DPC        HAVE_LIBPAW_ABINIT
+ 
+     HAVE_LINALG_ZDOTC_B*G     HAVE_LINALG_ZDOTU_B*G                  HAVE_MPI
+ 
+                 HAVE_MPI2       HAVE_MPI_IALLREDUCE        HAVE_MPI_IALLTOALL
+ 
+       HAVE_MPI_IALLTOALLV               HAVE_MPI_IO HAVE_MPI_TYPE_CREATE_S...
+ 
+                HAVE_NUMPY                HAVE_TIMER         HAVE_TIMER_ABINIT
+ 
+            HAVE_TIMER_MPI         HAVE_TIMER_SERIAL         HAVE_TRIO_ETSF_IO
+ 
+          HAVE_TRIO_NETCDF              USE_MACROAVE                            
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+- input  file    -> /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t1/run.abi
+- output file    -> /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t1/run.abo
+- root for input  files -> /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t1/indata/in
+- root for output files -> /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t1/outdata/out
+
+-instrng :    73 lines of input have been read from file /Users/gmatteo/Coding/git_branches/abipy/abipy/data/runs/flow_mgb2_edoses/w0/t1/run.abi
+
+
+ iofn2 : Please give name of formatted atomic psp file
+ iofn2 : for atom type   1 , psp file is /Users/gmatteo/Coding/git_branches/abipy/abipy/data/pseudos/12mg.pspnc
+
+ iofn2 : Please give name of formatted atomic psp file
+ iofn2 : for atom type   2 , psp file is /Users/gmatteo/Coding/git_branches/abipy/abipy/data/pseudos/5b.pspnc
+  read the values zionpsp=  2.0 , pspcod=   1 , lmax=   2
+nproj =      1     1     0     0
+nprojso =      0     0     0
+  read the values zionpsp=  3.0 , pspcod=   1 , lmax=   1
+nproj =      1     0     0     0
+nprojso =      0     0     0
+
+ inpspheads: deduce mpsang  =   3, n1xccc  =2501.
+
+ invars1m : enter jdtset=0
+ invars1 : treat image number     1
+
+ symlatt : the Bravais lattice is hP (primitive hexagonal)
+  xred   is defined in input file
+ ingeo : takes atomic coordinates from input array xred
+
+ symlatt : the Bravais lattice is hP (primitive hexagonal)
+
+ symlatt : the Bravais lattice is hP (primitive hexagonal)
+ symspgr : spgroup= 191  P6/m m m   (=D6h^1)
+ Real(R)+Recip(G) space primitive vectors, cartesian coordinates (Bohr,Bohr^-1):
+ R(1)=  5.0503959  2.9158474  0.0000000  G(1)=  0.0990021  0.1714767  0.0000000
+ R(2)= -5.0503959  2.9158474  0.0000000  G(2)= -0.0990021  0.1714767  0.0000000
+ R(3)=  0.0000000  0.0000000  6.6575052  G(3)=  0.0000000  0.0000000  0.1502064
+ Unit cell volume ucvol=  1.9607929E+02 bohr^3
+ Unit cell volume ucvol=  1.9607929E+02 bohr^3
+ Angles (23,13,12)=  9.00000000E+01  9.00000000E+01  1.20000000E+02 degrees
+ Angles (23,13,12)=  9.00000000E+01  9.00000000E+01  1.20000000E+02 degrees
+   9.9002139878206136E-002   5.7158912102896989E-002  0.11431782420704921        7.5103208671638277E-002   9.9002139878206136E-002   5.7158912102896989E-002  0.11431782420704921        9.9002139878206136E-002   7.5103208671638277E-002   5.7158912102896989E-002   7.5103208671638277E-002
+
+ mknormpath : total number of points on the path :       97
+
+ Number of divisions for each segment of the normalized path :
+ 0.00000 0.00000 0.00000 ==>  0.50000 0.00000 0.00000 ( ndiv :    10 )
+ 0.50000 0.00000 0.00000 ==>  0.33333 0.33333 0.00000 ( ndiv :     6 )
+ 0.33333 0.33333 0.00000 ==>  0.00000 0.00000 0.00000 ( ndiv :    12 )
+ 0.00000 0.00000 0.00000 ==>  0.00000 0.00000 0.50000 ( ndiv :     8 )
+ 0.00000 0.00000 0.50000 ==>  0.50000 0.00000 0.50000 ( ndiv :    10 )
+ 0.50000 0.00000 0.50000 ==>  0.33333 0.33333 0.50000 ( ndiv :     6 )
+ 0.33333 0.33333 0.50000 ==>  0.00000 0.00000 0.50000 ( ndiv :    12 )
+ 0.00000 0.00000 0.50000 ==>  0.50000 0.00000 0.50000 ( ndiv :    10 )
+ 0.50000 0.00000 0.50000 ==>  0.50000 0.00000 0.00000 ( ndiv :     8 )
+ 0.50000 0.00000 0.00000 ==>  0.33333 0.33333 0.00000 ( ndiv :     6 )
+ 0.33333 0.33333 0.00000 ==>  0.33333 0.33333 0.50000 ( ndiv :     8 )
+
+
+ Real(R)+Recip(G) space primitive vectors, cartesian coordinates (Bohr,Bohr^-1):
+ R(1)=  5.0503959  2.9158474  0.0000000  G(1)=  0.0990021  0.1714767  0.0000000
+ R(2)= -5.0503959  2.9158474  0.0000000  G(2)= -0.0990021  0.1714767  0.0000000
+ R(3)=  0.0000000  0.0000000  6.6575052  G(3)=  0.0000000  0.0000000  0.1502064
+ Unit cell volume ucvol=  1.9607929E+02 bohr^3
+ Unit cell volume ucvol=  1.9607929E+02 bohr^3
+ Angles (23,13,12)=  9.00000000E+01  9.00000000E+01  1.20000000E+02 degrees
+ Angles (23,13,12)=  9.00000000E+01  9.00000000E+01  1.20000000E+02 degrees
+   9.9002139878206136E-002   5.7158912102896989E-002  0.11431782420704921        7.5103208671638277E-002   9.9002139878206136E-002   5.7158912102896989E-002  0.11431782420704921        9.9002139878206136E-002   7.5103208671638277E-002   5.7158912102896989E-002   7.5103208671638277E-002
+
+ mknormpath : total number of points on the path :       97
+
+ Number of divisions for each segment of the normalized path :
+ 0.00000 0.00000 0.00000 ==>  0.50000 0.00000 0.00000 ( ndiv :    10 )
+ 0.50000 0.00000 0.00000 ==>  0.33333 0.33333 0.00000 ( ndiv :     6 )
+ 0.33333 0.33333 0.00000 ==>  0.00000 0.00000 0.00000 ( ndiv :    12 )
+ 0.00000 0.00000 0.00000 ==>  0.00000 0.00000 0.50000 ( ndiv :     8 )
+ 0.00000 0.00000 0.50000 ==>  0.50000 0.00000 0.50000 ( ndiv :    10 )
+ 0.50000 0.00000 0.50000 ==>  0.33333 0.33333 0.50000 ( ndiv :     6 )
+ 0.33333 0.33333 0.50000 ==>  0.00000 0.00000 0.50000 ( ndiv :    12 )
+ 0.00000 0.00000 0.50000 ==>  0.50000 0.00000 0.50000 ( ndiv :    10 )
+ 0.50000 0.00000 0.50000 ==>  0.50000 0.00000 0.00000 ( ndiv :     8 )
+ 0.50000 0.00000 0.00000 ==>  0.33333 0.33333 0.00000 ( ndiv :     6 )
+ 0.33333 0.33333 0.00000 ==>  0.33333 0.33333 0.50000 ( ndiv :     8 )
+
+
+  dtset%nelect=   8.0000000000000000     
+ chkneu : initialized the occupation numbers for occopt=    4
+    spin-unpolarized case :
+  2.00  2.00  2.00  2.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00
+npfft, npband, npspinor and npkpt:     1    1    1    2
+
+--- !WARNING
+src_file: distrb2.F90 : 3
+src_line: 113
+message: |
+    Warning with a Wrong YAML doc. The event parser should register a AbinitYamlWarning
+...
+
+--- !ERROR
+src_file: distrb2.F90
+src_line: 113
+message: |
+    Error with a Wrong YAML doc. 
+the event parser should register a AbinitYamlErro
+...

@@ -1,0 +1,108 @@
+<Dec01-2015> <15:14:13>  ADF 2014  RunTime: Dec01-2015 15:14:13  Nodes: 1  Procs: 1
+<Dec01-2015> <15:14:13>  Hydrogen (TZP)
+<Dec01-2015> <15:14:13>  RunType   : CREATE
+<Dec01-2015> <15:14:13>  Net Charge: 0 (Nuclei minus Electrons)
+<Dec01-2015> <15:14:13>  Symmetry  : ATOM
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.H         0.000000    0.000000    0.000000
+<Dec01-2015> <15:14:13>  >>>> CORORT
+<Dec01-2015> <15:14:13>  >>>> CLSMAT
+<Dec01-2015> <15:14:13>  >>>> ORTHON
+<Dec01-2015> <15:14:13>  >>>> GENPT
+<Dec01-2015> <15:14:13>  Block Length=  64
+<Dec01-2015> <15:14:13>  >>>> PTBAS
+<Dec01-2015> <15:14:13>  >>>> CYCLE
+<Dec01-2015> <15:14:13>    1
+<Dec01-2015> <15:14:13>    2  ErrMat   0.04599043  MaxEl -0.04581380
+<Dec01-2015> <15:14:13>    3  ErrMat   0.01042691  MaxEl  0.01001652
+<Dec01-2015> <15:14:13>    4  ErrMat   0.00029286  MaxEl  0.00021096
+<Dec01-2015> <15:14:13>    5  ErrMat   0.00000895  MaxEl  0.00000721
+<Dec01-2015> <15:14:13>    6  ErrMat   0.00000002  MaxEl -0.00000002
+<Dec01-2015> <15:14:13>    7  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <15:14:13>  SCF converged
+<Dec01-2015> <15:14:13>    8  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <15:14:13>   Solutions with partially occupied orbitals may not be
+<Dec01-2015> <15:14:13>   lowest in energy. You might consider lowering the
+<Dec01-2015> <15:14:13>   symmetry in the input and explicitly specifying integer
+<Dec01-2015> <15:14:13>   occupations. In that case always check that you obtain
+<Dec01-2015> <15:14:13>   an aufbau solution.
+<Dec01-2015> <15:14:13>  >>>> POPAN
+<Dec01-2015> <15:14:13>  >>>> DEBYE
+<Dec01-2015> <15:14:13>  NORMAL TERMINATION
+<Dec01-2015> <15:14:13>  END
+<Dec01-2015> <15:14:13>  ADF 2014  RunTime: Dec01-2015 15:14:13  Nodes: 1  Procs: 1
+<Dec01-2015> <15:14:13>  Nitrogen (TZP, 1s frozen)
+<Dec01-2015> <15:14:13>  RunType   : CREATE
+<Dec01-2015> <15:14:14>  Net Charge: 0 (Nuclei minus Electrons)
+<Dec01-2015> <15:14:14>  Symmetry  : ATOM
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.N         0.000000    0.000000    0.000000
+<Dec01-2015> <15:14:14>  >>>> CORORT
+<Dec01-2015> <15:14:14>  >>>> CLSMAT
+<Dec01-2015> <15:14:14>  >>>> ORTHON
+<Dec01-2015> <15:14:14>  >>>> GENPT
+<Dec01-2015> <15:14:14>  Block Length=  68
+<Dec01-2015> <15:14:14>  >>>> PTBAS
+<Dec01-2015> <15:14:14>  >>>> CYCLE
+<Dec01-2015> <15:14:14>    1
+<Dec01-2015> <15:14:14>    2  ErrMat   2.74606693  MaxEl -1.79454153
+<Dec01-2015> <15:14:14>    3  ErrMat   1.57363192  MaxEl  1.18790691
+<Dec01-2015> <15:14:14>    4  ErrMat   1.10520876  MaxEl  0.81171226
+<Dec01-2015> <15:14:14>    5  ErrMat   0.68732520  MaxEl  0.50145022
+<Dec01-2015> <15:14:14>    6  ErrMat   0.01108521  MaxEl  0.00796013
+<Dec01-2015> <15:14:14>    7  ErrMat   0.00000963  MaxEl  0.00000603
+<Dec01-2015> <15:14:14>    8  ErrMat   0.00000218  MaxEl -0.00000149
+<Dec01-2015> <15:14:14>    9  ErrMat   0.00000002  MaxEl  0.00000001
+<Dec01-2015> <15:14:14>  SCF converged
+<Dec01-2015> <15:14:14>   10  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <15:14:14>   Solutions with partially occupied orbitals may not be
+<Dec01-2015> <15:14:14>   lowest in energy. You might consider lowering the
+<Dec01-2015> <15:14:14>   symmetry in the input and explicitly specifying integer
+<Dec01-2015> <15:14:14>   occupations. In that case always check that you obtain
+<Dec01-2015> <15:14:14>   an aufbau solution.
+<Dec01-2015> <15:14:14>  >>>> POPAN
+<Dec01-2015> <15:14:14>  >>>> DEBYE
+<Dec01-2015> <15:14:14>  NORMAL TERMINATION
+<Dec01-2015> <15:14:14>  END
+<Dec01-2015> <15:14:14>  ADF 2014  RunTime: Dec01-2015 15:14:14  Nodes: 1  Procs: 8
+<Dec01-2015> <15:14:15>  NH3
+<Dec01-2015> <15:14:15>  RunType   : SINGLE POINT
+<Dec01-2015> <15:14:15>  Net Charge: 0 (Nuclei minus Electrons)
+<Dec01-2015> <15:14:15>  Symmetry  : C(3V)
+<Dec01-2015> <15:14:15>  >>>> FRAGM
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.N         0.000000    0.000000    0.000000
+   2.H         0.472858    0.819015    0.382100
+   3.H        -0.945717    0.000000    0.382100
+   4.H         0.472858   -0.819015    0.382100
+<Dec01-2015> <15:14:15>  >>>> CORORT
+<Dec01-2015> <15:14:15>  >>>> CLSMAT
+<Dec01-2015> <15:14:15>  >>>> ORTHON
+<Dec01-2015> <15:14:15>  >>>> GENPT
+<Dec01-2015> <15:14:15>  Block Length= 127
+<Dec01-2015> <15:14:15>  >>>> PTBAS
+<Dec01-2015> <15:14:15>  >>>> CYCLE
+<Dec01-2015> <15:14:15>    1
+<Dec01-2015> <15:14:15>    2  ErrMat   0.91936847  MaxEl  0.37404238
+<Dec01-2015> <15:14:15>    3  ErrMat   0.41275605  MaxEl  0.17004433
+<Dec01-2015> <15:14:15>    4  ErrMat   0.10902068  MaxEl -0.04487959
+<Dec01-2015> <15:14:15>    5  ErrMat   0.00293277  MaxEl  0.00164377
+<Dec01-2015> <15:14:15>    6  ErrMat   0.00049231  MaxEl -0.00027232
+<Dec01-2015> <15:14:15>    7  ErrMat   0.00006868  MaxEl -0.00003158
+<Dec01-2015> <15:14:15>    8  ErrMat   0.00000480  MaxEl  0.00000189
+<Dec01-2015> <15:14:15>    9  ErrMat   0.00000009  MaxEl -0.00000004
+<Dec01-2015> <15:14:15>  SCF converged
+<Dec01-2015> <15:14:15>   10  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <15:14:15>  >>>> TOTEN
+<Dec01-2015> <15:14:15>  >>>> POPAN
+<Dec01-2015> <15:14:15>  >>>> DEBYE
+<Dec01-2015> <15:14:15>  >>>> AMETS
+<Dec01-2015> <15:14:15>   Bond Energy          -0.74399276 a.u.
+<Dec01-2015> <15:14:15>   Bond Energy         -20.24507312 eV
+<Dec01-2015> <15:14:15>   Bond Energy        -466.86       kcal/mol
+<Dec01-2015> <15:14:15>  >>>> POPUL
+<Dec01-2015> <15:14:15>  NORMAL TERMINATION
+<Dec01-2015> <15:14:15>  END

@@ -1,0 +1,393 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.cli.pmg &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.cli.pmg</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.cli.pmg</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A master convenience script with many tools for vasp and structure analysis.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span><span class="p">,</span> <span class="n">tabulate_formats</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">SETTINGS</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Potcar</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_analyze</span> <span class="kn">import</span> <span class="n">analyze</span>
+<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_config</span> <span class="kn">import</span> <span class="n">configure_pmg</span>
+<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_potcar</span> <span class="kn">import</span> <span class="n">generate_potcar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_plot</span> <span class="kn">import</span> <span class="n">plot</span>
+<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_structure</span> <span class="kn">import</span> <span class="n">analyze_structures</span>
+<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_query</span> <span class="kn">import</span> <span class="n">do_query</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">__version__</span>
+
+
+<div class="viewcode-block" id="parse_view"><a class="viewcode-back" href="../../../pymatgen.cli.pmg.html#pymatgen.cli.pmg.parse_view">[docs]</a><span class="k">def</span> <span class="nf">parse_view</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Handle view commands.</span>
+
+<span class="sd">    :param args: Args from command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pymatgen.vis.structure_vtk</span> <span class="kn">import</span> <span class="n">StructureVis</span>
+    <span class="n">excluded_bonding_elements</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">exclude_bonding</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> \
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">exclude_bonding</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">filename</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">vis</span> <span class="o">=</span> <span class="n">StructureVis</span><span class="p">(</span><span class="n">excluded_bonding_elements</span><span class="o">=</span><span class="n">excluded_bonding_elements</span><span class="p">)</span>
+    <span class="n">vis</span><span class="o">.</span><span class="n">set_structure</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">vis</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="diff_incar"><a class="viewcode-back" href="../../../pymatgen.cli.pmg.html#pymatgen.cli.pmg.diff_incar">[docs]</a><span class="k">def</span> <span class="nf">diff_incar</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Handle diff commands.</span>
+
+<span class="sd">    :param args: Args from command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filepath1</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">incars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">filepath2</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">incars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">incar1</span> <span class="o">=</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">filepath1</span><span class="p">)</span>
+    <span class="n">incar2</span> <span class="o">=</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">filepath2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">format_lists</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">*</span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">group</span><span class="p">)),</span> <span class="n">i</span><span class="p">)</span>
+                             <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">v</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">v</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="n">incar1</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">incar2</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;SAME PARAMS&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;---------------&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">],</span>
+              <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;DIFFERENT PARAMS&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">],</span>
+              <span class="p">[</span><span class="s1">&#39;----------------&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]]</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="n">format_lists</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Same&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]),</span> <span class="n">format_lists</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Same&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]))</span>
+                   <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Same&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;SYSTEM&quot;</span><span class="p">])</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="n">format_lists</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Different&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;INCAR1&#39;</span><span class="p">]),</span>
+                    <span class="n">format_lists</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Different&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;INCAR2&#39;</span><span class="p">]))</span>
+                   <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Different&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;SYSTEM&quot;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filepath1</span><span class="p">,</span> <span class="n">filepath2</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../pymatgen.cli.pmg.html#pymatgen.cli.pmg.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Handle main.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    pmg is a convenient script that uses pymatgen to perform many</span>
+<span class="s2">    analyses, plotting and format conversions. This script works based on</span>
+<span class="s2">    several sub-commands with their own options. To see the options for the</span>
+<span class="s2">    sub-commands, type &quot;pmg sub-command -h&quot;.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Version: </span><span class="si">{}</span><span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">__version__</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">()</span>
+
+    <span class="n">parser_config</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Tools for configuring pymatgen, e.g., &quot;</span>
+                       <span class="s2">&quot;potcar setup, modifying .pmgrc.yaml &quot;</span>
+                       <span class="s2">&quot;configuration file.&quot;</span><span class="p">)</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">parser_config</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">groups</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--potcar&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;potcar_dirs&quot;</span><span class="p">,</span>
+                        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;dir_name&quot;</span><span class="p">,</span>
+                        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Initial directory where downloaded VASP &quot;</span>
+                             <span class="s2">&quot;POTCARs are extracted to, and the &quot;</span>
+                             <span class="s2">&quot;output directory where the reorganized &quot;</span>
+                             <span class="s2">&quot;potcars will be stored. The input &quot;</span>
+                             <span class="s2">&quot;directory should be &quot;</span>
+                             <span class="s2">&quot;the parent directory that contains the &quot;</span>
+                             <span class="s2">&quot;POT_GGA_PAW_PBE or potpaw_PBE type &quot;</span>
+                             <span class="s2">&quot;subdirectories.&quot;</span><span class="p">)</span>
+    <span class="n">groups</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--install&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;install&quot;</span><span class="p">,</span>
+                        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;package_name&quot;</span><span class="p">,</span>
+                        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;enumlib&quot;</span><span class="p">,</span> <span class="s2">&quot;bader&quot;</span><span class="p">],</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Install various optional command line &quot;</span>
+                             <span class="s2">&quot;tools needed for full functionality.&quot;</span><span class="p">)</span>
+
+    <span class="n">groups</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;--add&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;var_spec&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Variables to add in the form of space &quot;</span>
+                             <span class="s2">&quot;separated key value pairs. E.g., &quot;</span>
+                             <span class="s2">&quot;PMG_VASP_PSP_DIR ~/psps&quot;</span><span class="p">)</span>
+    <span class="n">parser_config</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">configure_pmg</span><span class="p">)</span>
+
+    <span class="n">parser_analyze</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="s2">&quot;analyze&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Vasp calculation analysis tools.&quot;</span><span class="p">)</span>
+    <span class="n">parser_analyze</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;directories&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;dir&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+                                <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+                                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;directory to process (default to .)&quot;</span><span class="p">)</span>
+    <span class="n">parser_analyze</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="s2">&quot;--energies&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;get_energies&quot;</span><span class="p">,</span>
+                                <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print energies&quot;</span><span class="p">)</span>
+    <span class="n">parser_analyze</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;--mag&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;ion_list&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print magmoms. ION LIST can be a range &quot;</span>
+             <span class="s2">&quot;(e.g., 1-2) or the string &#39;All&#39; for all ions.&quot;</span><span class="p">)</span>
+    <span class="n">parser_analyze</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--reanalyze&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;reanalyze&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Force reanalysis. Typically, vasp_analyzer&quot;</span>
+             <span class="s2">&quot; will just reuse a vasp_analyzer_data.gz if &quot;</span>
+             <span class="s2">&quot;present. This forces the analyzer to reanalyze &quot;</span>
+             <span class="s2">&quot;the data.&quot;</span><span class="p">)</span>
+    <span class="n">parser_analyze</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="s2">&quot;--format&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;format&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">tabulate_formats</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Format for table. Supports all options in tabulate package.&quot;</span><span class="p">)</span>
+    <span class="n">parser_analyze</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Verbose mode. Provides detailed output on progress.&quot;</span><span class="p">)</span>
+    <span class="n">parser_analyze</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-q&quot;</span><span class="p">,</span> <span class="s2">&quot;--quick&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;quick&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Faster mode, but less detailed information. Parses individual vasp files.&quot;</span><span class="p">)</span>
+    <span class="n">parser_analyze</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--sort&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;sort&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;energy_per_atom&quot;</span><span class="p">,</span> <span class="s2">&quot;filename&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;energy_per_atom&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Sort criteria. Defaults to energy / atom.&quot;</span><span class="p">)</span>
+    <span class="n">parser_analyze</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">analyze</span><span class="p">)</span>
+
+    <span class="n">parser_query</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="s2">&quot;query&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Search for structures and data from the Materials Project.&quot;</span><span class="p">)</span>
+    <span class="n">parser_query</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;criteria&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;criteria&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Search criteria. Supported formats in formulas, chemical &quot;</span>
+             <span class="s2">&quot;systems, Materials Project ids, etc.&quot;</span><span class="p">)</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">parser_query</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--structure&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;structure&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;format&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;poscar&quot;</span><span class="p">,</span> <span class="s2">&quot;cif&quot;</span><span class="p">,</span> <span class="s2">&quot;cssr&quot;</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Get structures from Materials Project and write them to a &quot;</span>
+             <span class="s2">&quot;specified format.&quot;</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="s2">&quot;--entries&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;entries&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Get entries from Materials Project and write them to &quot;</span>
+             <span class="s2">&quot;serialization file. JSON and YAML supported.&quot;</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--data&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;fields&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print a summary of entries in the Materials Project satisfying &quot;</span>
+             <span class="s2">&quot;the criteria. Supply field names to include additional data. &quot;</span>
+             <span class="s2">&quot;By default, the Materials Project id, formula, spacegroup, &quot;</span>
+             <span class="s2">&quot;energy per atom, energy above hull are shown.&quot;</span><span class="p">)</span>
+    <span class="n">parser_query</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">do_query</span><span class="p">)</span>
+
+    <span class="n">parser_plot</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;plot&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Plotting tool for &quot;</span>
+                                                     <span class="s2">&quot;DOS, CHGCAR, XRD, etc.&quot;</span><span class="p">)</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">parser_plot</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--dos&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;dos_file&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;vasprun.xml&quot;</span><span class="p">,</span>
+                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Plot DOS from a vasprun.xml&quot;</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--chgint&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;chgcar_file&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;CHGCAR&quot;</span><span class="p">,</span>
+                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate charge integration plots from any &quot;</span>
+                            <span class="s2">&quot;CHGCAR&quot;</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-x&#39;</span><span class="p">,</span> <span class="s1">&#39;--xrd&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;xrd_structure_file&quot;</span><span class="p">,</span>
+                       <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;structure_file&quot;</span><span class="p">,</span>
+                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate XRD plots from any supported structure &quot;</span>
+                            <span class="s2">&quot;file, e.g., CIF, POSCAR, vasprun.xml, etc.&quot;</span><span class="p">)</span>
+
+    <span class="n">parser_plot</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--site&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;site&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span>
+                             <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Plot site projected DOS&quot;</span><span class="p">)</span>
+    <span class="n">parser_plot</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="s2">&quot;--element&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;element&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                             <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List of elements to plot as comma-separated&quot;</span>
+                                  <span class="s2">&quot; values e.g., Fe,Mn&quot;</span><span class="p">)</span>
+    <span class="n">parser_plot</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--orbital&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;orbital&quot;</span><span class="p">,</span>
+                             <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Plot orbital projected DOS&quot;</span><span class="p">)</span>
+
+    <span class="n">parser_plot</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--indices&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;inds&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                             <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Comma-separated list of indices to plot &quot;</span>
+                                  <span class="s2">&quot;charge integration, e.g., 1,2,3,4. If not &quot;</span>
+                                  <span class="s2">&quot;provided, the code will plot the chgint &quot;</span>
+                                  <span class="s2">&quot;for all symmetrically distinct atoms &quot;</span>
+                                  <span class="s2">&quot;detected.&quot;</span><span class="p">)</span>
+    <span class="n">parser_plot</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--radius&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;radius&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                             <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Radius of integration for charge &quot;</span>
+                                  <span class="s2">&quot;integration plot.&quot;</span><span class="p">)</span>
+    <span class="n">parser_plot</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--out_file&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;out_file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Save plot to file instead of displaying.&quot;</span><span class="p">)</span>
+    <span class="n">parser_plot</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">plot</span><span class="p">)</span>
+
+    <span class="n">parser_structure</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="s2">&quot;structure&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Structure conversion and analysis tools.&quot;</span><span class="p">)</span>
+
+    <span class="n">parser_structure</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="s2">&quot;--filenames&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;filenames&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List of structure files.&quot;</span><span class="p">)</span>
+
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">parser_structure</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">groups</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot;--convert&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;convert&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Convert from structure file 1 to structure &quot;</span>
+                             <span class="s2">&quot;file 2. Format determined from filename. &quot;</span>
+                             <span class="s2">&quot;Supported formats include POSCAR/CONTCAR, &quot;</span>
+                             <span class="s2">&quot;CIF, CSSR, etc. If the keyword&#39;prim&#39; is within &quot;</span>
+                             <span class="s2">&quot;the filename, the code will automatically attempt &quot;</span>
+                             <span class="s2">&quot;to find a primitive cell.&quot;</span><span class="p">)</span>
+    <span class="n">groups</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--symmetry&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;symmetry&quot;</span><span class="p">,</span>
+                        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;tolerance&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Determine the spacegroup using the &quot;</span>
+                             <span class="s2">&quot;specified tolerance. 0.1 is usually a good &quot;</span>
+                             <span class="s2">&quot;value for DFT calculations.&quot;</span><span class="p">)</span>
+    <span class="n">groups</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-g&quot;</span><span class="p">,</span> <span class="s2">&quot;--group&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;group&quot;</span><span class="p">,</span>
+                        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;element&quot;</span><span class="p">,</span> <span class="s2">&quot;species&quot;</span><span class="p">],</span>
+                        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Compare a set of structures for similarity. &quot;</span>
+                             <span class="s2">&quot;Element mode does not compare oxidation states. &quot;</span>
+                             <span class="s2">&quot;Species mode will take into account oxidations &quot;</span>
+                             <span class="s2">&quot;states.&quot;</span><span class="p">)</span>
+    <span class="n">groups</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-l&quot;</span><span class="p">,</span> <span class="s2">&quot;--localenv&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;localenv&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Local environment analysis. Provide bonds in the format of&quot;</span>
+             <span class="s2">&quot;Center Species-Ligand Species=max_dist, e.g., H-O=0.5.&quot;</span><span class="p">)</span>
+
+    <span class="n">parser_structure</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">analyze_structures</span><span class="p">)</span>
+
+    <span class="n">parser_view</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;view&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Visualize structures&quot;</span><span class="p">)</span>
+    <span class="n">parser_view</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                             <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filename&quot;</span><span class="p">)</span>
+    <span class="n">parser_view</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="s2">&quot;--exclude_bonding&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;exclude_bonding&quot;</span><span class="p">,</span>
+                             <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List of elements to exclude from bonding &quot;</span>
+                                  <span class="s2">&quot;analysis. E.g., Li,Na&quot;</span><span class="p">)</span>
+    <span class="n">parser_view</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">parse_view</span><span class="p">)</span>
+
+    <span class="n">parser_diff</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="s2">&quot;diff&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Diffing tool. For now, only INCAR supported.&quot;</span><span class="p">)</span>
+    <span class="n">parser_diff</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--incar&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;incars&quot;</span><span class="p">,</span>
+                             <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;INCAR&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                             <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List of INCARs to compare.&quot;</span><span class="p">)</span>
+    <span class="n">parser_diff</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">diff_incar</span><span class="p">)</span>
+
+    <span class="n">parser_potcar</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;potcar&quot;</span><span class="p">,</span>
+                                          <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate POTCARs&quot;</span><span class="p">)</span>
+    <span class="n">parser_potcar</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="s2">&quot;--functional&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;functional&quot;</span><span class="p">,</span>
+                               <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                               <span class="n">choices</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">Potcar</span><span class="o">.</span><span class="n">FUNCTIONAL_CHOICES</span><span class="p">),</span>
+                               <span class="n">default</span><span class="o">=</span><span class="n">SETTINGS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PMG_DEFAULT_FUNCTIONAL&quot;</span><span class="p">,</span>
+                                                    <span class="s2">&quot;PBE&quot;</span><span class="p">),</span>
+                               <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Functional to use. Unless otherwise &quot;</span>
+                                    <span class="s2">&quot;stated (e.g., US), &quot;</span>
+                                    <span class="s2">&quot;refers to PAW psuedopotential.&quot;</span><span class="p">)</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">parser_potcar</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--symbols&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;symbols&quot;</span><span class="p">,</span>
+                       <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List of POTCAR symbols. Use -f to set &quot;</span>
+                            <span class="s2">&quot;functional. Defaults to PBE.&quot;</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--recursive&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;recursive&quot;</span><span class="p">,</span>
+                       <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Dirname to find and generate from POTCAR.spec.&quot;</span><span class="p">)</span>
+    <span class="n">parser_potcar</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">generate_potcar</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">argcomplete</span>
+        <span class="n">argcomplete</span><span class="o">.</span><span class="n">autocomplete</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="c1"># argcomplete not present.</span>
+        <span class="k">pass</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;func&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.cli.pmg</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

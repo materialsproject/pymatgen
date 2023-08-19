@@ -1,0 +1,75 @@
+$comment
+ ammonia doublet anion B3LYP/6-31+G* single point energy  Gas Phase
+$end
+
+
+$molecule
+ -1  2
+ N          -0.00017869        0.00010707        0.20449990
+ H           0.89201838        0.20268122       -0.29656572
+ H          -0.62191133        0.67135171       -0.29649162
+ H          -0.26987729       -0.87406458       -0.29659779
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+       blas3_dft = 1
+  max_scf_cycles = 100
+      mem_static = 800
+       mem_total = 7200
+  parallel_tasks = 4
+        pdiag_on = 1
+   scf_algorithm = diis
+$end
+
+
+@@@
+
+
+$comment
+ Solution Phase, water
+$end
+
+
+$molecule
+ -1  2
+ N          -0.00017869        0.00010707        0.20449990
+ H           0.89201838        0.20268122       -0.29656572
+ H          -0.62191133        0.67135171       -0.29649162
+ H          -0.26987729       -0.87406458       -0.29659779
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+       blas3_dft = 1
+  max_scf_cycles = 100
+      mem_static = 800
+       mem_total = 7200
+  parallel_tasks = 4
+        pdiag_on = 1
+   scf_algorithm = diis
+       scf_guess = read
+  solvent_method = pcm
+$end
+
+
+$pcm
+  heavypoints   194
+      hpoints   194
+        radii   uff
+       sasrad   0.0
+       theory   ssvpe
+     vdwscale   1.1
+$end
+
+
+$pcm_solvent
+  dielectric   78.3553
+$end
+

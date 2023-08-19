@@ -1,0 +1,65 @@
+$molecule
+ 0  1
+ S          -0.00250959       -0.05817469       -0.02921636
+ C           1.70755408       -0.03033788       -0.01382912
+ H           2.24317221       -0.05215019        0.92026728
+ C           2.21976393        0.01718014       -1.27293235
+ H           3.27786220        0.04082146       -1.48539646
+ C           1.20867399        0.04478540       -2.27007793
+ H           1.40292257        0.10591684       -3.33110912
+ C          -0.05341046        0.01577217       -1.74839343
+ C          -1.32843436        0.03545064       -2.45531187
+ C          -1.55195156        0.08743920       -3.80184635
+ H          -0.75245172        0.10267657       -4.52817967
+ C          -2.93293778        0.08408786       -4.13352169
+ H          -3.31125108        0.11340328       -5.14405819
+ C          -3.73173288        0.02741365       -3.03412864
+ H          -4.80776535        0.00535688       -2.99564645
+ S          -2.81590978       -0.00516172       -1.58990580
+$end
+
+
+$rem
+              jobtype = opt
+               method = wb97m-v
+                basis = def2-tzvppd
+           gen_scfman = true
+  geom_opt_max_cycles = 75
+       max_scf_cycles = 300
+        scf_algorithm = diis
+            scf_guess = sad
+           sym_ignore = true
+             symmetry = false
+               thresh = 14
+$end
+
+
+$opt
+CONSTRAINT
+tors 6 8 9 10 0.0
+ENDCONSTRAINT
+$end
+
+
+@@@
+
+
+$molecule
+ read
+$end
+
+
+$rem
+              jobtype = sp
+               method = wb97m-v
+                basis = def2-tzvppd
+           gen_scfman = true
+  geom_opt_max_cycles = 75
+       max_scf_cycles = 300
+        scf_algorithm = diis
+            scf_guess = read
+           sym_ignore = true
+             symmetry = false
+               thresh = 14
+$end
+

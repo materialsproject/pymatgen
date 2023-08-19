@@ -1,0 +1,310 @@
+cn:
+  norm:
+    1
+sgl_bd:
+bent:
+  TA:
+    1
+  IGW_TA:
+    8.667
+T:
+  IGW_EP:
+    15.5
+  fac_AA:
+    1
+  exp_cos_AA:
+    2
+see_saw_rect:
+  min_SPP:
+    2.356194490192345
+  IGW_SPP:
+    11.5
+  IGW_EP:
+    27
+  fac_AA:
+    2
+  exp_cos_AA:
+    2
+tet_max:
+  IGW_TA:
+    18.5
+  TA:
+    0.6081734479693927
+  fac_AA:
+    1.5
+  exp_cos_AA:
+    2
+tet:
+  IGW_TA:
+    15
+  TA:
+    0.6081734479693927
+  fac_AA:
+    1.5
+  exp_cos_AA:
+    2
+oct_max:
+  min_SPP:
+    2.356194490192345
+  IGW_SPP:
+    15
+  IGW_EP:
+    18
+  w_SPP:
+    1
+  fac_AA:
+    2
+  exp_cos_AA:
+    2
+oct:
+  min_SPP:
+    2.792526803190927
+  IGW_SPP:
+    15
+  IGW_EP:
+    18
+  w_SPP:
+    3
+  fac_AA:
+    2
+  exp_cos_AA:
+    2
+bcc:
+  min_SPP:
+    2.5261129449194057
+  IGW_SPP:
+    15
+  w_SPP:
+    6
+tri_plan:
+  IGW_TA:
+    13.5
+  TA:
+    0.66666666667
+  fac_AA:
+    1
+  exp_cos_AA:
+    2
+tri_plan_max:
+  IGW_TA:
+    17.5
+  TA:
+    0.66666666667
+  fac_AA:
+    1
+  exp_cos_AA:
+    2
+sq_plan:
+  min_SPP:
+    2.792526803190927
+  IGW_SPP:
+    15
+  IGW_EP:
+    18
+  w_SPP:
+    1
+  fac_AA:
+    1
+  exp_cos_AA:
+    2
+sq_plan_max:
+  min_SPP:
+    2.356194490192345
+  IGW_SPP:
+    13.5
+  IGW_EP:
+    17.7
+  w_SPP:
+    1
+  fac_AA:
+    1
+  exp_cos_AA:
+    2
+pent_plan:
+  TA:
+    0.6
+  IGW_TA:
+    18
+pent_plan_max:
+  TA:
+    0.6
+  IGW_TA:
+    19.333
+tri_pyr:
+  IGW_EP:
+    15.5
+  fac_AA:
+    1.5
+  exp_cos_AA:
+    2
+sq_pyr:
+  IGW_EP:
+    14.9
+  fac_AA:
+    2
+  exp_cos_AA:
+    2
+pent_pyr:
+  IGW_EP:
+    13.8
+  fac_AA:
+    2.5
+  exp_cos_AA:
+    2
+hex_pyr:
+  IGW_EP:
+    12.5
+  fac_AA:
+    3
+  exp_cos_AA:
+    2
+tri_bipyr:
+  min_SPP:
+    2.356194490192345
+  IGW_SPP:
+    12
+  IGW_EP:
+    16.6
+  fac_AA:
+    1.5
+  exp_cos_AA:
+    2
+  w_SPP:
+    1
+sq_bipyr:
+  min_SPP:
+    2.356194490192345
+  IGW_SPP:
+    15
+  IGW_EP:
+    18
+  fac_AA:
+    2
+  exp_cos_AA:
+    2
+  w_SPP:
+    1
+pent_bipyr:
+  min_SPP:
+    2.356194490192345
+  IGW_SPP:
+    12.5
+  IGW_EP:
+    14.75
+  fac_AA:
+    2.5
+  exp_cos_AA:
+    2
+  w_SPP:
+    1
+hex_bipyr:
+  min_SPP:
+    2.356194490192345
+  IGW_SPP:
+    14.1
+  IGW_EP:
+    13.6
+  fac_AA:
+    3
+  exp_cos_AA:
+    2
+  w_SPP:
+    1
+cuboct:
+  min_SPP:
+    2.792526803190927
+  IGW_SPP:
+    15
+  2:
+    1.8325957145940461
+  w_SPP:
+    1.8
+  4:
+    1.3089969389957472
+  5:
+    18
+  6:
+    18
+cuboct_max:
+  min_SPP:
+    2.792526803190927
+  IGW_SPP:
+    28.75
+  2:
+    1.8325957145940461
+  w_SPP:
+    1.8
+  4:
+    1.3089969389957472
+  5:
+    25.5
+  6:
+    31.25
+q2:
+q4:
+q6:
+reg_tri:
+  0:
+    45
+sq:
+  0:
+    30
+oct_legacy:
+  min_SPP:
+    2.792526803190927
+  IGW_SPP:
+    15
+  IGW_EP:
+    18
+  w_SPP:
+    3
+  fac_AA:
+    2
+  exp_cos_AA:
+    2
+  6:
+    0.25
+  7:
+    1.33333333
+sq_pyr_legacy:
+  TA:
+    0.5
+  IGW_TA:
+    30
+  2:
+    10
+hex_plan_max:
+  min_SPP:
+    2.6179938779914944
+  IGW_SPP:
+    7.5
+  w_SPP:
+    1
+  fac_AA:
+    1
+  exp_cos_AA:
+    2
+  IGW_TA:
+    25
+  TA: 0.16666667
+sq_face_cap_trig_pris:
+  TA1:
+    0.37662414278557504
+  TA2:
+    0.7728144741714951
+  TA3:
+    1.8055339573923717
+  IGW_TA1:
+    15.5
+  IGW_TA2:
+    13
+  fac_AA1:
+    2
+  exp_cos_AA1:
+    2
+  fac_AA2:
+    1
+  shift_AA2:
+    -0.7853981633974483
+  exp_cos_AA2:
+    2

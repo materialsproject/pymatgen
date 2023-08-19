@@ -1,0 +1,794 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.adsorption &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.adsorption</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.adsorption</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes used to enumerate surface sites</span>
+<span class="sd">and to find adsorption sites on slabs</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">vis</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">Delaunay</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">SymmOp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">in_coord_list_pbc</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="kn">import</span> <span class="n">VoronoiNN</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="kn">import</span> <span class="n">generate_all_slabs</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
+
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">patches</span>
+<span class="kn">from</span> <span class="nn">matplotlib.path</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Joseph Montoya&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2016, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Joseph Montoya&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Richard Tran&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;montoyjh@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;December 2, 2015&quot;</span>
+
+
+<div class="viewcode-block" id="AdsorbateSiteFinder"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder">[docs]</a><span class="k">class</span> <span class="nc">AdsorbateSiteFinder</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class finds adsorbate sites on slabs and generates</span>
+<span class="sd">    adsorbate structures according to user-defined criteria.</span>
+<span class="sd">    The algorithm for finding sites is essentially as follows:</span>
+<span class="sd">        1. Determine &quot;surface sites&quot; by finding those within</span>
+<span class="sd">            a height threshold along the miller index of the</span>
+<span class="sd">            highest site</span>
+<span class="sd">        2. Create a network of surface sites using the Delaunay</span>
+<span class="sd">            triangulation of the surface sites</span>
+<span class="sd">        3. Assign on-top, bridge, and hollow adsorption sites</span>
+<span class="sd">            at the nodes, edges, and face centers of the Del.</span>
+<span class="sd">            Triangulation</span>
+<span class="sd">        4. Generate structures from a molecule positioned at</span>
+<span class="sd">            these sites</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab</span><span class="p">,</span> <span class="n">selective_dynamics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">height</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">mi_vec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an AdsorbateSiteFinder object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            slab (Slab): slab object for which to find adsorbate sites</span>
+<span class="sd">            selective_dynamics (bool): flag for whether to assign</span>
+<span class="sd">                non-surface sites as fixed for selective dynamics</span>
+<span class="sd">            height (float): height criteria for selection of surface sites</span>
+<span class="sd">            mi_vec (3-D array-like): vector corresponding to the vector</span>
+<span class="sd">                concurrent with the miller index, this enables use with</span>
+<span class="sd">                slabs that have been reoriented, but the miller vector</span>
+<span class="sd">                must be supplied manually</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get surface normal from miller index</span>
+        <span class="k">if</span> <span class="n">mi_vec</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mvec</span> <span class="o">=</span> <span class="n">mi_vec</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mvec</span> <span class="o">=</span> <span class="n">get_mi_vec</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
+        <span class="n">slab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assign_site_properties</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">selective_dynamics</span><span class="p">:</span>
+            <span class="n">slab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assign_selective_dynamics</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slab</span> <span class="o">=</span> <span class="n">slab</span>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.from_bulk_and_miller"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.from_bulk_and_miller">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_bulk_and_miller</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">miller_index</span><span class="p">,</span> <span class="n">min_slab_size</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
+                             <span class="n">min_vacuum_size</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">max_normal_search</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">center_slab</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">selective_dynamics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                             <span class="n">undercoord_threshold</span><span class="o">=</span><span class="mf">0.09</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method constructs the adsorbate site finder from a bulk</span>
+<span class="sd">        structure and a miller index, which allows the surface sites</span>
+<span class="sd">        to be determined from the difference in bulk and slab coordination,</span>
+<span class="sd">        as opposed to the height threshold.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): structure from which slab</span>
+<span class="sd">                input to the ASF is constructed</span>
+<span class="sd">            miller_index (3-tuple or list): miller index to be used</span>
+<span class="sd">            min_slab_size (float): min slab size for slab generation</span>
+<span class="sd">            min_vacuum_size (float): min vacuum size for slab generation</span>
+<span class="sd">            max_normal_search (int): max normal search for slab generation</span>
+<span class="sd">            center_slab (bool): whether to center slab in slab generation</span>
+<span class="sd">            selective dynamics (bool): whether to assign surface sites</span>
+<span class="sd">                to selective dynamics</span>
+<span class="sd">            undercoord_threshold (float): threshold of &quot;undercoordation&quot;</span>
+<span class="sd">                to use for the assignment of surface sites.  Default is</span>
+<span class="sd">                0.1, for which surface sites will be designated if they</span>
+<span class="sd">                are 10% less coordinated than their bulk counterpart</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: for some reason this works poorly with primitive cells</span>
+        <span class="c1">#       may want to switch the coordination algorithm eventually</span>
+        <span class="n">vnn_bulk</span> <span class="o">=</span> <span class="n">VoronoiNN</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+        <span class="n">bulk_coords</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">vnn_bulk</span><span class="o">.</span><span class="n">get_nn</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+                       <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">))]</span>
+        <span class="n">struct</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">site_properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;bulk_coordinations&#39;</span><span class="p">:</span> <span class="n">bulk_coords</span><span class="p">})</span>
+        <span class="n">slabs</span> <span class="o">=</span> <span class="n">generate_all_slabs</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">max_index</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">miller_index</span><span class="p">),</span>
+                                   <span class="n">min_slab_size</span><span class="o">=</span><span class="n">min_slab_size</span><span class="p">,</span>
+                                   <span class="n">min_vacuum_size</span><span class="o">=</span><span class="n">min_vacuum_size</span><span class="p">,</span>
+                                   <span class="n">max_normal_search</span><span class="o">=</span><span class="n">max_normal_search</span><span class="p">,</span>
+                                   <span class="n">center_slab</span><span class="o">=</span><span class="n">center_slab</span><span class="p">)</span>
+
+        <span class="n">slab_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">slab</span><span class="o">.</span><span class="n">miller_index</span><span class="p">:</span> <span class="n">slab</span> <span class="k">for</span> <span class="n">slab</span> <span class="ow">in</span> <span class="n">slabs</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">miller_index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">slab_dict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Miller index not in slab dict&quot;</span><span class="p">)</span>
+
+        <span class="n">this_slab</span> <span class="o">=</span> <span class="n">slab_dict</span><span class="p">[</span><span class="n">miller_index</span><span class="p">]</span>
+
+        <span class="n">vnn_surface</span> <span class="o">=</span> <span class="n">VoronoiNN</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">allow_pathological</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">surf_props</span><span class="p">,</span> <span class="n">undercoords</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">this_mi_vec</span> <span class="o">=</span> <span class="n">get_mi_vec</span><span class="p">(</span><span class="n">this_slab</span><span class="p">)</span>
+        <span class="n">mi_mags</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">this_mi_vec</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">this_slab</span><span class="p">]</span>
+        <span class="n">average_mi_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">mi_mags</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">this_slab</span><span class="p">):</span>
+            <span class="n">bulk_coord</span> <span class="o">=</span> <span class="n">this_slab</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s1">&#39;bulk_coordinations&#39;</span><span class="p">][</span><span class="n">n</span><span class="p">]</span>
+            <span class="n">slab_coord</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vnn_surface</span><span class="o">.</span><span class="n">get_nn</span><span class="p">(</span><span class="n">this_slab</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+            <span class="n">mi_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">this_mi_vec</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+            <span class="n">undercoord</span> <span class="o">=</span> <span class="p">(</span><span class="n">bulk_coord</span> <span class="o">-</span> <span class="n">slab_coord</span><span class="p">)</span> <span class="o">/</span> <span class="n">bulk_coord</span>
+            <span class="n">undercoords</span> <span class="o">+=</span> <span class="p">[</span><span class="n">undercoord</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">undercoord</span> <span class="o">&gt;</span> <span class="n">undercoord_threshold</span> <span class="ow">and</span> <span class="n">mi_mag</span> <span class="o">&gt;</span> <span class="n">average_mi_mag</span><span class="p">:</span>
+                <span class="n">surf_props</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;surface&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">surf_props</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;subsurface&#39;</span><span class="p">]</span>
+        <span class="n">new_site_properties</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;surface_properties&#39;</span><span class="p">:</span> <span class="n">surf_props</span><span class="p">,</span>
+                               <span class="s1">&#39;undercoords&#39;</span><span class="p">:</span> <span class="n">undercoords</span><span class="p">}</span>
+        <span class="n">new_slab</span> <span class="o">=</span> <span class="n">this_slab</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">site_properties</span><span class="o">=</span><span class="n">new_site_properties</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">new_slab</span><span class="p">,</span> <span class="n">selective_dynamics</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.find_surface_sites_by_height"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_surface_sites_by_height">[docs]</a>    <span class="k">def</span> <span class="nf">find_surface_sites_by_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">xy_tol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method finds surface sites by determining which sites are within</span>
+<span class="sd">        a threshold value in height from the topmost site in a list of sites</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site_list (list): list of sites from which to select surface sites</span>
+<span class="sd">            height (float): threshold in angstroms of distance from topmost</span>
+<span class="sd">                site in slab along the slab c-vector to include in surface</span>
+<span class="sd">                site determination</span>
+<span class="sd">            xy_tol (float): if supplied, will remove any sites which are</span>
+<span class="sd">                within a certain distance in the miller plane.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list of sites selected to be within a threshold of the highest</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get projection of coordinates along the miller index</span>
+        <span class="n">m_projs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mvec</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">slab</span><span class="o">.</span><span class="n">sites</span><span class="p">])</span>
+
+        <span class="c1"># Mask based on window threshold along the miller index.</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">m_projs</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">m_projs</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="n">height</span>
+        <span class="n">surf_sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">slab</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">xy_tol</span><span class="p">:</span>
+            <span class="c1"># sort surface sites by height</span>
+            <span class="n">surf_sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">m_projs</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">surf_sites</span><span class="p">)]</span>
+            <span class="n">surf_sites</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+            <span class="n">unique_sites</span><span class="p">,</span> <span class="n">unique_perp_fracs</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">surf_sites</span><span class="p">:</span>
+                <span class="n">this_perp</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mvec</span><span class="p">)</span>
+                <span class="n">this_perp_frac</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">this_perp</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">in_coord_list_pbc</span><span class="p">(</span><span class="n">unique_perp_fracs</span><span class="p">,</span> <span class="n">this_perp_frac</span><span class="p">):</span>
+                    <span class="n">unique_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+                    <span class="n">unique_perp_fracs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_perp_frac</span><span class="p">)</span>
+            <span class="n">surf_sites</span> <span class="o">=</span> <span class="n">unique_sites</span>
+
+        <span class="k">return</span> <span class="n">surf_sites</span></div>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.assign_site_properties"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_site_properties">[docs]</a>    <span class="k">def</span> <span class="nf">assign_site_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.9</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assigns site properties.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;surface_properties&#39;</span> <span class="ow">in</span> <span class="n">slab</span><span class="o">.</span><span class="n">site_properties</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">slab</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">surf_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_surface_sites_by_height</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+        <span class="n">surf_props</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;surface&#39;</span> <span class="k">if</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">surf_sites</span>
+                      <span class="k">else</span> <span class="s1">&#39;subsurface&#39;</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">slab</span><span class="o">.</span><span class="n">sites</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">slab</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
+            <span class="n">site_properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;surface_properties&#39;</span><span class="p">:</span> <span class="n">surf_props</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.get_extended_surface_mesh"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.get_extended_surface_mesh">[docs]</a>    <span class="k">def</span> <span class="nf">get_extended_surface_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets an extended surface mesh for to use for adsorption</span>
+<span class="sd">        site finding by constructing supercell of surface sites</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            repeat (3-tuple): repeat for getting extended surface mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">surf_str</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_sites</span><span class="p">)</span>
+        <span class="n">surf_str</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">repeat</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">surf_str</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">surface_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        convenience method to return a list of surface sites</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">site</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">sites</span>
+                <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;surface_properties&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;surface&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.subsurface_sites"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.subsurface_sites">[docs]</a>    <span class="k">def</span> <span class="nf">subsurface_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        convenience method to return list of subsurface sites</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">site</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">sites</span>
+                <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;surface_properties&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;subsurface&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.find_adsorption_sites"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.find_adsorption_sites">[docs]</a>    <span class="k">def</span> <span class="nf">find_adsorption_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">put_inside</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                              <span class="n">symm_reduce</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">near_reduce</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span>
+                              <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ontop&#39;</span><span class="p">,</span> <span class="s1">&#39;bridge&#39;</span><span class="p">,</span> <span class="s1">&#39;hollow&#39;</span><span class="p">],</span>
+                              <span class="n">no_obtuse_hollow</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds surface sites according to the above algorithm.  Returns</span>
+<span class="sd">        a list of corresponding cartesian coordinates.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            distance (float): distance from the coordinating ensemble</span>
+<span class="sd">                of atoms along the miller index for the site (i. e.</span>
+<span class="sd">                the distance from the slab itself)</span>
+<span class="sd">            put_inside (bool): whether to put the site inside the cell</span>
+<span class="sd">            symm_reduce (float): symm reduction threshold</span>
+<span class="sd">            near_reduce (float): near reduction threshold</span>
+<span class="sd">            positions (list): which positions to include in the site finding</span>
+<span class="sd">                &quot;ontop&quot;: sites on top of surface sites</span>
+<span class="sd">                &quot;bridge&quot;: sites at edges between surface sites in Delaunay</span>
+<span class="sd">                    triangulation of surface sites in the miller plane</span>
+<span class="sd">                &quot;hollow&quot;: sites at centers of Delaunay triangulation faces</span>
+<span class="sd">                &quot;subsurface&quot;: subsurface positions projected into miller plane</span>
+<span class="sd">            no_obtuse_hollow (bool): flag to indicate whether to include</span>
+<span class="sd">                obtuse triangular ensembles in hollow sites</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ads_sites</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">}</span>
+        <span class="k">if</span> <span class="s1">&#39;ontop&#39;</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">:</span>
+            <span class="n">ads_sites</span><span class="p">[</span><span class="s1">&#39;ontop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_sites</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;subsurface&#39;</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">:</span>
+            <span class="c1"># Get highest site</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])]</span>
+            <span class="c1"># Project diff between highest site and subs site into miller</span>
+            <span class="n">ss_sites</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mvec</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="n">s</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mvec</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="n">s</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subsurface_sites</span><span class="p">()]</span>
+            <span class="n">ads_sites</span><span class="p">[</span><span class="s1">&#39;subsurface&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ss_sites</span>
+        <span class="k">if</span> <span class="s1">&#39;bridge&#39;</span> <span class="ow">in</span> <span class="n">positions</span> <span class="ow">or</span> <span class="s1">&#39;hollow&#39;</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">:</span>
+            <span class="n">mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_extended_surface_mesh</span><span class="p">()</span>
+            <span class="n">sop</span> <span class="o">=</span> <span class="n">get_rot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="p">)</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">Delaunay</span><span class="p">([</span><span class="n">sop</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mesh</span><span class="p">])</span>
+            <span class="c1"># TODO: refactor below to properly account for &gt;3-fold</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dt</span><span class="o">.</span><span class="n">simplices</span><span class="p">:</span>
+                <span class="k">if</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="n">dots</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">i_corner</span><span class="p">,</span> <span class="n">i_opp</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))):</span>
+                        <span class="n">corner</span><span class="p">,</span> <span class="n">opp</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="n">i_corner</span><span class="p">],</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="n">o</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">i_opp</span><span class="p">]</span>
+                        <span class="n">vecs</span> <span class="o">=</span> <span class="p">[</span><span class="n">mesh</span><span class="p">[</span><span class="n">d</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="n">mesh</span><span class="p">[</span><span class="n">corner</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">opp</span><span class="p">]</span>
+                        <span class="n">vecs</span> <span class="o">=</span> <span class="p">[</span><span class="n">vec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span> <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="n">vecs</span><span class="p">]</span>
+                        <span class="n">dots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="o">*</span><span class="n">vecs</span><span class="p">))</span>
+                        <span class="c1"># Add bridge sites at midpoints of edges of D. Tri</span>
+                        <span class="k">if</span> <span class="s1">&#39;bridge&#39;</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">:</span>
+                            <span class="n">ads_sites</span><span class="p">[</span><span class="s2">&quot;bridge&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">ensemble_center</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">opp</span><span class="p">))</span>
+                    <span class="c1"># Prevent addition of hollow sites in obtuse triangles</span>
+                    <span class="n">obtuse</span> <span class="o">=</span> <span class="n">no_obtuse_hollow</span> <span class="ow">and</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dots</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-5</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+                    <span class="c1"># Add hollow sites at centers of D. Tri faces</span>
+                    <span class="k">if</span> <span class="s1">&#39;hollow&#39;</span> <span class="ow">in</span> <span class="n">positions</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">obtuse</span><span class="p">:</span>
+                        <span class="n">ads_sites</span><span class="p">[</span><span class="s1">&#39;hollow&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ensemble_center</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sites</span> <span class="ow">in</span> <span class="n">ads_sites</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Pare off outer sites for bridge/hollow</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bridge&#39;</span><span class="p">,</span> <span class="s1">&#39;hollow&#39;</span><span class="p">]:</span>
+                <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">ads_site</span><span class="p">)</span>
+                               <span class="k">for</span> <span class="n">ads_site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">]</span>
+                <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">frac_coord</span> <span class="k">for</span> <span class="n">frac_coord</span> <span class="ow">in</span> <span class="n">frac_coords</span>
+                               <span class="k">if</span> <span class="p">(</span><span class="n">frac_coord</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">frac_coord</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">4</span>
+                                   <span class="ow">and</span> <span class="n">frac_coord</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">frac_coord</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">)]</span>
+                <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">frac_coord</span><span class="p">)</span>
+                         <span class="k">for</span> <span class="n">frac_coord</span> <span class="ow">in</span> <span class="n">frac_coords</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">near_reduce</span><span class="p">:</span>
+                <span class="n">sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">near_reduce</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">near_reduce</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">put_inside</span><span class="p">:</span>
+                <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">put_coord_inside</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="n">coord</span><span class="p">)</span>
+                         <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">symm_reduce</span><span class="p">:</span>
+                <span class="n">sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_reduce</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">symm_reduce</span><span class="p">)</span>
+            <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span> <span class="o">+</span> <span class="n">distance</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mvec</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">]</span>
+
+            <span class="n">ads_sites</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sites</span>
+        <span class="n">ads_sites</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ads_sites</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="p">[])</span>
+        <span class="k">return</span> <span class="n">ads_sites</span></div>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.symm_reduce"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.symm_reduce">[docs]</a>    <span class="k">def</span> <span class="nf">symm_reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords_set</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reduces the set of adsorbate sites by finding removing</span>
+<span class="sd">        symmetrically equivalent duplicates</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            coords_set: coordinate set in cartesian coordinates</span>
+<span class="sd">            threshold: tolerance for distance equivalence, used</span>
+<span class="sd">                as input to in_coord_list_pbc for dupl. checking</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">surf_sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">symm_ops</span> <span class="o">=</span> <span class="n">surf_sg</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">()</span>
+        <span class="n">unique_coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Convert to fractional</span>
+        <span class="n">coords_set</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+                      <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">coords_set</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">coords_set</span><span class="p">:</span>
+            <span class="n">incoord</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">symm_ops</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">in_coord_list_pbc</span><span class="p">(</span><span class="n">unique_coords</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">coords</span><span class="p">),</span>
+                                     <span class="n">atol</span><span class="o">=</span><span class="n">threshold</span><span class="p">):</span>
+                    <span class="n">incoord</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">incoord</span><span class="p">:</span>
+                <span class="n">unique_coords</span> <span class="o">+=</span> <span class="p">[</span><span class="n">coords</span><span class="p">]</span>
+        <span class="c1"># convert back to cartesian</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">unique_coords</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.near_reduce"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.near_reduce">[docs]</a>    <span class="k">def</span> <span class="nf">near_reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords_set</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prunes coordinate set for coordinates that are within</span>
+<span class="sd">        threshold</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            coords_set (Nx3 array-like): list or array of coordinates</span>
+<span class="sd">            threshold (float): threshold value for distance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unique_coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coords_set</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+                      <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">coords_set</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">coords_set</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">in_coord_list_pbc</span><span class="p">(</span><span class="n">unique_coords</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+                <span class="n">unique_coords</span> <span class="o">+=</span> <span class="p">[</span><span class="n">coord</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">unique_coords</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.ensemble_center"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.ensemble_center">[docs]</a>    <span class="k">def</span> <span class="nf">ensemble_center</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_list</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds the center of an ensemble of sites selected from</span>
+<span class="sd">        a list of sites.  Helper method for the find_adsorption_sites</span>
+<span class="sd">        algorithm.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site_list (list of sites): list of sites</span>
+<span class="sd">            indices (list of ints): list of ints from which to select</span>
+<span class="sd">                sites from site list</span>
+<span class="sd">            cartesian (bool): whether to get average fractional or</span>
+<span class="sd">                cartesian coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cartesian</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="n">site_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">],</span>
+                              <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="n">site_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">],</span>
+                              <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.add_adsorbate"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.add_adsorbate">[docs]</a>    <span class="k">def</span> <span class="nf">add_adsorbate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">ads_coord</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds an adsorbate at a particular coordinate.  Adsorbate</span>
+<span class="sd">        represented by a Molecule object and is translated to (0, 0, 0) if</span>
+<span class="sd">        translate is True, or positioned relative to the input adsorbate</span>
+<span class="sd">        coordinate if translate is False.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            molecule (Molecule): molecule object representing the adsorbate</span>
+<span class="sd">            ads_coord (array): coordinate of adsorbate position</span>
+<span class="sd">            repeat (3-tuple or list): input for making a supercell of slab</span>
+<span class="sd">                prior to placing the adsorbate</span>
+<span class="sd">            translate (bool): flag on whether to translate the molecule so</span>
+<span class="sd">                that its CoM is at the origin prior to adding it to the surface</span>
+<span class="sd">            reorient (bool): flag on whether to reorient the molecule to</span>
+<span class="sd">                have its z-axis concurrent with miller index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">molecule</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">translate</span><span class="p">:</span>
+            <span class="c1"># Translate the molecule so that the center of mass of the atoms</span>
+            <span class="c1"># that have the most negative z coordinate is at (0, 0, 0)</span>
+            <span class="n">front_atoms</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">front_atoms</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">sites</span>
+                                  <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="nb">min</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                                                         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">sites</span><span class="p">])]</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">front_atoms</span><span class="o">.</span><span class="n">center_of_mass</span>
+            <span class="n">molecule</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="n">vector</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="n">z</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">reorient</span><span class="p">:</span>
+            <span class="c1"># Reorient the molecule along slab m_index</span>
+            <span class="n">sop</span> <span class="o">=</span> <span class="n">get_rot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="p">)</span>
+            <span class="n">molecule</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">sop</span><span class="o">.</span><span class="n">inverse</span><span class="p">)</span>
+        <span class="n">struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">repeat</span><span class="p">:</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">repeat</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;surface_properties&#39;</span> <span class="ow">in</span> <span class="n">struct</span><span class="o">.</span><span class="n">site_properties</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">molecule</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s2">&quot;surface_properties&quot;</span><span class="p">,</span>
+                                       <span class="p">[</span><span class="s2">&quot;adsorbate&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">molecule</span><span class="o">.</span><span class="n">num_sites</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;selective_dynamics&#39;</span> <span class="ow">in</span> <span class="n">struct</span><span class="o">.</span><span class="n">site_properties</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">molecule</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s2">&quot;selective_dynamics&quot;</span><span class="p">,</span>
+                                       <span class="p">[[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">]]</span> <span class="o">*</span> <span class="n">molecule</span><span class="o">.</span><span class="n">num_sites</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">molecule</span><span class="p">:</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">ads_coord</span> <span class="o">+</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">struct</span></div>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.assign_selective_dynamics"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.assign_selective_dynamics">[docs]</a>    <span class="k">def</span> <span class="nf">assign_selective_dynamics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to assign selective dynamics site_properties</span>
+<span class="sd">        based on surface, subsurface site properties</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            slab (Slab): slab for which to assign selective dynamics</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sd_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sd_list</span> <span class="o">=</span> <span class="p">[[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span> <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;surface_properties&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;subsurface&#39;</span>
+                   <span class="k">else</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">slab</span><span class="o">.</span><span class="n">sites</span><span class="p">]</span>
+        <span class="n">new_sp</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">site_properties</span>
+        <span class="n">new_sp</span><span class="p">[</span><span class="s1">&#39;selective_dynamics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sd_list</span>
+        <span class="k">return</span> <span class="n">slab</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">site_properties</span><span class="o">=</span><span class="n">new_sp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.generate_adsorption_structures"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_adsorption_structures">[docs]</a>    <span class="k">def</span> <span class="nf">generate_adsorption_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_lw</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+                                       <span class="n">translate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">find_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function that generates all adsorption structures for a given</span>
+<span class="sd">        molecular adsorbate.  Can take repeat argument or minimum</span>
+<span class="sd">        length/width of precursor slab as an input</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            molecule (Molecule): molecule corresponding to adsorbate</span>
+<span class="sd">            repeat (3-tuple or list): repeat argument for supercell generation</span>
+<span class="sd">            min_lw (float): minimum length and width of the slab, only used</span>
+<span class="sd">                if repeat is None</span>
+<span class="sd">            translate (bool): flag on whether to translate the molecule so</span>
+<span class="sd">                that its CoM is at the origin prior to adding it to the surface</span>
+<span class="sd">            reorient (bool): flag on whether or not to reorient adsorbate</span>
+<span class="sd">                along the miller index</span>
+<span class="sd">            find_args (dict): dictionary of arguments to be passed to the</span>
+<span class="sd">                call to self.find_adsorption_sites, e.g. {&quot;distance&quot;:2.0}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">repeat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">xrep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">min_lw</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">yrep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">min_lw</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">repeat</span> <span class="o">=</span> <span class="p">[</span><span class="n">xrep</span><span class="p">,</span> <span class="n">yrep</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">structs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">find_args</span> <span class="o">=</span> <span class="n">find_args</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_adsorption_sites</span><span class="p">(</span><span class="o">**</span><span class="n">find_args</span><span class="p">)[</span><span class="s1">&#39;all&#39;</span><span class="p">]:</span>
+            <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_adsorbate</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span>
+                                              <span class="n">repeat</span><span class="o">=</span><span class="n">repeat</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="n">translate</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="n">reorient</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">structs</span></div>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.adsorb_both_surfaces"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces">[docs]</a>    <span class="k">def</span> <span class="nf">adsorb_both_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_lw</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+                             <span class="n">translate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">find_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function that generates all adsorption structures for a given</span>
+<span class="sd">        molecular adsorbate on both surfaces of a slab. This is useful</span>
+<span class="sd">        for calculating surface energy where both surfaces need to be</span>
+<span class="sd">        equivalent or if we want to calculate nonpolar systems.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            molecule (Molecule): molecule corresponding to adsorbate</span>
+<span class="sd">            repeat (3-tuple or list): repeat argument for supercell generation</span>
+<span class="sd">            min_lw (float): minimum length and width of the slab, only used</span>
+<span class="sd">                if repeat is None</span>
+<span class="sd">            reorient (bool): flag on whether or not to reorient adsorbate</span>
+<span class="sd">                along the miller index</span>
+<span class="sd">            find_args (dict): dictionary of arguments to be passed to the</span>
+<span class="sd">                call to self.find_adsorption_sites, e.g. {&quot;distance&quot;:2.0}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get the adsorbed surfaces first</span>
+        <span class="n">find_args</span> <span class="o">=</span> <span class="n">find_args</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">adslabs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_adsorption_structures</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="n">repeat</span><span class="p">,</span>
+                                                      <span class="n">min_lw</span><span class="o">=</span><span class="n">min_lw</span><span class="p">,</span>
+                                                      <span class="n">translate</span><span class="o">=</span><span class="n">translate</span><span class="p">,</span>
+                                                      <span class="n">reorient</span><span class="o">=</span><span class="n">reorient</span><span class="p">,</span>
+                                                      <span class="n">find_args</span><span class="o">=</span><span class="n">find_args</span><span class="p">)</span>
+
+        <span class="n">new_adslabs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">adslab</span> <span class="ow">in</span> <span class="n">adslabs</span><span class="p">:</span>
+
+            <span class="c1"># Find the adsorbate sites and indices in each slab</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">adsorbates</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">adslab</span><span class="o">.</span><span class="n">sites</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">surface_properties</span> <span class="o">==</span> <span class="s2">&quot;adsorbate&quot;</span><span class="p">:</span>
+                    <span class="n">adsorbates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+                    <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+            <span class="c1"># Start with the clean slab</span>
+            <span class="n">adslab</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+            <span class="n">slab</span> <span class="o">=</span> <span class="n">adslab</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="c1"># For each site, we add it back to the slab along with a</span>
+            <span class="c1"># symmetrically equivalent position on the other side of</span>
+            <span class="c1"># the slab using symmetry operations</span>
+            <span class="k">for</span> <span class="n">adsorbate</span> <span class="ow">in</span> <span class="n">adsorbates</span><span class="p">:</span>
+                <span class="n">p2</span> <span class="o">=</span> <span class="n">adslab</span><span class="o">.</span><span class="n">get_symmetric_site</span><span class="p">(</span><span class="n">adsorbate</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+                <span class="n">slab</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">adsorbate</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span>
+                            <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;surface_properties&quot;</span><span class="p">:</span> <span class="s2">&quot;adsorbate&quot;</span><span class="p">})</span>
+                <span class="n">slab</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">adsorbate</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">adsorbate</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                            <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;surface_properties&quot;</span><span class="p">:</span> <span class="s2">&quot;adsorbate&quot;</span><span class="p">})</span>
+            <span class="n">new_adslabs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_adslabs</span></div>
+
+<div class="viewcode-block" id="AdsorbateSiteFinder.generate_substitution_structures"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.generate_substitution_structures">[docs]</a>    <span class="k">def</span> <span class="nf">generate_substitution_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">,</span> <span class="n">target_species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                         <span class="n">sub_both_sides</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">range_tol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span>
+                                         <span class="n">dist_from_surf</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function that performs substitution-type doping on the surface and</span>
+<span class="sd">            returns all possible configurations where one dopant is substituted</span>
+<span class="sd">            per surface. Can substitute one surface or both.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            atom (str): atom corresponding to substitutional dopant</span>
+<span class="sd">            sub_both_sides (bool): If true, substitute an equivalent</span>
+<span class="sd">                site on the other surface</span>
+<span class="sd">            target_species (list): List of specific species to substitute</span>
+<span class="sd">            range_tol (float): Find viable substitution sites at a specific</span>
+<span class="sd">                distance from the surface +- this tolerance</span>
+<span class="sd">            dist_from_surf (float): Distance from the surface to find viable</span>
+<span class="sd">                substitution sites, defaults to 0 to substitute at the surface</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">target_species</span> <span class="o">=</span> <span class="n">target_species</span> <span class="ow">or</span> <span class="p">[]</span>
+
+        <span class="c1"># Get symmetrized structure in case we want to substitue both sides</span>
+        <span class="n">sym_slab</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="p">)</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+
+        <span class="c1"># Define a function for substituting a site</span>
+        <span class="k">def</span> <span class="nf">substitute</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+            <span class="n">slab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">site_properties</span>
+            <span class="k">if</span> <span class="n">sub_both_sides</span><span class="p">:</span>
+                <span class="c1"># Find an equivalent site on the other surface</span>
+                <span class="n">eq_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">indices</span> <span class="k">for</span> <span class="n">indices</span> <span class="ow">in</span>
+                              <span class="n">sym_slab</span><span class="o">.</span><span class="n">equivalent_indices</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">eq_indices</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sym_slab</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">!=</span> \
+                            <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                        <span class="n">props</span><span class="p">[</span><span class="s2">&quot;surface_properties&quot;</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;substitute&quot;</span>
+                        <span class="n">slab</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">atom</span><span class="p">)</span>
+                        <span class="k">break</span>
+
+            <span class="n">props</span><span class="p">[</span><span class="s2">&quot;surface_properties&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;substitute&quot;</span>
+            <span class="n">slab</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">atom</span><span class="p">)</span>
+            <span class="n">slab</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s2">&quot;surface_properties&quot;</span><span class="p">,</span>
+                                   <span class="n">props</span><span class="p">[</span><span class="s2">&quot;surface_properties&quot;</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">slab</span>
+
+        <span class="c1"># Get all possible substitution sites</span>
+        <span class="n">substituted_slabs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Sort sites so that we can define a range relative to the position of the</span>
+        <span class="c1"># surface atoms, i.e. search for sites above (below) the bottom (top) surface</span>
+        <span class="n">sorted_sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sym_slab</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">site</span><span class="p">:</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">sorted_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">surface_properties</span> <span class="o">==</span> <span class="s2">&quot;surface&quot;</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">sorted_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">dist_from_surf</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">sorted_sites</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">dist_from_surf</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sym_slab</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">d</span> <span class="o">-</span> <span class="n">range_tol</span> <span class="o">&lt;</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">d</span> <span class="o">+</span> <span class="n">range_tol</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">target_species</span> <span class="ow">and</span> <span class="n">site</span><span class="o">.</span><span class="n">species_string</span> <span class="ow">in</span> <span class="n">target_species</span><span class="p">:</span>
+                    <span class="n">substituted_slabs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">substitute</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">target_species</span><span class="p">:</span>
+                    <span class="n">substituted_slabs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">substitute</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+
+        <span class="n">matcher</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">matcher</span><span class="o">.</span><span class="n">group_structures</span><span class="p">(</span><span class="n">substituted_slabs</span><span class="p">)]</span></div></div>
+
+
+<div class="viewcode-block" id="get_mi_vec"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.get_mi_vec">[docs]</a><span class="k">def</span> <span class="nf">get_mi_vec</span><span class="p">(</span><span class="n">slab</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convenience function which returns the unit vector aligned</span>
+<span class="sd">    with the miller index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">mvec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">mvec</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_rot"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.get_rot">[docs]</a><span class="k">def</span> <span class="nf">get_rot</span><span class="p">(</span><span class="n">slab</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets the transformation to rotate the z axis into the miller index</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_z</span> <span class="o">=</span> <span class="n">get_mi_vec</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
+    <span class="n">new_x</span> <span class="o">=</span> <span class="n">a</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">new_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">new_z</span><span class="p">,</span> <span class="n">new_x</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">rot_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="o">*</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span>
+                           <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span>
+                                             <span class="p">[</span><span class="n">new_x</span><span class="p">,</span> <span class="n">new_y</span><span class="p">,</span> <span class="n">new_z</span><span class="p">])])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">rot_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">rot_matrix</span><span class="p">)</span>
+    <span class="n">sop</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span><span class="n">rot_matrix</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sop</span></div>
+
+
+<div class="viewcode-block" id="put_coord_inside"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.put_coord_inside">[docs]</a><span class="k">def</span> <span class="nf">put_coord_inside</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">cart_coordinate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    converts a cartesian coordinate such that it is inside the unit cell.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fc</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">cart_coordinate</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">([</span><span class="n">c</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">fc</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="reorient_z"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.reorient_z">[docs]</a><span class="k">def</span> <span class="nf">reorient_z</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    reorients a structure such that the z axis is concurrent with the</span>
+<span class="sd">    normal to the A-B plane</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">struct</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sop</span> <span class="o">=</span> <span class="n">get_rot</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+    <span class="n">struct</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">sop</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">struct</span></div>
+
+
+<span class="c1"># Get color dictionary</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">vis</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span>
+                             <span class="s2">&quot;ElementColorSchemes.yaml&quot;</span><span class="p">))</span>
+<span class="n">color_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">el</span><span class="p">:</span> <span class="p">[</span><span class="n">j</span> <span class="o">/</span> <span class="mf">256.001</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">colors</span><span class="p">[</span><span class="s2">&quot;Jmol&quot;</span><span class="p">][</span><span class="n">el</span><span class="p">]]</span>
+              <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">colors</span><span class="p">[</span><span class="s2">&quot;Jmol&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+
+
+<div class="viewcode-block" id="plot_slab"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.plot_slab">[docs]</a><span class="k">def</span> <span class="nf">plot_slab</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+              <span class="n">draw_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">adsorption_sites</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that helps visualize the slab in a 2-D plot, for</span>
+<span class="sd">    convenient viewing of output of AdsorbateSiteFinder.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        slab (slab): Slab object to be visualized</span>
+<span class="sd">        ax (axes): matplotlib axes with which to visualize</span>
+<span class="sd">        scale (float): radius scaling for sites</span>
+<span class="sd">        repeat (int): number of repeating unit cells to visualize</span>
+<span class="sd">        window (float): window for setting the axes limits, is essentially</span>
+<span class="sd">            a fraction of the unit cell limits</span>
+<span class="sd">        draw_unit_cell (bool): flag indicating whether or not to draw cell</span>
+<span class="sd">        decay (float): how the alpha-value decays along the z-axis</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">orig_slab</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">slab</span> <span class="o">=</span> <span class="n">reorient_z</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
+    <span class="n">orig_cell</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">repeat</span><span class="p">:</span>
+        <span class="n">slab</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">([</span><span class="n">repeat</span><span class="p">,</span> <span class="n">repeat</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">slab</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="n">sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">slab</span><span class="o">.</span><span class="n">sites</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">alphas</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">decay</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">-</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">alphas</span> <span class="o">=</span> <span class="n">alphas</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">corner</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="n">corner</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">corner</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">verts</span> <span class="o">=</span> <span class="n">orig_cell</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">lattsum</span> <span class="o">=</span> <span class="n">verts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">verts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># Draw circles at sites and stack them accordingly</span>
+    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">coords</span><span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">atomic_radius</span> <span class="o">*</span> <span class="n">scale</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patches</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">coord</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">lattsum</span> <span class="o">*</span> <span class="p">(</span><span class="n">repeat</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+                                    <span class="n">r</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n</span><span class="p">))</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">color_dict</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patches</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">coord</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">lattsum</span> <span class="o">*</span> <span class="p">(</span><span class="n">repeat</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">r</span><span class="p">,</span>
+                                    <span class="n">facecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alphas</span><span class="p">[</span><span class="n">n</span><span class="p">],</span>
+                                    <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="c1"># Adsorption sites</span>
+    <span class="k">if</span> <span class="n">adsorption_sites</span><span class="p">:</span>
+        <span class="n">asf</span> <span class="o">=</span> <span class="n">AdsorbateSiteFinder</span><span class="p">(</span><span class="n">orig_slab</span><span class="p">)</span>
+        <span class="n">ads_sites</span> <span class="o">=</span> <span class="n">asf</span><span class="o">.</span><span class="n">find_adsorption_sites</span><span class="p">()[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span>
+        <span class="n">sop</span> <span class="o">=</span> <span class="n">get_rot</span><span class="p">(</span><span class="n">orig_slab</span><span class="p">)</span>
+        <span class="n">ads_sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">sop</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">ads_site</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                     <span class="k">for</span> <span class="n">ads_site</span> <span class="ow">in</span> <span class="n">ads_sites</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">ads_sites</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span>
+                <span class="n">markersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mew</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+    <span class="c1"># Draw unit cell</span>
+    <span class="k">if</span> <span class="n">draw_unit_cell</span><span class="p">:</span>
+        <span class="n">verts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">lattsum</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">verts</span> <span class="o">+=</span> <span class="p">[[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]]</span>
+        <span class="n">verts</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]]</span> <span class="o">+</span> <span class="n">verts</span>
+        <span class="n">codes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="o">.</span><span class="n">MOVETO</span><span class="p">,</span> <span class="n">Path</span><span class="o">.</span><span class="n">LINETO</span><span class="p">,</span> <span class="n">Path</span><span class="o">.</span><span class="n">LINETO</span><span class="p">,</span>
+                 <span class="n">Path</span><span class="o">.</span><span class="n">LINETO</span><span class="p">,</span> <span class="n">Path</span><span class="o">.</span><span class="n">CLOSEPOLY</span><span class="p">]</span>
+        <span class="n">verts</span> <span class="o">=</span> <span class="p">[(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vert</span><span class="p">)</span> <span class="o">+</span> <span class="n">corner</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">vert</span> <span class="ow">in</span> <span class="n">verts</span><span class="p">]</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">codes</span><span class="p">)</span>
+        <span class="n">patch</span> <span class="o">=</span> <span class="n">patches</span><span class="o">.</span><span class="n">PathPatch</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                  <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="n">corner</span> <span class="o">+</span> <span class="n">lattsum</span> <span class="o">/</span> <span class="mf">2.</span>
+    <span class="n">extent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">lattsum</span><span class="p">)</span>
+    <span class="n">lim_array</span> <span class="o">=</span> <span class="p">[</span><span class="n">center</span> <span class="o">-</span> <span class="n">extent</span> <span class="o">*</span> <span class="n">window</span><span class="p">,</span> <span class="n">center</span> <span class="o">+</span> <span class="n">extent</span> <span class="o">*</span> <span class="n">window</span><span class="p">]</span>
+    <span class="n">x_lim</span> <span class="o">=</span> <span class="p">[</span><span class="n">ele</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">lim_array</span><span class="p">]</span>
+    <span class="n">y_lim</span> <span class="o">=</span> <span class="p">[</span><span class="n">ele</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">lim_array</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_lim</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y_lim</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.adsorption</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

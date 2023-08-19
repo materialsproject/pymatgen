@@ -1,0 +1,214 @@
+##CIF_1.1
+
+data_sm_global
+#Used dictionaries
+loop_
+_audit_conform_dict_name
+_audit_conform_dict_version
+_audit_conform_dict_location
+cif_core.dic 	2.4.2 	.
+cif_pd.dic 		1.0.1 	.
+cif_sm.dic 		0.1 	'redaktion.landolt-boernstein(at)springer.com'
+
+#About this content and reference
+_sm_credits_copyright
+;PAULING FILE Multinaries Edition - 2012. SpringerMaterials Release 2014.
+http://www.paulingfile.com
+Unique LPF ID Number SD1002871
+Project Coordinator: Shuichi Iwata
+Section-Editors: Karin Cenzual (Crystal Structures), Hiroaki Okamoto (Phase
+Diagrams), Fritz Hulliger (Physical Properties)
+(c) Springer & Material Phases Data System (MPDS), Switzerland & National
+Institute for Materials Science (NIMS), Japan 2014.
+(Data generated pre-2002: (c) Springer & MPDS & NIMS;
+post-2001: (c) Springer & MPDS)
+All Rights Reserved. Version 2014.06.
+;
+
+_audit_creation_method
+;This data have been compiled from the crystallographic datasheet for
+"Cu(NH3)6Br2 (CuBr2[NH3]6 rt) Crystal Structure"
+taken from SpringerMaterials (sm_isp_sd_1002871).
+;
+
+_publ_section_references
+;Distler T., Vaughan P.A.: <i>The crystal structures of the hexaamminecopper(II) halides</i>. Inorganic Chemistry <b>6</b> (1967) 126-129.
+;
+
+#Phase classification
+_sm_phase_labels				'CuBr2[NH3]6 rt'
+_chemical_name_mineral			''
+_sm_chemical_compound_class		'bromide'
+_sm_phase_prototype				'CuCl2 [NH3 ]6 '
+_sm_pearson_symbol				'tI18'
+_symmetry_Int_Tables_number		139
+_sm_sample_details
+;powder (determination of cell and structural parameters)
+;
+_sm_measurement_details
+;automatic diffractometer (determination of cell parameters),
+automatic diffractometer; Philips (determination of structural parameters),
+X-rays, Cu K&#x03b1;; &#x03bb; = 0.15418 nm (determination of cell and structural parameters)
+;
+_sm_interpretation_details
+;positions of non-H atoms determined,
+least-squares refinement,
+<i>R</i> = 0.130
+;
+
+data_sm_isp_SD1002871-standardized_unitcell
+#Cell Parameters
+_cell_length_a					7.5986
+_cell_length_b					7.5986
+_cell_length_c					9.675
+_cell_angle_alpha				90
+_cell_angle_beta				90
+_cell_angle_gamma				90
+_sm_length_ratio_ab				1.000
+_sm_length_ratio_bc				0.785
+_sm_length_ratio_ca				1.273
+_cell_volume 					558.6
+_symmetry_space_group_name_H-M	'I4/mmm'
+_symmetry_Int_Tables_number		139
+_cell_formula_units_Z			2
+_sm_cell_transformation
+;new axes a/2-b/2,a/2+b/2,c
+;
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+N1 'NH3' .8h .m.2m 0.2 0.2 0 1 1 'single atom, Cu'
+N2 'NH3' .4e .4mm 0 0 0.253 1 1 'single atom, Cu'
+Br 'Br' .4d .-4m2 0 0.5 0.25 1 12 'cuboctahedron, (NH<sub>3</sub>)<sub>12</sub>'
+Cu 'Cu' .2a .4/mmm 0 0 0 1 6 'octahedron, (NH<sub>3</sub>)<sub>6</sub>'
+
+_sm_atom_site_transformation
+;new axes a/2-b/2,a/2+b/2,c
+;
+
+#Isotropic Displacement Parameters
+loop_
+_atom_site_label_1
+_atom_site_B_iso_or_equiv
+_sm_atom_site_isotropic_displacement_parameter_type
+_atom_site_B_equiv_geom_mean
+Cu 0.047(30) 'Biso' ?
+Br 0.033(13) 'Biso' ?
+N1 -0.017(21) 'Biso' ?
+N2 -0.017(21) 'Biso' ?
+
+data_sm_isp_SD1002871-published_cell
+#Cell Parameters
+_cell_length_a					10.746(2)
+_cell_length_b					10.746(2)
+_cell_length_c					9.675(1)
+_cell_angle_alpha				90
+_cell_angle_beta				90
+_cell_angle_gamma				90
+_sm_length_ratio_ab				1.000
+_sm_length_ratio_bc				1.111
+_sm_length_ratio_ca				0.900
+_cell_volume 					1117.24
+_symmetry_space_group_name_H-M	'F4/mmm'
+_symmetry_Int_Tables_number		139
+_cell_formula_units_Z			2
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+Cu 'Cu' .4a .4/mmm 0 0 0 1 ? '?'
+Br 'Br' .8d .-4m2 0.25 0.25 0.25 1 ? '?'
+N1 'NH3' .16h .m.2m 0.2(7) 0 0 1 ? '?'
+N2 'NH3' .8e .4mm 0 0 0.253(29) 1 ? '?'
+
+#Isotropic Displacement Parameters
+loop_
+_atom_site_label_1
+_atom_site_B_iso_or_equiv
+_sm_atom_site_isotropic_displacement_parameter_type
+_atom_site_B_equiv_geom_mean
+Cu 0.047(30) 'Biso' ?
+Br 0.033(13) 'Biso' ?
+N1 -0.017(21) 'Biso' ?
+N2 -0.017(21) 'Biso' ?
+
+data_sm_isp_SD1002871-niggli_reduced_cell
+#Cell Parameters
+_cell_length_a					7.2299
+_cell_length_b					7.2299
+_cell_length_c					7.2299
+_cell_angle_alpha				96.005
+_cell_angle_beta				116.596
+_cell_angle_gamma				116.596
+_sm_length_ratio_ab				1.000
+_sm_length_ratio_bc				1.000
+_sm_length_ratio_ca				1.000
+_cell_volume 					279.31
+_symmetry_space_group_name_H-M	''
+_symmetry_Int_Tables_number		?
+_cell_formula_units_Z			2
+
+#Atom Coordinates
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_Wyckoff_symbol
+_sm_site_symmetry
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_sm_coordination_number
+_sm_atomic_environment_type
+? ? ? ? ? ? ? ? ? ?
+
+data_sm_isp_SD1002871-powder_pattern
+#Powder Pattern
+#Note: Powder patterns are provided using custom cif-fields!
+loop_
+_sm_powderpattern_unit_published_line
+_sm_powderpattern_value_published_line
+_sm_powderpattern_unit_computed_line
+_sm_powderpattern_value_computed_line
+_sm_powderpattern_intensity
+_sm_powderpattern_miller_indices_h
+_sm_powderpattern_miller_indices_k
+_sm_powderpattern_miller_indices_l
+_sm_powderpattern_radiation
+_sm_powderpattern_remark
+'d' 5.9786 'd' 0.5979 14.7 1 1 1 'Cu K&#x03b1;' ''
+'d' 5.3742 'd' 0.5374 2.8 2 0 0 'Cu K&#x03b1;' ''
+'d' 4.8410 'd' 0.4841 1.4 0 0 2 'Cu K&#x03b1;' ''
+'d' 3.8016 'd' 0.3802 33.5 2 2 0 'Cu K&#x03b1;' ''
+'d' 3.5960 'd' 0.3596 59.7 2 0 2 'Cu K&#x03b1;' ''
+'d' 3.2076 'd' 0.3208 5.8 3 1 1 'Cu K&#x03b1;' ''
+'d' 2.9888 'd' 0.2989 65.7 2 2 2 'Cu K&#x03b1;' 'additional indices 1 1 3'
+'d' 2.6859 'd' 0.2686 46.9 4 0 0 'Cu K&#x03b1;' ''
+'d' 2.4174 'd' 0.2417 39.2 0 0 4 'Cu K&#x03b1;' ''
+'d' 2.3486 'd' 0.2349 16.0 4 0 2 'Cu K&#x03b1;' 'intensity includes next line(s)'
+'d' 2.3396 'd' 0.2340  3 1 3 'Cu K&#x03b1;' ''
+'d' 2.1520 'd' 0.2152 64.8 4 2 2 'Cu K&#x03b1;' ''
+'d' 2.0593 'd' 0.2059 65.3 5 1 1 'Cu K&#x03b1;' 'intensity includes next line(s)'
+'d' 2.0402 'd' 0.2040  2 2 4 'Cu K&#x03b1;' ''
+'d' 1.8994 'd' 0.1899 18.1 4 4 0 'Cu K&#x03b1;' ''
+'d' 1.7973 'd' 0.1797 67.8 4 0 4 'Cu K&#x03b1;' 'additional indices 6 0 0'
+'d' 1.6994 'd' 0.1699 44.2 2 6 0 'Cu K&#x03b1;' 'additional indices 2 4 4'

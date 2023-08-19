@@ -1,0 +1,392 @@
+
+Running Job 1 of 1 mol.qin
+qchem mol.qin_160065.0 /tmp/scratch/ 0
+/clusterfs/mp/software/qchem/exe/qcprog.exe_s mol.qin_160065.0 /tmp/scratch/
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+
+ Q-Chem 5.2, Q-Chem, Inc., Pleasanton, CA (2019)
+
+ Yihan Shao,  Zhengting Gan,  E. Epifanovsky,  A. T. B. Gilbert,  M. Wormit,  
+ J. Kussmann,  A. W. Lange,  A. Behn,  Jia Deng,  Xintian Feng,  D. Ghosh,  
+ M. Goldey,  P. R. Horn,  L. D. Jacobson,  I. Kaliman,  T. Kus,  A. Landau,  
+ Jie Liu,  E. I. Proynov,  R. M. Richard,  R. P. Steele,  E. J. Sundstrom,  
+ H. L. Woodcock III,  P. M. Zimmerman,  D. Zuev,  B. Alam,  B. Albrecht,  
+ E. Alguire,  S. A. Baeppler,  D. Barton,  Z. Benda,  Y. A. Bernard,  
+ E. J. Berquist,  K. B. Bravaya,  H. Burton,  K. Carter-Fenk,  D. Casanova,  
+ Chun-Min Chang,  Yunqing Chen,  A. Chien,  K. D. Closser,  M. P. Coons,  
+ S. Coriani,  S. Dasgupta,  A. L. Dempwolff,  M. Diedenhofen,  Hainam Do,  
+ R. G. Edgar,  Po-Tung Fang,  S. Faraji,  S. Fatehi,  Qingguo Feng,  
+ J. Fosso-Tande,  J. Gayvert,  Qinghui Ge,  A. Ghysels,  G. Gidofalvi,  
+ J. Gomes,  J. Gonthier,  A. Gunina,  D. Hait,  M. W. D. Hanson-Heine,  
+ P. H. P. Harbach,  A. W. Hauser,  M. F. Herbst,  J. E. Herr,  
+ E. G. Hohenstein,  Z. C. Holden,  Kerwin Hui,  B. C. Huynh,  T.-C. Jagau,  
+ Hyunjun Ji,  B. Kaduk,  K. Khistyaev,  Jaehoon Kim,  P. Klunzinger,  K. Koh,  
+ D. Kosenkov,  L. Koulias,  T. Kowalczyk,  C. M. Krauter,  A. Kunitsa,  
+ Ka Un Lao,  A. Laurent,  K. V. Lawler,  Joonho Lee,  D. Lefrancois,  
+ S. Lehtola,  D. S. Levine,  Yi-Pei Li,  You-Sheng Lin,  Fenglai Liu,  
+ Kuan-Yu Liu,  E. Livshits,  M. Loipersberger,  A. Luenser,  P. Manohar,  
+ E. Mansoor,  S. F. Manzer,  Shan-Ping Mao,  Yuezhi Mao,  N. Mardirossian,  
+ A. V. Marenich,  T. Markovich,  L. A. Martinez-Martinez,  S. A. Maurer,  
+ N. J. Mayhall,  S. C. McKenzie,  J.-M. Mewes,  P. Morgante,  A. F. Morrison,  
+ J. W. Mullinax,  K. Nanda,  T. S. Nguyen-Beck,  R. Olivares-Amaya,  
+ J. A. Parkhill,  S. K. Paul,  Zheng Pei,  T. M. Perrine,  F. Plasser,  
+ P. Pokhilko,  S. Prager,  A. Prociuk,  E. Ramos,  B. Rana,  D. R. Rehn,  
+ F. Rob,  M. Scheurer,  M. Schneider,  N. Sergueev,  S. M. Sharada,  
+ S. Sharma,  D. W. Small,  T. Stauch,  C. J. Stein,  T. Stein,  Yu-Chuan Su,  
+ S. P. Veccham,  A. J. W. Thom,  A. Tkatchenko,  T. Tsuchimochi,  
+ N. M. Tubman,  L. Vogt,  M. L. Vidal,  O. Vydrov,  M. A. Watson,  J. Wenzel,  
+ M. de Wergifosse,  T. A. Wesolowski,  A. White,  J. Witte,  A. Yamada,  
+ Jun Yang,  K. Yao,  S. Yeganeh,  S. R. Yost,  Zhi-Qiang You,  A. Zech,  
+ Igor Ying Zhang,  Xing Zhang,  Yan Zhao,  Ying Zhu,  B. R. Brooks,  
+ G. K. L. Chan,  C. J. Cramer,  M. S. Gordon,  W. J. Hehre,  A. Klamt,  
+ M. W. Schmidt,  C. D. Sherrill,  D. G. Truhlar,  A. Aspuru-Guzik,  R. Baer,  
+ A. T. Bell,  N. A. Besley,  Jeng-Da Chai,  A. E. DePrince, III,  
+ R. A. DiStasio Jr.,  A. Dreuw,  B. D. Dunietz,  T. R. Furlani,  
+ Chao-Ping Hsu,  Yousung Jung,  Jing Kong,  D. S. Lambrecht,  WanZhen Liang,  
+ C. Ochsenfeld,  V. A. Rassolov,  L. V. Slipchenko,  J. E. Subotnik,  
+ T. Van Voorhis,  J. M. Herbert,  A. I. Krylov,  P. M. W. Gill,  M. Head-Gordon
+
+ Contributors to earlier versions of Q-Chem not listed above: 
+ R. D. Adamson,  B. Austin,  J. Baker,  G. J. O. Beran,  K. Brandhorst,  
+ S. T. Brown,  E. F. C. Byrd,  A. K. Chakraborty,  C.-L. Cheng,  
+ Siu Hung Chien,  D. M. Chipman,  D. L. Crittenden,  H. Dachsel,  
+ R. J. Doerksen,  A. D. Dutoi,  L. Fusti-Molnar,  W. A. Goddard III,  
+ A. Golubeva-Zadorozhnaya,  S. R. Gwaltney,  G. Hawkins,  A. Heyden,  
+ S. Hirata,  G. Kedziora,  F. J. Keil,  C. Kelley,  Jihan Kim,  R. A. King,  
+ R. Z. Khaliullin,  P. P. Korambath,  W. Kurlancheek,  A. M. Lee,  M. S. Lee,  
+ S. V. Levchenko,  Ching Yeh Lin,  D. Liotard,  R. C. Lochan,  I. Lotan,  
+ P. E. Maslen,  N. Nair,  D. P. O'Neill,  D. Neuhauser,  E. Neuscamman,  
+ C. M. Oana,  R. Olson,  B. Peters,  R. Peverati,  P. A. Pieniazek,  
+ Y. M. Rhee,  J. Ritchie,  M. A. Rohrdanz,  E. Rosta,  N. J. Russ,  
+ H. F. Schaefer III,  N. E. Schultz,  N. Shenvi,  A. C. Simmonett,  A. Sodt,  
+ D. Stuck,  K. S. Thanthiriwatte,  V. Vanovschi,  Tao Wang,  A. Warshel,  
+ C. F. Williams,  Q. Wu,  X. Xu,  W. Zhang
+
+ Please cite Q-Chem as follows:
+ Y. Shao et al., Mol. Phys. 113, 184-215 (2015)
+ DOI: 10.1080/00268976.2014.952696
+
+ Q-Chem 5.2.2 for Intel X86 EM64T Linux
+
+ Parts of Q-Chem use Armadillo 8.300.2 (Tropical Shenanigans).
+ http://arma.sourceforge.net/
+
+ Q-Chem begins on Fri May  7 12:20:24 2021  
+
+Host: 
+0
+
+     Scratch files written to /tmp/scratch//
+ Nov2519 |scratch|qcdevops|jenkins|workspace|build_RNUM 7600   
+Processing $rem in /clusterfs/mp/software/qchem/config/preferences:
+	 MEM_TOTAL  96000 
+NAlpha2: 54
+NElect   54
+Mult     1
+Symmetry turned off for PCM/SM12/SMD calculation
+
+Checking the input file for inconsistencies... 	...done.
+
+--------------------------------------------------------------
+User input:
+--------------------------------------------------------------
+$molecule
+1 1
+Cs      0.0000000000      0.0000000000      0.0000000000
+$end
+
+$rem
+job_type = sp
+basis = def2-tzvpd
+max_scf_cycles = 200
+gen_scfman = true
+xc_grid = 3
+scf_algorithm = diis
+resp_charges = true
+symmetry = false
+sym_ignore = true
+method = wb97xv
+solvent_method = smd
+ideriv = 1
+smx_gas_phase = true
+thresh = 14
+$end
+
+$pcm
+vdwscale 1
+sasradius 1.38
+heavypoints 590
+hpoints 590
+radii read
+$end
+
+$smx
+solvent water
+$end
+
+$van_der_waals
+1
+55 1.7
+$end
+--------------------------------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      Cs      0.0000000000     0.0000000000     0.0000000000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.00000000 hartrees
+ There are       27 alpha and       27 beta electrons
+ Requested basis set is def2-TZVPD
+ There are 12 shells and 32 basis functions
+
+ Total QAlloc Memory Limit  96000 MB
+ Mega-Array Size       188 MB
+ MEM_STATIC part       192 MB
+ 
+ Citation of the SMD model:
+ Marenich, A.V.; Cramer, C.J.; Truhlar, D.G.
+ J. Phys. Chem. B 2009, 113, 6378-6396.
+ iSolventCode=           1
+ Solvent: water                                                           
+ 
+ vradii
+            1
+    1   4.0474001
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Adding 'Solvent Acessible' radius of 1.38000 A to the vdW radii
+ Discretize the solute cavity surface with Lebedev spheres
+	Using 590 Lebedev grid points for each H atom
+	Using 590 Lebedev grid points for other atoms
+	Atomic van der Waals radii will be scaled by 1.00
+ Remove points where switching function is < 1.0e-08
+ Keep 590 surface tesserae and discard 0 interior tesserae
+ Molecular Surface Area = 370.163 Angst**2
+ A cutoff of  1.0D-14 yielded     78 shell pairs
+ There are       570 function pairs (       687 Cartesian)
+ Smallest overlap matrix eigenvalue = 3.10E-02
+ Changing PCM_VDW_RADII to SMD_RADIUS
+
+ Scale SEOQF with 1.000000e-01/1.000000e-01/1.000000e-01
+
+ Standard Electronic Orientation quadrupole field applied
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+ SAD guess density has 9.000000 electrons
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Exchange:     0.1670 Hartree-Fock + 1.0000 wB97X-V + LR-HF
+ Correlation:  1.0000 wB97X-V
+ Using SG-3 standard quadrature grid
+ Nonlocal Correlation:  VV10 with C = 0.0100 and b = 6.00 and scale = 1.00000
+ Grid used for NLC:  SG-1 standard quadrature
+ 
+ Citation of the SMD model:
+ Marenich, A.V.; Cramer, C.J.; Truhlar, D.G.
+ J. Phys. Chem. B 2009, 113, 6378-6396.
+ iSolventCode=           1
+ Solvent: water                                                           
+ 
+ vradii
+            1
+    1   4.0474001
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ using 40 threads for integral computing
+ -------------------------------------------------------
+ OpenMP Integral computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ using 40 threads for integral computing
+ -------------------------------------------------------
+ OpenMP Integral computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-05
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1    -233.3204354181      1.23e+00  
+    2    -766.5545108969      2.25e-02  
+    3    -766.5920998972      1.25e-03  
+    4    -766.6058802027      1.24e-03  
+    5    -766.6111486730      1.33e-03  
+    6    -766.5855902164      8.80e-04  
+    7    -766.5828519458      7.39e-04  
+    8    -766.5846130054      9.54e-04  
+    9    -766.5800288284      5.14e-04  
+   10    -766.5993457837      1.15e-03  
+   11    -766.6435788519      1.64e-03  
+   12    -766.5820649935      5.78e-04  
+   13    -766.5798063087      4.89e-04  
+   14    -766.5795241888      4.52e-04  
+   15    -766.5792724415      5.73e-04  
+   16    -766.5809834009      4.62e-04  
+   17    -766.5805213486      3.99e-04  
+   18    -766.5816561551      5.37e-04  
+   19    -766.5793543822      4.91e-05  
+   20    -766.5794595888      1.33e-04  
+   21    -766.5794113937      1.03e-04  
+   22    -766.5793425693      4.99e-06  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 180.64s  wall 5.00s 
+ SCF   energy in the final basis set =     -766.5793425693
+ Total energy in the final basis set =     -766.5793425693
+ Exchange:     0.1670 Hartree-Fock + 1.0000 wB97X-V + LR-HF
+ Correlation:  1.0000 wB97X-V
+ Using SG-3 standard quadrature grid
+ Nonlocal Correlation:  VV10 with C = 0.0100 and b = 6.00 and scale = 1.00000
+ Grid used for NLC:  SG-1 standard quadrature
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ using 40 threads for integral computing
+ -------------------------------------------------------
+ OpenMP Integral computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ using 40 threads for integral computing
+ -------------------------------------------------------
+ OpenMP Integral computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ A restricted SCF calculation will be
+ performed using Roothaan-Hall, DIIS
+ SCF converges when DIIS error is below 1.0e-05
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+    1    -766.5793424288      1.51e-06  Roothaan Step
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+    1    -766.7732169050      1.68e-03  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+    2    -766.7934156290      1.77e-03  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+    3    -766.8044871077      1.78e-03  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+    4    -766.8405299584      9.35e-04  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+    5    -766.8031235516      2.02e-03  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+    6    -766.8478204064      2.85e-04  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+    7    -766.7813171642      1.56e-03  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+    8    -766.7777478994      1.53e-03  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+    9    -766.7911858997      1.94e-03  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+   10    -766.7908519878      1.93e-03  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+   11    -766.8475560582      3.50e-04  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+   12    -766.8477638887      2.93e-04  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+   13    -766.8478304256      2.45e-04  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+   14    -766.8477954746      2.56e-04  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+   15    -766.8476030384      2.69e-04  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+   16    -766.8478408805      1.73e-04  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+   17    -766.8478711637      5.00e-05  
+ Changing PCM_VDW_RADII to SMD_RADIUS
+ Changing PCM_VDW_RADII to SMD_RADIUS
+   18    -766.8478743035      1.05e-05  
+   19    -766.8478743569      2.28e-06  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 176.21s  wall 4.00s 
+(0)  E-EN(g) gas-phase elect-nuc energy                 -766.579342569 a.u.
+(3)  G-ENP(liq) elect-nuc-pol free energy of system     -766.847874357 a.u.
+(4)  G-CDS(liq) cavity-dispersion-solvent structure 
+     free energy                                                0.0000 kcal/mol
+(6)  G-S(liq) free energy of system                     -766.847874357 a.u.
+(9)  DeltaG-S(liq) free energy of  solvation
+     (9) = (6) - (0)                                         -168.5062 kcal/mol
+ SCF   energy in the final basis set =     -766.8478743569
+ Total energy in the final basis set =     -766.8478743569
+ 
+ --------------------------------------------------------------
+ 
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+ 
+ Alpha MOs
+ -- Occupied --
+-82.0552 -20.6700 -16.0331 -16.0331 -16.0331 -10.1899 -10.1899 -10.1898
+-10.1898 -10.1898  -6.5813  -3.9653  -3.9653  -3.9653  -1.7253  -1.7253
+ -1.7235  -1.7235  -1.7235  -1.5442  -0.9267  -0.9267  -0.9267  -0.1759
+ -0.1429  -0.1429  -0.1429
+ -- Virtual --
+ -0.0608  -0.0608  -0.0569  -0.0569  -0.0569
+ --------------------------------------------------------------
+ 
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 Cs                    1.000000
+  ----------------------------------------
+  Sum of atomic charges =     1.000000
+
+  Building new vdw surfaces
+ Number of desired points is        2366
+
+ Q-Chem fatal error occurred in module 0, line  252:
+
+ need to increase the array of NLebdevPts
+

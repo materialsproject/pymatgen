@@ -1,0 +1,632 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.symmetry.groups &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.symmetry.groups</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.symmetry.groups</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.</span>
+<span class="sd">Shyue Ping Ong thanks Marc De Graef for his generous sharing of his</span>
+<span class="sd">SpaceGroup data as published in his textbook &quot;Structure of Materials&quot;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">SymmOp</span>
+<span class="kn">from</span> <span class="nn">monty.design_patterns</span> <span class="kn">import</span> <span class="n">cached_class</span>
+
+
+<span class="n">SYMM_DATA</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_get_symm_data</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">SYMM_DATA</span>
+    <span class="k">if</span> <span class="n">SYMM_DATA</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">SYMM_DATA</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
+                                        <span class="s2">&quot;symm_data.json&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">SYMM_DATA</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="SymmetryGroup"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SymmetryGroup">[docs]</a><span class="k">class</span> <span class="nc">SymmetryGroup</span><span class="p">(</span><span class="n">Sequence</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class representation a symmetry group.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">symmetry_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: List of symmetry operations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">affine_matrix</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">affine_matrix</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SymmetryGroup.is_subgroup"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SymmetryGroup.is_subgroup">[docs]</a>    <span class="k">def</span> <span class="nf">is_subgroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supergroup</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        True if this group is a subgroup of the supplied group.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            supergroup (SymmetryGroup): Supergroup to test.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if this group is a subgroup of the supplied group.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;This is not fully functional. Only trivial subsets are tested right now. &quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">supergroup</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SymmetryGroup.is_supergroup"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SymmetryGroup.is_supergroup">[docs]</a>    <span class="k">def</span> <span class="nf">is_supergroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subgroup</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        True if this group is a supergroup of the supplied group.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subgroup (SymmetryGroup): Subgroup to test.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if this group is a supergroup of the supplied group.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;This is not fully functional. Only trivial subsets are &quot;</span>
+                      <span class="s2">&quot;tested right now. &quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">subgroup</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PointGroup"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.PointGroup">[docs]</a><span class="nd">@cached_class</span>
+<span class="k">class</span> <span class="nc">PointGroup</span><span class="p">(</span><span class="n">SymmetryGroup</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class representing a Point Group, with generators and symmetry operations.</span>
+
+<span class="sd">    .. attribute:: symbol</span>
+
+<span class="sd">        Full International or Hermann-Mauguin Symbol.</span>
+
+<span class="sd">    .. attribute:: generators</span>
+
+<span class="sd">        List of generator matrices. Note that 3x3 matrices are used for Point</span>
+<span class="sd">        Groups.</span>
+
+<span class="sd">    .. attribute:: symmetry_ops</span>
+
+<span class="sd">        Full set of symmetry operations as matrices.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">int_symbol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a Point Group from its international symbol.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            int_symbol (str): International or Hermann-Mauguin Symbol.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">int_symbol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generators</span> <span class="o">=</span> <span class="p">[</span><span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;generator_matrices&quot;</span><span class="p">)[</span><span class="n">c</span><span class="p">]</span>
+                           <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;point_group_encoding&quot;</span><span class="p">)[</span><span class="n">int_symbol</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_ops</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+                                  <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_full_symmetry_ops</span><span class="p">()])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_ops</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">symmetry_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: List of symmetry operations for SpaceGroup</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_ops</span>
+
+    <span class="k">def</span> <span class="nf">_generate_full_symmetry_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">symm_ops</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generators</span><span class="p">)</span>
+        <span class="n">new_ops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generators</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_ops</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">gen_ops</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">g1</span><span class="p">,</span> <span class="n">g2</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="n">new_ops</span><span class="p">,</span> <span class="n">symm_ops</span><span class="p">):</span>
+                <span class="n">op</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">g1</span><span class="p">,</span> <span class="n">g2</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">in_array_list</span><span class="p">(</span><span class="n">symm_ops</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
+                    <span class="n">gen_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+                    <span class="n">symm_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+            <span class="n">new_ops</span> <span class="o">=</span> <span class="n">gen_ops</span>
+        <span class="k">return</span> <span class="n">symm_ops</span>
+
+    <span class="k">def</span> <span class="nf">get_orbit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the orbit for a point.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            p: Point as a 3x1 array.</span>
+<span class="sd">            tol: Tolerance for determining if sites are the same. 1e-5 should</span>
+<span class="sd">                be sufficient for most purposes. Set to 0 for exact matching</span>
+<span class="sd">                (and also needed for symbolic orbits).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ([array]) Orbit for point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orbit</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">:</span>
+            <span class="n">pp</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">in_array_list</span><span class="p">(</span><span class="n">orbit</span><span class="p">,</span> <span class="n">pp</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">):</span>
+                <span class="n">orbit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">orbit</span></div>
+
+
+<div class="viewcode-block" id="SpaceGroup"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.SpaceGroup">[docs]</a><span class="nd">@cached_class</span>
+<span class="k">class</span> <span class="nc">SpaceGroup</span><span class="p">(</span><span class="n">SymmetryGroup</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class representing a SpaceGroup.</span>
+
+<span class="sd">    .. attribute:: symbol</span>
+
+<span class="sd">        Full International or Hermann-Mauguin Symbol.</span>
+
+<span class="sd">    .. attribute:: int_number</span>
+
+<span class="sd">        International number</span>
+
+<span class="sd">    .. attribute:: generators</span>
+
+<span class="sd">        List of generator matrices. Note that 4x4 matrices are used for Space</span>
+<span class="sd">        Groups.</span>
+
+<span class="sd">    .. attribute:: order</span>
+
+<span class="sd">        Order of Space Group</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">SYMM_OPS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
+                                   <span class="s2">&quot;symm_ops.json&quot;</span><span class="p">))</span>
+    <span class="n">SG_SYMBOLS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;space_group_encoding&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">SYMM_OPS</span><span class="p">:</span>
+        <span class="n">op</span><span class="p">[</span><span class="s2">&quot;hermann_mauguin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">op</span><span class="p">[</span><span class="s2">&quot;hermann_mauguin&quot;</span><span class="p">])</span>
+        <span class="n">op</span><span class="p">[</span><span class="s2">&quot;universal_h_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">op</span><span class="p">[</span><span class="s2">&quot;universal_h_m&quot;</span><span class="p">])</span>
+        <span class="n">SG_SYMBOLS</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="s2">&quot;hermann_mauguin&quot;</span><span class="p">])</span>
+        <span class="n">SG_SYMBOLS</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="s2">&quot;universal_h_m&quot;</span><span class="p">])</span>
+
+    <span class="n">gen_matrices</span> <span class="o">=</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;generator_matrices&quot;</span><span class="p">)</span>
+    <span class="c1"># POINT_GROUP_ENC = SYMM_DATA[&quot;point_group_encoding&quot;]</span>
+    <span class="n">sgencoding</span> <span class="o">=</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;space_group_encoding&quot;</span><span class="p">)</span>
+    <span class="n">abbrev_sg_mapping</span> <span class="o">=</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;abbreviated_spacegroup_symbols&quot;</span><span class="p">)</span>
+    <span class="n">translations</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_get_symm_data</span><span class="p">(</span>
+        <span class="s2">&quot;translations&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">full_sg_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">v</span><span class="p">[</span><span class="s2">&quot;full_symbol&quot;</span><span class="p">]:</span> <span class="n">k</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;space_group_encoding&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">int_symbol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a Space Group from its full or abbreviated international</span>
+<span class="sd">        symbol. Only standard settings are supported.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            int_symbol (str): Full International (e.g., &quot;P2/m2/m2/m&quot;) or</span>
+<span class="sd">                Hermann-Mauguin Symbol (&quot;Pmmm&quot;) or abbreviated symbol. The</span>
+<span class="sd">                notation is a LaTeX-like string, with screw axes being</span>
+<span class="sd">                represented by an underscore. For example, &quot;P6_3/mmc&quot;.</span>
+<span class="sd">                Alternative settings can be access by adding a &quot;:identifier&quot;.</span>
+<span class="sd">                For example, the hexagonal setting  for rhombohedral cells can be</span>
+<span class="sd">                accessed by adding a &quot;:H&quot;, e.g., &quot;R-3m:H&quot;. To find out all</span>
+<span class="sd">                possible settings for a spacegroup, use the get_settings</span>
+<span class="sd">                classmethod. Alternative origin choices can be indicated by a</span>
+<span class="sd">                translation vector, e.g., &#39;Fm-3m(a-1/4,b-1/4,c-1/4)&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">int_symbol</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">int_symbol</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">int_symbol</span> <span class="ow">in</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">abbrev_sg_mapping</span><span class="p">:</span>
+            <span class="n">int_symbol</span> <span class="o">=</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">abbrev_sg_mapping</span><span class="p">[</span><span class="n">int_symbol</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">int_symbol</span> <span class="ow">in</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">full_sg_mapping</span><span class="p">:</span>
+            <span class="n">int_symbol</span> <span class="o">=</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">full_sg_mapping</span><span class="p">[</span><span class="n">int_symbol</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">spg</span> <span class="ow">in</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">SYMM_OPS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">int_symbol</span> <span class="ow">in</span> <span class="p">[</span><span class="n">spg</span><span class="p">[</span><span class="s2">&quot;hermann_mauguin&quot;</span><span class="p">],</span> <span class="n">spg</span><span class="p">[</span><span class="s2">&quot;universal_h_m&quot;</span><span class="p">]]:</span>
+                <span class="n">ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">SymmOp</span><span class="o">.</span><span class="n">from_xyz_string</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">spg</span><span class="p">[</span><span class="s2">&quot;symops&quot;</span><span class="p">]]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                     <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">spg</span><span class="p">[</span><span class="s2">&quot;universal_h_m&quot;</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">int_symbol</span> <span class="ow">in</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">sgencoding</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">full_symbol</span> <span class="o">=</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">sgencoding</span><span class="p">[</span><span class="n">int_symbol</span><span class="p">][</span><span class="s2">&quot;full_symbol&quot;</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">point_group</span> <span class="o">=</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">sgencoding</span><span class="p">[</span><span class="n">int_symbol</span><span class="p">][</span><span class="s2">&quot;point_group&quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">full_symbol</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                              <span class="n">spg</span><span class="p">[</span><span class="s2">&quot;universal_h_m&quot;</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">point_group</span> <span class="o">=</span> <span class="n">spg</span><span class="p">[</span><span class="s2">&quot;schoenflies&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">int_number</span> <span class="o">=</span> <span class="n">spg</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_ops</span> <span class="o">=</span> <span class="n">ops</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">int_symbol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">sgencoding</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Bad international symbol </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">int_symbol</span><span class="p">)</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">sgencoding</span><span class="p">[</span><span class="n">int_symbol</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">int_symbol</span>
+            <span class="c1"># TODO: Support different origin choices.</span>
+            <span class="n">enc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;enc&quot;</span><span class="p">])</span>
+            <span class="n">inversion</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">ngen</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">enc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">symm_ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">inversion</span><span class="p">:</span>
+                <span class="n">symm_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                    <span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ngen</span><span class="p">):</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+                <span class="n">m</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">gen_matrices</span><span class="p">[</span><span class="n">enc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+                <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">translations</span><span class="p">[</span><span class="n">enc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+                <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">translations</span><span class="p">[</span><span class="n">enc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+                <span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">translations</span><span class="p">[</span><span class="n">enc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+                <span class="n">symm_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generators</span> <span class="o">=</span> <span class="n">symm_ops</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">full_symbol</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;full_symbol&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">point_group</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;point_group&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">int_number</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;int_number&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;order&quot;</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_ops</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_generate_full_symmetry_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">symm_ops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generators</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">symm_ops</span><span class="p">:</span>
+            <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">new_ops</span> <span class="o">=</span> <span class="n">symm_ops</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_ops</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">symm_ops</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">:</span>
+            <span class="n">gen_ops</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">new_ops</span><span class="p">:</span>
+                <span class="n">temp_ops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ijk,kl&#39;</span><span class="p">,</span> <span class="n">symm_ops</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">temp_ops</span><span class="p">:</span>
+                    <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">1e-5</span><span class="p">)</span>
+                    <span class="n">op</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">in_array_list</span><span class="p">(</span><span class="n">symm_ops</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
+                        <span class="n">gen_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+                        <span class="n">symm_ops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">symm_ops</span><span class="p">,</span> <span class="p">[</span><span class="n">op</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">new_ops</span> <span class="o">=</span> <span class="n">gen_ops</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">symm_ops</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span>
+        <span class="k">return</span> <span class="n">symm_ops</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_settings</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">int_symbol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns all the settings for a particular international symbol.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            int_symbol (str): Full International (e.g., &quot;P2/m2/m2/m&quot;) or</span>
+<span class="sd">                Hermann-Mauguin Symbol (&quot;Pmmm&quot;) or abbreviated symbol. The</span>
+<span class="sd">                notation is a LaTeX-like string, with screw axes being</span>
+<span class="sd">                represented by an underscore. For example, &quot;P6_3/mmc&quot;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">symbols</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">int_symbol</span> <span class="ow">in</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">abbrev_sg_mapping</span><span class="p">:</span>
+            <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SpaceGroup</span><span class="o">.</span><span class="n">abbrev_sg_mapping</span><span class="p">[</span><span class="n">int_symbol</span><span class="p">])</span>
+            <span class="n">int_number</span> <span class="o">=</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">sgencoding</span><span class="p">[</span><span class="n">int_symbol</span><span class="p">][</span><span class="s2">&quot;int_number&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">int_symbol</span> <span class="ow">in</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">full_sg_mapping</span><span class="p">:</span>
+            <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SpaceGroup</span><span class="o">.</span><span class="n">full_sg_mapping</span><span class="p">[</span><span class="n">int_symbol</span><span class="p">])</span>
+            <span class="n">int_number</span> <span class="o">=</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">sgencoding</span><span class="p">[</span><span class="n">int_symbol</span><span class="p">][</span><span class="s2">&quot;int_number&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">spg</span> <span class="ow">in</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">SYMM_OPS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">int_symbol</span> <span class="ow">in</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\(|:&quot;</span><span class="p">,</span> <span class="n">spg</span><span class="p">[</span><span class="s2">&quot;hermann_mauguin&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+                                  <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\(|:&quot;</span><span class="p">,</span> <span class="n">spg</span><span class="p">[</span><span class="s2">&quot;universal_h_m&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]]:</span>
+                    <span class="n">int_number</span> <span class="o">=</span> <span class="n">spg</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">]</span>
+                    <span class="k">break</span>
+
+        <span class="k">for</span> <span class="n">spg</span> <span class="ow">in</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">SYMM_OPS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">int_number</span> <span class="o">==</span> <span class="n">spg</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">]:</span>
+                <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spg</span><span class="p">[</span><span class="s2">&quot;hermann_mauguin&quot;</span><span class="p">])</span>
+                <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spg</span><span class="p">[</span><span class="s2">&quot;universal_h_m&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">symmetry_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Full set of symmetry operations as matrices. Lazily initialized as</span>
+<span class="sd">        generation sometimes takes a bit of time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_ops</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_ops</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">SymmOp</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_full_symmetry_ops</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_ops</span>
+
+    <span class="k">def</span> <span class="nf">get_orbit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the orbit for a point.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            p: Point as a 3x1 array.</span>
+<span class="sd">            tol: Tolerance for determining if sites are the same. 1e-5 should</span>
+<span class="sd">                be sufficient for most purposes. Set to 0 for exact matching</span>
+<span class="sd">                (and also needed for symbolic orbits).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ([array]) Orbit for point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orbit</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">:</span>
+            <span class="n">pp</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="n">pp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">pp</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">in_array_list</span><span class="p">(</span><span class="n">orbit</span><span class="p">,</span> <span class="n">pp</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">):</span>
+                <span class="n">orbit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">orbit</span>
+
+    <span class="k">def</span> <span class="nf">is_compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">angle_tol</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks whether a particular lattice is compatible with the</span>
+<span class="sd">        *conventional* unit cell.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lattice (Lattice): A Lattice.</span>
+<span class="sd">            tol (float): The tolerance to check for equality of lengths.</span>
+<span class="sd">            angle_tol (float): The tolerance to check for equality of angles</span>
+<span class="sd">                in degrees.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">abc</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
+        <span class="n">crys_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crystal_system</span>
+
+        <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">all</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tolerance</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ref</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">j</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;cubic&quot;</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;hexagonal&quot;</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;trigonal&quot;</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">int_number</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">143</span><span class="p">,</span> <span class="mi">144</span><span class="p">,</span> <span class="mi">145</span><span class="p">,</span> <span class="mi">147</span><span class="p">,</span> <span class="mi">149</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">151</span><span class="p">,</span> <span class="mi">152</span><span class="p">,</span>
+                                    <span class="mi">153</span><span class="p">,</span> <span class="mi">154</span><span class="p">,</span> <span class="mi">156</span><span class="p">,</span> <span class="mi">157</span><span class="p">,</span> <span class="mi">158</span><span class="p">,</span> <span class="mi">159</span><span class="p">,</span> <span class="mi">162</span><span class="p">,</span> <span class="mi">163</span><span class="p">,</span>
+                                    <span class="mi">164</span><span class="p">,</span> <span class="mi">165</span><span class="p">])):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;trigonal&quot;</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="n">alpha</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">alpha</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;tetragonal&quot;</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;orthorhombic&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">crys_system</span> <span class="o">==</span> <span class="s2">&quot;monoclinic&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">angle_tol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">crystal_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Crystal system for space group.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">int_number</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;triclinic&quot;</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">15</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;monoclinic&quot;</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">74</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;orthorhombic&quot;</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">142</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;tetragonal&quot;</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">167</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;trigonal&quot;</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">194</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;hexagonal&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;cubic&quot;</span>
+
+    <span class="k">def</span> <span class="nf">is_subgroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supergroup</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        True if this space group is a subgroup of the supplied group.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            group (Spacegroup): Supergroup to test.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if this space group is a subgroup of the supplied group.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">supergroup</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">groups</span> <span class="o">=</span> <span class="p">[[</span><span class="n">supergroup</span><span class="o">.</span><span class="n">int_number</span><span class="p">]]</span>
+        <span class="n">all_groups</span> <span class="o">=</span> <span class="p">[</span><span class="n">supergroup</span><span class="o">.</span><span class="n">int_number</span><span class="p">]</span>
+        <span class="n">max_subgroups</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span>
+                         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;maximal_subgroups&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">new_sub_groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">new_sub_groups</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">max_subgroups</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">j</span>
+                                       <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_groups</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">int_number</span> <span class="ow">in</span> <span class="n">new_sub_groups</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_sub_groups</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_sub_groups</span><span class="p">)</span>
+                <span class="n">all_groups</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_sub_groups</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">is_supergroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subgroup</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        True if this space group is a supergroup of the supplied group.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subgroup (Spacegroup): Subgroup to test.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if this space group is a supergroup of the supplied group.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">subgroup</span><span class="o">.</span><span class="n">is_subgroup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_int_number</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">int_number</span><span class="p">,</span> <span class="n">hexagonal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtains a SpaceGroup from its international number.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            int_number (int): International number.</span>
+<span class="sd">            hexagonal (bool): For rhombohedral groups, whether to return the</span>
+<span class="sd">                hexagonal setting (default) or rhombohedral setting.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (SpaceGroup)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sym</span> <span class="o">=</span> <span class="n">sg_symbol_from_int_number</span><span class="p">(</span><span class="n">int_number</span><span class="p">,</span> <span class="n">hexagonal</span><span class="o">=</span><span class="n">hexagonal</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">hexagonal</span> <span class="ow">and</span> <span class="n">int_number</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">146</span><span class="p">,</span> <span class="mi">148</span><span class="p">,</span> <span class="mi">155</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">161</span><span class="p">,</span> <span class="mi">166</span><span class="p">,</span> <span class="mi">167</span><span class="p">]:</span>
+            <span class="n">sym</span> <span class="o">+=</span> <span class="s1">&#39;:R&#39;</span>
+        <span class="k">return</span> <span class="n">SpaceGroup</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Spacegroup </span><span class="si">%s</span><span class="s2"> with international number </span><span class="si">%d</span><span class="s2"> and order </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">int_number</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symmetry_ops</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="sg_symbol_from_int_number"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.sg_symbol_from_int_number">[docs]</a><span class="k">def</span> <span class="nf">sg_symbol_from_int_number</span><span class="p">(</span><span class="n">int_number</span><span class="p">,</span> <span class="n">hexagonal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtains a SpaceGroup name from its international number.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        int_number (int): International number.</span>
+<span class="sd">        hexagonal (bool): For rhombohedral groups, whether to return the</span>
+<span class="sd">            hexagonal setting (default) or rhombohedral setting.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (str) Spacegroup symbol</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">syms</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_get_symm_data</span><span class="p">(</span><span class="s2">&quot;space_group_encoding&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;int_number&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">int_number</span><span class="p">:</span>
+            <span class="n">syms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">syms</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid international number!&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">syms</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">syms</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;e&quot;</span> <span class="ow">in</span> <span class="n">sym</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">sym</span>
+        <span class="k">if</span> <span class="n">hexagonal</span><span class="p">:</span>
+            <span class="n">syms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">),</span> <span class="n">syms</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">syms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">),</span> <span class="n">syms</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">syms</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="in_array_list"><a class="viewcode-back" href="../../../pymatgen.symmetry.groups.html#pymatgen.symmetry.groups.in_array_list">[docs]</a><span class="k">def</span> <span class="nf">in_array_list</span><span class="p">(</span><span class="n">array_list</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extremely efficient nd-array comparison using numpy&#39;s broadcasting. This</span>
+<span class="sd">    function checks if a particular array a, is present in a list of arrays.</span>
+<span class="sd">    It works for arrays of any size, e.g., even matrix searches.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        array_list ([array]): A list of arrays to compare to.</span>
+<span class="sd">        a (array): The test array for comparison.</span>
+<span class="sd">        tol (float): The tolerance. Defaults to 1e-5. If 0, an exact match is</span>
+<span class="sd">            done.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (bool)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">array_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">axes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">ndim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tol</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">array_list</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]),</span> <span class="n">axes</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">array_list</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]),</span> <span class="n">axes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.symmetry.groups</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,17 @@
+System is magnesite
+ISTART = 0
+ENCUT = 1200
+PREC = Accurate
+NELMIN = 5
+EDIFF = 1.0E-10
+KPAR = 2
+LREAL = Auto
+ISMEAR = -5
+SIGMA = 0
+LCHARG = False
+LWAVE = False
+LCHIMAG = .True.
+DQ = 0.001
+ICHIBARE = 1
+NSLPLINE = .True.
+LNMR_SYM_RED = .True

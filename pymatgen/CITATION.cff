@@ -1,0 +1,43 @@
+
+cff-version: 1.2.0
+message: |
+  If you use pymatgen in your research, please consider citing the following:
+
+  In addition, some of pymatgen's functionality is based on scientific advances
+  / principles developed by the computational materials scientists in our team.
+  Please refer to pymatgen's docs at http://pymatgen.org on how to cite them.
+authors:
+- family-names: Ong
+  given-names: Shyue Ping
+  orcid: https://orcid.org/0000-0001-5726-2587
+- family-names: Richards
+  given-names: William Davidson
+- family-names: Jain
+  given-names: Anubhav
+  orcid: https://orcid.org/0000-0001-5893-9967
+- family-names: Hautier
+  given-names: Geoffroy
+- family-names: Kocher
+  given-names: Michael
+- family-names: Cholia
+  given-names: Shreyas
+- family-names: Gunter
+  given-names: Dan
+- family-names: Chevrier
+  given-names: Vincent L.
+- family-names: Persson
+  given-names: Kristin A.
+  orcid: https://orcid.org/0000-0003-2495-5509
+- family-names: Ceder
+  given-names: Gerbrand
+  orcid: https://orcid.org/0000-0001-9275-3605
+title: 'Python Materials Genomics (pymatgen): A robust, open-source python library for materials analysis'
+version: 2022.1.24 # replace with whatever version you use
+doi: 10.1016/j.commatsci.2012.10.028
+date-released: 2013-06-04
+url: https://github.com/materialsproject/pymatgen
+issn: 09270256
+journal: Computational Materials Science
+pages: 314-319
+volume: 68
+year: 2013

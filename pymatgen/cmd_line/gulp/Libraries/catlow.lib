@@ -1,0 +1,49 @@
+#
+#  CATLOW library - collection of potentials based
+#  around the Catlow oxygen-oxygen potential
+#
+#  O_O2- general O2- species
+#  O_OH  oxygen in hydroxyl group
+#  H_OH  hydrogn in hydroxyl group
+#
+#  References:
+#  (1) K.P.Schroder, J.Sauer, M.Leslie, C.R.A.Catlow and
+#      J.M.Thomas, Chem. Phys. Lett., 188 (1992) 320.
+#  (2) J.D.Gale and N.J.Henson, JCS Faraday Trans., 90
+#      (1994) 3175.
+#  (3) J.D.Gale, unpublished results - non-zeolite potentials
+#      are relax fitted to structure and any available properties
+#      for the relevant binary oxide
+#
+species
+Na    core  1.00000
+Mg    core  2.00000
+Al    core  3.00000
+Si    core  4.00000
+P     core  5.00000
+O_O2- core  0.86902
+O_O2- shel -2.86902
+O_OH  core -1.42600
+H_OH  core  0.42600
+buckingham
+buck
+Na core    O_O2- shel   468.002 0.35771  0.00000 0.0 10.0
+Mg core    O_O2- shel   946.627 0.31813  0.00000 0.0 10.0
+Al core    O_O2- shel  1460.300 0.29912  0.00000 0.0 10.0
+Al core    O_OH  core  1142.678 0.29912  0.00000 0.0 10.0
+Si core    O_O2- shel  1283.907 0.32052 10.66158 0.0 10.0
+Si core    O_OH  core   983.557 0.32052 10.66158 0.0 10.0
+P  core    O_O2- shel   877.340 0.35940  0.00000 0.0 10.0
+O_O2- shel O_O2- shel 22764.000 0.14900 27.87900 0.0 12.0
+O_O2- shel O_OH  core 22764.000 0.14900 27.87900 0.0 12.0
+O_OH  core O_OH  core 22764.000 0.14900 27.87900 0.0 12.0
+O_O2- shel H_OH  core   311.970 0.25000  0.00000 0.0 12.0
+morse
+O_OH  core H_OH  core 7.0525 2.1986 0.9485 1.0 1.4
+spring
+O_O2-  74.92
+three
+Si core O_O2- shel O_O2- shel 2.09724 109.47 1.9 1.9 3.5
+Si core O_OH  core O_O2- shel 2.09724 109.47 1.9 1.9 3.5
+Al core O_O2- shel O_O2- shel 2.09724 109.47 1.9 1.9 3.5
+Al core O_OH  core O_O2- shel 2.09724 109.47 1.9 1.9 3.5

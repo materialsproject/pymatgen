@@ -1,0 +1,634 @@
+node0493 /softs/intel/impi/5.0.2.044/intel64/bin/pmi_proxy --control-port node0492:35438 --pmi-connect lazy-cache --pmi-aggregate -s 0 --rmk pbs --launcher ssh --launcher-exec /softs/pbstools/bin/impi_ssh_wrapper.sh --demux poll --pgid 0 --enable-stdin 1 --retries 10 --control-code 221236231 --usize -2 --proxy-id 1
+node0494 /softs/intel/impi/5.0.2.044/intel64/bin/pmi_proxy --control-port node0492:35438 --pmi-connect lazy-cache --pmi-aggregate -s 0 --rmk pbs --launcher ssh --launcher-exec /softs/pbstools/bin/impi_ssh_wrapper.sh --demux poll --pgid 0 --enable-stdin 1 --retries 10 --control-code 221236231 --usize -2 --proxy-id 2
+node0495 /softs/intel/impi/5.0.2.044/intel64/bin/pmi_proxy --control-port node0492:35438 --pmi-connect lazy-cache --pmi-aggregate -s 0 --rmk pbs --launcher ssh --launcher-exec /softs/pbstools/bin/impi_ssh_wrapper.sh --demux poll --pgid 0 --enable-stdin 1 --retries 10 --control-code 221236231 --usize -2 --proxy-id 3
+=========================================
+            PROGRAM FIESTA               
+      A Gaussian-basis GW/BSE code       
+  I. Duchemin / P. Boulanger / X. Blase  
+  *** This is your PRIVATE copy !!! ***  
+  Contact: xavier.blase@neel.cnrs.fr     
+=========================================
+
+=========================================
+Grid repartition for context ***
+
+  Grid dimension:
+    number of rows    ->   2
+    number of columns ->   2
+    number of slices  ->  24
+
+  Slice processor maps:
+    slice   1 : procs   0 ->   3
+    slice   2 : procs   4 ->   7
+    slice   3 : procs   8 ->  11
+    slice   4 : procs  12 ->  15
+    slice   5 : procs  16 ->  19
+    slice   6 : procs  20 ->  23
+    slice   7 : procs  24 ->  27
+    slice   8 : procs  28 ->  31
+    slice   9 : procs  32 ->  35
+    slice  10 : procs  36 ->  39
+    slice  11 : procs  40 ->  43
+    slice  12 : procs  44 ->  47
+    slice  13 : procs  48 ->  51
+    slice  14 : procs  52 ->  55
+    slice  15 : procs  56 ->  59
+    slice  16 : procs  60 ->  63
+    slice  17 : procs  64 ->  67
+    slice  18 : procs  68 ->  71
+    slice  19 : procs  72 ->  75
+    slice  20 : procs  76 ->  79
+    slice  21 : procs  80 ->  83
+    slice  22 : procs  84 ->  87
+    slice  23 : procs  88 ->  91
+    slice  24 : procs  92 ->  95
+=========================================
+
+=========================================
+Reading infos on system:
+
+  Number of atoms =  12 ;  number of species =  2
+  Number of valence bands    21
+  Sigma grid specs: n_grid = 6 ;  dE_grid = 0.5000 (eV)
+  Exchange and correlation energy read from Vxcpsi.mat
+  Correcting   0 valence bands and   0 conduction bands at COHSEX level
+  Performing   0 diagonal COHSEX iterations
+  Using resolution of identity : V
+  Correcting   5 valence bands and   5 conduction bands at GW level
+  Performing   3 GW iterations
+  Dumping data for bse treatment
+  I hope file C2.ion  is around.
+  I hope file H2.ion  is around.
+
+  Atoms in cell cartesian AA:
+   -0.986293    0.986293    0.000000    1
+    0.361008    1.347301    0.000000    1
+    1.347301    0.361008    0.000000    1
+    0.986293   -0.986293    0.000000    1
+   -0.361008   -1.347301    0.000000    1
+   -1.347301   -0.361008    0.000000    1
+   -2.396989   -0.642271    0.000000    2
+   -1.754718    1.754718    0.000000    2
+    0.642271    2.396989    0.000000    2
+    2.396989    0.642271    0.000000    2
+    1.754718   -1.754718    0.000000    2
+   -0.642271   -2.396989    0.000000    2
+=========================================
+
+=========================================
+Reading Kohn-Sham basis:
+
+  Reading file  C.ion
+    maximum angular momentum=      3
+    number of atomic orbitals=    14
+    number of nlm orbitals per C   atom=     46
+
+  Reading file  H.ion
+    maximum angular momentum=      2
+    number of atomic orbitals=     9
+    number of nlm orbitals per H   atom=     23
+
+  Analyze basis: check norm and overlap on atom
+    Define cut off radius such that radial integral is one within   0.000000010000
+    ao_norbt=         414
+=========================================
+
+=========================================
+Reading auxiliary basis:
+
+  Reading file  C2.ion
+    maximum angular momentum=      4
+    number of atomic orbitals=    28
+    number of nlm orbitals per C   atom=    106
+
+  Reading file  H2.ion
+    maximum angular momentum=      3
+    number of atomic orbitals=    14
+    number of nlm orbitals per H   atom=     46
+
+  Analyze basis: check norm and overlap on atom
+    Define cut off radius such that radial integral is one within   0.000000010000
+    bo_norbt=         912
+=========================================
+ 
+=========================================
+Reading wave functions from WFN file
+ 
+  found   414 states:
+     21 valence states +   393 conduction states
+=========================================
+
+=========================================
+Basis refinement:
+
+  Using  0.10000E-07 as cutoff
+  Extracted   891 non singular directions out of   912
+  Max singular value:  0.30228E+04
+  Min singular value:  0.33581E-06
+=========================================
+
+=========================================
+Constructing corrected subset
+=========================================
+
+=========================================
+<phi|b|a> integrals
+
+  Tensor stats (min/max): local aba_col
+   - threshold            1.000000000000000E-008
+   - max capacity         2147483647
+   - n rows                      414         414
+   - n columns                   414         414
+   - n slices                    228         228
+   - n coeffs               18932387    19163870
+   - actual capacity        18932387    19163870
+   - actual memory (Mo)          216         219
+   - peak memory (Mo)            216         219
+ 
+ <aa|V|b> time  :   3.52446400000000     
+ <aa|V|b> comm  :   6.52700800000000     
+ 
+  Tensor stats (min/max): phivba_row
+   - threshold            1.000000000000000E-008
+   - max capacity         2147483647
+   - n rows                        0           1
+   - n columns                   414         414
+   - n slices                    456         456
+   - n coeffs                      0      103224
+   - actual capacity               0      103224
+   - actual memory (Mo)            0           0
+   - peak memory (Mo)              0           0
+  Tensor stats (min/max): phivba_col
+   - threshold            1.000000000000000E-008
+   - max capacity         2147483647
+   - n rows                        0           1
+   - n columns                   414         414
+   - n slices                    456         456
+   - n coeffs                      0      103224
+   - actual capacity               0      103224
+   - actual memory (Mo)            0           0
+   - peak memory (Mo)              0           0
+  Tensor stats (min/max): phicba_row
+   - threshold            1.000000000000000E-008
+   - max capacity         2147483647
+   - n rows                       16          17
+   - n columns                   414         414
+   - n slices                    456         456
+   - n coeffs                 514042     1665034
+   - actual capacity          514042     1665034
+   - actual memory (Mo)            4          18
+   - peak memory (Mo)              4          18
+  Tensor stats (min/max): phicba_col
+   - threshold            1.000000000000000E-008
+   - max capacity         2147483647
+   - n rows                       16          17
+   - n columns                   414         414
+   - n slices                    456         456
+   - n coeffs                 514042     1665034
+   - actual capacity          514042     1665034
+   - actual memory (Mo)            4          18
+   - peak memory (Mo)              4          18
+ 
+  <phi*a|V|b> time:   2.80857200000000     
+  total comm    :   6.55100500000000     
+  total time    :   12.9460320000000     
+=========================================
+ Restarting from previous GW calculation with evGW.dat for valence states
+ Restarting from previous GW calculation with ecGW.dat for conduction states
+ XC contribution to selected ground state eigenvalues (eVs) =
+    12  -16.465
+    13  -17.058
+    14  -18.525
+    15  -17.024
+    16  -17.024
+    17  -14.580
+    18  -17.454
+    19  -17.454
+    20  -14.351
+    21  -14.351
+    22  -11.402
+    23  -11.402
+    24   -2.056
+    25   -1.351
+    26   -1.351
+    27   -1.082
+    28   -1.082
+    29   -1.939
+    30   -0.711
+ Getting bare exchange for           10  states
+ Done
+ ix,exx=           1  -17.5014391979370     
+ ix,exx=           2  -20.7147357152090     
+ ix,exx=           3  -20.7147265026905     
+ ix,exx=           4  -15.9484893493246     
+ ix,exx=           5  -15.9482713241482     
+ ix,exx=           6  -7.54412742555459     
+ ix,exx=           7  -7.54403137480374     
+ ix,exx=           8 -0.792921165462817     
+ ix,exx=           9 -0.465768855099118     
+ ix,exx=          10 -0.465771899428640     
+
+=========================================
+           GW Driver iteration
+=========================================
+
+Imaginary axis: number of gauss points =    20
+Exponent of analytic tail     0.053207
+
+ - Getting XiO done in 20 *  0.6682s. - Getting W done in 20 *  0.0334s. - Getting Sigma done in 20 *  0.7925s.
+
+sigma without pole corrections
+state   1 energy (eV):      -11.863629     -11.374096     -10.884564     -10.395031      -9.905498      -9.415965
+state   1 sigma  (eV):       -3.847746      -3.914687      -3.984149      -2.284886      -2.358673      -2.434026
+state   2 energy (eV):      -11.863629     -11.374096     -10.884564     -10.395031      -9.905498      -9.415965
+state   2 sigma  (eV):       -0.720849      -0.791805      -0.861553       0.585019       0.518338       0.453648
+state   3 energy (eV):      -11.863629     -11.374096     -10.884564     -10.395031      -9.905498      -9.415965
+state   3 sigma  (eV):       -0.720853      -0.791810      -0.861558       0.585010       0.518330       0.453639
+state   4 energy (eV):       -8.926433      -8.436900      -7.947367      -7.457834      -6.968302      -6.478769
+state   4 sigma  (eV):       -2.565679      -2.635406      -2.705740      -0.496436      -0.566250      -0.634997
+state   5 energy (eV):       -8.926433      -8.436900      -7.947367      -7.457834      -6.968302      -6.478769
+state   5 sigma  (eV):       -2.565621      -2.635347      -2.705680      -0.496453      -0.566265      -0.635010
+state   6 energy (eV):       -2.072974      -1.583442      -1.093909      -0.604376      -0.114843       0.374689
+state   6 sigma  (eV):       -1.764763      -1.822206      -1.880362      -0.503636      -0.558801      -0.613146
+state   7 energy (eV):       -2.072974      -1.583442      -1.093909      -0.604376      -0.114843       0.374689
+state   7 sigma  (eV):       -1.764812      -1.822254      -1.880410      -0.503695      -0.558860      -0.613205
+state   8 energy (eV):       -1.583442      -1.093909      -0.604376      -0.114843       0.374689       0.864222
+state   8 sigma  (eV):       -0.479273      -0.490836      -0.496131      -0.499871      -0.236714      -0.196107
+state   9 energy (eV):       -1.093909      -0.604376      -0.114843       0.374689       0.864222       1.353755
+state   9 sigma  (eV):       -0.320809      -0.325119      -0.195542      -0.170765      -0.060103      -0.059783
+state  10 energy (eV):       -1.093909      -0.604376      -0.114843       0.374689       0.864222       1.353755
+state  10 sigma  (eV):       -0.320807      -0.325118      -0.195543      -0.170765      -0.060102      -0.059783
+
+Add sigma poles:
+
+  using eta broadenning   =   0.5000E-01 (eV)
+  using cluster threshold =   0.1250E-01 (eV)
+
+  found  162 poles clustered in   22 subsets
+  set   1)  spread =   0.3265E+00 ->   0.3265E+00 ;  base =   0.3265E+00
+  set   2)  spread =   0.1564E+01 ->   0.1564E+01 ;  base =   0.1564E+01
+  set   3)  spread =   0.6256E+00 ->   0.6256E+00 ;  base =   0.6256E+00
+  set   4)  spread =   0.8160E+00 ->   0.8160E+00 ;  base =   0.8160E+00
+  set   5)  spread =   0.4031E-01 ->   0.4031E-01 ;  base =   0.4031E-01
+  set   6)  spread =   0.1074E+01 ->   0.1074E+01 ;  base =   0.1074E+01
+  set   7)  spread =   0.1306E+01 ->   0.1306E+01 ;  base =   0.1306E+01
+  set   8)  spread =   0.2709E+00 ->   0.2709E+00 ;  base =   0.2709E+00
+  set   9)  spread =   0.1697E+01 ->   0.1702E+01 ;  base =   0.1700E+01
+  set  10)  spread =   0.1360E+00 ->   0.1360E+00 ;  base =   0.1360E+00
+  set  11)  spread =   0.7605E+00 ->   0.7605E+00 ;  base =   0.7605E+00
+  set  12)  spread =   0.2187E+01 ->   0.2192E+01 ;  base =   0.2189E+01
+  set  13)  spread =   0.1250E+01 ->   0.1250E+01 ;  base =   0.1250E+01
+  set  14)  spread =   0.2286E+00 ->   0.2336E+00 ;  base =   0.2322E+00
+  set  15)  spread =   0.2676E+01 ->   0.2676E+01 ;  base =   0.2676E+01
+  set  16)  spread =   0.7181E+00 ->   0.7232E+00 ;  base =   0.7217E+00
+  set  17)  spread =   0.1208E+01 ->   0.1213E+01 ;  base =   0.1211E+01
+  set  18)  spread =   0.3166E+01 ->   0.3166E+01 ;  base =   0.3166E+01
+  set  19)  spread =   0.9543E-01 ->   0.9543E-01 ;  base =   0.9543E-01
+  set  20)  spread =   0.3655E+01 ->   0.3655E+01 ;  base =   0.3655E+01
+  set  21)  spread =   0.5850E+00 ->   0.5850E+00 ;  base =   0.5850E+00
+  set  22)  spread =   0.4145E+01 ->   0.4145E+01 ;  base =   0.4145E+01
+
+ - Getting XiO done in 22 *  0.6587s. - Getting W done in 22 *  0.0304s. - Getting Sigma done in 22 *  0.0225s.
+
+sigma with pole corrections
+state   1 energy (eV):      -11.863629     -11.374096     -10.884564     -10.395031      -9.905498      -9.415965
+state   1 sigma  (eV):        1.395003       1.239784       1.100964       0.975029       0.859554       0.752336
+state   2 energy (eV):      -11.863629     -11.374096     -10.884564     -10.395031      -9.905498      -9.415965
+state   2 sigma  (eV):        0.867656       0.793172       0.721495       0.652338       0.585435       0.520569
+state   3 energy (eV):      -11.863629     -11.374096     -10.884564     -10.395031      -9.905498      -9.415965
+state   3 sigma  (eV):        0.867647       0.793163       0.721486       0.652330       0.585427       0.520561
+state   4 energy (eV):       -8.926433      -8.436900      -7.947367      -7.457834      -6.968302      -6.478769
+state   4 sigma  (eV):       -0.277956      -0.352579      -0.425311      -0.496436      -0.566250      -0.634997
+state   5 energy (eV):       -8.926433      -8.436900      -7.947367      -7.457834      -6.968302      -6.478769
+state   5 sigma  (eV):       -0.277975      -0.352597      -0.425329      -0.496453      -0.566265      -0.635010
+state   6 energy (eV):       -2.072974      -1.583442      -1.093909      -0.604376      -0.114843       0.374689
+state   6 sigma  (eV):       -1.764763      -1.822206      -1.880362      -1.939392      -1.999494      -2.060859
+state   7 energy (eV):       -2.072974      -1.583442      -1.093909      -0.604376      -0.114843       0.374689
+state   7 sigma  (eV):       -1.764812      -1.822254      -1.880410      -1.939441      -1.999542      -2.060907
+state   8 energy (eV):       -1.583442      -1.093909      -0.604376      -0.114843       0.374689       0.864222
+state   8 sigma  (eV):       -0.479273      -0.490836      -0.502950      -0.515680      -0.529098      -0.543300
+state   9 energy (eV):       -1.093909      -0.604376      -0.114843       0.374689       0.864222       1.353755
+state   9 sigma  (eV):       -0.320809      -0.329020      -0.337672      -0.346825      -0.356543      -0.366910
+state  10 energy (eV):       -1.093909      -0.604376      -0.114843       0.374689       0.864222       1.353755
+state  10 sigma  (eV):       -0.320807      -0.329018      -0.337670      -0.346823      -0.356541      -0.366908
+
+<it 1> 
+<it 1> =========================================
+<it 1>                GW Results
+<it 1> =========================================
+<it 1>
+<it 1> GW time =      48.9416
+<it 1> 
+<it 1> Quasi particle energies:
+<it 1>                                            ----------------------------------------------------
+<it 1>                                            |           LINEAR          |          SCF         |
+<it 1> -----------------------------------------------------------------------------------------------
+<it 1> |  state  |   eKS(eV)   eXX(eV)   eQP_old  |   z  sigma_c(eV)  eQP(eV) | sigma_c(eV)  eQP(eV) |
+<it 1> -----------------------------------------------------------------------------------------------
+<it 1> | HOMO-4  |  -10.4901  -17.5014  -10.5581  | 0.80    1.0157  -12.0787  |    1.6157  -11.8636  | !!! WARNING !!! SCF eQP < emin grid
+<it 1> | HOMO-3  |   -9.6981  -20.7147  -10.6136  | 0.88    0.6829  -12.8729  |    2.0107  -11.8636  | !!! WARNING !!! SCF eQP < emin grid
+<it 1> | HOMO-2  |   -9.6981  -20.7147  -10.6136  | 0.88    0.6829  -12.8729  |    2.0107  -11.8636  | !!! WARNING !!! SCF eQP < emin grid
+<it 1> | HOMO-1  |   -7.3029  -15.9485   -7.7186  | 0.87   -0.4587   -9.5140  |    0.3899   -8.9264  | !!! WARNING !!! SCF eQP < emin grid
+<it 1> | HOMO    |   -7.3029  -15.9483   -7.7188  | 0.87   -0.4587   -9.5142  |    0.3900   -8.9264  | !!! WARNING !!! SCF eQP < emin grid
+<it 1> -----------------------------------------------------------------------------------------------
+<it 1> |             Egap_KS =  6.9992            |     Egap_QP = 10.4135     |   Egap_QP =  9.3011  |
+<it 1> -----------------------------------------------------------------------------------------------
+<it 1> | LUMO    |   -0.3037   -7.5441   -0.8380  | 0.89   -1.9111    0.8993  |   -2.6453    0.3747  | !!! WARNING !!! SCF eQP > emax grid
+<it 1> | LUMO+1  |   -0.3037   -7.5440   -0.8380  | 0.89   -1.9111    0.8993  |   -2.6453    0.3747  | !!! WARNING !!! SCF eQP > emax grid
+<it 1> | LUMO+2  |   -0.0494   -0.7929   -0.2103  | 0.97   -0.5131    0.5199  |   -0.5332    0.5192  |
+<it 1> | LUMO+3  |    0.3712   -0.4658    0.1038  | 0.98   -0.3417    0.6373  |   -0.3520    0.6369  |
+<it 1> | LUMO+4  |    0.3712   -0.4658    0.1038  | 0.98   -0.3417    0.6373  |   -0.3520    0.6370  |
+<it 1> -----------------------------------------------------------------------------------------------
+<it 1> 
+
+ Dumping eigen energies for          393 states in file ecGW.dat
+ Dumping eigen energies for           21 states in file evGW.dat
+
+=========================================
+           GW Driver iteration
+=========================================
+
+Imaginary axis: number of gauss points =    20
+Exponent of analytic tail     0.053133
+
+ - Getting XiO done in 20 *  0.6686s. - Getting W done in 20 *  0.0327s. - Getting Sigma done in 20 *  0.7850s.
+
+sigma without pole corrections
+state   1 energy (eV):      -13.113629     -12.629740     -12.145850     -11.661960     -11.178071     -10.694181
+state   1 sigma  (eV):       -3.673778      -3.730381      -3.788718      -2.164980      -2.226015      -2.287928
+state   2 energy (eV):      -13.113629     -12.629740     -12.145850     -11.661960     -11.178071     -10.694181
+state   2 sigma  (eV):       -0.718853      -0.778963      -0.838358       0.542009       0.484624       0.428644
+state   3 energy (eV):      -13.113629     -12.629740     -12.145850     -11.661960     -11.178071     -10.694181
+state   3 sigma  (eV):       -0.718857      -0.778967      -0.838362       0.542001       0.484616       0.428636
+state   4 energy (eV):      -10.210291      -9.726402      -9.242512      -8.758622      -8.274733      -7.790843
+state   4 sigma  (eV):       -2.430907      -2.488151      -2.545851      -0.439971      -0.497545      -0.554265
+state   5 energy (eV):      -10.210291      -9.726402      -9.242512      -8.758622      -8.274733      -7.790843
+state   5 sigma  (eV):       -2.430849      -2.488091      -2.545791      -0.439983      -0.497556      -0.554275
+state   6 energy (eV):       -1.016388      -0.532498      -0.048608       0.435281       0.919171       1.403061
+state   6 sigma  (eV):       -1.824186      -1.872606      -1.921720      -0.609527      -0.652787      -0.697273
+state   7 energy (eV):       -1.016388      -0.532498      -0.048608       0.435281       0.919171       1.403061
+state   7 sigma  (eV):       -1.824230      -1.872650      -1.921764      -0.609581      -0.652842      -0.697328
+state   8 energy (eV):       -0.532498      -0.048608       0.435281       0.919171       1.403061       1.886950
+state   8 sigma  (eV):       -0.468300      -0.478276      -0.482243      -0.234783      -0.195605      -0.135053
+state   9 energy (eV):       -0.532498      -0.048608       0.435281       0.919171       1.403061       1.886950
+state   9 sigma  (eV):       -0.304290      -0.310946      -0.314250      -0.165323      -0.064277      -0.062999
+state  10 energy (eV):       -0.532498      -0.048608       0.435281       0.919171       1.403061       1.886950
+state  10 sigma  (eV):       -0.304288      -0.310945      -0.314249      -0.165323      -0.064276      -0.062998
+
+Add sigma poles:
+
+  using eta broadenning   =   0.5000E-01 (eV)
+  using cluster threshold =   0.1250E-01 (eV)
+
+  found  169 poles clustered in   22 subsets
+  set   1)  spread =   0.3161E+00 ->   0.3161E+00 ;  base =   0.3161E+00
+  set   2)  spread =   0.4000E+00 ->   0.4000E+00 ;  base =   0.4000E+00
+  set   3)  spread =   0.6256E+00 ->   0.6256E+00 ;  base =   0.6256E+00
+  set   4)  spread =   0.8000E+00 ->   0.8000E+00 ;  base =   0.8000E+00
+  set   5)  spread =   0.1028E+01 ->   0.1028E+01 ;  base =   0.1028E+01
+  set   6)  spread =   0.1417E+00 ->   0.1417E+00 ;  base =   0.1417E+00
+  set   7)  spread =   0.1368E+01 ->   0.1368E+01 ;  base =   0.1368E+01
+  set   8)  spread =   0.1512E+01 ->   0.1512E+01 ;  base =   0.1512E+01
+  set   9)  spread =   0.8839E+00 ->   0.8839E+00 ;  base =   0.8839E+00
+  set  10)  spread =   0.1768E+01 ->   0.1768E+01 ;  base =   0.1768E+01
+  set  11)  spread =   0.1284E+01 ->   0.1284E+01 ;  base =   0.1284E+01
+  set  12)  spread =   0.2252E+01 ->   0.2252E+01 ;  base =   0.2252E+01
+  set  13)  spread =   0.6059E-01 ->   0.6059E-01 ;  base =   0.6059E-01
+  set  14)  spread =   0.5445E+00 ->   0.5445E+00 ;  base =   0.5445E+00
+  set  15)  spread =   0.2736E+01 ->   0.2736E+01 ;  base =   0.2736E+01
+  set  16)  spread =   0.2822E+00 ->   0.2822E+00 ;  base =   0.2822E+00
+  set  17)  spread =   0.7661E+00 ->   0.7661E+00 ;  base =   0.7661E+00
+  set  18)  spread =   0.3219E+01 ->   0.3219E+01 ;  base =   0.3219E+01
+  set  19)  spread =   0.1250E+01 ->   0.1250E+01 ;  base =   0.1250E+01
+  set  20)  spread =   0.3703E+01 ->   0.3703E+01 ;  base =   0.3703E+01
+  set  21)  spread =   0.4032E-01 ->   0.4032E-01 ;  base =   0.4032E-01
+  set  22)  spread =   0.4187E+01 ->   0.4187E+01 ;  base =   0.4187E+01
+
+ - Getting XiO done in 22 *  0.6573s. - Getting W done in 22 *  0.0305s. - Getting Sigma done in 22 *  0.0223s.
+
+sigma with pole corrections
+state   1 energy (eV):      -13.113629     -12.629740     -12.145850     -11.661960     -11.178071     -10.694181
+state   1 sigma  (eV):        1.089561       0.989796       0.896280       0.808103       0.724514       0.644910
+state   2 energy (eV):      -13.113629     -12.629740     -12.145850     -11.661960     -11.178071     -10.694181
+state   2 sigma  (eV):        0.788545       0.725874       0.665066       0.605968       0.548428       0.492325
+state   3 energy (eV):      -13.113629     -12.629740     -12.145850     -11.661960     -11.178071     -10.694181
+state   3 sigma  (eV):        0.788537       0.725866       0.665058       0.605961       0.548421       0.492317
+state   4 energy (eV):      -10.210291      -9.726402      -9.242512      -8.758622      -8.274733      -7.790843
+state   4 sigma  (eV):       -0.260736      -0.321724      -0.381418      -0.439971      -0.497545      -0.554265
+state   5 energy (eV):      -10.210291      -9.726402      -9.242512      -8.758622      -8.274733      -7.790843
+state   5 sigma  (eV):       -0.260751      -0.321737      -0.381431      -0.439983      -0.497556      -0.554275
+state   6 energy (eV):       -1.016388      -0.532498      -0.048608       0.435281       0.919171       1.403061
+state   6 sigma  (eV):       -1.824186      -1.872606      -1.921720      -1.971618      -2.022416      -2.074219
+state   7 energy (eV):       -1.016388      -0.532498      -0.048608       0.435281       0.919171       1.403061
+state   7 sigma  (eV):       -1.824230      -1.872650      -1.921764      -1.971662      -2.022460      -2.074263
+state   8 energy (eV):       -0.532498      -0.048608       0.435281       0.919171       1.403061       1.886950
+state   8 sigma  (eV):       -0.468300      -0.478276      -0.488655      -0.499472      -0.510775      -0.522610
+state   9 energy (eV):       -0.532498      -0.048608       0.435281       0.919171       1.403061       1.886950
+state   9 sigma  (eV):       -0.304290      -0.310946      -0.317883      -0.325126      -0.332707      -0.340663
+state  10 energy (eV):       -0.532498      -0.048608       0.435281       0.919171       1.403061       1.886950
+state  10 sigma  (eV):       -0.304288      -0.310945      -0.317882      -0.325125      -0.332706      -0.340661
+
+<it 2> 
+<it 2> =========================================
+<it 2>                GW Results
+<it 2> =========================================
+<it 2>
+<it 2> GW time =      48.7596
+<it 2> 
+<it 2> Quasi particle energies:
+<it 2>                                            ----------------------------------------------------
+<it 2>                                            |           LINEAR          |          SCF         |
+<it 2> -----------------------------------------------------------------------------------------------
+<it 2> |  state  |   eKS(eV)   eXX(eV)   eQP_old  |   z  sigma_c(eV)  eQP(eV) | sigma_c(eV)  eQP(eV) |
+<it 2> -----------------------------------------------------------------------------------------------
+<it 2> | HOMO-4  |  -10.4901  -17.5014  -11.8636  | 0.85    0.8443  -12.5167  |    0.9666  -12.5127  |
+<it 2> | HOMO-3  |   -9.6981  -20.7147  -11.8636  | 0.89    0.6304  -13.0940  |    0.7853  -13.0890  |
+<it 2> | HOMO-2  |   -9.6981  -20.7147  -11.8636  | 0.89    0.6304  -13.0940  |    0.7853  -13.0890  |
+<it 2> | HOMO-1  |   -7.3029  -15.9485   -8.9264  | 0.89   -0.4198   -9.6489  |   -0.3315   -9.6478  |
+<it 2> | HOMO    |   -7.3029  -15.9483   -8.9264  | 0.89   -0.4198   -9.6491  |   -0.3315   -9.6480  |
+<it 2> -----------------------------------------------------------------------------------------------
+<it 2> |             Egap_KS =  6.9992            |     Egap_QP = 10.6398     |   Egap_QP = 10.6380  |
+<it 2> -----------------------------------------------------------------------------------------------
+<it 2> | LUMO    |   -0.3037   -7.5441    0.3747  | 0.91   -1.9653    0.9907  |   -2.0299    0.9900  |
+<it 2> | LUMO+1  |   -0.3037   -7.5440    0.3747  | 0.91   -1.9654    0.9907  |   -2.0300    0.9900  |
+<it 2> | LUMO+2  |   -0.0494   -0.7929    0.5192  | 0.98   -0.4905    0.5609  |   -0.4914    0.5609  |
+<it 2> | LUMO+3  |    0.3712   -0.4658    0.6369  | 0.99   -0.3209    0.6676  |   -0.3213    0.6676  |
+<it 2> | LUMO+4  |    0.3712   -0.4658    0.6370  | 0.99   -0.3209    0.6676  |   -0.3213    0.6676  |
+<it 2> -----------------------------------------------------------------------------------------------
+<it 2> 
+
+ Dumping eigen energies for          393 states in file ecGW.dat
+ Dumping eigen energies for           21 states in file evGW.dat
+
+=========================================
+           GW Driver iteration
+=========================================
+
+Imaginary axis: number of gauss points =    20
+Exponent of analytic tail     0.053081
+
+ - Getting XiO done in 20 *  0.6706s. - Getting W done in 20 *  0.0334s. - Getting Sigma done in 20 *  0.7941s.
+
+sigma without pole corrections
+state   1 energy (eV):      -13.851403     -13.363784     -12.876165     -12.388547     -11.900928     -11.413310
+state   1 sigma  (eV):       -3.592023      -3.644645      -3.643980      -2.116232      -2.172788      -2.230038
+state   2 energy (eV):      -14.339021     -13.851403     -13.363784     -12.876165     -12.388547     -11.900928
+state   2 sigma  (eV):       -0.708188      -0.764137      -0.819506       0.496648       0.470387       0.417954
+state   3 energy (eV):      -14.339021     -13.851403     -13.363784     -12.876165     -12.388547     -11.900928
+state   3 sigma  (eV):       -0.708192      -0.764141      -0.819511       0.496640       0.470379       0.417946
+state   4 energy (eV):      -10.925691     -10.438073      -9.950454      -9.462835      -8.975217      -8.487598
+state   4 sigma  (eV):       -2.377536      -2.430518      -2.483923      -0.431330      -0.484587      -0.537083
+state   5 energy (eV):      -10.925691     -10.438073      -9.950454      -9.462835      -8.975217      -8.487598
+state   5 sigma  (eV):       -2.377482      -2.430462      -2.483867      -0.431345      -0.484601      -0.537096
+state   6 energy (eV):       -0.198083       0.289536       0.777154       1.264773       1.752392       2.240010
+state   6 sigma  (eV):       -1.883113      -1.929035      -1.969075      -0.691483      -0.733489      -0.750987
+state   7 energy (eV):       -0.198083       0.289536       0.777154       1.264773       1.752392       2.240010
+state   7 sigma  (eV):       -1.883156      -1.929078      -1.969118      -0.691536      -0.733543      -0.751039
+state   8 energy (eV):       -0.685701      -0.198083       0.289536       0.777154       1.264773       1.752392
+state   8 sigma  (eV):       -0.452959      -0.462002      -0.471374      -0.235988      -0.239629      -0.201624
+state   9 energy (eV):       -0.685701      -0.198083       0.289536       0.777154       1.264773       1.752392
+state   9 sigma  (eV):       -0.293603      -0.299601      -0.305827      -0.163858      -0.166904      -0.070744
+state  10 energy (eV):       -0.685701      -0.198083       0.289536       0.777154       1.264773       1.752392
+state  10 sigma  (eV):       -0.293601      -0.299600      -0.305825      -0.163858      -0.166905      -0.070743
+
+Add sigma poles:
+
+  using eta broadenning   =   0.5000E-01 (eV)
+  using cluster threshold =   0.1250E-01 (eV)
+
+  found  170 poles clustered in   29 subsets
+  set   1)  spread =   0.3025E+00 ->   0.3026E+00 ;  base =   0.3026E+00
+  set   2)  spread =   0.4604E+00 ->   0.4604E+00 ;  base =   0.4604E+00
+  set   3)  spread =   0.5972E+00 ->   0.5972E+00 ;  base =   0.5972E+00
+  set   4)  spread =   0.7038E+00 ->   0.7038E+00 ;  base =   0.7038E+00
+  set   5)  spread =   0.9480E+00 ->   0.9480E+00 ;  base =   0.9480E+00
+  set   6)  spread =   0.1085E+01 ->   0.1085E+01 ;  base =   0.1085E+01
+  set   7)  spread =   0.1191E+01 ->   0.1191E+01 ;  base =   0.1191E+01
+  set   8)  spread =   0.1339E+01 ->   0.1339E+01 ;  base =   0.1339E+01
+  set   9)  spread =   0.1602E+00 ->   0.1602E+00 ;  base =   0.1602E+00
+  set  10)  spread =   0.1679E+01 ->   0.1679E+01 ;  base =   0.1679E+01
+  set  11)  spread =   0.1826E+01 ->   0.1826E+01 ;  base =   0.1826E+01
+  set  12)  spread =   0.1572E+01 ->   0.1572E+01 ;  base =   0.1572E+01
+  set  13)  spread =   0.3627E+00 ->   0.3634E+00 ;  base =   0.3632E+00
+  set  14)  spread =   0.2253E+01 ->   0.2253E+01 ;  base =   0.2253E+01
+  set  15)  spread =   0.8511E+00 ->   0.8511E+00 ;  base =   0.8511E+00
+  set  16)  spread =   0.2352E+00 ->   0.2352E+00 ;  base =   0.2352E+00
+  set  17)  spread =   0.2741E+01 ->   0.2741E+01 ;  base =   0.2741E+01
+  set  18)  spread =   0.7901E+00 ->   0.7903E+00 ;  base =   0.7902E+00
+  set  19)  spread =   0.1278E+01 ->   0.1278E+01 ;  base =   0.1278E+01
+  set  20)  spread =   0.3228E+01 ->   0.3228E+01 ;  base =   0.3228E+01
+  set  21)  spread =   0.1765E+01 ->   0.1765E+01 ;  base =   0.1765E+01
+  set  22)  spread =   0.1096E+00 ->   0.1096E+00 ;  base =   0.1096E+00
+  set  23)  spread =   0.2748E+00 ->   0.2748E+00 ;  base =   0.2748E+00
+  set  24)  spread =   0.3716E+01 ->   0.3716E+01 ;  base =   0.3716E+01
+  set  25)  spread =   0.7624E+00 ->   0.7624E+00 ;  base =   0.7624E+00
+  set  26)  spread =   0.1250E+01 ->   0.1250E+01 ;  base =   0.1250E+01
+  set  27)  spread =   0.4203E+01 ->   0.4204E+01 ;  base =   0.4204E+01
+  set  28)  spread =   0.2162E+00 ->   0.2162E+00 ;  base =   0.2162E+00
+  set  29)  spread =   0.4691E+01 ->   0.4691E+01 ;  base =   0.4691E+01
+
+ - Getting XiO done in 24 *  0.6579s. - Getting W done in 24 *  0.0296s. - Getting Sigma done in 24 *  0.0187s.
+ - Getting XiO done in  5 *  0.6581s. - Getting W done in  5 *  0.1346s. - Getting Sigma done in  5 *  0.0222s.
+
+sigma with pole corrections
+state   1 energy (eV):      -13.851403     -13.363784     -12.876165     -12.388547     -11.900928     -11.413310
+state   1 sigma  (eV):        0.976366       0.890972       0.809947       0.732749       0.658905       0.588033
+state   2 energy (eV):      -14.339021     -13.851403     -13.363784     -12.876165     -12.388547     -11.900928
+state   2 sigma  (eV):        0.756178       0.697976       0.641359       0.586207       0.532401       0.479841
+state   3 energy (eV):      -14.339021     -13.851403     -13.363784     -12.876165     -12.388547     -11.900928
+state   3 sigma  (eV):        0.756170       0.697968       0.641351       0.586200       0.532393       0.479833
+state   4 energy (eV):      -10.925691     -10.438073      -9.950454      -9.462835      -8.975217      -8.487598
+state   4 sigma  (eV):       -0.265889      -0.322106      -0.377213      -0.431330      -0.484587      -0.537083
+state   5 energy (eV):      -10.925691     -10.438073      -9.950454      -9.462835      -8.975217      -8.487598
+state   5 sigma  (eV):       -0.265906      -0.322122      -0.377229      -0.431345      -0.484601      -0.537096
+state   6 energy (eV):       -0.198083       0.289536       0.777154       1.264773       1.752392       2.240010
+state   6 sigma  (eV):       -1.883113      -1.929035      -1.975694      -2.023167      -2.071555      -2.120949
+state   7 energy (eV):       -0.198083       0.289536       0.777154       1.264773       1.752392       2.240010
+state   7 sigma  (eV):       -1.883156      -1.929078      -1.975737      -2.023210      -2.071598      -2.120992
+state   8 energy (eV):       -0.685701      -0.198083       0.289536       0.777154       1.264773       1.752392
+state   8 sigma  (eV):       -0.452959      -0.462002      -0.471374      -0.481100      -0.491217      -0.501756
+state   9 energy (eV):       -0.685701      -0.198083       0.289536       0.777154       1.264773       1.752392
+state   9 sigma  (eV):       -0.293603      -0.299601      -0.305827      -0.312298      -0.319039      -0.326072
+state  10 energy (eV):       -0.685701      -0.198083       0.289536       0.777154       1.264773       1.752392
+state  10 sigma  (eV):       -0.293601      -0.299600      -0.305825      -0.312297      -0.319038      -0.326071
+
+<it 3> 
+<it 3> =========================================
+<it 3>                GW Results
+<it 3> =========================================
+<it 3>
+<it 3> GW time =      54.3977
+<it 3> 
+<it 3> Quasi particle energies:
+<it 3>                                            ----------------------------------------------------
+<it 3>                                            |           LINEAR          |          SCF         |
+<it 3> -----------------------------------------------------------------------------------------------
+<it 3> |  state  |   eKS(eV)   eXX(eV)   eQP_old  |   z  sigma_c(eV)  eQP(eV) | sigma_c(eV)  eQP(eV) |
+<it 3> -----------------------------------------------------------------------------------------------
+<it 3> | HOMO-4  |  -10.4901  -17.5014  -12.5127  | 0.86    0.7521  -12.6983  |    0.7813  -12.6980  |
+<it 3> | HOMO-3  |   -9.6981  -20.7147  -13.0890  | 0.90    0.6101  -13.2464  |    0.6279  -13.2464  |
+<it 3> | HOMO-2  |   -9.6981  -20.7147  -13.0890  | 0.90    0.6101  -13.2464  |    0.6279  -13.2464  |
+<it 3> | HOMO-1  |   -7.3029  -15.9485   -9.6478  | 0.90   -0.4109   -9.7193  |   -0.4030   -9.7193  |
+<it 3> | HOMO    |   -7.3029  -15.9483   -9.6480  | 0.90   -0.4109   -9.7195  |   -0.4030   -9.7195  |
+<it 3> -----------------------------------------------------------------------------------------------
+<it 3> |             Egap_KS =  6.9992            |     Egap_QP = 10.7401     |   Egap_QP = 10.7401  |
+<it 3> -----------------------------------------------------------------------------------------------
+<it 3> | LUMO    |   -0.3037   -7.5441    0.9900  | 0.91   -1.9963    1.0207  |   -1.9993    1.0207  |
+<it 3> | LUMO+1  |   -0.3037   -7.5440    0.9900  | 0.91   -1.9964    1.0206  |   -1.9993    1.0206  |
+<it 3> | LUMO+2  |   -0.0494   -0.7929    0.5609  | 0.98   -0.4767    0.5753  |   -0.4770    0.5753  |
+<it 3> | LUMO+3  |    0.3712   -0.4658    0.6676  | 0.99   -0.3108    0.6779  |   -0.3110    0.6779  |
+<it 3> | LUMO+4  |    0.3712   -0.4658    0.6676  | 0.99   -0.3108    0.6779  |   -0.3110    0.6779  |
+<it 3> -----------------------------------------------------------------------------------------------
+<it 3> 
+
+ Dumping eigen energies for          393 states in file ecGW.dat
+ Dumping eigen energies for           21 states in file evGW.dat
+ 
+ ======================================
+ WFN_distributed_set timers
+  drivers:
+  - prepare states                  (s):  0.893850999999955     
+  - get state                       (s):  0.933845999999932     
+  details:
+  - mpi bcast                       (s):  0.357954999999890     
+ ======================================
+ 
+ ======================================
+ Xi0 timers
+  drivers:
+  - get_xi0_rw                      (s):   47.8357290000001     
+  - get_xi0_cw                      (s):   41.9506180000000     
+  details:
+  - projection                      (s):   89.4283940000000     
+  - <psi|b|phi>                     (s):   38.9420609999998     
+  - <phi|b|psi>                     (s):   38.5121550000003     
+  - gemm                            (s):   11.5222579999999     
+ ======================================
+ 
+ ======================================
+ W timers
+  drivers:
+  - get_W                           (s):   6.73397799999998     
+  details:
+  - total scalapack                 (s):   6.69798299999999     
+  - total comm                      (s):  3.599499999999978E-002
+  - gesv                            (s):   1.44578100000000     
+  - gemm                            (s):   1.77073100000001     
+ ======================================
+ 
+ ======================================
+ Sigma timers
+  drivers:
+  - get_sigma_w                     (s):   46.8748689999998     
+  - get_sigma_ij                    (s):   2.29065200000001     
+  - get_sigma_ij_form_state         (s):   1.39878999999999     
+  details:
+  - sigma_local_weighted_projection (s):   45.9250119999999     
+  - sigma_Ml                        (s):   8.83765799999986     
+  - sigma_Mr                        (s):   8.57568899999998     
+  - sigma_gemm                      (s):   28.3386920000002     
+ ======================================
+ 
+ program returned normally
+ total time:   172.732740000000     
+ 

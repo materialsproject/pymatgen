@@ -1,0 +1,514 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.io.lmto &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.lmto</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.lmto</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for implementing a CTRL file object class for the Stuttgart</span>
+<span class="sd">LMTO-ASA code. It will primarily be used to generate a pymatgen</span>
+<span class="sd">Structure object in the pymatgen.electronic_structure.cohp.py module.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">bohr_to_angstrom</span><span class="p">,</span> <span class="n">Ry_to_eV</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Spin</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="kn">import</span> <span class="n">round_to_sigfigs</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Marco Esters&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Marco Esters&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;esters@uoregon.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Nov 30, 2017&quot;</span>
+
+
+<div class="viewcode-block" id="LMTOCtrl"><a class="viewcode-back" href="../../../pymatgen.io.lmto.html#pymatgen.io.lmto.LMTOCtrl">[docs]</a><span class="k">class</span> <span class="nc">LMTOCtrl</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for parsing CTRL files from the Stuttgart LMTO-ASA code.</span>
+<span class="sd">    Currently, only HEADER, VERS and the structure can be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;LMASA-47&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: The structure as a pymatgen Structure object.</span>
+
+<span class="sd">            header: The header for the CTRL file .</span>
+<span class="sd">                    Defaults to None.</span>
+
+<span class="sd">            version: The LMTO version that is used for the VERS category.</span>
+<span class="sd">                     Defaults to the newest version (4.7).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">header</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Representation of the CTRL file is as a string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation of the CTRL file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
+
+<div class="viewcode-block" id="LMTOCtrl.get_string"><a class="viewcode-back" href="../../../pymatgen.io.lmto.html#pymatgen.io.lmto.LMTOCtrl.get_string">[docs]</a>    <span class="k">def</span> <span class="nf">get_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigfigs</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the string representation of the CTRL file. This is</span>
+<span class="sd">        the mininmal CTRL file necessary to execute lmhart.run.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctrl_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="s2">&quot;HEADER&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ctrl_dict</span> <span class="k">else</span> \
+            <span class="p">[</span><span class="s2">&quot;HEADER&quot;</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;VERS&quot;</span> <span class="ow">in</span> <span class="n">ctrl_dict</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;VERS&quot;</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;STRUC&quot;</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">+</span>
+                     <span class="s2">&quot;ALAT=&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">ctrl_dict</span><span class="p">[</span><span class="s2">&quot;ALAT&quot;</span><span class="p">],</span> <span class="n">sigfigs</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">latt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ctrl_dict</span><span class="p">[</span><span class="s2">&quot;PLAT&quot;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">l</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot;PLAT=&quot;</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">sigfigs</span><span class="p">))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">latt</span><span class="p">])</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;CLASS&quot;</span><span class="p">,</span> <span class="s2">&quot;SITE&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">atoms</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ctrl_dict</span><span class="p">[</span><span class="n">cat</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">a</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">line</span> <span class="o">=</span> <span class="p">[</span><span class="n">cat</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">line</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
+                <span class="k">for</span> <span class="n">token</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                    <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;POS&quot;</span><span class="p">:</span>
+                        <span class="n">line</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;POS=&quot;</span> <span class="o">+</span>
+                                    <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">sigfigs</span><span class="p">))</span>
+                                              <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">val</span><span class="p">]))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">line</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span></div>
+
+<div class="viewcode-block" id="LMTOCtrl.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.lmto.html#pymatgen.io.lmto.LMTOCtrl.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the CTRL as a dictionary. &quot;SITE&quot; and &quot;CLASS&quot; are of</span>
+<span class="sd">        the form {&#39;CATEGORY&#39;: {&#39;TOKEN&#39;: value}}, the rest is of the</span>
+<span class="sd">        form &#39;TOKEN&#39;/&#39;CATEGORY&#39;: value. It gets the conventional standard</span>
+<span class="sd">        structure because primitive cells use the conventional</span>
+<span class="sd">        a-lattice parameter as the scaling factor and not the a-lattice</span>
+<span class="sd">        parameter of the primitive cell.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctrl_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                     <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ctrl_dict</span><span class="p">[</span><span class="s2">&quot;HEADER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ctrl_dict</span><span class="p">[</span><span class="s2">&quot;VERS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span>
+        <span class="n">sga</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="n">alat</span> <span class="o">=</span> <span class="n">sga</span><span class="o">.</span><span class="n">get_conventional_standard_structure</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span>
+        <span class="n">plat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">/</span><span class="n">alat</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The following is to find the classes (atoms that are not symmetry</span>
+<span class="sd">        equivalent, and create labels. Note that LMTO only attaches</span>
+<span class="sd">        numbers with the second atom of the same species, e.g. &quot;Bi&quot;, &quot;Bi1&quot;,</span>
+<span class="sd">        &quot;Bi2&quot;, etc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">eq_atoms</span> <span class="o">=</span> <span class="n">sga</span><span class="o">.</span><span class="n">get_symmetry_dataset</span><span class="p">()[</span><span class="s1">&#39;equivalent_atoms&#39;</span><span class="p">]</span>
+        <span class="n">ineq_sites_index</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">eq_atoms</span><span class="p">))</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">num_atoms</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">):</span>
+            <span class="n">atom</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span>
+            <span class="n">label_index</span> <span class="o">=</span> <span class="n">ineq_sites_index</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">eq_atoms</span><span class="p">[</span><span class="n">s</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">num_atoms</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">label_index</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="nb">sum</span><span class="p">(</span><span class="n">num_atoms</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                    <span class="n">num_atoms</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">atom_label</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_atoms</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">classes</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;ATOM&quot;</span><span class="p">:</span> <span class="n">atom_label</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="n">atom</span><span class="o">.</span><span class="n">Z</span><span class="p">})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">num_atoms</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">classes</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;ATOM&quot;</span><span class="p">:</span> <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="n">atom</span><span class="o">.</span><span class="n">Z</span><span class="p">})</span>
+            <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;ATOM&quot;</span><span class="p">:</span> <span class="n">classes</span><span class="p">[</span><span class="n">label_index</span><span class="p">][</span><span class="s2">&quot;ATOM&quot;</span><span class="p">],</span>
+                          <span class="s2">&quot;POS&quot;</span><span class="p">:</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="o">/</span><span class="n">alat</span><span class="p">})</span>
+
+        <span class="n">ctrl_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;ALAT&quot;</span><span class="p">:</span> <span class="n">alat</span><span class="o">/</span><span class="n">bohr_to_angstrom</span><span class="p">,</span>
+                          <span class="s2">&quot;PLAT&quot;</span><span class="p">:</span> <span class="n">plat</span><span class="p">,</span>
+                          <span class="s2">&quot;CLASS&quot;</span><span class="p">:</span> <span class="n">classes</span><span class="p">,</span>
+                          <span class="s2">&quot;SITE&quot;</span><span class="p">:</span> <span class="n">sites</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">ctrl_dict</span></div>
+
+<div class="viewcode-block" id="LMTOCtrl.write_file"><a class="viewcode-back" href="../../../pymatgen.io.lmto.html#pymatgen.io.lmto.LMTOCtrl.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;CTRL&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes a CTRL file with structure, HEADER, and VERS that can be</span>
+<span class="sd">        used as input for lmhart.run.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_string</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="LMTOCtrl.from_file"><a class="viewcode-back" href="../../../pymatgen.io.lmto.html#pymatgen.io.lmto.LMTOCtrl.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;CTRL&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a CTRL file object from an existing file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: The name of the CTRL file. Defaults to &#39;CTRL&#39;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An LMTOCtrl object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">LMTOCtrl</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LMTOCtrl.from_string"><a class="viewcode-back" href="../../../pymatgen.io.lmto.html#pymatgen.io.lmto.LMTOCtrl.from_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sigfigs</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a CTRL file object from a string. This will mostly be</span>
+<span class="sd">        used to read an LMTOCtrl object from a CTRL file. Empty spheres</span>
+<span class="sd">        are ignored.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: String representation of the CTRL file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An LMTOCtrl object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">struc_lines</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;HEADER&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;VERS&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;SYMGRP&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                       <span class="s2">&quot;STRUC&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;CLASS&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;SITE&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">isspace</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isspace</span><span class="p">():</span>
+                    <span class="n">cat</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">struc_lines</span><span class="p">:</span>
+                    <span class="n">struc_lines</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+        <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">struc_lines</span><span class="p">:</span>
+            <span class="n">struc_lines</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">struc_lines</span><span class="p">[</span><span class="n">cat</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;= &quot;</span><span class="p">,</span> <span class="s2">&quot;=&quot;</span><span class="p">)</span>
+
+        <span class="n">structure_tokens</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ALAT&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                            <span class="s2">&quot;PLAT&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                            <span class="s2">&quot;CLASS&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                            <span class="s2">&quot;SITE&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+        <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;STRUC&quot;</span><span class="p">,</span> <span class="s2">&quot;CLASS&quot;</span><span class="p">,</span> <span class="s2">&quot;SITE&quot;</span><span class="p">]:</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="n">struc_lines</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
+                <span class="n">token</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;ALAT&quot;</span><span class="p">:</span>
+                    <span class="n">alat</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="n">f</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">sigfigs</span><span class="p">)</span>
+                    <span class="n">structure_tokens</span><span class="p">[</span><span class="s2">&quot;ALAT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alat</span>
+                <span class="k">elif</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;ATOM&quot;</span><span class="p">:</span>
+                    <span class="n">atom</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="n">f</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;E[0-9]*$&quot;</span><span class="p">,</span> <span class="n">atom</span><span class="p">)):</span>
+                        <span class="k">if</span> <span class="n">cat</span> <span class="o">==</span> <span class="s2">&quot;CLASS&quot;</span><span class="p">:</span>
+                            <span class="n">structure_tokens</span><span class="p">[</span><span class="s2">&quot;CLASS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">structure_tokens</span><span class="p">[</span><span class="s2">&quot;SITE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;ATOM&quot;</span><span class="p">:</span> <span class="n">atom</span><span class="p">})</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                <span class="k">elif</span> <span class="n">token</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PLAT&quot;</span><span class="p">,</span> <span class="s2">&quot;POS&quot;</span><span class="p">]:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">sigfigs</span><span class="p">)</span>
+                                       <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">[</span><span class="n">f</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">sigfigs</span><span class="p">)</span>
+                                       <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">[</span><span class="n">f</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+                    <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;PLAT&quot;</span><span class="p">:</span>
+                        <span class="n">structure_tokens</span><span class="p">[</span><span class="s2">&quot;PLAT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+                    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;E[0-9]*$&quot;</span><span class="p">,</span> <span class="n">atom</span><span class="p">)):</span>
+                        <span class="n">structure_tokens</span><span class="p">[</span><span class="s2">&quot;SITE&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;POS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">spcgrp_index</span> <span class="o">=</span> <span class="n">struc_lines</span><span class="p">[</span><span class="s2">&quot;SYMGRP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;SPCGRP&quot;</span><span class="p">)</span>
+            <span class="n">spcgrp</span> <span class="o">=</span> <span class="n">struc_lines</span><span class="p">[</span><span class="s2">&quot;SYMGRP&quot;</span><span class="p">][</span><span class="n">spcgrp_index</span><span class="p">:</span><span class="n">spcgrp_index</span><span class="o">+</span><span class="mi">12</span><span class="p">]</span>
+            <span class="n">structure_tokens</span><span class="p">[</span><span class="s2">&quot;SPCGRP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spcgrp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;HEADER&quot;</span><span class="p">,</span> <span class="s2">&quot;VERS&quot;</span><span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">token</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;\s*&quot;</span><span class="p">,</span> <span class="n">struc_lines</span><span class="p">[</span><span class="n">token</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">structure_tokens</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">LMTOCtrl</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">structure_tokens</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LMTOCtrl.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.lmto.html#pymatgen.io.lmto.LMTOCtrl.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a CTRL file object from a dictionary. The dictionary</span>
+<span class="sd">        must contain the items &quot;ALAT&quot;, PLAT&quot; and &quot;SITE&quot;.</span>
+
+<span class="sd">        Valid dictionary items are:</span>
+<span class="sd">            ALAT: the a-lattice parameter</span>
+<span class="sd">            PLAT: (3x3) array for the lattice vectors</span>
+<span class="sd">            SITE: list of dictionaries: {&#39;ATOM&#39;: class label,</span>
+<span class="sd">                                         &#39;POS&#39;: (3x1) array of fractional</span>
+<span class="sd">                                                coordinates}</span>
+<span class="sd">            CLASS (optional): list of unique atom labels as str</span>
+<span class="sd">            SPCGRP (optional): space group symbol (str) or number (int)</span>
+<span class="sd">            HEADER (optional): HEADER text as a str</span>
+<span class="sd">            VERS (optional): LMTO version as a str</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            d: The CTRL file as a dictionary.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An LMTOCtrl object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;HEADER&quot;</span><span class="p">,</span> <span class="s2">&quot;VERS&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">cat</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">alat</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;ALAT&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">bohr_to_angstrom</span>
+        <span class="n">plat</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;PLAT&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">alat</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;SITE&quot;</span><span class="p">]:</span>
+            <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;[0-9*]&quot;</span><span class="p">,</span> <span class="n">site</span><span class="p">[</span><span class="s2">&quot;ATOM&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">[</span><span class="s2">&quot;POS&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">alat</span><span class="p">)</span>
+
+        <span class="c1"># Only check if the structure is to be generated from the space</span>
+        <span class="c1"># group if the number of sites is the same as the number of classes.</span>
+        <span class="c1"># If lattice and the spacegroup don&#39;t match, assume it&#39;s primitive.</span>
+        <span class="k">if</span> <span class="s2">&quot;CLASS&quot;</span> <span class="ow">in</span> <span class="n">d</span> <span class="ow">and</span> <span class="s2">&quot;SPCGRP&quot;</span> <span class="ow">in</span> <span class="n">d</span> \
+           <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;SITE&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;CLASS&quot;</span><span class="p">]):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_spacegroup</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;SPCGRP&quot;</span><span class="p">],</span> <span class="n">plat</span><span class="p">,</span>
+                                                      <span class="n">species</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span>
+                                                      <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">plat</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span>
+                                      <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                      <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">plat</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span>
+                                  <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                  <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;HEADER&quot;</span><span class="p">],</span> <span class="n">version</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;VERS&quot;</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="LMTOCopl"><a class="viewcode-back" href="../../../pymatgen.io.lmto.html#pymatgen.io.lmto.LMTOCopl">[docs]</a><span class="k">class</span> <span class="nc">LMTOCopl</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for reading COPL files, which contain COHP data.</span>
+
+<span class="sd">    .. attribute: cohp_data</span>
+
+<span class="sd">         Dict that contains the COHP data of the form:</span>
+<span class="sd">           {bond: {&quot;COHP&quot;: {Spin.up: cohps, Spin.down:cohps},</span>
+<span class="sd">                   &quot;ICOHP&quot;: {Spin.up: icohps, Spin.down: icohps},</span>
+<span class="sd">                   &quot;length&quot;: bond length}</span>
+
+<span class="sd">    .. attribute: efermi</span>
+
+<span class="sd">         The Fermi energy in Ry or eV.</span>
+
+<span class="sd">    .. attribute: energies</span>
+
+<span class="sd">         Sequence of energies in Ry or eV.</span>
+
+<span class="sd">    .. attribute: is_spin_polarized</span>
+
+<span class="sd">         Boolean to indicate if the calculation is spin polarized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;COPL&quot;</span><span class="p">,</span> <span class="n">to_eV</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename: filename of the COPL file. Defaults to &quot;COPL&quot;.</span>
+<span class="sd">            to_eV: LMTO-ASA gives energies in Ry. To convert energies into</span>
+<span class="sd">              eV, set to True. Defaults to False for energies in Ry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># COPL files have an extra trailing blank line</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># The parameters line is the second line in a COPL file. It</span>
+        <span class="c1"># contains all parameters that are needed to map the file.</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">contents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">num_bonds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">spins</span> <span class="o">=</span> <span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">,</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">spins</span> <span class="o">=</span> <span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># The COHP data start in row num_bonds + 3</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">[</span><span class="n">num_bonds</span><span class="o">+</span><span class="mi">2</span><span class="p">:]])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">to_eV</span><span class="p">:</span>
+            <span class="c1"># LMTO energies have 5 sig figs</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">round_to_sigfigs</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+                                     <span class="k">for</span> <span class="n">energy</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">Ry_to_eV</span><span class="p">],</span>
+                                     <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="n">round_to_sigfigs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">Ry_to_eV</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">cohp_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_bonds</span><span class="p">):</span>
+            <span class="n">label</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bond_data</span><span class="p">(</span><span class="n">contents</span><span class="p">[</span><span class="mi">2</span><span class="o">+</span><span class="n">bond</span><span class="p">])</span>
+            <span class="n">cohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">spin</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bond</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="n">num_bonds</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spins</span><span class="p">)}</span>
+            <span class="k">if</span> <span class="n">to_eV</span><span class="p">:</span>
+                <span class="n">icohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">spin</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">round_to_sigfigs</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+                                        <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bond</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="n">num_bonds</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">Ry_to_eV</span><span class="p">])</span>
+                         <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spins</span><span class="p">)}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">icohp</span> <span class="o">=</span> <span class="p">{</span><span class="n">spin</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bond</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="n">num_bonds</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+                         <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spins</span><span class="p">)}</span>
+
+            <span class="c1"># This takes care of duplicate labels</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">cohp_data</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">lab</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="k">while</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">cohp_data</span><span class="p">:</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">lab</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">lab</span>
+
+            <span class="n">cohp_data</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;COHP&quot;</span><span class="p">:</span> <span class="n">cohp</span><span class="p">,</span> <span class="s2">&quot;ICOHP&quot;</span><span class="p">:</span> <span class="n">icohp</span><span class="p">,</span>
+                                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span> <span class="s2">&quot;sites&quot;</span><span class="p">:</span> <span class="n">sites</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cohp_data</span> <span class="o">=</span> <span class="n">cohp_data</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_bond_data</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Subroutine to extract bond label, site indices, and length from</span>
+<span class="sd">        a COPL header line. The site indices are zero-based, so they</span>
+<span class="sd">        can be easily used with a Structure object.</span>
+
+<span class="sd">        Example header line: Fe-1/Fe-1-tr(-1,-1,-1) :  2.482 Ang.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            line: line in the COHPCAR header describing the bond.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The bond label, the bond length and a tuple of the site</span>
+<span class="sd">            indices.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="c1"># Replacing &quot;/&quot; with &quot;-&quot; makes splitting easier</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+        <span class="n">site_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="n">spec</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%d</span><span class="s2">-</span><span class="si">%s%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">species</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">site_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                               <span class="n">species</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">site_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">label</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">site_indices</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.lmto</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,212 @@
+# Runs the complete test suite incl. many external command line dependencies (like Openbabel)
+# as well as the pymatgen.ext package. Coverage is computed based on this workflow.
+name: Tests
+
+on:
+  push:
+    branches: [master]
+    paths-ignore: ["**/*.md", docs/**]
+  pull_request:
+    branches: [master]
+    paths-ignore: ["**/*.md", docs/**]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      task:
+        type: choice
+        options: [tests, release]
+        default: tests
+        description: Only run tests or release a new version of pymatgen to PyPI after tests pass.
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    # prevent this action from running on forks
+    if: github.repository == 'materialsproject/pymatgen'
+    strategy:
+      fail-fast: false
+      matrix:
+        # pytest-split automatically distributes work load so parallel jobs finish in similar time
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.8", "3.11"]
+        split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        # include/exclude is meant to maximize CI coverage of different platforms and python
+        # versions while minimizing the total number of jobs. We run all pytest splits with the
+        # oldest supported python version (currently 3.8) on windows (seems most likely to surface
+        # errors) and with newest version (currently 3.11) on ubuntu (to get complete and speedy
+        # coverage on unix). Also sample some splits on macos for all python versions
+        exclude:
+          - os: windows-latest
+            python-version: "3.11"
+          - os: ubuntu-latest
+            python-version: "3.8"
+        include:
+          - os: macos-latest
+            python-version: "3.8"
+            split: 1
+          - os: macos-latest
+            python-version: "3.9"
+            split: 2
+          - os: macos-latest
+            python-version: "3.10"
+            split: 3
+          - os: macos-latest
+            python-version: "3.11"
+            split: 4
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+      MPLBACKEND: Agg # https://github.com/orgs/community/discussions/26434
+      PMG_TEST_FILES_DIR: ${{ github.workspace }}/tests/files
+      GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
+      PMG_VASP_PSP_DIR: ${{ github.workspace }}/tests/files
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: setup.py
+      - name: Copy CLIs to bin
+        if: runner.os == 'Linux'
+        # This is the way to update env variables in a way that persist for the entire job.
+        run: |
+          sudo cp cmd_line/gulp/Linux_64bit/* /usr/local/bin/
+      - name: Install Bader
+        if: runner.os == 'Linux'
+        run: |
+          wget http://theory.cm.utexas.edu/henkelman/code/bader/download/bader_lnx_64.tar.gz
+          tar xvzf bader_lnx_64.tar.gz
+          sudo mv bader /usr/local/bin/
+        continue-on-error: true
+      - name: Install Enumlib
+        if: runner.os == 'Linux'
+        run: |
+          git clone --recursive https://github.com/msg-byu/enumlib.git
+          cd enumlib/symlib/src
+          export F90=gfortran
+          make
+          cd ../../src
+          make enum.x
+          sudo mv enum.x /usr/local/bin/
+          cd ..
+          sudo cp aux_src/makeStr.py /usr/local/bin/
+        continue-on-error: true
+      - name: Install Packmol
+        if: runner.os == 'Linux'
+        run: |
+          wget -O packmol.tar.gz https://github.com/m3g/packmol/archive/refs/tags/v20.14.2.tar.gz
+          tar xvzf packmol.tar.gz
+          export F90=gfortran
+          cd packmol-20.14.2
+          ./configure
+          make
+          sudo mv packmol /usr/local/bin/
+          cd ..
+          rm -rf .coverage*
+        continue-on-error: true
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install numpy cython packaging
+          python -m pip install -e '.[dev,optional]'
+      - name: pytest split ${{ matrix.split }}
+        # to update the test durations, do pip install pytest-split and run
+        # pytest --store-durations --durations-path tests/files/.pytest-split-durations
+        # and commit the results (requires pip install pytest-split)
+        run: |
+          pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
+      - name: Upload coverage
+        # Only upload coverage for ubuntu py3.11 runs.
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-${{ matrix.split }}
+          path: .coverage
+
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v3
+      - name: Combine coverage
+        run: |
+          pip install coverage[toml]
+          find . -name "*.pyc" -delete
+          for i in {1..10}; do mv coverage-$i/.coverage .coverage.$i; rm -rf coverage-$i; done
+          coverage combine
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+
+  build_sdist:
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        name: Install Python
+        with:
+          python-version: "3.10"
+      - run: |
+          python -m pip install build
+          pip install -e .
+      - name: Build sdist
+        run: python -m build --sdist
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.tar.gz
+
+  build_wheels:
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
+    needs: test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["38", "39", "310", "311"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.14.1
+        env:
+          CIBW_BUILD: cp${{ matrix.python-version }}-*
+      - name: Save artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+  release:
+    needs: [build_wheels, build_sdist]
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
+    runs-on: ubuntu-latest
+    permissions:
+      # For pypi trusted publishing
+      id-token: write
+    steps:
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+      - name: Publish to PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+          verbose: true

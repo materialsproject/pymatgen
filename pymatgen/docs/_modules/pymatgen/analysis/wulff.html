@@ -1,0 +1,832 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.wulff &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.wulff</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.wulff</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module define a WulffShape class to generate the Wulff shape from</span>
+<span class="sd">a lattice, a list of indices and their corresponding surface energies,</span>
+<span class="sd">and the total area and volume of the wulff shape,the weighted surface energy,</span>
+<span class="sd">the anisotropy and shape_factor can also be calculated.</span>
+<span class="sd">In support of plotting from a given view in terms of miller index.</span>
+
+<span class="sd">The lattice is from the conventional unit cell, and (hkil) for hexagonal</span>
+<span class="sd">lattices.</span>
+
+<span class="sd">If you use this code extensively, consider citing the following:</span>
+
+<span class="sd">Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.</span>
+<span class="sd">(2016). Surface energies of elemental crystals. Scientific Data.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">get_angle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">ConvexHull</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">unicodeify_spacegroup</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Zihan Xu, Richard Tran, Shyue Ping Ong&#39;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s1">&#39;Copyright 2013, The Materials Virtual Lab&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;0.1&#39;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s1">&#39;Zihan Xu&#39;</span> 
+<span class="n">__email__</span> <span class="o">=</span> <span class="s1">&#39;zix009@eng.ucsd.edu&#39;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s1">&#39;May 5 2016&#39;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="hkl_tuple_to_str"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.hkl_tuple_to_str">[docs]</a><span class="k">def</span> <span class="nf">hkl_tuple_to_str</span><span class="p">(</span><span class="n">hkl</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prepare for display on plots</span>
+<span class="sd">    &quot;(hkl)&quot; for surfaces</span>
+<span class="sd">    Agrs:</span>
+<span class="sd">        hkl: in the form of [h, k, l] or (h, k, l)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">str_format</span> <span class="o">=</span> <span class="s1">&#39;($&#39;</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">hkl</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">str_format</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">overline{&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">str_format</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">str_format</span> <span class="o">+=</span> <span class="s1">&#39;$)&#39;</span>
+    <span class="k">return</span> <span class="n">str_format</span></div>
+
+
+<div class="viewcode-block" id="get_tri_area"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.get_tri_area">[docs]</a><span class="k">def</span> <span class="nf">get_tri_area</span><span class="p">(</span><span class="n">pts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a list of coords for 3 points,</span>
+<span class="sd">    Compute the area of this triangle.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pts: [a, b, c] three points</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">v1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">v2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">area_tri</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">area_tri</span></div>
+
+
+<div class="viewcode-block" id="WulffFacet"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffFacet">[docs]</a><span class="k">class</span> <span class="nc">WulffFacet</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper container for each Wulff plane.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">e_surf</span><span class="p">,</span> <span class="n">normal_pt</span><span class="p">,</span> <span class="n">dual_pt</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">m_ind_orig</span><span class="p">,</span>
+                 <span class="n">miller</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param normal:</span>
+<span class="sd">        :param e_surf:</span>
+<span class="sd">        :param normal_pt:</span>
+<span class="sd">        :param dual_pt:</span>
+<span class="sd">        :param index:</span>
+<span class="sd">        :param m_ind_orig:</span>
+<span class="sd">        :param miller:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normal</span> <span class="o">=</span> <span class="n">normal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">e_surf</span> <span class="o">=</span> <span class="n">e_surf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normal_pt</span> <span class="o">=</span> <span class="n">normal_pt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dual_pt</span> <span class="o">=</span> <span class="n">dual_pt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_ind_orig</span> <span class="o">=</span> <span class="n">m_ind_orig</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">miller</span> <span class="o">=</span> <span class="n">miller</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outer_lines</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="WulffShape"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape">[docs]</a><span class="k">class</span> <span class="nc">WulffShape</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate Wulff Shape from list of miller index and surface energies,</span>
+<span class="sd">    with given conventional unit cell.</span>
+<span class="sd">    surface energy (Jm^2) is the length of normal.</span>
+
+<span class="sd">    Wulff shape is the convex hull.</span>
+<span class="sd">    Based on:</span>
+<span class="sd">    http://scipy.github.io/devdocs/generated/scipy.spatial.ConvexHull.html</span>
+
+<span class="sd">    Process:</span>
+<span class="sd">        1. get wulff simplices</span>
+<span class="sd">        2. label with color</span>
+<span class="sd">        3. get wulff_area and other properties</span>
+
+<span class="sd">    .. attribute:: debug (bool)</span>
+
+<span class="sd">    .. attribute:: alpha</span>
+<span class="sd">        transparency</span>
+
+<span class="sd">    .. attribute:: color_set</span>
+
+<span class="sd">    .. attribute:: grid_off (bool)</span>
+
+<span class="sd">    .. attribute:: axis_off (bool)</span>
+
+<span class="sd">    .. attribute:: show_area</span>
+
+<span class="sd">    .. attribute:: off_color</span>
+<span class="sd">        color of facets off wulff</span>
+
+<span class="sd">    .. attribute:: structure</span>
+<span class="sd">        Structure object, input conventional unit cell (with H ) from lattice</span>
+
+<span class="sd">    .. attribute:: miller_list</span>
+<span class="sd">        list of input miller index, for hcp in the form of hkil</span>
+
+<span class="sd">    .. attribute:: hkl_list</span>
+<span class="sd">        modify hkill to hkl, in the same order with input_miller</span>
+
+<span class="sd">    .. attribute:: e_surf_list</span>
+<span class="sd">        list of input surface energies, in the same order with input_miller</span>
+
+<span class="sd">    .. attribute:: lattice</span>
+<span class="sd">        Lattice object, the input lattice for the conventional unit cell</span>
+
+<span class="sd">    .. attribute:: facets</span>
+<span class="sd">        [WulffFacet] for all facets considering symm</span>
+
+<span class="sd">    .. attribute:: dual_cv_simp</span>
+<span class="sd">        simplices from the dual convex hull (dual_pt)</span>
+
+<span class="sd">    .. attribute:: wulff_pt_list</span>
+
+<span class="sd">    .. attribute:: wulff_cv_simp</span>
+<span class="sd">        simplices from the convex hull of wulff_pt_list</span>
+
+<span class="sd">    .. attribute:: on_wulff</span>
+<span class="sd">        list for all input_miller, True is on wulff.</span>
+
+<span class="sd">    .. attribute:: color_area</span>
+<span class="sd">        list for all input_miller, total area on wulff, off_wulff = 0.</span>
+
+<span class="sd">    .. attribute:: miller_area</span>
+<span class="sd">        ($hkl$): area for all input_miller</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">miller_list</span><span class="p">,</span> <span class="n">e_surf_list</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            lattice: Lattice object of the conventional unit cell</span>
+<span class="sd">            miller_list ([(hkl), ...]: list of hkl or hkil for hcp</span>
+<span class="sd">            e_surf_list ([float]): list of corresponding surface energies</span>
+<span class="sd">            symprec (float): for recp_operation, default is 1e-5.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">se</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">se</span> <span class="ow">in</span> <span class="n">e_surf_list</span><span class="p">]):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Unphysical (negative) surface energy detected.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">color_ind</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">miller_list</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_miller_fig</span> <span class="o">=</span> <span class="p">[</span><span class="n">hkl_tuple_to_str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">miller_list</span><span class="p">]</span>
+        <span class="c1"># store input data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">miller_list</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">miller_list</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hkl_list</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">miller_list</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">e_surf_list</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">e_surf_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span> <span class="o">=</span> <span class="n">symprec</span>
+
+        <span class="c1"># 2. get all the data for wulff construction</span>
+        <span class="c1"># get all the surface normal from get_all_miller_e()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">facets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_all_miller_e</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">))</span>
+
+        <span class="c1"># 3. consider the dual condition</span>
+        <span class="n">dual_pts</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">dual_pt</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">]</span>
+        <span class="n">dual_convex</span> <span class="o">=</span> <span class="n">ConvexHull</span><span class="p">(</span><span class="n">dual_pts</span><span class="p">)</span>
+        <span class="n">dual_cv_simp</span> <span class="o">=</span> <span class="n">dual_convex</span><span class="o">.</span><span class="n">simplices</span>
+        <span class="c1"># simplices	(ndarray of ints, shape (nfacet, ndim))</span>
+        <span class="c1"># list of [i, j, k] , ndim = 3</span>
+        <span class="c1"># i, j, k: ind for normal_e_m</span>
+        <span class="c1"># recalculate the dual of dual, get the wulff shape.</span>
+        <span class="c1"># conner &lt;-&gt; surface</span>
+        <span class="c1"># get cross point from the simplices of the dual convex hull</span>
+        <span class="n">wulff_pt_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_cross_pt_dual_simp</span><span class="p">(</span><span class="n">dual_simp</span><span class="p">)</span>
+                         <span class="k">for</span> <span class="n">dual_simp</span> <span class="ow">in</span> <span class="n">dual_cv_simp</span><span class="p">]</span>
+
+        <span class="n">wulff_convex</span> <span class="o">=</span> <span class="n">ConvexHull</span><span class="p">(</span><span class="n">wulff_pt_list</span><span class="p">)</span>
+        <span class="n">wulff_cv_simp</span> <span class="o">=</span> <span class="n">wulff_convex</span><span class="o">.</span><span class="n">simplices</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">wulff_cv_simp</span><span class="p">]))</span>
+
+        <span class="c1"># store simplices and convex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dual_cv_simp</span> <span class="o">=</span> <span class="n">dual_cv_simp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wulff_pt_list</span> <span class="o">=</span> <span class="n">wulff_pt_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wulff_cv_simp</span> <span class="o">=</span> <span class="n">wulff_cv_simp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wulff_convex</span> <span class="o">=</span> <span class="n">wulff_convex</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_wulff</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_simpx_plane</span><span class="p">()</span>
+
+        <span class="n">miller_area</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">in_mill_fig</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_miller_fig</span><span class="p">):</span>
+            <span class="n">miller_area</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">in_mill_fig</span> <span class="o">+</span> <span class="s1">&#39; : &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color_area</span><span class="p">[</span><span class="n">m</span><span class="p">],</span> <span class="mi">4</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">miller_area</span> <span class="o">=</span> <span class="n">miller_area</span>
+
+    <span class="k">def</span> <span class="nf">_get_all_miller_e</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        from self:</span>
+<span class="sd">            get miller_list(unique_miller), e_surf_list and symmetry</span>
+<span class="sd">            operations(symmops) according to lattice</span>
+<span class="sd">        apply symmops to get all the miller index, then get normal,</span>
+<span class="sd">        get all the facets functions for wulff shape calculation:</span>
+<span class="sd">            |normal| = 1, e_surf is plane&#39;s distance to (0, 0, 0),</span>
+<span class="sd">            normal[0]x + normal[1]y + normal[2]z = e_surf</span>
+
+<span class="sd">        return:</span>
+<span class="sd">            [WulffFacet]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_hkl</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">color_ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_ind</span>
+        <span class="n">planes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">recp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice_crystallographic</span>
+        <span class="n">recp_symmops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_recp_symmetry_operation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symprec</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">hkl</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hkl_list</span><span class="p">,</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">e_surf_list</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">recp_symmops</span><span class="p">:</span>
+                <span class="n">miller</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">op</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">hkl</span><span class="p">)])</span>
+                <span class="k">if</span> <span class="n">miller</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_hkl</span><span class="p">:</span>
+                    <span class="n">all_hkl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">miller</span><span class="p">)</span>
+                    <span class="n">normal</span> <span class="o">=</span> <span class="n">recp</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">miller</span><span class="p">)</span>
+                    <span class="n">normal</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">normal</span><span class="p">)</span>
+                    <span class="n">normal_pt</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="n">energy</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">normal</span><span class="p">]</span>
+                    <span class="n">dual_pt</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">/</span> <span class="n">energy</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">normal</span><span class="p">]</span>
+                    <span class="n">color_plane</span> <span class="o">=</span> <span class="n">color_ind</span><span class="p">[</span><span class="nb">divmod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">color_ind</span><span class="p">))[</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="n">planes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">WulffFacet</span><span class="p">(</span><span class="n">normal</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">normal_pt</span><span class="p">,</span>
+                                             <span class="n">dual_pt</span><span class="p">,</span> <span class="n">color_plane</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">hkl</span><span class="p">))</span>
+
+        <span class="c1"># sort by e_surf</span>
+        <span class="n">planes</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">e_surf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">planes</span>
+
+    <span class="k">def</span> <span class="nf">_get_cross_pt_dual_simp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dual_simp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        |normal| = 1, e_surf is plane&#39;s distance to (0, 0, 0),</span>
+<span class="sd">        plane function:</span>
+<span class="sd">            normal[0]x + normal[1]y + normal[2]z = e_surf</span>
+
+<span class="sd">        from self:</span>
+<span class="sd">            normal_e_m to get the plane functions</span>
+<span class="sd">            dual_simp: (i, j, k) simplices from the dual convex hull</span>
+<span class="sd">                i, j, k: plane index(same order in normal_e_m)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matrix_surfs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">[</span><span class="n">dual_simp</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">normal</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+        <span class="n">matrix_e</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">[</span><span class="n">dual_simp</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">e_surf</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+        <span class="n">cross_pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">matrix_surfs</span><span class="p">),</span> <span class="n">matrix_e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cross_pt</span>
+
+    <span class="k">def</span> <span class="nf">_get_simpx_plane</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Locate the plane for simpx of on wulff_cv, by comparing the center of</span>
+<span class="sd">        the simpx triangle with the plane functions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">on_wulff</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_list</span><span class="p">)</span>
+        <span class="n">surface_area</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">simpx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wulff_cv_simp</span><span class="p">:</span>
+            <span class="n">pts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">wulff_pt_list</span><span class="p">[</span><span class="n">simpx</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+            <span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
+            <span class="c1"># check whether the center of the simplices is on one plane</span>
+            <span class="k">for</span> <span class="n">plane</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">:</span>
+                <span class="n">abs_diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">plane</span><span class="o">.</span><span class="n">normal</span><span class="p">,</span> <span class="n">center</span><span class="p">)</span> <span class="o">-</span> <span class="n">plane</span><span class="o">.</span><span class="n">e_surf</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">abs_diff</span> <span class="o">&lt;</span> <span class="mf">1e-5</span><span class="p">:</span>
+                    <span class="n">on_wulff</span><span class="p">[</span><span class="n">plane</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">surface_area</span><span class="p">[</span><span class="n">plane</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">+=</span> <span class="n">get_tri_area</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+
+                    <span class="n">plane</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+                    <span class="n">plane</span><span class="o">.</span><span class="n">outer_lines</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">simpx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">simpx</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+                    <span class="n">plane</span><span class="o">.</span><span class="n">outer_lines</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">simpx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">simpx</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+                    <span class="n">plane</span><span class="o">.</span><span class="n">outer_lines</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">simpx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">simpx</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+                    <span class="c1"># already find the plane, move to the next simplices</span>
+                    <span class="k">break</span>
+        <span class="k">for</span> <span class="n">plane</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">:</span>
+            <span class="n">plane</span><span class="o">.</span><span class="n">outer_lines</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="n">plane</span><span class="o">.</span><span class="n">outer_lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">plane</span><span class="o">.</span><span class="n">outer_lines</span>
+                                 <span class="k">if</span> <span class="n">plane</span><span class="o">.</span><span class="n">outer_lines</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">on_wulff</span><span class="p">,</span> <span class="n">surface_area</span>
+
+    <span class="k">def</span> <span class="nf">_get_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color_set</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">off_color</span><span class="p">,</span> <span class="n">custom_colors</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        assign colors according to the surface energies of on_wulff facets.</span>
+
+<span class="sd">        return:</span>
+<span class="sd">            (color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,</span>
+<span class="sd">            e_surf_on_wulff_list)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="n">color_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">off_color</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hkl_list</span><span class="p">)</span>
+        <span class="n">color_proxy_on_wulff</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">miller_on_wulff</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">e_surf_on_wulff</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">e_surf</span><span class="p">)</span>
+                           <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e_surf</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e_surf_list</span><span class="p">)</span>
+                           <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_wulff</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+
+        <span class="n">c_map</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">color_set</span><span class="p">)</span>
+        <span class="n">e_surf_on_wulff</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">e_surf_on_wulff_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e_surf_on_wulff</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">e_surf_on_wulff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">cnorm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">e_surf_on_wulff_list</span><span class="p">),</span>
+                                         <span class="n">vmax</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">e_surf_on_wulff_list</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if there is only one hkl on wulff, choose the color of the median</span>
+            <span class="n">cnorm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">e_surf_on_wulff_list</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span>
+                                         <span class="n">vmax</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">e_surf_on_wulff_list</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">scalar_map</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">cnorm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">c_map</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e_surf</span> <span class="ow">in</span> <span class="n">e_surf_on_wulff</span><span class="p">:</span>
+            <span class="n">color_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">scalar_map</span><span class="o">.</span><span class="n">to_rgba</span><span class="p">(</span><span class="n">e_surf</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="ow">in</span> <span class="n">custom_colors</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">color_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">custom_colors</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_list</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span>
+            <span class="n">color_proxy_on_wulff</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="n">color_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">))</span>
+            <span class="n">miller_on_wulff</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_miller_fig</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">scalar_map</span><span class="o">.</span><span class="n">set_array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e_surf_on_wulff</span><span class="p">])</span>
+        <span class="n">color_proxy</span> <span class="o">=</span> <span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+                       <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">color_list</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">color_list</span><span class="p">,</span> <span class="n">color_proxy</span><span class="p">,</span> <span class="n">color_proxy_on_wulff</span><span class="p">,</span> <span class="n">miller_on_wulff</span><span class="p">,</span> <span class="n">e_surf_on_wulff_list</span>
+
+<div class="viewcode-block" id="WulffShape.show"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Show the Wulff plot.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *args: Passed to get_plot.</span>
+<span class="sd">            **kwargs: Passed to get_plot.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="WulffShape.get_line_in_facet"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.get_line_in_facet">[docs]</a>    <span class="k">def</span> <span class="nf">get_line_in_facet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">facet</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the sorted pts in a facet used to draw a line</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">facet</span><span class="o">.</span><span class="n">outer_lines</span><span class="p">)</span>
+        <span class="n">pt</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">prev</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">prev</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+                        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">prev</span><span class="p">:</span>
+                            <span class="n">l</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+                        <span class="k">break</span>
+            <span class="c1"># make sure the lines are connected one by one.</span>
+            <span class="c1"># find the way covering all pts and facets</span>
+            <span class="n">pt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wulff_pt_list</span><span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="n">pt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wulff_pt_list</span><span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="n">prev</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">pt</span></div>
+
+<div class="viewcode-block" id="WulffShape.get_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color_set</span><span class="o">=</span><span class="s1">&#39;PuBu&#39;</span><span class="p">,</span> <span class="n">grid_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">show_area</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">off_color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">bar_pos</span><span class="o">=</span><span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">),</span> <span class="n">bar_on</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">units_in_JPERM2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">legend_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">aspect_ratio</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">custom_colors</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the Wulff shape plot.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            color_set: default is &#39;PuBu&#39;</span>
+<span class="sd">            grid_off (bool): default is True</span>
+<span class="sd">            axis_off (bool): default is Ture</span>
+<span class="sd">            show_area (bool): default is False</span>
+<span class="sd">            alpha (float): chosen from 0 to 1 (float), default is 1</span>
+<span class="sd">            off_color: Default color for facets not present on the Wulff shape.</span>
+<span class="sd">            direction: default is (1, 1, 1)</span>
+<span class="sd">            bar_pos: default is [0.75, 0.15, 0.05, 0.65]</span>
+<span class="sd">            bar_on (bool): default is False</span>
+<span class="sd">            legend_on (bool): default is True</span>
+<span class="sd">            aspect_ratio: default is (8, 8)</span>
+<span class="sd">            custom_colors ({(h,k,l}: [r,g,b,alpha}): Customize color of each</span>
+<span class="sd">                facet with a dictionary. The key is the corresponding Miller</span>
+<span class="sd">                index and value is the color. Undefined facets will use default</span>
+<span class="sd">                color site. Note: If you decide to set your own colors, it</span>
+<span class="sd">                probably won&#39;t make any sense to have the color bar on.</span>
+<span class="sd">            units_in_JPERM2 (bool): Units of surface energy, defaults to</span>
+<span class="sd">                Joules per square meter (True)</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            (matplotlib.pyplot)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="kn">import</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="k">as</span> <span class="nn">mpl3</span>
+        <span class="n">color_list</span><span class="p">,</span> <span class="n">color_proxy</span><span class="p">,</span> <span class="n">color_proxy_on_wulff</span><span class="p">,</span> <span class="n">miller_on_wulff</span><span class="p">,</span> <span class="n">e_surf_on_wulff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_colors</span><span class="p">(</span>
+            <span class="n">color_set</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">off_color</span><span class="p">,</span> <span class="n">custom_colors</span><span class="o">=</span><span class="n">custom_colors</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">direction</span><span class="p">:</span>
+            <span class="c1"># If direction is not specified, use the miller indices of</span>
+            <span class="c1"># maximum area.</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">area_fraction_dict</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+                            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">aspect_ratio</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">aspect_ratio</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">azim</span><span class="p">,</span> <span class="n">elev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_azimuth_elev</span><span class="p">([</span><span class="n">direction</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">direction</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                             <span class="n">direction</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+
+        <span class="n">wulff_pt_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wulff_pt_list</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">mpl3</span><span class="o">.</span><span class="n">Axes3D</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">azim</span><span class="o">=</span><span class="n">azim</span><span class="p">,</span> <span class="n">elev</span><span class="o">=</span><span class="n">elev</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">plane</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">:</span>
+            <span class="c1"># check whether [pts] is empty</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">plane</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># empty, plane is not on_wulff.</span>
+                <span class="k">continue</span>
+            <span class="c1"># assign the color for on_wulff facets according to its</span>
+            <span class="c1"># index and the color_list for on_wulff</span>
+            <span class="n">plane_color</span> <span class="o">=</span> <span class="n">color_list</span><span class="p">[</span><span class="n">plane</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_line_in_facet</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span>
+            <span class="c1"># plot from the sorted pts from [simpx]</span>
+            <span class="n">tri</span> <span class="o">=</span> <span class="n">mpl3</span><span class="o">.</span><span class="n">art3d</span><span class="o">.</span><span class="n">Poly3DCollection</span><span class="p">([</span><span class="n">pt</span><span class="p">])</span>
+            <span class="n">tri</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">plane_color</span><span class="p">)</span>
+            <span class="n">tri</span><span class="o">.</span><span class="n">set_edgecolor</span><span class="p">(</span><span class="s2">&quot;#808080&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">add_collection3d</span><span class="p">(</span><span class="n">tri</span><span class="p">)</span>
+
+        <span class="c1"># set ranges of x, y, z</span>
+        <span class="c1"># find the largest distance between on_wulff pts and the origin,</span>
+        <span class="c1"># to ensure complete and consistent display for all directions</span>
+        <span class="n">r_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">wulff_pt_list</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="n">r_range</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,</span> <span class="n">r_range</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="o">-</span><span class="n">r_range</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,</span> <span class="n">r_range</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_zlim</span><span class="p">([</span><span class="o">-</span><span class="n">r_range</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,</span> <span class="n">r_range</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">])</span>
+        <span class="c1"># add legend</span>
+        <span class="k">if</span> <span class="n">legend_on</span><span class="p">:</span>
+            <span class="n">color_proxy</span> <span class="o">=</span> <span class="n">color_proxy</span>
+            <span class="k">if</span> <span class="n">show_area</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">color_proxy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_area</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">,</span>
+                          <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">shadow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">color_proxy_on_wulff</span><span class="p">,</span> <span class="n">miller_on_wulff</span><span class="p">,</span>
+                          <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper center&#39;</span><span class="p">,</span>
+                          <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">shadow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Add colorbar</span>
+        <span class="k">if</span> <span class="n">bar_on</span><span class="p">:</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">color_set</span><span class="p">)</span>
+            <span class="n">cmap</span><span class="o">.</span><span class="n">set_over</span><span class="p">(</span><span class="s1">&#39;0.25&#39;</span><span class="p">)</span>
+            <span class="n">cmap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="s1">&#39;0.75&#39;</span><span class="p">)</span>
+            <span class="n">bounds</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">e_surf_on_wulff</span><span class="p">]</span>
+            <span class="n">bounds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.2</span> <span class="o">*</span> <span class="n">bounds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">cmap</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+            <span class="c1"># display surface energies</span>
+            <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">(</span><span class="n">bar_pos</span><span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colorbar</span><span class="o">.</span><span class="n">ColorbarBase</span><span class="p">(</span>
+                <span class="n">ax1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">boundaries</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">bounds</span> <span class="o">+</span> <span class="p">[</span><span class="mi">10</span><span class="p">],</span>
+                <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="n">bounds</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">spacing</span><span class="o">=</span><span class="s1">&#39;proportional&#39;</span><span class="p">,</span>
+                <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">)</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;$J/m^2$&quot;</span> <span class="k">if</span> <span class="n">units_in_JPERM2</span> <span class="k">else</span> <span class="sa">r</span><span class="s2">&quot;$eV/\AA^2$&quot;</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Surface Energies (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">units</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">grid_off</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">axis_off</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">plt</span></div>
+
+<div class="viewcode-block" id="WulffShape.get_plotly"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.get_plotly">[docs]</a>    <span class="k">def</span> <span class="nf">get_plotly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color_set</span><span class="o">=</span><span class="s1">&#39;PuBu&#39;</span><span class="p">,</span> <span class="n">off_color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span>
+                   <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">custom_colors</span><span class="o">=</span><span class="p">{},</span> <span class="n">units_in_JPERM2</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the Wulff shape as a plotly Figure object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            color_set: default is &#39;PuBu&#39;</span>
+<span class="sd">            alpha (float): chosen from 0 to 1 (float), default is 1</span>
+<span class="sd">            off_color: Default color for facets not present on the Wulff shape.</span>
+<span class="sd">            custom_colors ({(h,k,l}: [r,g,b,alpha}): Customize color of each</span>
+<span class="sd">                facet with a dictionary. The key is the corresponding Miller</span>
+<span class="sd">                index and value is the color. Undefined facets will use default</span>
+<span class="sd">                color site. Note: If you decide to set your own colors, it</span>
+<span class="sd">                probably won&#39;t make any sense to have the color bar on.</span>
+<span class="sd">            units_in_JPERM2 (bool): Units of surface energy, defaults to</span>
+<span class="sd">                Joules per square meter (True)</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            (plotly.graph_objs.Figure)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;Jm⁻²&#39;</span> <span class="k">if</span> <span class="n">units_in_JPERM2</span> <span class="k">else</span> <span class="s1">&#39;eVÅ⁻²&#39;</span>
+        <span class="n">color_list</span><span class="p">,</span> <span class="n">color_proxy</span><span class="p">,</span> <span class="n">color_proxy_on_wulff</span><span class="p">,</span> \
+            <span class="n">miller_on_wulff</span><span class="p">,</span> <span class="n">e_surf_on_wulff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span> \
+            <span class="n">_get_colors</span><span class="p">(</span><span class="n">color_set</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">off_color</span><span class="p">,</span>
+                        <span class="n">custom_colors</span><span class="o">=</span><span class="n">custom_colors</span><span class="p">)</span>
+
+        <span class="n">planes_data</span><span class="p">,</span> <span class="n">color_scale</span><span class="p">,</span> <span class="n">ticktext</span><span class="p">,</span> <span class="n">tickvals</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">plane</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">plane</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># empty, plane is not on_wulff.</span>
+                <span class="k">continue</span>
+
+            <span class="n">plane_color</span> <span class="o">=</span> <span class="n">color_list</span><span class="p">[</span><span class="n">plane</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">plane_color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">plane_color</span> <span class="o">==</span> <span class="n">off_color</span> <span class="k">else</span> <span class="n">plane_color</span>  <span class="c1"># set to red for now</span>
+
+            <span class="n">pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_line_in_facet</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span>
+            <span class="n">x_pts</span><span class="p">,</span> <span class="n">y_pts</span><span class="p">,</span> <span class="n">z_pts</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pt</span><span class="p">:</span>
+                <span class="n">x_pts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">y_pts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">z_pts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+            <span class="c1"># remove duplicate x y z pts to save time</span>
+            <span class="n">all_xyz</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="p">[</span><span class="n">all_xyz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">coord</span><span class="p">))</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x_pts</span><span class="p">,</span> <span class="n">y_pts</span><span class="p">,</span> <span class="n">z_pts</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+             <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_xyz</span><span class="p">]</span>
+            <span class="n">x_pts</span><span class="p">,</span> <span class="n">y_pts</span><span class="p">,</span> <span class="n">z_pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_xyz</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_xyz</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_xyz</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">index_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_pts</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_pts</span><span class="p">))]</span>
+
+            <span class="n">tri_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">index_list</span><span class="p">,</span> <span class="mi">3</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">hkl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_list</span><span class="p">[</span><span class="n">plane</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">hkl</span> <span class="o">=</span> <span class="n">unicodeify_spacegroup</span><span class="p">(</span><span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">hkl</span><span class="p">)</span> <span class="o">%</span> <span class="n">hkl</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span><span class="p">)</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;rgba(</span><span class="si">%.5f</span><span class="s1">, </span><span class="si">%.5f</span><span class="s1">, </span><span class="si">%.5f</span><span class="s1">, </span><span class="si">%.5f</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">plane_color</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span>
+
+            <span class="c1"># note hoverinfo is incompatible with latex, need unicode instead</span>
+            <span class="n">planes_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Mesh3d</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x_pts</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y_pts</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">z_pts</span><span class="p">,</span>
+                                         <span class="n">i</span><span class="o">=</span><span class="n">tri_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">j</span><span class="o">=</span><span class="n">tri_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="n">tri_indices</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                         <span class="n">hovertemplate</span><span class="o">=</span><span class="s2">&quot;&lt;br&gt;%</span><span class="si">{text}</span><span class="s2">&lt;br&gt;&quot;</span> <span class="o">+</span>
+                                                       <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">=</span><span class="si">%.3f</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&lt;br&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="sa">u</span><span class="s2">&quot;</span><span class="se">\u03b3</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">plane</span><span class="o">.</span><span class="n">e_surf</span><span class="p">,</span>
+                                                                           <span class="n">units</span><span class="p">),</span>
+                                         <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="p">[</span><span class="sa">r</span><span class="s1">&#39;Miller index: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                                                            <span class="o">%</span> <span class="n">hkl</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_pts</span><span class="p">),</span>
+                                         <span class="n">hoverinfo</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">))</span>
+
+            <span class="c1"># normalize surface energy from a scale of 0 to 1 for colorbar</span>
+            <span class="n">norm_e</span> <span class="o">=</span> <span class="p">(</span><span class="n">plane</span><span class="o">.</span><span class="n">e_surf</span><span class="o">-</span><span class="nb">min</span><span class="p">(</span><span class="n">e_surf_on_wulff</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">e_surf_on_wulff</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">e_surf_on_wulff</span><span class="p">))</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="n">norm_e</span><span class="p">,</span> <span class="n">color</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">color_scale</span><span class="p">:</span>
+                <span class="n">color_scale</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                <span class="n">ticktext</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">plane</span><span class="o">.</span><span class="n">e_surf</span><span class="p">)</span>
+                <span class="n">tickvals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">norm_e</span><span class="p">)</span>
+
+        <span class="c1"># Add colorbar</span>
+        <span class="n">color_scale</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">color_scale</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">colorbar</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Mesh3d</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">z</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                             <span class="n">colorbar</span><span class="o">=</span><span class="n">go</span><span class="o">.</span><span class="n">ColorBar</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;Surface energy </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">units</span><span class="p">,</span>
+                                                         <span class="s1">&#39;side&#39;</span><span class="p">:</span> <span class="s1">&#39;right&#39;</span><span class="p">,</span>
+                                                         <span class="s1">&#39;font&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">}},</span>
+                                                  <span class="n">ticktext</span><span class="o">=</span><span class="n">ticktext</span><span class="p">,</span> <span class="n">tickvals</span><span class="o">=</span><span class="n">tickvals</span><span class="p">),</span>
+                             <span class="n">colorscale</span><span class="o">=</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;rgb(255,255,255, 255)&#39;</span><span class="p">]]</span> <span class="o">+</span> <span class="n">color_scale</span><span class="p">,</span>  <span class="c1"># fix the scale</span>
+                             <span class="n">intensity</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.33</span><span class="p">,</span> <span class="mf">0.66</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">i</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                             <span class="n">j</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">showscale</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">planes_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">colorbar</span><span class="p">)</span>
+
+        <span class="c1"># Format aesthetics: background, axis, etc.</span>
+        <span class="n">axis_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">autorange</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">showline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">showticklabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">showbackground</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">planes_data</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scene</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">xaxis</span><span class="o">=</span><span class="n">axis_dict</span><span class="p">,</span>
+                                                           <span class="n">yaxis</span><span class="o">=</span><span class="n">axis_dict</span><span class="p">,</span>
+                                                           <span class="n">zaxis</span><span class="o">=</span><span class="n">axis_dict</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_azimuth_elev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">miller_index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            miller_index: viewing direction</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            azim, elev for plotting</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">miller_index</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="n">miller_index</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">90</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">miller_index</span><span class="p">)</span>
+            <span class="n">azim</span> <span class="o">=</span> <span class="n">get_angle</span><span class="p">([</span><span class="n">cart</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cart</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="p">[</span><span class="n">cart</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cart</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">elev</span> <span class="o">=</span> <span class="n">get_angle</span><span class="p">(</span><span class="n">cart</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">azim</span><span class="p">,</span> <span class="n">elev</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Volume of the Wulff shape</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wulff_convex</span><span class="o">.</span><span class="n">volume</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">miller_area_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns {hkl: area_hkl on wulff}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_area</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">miller_energy_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns {hkl: surface energy_hkl}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_surf_list</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">surface_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Total surface area of Wulff shape.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_area_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">weighted_surface_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_surface_energy</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_area</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">area_fraction_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            (dict): {hkl: area_hkl/total area on wulff}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">hkl</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_area</span>
+                <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_area_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">anisotropy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            (float) Coefficient of Variation from weighted surface energy</span>
+<span class="sd">            The ideal sphere is 0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">square_diff_energy</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">weighted_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighted_surface_energy</span>
+        <span class="n">area_frac_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_fraction_dict</span>
+        <span class="n">miller_energy_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_energy_dict</span>
+
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">miller_energy_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">square_diff_energy</span> <span class="o">+=</span> <span class="p">(</span><span class="n">miller_energy_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span> <span class="o">-</span> <span class="n">weighted_energy</span><span class="p">)</span> \
+                                  <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">area_frac_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">square_diff_energy</span><span class="p">)</span> <span class="o">/</span> <span class="n">weighted_energy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is useful for determining the critical nucleus size.</span>
+<span class="sd">        A large shape factor indicates great anisotropy.</span>
+<span class="sd">        See Ballufi, R. W., Allen, S. M. &amp; Carter, W. C. Kinetics</span>
+<span class="sd">            of Materials. (John Wiley &amp; Sons, 2005), p.461</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (float) Shape factor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_area</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">effective_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Radius of the Wulffshape when the</span>
+<span class="sd">        Wulffshape is approximated as a sphere.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (float) radius.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">((</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_surface_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Total surface energy of the Wulff shape.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (float) sum(surface_energy_hkl * area_hkl)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tot_surface_energy</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_energy_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">tot_surface_energy</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_energy_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span> <span class="o">*</span> \
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">miller_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">tot_surface_energy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tot_corner_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of vertices in the convex hull.</span>
+<span class="sd">            Useful for identifying catalytically active sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wulff_convex</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tot_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of edges in the convex hull.</span>
+<span class="sd">            Useful for identifying catalytically active sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_edges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">facet</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">:</span>
+            <span class="n">edges</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_line_in_facet</span><span class="p">(</span><span class="n">facet</span><span class="p">)</span>
+
+            <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pt</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">2</span><span class="p">]),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])]))))</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_edges</span><span class="p">:</span>
+                    <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+            <span class="n">all_edges</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_edges</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.wulff</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

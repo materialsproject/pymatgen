@@ -1,0 +1,499 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.alchemy.transmuters &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.alchemy.transmuters</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.alchemy.transmuters</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements various transmuter classes.</span>
+<span class="sd">Transmuters are essentially classes that generate TransformedStructures from</span>
+<span class="sd">various data sources. They enable the high-throughput generation of new</span>
+<span class="sd">structures and input files.</span>
+
+<span class="sd">It also includes the helper function, batch_write_vasp_input to generate an</span>
+<span class="sd">entire directory of vasp input files for running.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Will Richards&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Mar 4, 2012&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">from</span> <span class="nn">pymatgen.alchemy.materials</span> <span class="kn">import</span> <span class="n">TransformedStructure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.sets</span> <span class="kn">import</span> <span class="n">MPRelaxSet</span>
+
+
+<div class="viewcode-block" id="StandardTransmuter"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter">[docs]</a><span class="k">class</span> <span class="nc">StandardTransmuter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An example of a Transmuter object, which performs a sequence of</span>
+<span class="sd">    transformations on many structures to generate TransformedStructures.</span>
+
+<span class="sd">    .. attribute: transformed_structures</span>
+
+<span class="sd">        List of all transformed structures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transformed_structures</span><span class="p">,</span> <span class="n">transformations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">extend_collection</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ncores</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a transmuter from an initial list of</span>
+<span class="sd">        :class:`pymatgen.alchemy.materials.TransformedStructure`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            transformed_structures ([TransformedStructure]): Input transformed</span>
+<span class="sd">                structures</span>
+<span class="sd">            transformations ([Transformations]): New transformations to be</span>
+<span class="sd">                applied to all structures.</span>
+<span class="sd">            extend_collection (int): Whether to use more than one output</span>
+<span class="sd">                structure from one-to-many transformations. extend_collection</span>
+<span class="sd">                can be an int, which determines the maximum branching for each</span>
+<span class="sd">                transformation.</span>
+<span class="sd">            ncores (int): Number of cores to use for applying transformations.</span>
+<span class="sd">                Uses multiprocessing.Pool. Default is None, which implies</span>
+<span class="sd">                serial.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span> <span class="o">=</span> <span class="n">transformed_structures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ncores</span> <span class="o">=</span> <span class="n">ncores</span>
+        <span class="k">if</span> <span class="n">transformations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">trans</span> <span class="ow">in</span> <span class="n">transformations</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">append_transformation</span><span class="p">(</span><span class="n">trans</span><span class="p">,</span>
+                                           <span class="n">extend_collection</span><span class="o">=</span><span class="n">extend_collection</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">]</span>
+
+<div class="viewcode-block" id="StandardTransmuter.undo_last_change"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.undo_last_change">[docs]</a>    <span class="k">def</span> <span class="nf">undo_last_change</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Undo the last transformation in the TransformedStructure.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            IndexError if already at the oldest change.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">:</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">undo_last_change</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="StandardTransmuter.redo_next_change"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.redo_next_change">[docs]</a>    <span class="k">def</span> <span class="nf">redo_next_change</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Redo the last undone transformation in the TransformedStructure.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            IndexError if already at the latest change.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">:</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">redo_next_change</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">)</span>
+
+<div class="viewcode-block" id="StandardTransmuter.append_transformation"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.append_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">append_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transformation</span><span class="p">,</span> <span class="n">extend_collection</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                              <span class="n">clear_redo</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Appends a transformation to all TransformedStructures.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            transformation: Transformation to append</span>
+<span class="sd">            extend_collection: Whether to use more than one output structure</span>
+<span class="sd">                from one-to-many transformations. extend_collection can be a</span>
+<span class="sd">                number, which determines the maximum branching for each</span>
+<span class="sd">                transformation.</span>
+<span class="sd">            clear_redo (bool): Whether to clear the redo list. By default,</span>
+<span class="sd">                this is True, meaning any appends clears the history of</span>
+<span class="sd">                undoing. However, when using append_transformation to do a</span>
+<span class="sd">                redo, the redo list should not be cleared to allow multiple</span>
+<span class="sd">                redos.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of booleans corresponding to initial transformed structures</span>
+<span class="sd">            each boolean describes whether the transformation altered the</span>
+<span class="sd">            structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncores</span> <span class="ow">and</span> <span class="n">transformation</span><span class="o">.</span><span class="n">use_multiprocessing</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ncores</span><span class="p">)</span>
+            <span class="c1"># need to condense arguments into single tuple to use map</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">transformation</span><span class="p">,</span> <span class="n">extend_collection</span><span class="p">,</span> <span class="n">clear_redo</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">)</span>
+            <span class="n">new_tstructs</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_apply_transformation</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="n">new_tstructs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_structures</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">:</span>
+                <span class="n">new</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">append_transformation</span><span class="p">(</span><span class="n">transformation</span><span class="p">,</span>
+                                              <span class="n">extend_collection</span><span class="p">,</span>
+                                              <span class="n">clear_redo</span><span class="o">=</span><span class="n">clear_redo</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">new</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">new_structures</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_structures</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StandardTransmuter.extend_transformations"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.extend_transformations">[docs]</a>    <span class="k">def</span> <span class="nf">extend_transformations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transformations</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extends a sequence of transformations to the TransformedStructure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            transformations: Sequence of Transformations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">transformations</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append_transformation</span><span class="p">(</span><span class="n">t</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StandardTransmuter.apply_filter"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.apply_filter">[docs]</a>    <span class="k">def</span> <span class="nf">apply_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_filter</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies a structure_filter to the list of TransformedStructures</span>
+<span class="sd">        in the transmuter.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure_filter: StructureFilter to apply.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">test_transformed_structure</span><span class="p">(</span><span class="n">ts</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">structure_filter</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">final_structure</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">test_transformed_structure</span><span class="p">,</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">:</span>
+            <span class="n">ts</span><span class="o">.</span><span class="n">append_filter</span><span class="p">(</span><span class="n">structure_filter</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StandardTransmuter.write_vasp_input"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.write_vasp_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_vasp_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Batch write vasp input for a sequence of transformed structures to</span>
+<span class="sd">        output_dir, following the format output_dir/{formula}_{number}.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            \\*\\*kwargs: All kwargs supported by batch_write_vasp_input.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">batch_write_vasp_input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StandardTransmuter.set_parameter"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.set_parameter">[docs]</a>    <span class="k">def</span> <span class="nf">set_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add parameters to the transmuter. Additional parameters are stored in</span>
+<span class="sd">        the as_dict() output.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key: The key for the parameter.</span>
+<span class="sd">            value: The value for the parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">:</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">other_parameters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="StandardTransmuter.add_tags"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.add_tags">[docs]</a>    <span class="k">def</span> <span class="nf">add_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add tags for the structures generated by the transmuter.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tags: A sequence of tags. Note that this should be a sequence of</span>
+<span class="sd">                strings, e.g., [&quot;My awesome structures&quot;, &quot;Project X&quot;].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_parameter</span><span class="p">(</span><span class="s2">&quot;tags&quot;</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Current structures&quot;</span><span class="p">,</span> <span class="s2">&quot;------------&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">:</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">final_structure</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+<div class="viewcode-block" id="StandardTransmuter.append_transformed_structures"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.append_transformed_structures">[docs]</a>    <span class="k">def</span> <span class="nf">append_transformed_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tstructs_or_transmuter</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method is overloaded to accept either a list of transformed structures</span>
+<span class="sd">        or transmuter, it which case it appends the second transmuter&quot;s</span>
+<span class="sd">        structures.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tstructs_or_transmuter: A list of transformed structures or a</span>
+<span class="sd">                transmuter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tstructs_or_transmuter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tstructs_or_transmuter</span>
+                                               <span class="o">.</span><span class="n">transformed_structures</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="n">tstructs_or_transmuter</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">TransformedStructure</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tstructs_or_transmuter</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StandardTransmuter.from_structures"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.from_structures">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_structures</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">transformations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extend_collection</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Alternative constructor from structures rather than</span>
+<span class="sd">        TransformedStructures.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structures: Sequence of structures</span>
+<span class="sd">            transformations: New transformations to be applied to all</span>
+<span class="sd">                structures</span>
+<span class="sd">            extend_collection: Whether to use more than one output structure</span>
+<span class="sd">                from one-to-many transformations. extend_collection can be a</span>
+<span class="sd">                number, which determines the maximum branching for each</span>
+<span class="sd">                transformation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            StandardTransmuter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tstruct</span> <span class="o">=</span> <span class="p">[</span><span class="n">TransformedStructure</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">[])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">StandardTransmuter</span><span class="p">(</span><span class="n">tstruct</span><span class="p">,</span> <span class="n">transformations</span><span class="p">,</span> <span class="n">extend_collection</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CifTransmuter"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.CifTransmuter">[docs]</a><span class="k">class</span> <span class="nc">CifTransmuter</span><span class="p">(</span><span class="n">StandardTransmuter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a Transmuter from a cif string, possibly containing multiple</span>
+<span class="sd">    structures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cif_string</span><span class="p">,</span> <span class="n">transformations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">extend_collection</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a Transmuter from a cif string, possibly</span>
+<span class="sd">        containing multiple structures.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cif_string: A string containing a cif or a series of cifs</span>
+<span class="sd">            transformations: New transformations to be applied to all</span>
+<span class="sd">                structures</span>
+<span class="sd">            primitive: Whether to generate the primitive cell from the cif.</span>
+<span class="sd">            extend_collection: Whether to use more than one output structure</span>
+<span class="sd">                from one-to-many transformations. extend_collection can be a</span>
+<span class="sd">                number, which determines the maximum branching for each</span>
+<span class="sd">                transformation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">transformed_structures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">cif_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">structure_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">read_data</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s*data&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">structure_data</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+                <span class="n">read_data</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">read_data</span><span class="p">:</span>
+                <span class="n">structure_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">structure_data</span><span class="p">:</span>
+            <span class="n">tstruct</span> <span class="o">=</span> <span class="n">TransformedStructure</span><span class="o">.</span><span class="n">from_cif_string</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="p">[],</span>
+                                                           <span class="n">primitive</span><span class="p">)</span>
+            <span class="n">transformed_structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tstruct</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">transformed_structures</span><span class="p">,</span> <span class="n">transformations</span><span class="p">,</span>
+                         <span class="n">extend_collection</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CifTransmuter.from_filenames"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.CifTransmuter.from_filenames">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_filenames</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">transformations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">extend_collection</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a TransformedStructureCollection from a cif, possibly</span>
+<span class="sd">        containing multiple structures.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filenames: List of strings of the cif files</span>
+<span class="sd">            transformations: New transformations to be applied to all</span>
+<span class="sd">                structures</span>
+<span class="sd">            primitive: Same meaning as in __init__.</span>
+<span class="sd">            extend_collection: Same meaning as in __init__.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">allcifs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">allcifs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">CifTransmuter</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">allcifs</span><span class="p">),</span> <span class="n">transformations</span><span class="p">,</span>
+                             <span class="n">primitive</span><span class="o">=</span><span class="n">primitive</span><span class="p">,</span>
+                             <span class="n">extend_collection</span><span class="o">=</span><span class="n">extend_collection</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PoscarTransmuter"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.PoscarTransmuter">[docs]</a><span class="k">class</span> <span class="nc">PoscarTransmuter</span><span class="p">(</span><span class="n">StandardTransmuter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a transmuter from a sequence of POSCARs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar_string</span><span class="p">,</span> <span class="n">transformations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">extend_collection</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            poscar_string: List of POSCAR strings</span>
+<span class="sd">            transformations: New transformations to be applied to all</span>
+<span class="sd">                structures.</span>
+<span class="sd">            extend_collection: Whether to use more than one output structure</span>
+<span class="sd">                from one-to-many transformations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tstruct</span> <span class="o">=</span> <span class="n">TransformedStructure</span><span class="o">.</span><span class="n">from_poscar_string</span><span class="p">(</span><span class="n">poscar_string</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">([</span><span class="n">tstruct</span><span class="p">],</span> <span class="n">transformations</span><span class="p">,</span>
+                         <span class="n">extend_collection</span><span class="o">=</span><span class="n">extend_collection</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PoscarTransmuter.from_filenames"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.PoscarTransmuter.from_filenames">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_filenames</span><span class="p">(</span><span class="n">poscar_filenames</span><span class="p">,</span> <span class="n">transformations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">extend_collection</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenient constructor to generates a POSCAR transmuter from a list of</span>
+<span class="sd">        POSCAR filenames.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            poscar_filenames: List of POSCAR filenames</span>
+<span class="sd">            transformations: New transformations to be applied to all</span>
+<span class="sd">                structures.</span>
+<span class="sd">            extend_collection:</span>
+<span class="sd">                Same meaning as in __init__.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tstructs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">poscar_filenames</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">tstructs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TransformedStructure</span>
+                                <span class="o">.</span><span class="n">from_poscar_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="p">[]))</span>
+        <span class="k">return</span> <span class="n">StandardTransmuter</span><span class="p">(</span><span class="n">tstructs</span><span class="p">,</span> <span class="n">transformations</span><span class="p">,</span>
+                                  <span class="n">extend_collection</span><span class="o">=</span><span class="n">extend_collection</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="batch_write_vasp_input"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.batch_write_vasp_input">[docs]</a><span class="k">def</span> <span class="nf">batch_write_vasp_input</span><span class="p">(</span><span class="n">transformed_structures</span><span class="p">,</span> <span class="n">vasp_input_set</span><span class="o">=</span><span class="n">MPRelaxSet</span><span class="p">,</span>
+                           <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">create_directory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">subfolder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">include_cif</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Batch write vasp input for a sequence of transformed structures to</span>
+<span class="sd">    output_dir, following the format output_dir/{group}/{formula}_{number}.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        transformed_structures: Sequence of TransformedStructures.</span>
+<span class="sd">        vasp_input_set: pymatgen.io.vaspio_set.VaspInputSet to creates</span>
+<span class="sd">            vasp input files from structures.</span>
+<span class="sd">        output_dir: Directory to output files</span>
+<span class="sd">        create_directory (bool): Create the directory if not present.</span>
+<span class="sd">            Defaults to True.</span>
+<span class="sd">        subfolder: Function to create subdirectory name from</span>
+<span class="sd">            transformed_structure.</span>
+<span class="sd">            e.g., lambda x: x.other_parameters[&quot;tags&quot;][0] to use the first</span>
+<span class="sd">            tag.</span>
+<span class="sd">        include_cif (bool): Boolean indication whether to output a CIF as</span>
+<span class="sd">            well. CIF files are generally better supported in visualization</span>
+<span class="sd">            programs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">transformed_structures</span><span class="p">):</span>
+        <span class="n">formula</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">formula</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">subfolder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="n">subfolder</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span>
+                                   <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">write_vasp_input</span><span class="p">(</span><span class="n">vasp_input_set</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span>
+                           <span class="n">create_directory</span><span class="o">=</span><span class="n">create_directory</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">include_cif</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.io.cif</span> <span class="kn">import</span> <span class="n">CifWriter</span>
+
+            <span class="n">writer</span> <span class="o">=</span> <span class="n">CifWriter</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">final_structure</span><span class="p">)</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.cif&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">formula</span><span class="p">)))</span></div>
+
+
+<span class="k">def</span> <span class="nf">_apply_transformation</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper method for multiprocessing of apply_transformation. Must not be</span>
+<span class="sd">    in the class so that it can be pickled.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        inputs: Tuple containing the transformed structure, the transformation</span>
+<span class="sd">            to be applied, a boolean indicating whether to extend the</span>
+<span class="sd">            collection, and a boolean indicating whether to clear the redo</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of output structures (the modified initial structure, plus</span>
+<span class="sd">        any new structures created by a one-to-many transformation)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ts</span><span class="p">,</span> <span class="n">transformation</span><span class="p">,</span> <span class="n">extend_collection</span><span class="p">,</span> <span class="n">clear_redo</span> <span class="o">=</span> <span class="n">inputs</span>
+    <span class="n">new</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">append_transformation</span><span class="p">(</span><span class="n">transformation</span><span class="p">,</span> <span class="n">extend_collection</span><span class="p">,</span>
+                                   <span class="n">clear_redo</span><span class="o">=</span><span class="n">clear_redo</span><span class="p">)</span>
+    <span class="n">o</span> <span class="o">=</span> <span class="p">[</span><span class="n">ts</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">new</span><span class="p">:</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">o</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.alchemy.transmuters</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

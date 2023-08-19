@@ -1,0 +1,557 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.io.feff.outputs &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.feff.outputs</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.feff.outputs</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines classes for parsing the FEFF output files.</span>
+
+<span class="sd">Currently supports the xmu.dat, ldos.dat output files are for non-spin case.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Orbital</span><span class="p">,</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="kn">import</span> <span class="n">Dos</span><span class="p">,</span> <span class="n">CompleteDos</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.feff</span> <span class="kn">import</span> <span class="n">Header</span><span class="p">,</span> <span class="n">Potential</span><span class="p">,</span> <span class="n">Tags</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alan Dozier, Kiran Mathew, Chen Zheng&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Anubhav Jain, Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0.3&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Alan Dozier&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;adozier@uky.edu&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Beta&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;April 7, 2013&quot;</span>
+
+
+<div class="viewcode-block" id="LDos"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.LDos">[docs]</a><span class="k">class</span> <span class="nc">LDos</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parser for ldos files ldos01, ldos02, .....</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">complete_dos</span><span class="p">,</span> <span class="n">charge_transfer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            complete_dos (CompleteDos): complete dos object</span>
+<span class="sd">            charge_transfer (dict): computed charge transfer between atoms</span>
+<span class="sd">                dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">complete_dos</span> <span class="o">=</span> <span class="n">complete_dos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">charge_transfer</span> <span class="o">=</span> <span class="n">charge_transfer</span>
+
+<div class="viewcode-block" id="LDos.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.LDos.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">feff_inp_file</span><span class="o">=</span><span class="s1">&#39;feff.inp&#39;</span><span class="p">,</span> <span class="n">ldos_file</span><span class="o">=</span><span class="s1">&#39;ldos&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates LDos object from raw Feff ldos files by</span>
+<span class="sd">        by assuming they are numbered consecutively, i.e. ldos01.dat</span>
+<span class="sd">        ldos02.dat...</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            feff_inp_file (str): input file of run to obtain structure</span>
+<span class="sd">            ldos_file (str): output ldos file of run to obtain dos info, etc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">header_str</span> <span class="o">=</span> <span class="n">Header</span><span class="o">.</span><span class="n">header_string_from_file</span><span class="p">(</span><span class="n">feff_inp_file</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">Header</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">header_str</span><span class="p">)</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">struct</span>
+        <span class="n">nsites</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">Tags</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">feff_inp_file</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;RECIPROCAL&quot;</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="n">pot_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">pot_readstart</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;.*iz.*lmaxsc.*xnatph.*xion.*folp.*&#39;</span><span class="p">)</span>
+            <span class="n">pot_readend</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;.*ExternalPot.*switch.*&#39;</span><span class="p">)</span>
+            <span class="n">pot_inp</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;feff.inp&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;pot.inp&#39;</span><span class="p">,</span> <span class="n">feff_inp_file</span><span class="p">)</span>
+            <span class="n">dos_index</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">begin</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">pot_inp</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">potfile</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">potfile</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pot_readend</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">line</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">break</span>
+
+                    <span class="k">if</span> <span class="n">begin</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">begin</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">continue</span>
+
+                    <span class="k">if</span> <span class="n">begin</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">z_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">ele_name</span> <span class="o">=</span> <span class="n">Element</span><span class="o">.</span><span class="n">from_Z</span><span class="p">(</span><span class="n">z_number</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+                        <span class="k">if</span> <span class="n">ele_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pot_dict</span><span class="p">:</span>
+                            <span class="n">pot_dict</span><span class="p">[</span><span class="n">ele_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dos_index</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">pot_dict</span><span class="p">[</span><span class="n">ele_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">dos_index</span><span class="p">,</span> <span class="n">pot_dict</span><span class="p">[</span><span class="n">ele_name</span><span class="p">])</span>
+                        <span class="n">dos_index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pot_readstart</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">line</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">begin</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pot_string</span> <span class="o">=</span> <span class="n">Potential</span><span class="o">.</span><span class="n">pot_string_from_file</span><span class="p">(</span><span class="n">feff_inp_file</span><span class="p">)</span>
+            <span class="n">dicts</span> <span class="o">=</span> <span class="n">Potential</span><span class="o">.</span><span class="n">pot_dict_from_string</span><span class="p">(</span><span class="n">pot_string</span><span class="p">)</span>
+            <span class="n">pot_dict</span> <span class="o">=</span> <span class="n">dicts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">ldos_file</span> <span class="o">+</span> <span class="s2">&quot;00.dat&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobject</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">fobject</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">efermi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">4</span><span class="p">])</span>
+
+        <span class="n">dos_energies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ldos</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pot_dict</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">ldos</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">0</span><span class="si">{}</span><span class="s2">.dat&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ldos_file</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ldos</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">.dat&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ldos_file</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ldos</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+            <span class="n">dos_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ldos</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">all_pdos</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">vorb</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">Orbital</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="n">Orbital</span><span class="o">.</span><span class="n">py</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="n">Orbital</span><span class="o">.</span><span class="n">dxy</span><span class="p">,</span>
+                <span class="s2">&quot;f&quot;</span><span class="p">:</span> <span class="n">Orbital</span><span class="o">.</span><span class="n">f0</span><span class="p">}</span>
+        <span class="n">forb</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;f&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+
+        <span class="n">dlength</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ldos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsites</span><span class="p">):</span>
+            <span class="n">pot_index</span> <span class="o">=</span> <span class="n">pot_dict</span><span class="p">[</span><span class="n">structure</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
+            <span class="n">all_pdos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vorb</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">density</span> <span class="o">=</span> <span class="p">[</span><span class="n">ldos</span><span class="p">[</span><span class="n">pot_index</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">forb</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                           <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dlength</span><span class="p">)]</span>
+                <span class="n">updos</span> <span class="o">=</span> <span class="n">density</span>
+                <span class="n">downdos</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">downdos</span><span class="p">:</span>
+                    <span class="n">all_pdos</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="n">updos</span><span class="p">,</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">:</span> <span class="n">downdos</span><span class="p">}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">all_pdos</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="n">updos</span><span class="p">}</span>
+
+        <span class="n">pdos</span> <span class="o">=</span> <span class="n">all_pdos</span>
+        <span class="n">vorb2</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">Orbital</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="n">Orbital</span><span class="o">.</span><span class="n">py</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="n">Orbital</span><span class="o">.</span><span class="n">dxy</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="n">Orbital</span><span class="o">.</span><span class="n">f0</span><span class="p">}</span>
+        <span class="n">pdoss</span> <span class="o">=</span> <span class="p">{</span><span class="n">structure</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">pdos</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">v</span><span class="p">]</span>
+                                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vorb2</span><span class="o">.</span><span class="n">values</span><span class="p">()}</span>
+                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pdos</span><span class="p">))}</span>
+
+        <span class="n">forb</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;f&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+
+        <span class="n">tdos</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">dlength</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsites</span><span class="p">):</span>
+            <span class="n">pot_index</span> <span class="o">=</span> <span class="n">pot_dict</span><span class="p">[</span><span class="n">structure</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">forb</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">density</span> <span class="o">=</span> <span class="p">[</span><span class="n">ldos</span><span class="p">[</span><span class="n">pot_index</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">v</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dlength</span><span class="p">)]</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dlength</span><span class="p">):</span>
+                    <span class="n">tdos</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">tdos</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">density</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+        <span class="n">tdos</span> <span class="o">=</span> <span class="p">{</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="n">tdos</span><span class="p">}</span>
+
+        <span class="n">dos</span> <span class="o">=</span> <span class="n">Dos</span><span class="p">(</span><span class="n">efermi</span><span class="p">,</span> <span class="n">dos_energies</span><span class="p">,</span> <span class="n">tdos</span><span class="p">)</span>
+        <span class="n">complete_dos</span> <span class="o">=</span> <span class="n">CompleteDos</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">dos</span><span class="p">,</span> <span class="n">pdoss</span><span class="p">)</span>
+        <span class="n">charge_transfer</span> <span class="o">=</span> <span class="n">LDos</span><span class="o">.</span><span class="n">charge_transfer_from_file</span><span class="p">(</span><span class="n">feff_inp_file</span><span class="p">,</span>
+                                                         <span class="n">ldos_file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LDos</span><span class="p">(</span><span class="n">complete_dos</span><span class="p">,</span> <span class="n">charge_transfer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDos.charge_transfer_from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.LDos.charge_transfer_from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">charge_transfer_from_file</span><span class="p">(</span><span class="n">feff_inp_file</span><span class="p">,</span> <span class="n">ldos_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get charge transfer from file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            feff_inp_file (str): name of feff.inp file for run</span>
+<span class="sd">            ldos_file (str): ldos filename for run, assume consequetive order,</span>
+<span class="sd">                i.e., ldos01.dat, ldos02.dat....</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dictionary of dictionaries in order of potential sites</span>
+<span class="sd">            ({&quot;p&quot;: 0.154, &quot;s&quot;: 0.078, &quot;d&quot;: 0.0, &quot;tot&quot;: 0.232}, ...)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cht</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">Tags</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">feff_inp_file</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;RECIPROCAL&#39;</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="n">dicts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">()]</span>
+            <span class="n">pot_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">dos_index</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">begin</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">pot_inp</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;feff.inp&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;pot.inp&#39;</span><span class="p">,</span> <span class="n">feff_inp_file</span><span class="p">)</span>
+            <span class="n">pot_readstart</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;.*iz.*lmaxsc.*xnatph.*xion.*folp.*&#39;</span><span class="p">)</span>
+            <span class="n">pot_readend</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;.*ExternalPot.*switch.*&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">pot_inp</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">potfile</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">potfile</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pot_readend</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">line</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="k">if</span> <span class="n">begin</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">z_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">ele_name</span> <span class="o">=</span> <span class="n">Element</span><span class="o">.</span><span class="n">from_Z</span><span class="p">(</span><span class="n">z_number</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pot_dict</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">pot_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ele_name</span>
+                        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">pot_dict</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">pot_dict</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">pot_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ele_name</span>
+                        <span class="n">begin</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">begin</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">z_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">ele_name</span> <span class="o">=</span> <span class="n">Element</span><span class="o">.</span><span class="n">from_Z</span><span class="p">(</span><span class="n">z_number</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+                        <span class="n">dicts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">ele_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dos_index</span>
+                        <span class="n">dos_index</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pot_dict</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">pot_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ele_name</span>
+                        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">pot_dict</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">pot_dict</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">pot_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ele_name</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pot_readstart</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">line</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">begin</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pot_string</span> <span class="o">=</span> <span class="n">Potential</span><span class="o">.</span><span class="n">pot_string_from_file</span><span class="p">(</span><span class="n">feff_inp_file</span><span class="p">)</span>
+            <span class="n">dicts</span> <span class="o">=</span> <span class="n">Potential</span><span class="o">.</span><span class="n">pot_dict_from_string</span><span class="p">(</span><span class="n">pot_string</span><span class="p">)</span>
+            <span class="n">pot_dict</span> <span class="o">=</span> <span class="n">dicts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dicts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">0</span><span class="si">{}</span><span class="s2">.dat&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ldos_file</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> \
+                        <span class="k">as</span> <span class="n">fobject</span><span class="p">:</span>
+                    <span class="n">f</span> <span class="o">=</span> <span class="n">fobject</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">f1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">tot</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">4</span><span class="p">])</span>
+                    <span class="n">cht</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{</span><span class="n">pot_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="p">{</span><span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="n">d</span><span class="p">,</span>
+                                                 <span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="n">f1</span><span class="p">,</span>
+                                                 <span class="s1">&#39;tot&#39;</span><span class="p">:</span> <span class="n">tot</span><span class="p">}}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">ldos_file</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.dat&quot;</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
+                    <span class="n">f</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">f1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">tot</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">4</span><span class="p">])</span>
+                    <span class="n">cht</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{</span><span class="n">pot_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="p">{</span><span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="n">d</span><span class="p">,</span>
+                                                 <span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="n">f1</span><span class="p">,</span>
+                                                 <span class="s1">&#39;tot&#39;</span><span class="p">:</span> <span class="n">tot</span><span class="p">}}</span>
+
+        <span class="k">return</span> <span class="n">cht</span></div>
+
+<div class="viewcode-block" id="LDos.charge_transfer_to_string"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.LDos.charge_transfer_to_string">[docs]</a>    <span class="k">def</span> <span class="nf">charge_transfer_to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;returns shrage transfer as string&quot;&quot;&quot;</span>
+        <span class="n">ch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge_transfer</span>
+        <span class="n">chts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Charge Transfer</span><span class="se">\n\n</span><span class="s1">absorbing atom&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ch</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">atom</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">ch</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">atom</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;s   &#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">v2</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">]),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;p   &#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">v2</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">]),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;d   &#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">v2</span><span class="p">[</span><span class="s1">&#39;d&#39;</span><span class="p">]),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;f   &#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">v2</span><span class="p">[</span><span class="s1">&#39;f&#39;</span><span class="p">]),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;tot &#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">v2</span><span class="p">[</span><span class="s1">&#39;tot&#39;</span><span class="p">]),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">]</span>
+                <span class="n">chts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chts</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Xmu"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu">[docs]</a><span class="k">class</span> <span class="nc">Xmu</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parser for data in &#39;xmu.dat&#39; file.</span>
+<span class="sd">    The file &#39;xmu.dat&#39; contains XANES, EXAFS or NRIXS data depending on the</span>
+<span class="sd">    situation; \\mu, \\mu_0, and \\chi = \\chi * \\mu_0/ \\mu_0/(edge+50eV) as</span>
+<span class="sd">    functions of absolute energy E, relative energy E − E_f and wave number k.</span>
+
+<span class="sd">    Default attributes:</span>
+<span class="sd">        xmu: Photon absorption cross section of absorbing atom in material</span>
+<span class="sd">        Energies: Energies of data point</span>
+<span class="sd">        relative_energies: E - E_fermi</span>
+<span class="sd">        wavenumber: k=\\sqrt(E −E_fermi)</span>
+<span class="sd">        mu: The total absorption cross-section.</span>
+<span class="sd">        mu0: The embedded atomic background absorption.</span>
+<span class="sd">        chi: fine structure.</span>
+<span class="sd">        Edge: Aborption Edge</span>
+<span class="sd">        Absorbing atom: Species of absorbing atom</span>
+<span class="sd">        Material: Formula of material</span>
+<span class="sd">        Source: Source of structure</span>
+<span class="sd">        Calculation: Type of Feff calculation performed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            header: Header object</span>
+<span class="sd">            parameters: Tags object</span>
+<span class="sd">            absorbing_atom (str/int): absorbing atom symbol or index</span>
+<span class="sd">            data (numpy.ndarray, Nx6): cross_sections</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">header</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">absorbing_atom</span> <span class="o">=</span> <span class="n">absorbing_atom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Xmu.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">xmu_dat_file</span><span class="o">=</span><span class="s2">&quot;xmu.dat&quot;</span><span class="p">,</span> <span class="n">feff_inp_file</span><span class="o">=</span><span class="s2">&quot;feff.inp&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get Xmu from file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            xmu_dat_file (str): filename and path for xmu.dat</span>
+<span class="sd">            feff_inp_file (str): filename and path of feff.inp input file</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             Xmu object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">xmu_dat_file</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">Header</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">feff_inp_file</span><span class="p">)</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">Tags</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">feff_inp_file</span><span class="p">)</span>
+        <span class="n">pots</span> <span class="o">=</span> <span class="n">Potential</span><span class="o">.</span><span class="n">pot_string_from_file</span><span class="p">(</span><span class="n">feff_inp_file</span><span class="p">)</span>
+        <span class="c1"># site index (Note: in feff it starts from 1)</span>
+        <span class="k">if</span> <span class="s2">&quot;RECIPROCAL&quot;</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="n">absorbing_atom</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;TARGET&quot;</span><span class="p">]</span>
+        <span class="c1"># species symbol</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">absorbing_atom</span> <span class="o">=</span> <span class="n">pots</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Xmu</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">energies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the absolute energies in eV.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">relative_energies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns energy with respect to the fermi level.</span>
+<span class="sd">        E - E_f</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wavenumber</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns The wave number in units of \\AA^-1. k=\\sqrt(E −E_f) where E is</span>
+<span class="sd">        the energy and E_f is the Fermi level computed from electron gas theory</span>
+<span class="sd">        at the average interstitial charge density.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the total absorption cross-section.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mu0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the embedded atomic background absorption.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">chi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the normalized fine structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">e_fermi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the fermi level in eV.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">relative_energies</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns source identification from Header file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">source</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns type of Feff calculation, XANES or EXAFS</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;XANES&quot;</span> <span class="k">if</span> <span class="s2">&quot;XANES&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="k">else</span> <span class="s2">&quot;EXAFS&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">material_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns chemical formula of material from feff.inp file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">formula</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="s1">&#39;No formula provided&#39;</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">form</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns excitation edge.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;EDGE&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Xmu.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns dict representations of Xmu object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">MSONable</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">d</span></div></div>
+
+
+<div class="viewcode-block" id="Eels"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Eels">[docs]</a><span class="k">class</span> <span class="nc">Eels</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse&#39;eels.dat&#39; file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data (): Eels data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">energies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the energies in eV.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the total eels spectrum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">atomic_background</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: atomic background.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fine_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Fine structure of EELS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Eels.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Eels.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">eels_dat_file</span><span class="o">=</span><span class="s2">&quot;eels.dat&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse eels spectrum.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            eels_dat_file (str): filename and path for eels.dat</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             Eels object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">eels_dat_file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Eels</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Eels.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Eels.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns dict representations of Xmu object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">MSONable</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">d</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.feff.outputs</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

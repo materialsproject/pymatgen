@@ -1,0 +1,307 @@
+Running Job 1 of 2 mol.qcinpProcess 0 of 8 is on Task 0 of 8 (0,0,0,0,0,0)  R00-M0-N02-J15 - thread support 3
+Process 3 of 8 is on Task 3 of 8 (0,0,0,1,1,0)  R00-M0-N02-J04 - thread support 3
+Process 4 of 8 is on Task 4 of 8 (0,0,1,0,0,0)  R00-M0-N02-J14 - thread support 3
+Process 7 of 8 is on Task 7 of 8 (0,0,1,1,1,0)  R00-M0-N02-J05 - thread support 3
+Process 2 of 8 is on Task 2 of 8 (0,0,0,1,0,0)  R00-M0-N02-J03 - thread support 3
+Process 5 of 8 is on Task 5 of 8 (0,0,1,0,1,0)  R00-M0-N02-J09 - thread support 3
+Process 6 of 8 is on Task 6 of 8 (0,0,1,1,0,0)  R00-M0-N02-J02 - thread support 3
+Process 1 of 8 is on Task 1 of 8 (0,0,0,0,1,0)  R00-M0-N02-J08 - thread support 3
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+
+ Q-Chem 4.2, Q-Chem, Inc., Pleasanton, CA (2014).
+
+ Y. Shao,  Z. Gan,  E. Epifanovsky,  A. T. B. Gilbert,  M. Wormit,  
+ J. Kussmann,  A. W. Lange,  A. Behn,  J. Deng,  X. Feng,  D. Ghosh,  
+ M. Goldey,  P. R. Horn,  L. D. Jacobson,  I. Kaliman,  R. Z. Khaliullin,  
+ T. Kus,  A. Landau,  J. Liu,  E. I. Proynov,  Y. M. Rhee,  R. M. Richard,  
+ M. A. Rohrdanz,  R. P. Steele,  E. J. Sundstrom,  H. L. Woodcock III,  
+ P. M. Zimmerman,  D. Zuev,  B. Albrecht,  E. Alguire,  B. Austin,  
+ G. J. O. Beran,  Y. A. Bernard,  E. Berquist,  K. Brandhorst,  
+ K. B. Bravaya,  S. T. Brown,  D. Casanova,  C.-M. Chang,  Y. Chen,  
+ S. H. Chien,  K. D. Closser,  D. L. Crittenden,  M. Diedenhofen,  
+ R. A. DiStasio Jr.,  H. Do,  A. D. Dutoi,  R. G. Edgar,  S. Fatehi,  
+ L. Fusti-Molnar,  A. Ghysels,  A. Golubeva-Zadorozhnaya,  J. Gomes,  
+ M. W. D. Hanson-Heine,  P. H. P. Harbach,  A. W. Hauser,  E. G. Hohenstein,  
+ Z. C. Holden,  T.-C. Jagau,  H. Ji,  B. Kaduk,  K. Khistyaev,  Jaehoon Kim,  
+ Jihan Kim,  R. A. King,  P. Klunzinger,  D. Kosenkov,  T. Kowalczyk,  
+ C. M. Krauter,  K. U. Lao,  A. Laurent,  K. V. Lawler,  S. V. Levchenko,  
+ C. Y. Lin,  F. Liu,  E. Livshits,  R. C. Lochan,  A. Luenser,  P. Manohar,  
+ S. F. Manzer,  S.-P. Mao,  N. Mardirossian,  A. V. Marenich,  S. A. Maurer,  
+ N. J. Mayhall,  C. M. Oana,  R. Olivares-Amaya,  D. P. O'Neill,  
+ J. A. Parkhill,  T. M. Perrine,  R. Peverati,  P. A. Pieniazek,  A. Prociuk,  
+ D. R. Rehn,  E. Rosta,  N. J. Russ,  N. Sergueev,  S. M. Sharada,  
+ S. Sharma,  D. W. Small,  A. Sodt,  T. Stein,  D. Stuck,  Y.-C. Su,  
+ A. J. W. Thom,  T. Tsuchimochi,  L. Vogt,  O. Vydrov,  T. Wang,  
+ M. A. Watson,  J. Wenzel,  A. White,  C. F. Williams,  V. Vanovschi,  
+ S. Yeganeh,  S. R. Yost,  Z.-Q. You,  I. Y. Zhang,  X. Zhang,  Y. Zhao,  
+ B. R. Brooks,  G. K. L. Chan,  D. M. Chipman,  C. J. Cramer,  
+ W. A. Goddard III,  M. S. Gordon,  W. J. Hehre,  A. Klamt,  
+ H. F. Schaefer III,  M. W. Schmidt,  C. D. Sherrill,  D. G. Truhlar,  
+ A. Warshel,  X. Xu,  A. Aspuru-Guzik,  R. Baer,  A. T. Bell,  N. A. Besley,  
+ J.-D. Chai,  A. Dreuw,  B. D. Dunietz,  T. R. Furlani,  S. R. Gwaltney,  
+ C.-P. Hsu,  Y. Jung,  J. Kong,  D. S. Lambrecht,  W. Liang,  C. Ochsenfeld,  
+ V. A. Rassolov,  L. V. Slipchenko,  J. E. Subotnik,  T. Van Voorhis,  
+ J. M. Herbert,  A. I. Krylov,  P. M. W. Gill,  M. Head-Gordon
+
+ Contributors to earlier versions of Q-Chem not listed above: 
+ R. D. Adamson,  J. Baker,  E. F. C. Byrd,  A. K. Chakraborty,  C.-L. Cheng,  
+ H. Dachsel,  R. J. Doerksen,  G. Hawkins,  A. Heyden,  S. Hirata,  
+ G. Kedziora,  F. J. Keil,  C. Kelley,  P. P. Korambath,  W. Kurlancheek,  
+ A. M. Lee,  M. S. Lee,  D. Liotard,  I. Lotan,  P. E. Maslen,  N. Nair,  
+ D. Neuhauser,  R. Olson,  B. Peters,  J. Ritchie,  N. E. Schultz,  
+ N. Shenvi,  A. C. Simmonett,  K. S. Thanthiriwatte,  Q. Wu,  W. Zhang
+
+ Q-Chem 4.2.2 for Intel X86 Linux
+
+ Parts of Q-Chem use Armadillo 4.550.3 (Singapore Sling Deluxe).
+ http://arma.sourceforge.net/
+
+ Q-Chem begins on Mon Oct 12 22:24:35 2015  
+
+Host: -1
+
+     Scratch files written to /dev/local/qchem.0//
+ Aug2415 |home|pkcoff|qchem|src|qchem422.mod2|libmdc|qstr_info.C -1
+ Parallel job on  8  processors
+
+Checking the input file for inconsistencies...	...done.
+
+--------------------------------------------------------------
+User input:
+--------------------------------------------------------------
+$comment
+ ammonia doublet anion B3LYP/6-31+G* single point energy  Gas Phase
+$end
+
+
+$molecule
+ -1  2
+ N          -0.00017869        0.00010707        0.20449990
+ H           0.89201838        0.20268122       -0.29656572
+ H          -0.62191133        0.67135171       -0.29649162
+ H          -0.26987729       -0.87406458       -0.29659779
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+       blas3_dft = 1
+  max_scf_cycles = 100
+      mem_static = 800
+       mem_total = 7200
+  parallel_tasks = 4
+        pdiag_on = 1
+   scf_algorithm = diis
+$end
+
+--------------------------------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      N      -0.0001454515     0.0000652839    -0.1503154221
+    2      H       0.3757217787    -0.8342578881     0.3504313437
+    3      H      -0.9102086253     0.0920345704     0.3511225257
+    4      H       0.5355050070     0.7417663304     0.3506540853
+ ----------------------------------------------------------------
+ Molecular Point Group                 C1    NOp =  1
+ Largest Abelian Subgroup              C1    NOp =  1
+ Nuclear Repulsion Energy =    11.6552611368 hartrees
+ There are        6 alpha and        5 beta electrons
+ Requested basis set is 6-31+G(d)
+ There are 11 shells and 25 basis functions
+
+Total QAlloc Memory Limit   7200 MB
+Mega-Array Size       783 MB
+MEM_STATIC part       800 MB
+
+                       Distance Matrix (Angstroms)
+             N (  1)   H (  2)   H (  3)
+   H (  2)  1.043129
+   H (  3)  1.043127  1.584814
+   H (  4)  1.043078  1.584103  1.585005
+
+ A cutoff of  1.0D-08 yielded     66 shell pairs
+ There are       358 function pairs
+ Smallest overlap matrix eigenvalue = 1.28E-02
+
+  Scale SEOQF with 1.000000e-01/1.000000e-01/1.000000e-01
+
+ Standard Electronic Orientation quadrupole field applied
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+ An unrestricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-05
+ using 64 threads for integral computing 
+ -------------------------------------------------------
+ OpenMP BLAS3 based DFT computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1     -56.5080658368      1.34E-01
+    2     -56.3631877761      3.59E-02
+    3     -56.2098390278      5.79E-02
+    4     -56.4764100440      7.45E-04
+    5     -56.4766291597      2.78E-04
+    6     -56.4766460034      4.45E-05
+    7     -56.4766473037      2.45E-05
+    8     -56.4766473777      2.47E-06 Convergence criterion met
+ ---------------------------------------
+ <S^2> = 0.7506
+ SCF time:  CPU 7.42 s  wall nan s
+ SCF   energy in the final basis set = -56.4766473777
+ Total energy in the final basis set = -56.4766473777
+ Analysis of SCF Wavefunction
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+-14.095  -0.627  -0.217  -0.217  -0.067   0.146
+ -- Virtual --
+  0.249   0.249   0.277   0.386   0.386   0.461   1.068   1.068
+  1.117   1.122   1.122   1.339   1.505   1.894   1.894   2.042
+  2.637   2.637   3.964
+
+ Beta MOs
+ -- Occupied --
+-14.090  -0.617  -0.213  -0.213  -0.063
+ -- Virtual --
+  0.209   0.265   0.265   0.290   0.394   0.394   0.477   1.073
+  1.073   1.122   1.126   1.126   1.348   1.507   1.896   1.896
+  2.046   2.640   2.640   3.969
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)    Spin (a.u.)
+  --------------------------------------------------------
+      1 N                    -2.496872       1.405165
+      2 H                     0.498853      -0.135008
+      3 H                     0.498852      -0.134963
+      4 H                     0.499167      -0.135193
+  --------------------------------------------------------
+  Sum of atomic charges =    -1.000000
+  Sum of spin   charges =     1.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                -4.8032
+    Dipole Moment (Debye)
+         X      -0.0035      Y      -0.0032      Z      -1.2570
+       Tot       1.2570
+    Quadrupole Moments (Debye-Ang)
+        XX     -15.5377     XY       0.0010     YY     -15.5435
+        XZ      -0.0014     YZ       0.0000     ZZ     -20.2670
+    Octopole Moments (Debye-Ang^2)
+       XXX      -1.3342    XXY       0.4053    XYY       1.3030
+       YYY      -0.4227    XXZ      -3.9489    XYZ       0.0005
+       YYZ      -3.9519    XZZ      -0.0075    YZZ      -0.0039
+       ZZZ     -13.8191
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX     -50.0345   XXXY       0.0029   XXYY     -16.6778
+      XYYY       0.0017   YYYY     -50.0431   XXXZ      -0.6099
+      XXYZ       0.1887   XYYZ       0.6040   YYYZ      -0.1908
+      XXZZ     -19.1100   XYZZ       0.0008   YYZZ     -19.1128
+      XZZZ      -0.0062   YZZZ      -0.0016   ZZZZ     -66.6445
+ -----------------------------------------------------------------
+Archival summary:
+1\1\Q02-I0-J01.vesta.itd\SP\ProcedureUnspecified\6-31+G*\13(1-,2)\xhqu\MonOct1222:24:472015MonOct1222:24:472015\0\\#,ProcedureUnspecified,6-31+G*,\\-1,2\N\H,1,1.04308\H,1,1.04313,2,98.8852\H,1,1.04313,2,98.8089,3,100.491,0\\\@
+
+ Total job time:  nans(wall), 12.24s(cpu) 
+ Mon Oct 12 22:24:47 2015
+
+        *************************************************************
+        *                                                           *
+        *  Thank you very much for using Q-Chem.  Have a nice day.  *
+        *                                                           *
+        *************************************************************
+
+
+Running Job 2 of 2 mol.qcinpProcess 4 of 8 is on Task 4 of 8 (0,0,1,0,0,0)  R00-M0-N02-J16 - thread support 3
+Process 0 of 8 is on Task 0 of 8 (0,0,0,0,0,0)  R00-M0-N02-J17 - thread support 3
+Process 3 of 8 is on Task 3 of 8 (0,0,0,1,1,0)  R00-M0-N02-J26 - thread support 3
+Process 1 of 8 is on Task 1 of 8 (0,0,0,0,1,0)  R00-M0-N02-J22 - thread support 3
+Process 6 of 8 is on Task 6 of 8 (0,0,1,1,0,0)  R00-M0-N02-J28 - thread support 3
+Process 5 of 8 is on Task 5 of 8 (0,0,1,0,1,0)  R00-M0-N02-J23 - thread support 3
+Process 2 of 8 is on Task 2 of 8 (0,0,0,1,0,0)  R00-M0-N02-J29 - thread support 3
+Process 7 of 8 is on Task 7 of 8 (0,0,1,1,1,0)  R00-M0-N02-J27 - thread support 3
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+
+ Q-Chem 4.2, Q-Chem, Inc., Pleasanton, CA (2014).
+
+ Y. Shao,  Z. Gan,  E. Epifanovsky,  A. T. B. Gilbert,  M. Wormit,  
+ J. Kussmann,  A. W. Lange,  A. Behn,  J. Deng,  X. Feng,  D. Ghosh,  
+ M. Goldey,  P. R. Horn,  L. D. Jacobson,  I. Kaliman,  R. Z. Khaliullin,  
+ T. Kus,  A. Landau,  J. Liu,  E. I. Proynov,  Y. M. Rhee,  R. M. Richard,  
+ M. A. Rohrdanz,  R. P. Steele,  E. J. Sundstrom,  H. L. Woodcock III,  
+ P. M. Zimmerman,  D. Zuev,  B. Albrecht,  E. Alguire,  B. Austin,  
+ G. J. O. Beran,  Y. A. Bernard,  E. Berquist,  K. Brandhorst,  
+ K. B. Bravaya,  S. T. Brown,  D. Casanova,  C.-M. Chang,  Y. Chen,  
+ S. H. Chien,  K. D. Closser,  D. L. Crittenden,  M. Diedenhofen,  
+ R. A. DiStasio Jr.,  H. Do,  A. D. Dutoi,  R. G. Edgar,  S. Fatehi,  
+ L. Fusti-Molnar,  A. Ghysels,  A. Golubeva-Zadorozhnaya,  J. Gomes,  
+ M. W. D. Hanson-Heine,  P. H. P. Harbach,  A. W. Hauser,  E. G. Hohenstein,  
+ Z. C. Holden,  T.-C. Jagau,  H. Ji,  B. Kaduk,  K. Khistyaev,  Jaehoon Kim,  
+ Jihan Kim,  R. A. King,  P. Klunzinger,  D. Kosenkov,  T. Kowalczyk,  
+ C. M. Krauter,  K. U. Lao,  A. Laurent,  K. V. Lawler,  S. V. Levchenko,  
+ C. Y. Lin,  F. Liu,  E. Livshits,  R. C. Lochan,  A. Luenser,  P. Manohar,  
+ S. F. Manzer,  S.-P. Mao,  N. Mardirossian,  A. V. Marenich,  S. A. Maurer,  
+ N. J. Mayhall,  C. M. Oana,  R. Olivares-Amaya,  D. P. O'Neill,  
+ J. A. Parkhill,  T. M. Perrine,  R. Peverati,  P. A. Pieniazek,  A. Prociuk,  
+ D. R. Rehn,  E. Rosta,  N. J. Russ,  N. Sergueev,  S. M. Sharada,  
+ S. Sharma,  D. W. Small,  A. Sodt,  T. Stein,  D. Stuck,  Y.-C. Su,  
+ A. J. W. Thom,  T. Tsuchimochi,  L. Vogt,  O. Vydrov,  T. Wang,  
+ M. A. Watson,  J. Wenzel,  A. White,  C. F. Williams,  V. Vanovschi,  
+ S. Yeganeh,  S. R. Yost,  Z.-Q. You,  I. Y. Zhang,  X. Zhang,  Y. Zhao,  
+ B. R. Brooks,  G. K. L. Chan,  D. M. Chipman,  C. J. Cramer,  
+ W. A. Goddard III,  M. S. Gordon,  W. J. Hehre,  A. Klamt,  
+ H. F. Schaefer III,  M. W. Schmidt,  C. D. Sherrill,  D. G. Truhlar,  
+ A. Warshel,  X. Xu,  A. Aspuru-Guzik,  R. Baer,  A. T. Bell,  N. A. Besley,  
+ J.-D. Chai,  A. Dreuw,  B. D. Dunietz,  T. R. Furlani,  S. R. Gwaltney,  
+ C.-P. Hsu,  Y. Jung,  J. Kong,  D. S. Lambrecht,  W. Liang,  C. Ochsenfeld,  
+ V. A. Rassolov,  L. V. Slipchenko,  J. E. Subotnik,  T. Van Voorhis,  
+ J. M. Herbert,  A. I. Krylov,  P. M. W. Gill,  M. Head-Gordon
+
+ Contributors to earlier versions of Q-Chem not listed above: 
+ R. D. Adamson,  J. Baker,  E. F. C. Byrd,  A. K. Chakraborty,  C.-L. Cheng,  
+ H. Dachsel,  R. J. Doerksen,  G. Hawkins,  A. Heyden,  S. Hirata,  
+ G. Kedziora,  F. J. Keil,  C. Kelley,  P. P. Korambath,  W. Kurlancheek,  
+ A. M. Lee,  M. S. Lee,  D. Liotard,  I. Lotan,  P. E. Maslen,  N. Nair,  
+ D. Neuhauser,  R. Olson,  B. Peters,  J. Ritchie,  N. E. Schultz,  
+ N. Shenvi,  A. C. Simmonett,  K. S. Thanthiriwatte,  Q. Wu,  W. Zhang
+
+ Q-Chem 4.2.2 for Intel X86 Linux
+
+ Parts of Q-Chem use Armadillo 4.550.3 (Singapore Sling Deluxe).
+ http://arma.sourceforge.net/
+
+ Q-Chem begins on Mon Oct 12 22:26:26 2015  
+
+Host: -1
+
+     Scratch files written to /dev/local/qchem.0//
+ Aug2415 |home|pkcoff|qchem|src|qchem422.mod2|libmdc|qstr_info.C -1
+ Parallel job on  8  processors
+Symmetry turned off for PCM calculation
+
+Checking the input file for inconsistencies...
+Use of $pcm_solvent section has been deprecated starting in Q-Chem v. 4.2.1.
+Please use $solvent instead.  See the Q-Chem manual for more instructions.

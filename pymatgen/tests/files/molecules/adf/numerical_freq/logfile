@@ -1,0 +1,342 @@
+<Dec01-2015> <12:45:14>  ADF 2014  RunTime: Dec01-2015 12:45:14  Nodes: 1  Procs: 1
+<Dec01-2015> <12:45:14>  Hydrogen (TZP)
+<Dec01-2015> <12:45:14>  RunType   : CREATE
+<Dec01-2015> <12:45:14>  Net Charge: 0 (Nuclei minus Electrons)
+<Dec01-2015> <12:45:14>  Symmetry  : ATOM
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.H         0.000000    0.000000    0.000000
+<Dec01-2015> <12:45:14>  >>>> CORORT
+<Dec01-2015> <12:45:14>  >>>> CLSMAT
+<Dec01-2015> <12:45:14>  >>>> ORTHON
+<Dec01-2015> <12:45:14>  >>>> GENPT
+<Dec01-2015> <12:45:14>  Block Length=  64
+<Dec01-2015> <12:45:14>  >>>> PTBAS
+<Dec01-2015> <12:45:14>  >>>> CYCLE
+<Dec01-2015> <12:45:14>    1
+<Dec01-2015> <12:45:14>    2  ErrMat   0.04599043  MaxEl -0.04581380
+<Dec01-2015> <12:45:14>    3  ErrMat   0.01042691  MaxEl  0.01001652
+<Dec01-2015> <12:45:14>    4  ErrMat   0.00029286  MaxEl  0.00021096
+<Dec01-2015> <12:45:14>    5  ErrMat   0.00000895  MaxEl  0.00000721
+<Dec01-2015> <12:45:14>    6  ErrMat   0.00000002  MaxEl -0.00000002
+<Dec01-2015> <12:45:14>    7  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:45:14>  SCF converged
+<Dec01-2015> <12:45:14>    8  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:45:14>   Solutions with partially occupied orbitals may not be
+<Dec01-2015> <12:45:14>   lowest in energy. You might consider lowering the
+<Dec01-2015> <12:45:14>   symmetry in the input and explicitly specifying integer
+<Dec01-2015> <12:45:14>   occupations. In that case always check that you obtain
+<Dec01-2015> <12:45:14>   an aufbau solution.
+<Dec01-2015> <12:45:14>  >>>> POPAN
+<Dec01-2015> <12:45:14>  >>>> DEBYE
+<Dec01-2015> <12:45:14>  NORMAL TERMINATION
+<Dec01-2015> <12:45:14>  END
+<Dec01-2015> <12:45:14>  ADF 2014  RunTime: Dec01-2015 12:45:14  Nodes: 1  Procs: 1
+<Dec01-2015> <12:45:14>  Nitrogen (TZP, 1s frozen)
+<Dec01-2015> <12:45:14>  RunType   : CREATE
+<Dec01-2015> <12:45:14>  Net Charge: 0 (Nuclei minus Electrons)
+<Dec01-2015> <12:45:14>  Symmetry  : ATOM
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.N         0.000000    0.000000    0.000000
+<Dec01-2015> <12:45:14>  >>>> CORORT
+<Dec01-2015> <12:45:14>  >>>> CLSMAT
+<Dec01-2015> <12:45:14>  >>>> ORTHON
+<Dec01-2015> <12:45:14>  >>>> GENPT
+<Dec01-2015> <12:45:14>  Block Length=  68
+<Dec01-2015> <12:45:14>  >>>> PTBAS
+<Dec01-2015> <12:45:14>  >>>> CYCLE
+<Dec01-2015> <12:45:14>    1
+<Dec01-2015> <12:45:14>    2  ErrMat   2.74606693  MaxEl -1.79454153
+<Dec01-2015> <12:45:14>    3  ErrMat   1.57363192  MaxEl  1.18790691
+<Dec01-2015> <12:45:15>    4  ErrMat   1.10520876  MaxEl  0.81171226
+<Dec01-2015> <12:45:15>    5  ErrMat   0.68732520  MaxEl  0.50145022
+<Dec01-2015> <12:45:15>    6  ErrMat   0.01108521  MaxEl  0.00796013
+<Dec01-2015> <12:45:15>    7  ErrMat   0.00000963  MaxEl  0.00000603
+<Dec01-2015> <12:45:15>    8  ErrMat   0.00000218  MaxEl -0.00000149
+<Dec01-2015> <12:45:15>    9  ErrMat   0.00000002  MaxEl  0.00000001
+<Dec01-2015> <12:45:15>  SCF converged
+<Dec01-2015> <12:45:15>   10  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:45:15>   Solutions with partially occupied orbitals may not be
+<Dec01-2015> <12:45:15>   lowest in energy. You might consider lowering the
+<Dec01-2015> <12:45:15>   symmetry in the input and explicitly specifying integer
+<Dec01-2015> <12:45:15>   occupations. In that case always check that you obtain
+<Dec01-2015> <12:45:15>   an aufbau solution.
+<Dec01-2015> <12:45:15>  >>>> POPAN
+<Dec01-2015> <12:45:15>  >>>> DEBYE
+<Dec01-2015> <12:45:15>  NORMAL TERMINATION
+<Dec01-2015> <12:45:15>  END
+<Dec01-2015> <12:45:15>  ADF 2014  RunTime: Dec01-2015 12:45:15  Nodes: 1  Procs: 8
+<Dec01-2015> <12:45:15>  NH3 frequencies in symmetric displacements
+<Dec01-2015> <12:45:15>  RunType   : FREQUENCIES
+<Dec01-2015> <12:45:15>  Net Charge: 0 (Nuclei minus Electrons)
+<Dec01-2015> <12:45:15>  Symmetry  : C(3V)
+<Dec01-2015> <12:45:15>  >>>> FRAGM
+ Coordinates in Frequency Displacement 0
+   Atom         X           Y           Z   (Angstrom)
+   1.N         0.000000    0.000000    0.000000
+   2.H         0.472858    0.819015    0.382100
+   3.H        -0.945717    0.000000    0.382100
+   4.H         0.472858   -0.819015    0.382100
+<Dec01-2015> <12:45:15>  >>>> CORORT
+<Dec01-2015> <12:45:15>  >>>> CLSMAT
+<Dec01-2015> <12:45:15>  >>>> ORTHON
+<Dec01-2015> <12:45:15>  >>>> GENPT
+<Dec01-2015> <12:45:20>  Block Length= 128
+<Dec01-2015> <12:45:20>  >>>> PTBAS
+<Dec01-2015> <12:45:20>  >>>> CYCLE
+<Dec01-2015> <12:45:20>    1
+<Dec01-2015> <12:45:20>    2  ErrMat   0.91937782  MaxEl -0.37404739
+<Dec01-2015> <12:45:20>    3  ErrMat   0.41275528  MaxEl -0.17004627
+<Dec01-2015> <12:45:20>    4  ErrMat   0.10901866  MaxEl  0.04487970
+<Dec01-2015> <12:45:20>    5  ErrMat   0.00293205  MaxEl -0.00164337
+<Dec01-2015> <12:45:20>    6  ErrMat   0.00049234  MaxEl  0.00027234
+<Dec01-2015> <12:45:20>    7  ErrMat   0.00006867  MaxEl  0.00003158
+<Dec01-2015> <12:45:20>    8  ErrMat   0.00000480  MaxEl -0.00000189
+<Dec01-2015> <12:45:20>    9  ErrMat   0.00000009  MaxEl  0.00000004
+<Dec01-2015> <12:45:20>  SCF converged
+<Dec01-2015> <12:45:20>   10  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:45:20>  >>>> TOTEN
+<Dec01-2015> <12:45:20>  >>>> POPAN
+<Dec01-2015> <12:45:20>  >>>> DEBYE
+<Dec01-2015> <12:45:20>  >>>> AMETS
+<Dec01-2015> <12:45:20>  >>>> POPUL
+<Dec01-2015> <12:45:20>  >>>> ENGRAD
+<Dec01-2015> <12:45:21>  Symmetry  : C(3V)
+<Dec01-2015> <12:45:21>  >>>> FRAGM
+<Dec01-2015> <12:45:21>  Geometry symmetry displacement    1 out of    8
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.N         0.000000    0.000000   -0.001237
+   2.H         0.472858    0.819015    0.387829
+   3.H        -0.945717    0.000000    0.387829
+   4.H         0.472858   -0.819015    0.387829
+<Dec01-2015> <12:45:21>  >>>> CORORT
+<Dec01-2015> <12:45:21>  >>>> CLSMAT
+<Dec01-2015> <12:45:21>  >>>> ORTHON
+<Dec01-2015> <12:45:21>  >>>> GENPT
+<Dec01-2015> <12:45:21>  Block Length= 128
+<Dec01-2015> <12:45:21>  >>>> PTBAS
+<Dec01-2015> <12:45:21>  >>>> CYCLE
+<Dec01-2015> <12:45:21>    1
+<Dec01-2015> <12:45:21>    2  ErrMat   0.91588011  MaxEl -0.37293600
+<Dec01-2015> <12:45:21>    3  ErrMat   0.40972302  MaxEl -0.16891427
+<Dec01-2015> <12:45:21>    4  ErrMat   0.10860314  MaxEl  0.04471636
+<Dec01-2015> <12:45:21>    5  ErrMat   0.00298912  MaxEl -0.00166724
+<Dec01-2015> <12:45:21>    6  ErrMat   0.00048943  MaxEl  0.00026978
+<Dec01-2015> <12:45:21>    7  ErrMat   0.00006974  MaxEl  0.00003216
+<Dec01-2015> <12:45:21>    8  ErrMat   0.00000497  MaxEl -0.00000194
+<Dec01-2015> <12:45:21>    9  ErrMat   0.00000009  MaxEl  0.00000004
+<Dec01-2015> <12:45:21>  SCF converged
+<Dec01-2015> <12:45:21>   10  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:45:21>  >>>> TOTEN
+<Dec01-2015> <12:45:21>  >>>> POPAN
+<Dec01-2015> <12:45:21>  >>>> DEBYE
+<Dec01-2015> <12:45:21>  >>>> ENGRAD
+<Dec01-2015> <12:45:21>  Geometry symmetry displacement    2 out of    8
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.N         0.000000    0.000000    0.001237
+   2.H         0.472858    0.819015    0.376371
+   3.H        -0.945717    0.000000    0.376371
+   4.H         0.472858   -0.819015    0.376371
+<Dec01-2015> <12:45:21>  >>>> CORORT
+<Dec01-2015> <12:45:21>  >>>> CLSMAT
+<Dec01-2015> <12:45:21>  >>>> ORTHON
+<Dec01-2015> <12:45:21>  >>>> GENPT
+<Dec01-2015> <12:45:21>  Block Length= 128
+<Dec01-2015> <12:45:21>  >>>> PTBAS
+<Dec01-2015> <12:45:21>  >>>> CYCLE
+<Dec01-2015> <12:45:21>    1
+<Dec01-2015> <12:45:21>    2  ErrMat   0.92284877  MaxEl -0.37515324
+<Dec01-2015> <12:45:21>    3  ErrMat   0.41575205  MaxEl -0.17116498
+<Dec01-2015> <12:45:21>    4  ErrMat   0.10943550  MaxEl  0.04504422
+<Dec01-2015> <12:45:21>    5  ErrMat   0.00287491  MaxEl -0.00161899
+<Dec01-2015> <12:45:21>    6  ErrMat   0.00049537  MaxEl  0.00027497
+<Dec01-2015> <12:45:21>    7  ErrMat   0.00006766  MaxEl  0.00003103
+<Dec01-2015> <12:45:22>    8  ErrMat   0.00000464  MaxEl -0.00000183
+<Dec01-2015> <12:45:22>    9  ErrMat   0.00000009  MaxEl  0.00000004
+<Dec01-2015> <12:45:22>  SCF converged
+<Dec01-2015> <12:45:22>   10  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:45:22>  >>>> TOTEN
+<Dec01-2015> <12:45:22>  >>>> POPAN
+<Dec01-2015> <12:45:22>  >>>> DEBYE
+<Dec01-2015> <12:45:22>  >>>> ENGRAD
+<Dec01-2015> <12:45:22>  Geometry symmetry displacement    3 out of    8
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.N         0.000000    0.000000    0.000000
+   2.H         0.469972    0.814015    0.382100
+   3.H        -0.939943    0.000000    0.382100
+   4.H         0.469972   -0.814015    0.382100
+<Dec01-2015> <12:45:22>  >>>> CORORT
+<Dec01-2015> <12:45:22>  >>>> CLSMAT
+<Dec01-2015> <12:45:22>  >>>> ORTHON
+<Dec01-2015> <12:45:22>  >>>> GENPT
+<Dec01-2015> <12:45:22>  Block Length= 128
+<Dec01-2015> <12:45:22>  >>>> PTBAS
+<Dec01-2015> <12:45:22>  >>>> CYCLE
+<Dec01-2015> <12:45:22>    1
+<Dec01-2015> <12:45:22>    2  ErrMat   0.92501190  MaxEl -0.37537019
+<Dec01-2015> <12:45:22>    3  ErrMat   0.41796374  MaxEl -0.17164890
+<Dec01-2015> <12:45:22>    4  ErrMat   0.10970402  MaxEl  0.04495924
+<Dec01-2015> <12:45:22>    5  ErrMat   0.00307901  MaxEl -0.00172079
+<Dec01-2015> <12:45:22>    6  ErrMat   0.00048440  MaxEl  0.00026658
+<Dec01-2015> <12:45:22>    7  ErrMat   0.00006733  MaxEl  0.00003086
+<Dec01-2015> <12:45:22>    8  ErrMat   0.00000459  MaxEl -0.00000181
+<Dec01-2015> <12:45:22>    9  ErrMat   0.00000009  MaxEl  0.00000004
+<Dec01-2015> <12:45:22>  SCF converged
+<Dec01-2015> <12:45:22>   10  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:45:22>  >>>> TOTEN
+<Dec01-2015> <12:45:22>  >>>> POPAN
+<Dec01-2015> <12:45:22>  >>>> DEBYE
+<Dec01-2015> <12:45:22>  >>>> ENGRAD
+<Dec01-2015> <12:45:22>  Geometry symmetry displacement    4 out of    8
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.N         0.000000    0.000000    0.000000
+   2.H         0.475745    0.824015    0.382100
+   3.H        -0.951490    0.000000    0.382100
+   4.H         0.475745   -0.824015    0.382100
+<Dec01-2015> <12:45:22>  >>>> CORORT
+<Dec01-2015> <12:45:22>  >>>> CLSMAT
+<Dec01-2015> <12:45:22>  >>>> ORTHON
+<Dec01-2015> <12:45:22>  >>>> GENPT
+<Dec01-2015> <12:45:22>  Block Length= 128
+<Dec01-2015> <12:45:22>  >>>> PTBAS
+<Dec01-2015> <12:45:22>  >>>> CYCLE
+<Dec01-2015> <12:45:22>    1
+<Dec01-2015> <12:45:23>    2  ErrMat   0.91384515  MaxEl -0.37274392
+<Dec01-2015> <12:45:23>    3  ErrMat   0.40761030  MaxEl -0.16845321
+<Dec01-2015> <12:45:23>    4  ErrMat   0.10835756  MaxEl  0.04480437
+<Dec01-2015> <12:45:23>    5  ErrMat   0.00278431  MaxEl -0.00156464
+<Dec01-2015> <12:45:23>    6  ErrMat   0.00050034  MaxEl  0.00027782
+<Dec01-2015> <12:45:23>    7  ErrMat   0.00007004  MaxEl  0.00003231
+<Dec01-2015> <12:45:23>    8  ErrMat   0.00000500  MaxEl -0.00000196
+<Dec01-2015> <12:45:23>    9  ErrMat   0.00000009  MaxEl  0.00000004
+<Dec01-2015> <12:45:23>  SCF converged
+<Dec01-2015> <12:45:23>   10  ErrMat   0.00000000  MaxEl  0.00000000
+<Dec01-2015> <12:45:23>  >>>> TOTEN
+<Dec01-2015> <12:45:23>  >>>> POPAN
+<Dec01-2015> <12:45:23>  >>>> DEBYE
+<Dec01-2015> <12:45:23>  >>>> ENGRAD
+<Dec01-2015> <12:45:23>  Symmetry  : C(S)
+<Dec01-2015> <12:45:23>  >>>> FRAGM
+<Dec01-2015> <12:45:23>  Geometry symmetry displacement    5 out of    8
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.N        -0.001076    0.000000    0.000000
+   2.H         0.477842    0.384114   -0.819015
+   3.H        -0.940733    0.378073    0.000000
+   4.H         0.477842    0.384114    0.819015
+<Dec01-2015> <12:45:23>  >>>> CORORT
+<Dec01-2015> <12:45:23>  >>>> CLSMAT
+<Dec01-2015> <12:45:23>  >>>> ORTHON
+<Dec01-2015> <12:45:23>  >>>> GENPT
+<Dec01-2015> <12:45:23>  Block Length= 128
+<Dec01-2015> <12:45:23>  >>>> PTBAS
+<Dec01-2015> <12:45:23>  >>>> CYCLE
+<Dec01-2015> <12:45:23>    1
+<Dec01-2015> <12:45:23>    2  ErrMat   0.91949300  MaxEl  0.37477111
+<Dec01-2015> <12:45:23>    3  ErrMat   0.41279476  MaxEl  0.17037494
+<Dec01-2015> <12:45:23>    4  ErrMat   0.10903779  MaxEl -0.04497174
+<Dec01-2015> <12:45:23>    5  ErrMat   0.00293256  MaxEl  0.00142358
+<Dec01-2015> <12:45:23>    6  ErrMat   0.00049272  MaxEl -0.00023580
+<Dec01-2015> <12:45:23>    7  ErrMat   0.00006890  MaxEl -0.00003276
+<Dec01-2015> <12:45:23>    8  ErrMat   0.00000517  MaxEl -0.00000192
+<Dec01-2015> <12:45:23>    9  ErrMat   0.00000097  MaxEl -0.00000040
+<Dec01-2015> <12:45:23>  SCF converged
+<Dec01-2015> <12:45:23>   10  ErrMat   0.00000005  MaxEl  0.00000002
+<Dec01-2015> <12:45:23>  >>>> TOTEN
+<Dec01-2015> <12:45:23>  >>>> POPAN
+<Dec01-2015> <12:45:23>  >>>> DEBYE
+<Dec01-2015> <12:45:23>  >>>> ENGRAD
+<Dec01-2015> <12:45:24>  Geometry symmetry displacement    6 out of    8
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.N         0.001076    0.000000    0.000000
+   2.H         0.467874    0.380086   -0.819015
+   3.H        -0.950700    0.386127    0.000000
+   4.H         0.467874    0.380086    0.819015
+<Dec01-2015> <12:45:24>  >>>> CORORT
+<Dec01-2015> <12:45:24>  >>>> CLSMAT
+<Dec01-2015> <12:45:24>  >>>> ORTHON
+<Dec01-2015> <12:45:24>  >>>> GENPT
+<Dec01-2015> <12:45:24>  Block Length= 128
+<Dec01-2015> <12:45:24>  >>>> PTBAS
+<Dec01-2015> <12:45:24>  >>>> CYCLE
+<Dec01-2015> <12:45:24>    1
+<Dec01-2015> <12:45:24>    2  ErrMat   0.91941887  MaxEl  0.37341377
+<Dec01-2015> <12:45:24>    3  ErrMat   0.41274895  MaxEl  0.16975787
+<Dec01-2015> <12:45:24>    4  ErrMat   0.10903324  MaxEl -0.04483144
+<Dec01-2015> <12:45:24>    5  ErrMat   0.00293369  MaxEl  0.00142437
+<Dec01-2015> <12:45:24>    6  ErrMat   0.00049297  MaxEl -0.00023624
+<Dec01-2015> <12:45:24>    7  ErrMat   0.00006911  MaxEl -0.00002965
+<Dec01-2015> <12:45:24>    8  ErrMat   0.00000629  MaxEl -0.00000264
+<Dec01-2015> <12:45:24>    9  ErrMat   0.00000173  MaxEl  0.00000073
+<Dec01-2015> <12:45:24>  SCF converged
+<Dec01-2015> <12:45:24>   10  ErrMat   0.00000004  MaxEl -0.00000002
+<Dec01-2015> <12:45:24>  >>>> TOTEN
+<Dec01-2015> <12:45:24>  >>>> POPAN
+<Dec01-2015> <12:45:24>  >>>> DEBYE
+<Dec01-2015> <12:45:24>  >>>> ENGRAD
+<Dec01-2015> <12:45:24>  Geometry symmetry displacement    7 out of    8
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.N         0.000000    0.000000    0.000000
+   2.H         0.469972    0.382100   -0.824015
+   3.H        -0.939943    0.382100    0.000000
+   4.H         0.469972    0.382100    0.824015
+<Dec01-2015> <12:45:24>  >>>> CORORT
+<Dec01-2015> <12:45:24>  >>>> CLSMAT
+<Dec01-2015> <12:45:24>  >>>> ORTHON
+<Dec01-2015> <12:45:24>  >>>> GENPT
+<Dec01-2015> <12:45:24>  Block Length= 128
+<Dec01-2015> <12:45:24>  >>>> PTBAS
+<Dec01-2015> <12:45:24>  >>>> CYCLE
+<Dec01-2015> <12:45:24>    1
+<Dec01-2015> <12:45:24>    2  ErrMat   0.91938825  MaxEl  0.37545274
+<Dec01-2015> <12:45:24>    3  ErrMat   0.41275251  MaxEl  0.17084524
+<Dec01-2015> <12:45:24>    4  ErrMat   0.10903395  MaxEl -0.04524003
+<Dec01-2015> <12:45:24>    5  ErrMat   0.00295009  MaxEl  0.00142853
+<Dec01-2015> <12:45:24>    6  ErrMat   0.00049732  MaxEl -0.00023490
+<Dec01-2015> <12:45:24>    7  ErrMat   0.00007231  MaxEl -0.00003076
+<Dec01-2015> <12:45:24>    8  ErrMat   0.00001431  MaxEl -0.00000673
+<Dec01-2015> <12:45:25>    9  ErrMat   0.00000178  MaxEl  0.00000064
+<Dec01-2015> <12:45:25>  SCF converged
+<Dec01-2015> <12:45:25>   10  ErrMat   0.00000004  MaxEl -0.00000002
+<Dec01-2015> <12:45:25>  >>>> TOTEN
+<Dec01-2015> <12:45:25>  >>>> POPAN
+<Dec01-2015> <12:45:25>  >>>> DEBYE
+<Dec01-2015> <12:45:25>  >>>> ENGRAD
+<Dec01-2015> <12:45:25>  Geometry symmetry displacement    8 out of    8
+ Coordinates
+   Atom         X           Y           Z   (Angstrom)
+   1.N         0.000000    0.000000    0.000000
+   2.H         0.475745    0.382100   -0.814015
+   3.H        -0.951490    0.382100    0.000000
+   4.H         0.475745    0.382100    0.814015
+<Dec01-2015> <12:45:25>  >>>> CORORT
+<Dec01-2015> <12:45:25>  >>>> CLSMAT
+<Dec01-2015> <12:45:25>  >>>> ORTHON
+<Dec01-2015> <12:45:25>  >>>> GENPT
+<Dec01-2015> <12:45:25>  Block Length= 128
+<Dec01-2015> <12:45:25>  >>>> PTBAS
+<Dec01-2015> <12:45:25>  >>>> CYCLE
+<Dec01-2015> <12:45:25>    1
+<Dec01-2015> <12:45:25>    2  ErrMat   0.91943784  MaxEl  0.37267530
+<Dec01-2015> <12:45:25>    3  ErrMat   0.41278181  MaxEl  0.16926730
+<Dec01-2015> <12:45:25>    4  ErrMat   0.10903898  MaxEl -0.04455122
+<Dec01-2015> <12:45:25>    5  ErrMat   0.00294658  MaxEl  0.00141966
+<Dec01-2015> <12:45:25>    6  ErrMat   0.00049648  MaxEl -0.00023279
+<Dec01-2015> <12:45:25>    7  ErrMat   0.00007178  MaxEl -0.00003667
+<Dec01-2015> <12:45:25>    8  ErrMat   0.00001363  MaxEl -0.00000553
+<Dec01-2015> <12:45:25>    9  ErrMat   0.00000185  MaxEl -0.00000067
+<Dec01-2015> <12:45:25>  SCF converged
+<Dec01-2015> <12:45:25>   10  ErrMat   0.00000004  MaxEl -0.00000002
+<Dec01-2015> <12:45:25>  >>>> TOTEN
+<Dec01-2015> <12:45:25>  >>>> POPAN
+<Dec01-2015> <12:45:25>  >>>> DEBYE
+<Dec01-2015> <12:45:25>  >>>> ENGRAD
+<Dec01-2015> <12:45:25>  NORMAL TERMINATION
+<Dec01-2015> <12:45:25>  END

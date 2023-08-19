@@ -1,0 +1,749 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.core.sites &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.sites</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.core.sites</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines classes representing non-periodic and periodic sites.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MontyDecoder</span><span class="p">,</span> <span class="n">MontyEncoder</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">deprecated</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">,</span> \
+    <span class="n">get_el_sp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">pbc_diff</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
+
+
+<div class="viewcode-block" id="Site"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.Site">[docs]</a><span class="k">class</span> <span class="nc">Site</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Hashable</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A generalized *non-periodic* site. This is essentially a composition</span>
+<span class="sd">    at a point in space, with some optional properties associated with it. A</span>
+<span class="sd">    Composition is used to represent the atoms and occupancy, which allows for</span>
+<span class="sd">    disordered site representation. Coords are given in standard cartesian</span>
+<span class="sd">    coordinates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">position_atol</span> <span class="o">=</span> <span class="mf">1e-5</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">species</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Composition</span><span class="p">],</span>
+                 <span class="n">coords</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                 <span class="n">properties</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">skip_checks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a non-periodic Site.</span>
+
+<span class="sd">        :param species: Species on the site. Can be:</span>
+<span class="sd">            i.  A Composition-type object (preferred)</span>
+<span class="sd">            ii. An  element / specie specified either as a string</span>
+<span class="sd">                symbols, e.g. &quot;Li&quot;, &quot;Fe2+&quot;, &quot;P&quot; or atomic numbers,</span>
+<span class="sd">                e.g., 3, 56, or actual Element or Specie objects.</span>
+<span class="sd">            iii.Dict of elements/species and occupancies, e.g.,</span>
+<span class="sd">                {&quot;Fe&quot; : 0.5, &quot;Mn&quot;:0.5}. This allows the setup of</span>
+<span class="sd">                disordered structures.</span>
+<span class="sd">        :param coords: Cartesian coordinates of site.</span>
+<span class="sd">        :param properties: Properties associated with the site as a dict, e.g.</span>
+<span class="sd">            {&quot;magmom&quot;: 5}. Defaults to None.</span>
+<span class="sd">        :param skip_checks: Whether to ignore all the usual checks and just</span>
+<span class="sd">            create the site. Use this if the Site is created in a controlled</span>
+<span class="sd">            manner and speed is desired.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_checks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">Composition</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">species</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">({</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">species</span><span class="p">):</span> <span class="mi">1</span><span class="p">})</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="n">species</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+            <span class="n">totaloccu</span> <span class="o">=</span> <span class="n">species</span><span class="o">.</span><span class="n">num_atoms</span>
+            <span class="k">if</span> <span class="n">totaloccu</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Species occupancies sum to more than 1!&quot;</span><span class="p">)</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_species</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="n">properties</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+        <span class="c1"># overriding getattr doens&#39;t play nice with pickle, so we</span>
+        <span class="c1"># can&#39;t use self._properties</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;properties&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">p</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">p</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Composition</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: The species on the site as a composition, e.g., Fe0.5Mn0.5.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span>  <span class="c1"># type: ignore</span>
+
+    <span class="nd">@species</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">Composition</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">species</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">({</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">species</span><span class="p">):</span> <span class="mi">1</span><span class="p">})</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">species</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+        <span class="n">totaloccu</span> <span class="o">=</span> <span class="n">species</span><span class="o">.</span><span class="n">num_atoms</span>
+        <span class="k">if</span> <span class="n">totaloccu</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Species occupancies sum to more than 1!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_species</span> <span class="o">=</span> <span class="n">species</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cartesian x coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>  <span class="c1"># type: ignore</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cartesian y coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@y</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>  <span class="c1"># type: ignore</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cartesian z coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@z</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">z</span>  <span class="c1"># type: ignore</span>
+
+<div class="viewcode-block" id="Site.distance"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.Site.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get distance between two sites.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: Other site.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Distance (float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Site.distance_from_point"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.Site.distance_from_point">[docs]</a>    <span class="k">def</span> <span class="nf">distance_from_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns distance between the site and a point in space.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pt: Cartesian coordinates of point.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Distance (float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">species_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation of species on the site.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+        <span class="n">sorted_species</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:</span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">sp</span><span class="p">])</span>
+                          <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">sorted_species</span><span class="p">])</span>
+
+    <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Use site.species instead. This will be deprecated with effect from pymatgen 2020.&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">species_and_occu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The species at the site, i.e., a Composition mapping type of</span>
+<span class="sd">        element/species to occupancy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">specie</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The Specie/Element at the site. Only works for ordered sites. Otherwise</span>
+<span class="sd">        an AttributeError is raised. Use this property sparingly.  Robust</span>
+<span class="sd">        design should make use of the property species_and_occu instead.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AttributeError if Site is not ordered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;specie property only works for ordered &quot;</span>
+                                 <span class="s2">&quot;sites!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_ordered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        True if site is an ordered site, i.e., with a single species with</span>
+<span class="sd">        occupancy 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">totaloccu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">num_atoms</span>
+        <span class="k">return</span> <span class="n">totaloccu</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the occupancy for element</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Site is equal to another site if the species and occupancies are the</span>
+<span class="sd">        same, and the coordinates are the same to some tolerance.  numpy</span>
+<span class="sd">        function `allclose` is used to determine if coordinates are close.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">species</span> <span class="ow">and</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                            <span class="n">atol</span><span class="o">=</span><span class="n">Site</span><span class="o">.</span><span class="n">position_atol</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Minimally effective hash function that just distinguishes between Sites</span>
+<span class="sd">        with different elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">el</span><span class="o">.</span><span class="n">Z</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Site: </span><span class="si">{}</span><span class="s2"> (</span><span class="si">{:.4f}</span><span class="s2">, </span><span class="si">{:.4f}</span><span class="s2">, </span><span class="si">{:.4f}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets a default sort order for atomic species by electronegativity. Very</span>
+<span class="sd">        useful for getting correct formulas.  For example, FeO4PLi is</span>
+<span class="sd">        automatically sorted in LiFePO4.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">average_electroneg</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">average_electroneg</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">average_electroneg</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">average_electroneg</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_string</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">species_string</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_string</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">species_string</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_string</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Site.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.Site.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Json-serializable dict representation for Site.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">species_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">spec</span><span class="p">,</span> <span class="n">occu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+            <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;occu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">occu</span>
+            <span class="n">species_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span> <span class="s2">&quot;species&quot;</span><span class="p">:</span> <span class="n">species_list</span><span class="p">,</span>
+             <span class="s2">&quot;xyz&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">],</span>
+             <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">,</span>
+             <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="Site.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.Site.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create Site from dict representation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">atoms_n_occu</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">sp_occu</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;species&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s2">&quot;oxidation_state&quot;</span> <span class="ow">in</span> <span class="n">sp_occu</span> <span class="ow">and</span> <span class="n">Element</span><span class="o">.</span><span class="n">is_valid_symbol</span><span class="p">(</span>
+                    <span class="n">sp_occu</span><span class="p">[</span><span class="s2">&quot;element&quot;</span><span class="p">]):</span>
+                <span class="n">sp</span> <span class="o">=</span> <span class="n">Specie</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sp_occu</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;oxidation_state&quot;</span> <span class="ow">in</span> <span class="n">sp_occu</span><span class="p">:</span>
+                <span class="n">sp</span> <span class="o">=</span> <span class="n">DummySpecie</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sp_occu</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sp</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">sp_occu</span><span class="p">[</span><span class="s2">&quot;element&quot;</span><span class="p">])</span>
+            <span class="n">atoms_n_occu</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp_occu</span><span class="p">[</span><span class="s2">&quot;occu&quot;</span><span class="p">]</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;properties&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">props</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">props</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">props</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyEncoder</span><span class="p">),</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyDecoder</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">atoms_n_occu</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;xyz&quot;</span><span class="p">],</span> <span class="n">properties</span><span class="o">=</span><span class="n">props</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PeriodicSite"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite">[docs]</a><span class="k">class</span> <span class="nc">PeriodicSite</span><span class="p">(</span><span class="n">Site</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extension of generic Site object to periodic systems.</span>
+<span class="sd">    PeriodicSite includes a lattice system.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">species</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Composition</span><span class="p">],</span>
+                 <span class="n">coords</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                 <span class="n">lattice</span><span class="p">:</span> <span class="n">Lattice</span><span class="p">,</span>
+                 <span class="n">to_unit_cell</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">coords_are_cartesian</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">properties</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">skip_checks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a periodic site.</span>
+
+<span class="sd">        :param species: Species on the site. Can be:</span>
+<span class="sd">            i.  A Composition-type object (preferred)</span>
+<span class="sd">            ii. An  element / specie specified either as a string</span>
+<span class="sd">                symbols, e.g. &quot;Li&quot;, &quot;Fe2+&quot;, &quot;P&quot; or atomic numbers,</span>
+<span class="sd">                e.g., 3, 56, or actual Element or Specie objects.</span>
+<span class="sd">            iii.Dict of elements/species and occupancies, e.g.,</span>
+<span class="sd">                {&quot;Fe&quot; : 0.5, &quot;Mn&quot;:0.5}. This allows the setup of</span>
+<span class="sd">                disordered structures.</span>
+<span class="sd">        :param coords: Cartesian coordinates of site.</span>
+<span class="sd">        :param lattice: Lattice associated with the site.</span>
+<span class="sd">        :param to_unit_cell: Translates fractional coordinate to the</span>
+<span class="sd">            basic unit cell, i.e. all fractional coordinates satisfy 0</span>
+<span class="sd">            &lt;= a &lt; 1. Defaults to False.</span>
+<span class="sd">        :param coords_are_cartesian: Set to True if you are providing</span>
+<span class="sd">            cartesian coordinates. Defaults to False.</span>
+<span class="sd">        :param properties: Properties associated with the site as a dict, e.g.</span>
+<span class="sd">            {&quot;magmom&quot;: 5}. Defaults to None.</span>
+<span class="sd">        :param skip_checks: Whether to ignore all the usual checks and just</span>
+<span class="sd">            create the site. Use this if the PeriodicSite is created in a</span>
+<span class="sd">            controlled manner and speed is desired.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">coords_are_cartesian</span><span class="p">:</span>
+            <span class="n">frac_coords</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">frac_coords</span> <span class="o">=</span> <span class="n">coords</span>
+
+        <span class="k">if</span> <span class="n">to_unit_cell</span><span class="p">:</span>
+            <span class="n">frac_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_checks</span><span class="p">:</span>
+            <span class="n">frac_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">Composition</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">species</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">({</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">species</span><span class="p">):</span> <span class="mi">1</span><span class="p">})</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="n">species</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+
+            <span class="n">totaloccu</span> <span class="o">=</span> <span class="n">species</span><span class="o">.</span><span class="n">num_atoms</span>
+            <span class="k">if</span> <span class="n">totaloccu</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Species occupancies sum to more than 1!&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span> <span class="o">=</span> <span class="n">lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span> <span class="o">=</span> <span class="n">frac_coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_species</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="n">properties</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Minimally effective hash function that just distinguishes between Sites</span>
+<span class="sd">        with different elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">el</span><span class="o">.</span><span class="n">Z</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice associated with PeriodicSite</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span>
+
+    <span class="nd">@lattice</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">:</span> <span class="n">Lattice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets Lattice associated with PeriodicSite</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span> <span class="o">=</span> <span class="n">lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">)</span>
+
+    <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
+    <span class="k">def</span> <span class="nf">coords</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cartesian coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span>
+
+    <span class="nd">@coords</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set Cartesian coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coords</span><span class="p">)</span>
+
+    <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
+    <span class="k">def</span> <span class="nf">frac_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fractional coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span>
+
+    <span class="nd">@frac_coords</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">frac_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set fractional coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fractional a coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@a</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fractional b coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@b</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fractional c coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@c</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">c</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cartesian x coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cartesian y coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@y</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cartesian z coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@z</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">z</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PeriodicSite.to_unit_cell"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite.to_unit_cell">[docs]</a>    <span class="k">def</span> <span class="nf">to_unit_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_place</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Move frac coords to within the unit cell cell.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">frac_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">in_place</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">=</span> <span class="n">frac_coords</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                            <span class="n">properties</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PeriodicSite.is_periodic_image"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite.is_periodic_image">[docs]</a>    <span class="k">def</span> <span class="nf">is_periodic_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">check_lattice</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if sites are periodic images of each other.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other (PeriodicSite): Other site</span>
+<span class="sd">            tolerance (float): Tolerance to compare fractional coordinates</span>
+<span class="sd">            check_lattice (bool): Whether to check if the two sites have the</span>
+<span class="sd">                same lattice.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if sites are periodic images of each other.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">check_lattice</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">lattice</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">frac_diff</span> <span class="o">=</span> <span class="n">pbc_diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">frac_diff</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">atol</span><span class="o">=</span><span class="n">tolerance</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">species</span> <span class="ow">and</span> \
+               <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">lattice</span> <span class="ow">and</span> \
+               <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                           <span class="n">atol</span><span class="o">=</span><span class="n">Site</span><span class="o">.</span><span class="n">position_atol</span><span class="p">)</span> <span class="ow">and</span> \
+               <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">properties</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PeriodicSite.distance_and_image_from_frac_coords"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite.distance_and_image_from_frac_coords">[docs]</a>    <span class="k">def</span> <span class="nf">distance_and_image_from_frac_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fcoords</span><span class="p">,</span> <span class="n">jimage</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets distance between site and a fractional coordinate assuming</span>
+<span class="sd">        periodic boundary conditions. If the index jimage of two sites atom j</span>
+<span class="sd">        is not specified it selects the j image nearest to the i atom and</span>
+<span class="sd">        returns the distance and jimage indices in terms of lattice vector</span>
+<span class="sd">        translations. If the index jimage of atom j is specified it returns the</span>
+<span class="sd">        distance between the i atom and the specified jimage atom, the given</span>
+<span class="sd">        jimage is also returned.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fcoords (3x1 array): fcoords to get distance from.</span>
+<span class="sd">            jimage (3x1 array): Specific periodic image in terms of</span>
+<span class="sd">                lattice translations, e.g., [1,0,0] implies to take periodic</span>
+<span class="sd">                image that is one a-lattice vector away. If jimage is None,</span>
+<span class="sd">                the image that is nearest to the site is found.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (distance, jimage): distance and periodic lattice translations</span>
+<span class="sd">            of the other site for which the distance applies.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">fcoords</span><span class="p">,</span>
+                                                   <span class="n">jimage</span><span class="o">=</span><span class="n">jimage</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PeriodicSite.distance_and_image"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite.distance_and_image">[docs]</a>    <span class="k">def</span> <span class="nf">distance_and_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">jimage</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets distance and instance between two sites assuming periodic boundary</span>
+<span class="sd">        conditions. If the index jimage of two sites atom j is not specified it</span>
+<span class="sd">        selects the j image nearest to the i atom and returns the distance and</span>
+<span class="sd">        jimage indices in terms of lattice vector translations. If the index</span>
+<span class="sd">        jimage of atom j is specified it returns the distance between the ith</span>
+<span class="sd">        atom and the specified jimage atom, the given jimage is also returned.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other (PeriodicSite): Other site to get distance from.</span>
+<span class="sd">            jimage (3x1 array): Specific periodic image in terms of lattice</span>
+<span class="sd">                translations, e.g., [1,0,0] implies to take periodic image</span>
+<span class="sd">                that is one a-lattice vector away. If jimage is None,</span>
+<span class="sd">                the image that is nearest to the site is found.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (distance, jimage): distance and periodic lattice translations</span>
+<span class="sd">            of the other site for which the distance applies.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_and_image_from_frac_coords</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">jimage</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PeriodicSite.distance"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">jimage</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get distance between two sites assuming periodic boundary conditions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other (PeriodicSite): Other site to get distance from.</span>
+<span class="sd">            jimage (3x1 array): Specific periodic image in terms of lattice</span>
+<span class="sd">                translations, e.g., [1,0,0] implies to take periodic image</span>
+<span class="sd">                that is one a-lattice vector away. If jimage is None,</span>
+<span class="sd">                the image that is nearest to the site is found.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            distance (float): Distance between the two sites</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_and_image</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">jimage</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;PeriodicSite: </span><span class="si">{}</span><span class="s2"> (</span><span class="si">{:.4f}</span><span class="s2">, </span><span class="si">{:.4f}</span><span class="s2">, </span><span class="si">{:.4f}</span><span class="s2">) [</span><span class="si">{:.4f}</span><span class="s2">, </span><span class="si">{:.4f}</span><span class="s2">, &quot;</span> \
+               <span class="s2">&quot;</span><span class="si">{:.4f}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PeriodicSite.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Json-serializable dict representation of PeriodicSite.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            verbosity (int): Verbosity level. Default of 0 only includes the</span>
+<span class="sd">                matrix representation. Set to 1 for more details such as</span>
+<span class="sd">                cartesian coordinates, etc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">species_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">spec</span><span class="p">,</span> <span class="n">occu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+            <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;occu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">occu</span>
+            <span class="n">species_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;species&quot;</span><span class="p">:</span> <span class="n">species_list</span><span class="p">,</span>
+             <span class="s2">&quot;abc&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">],</span>
+             <span class="s2">&quot;lattice&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="n">verbosity</span><span class="p">),</span>
+             <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;xyz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_string</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span>
+
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="PeriodicSite.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create PeriodicSite from dict representation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            d (dict): dict representation of PeriodicSite</span>
+<span class="sd">            lattice: Optional lattice to override lattice specified in d.</span>
+<span class="sd">                Useful for ensuring all sites in a structure share the same</span>
+<span class="sd">                lattice.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PeriodicSite</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">sp_occu</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;species&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s2">&quot;oxidation_state&quot;</span> <span class="ow">in</span> <span class="n">sp_occu</span> <span class="ow">and</span> <span class="n">Element</span><span class="o">.</span><span class="n">is_valid_symbol</span><span class="p">(</span>
+                    <span class="n">sp_occu</span><span class="p">[</span><span class="s2">&quot;element&quot;</span><span class="p">]):</span>
+                <span class="n">sp</span> <span class="o">=</span> <span class="n">Specie</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sp_occu</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;oxidation_state&quot;</span> <span class="ow">in</span> <span class="n">sp_occu</span><span class="p">:</span>
+                <span class="n">sp</span> <span class="o">=</span> <span class="n">DummySpecie</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sp_occu</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sp</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">sp_occu</span><span class="p">[</span><span class="s2">&quot;element&quot;</span><span class="p">])</span>
+            <span class="n">species</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp_occu</span><span class="p">[</span><span class="s2">&quot;occu&quot;</span><span class="p">]</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;properties&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">props</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">props</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">props</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyEncoder</span><span class="p">),</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyDecoder</span><span class="p">)</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">lattice</span> <span class="k">if</span> <span class="n">lattice</span> <span class="k">else</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;lattice&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;abc&quot;</span><span class="p">],</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="n">props</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.sites</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

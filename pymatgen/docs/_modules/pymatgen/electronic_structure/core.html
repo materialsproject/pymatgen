@@ -1,0 +1,581 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.electronic_structure.core &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.electronic_structure.core</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.electronic_structure.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides core classes needed by all define electronic structure,</span>
+<span class="sd">such as the Spin, Orbital, etc.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 23, 2011&quot;</span>
+
+
+<div class="viewcode-block" id="Spin"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Spin">[docs]</a><span class="nd">@unique</span>
+<span class="k">class</span> <span class="nc">Spin</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enum type for Spin.  Only up and down.</span>
+<span class="sd">    Usage: Spin.up, Spin.down.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">up</span><span class="p">,</span> <span class="n">down</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__int__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__float__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OrbitalType"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.OrbitalType">[docs]</a><span class="nd">@unique</span>
+<span class="k">class</span> <span class="nc">OrbitalType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enum type for orbital type. Indices are basically the azimuthal quantum</span>
+<span class="sd">    number, l.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">s</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="Orbital"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Orbital">[docs]</a><span class="nd">@unique</span>
+<span class="k">class</span> <span class="nc">Orbital</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enum type for specific orbitals. The indices are basically the order in</span>
+<span class="sd">    which the orbitals are reported in VASP and has no special meaning.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">s</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">py</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">pz</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">px</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">dxy</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">dyz</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">dz2</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">dxz</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">dx2</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">f_3</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">f_2</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">f_1</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">f0</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">f1</span> <span class="o">=</span> <span class="mi">13</span>
+    <span class="n">f2</span> <span class="o">=</span> <span class="mi">14</span>
+    <span class="n">f3</span> <span class="o">=</span> <span class="mi">15</span>
+
+    <span class="k">def</span> <span class="fm">__int__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">orbital_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns OrbitalType of an orbital.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">OrbitalType</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></div>
+
+
+<div class="viewcode-block" id="Magmom"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom">[docs]</a><span class="k">class</span> <span class="nc">Magmom</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    New class in active development. Use with caution, feedback is</span>
+<span class="sd">    appreciated.</span>
+
+<span class="sd">    Class to handle magnetic moments. Defines the magnetic moment of a</span>
+<span class="sd">    site or species relative to a spin quantization axis. Designed for</span>
+<span class="sd">    use in electronic structure calculations.</span>
+
+<span class="sd">    * For the general case, Magmom can be specified by a vector,</span>
+<span class="sd">      e.g. m = Magmom([1.0, 1.0, 2.0]), and subscripts will work as</span>
+<span class="sd">      expected, e.g. m[0] gives 1.0</span>
+
+<span class="sd">    * For collinear calculations, Magmom can assumed to be scalar-like,</span>
+<span class="sd">      e.g. m = Magmom(5.0) will work as expected, e.g. float(m) gives 5.0</span>
+
+<span class="sd">    Both of these cases should be safe and shouldn&#39;t give any surprises,</span>
+<span class="sd">    but more advanced functionality is available if required.</span>
+
+<span class="sd">    There also exist useful static methods for lists of magmoms:</span>
+
+<span class="sd">    * Magmom.are_collinear(magmoms) - if true, a collinear electronic</span>
+<span class="sd">      structure calculation can be safely initialized, with float(Magmom)</span>
+<span class="sd">      giving the expected scalar magnetic moment value</span>
+
+<span class="sd">    * Magmom.get_consistent_set_and_saxis(magmoms) - for non-collinear</span>
+<span class="sd">      electronic structure calculations, a global, consistent spin axis</span>
+<span class="sd">      has to be used. This method returns a list of Magmoms which all</span>
+<span class="sd">      share a common spin axis, along with the global spin axis.</span>
+
+<span class="sd">    All methods that take lists of magmoms will accept magmoms either as</span>
+<span class="sd">    Magmom objects or as scalars/lists and will automatically convert to</span>
+<span class="sd">    a Magmom representation internally.</span>
+
+<span class="sd">    The following methods are also particularly useful in the context of</span>
+<span class="sd">    VASP calculations:</span>
+
+<span class="sd">    * Magmom.get_xyz_magmom_with_001_saxis()</span>
+<span class="sd">    * Magmom.get_00t_magmom_with_xyz_saxis()</span>
+
+<span class="sd">    See VASP documentation for more information:</span>
+
+<span class="sd">    https://cms.mpi.univie.ac.at/wiki/index.php/SAXIS</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">moment</span><span class="p">,</span> <span class="n">saxis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param moment: magnetic moment, supplied as float or list/np.ndarray</span>
+<span class="sd">        :param saxis: spin axis, supplied as list/np.ndarray, parameter will</span>
+<span class="sd">            be converted to unit vector (default is [0, 0, 1])</span>
+<span class="sd">        :return: Magmom object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># to init from another Magmom instance</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">moment</span><span class="p">,</span> <span class="n">Magmom</span><span class="p">):</span>
+            <span class="n">saxis</span> <span class="o">=</span> <span class="n">moment</span><span class="o">.</span><span class="n">saxis</span>
+            <span class="n">moment</span> <span class="o">=</span> <span class="n">moment</span><span class="o">.</span><span class="n">moment</span>
+
+        <span class="n">moment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">moment</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">moment</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">moment</span> <span class="o">=</span> <span class="n">moment</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">moment</span> <span class="o">=</span> <span class="n">moment</span>
+
+        <span class="n">saxis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">saxis</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">saxis</span> <span class="o">=</span> <span class="n">saxis</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">saxis</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Magmom.from_global_moment_and_saxis"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.from_global_moment_and_saxis">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_global_moment_and_saxis</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">global_moment</span><span class="p">,</span> <span class="n">saxis</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience method to initialize Magmom from a given global</span>
+<span class="sd">        magnetic moment, i.e. magnetic moment with saxis=(0,0,1), and</span>
+<span class="sd">        provided saxis.</span>
+
+<span class="sd">        Method is useful if you do not know the components of your</span>
+<span class="sd">        magnetic moment in frame of your desired saxis.</span>
+
+<span class="sd">        :param global_moment:</span>
+<span class="sd">        :param saxis: desired saxis</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">magmom</span> <span class="o">=</span> <span class="n">Magmom</span><span class="p">(</span><span class="n">global_moment</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">magmom</span><span class="o">.</span><span class="n">get_moment</span><span class="p">(</span><span class="n">saxis</span><span class="o">=</span><span class="n">saxis</span><span class="p">),</span> <span class="n">saxis</span><span class="o">=</span><span class="n">saxis</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_transformation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saxis</span><span class="p">):</span>
+
+        <span class="n">saxis</span> <span class="o">=</span> <span class="n">saxis</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">saxis</span><span class="p">)</span>
+
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">saxis</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">saxis</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">saxis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">saxis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span> <span class="n">saxis</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="n">cos_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">cos_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
+        <span class="n">sin_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">sin_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="p">[[</span><span class="n">cos_b</span> <span class="o">*</span> <span class="n">cos_a</span><span class="p">,</span> <span class="o">-</span><span class="n">sin_a</span><span class="p">,</span> <span class="n">sin_b</span> <span class="o">*</span> <span class="n">cos_a</span><span class="p">],</span>
+             <span class="p">[</span><span class="n">cos_b</span> <span class="o">*</span> <span class="n">sin_a</span><span class="p">,</span> <span class="n">cos_a</span><span class="p">,</span> <span class="n">sin_b</span> <span class="o">*</span> <span class="n">sin_a</span><span class="p">],</span>
+             <span class="p">[</span><span class="o">-</span><span class="n">sin_b</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">cos_b</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">m</span>
+
+    <span class="k">def</span> <span class="nf">_get_transformation_matrix_inv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saxis</span><span class="p">):</span>
+
+        <span class="n">saxis</span> <span class="o">=</span> <span class="n">saxis</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">saxis</span><span class="p">)</span>
+
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">saxis</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">saxis</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">saxis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">saxis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span> <span class="n">saxis</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="n">cos_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">cos_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
+        <span class="n">sin_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">sin_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="p">[[</span><span class="n">cos_b</span> <span class="o">*</span> <span class="n">cos_a</span><span class="p">,</span> <span class="n">cos_b</span> <span class="o">*</span> <span class="n">sin_a</span><span class="p">,</span> <span class="o">-</span><span class="n">sin_b</span><span class="p">],</span>
+             <span class="p">[</span><span class="o">-</span><span class="n">sin_a</span><span class="p">,</span> <span class="n">cos_a</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+             <span class="p">[</span><span class="n">sin_b</span> <span class="o">*</span> <span class="n">cos_a</span><span class="p">,</span> <span class="n">sin_b</span> <span class="o">*</span> <span class="n">sin_a</span><span class="p">,</span> <span class="n">cos_b</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">m</span>
+
+<div class="viewcode-block" id="Magmom.get_moment"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.get_moment">[docs]</a>    <span class="k">def</span> <span class="nf">get_moment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saxis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get magnetic moment relative to a given spin quantization axis.</span>
+<span class="sd">        If no axis is provided, moment will be given relative to the</span>
+<span class="sd">        Magmom&#39;s internal spin quantization axis, i.e. equivalent to</span>
+<span class="sd">        Magmom.moment</span>
+
+<span class="sd">        :param axis: (list/numpy array) spin quantization axis</span>
+<span class="sd">        :return: np.ndarray of length 3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># transform back to moment with spin axis [0, 0, 1]</span>
+        <span class="n">m_inv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_transformation_matrix_inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saxis</span><span class="p">)</span>
+        <span class="n">moment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">,</span> <span class="n">m_inv</span><span class="p">)</span>
+
+        <span class="c1"># transform to new saxis</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_transformation_matrix</span><span class="p">(</span><span class="n">saxis</span><span class="p">)</span>
+        <span class="n">moment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">moment</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+
+        <span class="c1"># round small values to zero</span>
+        <span class="n">moment</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">moment</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="n">moment</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">global_moment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the magnetic moment defined in an arbitrary global reference frame.</span>
+
+<span class="sd">        :return: np.ndarray of length 3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_moment</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Projects moment along spin quantisation axis. Useful for obtaining</span>
+<span class="sd">        collinear approximation for slightly non-collinear magmoms.</span>
+
+<span class="sd">        :return: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">saxis</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Magmom.get_xyz_magmom_with_001_saxis"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.get_xyz_magmom_with_001_saxis">[docs]</a>    <span class="k">def</span> <span class="nf">get_xyz_magmom_with_001_saxis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a Magmom in the default setting of saxis = [0, 0, 1] and</span>
+<span class="sd">        the magnetic moment rotated as required.</span>
+
+<span class="sd">        :return: Magmom</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Magmom</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_moment</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Magmom.get_00t_magmom_with_xyz_saxis"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.get_00t_magmom_with_xyz_saxis">[docs]</a>    <span class="k">def</span> <span class="nf">get_00t_magmom_with_xyz_saxis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For internal implementation reasons, in non-collinear calculations</span>
+<span class="sd">        VASP prefers:</span>
+
+<span class="sd">        MAGMOM = 0 0 total_magnetic_moment</span>
+<span class="sd">        SAXIS = x y z</span>
+
+<span class="sd">        to an equivalent:</span>
+
+<span class="sd">        MAGMOM = x y z</span>
+<span class="sd">        SAXIS = 0 0 1</span>
+
+<span class="sd">        This method returns a Magmom object with magnetic moment [0, 0, t],</span>
+<span class="sd">        where t is the total magnetic moment, and saxis rotated as required.</span>
+
+<span class="sd">        A consistent direction of saxis is applied such that t might be positive</span>
+<span class="sd">        or negative depending on the direction of the initial moment. This is useful</span>
+<span class="sd">        in the case of collinear structures, rather than constraining assuming</span>
+<span class="sd">        t is always positive.</span>
+
+<span class="sd">        :return: Magmom</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># reference direction gives sign of moment</span>
+        <span class="c1"># entirely arbitrary, there will always be a pathological case</span>
+        <span class="c1"># where a consistent sign is not possible if the magnetic moments</span>
+        <span class="c1"># are aligned along the reference direction, but in practice this</span>
+        <span class="c1"># is unlikely to happen</span>
+        <span class="n">ref_direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.01</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">,</span> <span class="mf">1.03</span><span class="p">])</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">new_saxis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ref_direction</span><span class="p">,</span> <span class="n">new_saxis</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="o">-</span><span class="n">t</span>
+                <span class="n">new_saxis</span> <span class="o">=</span> <span class="o">-</span><span class="n">new_saxis</span>
+            <span class="k">return</span> <span class="n">Magmom</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">],</span> <span class="n">saxis</span><span class="o">=</span><span class="n">new_saxis</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Magmom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Magmom.have_consistent_saxis"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.have_consistent_saxis">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">have_consistent_saxis</span><span class="p">(</span><span class="n">magmoms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method checks that all Magmom objects in a list have a</span>
+<span class="sd">        consistent spin quantization axis. To write MAGMOM tags to a</span>
+<span class="sd">        VASP INCAR, a global SAXIS value for all magmoms has to be used.</span>
+<span class="sd">        If saxis are inconsistent, can create consistent set with:</span>
+<span class="sd">        Magmom.get_consistent_set(magmoms)</span>
+
+<span class="sd">        :param magmoms: list of magmoms (Magmoms, scalars or vectors)</span>
+<span class="sd">        :return: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">Magmom</span><span class="p">(</span><span class="n">magmom</span><span class="p">)</span> <span class="k">for</span> <span class="n">magmom</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
+        <span class="n">ref_saxis</span> <span class="o">=</span> <span class="n">magmoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">saxis</span>
+        <span class="n">match_ref</span> <span class="o">=</span> <span class="p">[</span><span class="n">magmom</span><span class="o">.</span><span class="n">saxis</span> <span class="o">==</span> <span class="n">ref_saxis</span> <span class="k">for</span> <span class="n">magmom</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">match_ref</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Magmom.get_consistent_set_and_saxis"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.get_consistent_set_and_saxis">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_consistent_set_and_saxis</span><span class="p">(</span><span class="n">magmoms</span><span class="p">,</span> <span class="n">saxis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to ensure a list of magmoms use the same spin axis.</span>
+<span class="sd">        Returns a tuple of a list of Magmoms and their global spin axis.</span>
+
+<span class="sd">        :param magmoms: list of magmoms (Magmoms, scalars or vectors)</span>
+<span class="sd">        :param saxis: can provide a specific global spin axis</span>
+<span class="sd">        :return: (list of Magmoms, global spin axis) tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">Magmom</span><span class="p">(</span><span class="n">magmom</span><span class="p">)</span> <span class="k">for</span> <span class="n">magmom</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">saxis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">saxis</span> <span class="o">=</span> <span class="n">Magmom</span><span class="o">.</span><span class="n">get_suggested_saxis</span><span class="p">(</span><span class="n">magmoms</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">saxis</span> <span class="o">=</span> <span class="n">saxis</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">saxis</span><span class="p">)</span>
+        <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">magmom</span><span class="o">.</span><span class="n">get_moment</span><span class="p">(</span><span class="n">saxis</span><span class="o">=</span><span class="n">saxis</span><span class="p">)</span> <span class="k">for</span> <span class="n">magmom</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">magmoms</span><span class="p">,</span> <span class="n">saxis</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Magmom.get_suggested_saxis"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.get_suggested_saxis">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_suggested_saxis</span><span class="p">(</span><span class="n">magmoms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns a suggested spin axis for a set of magmoms,</span>
+<span class="sd">        taking the largest magnetic moment as the reference. For calculations</span>
+<span class="sd">        with collinear spins, this would give a sensible saxis for a ncl</span>
+<span class="sd">        calculation.</span>
+
+<span class="sd">        :param magmoms: list of magmoms (Magmoms, scalars or vectors)</span>
+<span class="sd">        :return: np.ndarray of length 3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># heuristic, will pick largest magmom as reference</span>
+        <span class="c1"># useful for creating collinear approximations of</span>
+        <span class="c1"># e.g. slightly canted magnetic structures</span>
+        <span class="c1"># for fully collinear structures, will return expected</span>
+        <span class="c1"># result</span>
+
+        <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">Magmom</span><span class="p">(</span><span class="n">magmom</span><span class="p">)</span> <span class="k">for</span> <span class="n">magmom</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
+        <span class="c1"># filter only non-zero magmoms</span>
+        <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">magmom</span> <span class="k">for</span> <span class="n">magmom</span> <span class="ow">in</span> <span class="n">magmoms</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">magmom</span><span class="p">)]</span>
+        <span class="n">magmoms</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">magmoms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">magmoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_00t_magmom_with_xyz_saxis</span><span class="p">()</span><span class="o">.</span><span class="n">saxis</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Magmom.are_collinear"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.are_collinear">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">are_collinear</span><span class="p">(</span><span class="n">magmoms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method checks to see if a set of magnetic moments are collinear</span>
+<span class="sd">        with each other.</span>
+<span class="sd">        :param magmoms: list of magmoms (Magmoms, scalars or vectors)</span>
+<span class="sd">        :return: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">Magmom</span><span class="p">(</span><span class="n">magmom</span><span class="p">)</span> <span class="k">for</span> <span class="n">magmom</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Magmom</span><span class="o">.</span><span class="n">have_consistent_saxis</span><span class="p">(</span><span class="n">magmoms</span><span class="p">):</span>
+            <span class="n">magmoms</span> <span class="o">=</span> <span class="n">Magmom</span><span class="o">.</span><span class="n">get_consistent_set</span><span class="p">(</span><span class="n">magmoms</span><span class="p">)</span>
+
+        <span class="c1"># convert to numpy array for convenience</span>
+        <span class="n">magmoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">magmom</span><span class="p">)</span> <span class="k">for</span> <span class="n">magmom</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">])</span>
+        <span class="n">magmoms</span> <span class="o">=</span> <span class="n">magmoms</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">magmoms</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>  <span class="c1"># remove zero magmoms</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">magmoms</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># use first moment as reference to compare against</span>
+        <span class="n">ref_magmom</span> <span class="o">=</span> <span class="n">magmoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># magnitude of cross products != 0 if non-collinear with reference</span>
+        <span class="n">num_ncl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">ref_magmom</span><span class="p">,</span> <span class="n">magmoms</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">num_ncl</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Magmom.from_moment_relative_to_crystal_axes"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.from_moment_relative_to_crystal_axes">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_moment_relative_to_crystal_axes</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">moment</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtaining a Magmom object from a magnetic moment provided</span>
+<span class="sd">        relative to crystal axes.</span>
+
+<span class="sd">        Used for obtaining moments from magCIF file.</span>
+<span class="sd">        :param magmom: list of floats specifying vector magmom</span>
+<span class="sd">        :param lattice: Lattice</span>
+<span class="sd">        :return: Magmom</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get matrix representing unit lattice vectors</span>
+        <span class="n">unit_m</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">moment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">moment</span><span class="p">),</span> <span class="n">unit_m</span><span class="p">)</span>
+        <span class="c1"># round small values to zero</span>
+        <span class="n">moment</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">moment</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">moment</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Magmom.get_moment_relative_to_crystal_axes"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.get_moment_relative_to_crystal_axes">[docs]</a>    <span class="k">def</span> <span class="nf">get_moment_relative_to_crystal_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If scalar magmoms, moments will be given arbitrarily along z.</span>
+<span class="sd">        Used for writing moments to magCIF file.</span>
+
+<span class="sd">        :param magmom: Magmom</span>
+<span class="sd">        :param lattice: Lattice</span>
+<span class="sd">        :return: vector as list of floats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get matrix representing unit lattice vectors</span>
+        <span class="n">unit_m</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="c1"># note np.matmul() requires numpy version &gt;= 1.10</span>
+        <span class="n">moment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_moment</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">unit_m</span><span class="p">))</span>
+        <span class="c1"># round small values to zero</span>
+        <span class="n">moment</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">moment</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">moment</span></div>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__abs__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Equal if &#39;global&#39; magnetic moments are the same, saxis can differ.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">other</span> <span class="o">=</span> <span class="n">Magmom</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_moment</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">global_moment</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Magmom</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">,</span> <span class="n">saxis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">saxis</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">)</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saxis</span><span class="p">))</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__float__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns magnitude of magnetic moment with a sign with respect to</span>
+<span class="sd">        an arbitrary direction.</span>
+
+<span class="sd">        Should give unsurprising output if Magmom is treated like a</span>
+<span class="sd">        scalar or if a set of Magmoms describes a collinear structure.</span>
+
+<span class="sd">        Implemented this way rather than simpler abs(self) so that</span>
+<span class="sd">        moments will have a consistent sign in case of e.g.</span>
+<span class="sd">        antiferromagnetic collinear structures without additional</span>
+<span class="sd">        user intervention.</span>
+
+<span class="sd">        However, should be used with caution for non-collinear</span>
+<span class="sd">        structures and might give non-sensical results except in the case</span>
+<span class="sd">        of only slightly non-collinear structures (e.g. small canting).</span>
+
+<span class="sd">        This approach is also used to obtain &quot;diff&quot; VolumetricDensity</span>
+<span class="sd">        in pymatgen.io.vasp.outputs.VolumetricDensity when processing</span>
+<span class="sd">        Chgcars from SOC calculations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_00t_magmom_with_xyz_saxis</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saxis</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="s1">&#39;Magnetic moment </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;Magnetic moment </span><span class="si">{0}</span><span class="s1"> (spin axis = </span><span class="si">{1}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">,</span>
+                                                                  <span class="bp">self</span><span class="o">.</span><span class="n">saxis</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.electronic_structure.core</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

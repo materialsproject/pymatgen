@@ -1,0 +1,522 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.substrate_analyzer &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.substrate_analyzer</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.substrate_analyzer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes to identify optimal substrates for film growth</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.elasticity.strain</span> <span class="kn">import</span> <span class="n">Deformation</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="kn">import</span> <span class="p">(</span><span class="n">SlabGenerator</span><span class="p">,</span>
+                                   <span class="n">get_symmetrically_distinct_miller_indices</span><span class="p">)</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyam Dwaraknath&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2016, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyam Dwaraknath&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyamd@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb, 2016&quot;</span>
+
+
+<div class="viewcode-block" id="ZSLGenerator"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.ZSLGenerator">[docs]</a><span class="k">class</span> <span class="nc">ZSLGenerator</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class generate matching interface super lattices based on the methodology</span>
+<span class="sd">    of lattice vector matching for heterostructural interfaces proposed by</span>
+<span class="sd">    Zur and McGill:</span>
+<span class="sd">    Journal of Applied Physics 55 (1984), 378 ; doi: 10.1063/1.333084</span>
+<span class="sd">    The process of generating all possible matching super lattices is:</span>
+<span class="sd">    1.) Reduce the surface lattice vectors and calculate area for the surfaces</span>
+<span class="sd">    2.) Generate all super lattice transformations within a maximum allowed area</span>
+<span class="sd">        limit that give nearly equal area super-lattices for the two</span>
+<span class="sd">        surfaces - generate_sl_transformation_sets</span>
+<span class="sd">    3.) For each superlattice set:</span>
+<span class="sd">        1.) Reduce super lattice vectors</span>
+<span class="sd">        2.) Check length and angle between film and substrate super lattice</span>
+<span class="sd">            vectors to determine if the super lattices are the nearly same</span>
+<span class="sd">            and therefore coincident - get_equiv_transformations</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_area_ratio_tol</span><span class="o">=</span><span class="mf">0.09</span><span class="p">,</span>
+                 <span class="n">max_area</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
+                 <span class="n">max_length_tol</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">max_angle_tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Intialize a Zur Super Lattice Generator for a specific film and</span>
+<span class="sd">            substrate</span>
+<span class="sd">        Args:</span>
+<span class="sd">            max_area_ratio_tol(float): Max tolerance on ratio of</span>
+<span class="sd">                super-lattices to consider equal</span>
+<span class="sd">            max_area(float): max super lattice area to generate in search</span>
+<span class="sd">            max_length_tol: maximum length tolerance in checking if two</span>
+<span class="sd">                vectors are of nearly the same length</span>
+<span class="sd">            max_angle_tol: maximum angle tolerance in checking of two sets</span>
+<span class="sd">                of vectors have nearly the same angle between them</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_area_ratio_tol</span> <span class="o">=</span> <span class="n">max_area_ratio_tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_area</span> <span class="o">=</span> <span class="n">max_area</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_length_tol</span> <span class="o">=</span> <span class="n">max_length_tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_angle_tol</span> <span class="o">=</span> <span class="n">max_angle_tol</span>
+
+<div class="viewcode-block" id="ZSLGenerator.is_same_vectors"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.ZSLGenerator.is_same_vectors">[docs]</a>    <span class="k">def</span> <span class="nf">is_same_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vec_set1</span><span class="p">,</span> <span class="n">vec_set2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine if two sets of vectors are the same within length and angle</span>
+<span class="sd">        tolerances</span>
+<span class="sd">        Args:</span>
+<span class="sd">            vec_set1(array[array]): an array of two vectors</span>
+<span class="sd">            vec_set2(array[array]): second array of two vectors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">rel_strain</span><span class="p">(</span><span class="n">vec_set1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vec_set2</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">&gt;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_length_tol</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">rel_strain</span><span class="p">(</span><span class="n">vec_set1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vec_set2</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="o">&gt;</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">max_length_tol</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">rel_angle</span><span class="p">(</span><span class="n">vec_set1</span><span class="p">,</span> <span class="n">vec_set2</span><span class="p">))</span> <span class="o">&gt;</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">max_angle_tol</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ZSLGenerator.generate_sl_transformation_sets"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.ZSLGenerator.generate_sl_transformation_sets">[docs]</a>    <span class="k">def</span> <span class="nf">generate_sl_transformation_sets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">film_area</span><span class="p">,</span> <span class="n">substrate_area</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates transformation sets for film/substrate pair given the</span>
+<span class="sd">        area of the unit cell area for the film and substrate. The</span>
+<span class="sd">        transformation sets map the film and substrate unit cells to super</span>
+<span class="sd">        lattices with a maximum area</span>
+<span class="sd">        Args:</span>
+<span class="sd">            film_area(int): the unit cell area for the film</span>
+<span class="sd">            substrate_area(int): the unit cell area for the substrate</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            transformation_sets: a set of transformation_sets defined as:</span>
+<span class="sd">                1.) the transformation matricies for the film to create a</span>
+<span class="sd">                super lattice of area i*film area</span>
+<span class="sd">                2.) the tranformation matricies for the substrate to create</span>
+<span class="sd">                a super lattice of area j*film area</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">transformation_indicies</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+                                   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_area</span> <span class="o">/</span> <span class="n">film_area</span><span class="p">))</span>
+                                   <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_area</span> <span class="o">/</span> <span class="n">substrate_area</span><span class="p">))</span>
+                                   <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">film_area</span> <span class="o">/</span> <span class="n">substrate_area</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="o">/</span> <span class="n">i</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_area_ratio_tol</span><span class="p">]</span>
+
+        <span class="c1"># Sort sets by the square of the matching area and yield in order</span>
+        <span class="c1"># from smallest to largest</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">transformation_indicies</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">gen_sl_transform_matricies</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                   <span class="n">gen_sl_transform_matricies</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="ZSLGenerator.get_equiv_transformations"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.ZSLGenerator.get_equiv_transformations">[docs]</a>    <span class="k">def</span> <span class="nf">get_equiv_transformations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transformation_sets</span><span class="p">,</span> <span class="n">film_vectors</span><span class="p">,</span>
+                                  <span class="n">substrate_vectors</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies the transformation_sets to the film and substrate vectors</span>
+<span class="sd">        to generate super-lattices and checks if they matches.</span>
+<span class="sd">        Returns all matching vectors sets.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            transformation_sets(array): an array of transformation sets:</span>
+<span class="sd">                each transformation set is an array with the (i,j)</span>
+<span class="sd">                indicating the area multipes of the film and subtrate it</span>
+<span class="sd">                corresponds to, an array with all possible transformations</span>
+<span class="sd">                for the film area multiple i and another array for the</span>
+<span class="sd">                substrate area multiple j.</span>
+<span class="sd">            film_vectors(array): film vectors to generate super lattices</span>
+<span class="sd">            substrate_vectors(array): substrate vectors to generate super</span>
+<span class="sd">                lattices</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">film_transformations</span><span class="p">,</span> <span class="n">substrate_transformations</span><span class="p">)</span> <span class="ow">in</span> \
+                <span class="n">transformation_sets</span><span class="p">:</span>
+            <span class="c1"># Apply transformations and reduce using Zur reduce methodology</span>
+            <span class="n">films</span> <span class="o">=</span> <span class="p">[</span><span class="n">reduce_vectors</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">film_vectors</span><span class="p">))</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">film_transformations</span><span class="p">]</span>
+
+            <span class="n">substrates</span> <span class="o">=</span> <span class="p">[</span><span class="n">reduce_vectors</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">substrate_transformations</span><span class="p">]</span>
+
+            <span class="c1"># Check if equivalant super lattices</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">f_trans</span><span class="p">,</span> <span class="n">s_trans</span><span class="p">),</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">product</span><span class="p">(</span><span class="n">film_transformations</span><span class="p">,</span> <span class="n">substrate_transformations</span><span class="p">),</span>
+                                                  <span class="n">product</span><span class="p">(</span><span class="n">films</span><span class="p">,</span> <span class="n">substrates</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_same_vectors</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="p">[</span><span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">f_trans</span><span class="p">,</span> <span class="n">s_trans</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">lowest</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Runs the ZSL algorithm to generate all possible matching</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">film_area</span> <span class="o">=</span> <span class="n">vec_area</span><span class="p">(</span><span class="o">*</span><span class="n">film_vectors</span><span class="p">)</span>
+        <span class="n">substrate_area</span> <span class="o">=</span> <span class="n">vec_area</span><span class="p">(</span><span class="o">*</span><span class="n">substrate_vectors</span><span class="p">)</span>
+
+        <span class="c1"># Generate all super lattice comnbinations for a given set of miller</span>
+        <span class="c1"># indicies</span>
+        <span class="n">transformation_sets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_sl_transformation_sets</span><span class="p">(</span><span class="n">film_area</span><span class="p">,</span> <span class="n">substrate_area</span><span class="p">)</span>
+
+        <span class="c1"># Check each super-lattice pair to see if they match</span>
+        <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_equiv_transformations</span><span class="p">(</span><span class="n">transformation_sets</span><span class="p">,</span>
+                                                    <span class="n">film_vectors</span><span class="p">,</span>
+                                                    <span class="n">substrate_vectors</span><span class="p">):</span>
+            <span class="c1"># Yield the match area, the miller indicies,</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_as_dict</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">vec_area</span><span class="p">(</span><span class="o">*</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                                     <span class="n">match</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">match</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+            <span class="c1"># Just want lowest match per direction</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">lowest</span><span class="p">):</span>
+                <span class="k">break</span>
+
+<div class="viewcode-block" id="ZSLGenerator.match_as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.ZSLGenerator.match_as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">match_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">film_sl_vectors</span><span class="p">,</span> <span class="n">substrate_sl_vectors</span><span class="p">,</span> <span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">match_area</span><span class="p">,</span>
+                      <span class="n">film_transformation</span><span class="p">,</span> <span class="n">substrate_transformation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns dict which contains ZSL match</span>
+<span class="sd">        Args:</span>
+<span class="sd">            film_miller(array)</span>
+<span class="sd">            substrate_miller(array)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;film_sl_vecs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">film_sl_vectors</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sub_sl_vecs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">substrate_sl_vectors</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;match_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">match_area</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;film_vecs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">film_vectors</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sub_vecs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">substrate_vectors</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;film_transformation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">film_transformation</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;substrate_transformation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">substrate_transformation</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">d</span></div></div>
+
+
+<div class="viewcode-block" id="SubstrateAnalyzer"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">SubstrateAnalyzer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class applies a set of search criteria to identify suitable</span>
+<span class="sd">    substrates for film growth. It first uses a topoplogical search by Zur</span>
+<span class="sd">    and McGill to identify matching super-lattices on various faces of the</span>
+<span class="sd">    two materials. Additional criteria can then be used to identify the most</span>
+<span class="sd">    suitable substrate. Currently, the only additional criteria is the</span>
+<span class="sd">    elastic strain energy of the super-lattices</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zslgen</span><span class="o">=</span><span class="n">ZSLGenerator</span><span class="p">(),</span> <span class="n">film_max_miller</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">substrate_max_miller</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Initializes the substrate analyzer</span>
+<span class="sd">            Args:</span>
+<span class="sd">                zslgen(ZSLGenerator): Defaults to a ZSLGenerator with standard</span>
+<span class="sd">                    tolerances, but can be fed one with custom tolerances</span>
+<span class="sd">                film_max_miller(int): maximum miller index to generate for film</span>
+<span class="sd">                    surfaces</span>
+<span class="sd">                substrate_max_miller(int): maximum miller index to generate for</span>
+<span class="sd">                    substrate surfaces</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zsl</span> <span class="o">=</span> <span class="n">zslgen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">film_max_miller</span> <span class="o">=</span> <span class="n">film_max_miller</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">substrate_max_miller</span> <span class="o">=</span> <span class="n">substrate_max_miller</span>
+
+<div class="viewcode-block" id="SubstrateAnalyzer.generate_surface_vectors"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.generate_surface_vectors">[docs]</a>    <span class="k">def</span> <span class="nf">generate_surface_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">film_millers</span><span class="p">,</span> <span class="n">substrate_millers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the film/substrate slab combinations for a set of given</span>
+<span class="sd">        miller indicies</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            film_millers(array): all miller indices to generate slabs for</span>
+<span class="sd">                film</span>
+<span class="sd">            substrate_millers(array): all miller indicies to generate slabs</span>
+<span class="sd">                for substrate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vector_sets</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">film_millers</span><span class="p">:</span>
+            <span class="n">film_slab</span> <span class="o">=</span> <span class="n">SlabGenerator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">film</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span>
+                                      <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">get_slab</span><span class="p">()</span>
+            <span class="n">film_vectors</span> <span class="o">=</span> <span class="n">reduce_vectors</span><span class="p">(</span><span class="n">film_slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                          <span class="n">film_slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">substrate_millers</span><span class="p">:</span>
+                <span class="n">substrate_slab</span> <span class="o">=</span> <span class="n">SlabGenerator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">substrate</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span>
+                                               <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">get_slab</span><span class="p">()</span>
+                <span class="n">substrate_vectors</span> <span class="o">=</span> <span class="n">reduce_vectors</span><span class="p">(</span>
+                    <span class="n">substrate_slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">substrate_slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+                <span class="n">vector_sets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">vector_sets</span></div>
+
+<div class="viewcode-block" id="SubstrateAnalyzer.calculate"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">film</span><span class="p">,</span> <span class="n">substrate</span><span class="p">,</span> <span class="n">elasticity_tensor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">film_millers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">substrate_millers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">ground_state_energy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">lowest</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds all topological matches for the substrate and calculates elastic</span>
+<span class="sd">        strain energy and total energy for the film if elasticity tensor and</span>
+<span class="sd">        ground state energy are provided:</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            film(Structure): conventional standard structure for the film</span>
+<span class="sd">            substrate(Structure): conventional standard structure for the</span>
+<span class="sd">                substrate</span>
+<span class="sd">            elasticity_tensor(ElasticTensor): elasticity tensor for the film</span>
+<span class="sd">                in the IEEE orientation</span>
+<span class="sd">            film_millers(array): film facets to consider in search as defined by</span>
+<span class="sd">                miller indicies</span>
+<span class="sd">            substrate_millers(array): substrate facets to consider in search as</span>
+<span class="sd">                defined by miller indicies</span>
+<span class="sd">            ground_state_energy(float): ground state energy for the film</span>
+<span class="sd">            lowest(bool): only consider lowest matching area for each surface</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">film</span> <span class="o">=</span> <span class="n">film</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">substrate</span> <span class="o">=</span> <span class="n">substrate</span>
+
+        <span class="c1"># Generate miller indicies if none specified for film</span>
+        <span class="k">if</span> <span class="n">film_millers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">film_millers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">get_symmetrically_distinct_miller_indices</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">film</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">film_max_miller</span><span class="p">))</span>
+
+        <span class="c1"># Generate miller indicies if none specified for substrate</span>
+        <span class="k">if</span> <span class="n">substrate_millers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">substrate_millers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">get_symmetrically_distinct_miller_indices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">substrate</span><span class="p">,</span>
+                                                          <span class="bp">self</span><span class="o">.</span><span class="n">substrate_max_miller</span><span class="p">))</span>
+
+        <span class="c1"># Check each miller index combination</span>
+        <span class="n">surface_vector_sets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_surface_vectors</span><span class="p">(</span><span class="n">film_millers</span><span class="p">,</span> <span class="n">substrate_millers</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">[</span><span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">film_miller</span><span class="p">,</span> <span class="n">substrate_miller</span><span class="p">]</span> <span class="ow">in</span> <span class="n">surface_vector_sets</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">zsl</span><span class="p">(</span><span class="n">film_vectors</span><span class="p">,</span> <span class="n">substrate_vectors</span><span class="p">,</span> <span class="n">lowest</span><span class="p">):</span>
+                <span class="n">match</span><span class="p">[</span><span class="s1">&#39;film_miller&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">film_miller</span>
+                <span class="n">match</span><span class="p">[</span><span class="s1">&#39;sub_miller&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">substrate_miller</span>
+                <span class="k">if</span> <span class="n">elasticity_tensor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">energy</span><span class="p">,</span> <span class="n">strain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_3D_elastic_energy</span><span class="p">(</span>
+                        <span class="n">film</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">elasticity_tensor</span><span class="p">,</span> <span class="n">include_strain</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">match</span><span class="p">[</span><span class="s2">&quot;elastic_energy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">energy</span>
+                    <span class="n">match</span><span class="p">[</span><span class="s2">&quot;strain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strain</span>
+                <span class="k">if</span> <span class="n">ground_state_energy</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">match</span><span class="p">[</span><span class="s1">&#39;total_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;elastic_energy&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">ground_state_energy</span>
+
+                <span class="k">yield</span> <span class="n">match</span></div>
+
+<div class="viewcode-block" id="SubstrateAnalyzer.calculate_3D_elastic_energy"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.calculate_3D_elastic_energy">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_3D_elastic_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">film</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">elasticity_tensor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                    <span class="n">include_strain</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the multi-plane elastic energy. Returns 999 if no elastic</span>
+<span class="sd">        tensor was given on init</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            film(Structure): conventional standard structure for the film</span>
+<span class="sd">            match(dictionary) : match dictionary from substrate analyzer</span>
+<span class="sd">            elasticity_tensor(ElasticTensor): elasticity tensor for the film</span>
+<span class="sd">            include_strain(bool): include strain in the output or not; changes</span>
+<span class="sd">             return from just the energy to a tuple with the energy and strain</span>
+<span class="sd">             in voigt notation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">elasticity_tensor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">9999</span>
+
+        <span class="c1"># Get the appropriate surface structure</span>
+        <span class="n">struc</span> <span class="o">=</span> <span class="n">SlabGenerator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">film</span><span class="p">,</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;film_miller&#39;</span><span class="p">],</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span>
+                              <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">get_slab</span><span class="p">()</span><span class="o">.</span><span class="n">oriented_unit_cell</span>
+
+        <span class="c1"># Generate 3D lattice vectors for film super lattice</span>
+        <span class="n">film_matrix</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="s1">&#39;film_sl_vecs&#39;</span><span class="p">])</span>
+        <span class="n">film_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">film_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">film_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="c1"># Generate 3D lattice vectors for substrate super lattice</span>
+        <span class="c1"># Out of plane substrate super lattice has to be same length as</span>
+        <span class="c1"># Film out of plane vector to ensure no extra deformation in that</span>
+        <span class="c1"># direction</span>
+        <span class="n">substrate_matrix</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="s1">&#39;sub_sl_vecs&#39;</span><span class="p">])</span>
+        <span class="n">temp_sub</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">substrate_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">substrate_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">temp_sub</span> <span class="o">=</span> <span class="n">temp_sub</span> <span class="o">*</span> <span class="n">fast_norm</span><span class="p">(</span><span class="n">film_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="n">fast_norm</span><span class="p">(</span><span class="n">temp_sub</span><span class="p">)</span>
+        <span class="n">substrate_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_sub</span><span class="p">)</span>
+
+        <span class="n">transform_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">film_matrix</span><span class="p">,</span>
+                                                        <span class="n">substrate_matrix</span><span class="p">))</span>
+
+        <span class="n">dfm</span> <span class="o">=</span> <span class="n">Deformation</span><span class="p">(</span><span class="n">transform_matrix</span><span class="p">)</span>
+
+        <span class="n">strain</span> <span class="o">=</span> <span class="n">dfm</span><span class="o">.</span><span class="n">green_lagrange_strain</span><span class="o">.</span><span class="n">convert_to_ieee</span><span class="p">(</span><span class="n">struc</span><span class="p">,</span> <span class="n">initial_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">energy_density</span> <span class="o">=</span> <span class="n">elasticity_tensor</span><span class="o">.</span><span class="n">energy_density</span><span class="p">(</span>
+            <span class="n">strain</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">include_strain</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">film</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">energy_density</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">film</span><span class="o">.</span><span class="n">sites</span><span class="p">),</span> <span class="n">strain</span><span class="o">.</span><span class="n">von_mises_strain</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">film</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">energy_density</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">film</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="gen_sl_transform_matricies"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.gen_sl_transform_matricies">[docs]</a><span class="k">def</span> <span class="nf">gen_sl_transform_matricies</span><span class="p">(</span><span class="n">area_multiple</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates the transformation matricies that convert a set of 2D</span>
+<span class="sd">    vectors into a super lattice of integer area multiple as proven</span>
+<span class="sd">    in Cassels:</span>
+
+<span class="sd">    Cassels, John William Scott. An introduction to the geometry of</span>
+<span class="sd">    numbers. Springer Science &amp; Business Media, 2012.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        area_multiple(int): integer multiple of unit cell area for super</span>
+<span class="sd">        lattice area</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        matrix_list: transformation matricies to covert unit vectors to</span>
+<span class="sd">        super lattice vectors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">area_multiple</span> <span class="o">/</span> <span class="n">i</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">get_factors</span><span class="p">(</span><span class="n">area_multiple</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">area_multiple</span> <span class="o">//</span> <span class="n">i</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="rel_strain"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.rel_strain">[docs]</a><span class="k">def</span> <span class="nf">rel_strain</span><span class="p">(</span><span class="n">vec1</span><span class="p">,</span> <span class="n">vec2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate relative strain between two vectors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">fast_norm</span><span class="p">(</span><span class="n">vec2</span><span class="p">)</span> <span class="o">/</span> <span class="n">fast_norm</span><span class="p">(</span><span class="n">vec1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="rel_angle"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.rel_angle">[docs]</a><span class="k">def</span> <span class="nf">rel_angle</span><span class="p">(</span><span class="n">vec_set1</span><span class="p">,</span> <span class="n">vec_set2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the relative angle between two vector sets</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vec_set1(array[array]): an array of two vectors</span>
+<span class="sd">        vec_set2(array[array]): second array of two vectors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">vec_angle</span><span class="p">(</span><span class="n">vec_set2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vec_set2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">vec_angle</span><span class="p">(</span>
+        <span class="n">vec_set1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vec_set1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="fast_norm"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.fast_norm">[docs]</a><span class="k">def</span> <span class="nf">fast_norm</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Much faster variant of numpy linalg norm</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="vec_angle"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.vec_angle">[docs]</a><span class="k">def</span> <span class="nf">vec_angle</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate angle between two vectors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cosang</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="n">sinang</span> <span class="o">=</span> <span class="n">fast_norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">sinang</span><span class="p">,</span> <span class="n">cosang</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="vec_area"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.vec_area">[docs]</a><span class="k">def</span> <span class="nf">vec_area</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Area of lattice plane defined by two vectors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">fast_norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="reduce_vectors"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.reduce_vectors">[docs]</a><span class="k">def</span> <span class="nf">reduce_vectors</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate independent and unique basis vectors based on the</span>
+<span class="sd">    methodology of Zur and McGill</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">reduce_vectors</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">-</span><span class="n">b</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">fast_norm</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">fast_norm</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">reduce_vectors</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">fast_norm</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">fast_norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">reduce_vectors</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">fast_norm</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">fast_norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">reduce_vectors</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_factors"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.get_factors">[docs]</a><span class="k">def</span> <span class="nf">get_factors</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate all factors of n</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">x</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.substrate_analyzer</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
