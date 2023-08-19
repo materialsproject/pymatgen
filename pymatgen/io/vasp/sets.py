@@ -1222,10 +1222,10 @@ class MatPESStaticSet(MPStaticSet):
 
     def __init__(
         self,
-        structure,
-        functional=None,
-        **kwargs,
-    ):
+        structure: str,
+        functional: Literal["R2SCAN", "R2SCAN+U", "PBE", "PBE+U"] | None = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Args:
             structure (Structure): Structure from previous run.
