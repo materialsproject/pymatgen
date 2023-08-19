@@ -1087,7 +1087,7 @@ class MPStaticSet(MPRelaxSet):
     def incar(self):
         """Incar"""
         parent_incar = super().incar
-        incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
+        incar = Incar(self.prev_incar or parent_incar)
 
         incar.update(
             {
@@ -1250,7 +1250,7 @@ class MatPESStaticSet(MPStaticSet):
     def incar(self):
         """Incar"""
         parent_incar = super().incar
-        incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
+        incar = Incar(self.prev_incar or parent_incar)
 
         incar.update(
             {
@@ -1315,7 +1315,7 @@ class MPScanStaticSet(MPScanRelaxSet):
     def incar(self):
         """Incar"""
         parent_incar = super().incar
-        incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
+        incar = Incar(self.prev_incar or parent_incar)
 
         incar.update({"LREAL": False, "NSW": 0, "LORBIT": 11, "LVHAR": True, "ISMEAR": -5})
 
@@ -2115,7 +2115,7 @@ class MVLGWSet(DictSet):
     def incar(self):
         """Incar"""
         parent_incar = super().incar
-        incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
+        incar = Incar(self.prev_incar or parent_incar)
 
         if self.mode == "DIAG":
             # Default parameters for diagonalization calculation.
@@ -3214,7 +3214,7 @@ class MPAbsorptionSet(MPRelaxSet):
         elif self.mode == "RPA":
             # Default parameters for the response function calculation. NELM has to be set to 1.
             # NOMEGA is set to 1000 in order to get smooth spectrum
-            incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
+            incar = Incar(self.prev_incar or parent_incar)
             incar.update({"ALGO": "CHI", "NELM": 1, "NOMEGA": 1000})
 
             if self.nkred is not None:
