@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import scipy.special
+from numpy.testing import assert_allclose
 
 from pymatgen.io.vasp.optics import DielectricFunctionCalculator, delta_func, delta_methfessel_paxton, step_func
 from pymatgen.io.vasp.outputs import Vasprun
@@ -69,16 +70,16 @@ def test_delta_func():
 def test_step_func():
     # array of positive values
     x = np.array([1, 2, 3, 4, 5])
-    assert np.allclose(step_func(x, -1), 1 / (1.0 + np.exp(-x)))
+    assert_allclose(step_func(x, -1), 1 / (1.0 + np.exp(-x)))
 
     # array of negative values
     x = np.array([-1, -2, -3, -4, -5])
-    assert np.allclose(step_func(x, -1), 1 / (1.0 + np.exp(-x)))
+    assert_allclose(step_func(x, -1), 1 / (1.0 + np.exp(-x)))
 
     # array that includes zero
     x = np.array([-1, 0, 1])
-    assert np.allclose(step_func(x, -1), 1 / (1.0 + np.exp(-x)))
+    assert_allclose(step_func(x, -1), 1 / (1.0 + np.exp(-x)))
 
     # ismear == 0
     x = np.array([1, 2, 3, 4, 5])
-    assert np.allclose(step_func(x, 0), 0.5 + 0.5 * scipy.special.erf(x))
+    assert_allclose(step_func(x, 0), 0.5 + 0.5 * scipy.special.erf(x))

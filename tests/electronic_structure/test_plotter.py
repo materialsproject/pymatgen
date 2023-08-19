@@ -9,6 +9,7 @@ from shutil import which
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.structure import Structure
@@ -525,8 +526,8 @@ class TestCohpPlotter(PymatgenTest):
         cohp_fe_fe = self.cohp.all_cohps["1"]
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            assert np.allclose(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
-            assert np.allclose(lines.get_ydata(), self.cohp.energies)
+            assert_allclose(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
+            assert_allclose(lines.get_ydata(), self.cohp.energies)
             assert lines.get_linestyle() == linestyles[spin]
         plt.close()
 
@@ -536,8 +537,8 @@ class TestCohpPlotter(PymatgenTest):
         assert ax_cohp.get_ylabel() == "COHP"
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            assert np.allclose(lines.get_xdata(), self.cohp.energies)
-            assert np.allclose(lines.get_ydata(), cohp_fe_fe.cohp[spin])
+            assert_allclose(lines.get_xdata(), self.cohp.energies)
+            assert_allclose(lines.get_ydata(), cohp_fe_fe.cohp[spin])
         plt.close()
 
         ax_cohp = self.cohp_plot.get_plot(integrated=True)
@@ -545,7 +546,7 @@ class TestCohpPlotter(PymatgenTest):
         assert ax_cohp.get_xlabel() == "-ICOHP (eV)"
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            assert np.allclose(lines.get_xdata(), -cohp_fe_fe.icohp[spin])
+            assert_allclose(lines.get_xdata(), -cohp_fe_fe.icohp[spin])
 
         coop_dict = {"Bi5-Bi6": self.coop.all_cohps["10"]}
         self.coop_plot.add_cohp_dict(coop_dict)
@@ -553,9 +554,9 @@ class TestCohpPlotter(PymatgenTest):
         assert ax_coop.get_xlabel() == "COOP"
         assert ax_coop.get_ylabel() == "$E - E_f$ (eV)"
         lines_coop = ax_coop.get_lines()[0]
-        assert np.allclose(lines_coop.get_ydata(), self.coop.energies - self.coop.efermi)
+        assert_allclose(lines_coop.get_ydata(), self.coop.energies - self.coop.efermi)
         coop_bi_bi = self.coop.all_cohps["10"].cohp[Spin.up]
-        assert np.allclose(lines_coop.get_xdata(), coop_bi_bi)
+        assert_allclose(lines_coop.get_xdata(), coop_bi_bi)
 
         # Cleanup.
         plt.close("all")

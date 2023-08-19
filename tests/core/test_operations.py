@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from numpy.testing import assert_allclose
 
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.electronic_structure.core import Magmom
@@ -14,25 +15,25 @@ class SymmOpTestCase(PymatgenTest):
     def test_properties(self):
         rot = self.op.rotation_matrix
         vec = self.op.translation_vector
-        assert np.allclose(rot, [[0.8660254, -0.5, 0.0], [0.5, 0.8660254, 0.0], [0.0, 0.0, 1.0]], 2)
-        assert np.allclose(vec, [0, 0, 1], 2)
+        assert_allclose(rot, [[0.8660254, -0.5, 0.0], [0.5, 0.8660254, 0.0], [0.0, 0.0, 1.0]], 2)
+        assert_allclose(vec, [0, 0, 1], 2)
 
     def test_operate(self):
         point = np.array([1, 2, 3])
         new_coord = self.op.operate(point)
-        assert np.allclose(new_coord, [-0.1339746, 2.23205081, 4.0], 2)
+        assert_allclose(new_coord, [-0.1339746, 2.23205081, 4.0], 2)
 
     def test_operate_multi(self):
         point = np.array([1, 2, 3])
         new_coords = self.op.operate_multi([point, point])
-        assert np.allclose(new_coords, [[-0.1339746, 2.23205081, 4.0]] * 2, 2)
+        assert_allclose(new_coords, [[-0.1339746, 2.23205081, 4.0]] * 2, 2)
         new_coords = self.op.operate_multi([[point, point]] * 2)
-        assert np.allclose(new_coords, [[[-0.1339746, 2.23205081, 4.0]] * 2] * 2, 2)
+        assert_allclose(new_coords, [[[-0.1339746, 2.23205081, 4.0]] * 2] * 2, 2)
 
     def test_inverse(self):
         point = np.random.rand(3)
         new_coord = self.op.operate(point)
-        assert np.allclose(self.op.inverse.operate(new_coord), point, 2)
+        assert_allclose(self.op.inverse.operate(new_coord), point, 2)
 
     def test_reflection(self):
         normal = np.random.rand(3)
@@ -41,19 +42,19 @@ class SymmOpTestCase(PymatgenTest):
         point = np.random.rand(3)
         new_coord = refl.operate(point)
         # Distance to the plane should be negatives of each other.
-        assert np.allclose(np.dot(new_coord - origin, normal), -np.dot(point - origin, normal))
+        assert_allclose(np.dot(new_coord - origin, normal), -np.dot(point - origin, normal))
 
     def test_apply_rotation_only(self):
         point = np.random.rand(3)
         new_coord = self.op.operate(point)
         rotate_only = self.op.apply_rotation_only(point)
-        assert np.allclose(rotate_only + self.op.translation_vector, new_coord, 2)
+        assert_allclose(rotate_only + self.op.translation_vector, new_coord, 2)
 
     def test_transform_tensor(self):
         # Rank 2
         tensor = np.arange(0, 9).reshape(3, 3)
         new_tensor = self.op.transform_tensor(tensor)
-        assert np.allclose(
+        assert_allclose(
             new_tensor,
             [
                 [-0.73205, -1.73205, -0.76794],
@@ -66,7 +67,7 @@ class SymmOpTestCase(PymatgenTest):
         # Rank 3
         tensor = np.arange(0, 27).reshape(3, 3, 3)
         new_tensor = self.op.transform_tensor(tensor)
-        assert np.allclose(
+        assert_allclose(
             new_tensor,
             [
                 [
@@ -90,7 +91,7 @@ class SymmOpTestCase(PymatgenTest):
         # Rank 4
         tensor = np.arange(0, 81).reshape(3, 3, 3, 3)
         new_tensor = self.op.transform_tensor(tensor)
-        assert np.allclose(
+        assert_allclose(
             new_tensor,
             [
                 [
@@ -184,7 +185,7 @@ class SymmOpTestCase(PymatgenTest):
         op = SymmOp.inversion(origin)
         pt = np.random.rand(3)
         inv_pt = op.operate(pt)
-        assert np.allclose(pt - origin, origin - inv_pt)
+        assert_allclose(pt - origin, origin - inv_pt)
 
     def test_xyz(self):
         op = SymmOp([[1, -1, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
@@ -224,9 +225,9 @@ class SymmOpTestCase(PymatgenTest):
         # self.assertWarns(UserWarning, self.op.as_xyz_string)
 
         o = SymmOp.from_xyz_string("0.5+x, 0.25+y, 0.75+z")
-        assert np.allclose(o.translation_vector, [0.5, 0.25, 0.75])
+        assert_allclose(o.translation_vector, [0.5, 0.25, 0.75])
         o = SymmOp.from_xyz_string("x + 0.5, y + 0.25, z + 0.75")
-        assert np.allclose(o.translation_vector, [0.5, 0.25, 0.75])
+        assert_allclose(o.translation_vector, [0.5, 0.25, 0.75])
 
 
 class MagSymmOpTestCase(PymatgenTest):
@@ -281,7 +282,7 @@ class MagSymmOpTestCase(PymatgenTest):
         for xyzt_string, transformed_magmom in zip(xyzt_strings, transformed_magmoms):
             for magmom in magmoms:
                 op = MagSymmOp.from_xyzt_string(xyzt_string)
-                assert np.allclose(transformed_magmom, op.operate_magmom(magmom).global_moment)
+                assert_allclose(transformed_magmom, op.operate_magmom(magmom).global_moment)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-import numpy as np
+from numpy.testing import assert_allclose
 
 from pymatgen.symmetry.settings import JonesFaithfulTransformation, Lattice, SymmOp
 
@@ -34,8 +34,8 @@ class TestJonesFaithfulTransformation(unittest.TestCase):
         for test_string, test_Pp in zip(self.test_strings, self.test_Pps):
             jft = JonesFaithfulTransformation.from_transformation_string(test_string)
             jft2 = JonesFaithfulTransformation(test_Pp[0], test_Pp[1])
-            assert np.allclose(jft.P, jft2.P)
-            assert np.allclose(jft.p, jft2.p)
+            assert_allclose(jft.P, jft2.P)
+            assert_allclose(jft.p, jft2.p)
             assert test_string == jft.transformation_string
             assert test_string == jft2.transformation_string
 
@@ -57,7 +57,7 @@ class TestJonesFaithfulTransformation(unittest.TestCase):
 
         for ref_lattice, (P, p) in zip(all_ref_lattices, self.test_Pps):
             jft = JonesFaithfulTransformation(P, p)
-            assert np.allclose(jft.transform_lattice(lattice).matrix, ref_lattice)
+            assert_allclose(jft.transform_lattice(lattice).matrix, ref_lattice)
 
     def test_transform_coords(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -73,7 +73,7 @@ class TestJonesFaithfulTransformation(unittest.TestCase):
             jft = JonesFaithfulTransformation(P, p)
             transformed_coords = jft.transform_coords(coords)
             for coord, ref_coord in zip(transformed_coords, ref_coords):
-                assert np.allclose(coord, ref_coord)
+                assert_allclose(coord, ref_coord)
 
     def test_transform_symmops(self):
         # reference data for this test taken from GENPOS

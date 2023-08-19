@@ -4,6 +4,7 @@ import unittest
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.periodic_table import Species
@@ -89,13 +90,13 @@ class TestSpacegroupAnalyzer(PymatgenTest):
             for fop, op, pgop in zip(frac_symm_ops, symm_ops, pg_ops):
                 # translation vector values should all be 0 or 0.5
                 t = fop.translation_vector * 2
-                assert np.allclose(t - np.round(t), 0)
+                assert_allclose(t - np.round(t), 0)
 
-                assert np.allclose(fop.rotation_matrix, pgop.rotation_matrix)
+                assert_allclose(fop.rotation_matrix, pgop.rotation_matrix)
                 for site in structure:
                     new_frac = fop.operate(site.frac_coords)
                     new_cart = op.operate(site.coords)
-                    assert np.allclose(structure.lattice.get_fractional_coords(new_cart), new_frac)
+                    assert_allclose(structure.lattice.get_fractional_coords(new_cart), new_frac)
                     found = False
                     new_site = PeriodicSite(site.species, new_cart, structure.lattice, coords_are_cartesian=True)
                     for test_site in structure:
@@ -110,7 +111,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
                 random_ccoord = structure.lattice.get_cartesian_coords(random_fcoord)
                 new_frac = fop.operate(random_fcoord)
                 new_cart = op.operate(random_ccoord)
-                assert np.allclose(structure.lattice.get_fractional_coords(new_cart), new_frac)
+                assert_allclose(structure.lattice.get_fractional_coords(new_cart), new_frac)
 
     def test_get_point_group_operations_uniq(self):
         # https://github.com/materialsproject/pymatgen/pull/2942
@@ -672,7 +673,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         for i, eq_set in eq_sets.items():
             for j in eq_set:
                 _ = np.dot(ops[i][j], coords[i])
-                assert np.allclose(np.dot(ops[i][j], coords[i]), coords[j])
+                assert_allclose(np.dot(ops[i][j], coords[i]), coords[j])
 
     def test_symmetrize_molecule2(self):
         np.random.seed(77)
