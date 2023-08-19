@@ -29,8 +29,8 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "waroquiers"
 
-json_files_dir = f"{TEST_FILES_DIR}/chemenv/json_test_files"
-se_files_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments_files"
+json_dir = f"{TEST_FILES_DIR}/chemenv/json"
+struct_env_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments"
 
 
 class TestReadWriteChemenv(unittest.TestCase):
@@ -41,7 +41,7 @@ class TestReadWriteChemenv(unittest.TestCase):
         os.makedirs("tmp_dir", exist_ok=True)
 
     def test_read_write_structure_environments(self):
-        with open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json") as file:
+        with open(f"{json_dir}/test_T--4_FePO4_icsd_4266.json") as file:
             dd = json.load(file)
 
         atom_indices = dd["atom_indices"]
@@ -76,7 +76,7 @@ class TestReadWriteChemenv(unittest.TestCase):
         # assert lse == lse2
 
     def test_structure_environments_neighbors_sets(self):
-        with open(f"{se_files_dir}/se_mp-7000.json") as f:
+        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
             dd = json.load(f)
 
         struct_envs = StructureEnvironments.from_dict(dd)
@@ -221,7 +221,7 @@ class TestReadWriteChemenv(unittest.TestCase):
         assert multi_weights_strategy_2 != multi_weights_strategy_3
 
     def test_read_write_voronoi(self):
-        with open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json") as f:
+        with open(f"{json_dir}/test_T--4_FePO4_icsd_4266.json") as f:
             dd = json.load(f)
 
         struct = Structure.from_dict(dd["structure"])
