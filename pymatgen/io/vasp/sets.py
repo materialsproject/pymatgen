@@ -1223,18 +1223,17 @@ class MatPESStaticSet(MPStaticSet):
     def __init__(
         self,
         structure: str,
-        functional: Literal["R2SCAN", "R2SCAN+U", "PBE", "PBE+U", ""] = "",
+        functional: Literal["R2SCAN", "R2SCAN+U", "PBE", "PBE+U"] = "PBE",
         **kwargs: Any,
     ) -> None:
         """
         Args:
             structure (Structure): Structure from previous run.
-            functional (str): We can set the VASP functional to R2SCAN or R2SCAN+U or PBE+U, or it will
-                generate input sets PBE functional.
-            **kwargs: kwargs supported by MPRelaxSet.
+            functional ('R2SCAN' | 'R2SCAN+U' | 'PBE' | 'PBE+U'): Which functional to use and whether to include
+                Hubbard U corrections. Defaults to 'PBE'.
+            **kwargs: Passed to MPStaticSet.
         """
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
-        kwargs.setdefault("user_potcar_functional", "PBE_54")
         if functional.startswith("R2SCAN"):
             self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
         if functional.startswith("PBE"):
@@ -1249,36 +1248,7 @@ class MatPESStaticSet(MPStaticSet):
     def incar(self):
         """Incar"""
         parent_incar = super().incar
-        incar = Incar(self.prev_incar or parent_incar)
-
-        incar.update(
-            {
-                "ALGO": "ALL",
-                "EDIFF": "1.e-05",
-                "EDIFFG": -0.02,
-                "ENAUG": 1360,
-                "ENCUT": 680,
-                "IBRION": 2,
-                "ISIF": 3,
-                "ISMEAR": 0,  # change from 2 to 0, included to have some reasonable default
-                "ISPIN": 2,
-                "KSPACING": 0.22,  # included to have some reasonable default
-                "LAECHG": True,
-                "LASPH": True,
-                "LCHARG": True,
-                "LELF": False,  # LELF = True restricts calculation to KPAR = 1
-                "LMIXTAU": True,
-                "LORBIT": 11,
-                "LREAL": "Auto",
-                "LVTOT": True,
-                "LWAVE": False,
-                "GGA": "PE",  # change R2SCAN to PBE as default
-                "NELM": 200,
-                "NSW": 0,  # static calculation
-                "PREC": "Accurate",
-                "SIGMA": 0.05,  # change from 0.02 to 0.05, included to have some reasonable default
-            }
-        )
+        return Incar(self.prev_incar or parent_incar)
 
 
 class MPScanStaticSet(MPScanRelaxSet):
