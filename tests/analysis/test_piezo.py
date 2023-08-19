@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 
 from pymatgen.analysis.piezo import PiezoTensor
 from pymatgen.util.testing import PymatgenTest
@@ -42,7 +42,7 @@ class TestPiezo(PymatgenTest):
 
     def test_new(self):
         pt = PiezoTensor(self.full_tensor_array)
-        assert np.allclose(pt, self.full_tensor_array)
+        assert_allclose(pt, self.full_tensor_array)
         bad_dim_array = np.zeros((3, 3))
         with pytest.raises(ValueError, match="PiezoTensor input must be rank 3"):
             PiezoTensor(bad_dim_array)

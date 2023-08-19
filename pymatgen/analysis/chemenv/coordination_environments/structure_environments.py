@@ -8,6 +8,8 @@ and possibly some fraction corresponding to these.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
@@ -18,6 +20,9 @@ from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import PeriodicNeighbor, Structure
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -653,7 +658,9 @@ class StructureEnvironments(MSONable):
         plt.show()
         return
 
-    def get_csm_and_maps(self, isite, max_csm=8.0, figsize=None, symmetry_measure_type=None):
+    def get_csm_and_maps(
+        self, isite, max_csm=8.0, figsize=None, symmetry_measure_type=None
+    ) -> tuple[plt.Figure, plt.Axes] | None:
         """
         Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
         chemical environments are given, a color map is added to the plot, with the lowest continuous symmetry measure
@@ -666,7 +673,7 @@ class StructureEnvironments(MSONable):
             symmetry_measure_type: Type of continuous symmetry measure to be used.
 
         Returns:
-            Matplotlib figure and axes representing the csm and maps.
+            Matplotlib figure and axes representing the CSM and maps.
         """
         try:
             import matplotlib.pyplot as plt
@@ -680,8 +687,8 @@ class StructureEnvironments(MSONable):
         # Initializes the figure
         fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
         gs = GridSpec(2, 1, hspace=0.0, wspace=0.0)
-        subplot = fig.add_subplot(gs[:])
-        subplot_distang = subplot.twinx()
+        ax = fig.add_subplot(gs[:])
+        ax_distang = ax.twinx()
 
         idx = 0
         cn_maps = []
@@ -702,8 +709,8 @@ class StructureEnvironments(MSONable):
                 all_was.append(nb_set.normalized_angles)
                 for mp_symbol, cg_dict in min_geoms:
                     csm = cg_dict["other_symmetry_measures"][symmetry_measure_type]
-                    subplot.plot(idx, csm, "ob")
-                    subplot.annotate(mp_symbol, xy=(idx, csm))
+                    ax.plot(idx, csm, "ob")
+                    ax.annotate(mp_symbol, xy=(idx, csm))
                 cn_maps.append((cn, inb_set))
                 idx += 1
 
@@ -749,9 +756,9 @@ class StructureEnvironments(MSONable):
             return (np.array(wd) - 1.0) / (ymax_wd - 1.0) * (ydmax - ydmin) + ydmin
 
         for idx, was in enumerate(all_was):
-            subplot_distang.plot(0.2 + idx * np.ones_like(was), yang(was), "<g")
+            ax_distang.plot(0.2 + idx * np.ones_like(was), yang(was), "<g")
             alpha = 0.3 if np.mod(idx, 2) == 0 else 0.1
-            subplot_distang.fill_between(
+            ax_distang.fill_between(
                 [-0.5 + idx, 0.5 + idx],
                 [1.0, 1.0],
                 0.0,
@@ -760,16 +767,16 @@ class StructureEnvironments(MSONable):
                 zorder=-1000,
             )
         for idx, wds in enumerate(all_wds):
-            subplot_distang.plot(0.2 + idx * np.ones_like(wds), ydist(wds), "sm")
+            ax_distang.plot(0.2 + idx * np.ones_like(wds), ydist(wds), "sm")
 
-        subplot_distang.plot([-0.5, len(cn_maps)], [0.5, 0.5], "k--", alpha=0.5)
+        ax_distang.plot([-0.5, len(cn_maps)], [0.5, 0.5], "k--", alpha=0.5)
 
         yticks = yang(yticks_wa).tolist()
         yticks.extend(ydist(yticks_wd).tolist())
         yticklabels = yticks_wa.tolist()
         yticklabels.extend(yticks_wd.tolist())
-        subplot_distang.set_yticks(yticks)
-        subplot_distang.set_yticklabels(yticklabels)
+        ax_distang.set_yticks(yticks)
+        ax_distang.set_yticklabels(yticklabels)
 
         fake_subplot_ang = fig.add_subplot(gs[1], frame_on=False)
         fake_subplot_dist = fig.add_subplot(gs[0], frame_on=False)
@@ -782,14 +789,14 @@ class StructureEnvironments(MSONable):
         fake_subplot_ang.yaxis.set_label_position("right")
         fake_subplot_dist.yaxis.set_label_position("right")
 
-        subplot_distang.set_ylim([0.0, 1.0])
-        subplot.set_xticks(range(len(cn_maps)))
-        subplot.set_ylabel("Continuous symmetry measure")
-        subplot.set_xlim([-0.5, len(cn_maps) - 0.5])
-        subplot_distang.set_xlim([-0.5, len(cn_maps) - 0.5])
-        subplot.set_xticklabels([str(cn_map) for cn_map in cn_maps])
+        ax_distang.set_ylim([0.0, 1.0])
+        ax.set_xticks(range(len(cn_maps)))
+        ax.set_ylabel("Continuous symmetry measure")
+        ax.set_xlim([-0.5, len(cn_maps) - 0.5])
+        ax_distang.set_xlim([-0.5, len(cn_maps) - 0.5])
+        ax.set_xticklabels([str(cn_map) for cn_map in cn_maps])
 
-        return fig, subplot
+        return fig, ax
 
     def get_environments_figure(
         self,
@@ -819,7 +826,7 @@ class StructureEnvironments(MSONable):
             strategy: Whether to plot information about one of the Chemenv Strategies.
 
         Returns:
-            Matplotlib figure and axes representing the environments.
+            tuple[plt.Figure, plt.Axes]: matplotlib figure and axes representing the environments.
         """
         try:
             import matplotlib.pyplot as plt
@@ -831,8 +838,8 @@ class StructureEnvironments(MSONable):
             return None
 
         # Initializes the figure
-        fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
-        subplot = fig.add_subplot(111)
+        fig = plt.figure(figsize=figsize)
+        ax = fig.add_subplot(111)
 
         # Initializes the distance and angle parameters
         if plot_type is None:
@@ -922,7 +929,7 @@ class StructureEnvironments(MSONable):
                     facecolor=mycolor,
                     linewidth=1.2,
                 )
-                subplot.add_patch(polygon)
+                ax.add_patch(polygon)
                 myipt = len(nb_set_surface_pts) / 2
                 ipt = int(myipt)
                 if myipt != ipt:
@@ -940,7 +947,7 @@ class StructureEnvironments(MSONable):
                         (min(nb_set_surface_pts[-1][0], dist_limits[1]) + nb_set_surface_pts[0][0]) / 2,
                         (nb_set_surface_pts[-1][1] + nb_set_surface_pts[-2][1]) / 2,
                     )
-                    subplot.annotate(
+                    ax.annotate(
                         mytext,
                         xy=xytext,
                         ha="center",
@@ -953,7 +960,7 @@ class StructureEnvironments(MSONable):
                     and np.abs(min(nb_set_surface_pts[ipt][0], dist_limits[1]) - nb_set_surface_pts[0][0]) > 0.125
                 ):
                     xytext = patch_center
-                    subplot.annotate(
+                    ax.annotate(
                         mytext,
                         xy=xytext,
                         ha="center",
@@ -962,26 +969,26 @@ class StructureEnvironments(MSONable):
                         fontsize="x-small",
                     )
 
-        subplot.set_title(title)
-        subplot.set_xlabel(xlabel)
-        subplot.set_ylabel(ylabel)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
 
         dist_limits.sort()
         ang_limits.sort()
-        subplot.set_xlim(dist_limits)
-        subplot.set_ylim(ang_limits)
+        ax.set_xlim(dist_limits)
+        ax.set_ylim(ang_limits)
         if strategy is not None:
             try:
-                strategy.add_strategy_visualization_to_subplot(subplot=subplot)
+                strategy.add_strategy_visualization_to_subplot(subplot=ax)
             except Exception:
                 pass
         if plot_type["angle_parameter"][0] == "initial_normalized_inverted":
-            subplot.axes.invert_yaxis()
+            ax.axes.invert_yaxis()
 
         scalarmap.set_array([mymin, mymax])
-        cb = fig.colorbar(scalarmap, ax=subplot, extend="max")
+        cb = fig.colorbar(scalarmap, ax=ax, extend="max")
         cb.set_label("Continuous symmetry measure")
-        return fig, subplot
+        return fig, ax
 
     def plot_environments(
         self,
@@ -1008,7 +1015,7 @@ class StructureEnvironments(MSONable):
             figsize: Size of the figure.
             strategy: Whether to plot information about one of the Chemenv Strategies.
         """
-        fig, subplot = self.get_environments_figure(
+        fig, _ax = self.get_environments_figure(
             isite=isite,
             plot_type=plot_type,
             title=title,
@@ -1043,7 +1050,7 @@ class StructureEnvironments(MSONable):
                 distance while in the second case, the real distance is used).
             figsize: Size of the figure.
         """
-        fig, subplot = self.get_environments_figure(
+        fig, _ax = self.get_environments_figure(
             isite=isite,
             plot_type=plot_type,
             title=title,

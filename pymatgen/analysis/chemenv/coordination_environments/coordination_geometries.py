@@ -850,12 +850,12 @@ class CoordinationGeometry:
         # _vertices = [site.coords for site in sites]
         _vertices = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
         _face_centers = []
-        number_of_faces = 0
+        n_faces = 0
         for face in self._faces:
             if len(face) in [3, 4]:
-                number_of_faces += 1
+                n_faces += 1
             else:
-                number_of_faces += len(face)
+                n_faces += len(face)
 
             _face_centers.append(
                 np.array([np.mean([_vertices[face_vertex][ii] for face_vertex in face]) for ii in range(3)])
@@ -866,7 +866,7 @@ class CoordinationGeometry:
             out += f"{vv[0]:15.8f} {vv[1]:15.8f} {vv[2]:15.8f}\n"
         for fc in _face_centers:
             out += f"{fc[0]:15.8f} {fc[1]:15.8f} {fc[2]:15.8f}\n"
-        out += f"{number_of_faces}\n"
+        out += f"{n_faces}\n"
         for iface, face in enumerate(self._faces):
             if len(face) == 3:
                 out += "4\n"

@@ -22,6 +22,7 @@ from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
+from numpy.testing import assert_allclose
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -514,7 +515,7 @@ class Vasprun(MSONable):
     def structures(self):
         """
         Returns:
-             List of Structure objects for the structure at each ionic step.
+            List of Structure objects for the structure at each ionic step.
         """
         return [step["structure"] for step in self.ionic_steps]
 
@@ -606,15 +607,17 @@ class Vasprun(MSONable):
             True if electronic step convergence has been reached in the final
             ionic step.
         """
-        final_esteps = self.ionic_steps[-1]["electronic_steps"] if self.incar not in ["CHI"] else 0
+        final_elec_steps = (
+            self.ionic_steps[-1]["electronic_steps"] if self.incar.get("ALGO", "").lower() != "chi" else 0
+        )
         # In a response function run there is no ionic steps, there is no scf step
         if self.incar.get("LEPSILON"):
-            i = 1
+            idx = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
-            while set(final_esteps[i]) == to_check:
-                i += 1
-            return i + 1 != self.parameters["NELM"]
-        return len(final_esteps) < self.parameters["NELM"]
+            while set(final_elec_steps[idx]) == to_check:
+                idx += 1
+            return idx + 1 != self.parameters["NELM"]
+        return len(final_elec_steps) < self.parameters["NELM"]
 
     @property
     def converged_ionic(self):
@@ -1571,10 +1574,7 @@ class BSVasprun(Vasprun):
                 elif tag == "eigenvalues":
                     self.eigenvalues = self._parse_eigen(elem)
                 elif parse_projected_eigen and tag == "projected":
-                    (
-                        self.projected_eigenvalues,
-                        self.projected_magnetisation,
-                    ) = self._parse_projected_eigen(elem)
+                    self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
                 elif tag == "structure" and elem.attrib.get("name") == "finalpos":
                     self.final_structure = self._parse_structure(elem)
         self.vasp_version = self.generator["version"]
@@ -3905,6 +3905,7 @@ class Oszicar:
             [{"dE": -526.36, "E0": -526.36024, "mag": 0.0, "F": -526.36024},
             ...]
             This is the typical output from VASP at the end of each ionic step.
+            The stored dict might be different depending on the type of VASP run.
     """
 
     def __init__(self, filename):
@@ -3914,22 +3915,7 @@ class Oszicar:
         """
         electronic_steps = []
         ionic_steps = []
-        ionic_pattern = re.compile(r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+E0=\s*([\d\-\.E\+]+)\s+d\s*E\s*=\s*([\d\-\.E\+]+)$")
-        ionic_mag_pattern = re.compile(
-            r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
-            r"E0=\s*([\d\-\.E\+]+)\s+"
-            r"d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
-            r"mag=\s*([\d\-\.E\+]+)"
-        )
-        ionic_MD_pattern = re.compile(
-            r"(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
-            r"E=\s*([\d\-\.E\+]+)\s+"
-            r"F=\s*([\d\-\.E\+]+)\s+"
-            r"E0=\s*([\d\-\.E\+]+)\s+"
-            r"EK=\s*([\d\-\.E\+]+)\s+"
-            r"SP=\s*([\d\-\.E\+]+)\s+"
-            r"SK=\s*([\d\-\.E\+]+)"
-        )
+        ionic_general_pattern = re.compile(r"(\w+)=\s*(\S+)")
         electronic_pattern = re.compile(r"\s*\w+\s*:(.*)")
 
         def smart_convert(header, num):
@@ -3943,8 +3929,7 @@ class Oszicar:
         header = []
         with zopen(filename, "rt") as fid:
             for line in fid:
-                line = line.strip()
-                m = electronic_pattern.match(line)
+                m = electronic_pattern.match(line.strip())
                 if m:
                     toks = m.group(1).split()
                     data = {header[i]: smart_convert(header[i], toks[i]) for i in range(len(toks))}
@@ -3952,40 +3937,13 @@ class Oszicar:
                         electronic_steps.append([data])
                     else:
                         electronic_steps[-1].append(data)
-                elif ionic_pattern.match(line.strip()):
-                    m = ionic_pattern.match(line.strip())
-                    ionic_steps.append(
-                        {
-                            "F": float(m.group(2)),
-                            "E0": float(m.group(3)),
-                            "dE": float(m.group(4)),
-                        }
-                    )
-                elif ionic_mag_pattern.match(line.strip()):
-                    m = ionic_mag_pattern.match(line.strip())
-                    ionic_steps.append(
-                        {
-                            "F": float(m.group(2)),
-                            "E0": float(m.group(3)),
-                            "dE": float(m.group(4)),
-                            "mag": float(m.group(5)),
-                        }
-                    )
-                elif ionic_MD_pattern.match(line.strip()):
-                    m = ionic_MD_pattern.match(line.strip())
-                    ionic_steps.append(
-                        {
-                            "T": float(m.group(2)),
-                            "E": float(m.group(3)),
-                            "F": float(m.group(4)),
-                            "E0": float(m.group(5)),
-                            "EK": float(m.group(6)),
-                            "SP": float(m.group(7)),
-                            "SK": float(m.group(8)),
-                        }
-                    )
-                elif re.match(r"^\s*N\s+E\s*", line):
+                elif re.match(r"^\s*N\s+E\s*", line.strip()):
                     header = line.strip().replace("d eps", "deps").split()
+                elif line.strip() != "":
+                    # remove space first and apply field agnostic extraction
+                    matches = re.findall(ionic_general_pattern, re.sub(r"d E ", "dE", line))
+                    ionic_steps.append({key: float(value) for key, value in matches})
+
         self.electronic_steps = electronic_steps
         self.ionic_steps = ionic_steps
 
@@ -4612,7 +4570,7 @@ class Wavecar:
                     if ispin == 0:
                         self.kpoints.append(kpoint)
                     else:
-                        assert np.allclose(self.kpoints[ink], kpoint)
+                        assert_allclose(self.kpoints[ink], kpoint)
 
                     if verbose:
                         print(f"kpoint {ink: 4} with {nplane: 5} plane waves at {kpoint}")
@@ -5308,11 +5266,11 @@ class WSWQ(MSONable):
         return self.me_real + 1j * self.me_imag
 
     @classmethod
-    def from_file(cls, filename) -> WSWQ:
+    def from_file(cls, filename: str) -> WSWQ:
         """Constructs a WSWQ object from a file.
 
         Args:
-            filename: Name of WSWQ file.
+            filename (str): Name of WSWQ file.
 
         Returns:
             WSWQ object.

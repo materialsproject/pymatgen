@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 from pytest import approx
 
@@ -12,12 +11,6 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestEwaldElectrostaticModel(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_get_energy(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
@@ -64,10 +57,10 @@ class TestIsingModel(unittest.TestCase):
         from pymatgen.core.periodic_table import Species
 
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
-        struct.replace_species({"Fe": Species("Fe", 2, {"spin": 4})})
+        struct.replace_species({"Fe": Species("Fe", 2, spin=4)})
         assert m.get_energy(struct) == approx(172.81260515787977)
-        struct[4] = Species("Fe", 2, {"spin": -4})
-        struct[5] = Species("Fe", 2, {"spin": -4})
+        struct[4] = Species("Fe", 2, spin=-4)
+        struct[5] = Species("Fe", 2, spin=-4)
         assert m.get_energy(struct) == approx(51.97424405382921)
 
     def test_to_from_dict(self):
@@ -76,8 +69,3 @@ class TestIsingModel(unittest.TestCase):
         o = IsingModel.from_dict(d)
         assert isinstance(o, IsingModel)
         assert o.j == approx(5)
-
-
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()

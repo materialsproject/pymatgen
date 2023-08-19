@@ -1,5 +1,4 @@
-"""
-Entries are containers for calculated information, which is used in
+"""Entries are containers for calculated information, which is used in
 many analyses. This module contains entry related tools and implements
 the base Entry class, which is the basic entity that can be used to
 store calculated information. Other Entry classes such as ComputedEntry
@@ -30,8 +29,7 @@ __date__ = "Mar 03, 2020"
 
 
 class Entry(MSONable, metaclass=ABCMeta):
-    """
-    A lightweight object containing the energy associated with
+    """A lightweight object containing the energy associated with
     a specific chemical composition. This base class is not
     intended to be instantiated directly. Note that classes
     which inherit from Entry must define a .energy property.
@@ -39,8 +37,7 @@ class Entry(MSONable, metaclass=ABCMeta):
     """
 
     def __init__(self, composition: Composition | str | dict[str, float], energy: float) -> None:
-        """
-        Initializes an Entry.
+        """Initializes an Entry.
 
         Args:
             composition (Composition): Composition of the entry. For
@@ -83,8 +80,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         return f"{type(self).__name__} : {self.composition} with energy = {self.energy:.4f}"
 
     def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> Entry:
-        """
-        Normalize the entry's composition and energy.
+        """Normalize the entry's composition and energy.
 
         Args:
             mode ("formula_unit" | "atom"): "formula_unit" (the default) normalizes to composition.reduced_formula.

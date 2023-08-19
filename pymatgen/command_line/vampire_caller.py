@@ -1,5 +1,4 @@
-"""
-This module implements an interface to the VAMPIRE code for atomistic
+"""This module implements an interface to the VAMPIRE code for atomistic
 simulations of magnetic materials.
 
 This module depends on a compiled vampire executable available in the path.
@@ -36,8 +35,7 @@ VAMPEXE = which("vampire-serial")
 
 
 class VampireCaller:
-    """
-    Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
+    """Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
     temperature with classical Monte Carlo.
     """
 
@@ -58,8 +56,7 @@ class VampireCaller:
         avg=True,
         user_input_settings=None,
     ):
-        """
-        user_input_settings is a dictionary that can contain:
+        """user_input_settings is a dictionary that can contain:
         * start_t (int): Start MC sim at this temp, defaults to 0 K.
         * end_t (int): End MC sim at this temp, defaults to 1500 K.
         * temp_increment (int): Temp step size, defaults to 25 K.
@@ -396,8 +393,7 @@ class VampireCaller:
 
 
 class VampireOutput(MSONable):
-    """
-    This class processes results from a Vampire Monte Carlo simulation
+    """This class processes results from a Vampire Monte Carlo simulation
     and returns the critical temperature.
     """
 

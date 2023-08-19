@@ -1,5 +1,4 @@
-"""
-This module provides classes to handle the calculation of the IR spectra
+"""This module provides classes to handle the calculation of the IR spectra
 This implementation is adapted from Abipy
 https://github.com/abinit/abipy
 where it was originally done by Guido Petretto and Matteo Giantomassi.
@@ -24,8 +23,7 @@ __date__ = "Oct 31, 2018"
 
 
 class IRDielectricTensor(MSONable):
-    """
-    Class to handle the Ionic Dielectric Tensor
+    """Class to handle the Ionic Dielectric Tensor
     The implementation is adapted from Abipy
     See the definitions Eq.(53-54) in :cite:`Gonze1997` PRB55, 10355 (1997).
     """
@@ -82,8 +80,7 @@ class IRDielectricTensor(MSONable):
             json.dump(self.as_dict(), f)
 
     def get_ir_spectra(self, broad=0.00005, emin=0, emax=None, divs=500):
-        """
-        The IR spectra is obtained for the different directions.
+        """The IR spectra is obtained for the different directions.
 
         Args:
             broad: a list of broadenings or a single broadening for the phonon peaks
@@ -119,8 +116,7 @@ class IRDielectricTensor(MSONable):
 
     @add_fig_kwargs
     def plot(self, components=("xx",), reim="reim", show_phonon_frequencies=True, xlim=None, ylim=None, **kwargs):
-        """
-        Helper function to generate the Spectrum plotter and directly plot the results.
+        """Helper function to generate the Spectrum plotter and directly plot the results.
 
         Arguments:
             components: A list with the components of the dielectric tensor to plot.
@@ -132,18 +128,17 @@ class IRDielectricTensor(MSONable):
             kwargs: keyword arguments passed to the plotter
         """
         plotter = self.get_plotter(components=components, reim=reim, **kwargs)
-        plt = plotter.get_plot(xlim=xlim, ylim=ylim)
+        ax = plotter.get_plot(xlim=xlim, ylim=ylim)
 
         if show_phonon_frequencies:
             ph_freqs_gamma = self.ph_freqs_gamma[3:]
-            plt.scatter(ph_freqs_gamma * 1000, np.zeros_like(ph_freqs_gamma))
-        plt.xlabel(r"$\epsilon(\omega)$")
-        plt.xlabel(r"Frequency (meV)")
-        return plt
+            ax.scatter(ph_freqs_gamma * 1000, np.zeros_like(ph_freqs_gamma))
+        ax.set_xlabel(r"$\epsilon(\omega)$")
+        ax.set_xlabel(r"Frequency (meV)")
+        return ax
 
     def get_spectrum(self, component, reim, broad=0.00005, emin=0, emax=None, divs=500, label=None):
-        """
-        component: either two indexes or a string like 'xx' to plot the (0,0) component
+        """component: either two indexes or a string like 'xx' to plot the (0,0) component
         reim: only "re" or "im"
         broad: a list of broadenings or a single broadening for the phonon peaks.
         """
@@ -161,8 +156,7 @@ class IRDielectricTensor(MSONable):
         return Spectrum(frequencies * 1000, y, label=label)
 
     def get_plotter(self, components=("xx",), reim="reim", broad=0.00005, emin=0, emax=None, divs=500, **kwargs):
-        """
-        Return an instance of the Spectrum plotter containing the different requested components.
+        """Return an instance of the Spectrum plotter containing the different requested components.
 
         Arguments:
             components: A list with the components of the dielectric tensor to plot.

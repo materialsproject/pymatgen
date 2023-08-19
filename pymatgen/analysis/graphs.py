@@ -785,8 +785,8 @@ class StructureGraph(MSONable):
         :param n: index of site
         :return (int):
         """
-        number_of_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
-        return self.graph.degree(n) - number_of_self_loops
+        n_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
+        return self.graph.degree(n) - n_self_loops
 
     def draw_graph_to_file(
         self,
@@ -2440,8 +2440,8 @@ class MoleculeGraph(MSONable):
         :param n: index of site
         :return (int):
         """
-        number_of_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
-        return self.graph.degree(n) - number_of_self_loops
+        n_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
+        return self.graph.degree(n) - n_self_loops
 
     def draw_graph_to_file(
         self,

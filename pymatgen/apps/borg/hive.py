@@ -21,8 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
-    """
-    Abstract drone class that defines the various methods that must be
+    """Abstract drone class that defines the various methods that must be
     implemented by drones. Because of the quirky nature of Python"s
     multiprocessing, the intermediate data representations has to be in the
     form of python primitives. So all objects that drones work with must be
@@ -32,8 +31,7 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def assimilate(self, path):
-        """
-        Assimilate data in a directory path into a pymatgen object. Because of
+        """Assimilate data in a directory path into a pymatgen object. Because of
         the quirky nature of Python's multiprocessing, the object must support
         pymatgen's as_dict() for parallel processing.
 
@@ -47,8 +45,7 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_valid_paths(self, path):
-        """
-        Checks if path contains valid data for assimilation, and then returns
+        """Checks if path contains valid data for assimilation, and then returns
         the valid paths. The paths returned can be a list of directory or file
         paths, depending on what kind of data you are assimilating. For
         example, if you are assimilating VASP runs, you are only interested in
@@ -67,8 +64,7 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
 
 
 class VaspToComputedEntryDrone(AbstractDrone):
-    """
-    VaspToEntryDrone assimilates directories containing VASP output to
+    """VaspToEntryDrone assimilates directories containing VASP output to
     ComputedEntry/ComputedStructureEntry objects.
 
     There are some restrictions on the valid directory structures:
@@ -106,8 +102,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         self._data = data or []
 
     def assimilate(self, path):
-        """
-        Assimilate data in a directory path into a ComputedEntry object.
+        """Assimilate data in a directory path into a ComputedEntry object.
 
         Args:
             path: directory path
@@ -140,8 +135,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         # entry.parameters["history"] = _get_transformation_history(path)
 
     def get_valid_paths(self, path):
-        """
-        Checks if paths contains vasprun.xml or (POSCAR+OSZICAR).
+        """Checks if paths contains vasprun.xml or (POSCAR+OSZICAR).
 
         Args:
             path: input path as a tuple generated from os.walk, i.e.,
@@ -192,8 +186,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
 
 class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
-    """
-    A simpler VaspToComputedEntryDrone. Instead of parsing vasprun.xml, it
+    """A simpler VaspToComputedEntryDrone. Instead of parsing vasprun.xml, it
     parses only the INCAR, POTCAR, OSZICAR and KPOINTS files, which are much
     smaller and faster to parse. However, much fewer properties are available
     compared to the standard VaspToComputedEntryDrone.
@@ -210,8 +203,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         self._parameters = {"is_hubbard", "hubbards", "potcar_spec", "run_type"}
 
     def assimilate(self, path):
-        """
-        Assimilate data in a directory path into a ComputedEntry object.
+        """Assimilate data in a directory path into a ComputedEntry object.
 
         Args:
             path: directory path
@@ -303,8 +295,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
 
 class GaussianToComputedEntryDrone(AbstractDrone):
-    """
-    GaussianToEntryDrone assimilates directories containing Gaussian output to
+    """GaussianToEntryDrone assimilates directories containing Gaussian output to
     ComputedEntry/ComputedStructureEntry objects. By default, it is assumed
     that Gaussian output files have a ".log" extension.
 
@@ -352,8 +343,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         self._file_extensions = file_extensions
 
     def assimilate(self, path):
-        """
-        Assimilate data in a directory path into a ComputedEntry object.
+        """Assimilate data in a directory path into a ComputedEntry object.
 
         Args:
             path: directory path
@@ -384,8 +374,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         return entry
 
     def get_valid_paths(self, path):
-        """
-        Checks if path contains files with define extensions.
+        """Checks if path contains files with define extensions.
 
         Args:
             path: input path as a tuple generated from os.walk, i.e.,

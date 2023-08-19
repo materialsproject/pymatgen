@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import os
-
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
@@ -17,11 +16,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-json_files_dir = os.path.join(
-    TEST_FILES_DIR,
-    "chemenv",
-    "json_test_files",
-)
+json_dir = f"{TEST_FILES_DIR}/chemenv/json"
 
 
 class TestCoordinationGeometryFinder(PymatgenTest):
@@ -38,9 +33,9 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         cg_ts3 = self.lgf.allcg["TS:3"]
         cg_tet = self.lgf.allcg["T:4"]
         abstract_geom = AbstractGeometry.from_cg(cg=cg_ts3, centering_type="central_site")
-        assert np.allclose(abstract_geom.centre, [0.0, 0.0, 0.0])
+        assert_allclose(abstract_geom.centre, [0.0, 0.0, 0.0])
         abstract_geom = AbstractGeometry.from_cg(cg=cg_ts3, centering_type="centroid")
-        assert np.allclose(abstract_geom.centre, [0.0, 0.0, 0.33333333333])
+        assert_allclose(abstract_geom.centre, [0.0, 0.0, 0.33333333333])
         with pytest.raises(
             ValueError,
             match="The center is the central site, no calculation of the centroid, "
@@ -54,7 +49,7 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         abstract_geom = AbstractGeometry.from_cg(
             cg=cg_ts3, centering_type="centroid", include_central_site_in_centroid=True
         )
-        assert np.allclose(abstract_geom.centre, [0.0, 0.0, 0.25])
+        assert_allclose(abstract_geom.centre, [0.0, 0.0, 0.25])
 
         # WHY ARE WE TESTING STRINGS????
         # assert (
@@ -124,13 +119,13 @@ class TestCoordinationGeometryFinder(PymatgenTest):
 
     # def _strategy_test(self, strategy):
     #     files = []
-    #     for _dirpath, _dirnames, filenames in os.walk(json_files_dir):
+    #     for _dirpath, _dirnames, filenames in os.walk(json_dir):
     #         files.extend(filenames)
     #         break
 
     #     for _ifile, json_file in enumerate(files):
     #         with self.subTest(json_file=json_file):
-    #             with open(f"{json_files_dir}/{json_file}") as f:
+    #             with open(f"{json_dir}/{json_file}") as f:
     #                 dd = json.load(f)
 
     #             atom_indices = dd["atom_indices"]

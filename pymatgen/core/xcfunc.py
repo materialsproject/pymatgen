@@ -20,8 +20,7 @@ __date__ = "May 16, 2016"
 
 
 class XcFunc(MSONable):
-    """
-    This object stores information about the XC correlation functional.
+    """This object stores information about the XC correlation functional.
 
     Client code usually creates the object by calling the class methods:
 
@@ -223,8 +222,7 @@ class XcFunc(MSONable):
 
     @lazy_property
     def name(self) -> str:
-        """
-        The name of the functional. If the functional is not found in the aliases,
+        """The name of the functional. If the functional is not found in the aliases,
         the string has the form X_NAME+C_NAME.
         """
         if self.xc in self.defined_aliases:

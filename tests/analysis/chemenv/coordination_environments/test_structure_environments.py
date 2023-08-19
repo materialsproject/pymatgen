@@ -4,7 +4,7 @@ import json
 import os
 
 import numpy as np
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_allclose, assert_array_almost_equal
 from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
@@ -22,36 +22,36 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-struct_env_files_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments_files"
+struct_env_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments"
 
 
 class TestStructureEnvironments(PymatgenTest):
     def test_structure_environments(self):
-        with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
+        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
             dd = json.load(f)
 
         struct_envs = StructureEnvironments.from_dict(dd)
         isite = 6
-        csm_and_maps_fig, csm_and_maps_subplot = struct_envs.get_csm_and_maps(isite=isite)
-        assert_array_almost_equal(csm_and_maps_subplot.lines[0].get_xydata().flatten(), [0, 0.53499332])
-        assert_array_almost_equal(csm_and_maps_subplot.lines[1].get_xydata().flatten(), [1, 0.47026441])
-        assert_array_almost_equal(csm_and_maps_subplot.lines[2].get_xydata().flatten(), [2, 0.00988778])
+        _csm_and_maps_fig, csm_and_maps_ax = struct_envs.get_csm_and_maps(isite=isite)
+        assert_array_almost_equal(csm_and_maps_ax.lines[0].get_xydata().flatten(), [0, 0.53499332])
+        assert_array_almost_equal(csm_and_maps_ax.lines[1].get_xydata().flatten(), [1, 0.47026441])
+        assert_array_almost_equal(csm_and_maps_ax.lines[2].get_xydata().flatten(), [2, 0.00988778])
 
-        environments_figure, environments_subplot = struct_envs.get_environments_figure(isite=isite)
+        _envs_fig, envs_ax = struct_envs.get_environments_figure(isite=isite)
         assert_array_almost_equal(
-            np.array(environments_subplot.patches[0].get_xy()),
+            np.array(envs_ax.patches[0].get_xy()),
             [[1, 1], [1, 0.99301365], [1.00179228, 0.99301365], [1.00179228, 1], [1, 1]],
         )
         assert_array_almost_equal(
-            np.array(environments_subplot.patches[1].get_xy()),
+            np.array(envs_ax.patches[1].get_xy()),
             [[1, 0.99301365], [1, 0], [1.00179228, 0], [1.00179228, 0.99301365], [1, 0.99301365]],
         )
         assert_array_almost_equal(
-            np.array(environments_subplot.patches[2].get_xy()),
+            np.array(envs_ax.patches[2].get_xy()),
             [[1.00179228, 1], [1.00179228, 0.99301365], [2.25, 0.99301365], [2.25, 1], [1.00179228, 1]],
         )
         assert_array_almost_equal(
-            np.array(environments_subplot.patches[3].get_xy()),
+            np.array(envs_ax.patches[3].get_xy()),
             [
                 [1.00179228, 0.99301365],
                 [1.00179228, 0],
@@ -63,7 +63,7 @@ class TestStructureEnvironments(PymatgenTest):
             ],
         )
         assert_array_almost_equal(
-            np.array(environments_subplot.patches[4].get_xy()),
+            np.array(envs_ax.patches[4].get_xy()),
             [[2.22376156, 0.0060837], [2.22376156, 0], [2.25, 0], [2.25, 0.0060837], [2.22376156, 0.0060837]],
         )
 
@@ -118,7 +118,7 @@ class TestStructureEnvironments(PymatgenTest):
         assert ce != ce2
 
     def test_light_structure_environments(self):
-        with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
+        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
             dd = json.load(f)
 
         struct_envs = StructureEnvironments.from_dict(dd)
@@ -161,26 +161,26 @@ class TestStructureEnvironments(PymatgenTest):
         stats = lse.get_statistics()
 
         neighbors = lse.strategy.get_site_neighbors(site=lse.structure[isite])
-        assert np.allclose(neighbors[0].coords, np.array([0.2443798, 1.80409653, -1.13218359]))
-        assert np.allclose(neighbors[1].coords, np.array([1.44020353, 1.11368738, 1.13218359]))
-        assert np.allclose(neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298]))
-        assert np.allclose(neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298]))
+        assert_allclose(neighbors[0].coords, np.array([0.2443798, 1.80409653, -1.13218359]))
+        assert_allclose(neighbors[1].coords, np.array([1.44020353, 1.11368738, 1.13218359]))
+        assert_allclose(neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298]))
+        assert_allclose(neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298]))
 
         equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
         assert equiv_site_index_and_transform[0] == 0
-        assert np.allclose(equiv_site_index_and_transform[1], [0, 0, 0])
-        assert np.allclose(equiv_site_index_and_transform[2], [0, 0, -1])
+        assert_allclose(equiv_site_index_and_transform[1], [0, 0, 0])
+        assert_allclose(equiv_site_index_and_transform[2], [0, 0, -1])
 
         equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[1])
         assert equiv_site_index_and_transform[0] == 3
-        assert np.allclose(equiv_site_index_and_transform[1], [0, 0, 0])
-        assert np.allclose(equiv_site_index_and_transform[2], [0, 0, 0])
+        assert_allclose(equiv_site_index_and_transform[1], [0, 0, 0])
+        assert_allclose(equiv_site_index_and_transform[2], [0, 0, 0], atol=1e-9)
 
         assert stats["atom_coordination_environments_present"] == {"Si": {"T:4": 3}}
         assert stats["coordination_environments_atom_present"] == {"T:4": {"Si": 3}}
         assert stats["fraction_atom_coordination_environments_present"] == {"Si": {"T:4": 1}}
 
-        site_info_ce = lse.get_site_info_for_specie_ce(specie=Species("Si", 4), ce_symbol="T:4")
+        site_info_ce = lse.get_site_info_for_specie_ce(specie=Species("Si4+"), ce_symbol="T:4")
         assert_array_almost_equal(site_info_ce["fractions"], [1, 1, 1])
         assert_array_almost_equal(
             site_info_ce["csms"],
@@ -188,7 +188,7 @@ class TestStructureEnvironments(PymatgenTest):
         )
         assert site_info_ce["isites"] == [6, 7, 8]
 
-        site_info_allces = lse.get_site_info_for_specie_allces(specie=Species("Si", 4))
+        site_info_allces = lse.get_site_info_for_specie_allces(specie=Species("Si4+"))
 
         assert site_info_allces["T:4"] == site_info_ce
 

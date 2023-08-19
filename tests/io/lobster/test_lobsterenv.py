@@ -786,15 +786,13 @@ class TestLobsterNeighbors(unittest.TestCase):
             only_bonds_to=["Na"],
         )
         assert plot_label == "1 x Na-Si (per bond)"
-        assert (
-            self.chemenvlobster0_NaSi.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=f"{test_dir_env}/COHPCAR.lobster.NaSi.gz",
-                isites=[8],
-                onlycation_isites=False,
-                only_bonds_to=["Si"],
-            )[0]
-            == "3 x Si-Si (per bond)"
-        )
+        info = self.chemenvlobster0_NaSi.get_info_cohps_to_neighbors(
+            path_to_COHPCAR=f"{test_dir_env}/COHPCAR.lobster.NaSi.gz",
+            isites=[8],
+            onlycation_isites=False,
+            only_bonds_to=["Si"],
+        )[0]
+        assert info == "3 x Si-Si (per bond)"
 
         chemenvlobster1.plot_cohps_of_neighbors(
             path_to_COHPCAR=cohpcar_lobster_mp_190,

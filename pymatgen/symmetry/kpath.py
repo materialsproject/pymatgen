@@ -37,8 +37,7 @@ __date__ = "March 2020"
 
 
 class KPathBase(metaclass=abc.ABCMeta):
-    """
-    This is the base class for classes used to generate high-symmetry
+    """This is the base class for classes used to generate high-symmetry
     paths in reciprocal space (k-paths) for band structure calculations.
     """
 
@@ -67,7 +66,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def structure(self):
         """
         Returns:
-        The input structure.
+            The input structure.
         """
         return self._structure
 
@@ -75,7 +74,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def lattice(self):
         """
         Returns:
-        The real space lattice.
+            The real space lattice.
         """
         return self._latt
 
@@ -83,7 +82,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def rec_lattice(self):
         """
         Returns:
-        The reciprocal space lattice.
+            The reciprocal space lattice.
         """
         return self._rec_lattice
 
@@ -91,14 +90,14 @@ class KPathBase(metaclass=abc.ABCMeta):
     def kpath(self):
         """
         Returns:
-        The symmetry line path in reciprocal space.
+            The symmetry line path in reciprocal space.
         """
         return self._kpath
 
     def get_kpoints(self, line_density=20, coords_are_cartesian=True):
         """
         Returns:
-        kpoints along the path in Cartesian coordinates
+            kpoints along the path in Cartesian coordinates
         together with the critical-point labels.
         """
         list_k_points = []
@@ -132,8 +131,7 @@ class KPathBase(metaclass=abc.ABCMeta):
 
 @cite_conventional_cell_algo
 class KPathSetyawanCurtarolo(KPathBase):
-    """
-    This class looks for a path along high-symmetry lines in
+    """This class looks for a path along high-symmetry lines in
     the Brillouin zone.
     It is based on Setyawan, W., & Curtarolo, S. (2010).
     High-throughput electronic band structure calculations:
@@ -153,12 +151,12 @@ class KPathSetyawanCurtarolo(KPathBase):
     def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5):
         """
         Args:
-        structure (Structure): Structure object.
-        symprec (float): Tolerance for symmetry finding.
-        angle_tolerance (float): Angle tolerance for symmetry finding.
-        atol (float): Absolute tolerance used to compare the input
-            structure with the one expected as primitive standard.
-            A warning will be issued if the cells don't match.
+            structure (Structure): Structure object.
+            symprec (float): Tolerance for symmetry finding.
+            angle_tolerance (float): Angle tolerance for symmetry finding.
+            atol (float): Absolute tolerance used to compare the input
+                structure with the one expected as primitive standard.
+                A warning will be issued if the cells don't match.
         """
         if "magmom" in structure.site_properties:
             warn(
@@ -889,8 +887,7 @@ class KPathSetyawanCurtarolo(KPathBase):
 
 
 class KPathSeek(KPathBase):
-    """
-    This class looks for a path along high-symmetry lines in the Brillouin zone. It is based on
+    """This class looks for a path along high-symmetry lines in the Brillouin zone. It is based on
     Hinuma, Y., Pizzi, G., Kumagai, Y., Oba, F., & Tanaka, I. (2017). Band structure diagram paths
     based on crystallography. Computational Materials Science, 128, 140-184.
     https://doi.org/10.1016/j.commatsci.2016.10.015. It should be used with primitive structures that
@@ -1010,8 +1007,7 @@ class KPathSeek(KPathBase):
 
 
 class KPathLatimerMunro(KPathBase):
-    """
-    This class looks for a path along high-symmetry lines in the
+    """This class looks for a path along high-symmetry lines in the
     Brillouin zone. It is based on the method outlined in:
     npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
     The user should ensure that the unit cell of the input structure
@@ -1099,10 +1095,9 @@ class KPathLatimerMunro(KPathBase):
     def mag_type(self):
         """
         Returns:
-        The type of magnetic space group as a string.
-        Current implementation does not distinguish
-        between types 3 and 4, so return value is '3/4'.
-        If has_magmoms is False, returns '0'.
+            The type of magnetic space group as a string. Current implementation does not
+            distinguish between types 3 and 4, so return value is '3/4'. If has_magmoms is
+            False, returns '0'.
         """
         return self._mag_type
 

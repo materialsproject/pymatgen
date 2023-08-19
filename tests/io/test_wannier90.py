@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.io.wannier90 import Unk
@@ -26,8 +27,8 @@ class TestUnk(PymatgenTest):
         assert self.unk_std.ng[0] == 5
         assert self.unk_std.ng[1] == 5
         assert self.unk_std.ng[2] == 5
-        assert np.allclose(self.unk_std.data.shape, (10, 5, 5, 5))
-        assert np.allclose(self.unk_std.data, self.data_std)
+        assert_allclose(self.unk_std.data.shape, (10, 5, 5, 5))
+        assert_allclose(self.unk_std.data, self.data_std)
         assert not self.unk_std.is_noncollinear
 
         # too small data
@@ -53,8 +54,8 @@ class TestUnk(PymatgenTest):
         assert self.unk_ncl.ng[0] == 5
         assert self.unk_ncl.ng[1] == 5
         assert self.unk_ncl.ng[2] == 5
-        assert np.allclose(self.unk_ncl.data.shape, (10, 2, 5, 5, 5))
-        assert np.allclose(self.unk_ncl.data, self.data_ncl)
+        assert_allclose(self.unk_ncl.data.shape, (10, 2, 5, 5, 5))
+        assert_allclose(self.unk_ncl.data, self.data_ncl)
         assert self.unk_ncl.is_noncollinear
 
         # too big data
@@ -73,7 +74,7 @@ class TestUnk(PymatgenTest):
         assert unk.ng[1] == 6
         assert unk.ng[2] == 8
         assert not unk.is_noncollinear
-        assert np.allclose(unk.data.shape, (5, 6, 6, 8))
+        assert_allclose(unk.data.shape, (5, 6, 6, 8))
 
         unk = Unk.from_file(f"{TEST_FILES_DIR}/UNK.ncl")
         assert unk.ik == 1
@@ -82,7 +83,7 @@ class TestUnk(PymatgenTest):
         assert unk.ng[1] == 6
         assert unk.ng[2] == 8
         assert unk.is_noncollinear
-        assert np.allclose(unk.data.shape, (5, 2, 6, 6, 8))
+        assert_allclose(unk.data.shape, (5, 2, 6, 6, 8))
         assert unk.data[0, 0, 0, 0, 0].real != 0.0
         assert unk.data[0, 1, 0, 0, 0].real == approx(0.0)
 

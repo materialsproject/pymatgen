@@ -1,5 +1,4 @@
-"""
-pymatgen documentation build configuration file, created by
+"""pymatgen documentation build configuration file, created by
 sphinx-quickstart on Tue Nov 15 00:13:52 2011.
 
 This file is execfile()d with the current directory set to its containing dir.

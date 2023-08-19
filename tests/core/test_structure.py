@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import os
 import random
-import warnings
 from pathlib import Path
 from shutil import which
 from unittest import skipIf
@@ -11,7 +10,7 @@ from unittest import skipIf
 import numpy as np
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.core.composition import Composition
@@ -214,15 +213,15 @@ class TestIStructure(PymatgenTest):
         struct = IStructure(
             self.lattice,
             [
-                {Species("O", -2, properties={"spin": 3}): 1.0},
-                {Species("Mg", 2, properties={"spin": 2}): 0.8},
+                {Species("O", -2, spin=3): 1.0},
+                {Species("Mg", 2, spin=2): 0.8},
             ],
             coords,
             site_properties={"magmom": [5, -5]},
         )
         d = struct.as_dict()
         assert d["sites"][0]["properties"]["magmom"] == 5
-        assert d["sites"][0]["species"][0]["properties"]["spin"] == 3
+        assert d["sites"][0]["species"][0]["spin"] == 3
 
         d = struct.as_dict(0)
         assert "volume" not in d["lattice"]
@@ -260,7 +259,7 @@ class TestIStructure(PymatgenTest):
                         {
                             "occu": 1.0,
                             "oxidation_state": -2,
-                            "properties": {"spin": 3},
+                            "spin": 3,
                             "element": "O",
                         }
                     ],
@@ -275,7 +274,7 @@ class TestIStructure(PymatgenTest):
                         {
                             "occu": 0.8,
                             "oxidation_state": 2,
-                            "properties": {"spin": 2},
+                            "spin": 2,
                             "element": "Mg",
                         }
                     ],
@@ -357,8 +356,8 @@ class TestIStructure(PymatgenTest):
         random.shuffle(s2)
 
         for struct in s1.interpolate(s2, autosort_tol=0.5):
-            assert np.allclose(s1[0].frac_coords, struct[0].frac_coords)
-            assert np.allclose(s1[2].frac_coords, struct[2].frac_coords)
+            assert_allclose(s1[0].frac_coords, struct[0].frac_coords)
+            assert_allclose(s1[2].frac_coords, struct[2].frac_coords)
 
         # Make sure autosort has no effect on simpler interpolations,
         # and with shuffled sites.
@@ -368,9 +367,9 @@ class TestIStructure(PymatgenTest):
         random.shuffle(s2)
 
         for struct in s1.interpolate(s2, autosort_tol=0.5):
-            assert np.allclose(s1[1].frac_coords, struct[1].frac_coords)
-            assert np.allclose(s1[2].frac_coords, struct[2].frac_coords)
-            assert np.allclose(s1[3].frac_coords, struct[3].frac_coords)
+            assert_allclose(s1[1].frac_coords, struct[1].frac_coords)
+            assert_allclose(s1[2].frac_coords, struct[2].frac_coords)
+            assert_allclose(s1[3].frac_coords, struct[3].frac_coords)
 
         # Test non-hexagonal setting.
         lattice = Lattice.rhombohedral(4.0718, 89.459)
@@ -385,7 +384,7 @@ class TestIStructure(PymatgenTest):
         struct_pbc = IStructure(self.lattice_pbc, ["Si"], coords)
         struct2_pbc = IStructure(self.lattice_pbc, ["Si"], coords2)
         int_s_pbc = struct_pbc.interpolate(struct2_pbc, nimages=2)
-        assert np.allclose(int_s_pbc[1][0].frac_coords, [1.05, 1.05, 0.55])
+        assert_allclose(int_s_pbc[1][0].frac_coords, [1.05, 1.05, 0.55])
 
     def test_interpolate_lattice(self):
         coords = []
@@ -398,12 +397,12 @@ class TestIStructure(PymatgenTest):
         l2 = Lattice.from_parameters(3, 4, 4, 100, 100, 70)
         struct2 = IStructure(l2, ["Si"] * 2, coords2)
         int_s = struct.interpolate(struct2, 2, interpolate_lattices=True)
-        assert np.allclose(struct.lattice.abc, int_s[0].lattice.abc)
-        assert np.allclose(struct.lattice.angles, int_s[0].lattice.angles)
-        assert np.allclose(struct2.lattice.abc, int_s[2].lattice.abc)
-        assert np.allclose(struct2.lattice.angles, int_s[2].lattice.angles)
+        assert_allclose(struct.lattice.abc, int_s[0].lattice.abc)
+        assert_allclose(struct.lattice.angles, int_s[0].lattice.angles)
+        assert_allclose(struct2.lattice.abc, int_s[2].lattice.abc)
+        assert_allclose(struct2.lattice.angles, int_s[2].lattice.angles)
         int_angles = [110.3976469, 94.5359731, 64.5165856]
-        assert np.allclose(int_angles, int_s[1].lattice.angles)
+        assert_allclose(int_angles, int_s[1].lattice.angles)
 
         # Assert that volume is monotonic
         assert struct2.volume >= int_s[1].volume
@@ -448,7 +447,7 @@ class TestIStructure(PymatgenTest):
         sp = ["Ag", "Ag", "Be", "Be"]
         struct = Structure(latt, sp, coords)
         dm = struct.get_primitive_structure().distance_matrix
-        assert np.allclose(dm, [[0, 2.5], [2.5, 0]])
+        assert_allclose(dm, [[0, 2.5], [2.5, 0]])
 
     def test_primitive_on_large_supercell(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
@@ -560,7 +559,7 @@ Direct
         struct = self.struct
         c_indices1, c_indices2, c_offsets, c_distances = struct.get_neighbor_list(3)
         p_indices1, p_indices2, p_offsets, p_distances = struct._get_neighbor_list_py(3)
-        assert np.allclose(sorted(c_distances), sorted(p_distances))
+        assert_allclose(sorted(c_distances), sorted(p_distances))
 
         # test mutable structure after applying strain (which makes lattice.matrix array no longer contiguous)
         # https://github.com/materialsproject/pymatgen/pull/3108
@@ -568,11 +567,11 @@ Direct
         mutable_struct.apply_strain(0.01)
         c_indices1, c_indices2, c_offsets, c_distances = mutable_struct.get_neighbor_list(3)
         p_indices1, p_indices2, p_offsets, p_distances = mutable_struct._get_neighbor_list_py(3)
-        assert np.allclose(sorted(c_distances), sorted(p_distances))
+        assert_allclose(sorted(c_distances), sorted(p_distances))
 
     # @skipIf(not os.getenv("CI"), "Only run this in CI tests")
     # def test_get_all_neighbors_crosscheck_old(self):
-    #     warnings.simplefilter("ignore")
+    #
     #     for i in range(100):
     #         alpha, beta = np.random.rand(2) * 90
     #         a, b, c = 3 + np.random.rand(3) * 5
@@ -613,7 +612,7 @@ Direct
     #         },
     #         "sites": [
     #             {
-    #                "species": [{"element": "Mn", "oxidation_state": 0, "properties": {"spin": Spin.down}, "occu": 1}],
+    #                "species": [{"element": "Mn", "oxidation_state": 0, "spin": Spin.down, "occu": 1}],
     #                 "abc": [0.0, 0.5, 0.5],
     #                 "xyz": [2.8730499999999997, 3.83185, 4.1055671618015446e-16],
     #                 "label": "Mn0+,spin=-1",
@@ -632,7 +631,6 @@ Direct
     #     assert {i[0] for i in struct.get_neighbors(struct[0], 0.05)} == {
     #         i[0] for i in struct.get_neighbors_old(struct[0], 0.05)
     #     }
-    #     warnings.simplefilter("default")
 
     def test_get_symmetric_neighbor_list(self):
         # tetragonal group with all bonds related by symmetry
@@ -727,15 +725,15 @@ Direct
 
     def test_get_dist_matrix(self):
         ans = [[0.0, 2.3516318], [2.3516318, 0.0]]
-        assert np.allclose(self.struct.distance_matrix, ans)
+        assert_allclose(self.struct.distance_matrix, ans)
 
     def test_to_from_file_string(self):
         for fmt in ["cif", "json", "poscar", "cssr"]:
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = IStructure.from_str(struct, fmt=fmt)
-            assert np.allclose(ss.lattice.parameters, self.struct.lattice.parameters, atol=1e-5)
-            assert np.allclose(ss.frac_coords, self.struct.frac_coords)
+            assert_allclose(ss.lattice.parameters, self.struct.lattice.parameters, atol=1e-5)
+            assert_allclose(ss.frac_coords, self.struct.frac_coords)
             assert isinstance(ss, IStructure)
 
         assert "Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1)
@@ -806,10 +804,10 @@ class TestStructure(PymatgenTest):
         assert struct.formula == "Fe1 Si1"
         struct[0] = "Fe", [0.5, 0.5, 0.5]
         assert struct.formula == "Fe1 Si1"
-        assert np.allclose(struct[0].frac_coords, [0.5, 0.5, 0.5])
+        assert_allclose(struct[0].frac_coords, [0.5, 0.5, 0.5])
         struct.reverse()
         assert struct[0].specie == Element("Si")
-        assert np.allclose(struct[0].frac_coords, [0.75, 0.5, 0.75])
+        assert_allclose(struct[0].frac_coords, [0.75, 0.5, 0.75])
         struct[0] = {"Mn": 0.5}
         assert struct.formula == "Mn0.5 Fe1"
         del struct[1]
@@ -1009,29 +1007,23 @@ class TestStructure(PymatgenTest):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
         struct = self.struct.copy()
         struct.apply_operation(op)
-        assert np.allclose(
+        assert_allclose(
             struct.lattice.matrix,
-            [
-                [0, 3.840198, 0],
-                [-3.325710, 1.920099, 0],
-                [2.217138, -0, 3.135509],
-            ],
-            5,
+            [[0, 3.840198, 0], [-3.325710, 1.920099, 0], [2.217138, -0, 3.135509]],
+            atol=1e-6,
         )
 
         op = SymmOp([[1, 1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5], [0, 0, 0, 1]])
         struct = self.struct.copy()
         struct.apply_operation(op, fractional=True)
-        assert np.allclose(
-            struct.lattice.matrix, [[5.760297, 3.325710, 0], [3.840198, 0, 0], [0, -2.217138, 3.135509]], 5
-        )
+        assert_allclose(struct.lattice.matrix, [[5.760297, 3.325710, 0], [3.840198, 0, 0], [0, -2.217138, 3.135509]], 5)
 
     def test_apply_strain(self):
         struct = self.struct
         initial_coord = struct[1].coords
         struct.apply_strain(0.01)
         assert approx(struct.lattice.abc) == (3.8785999130369997, 3.878600984287687, 3.8785999130549516)
-        assert np.allclose(struct[1].coords, initial_coord * 1.01)
+        assert_allclose(struct[1].coords, initial_coord * 1.01)
         a1, b1, c1 = struct.lattice.abc
         struct.apply_strain([0.1, 0.2, 0.3])
         a2, b2, c2 = struct.lattice.abc
@@ -1042,26 +1034,26 @@ class TestStructure(PymatgenTest):
     def test_scale_lattice(self):
         initial_coord = self.struct[1].coords
         self.struct.scale_lattice(self.struct.volume * 1.01**3)
-        assert np.allclose(
+        assert_allclose(
             self.struct.lattice.abc,
             (3.8785999130369997, 3.878600984287687, 3.8785999130549516),
         )
-        assert np.allclose(self.struct[1].coords, initial_coord * 1.01)
+        assert_allclose(self.struct[1].coords, initial_coord * 1.01)
 
     def test_translate_sites(self):
         self.struct.translate_sites([0, 1], [0.5, 0.5, 0.5], frac_coords=True)
-        assert np.allclose(self.struct.frac_coords[0], [0.5, 0.5, 0.5])
+        assert_allclose(self.struct.frac_coords[0], [0.5, 0.5, 0.5])
 
         self.struct.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=False)
-        assert np.allclose(self.struct.cart_coords[0], [3.38014845, 1.05428585, 2.06775453])
+        assert_allclose(self.struct.cart_coords[0], [3.38014845, 1.05428585, 2.06775453])
 
         self.struct.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=True, to_unit_cell=False)
-        assert np.allclose(self.struct.frac_coords[0], [1.00187517, 1.25665291, 1.15946374])
+        assert_allclose(self.struct.frac_coords[0], [1.00187517, 1.25665291, 1.15946374])
 
         lattice_pbc = Lattice(self.struct.lattice.matrix, pbc=(True, True, False))
         struct_pbc = Structure(lattice_pbc, ["Si"], [[0.75, 0.75, 0.75]])
         struct_pbc.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=True, to_unit_cell=True)
-        assert np.allclose(struct_pbc.frac_coords[0], [0.25, 0.25, 1.25])
+        assert_allclose(struct_pbc.frac_coords[0], [0.25, 0.25, 1.25])
 
         with pytest.raises(IndexError, match="list index out of range"):
             self.struct.translate_sites([5], [0.5, 0.5, 0.5])
@@ -1079,14 +1071,14 @@ class TestStructure(PymatgenTest):
             anchor=self.struct[0].coords,
             to_unit_cell=False,
         )
-        assert np.allclose(self.struct.frac_coords[1], [-1.25, 1.5, 0.75], atol=1e-6)
+        assert_allclose(self.struct.frac_coords[1], [-1.25, 1.5, 0.75], atol=1e-6)
         self.struct.rotate_sites(
             indices=[1],
             theta=2.0 * np.pi / 3.0,
             anchor=self.struct[0].coords,
             to_unit_cell=True,
         )
-        assert np.allclose(self.struct.frac_coords[1], [0.75, 0.5, 0.75], atol=1e-6)
+        assert_allclose(self.struct.frac_coords[1], [0.75, 0.5, 0.75], atol=1e-6)
 
         with pytest.raises(IndexError, match="list index out of range"):
             self.struct.rotate_sites([5], 2.0 * np.pi / 3.0, self.struct[0].coords, to_unit_cell=False)
@@ -1099,7 +1091,7 @@ class TestStructure(PymatgenTest):
         assert isinstance(struct, Structure)
         struct = self.struct * [[1, 0, 0], [2, 1, 0], [0, 0, 2]]
         assert struct.formula == "Si8"
-        assert np.allclose(struct.lattice.abc, [7.6803959, 17.5979979, 7.6803959])
+        assert_allclose(struct.lattice.abc, [7.6803959, 17.5979979, 7.6803959])
 
     def test_make_supercell(self):
         supercell = self.struct.make_supercell([2, 1, 1])
@@ -1111,7 +1103,7 @@ class TestStructure(PymatgenTest):
         assert supercell.formula == "Si4"
         supercell.make_supercell(2)
         assert supercell.formula == "Si32"
-        assert np.allclose(supercell.lattice.abc, [15.360792, 35.195996, 7.680396], 5)
+        assert_allclose(supercell.lattice.abc, [15.360792, 35.195996, 7.680396], 5)
 
         # test in_place=False leaves original structure unchanged
         orig_len = len(self.struct)
@@ -1165,8 +1157,8 @@ class TestStructure(PymatgenTest):
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = Structure.from_str(struct, fmt=fmt)
-            assert np.allclose(ss.lattice.parameters, self.struct.lattice.parameters, atol=1e-5)
-            assert np.allclose(ss.frac_coords, self.struct.frac_coords)
+            assert_allclose(ss.lattice.parameters, self.struct.lattice.parameters, atol=1e-5)
+            assert_allclose(ss.frac_coords, self.struct.frac_coords)
             assert isinstance(ss, Structure)
 
         # to/from file
@@ -1274,7 +1266,7 @@ class TestStructure(PymatgenTest):
         struct.merge_sites(mode="s")
         assert struct[0].specie.symbol == "Ag"
         assert struct[1].species == Composition({"Cl": 0.35, "F": 0.25})
-        assert np.allclose(struct[1].frac_coords, [0.5, 0.5, 0.5005])
+        assert_allclose(struct[1].frac_coords, [0.5, 0.5, 0.5005])
 
         # Test for TaS2 with spacegroup 166 in 160 setting.
         latt = Lattice.hexagonal(3.374351, 20.308941)
@@ -1698,8 +1690,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
     def test_get_boxed_structure(self):
         struct = self.mol.get_boxed_structure(9, 9, 9)
         # C atom should be in center of box.
-        assert np.allclose(struct[4].frac_coords, [0.50000001, 0.5, 0.5])
-        assert np.allclose(struct[1].frac_coords, [0.6140799, 0.5, 0.45966667])
+        assert_allclose(struct[4].frac_coords, [0.50000001, 0.5, 0.5])
+        assert_allclose(struct[1].frac_coords, [0.6140799, 0.5, 0.45966667])
         with pytest.raises(ValueError, match="Box is not big enough to contain Molecule"):
             self.mol.get_boxed_structure(1, 1, 1)
         s2 = self.mol.get_boxed_structure(5, 5, 5, (2, 3, 4))
@@ -1708,7 +1700,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
 
         # Test offset option
         s3 = self.mol.get_boxed_structure(9, 9, 9, offset=[0.5, 0.5, 0.5])
-        assert np.allclose(s3[4].coords, [5, 5, 5])
+        assert_allclose(s3[4].coords, [5, 5, 5])
         # Test no_cross option
         with pytest.raises(ValueError, match="Molecule crosses boundary of box"):
             self.mol.get_boxed_structure(5, 5, 5, offset=[10, 10, 10], no_cross=True)
@@ -1745,7 +1737,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             [1.08900040717, 1.7783298026, 1.77833003783, 0.0, 1.77833],
             [1.08900040717, 1.7783298026, 1.77833003783, 1.77833, 0.0],
         ]
-        assert np.allclose(self.mol.distance_matrix, ans)
+        assert_allclose(self.mol.distance_matrix, ans)
 
     def test_get_zmatrix(self):
         mol = IMolecule(["C", "H", "H", "H", "H"], self.coords)
@@ -1776,7 +1768,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert self.mol.charge == 0
         assert self.mol.spin_multiplicity == 1
         assert self.mol.nelectrons == 10
-        assert np.allclose(self.mol.center_of_mass, [0, 0, 0], atol=1e-7)
+        assert_allclose(self.mol.center_of_mass, [0, 0, 0], atol=1e-7)
         with pytest.raises(
             ValueError, match="Charge of 1 and spin multiplicity of 1 is not possible for this molecule"
         ):
@@ -1816,7 +1808,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
     def test_get_centered_molecule(self):
         mol = IMolecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]], spin_multiplicity=3)
         centered = mol.get_centered_molecule()
-        assert np.allclose(centered.center_of_mass, [0, 0, 0])
+        assert_allclose(centered.center_of_mass, [0, 0, 0])
 
     def test_to_from_dict(self):
         dct = self.mol.as_dict()
@@ -1872,19 +1864,15 @@ class TestMolecule(PymatgenTest):
             [-0.513360, 0.889165, -0.363000],
         ]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_mutable_sequence_methods(self):
         mol = self.mol
         mol[1] = ("F", [0.5, 0.5, 0.5])
         assert mol.formula == "H3 C1 F1"
-        assert np.allclose(mol[1].coords, [0.5, 0.5, 0.5])
+        assert_allclose(mol[1].coords, [0.5, 0.5, 0.5])
         mol.reverse()
         assert mol[0].specie == Element("H")
-        assert np.allclose(mol[0].coords, [-0.513360, 0.889165, -0.363000])
+        assert_allclose(mol[0].coords, [-0.513360, 0.889165, -0.363000])
         del mol[1]
         assert mol.formula == "H2 C1 F1"
         mol[3] = "N", [0, 0, 0], {"charge": 4}
@@ -1912,7 +1900,7 @@ class TestMolecule(PymatgenTest):
 
     def test_rotate_sites(self):
         self.mol.rotate_sites(theta=np.radians(30))
-        assert np.allclose(self.mol.cart_coords[2], [0.889164737, 0.513359500, -0.363000000])
+        assert_allclose(self.mol.cart_coords[2], [0.889164737, 0.513359500, -0.363000000])
 
     def test_replace(self):
         self.mol[0] = "Ge"
@@ -1955,7 +1943,7 @@ class TestMolecule(PymatgenTest):
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
         self.mol.apply_operation(op)
-        assert np.allclose(self.mol[2].coords, [0, 1.026719, -0.363000])
+        assert_allclose(self.mol[2].coords, [0, 1.026719, -0.363000], atol=1e-12)
 
     def test_substitute(self):
         coords = [

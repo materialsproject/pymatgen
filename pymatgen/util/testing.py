@@ -1,5 +1,4 @@
-"""
-Common test support for pymatgen test scripts.
+"""Common test support for pymatgen test scripts.
 
 This single module should provide all the common functionality for pymatgen
 tests in a single location, so that test scripts can just import it and work
@@ -18,7 +17,6 @@ from typing import ClassVar
 import pytest
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
-from numpy.testing import assert_allclose
 
 from pymatgen.core import SETTINGS, Structure
 
@@ -43,8 +41,7 @@ class PymatgenTest(unittest.TestCase):
 
     @classmethod
     def get_structure(cls, name: str) -> Structure:
-        """
-        Get a structure from the template directories.
+        """Get a structure from the template directories.
 
         Args:
             name (str): Name of structure file.
@@ -57,20 +54,13 @@ class PymatgenTest(unittest.TestCase):
         return cls.TEST_STRUCTURES[name].copy()
 
     @staticmethod
-    def assert_all_close(actual, desired, decimal=7, err_msg="", verbose=True):
-        """Tests if two arrays are almost equal up to some relative or absolute tolerance."""
-        # TODO (janosh): replace the decimal kwarg with assert_allclose() atol and rtol kwargs
-        return assert_allclose(actual, desired, atol=10**-decimal, err_msg=err_msg, verbose=verbose)
-
-    @staticmethod
     def assert_str_content_equal(actual, expected):
         """Tests if two strings are equal, ignoring things like trailing spaces, etc."""
         strip_whitespace = {ord(c): None for c in string.whitespace}
         return actual.translate(strip_whitespace) == expected.translate(strip_whitespace)
 
     def serialize_with_pickle(self, objects, protocols=None, test_eq=True):
-        """
-        Test whether the object(s) can be serialized and deserialized with
+        """Test whether the object(s) can be serialized and deserialized with
         pickle. This method tries to serialize the objects with pickle and the
         protocols specified in input. Then it deserializes the pickle format
         and compares the two objects with the __eq__ operator if
@@ -139,8 +129,7 @@ class PymatgenTest(unittest.TestCase):
         return objects_by_protocol
 
     def assert_msonable(self, obj, test_is_subclass=True):
-        """
-        Test if obj is MSONable and verify the contract is fulfilled.
+        """Test if obj is MSONable and verify the contract is fulfilled.
 
         By default, the method tests whether obj is an instance of MSONable.
         This check can be deactivated by setting test_is_subclass=False.

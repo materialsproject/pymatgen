@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Structure
@@ -48,7 +48,7 @@ class TestLatticeFromAbivars(PymatgenTest):
             )
             * bohr_to_ang
         )
-        assert np.allclose(l2.matrix, abi_rprimd)
+        assert_allclose(l2.matrix, abi_rprimd)
 
         l3 = lattice_from_abivars(acell=[3, 6, 9], angdeg=(30, 40, 50))
         abi_rprimd = (
@@ -68,7 +68,7 @@ class TestLatticeFromAbivars(PymatgenTest):
             )
             * bohr_to_ang
         )
-        assert np.allclose(l3.matrix, abi_rprimd)
+        assert_allclose(l3.matrix, abi_rprimd)
 
         with pytest.raises(ValueError, match="angdeg and rprimd are mutually exclusive"):
             lattice_from_abivars(acell=[1, 1, 1], angdeg=(90, 90, 90), rprim=np.eye(3))

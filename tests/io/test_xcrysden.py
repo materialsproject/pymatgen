@@ -25,9 +25,9 @@ class TestXSF(PymatgenTest):
     def test_to_string(self):
         structure = self.get_structure("Li2O")
         xsf = XSF(structure)
-        s = xsf.to_str()
+        xsf_str = xsf.to_str()
         assert (
-            s
+            xsf_str
             == """CRYSTAL
 # Primitive lattice vectors in Angstrom
 PRIMVEC
@@ -41,9 +41,9 @@ O     0.00000000000000     0.00000000000000     0.00000000000000
 Li     3.01213761017484     2.21364440998406     4.74632330032018
 Li     1.00309136982516     0.73718000001594     1.58060372967982"""
         )
-        s = xsf.to_str(atom_symbol=False)
+        xsf_str = xsf.to_str(atom_symbol=False)
         assert (
-            s
+            xsf_str
             == """CRYSTAL
 # Primitive lattice vectors in Angstrom
 PRIMVEC
@@ -89,9 +89,3 @@ PRIMCOORD
 
         structure2 = XSF.from_str(test_string2).structure
         assert structure == structure2
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()
