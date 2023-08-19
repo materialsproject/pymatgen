@@ -11,7 +11,7 @@ from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-
+from pymatgen.core import Element
 
 class TestFeffInputSet(PymatgenTest):
     @classmethod
@@ -259,3 +259,10 @@ TITLE sites: 4
             },
         )
         assert str(dict_set) is not None
+    
+    def test_cluster_index(self):
+        cif_file = f"{TEST_FILES_DIR}/UF4_test.cif"
+        structure = CifParser(cif_file).get_structures()[0]
+        for i in range(len(structure.species)):
+            if structure.species[i] == Element("U"):
+                assert Atoms(structure, i, 6).cluster
