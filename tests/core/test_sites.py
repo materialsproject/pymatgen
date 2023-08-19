@@ -262,9 +262,3 @@ def get_distance_and_image_old(site1, site2, jimage=None):
     mapped_vec = site1.lattice.get_cartesian_coords(jimage + site2.frac_coords - site1.frac_coords)
     dist = np.linalg.norm(mapped_vec)
     return dist, jimage
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

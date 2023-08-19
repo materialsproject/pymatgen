@@ -81,8 +81,3 @@ class TestSubstitutionPredictor(unittest.TestCase):
         assert set(result["substitutions"].values()) == set(c.elements)
         result = sp.composition_prediction(c, to_this_composition=False)[2]
         assert set(result["substitutions"]) == set(c.elements)
-
-
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()

@@ -69,8 +69,3 @@ class TestIsingModel(unittest.TestCase):
         o = IsingModel.from_dict(d)
         assert isinstance(o, IsingModel)
         assert o.j == approx(5)
-
-
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()

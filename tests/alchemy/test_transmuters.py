@@ -69,9 +69,3 @@ class TestPoscarTransmuter(PymatgenTest):
         assert tsc.transformed_structures[0].as_dict()["other_parameters"]["para1"] == "hello"
         tsc.add_tags(["world", "universe"])
         assert tsc.transformed_structures[0].as_dict()["other_parameters"]["tags"] == ["world", "universe"]
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

@@ -56,9 +56,3 @@ class TestEnvironmentNodes(PymatgenTest):
         struct = self.get_structure("SiO2")
         en = EnvironmentNode(central_site=struct[2], i_central_site=2, ce_symbol="T:4")
         assert str(en) == "Node #2 Si (T:4)"
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

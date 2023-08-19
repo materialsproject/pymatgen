@@ -275,9 +275,3 @@ class TestDataPersistence(PymatgenTest):
             for new_objects in new_objects_from_protocol:
                 for old_item, new_item in zip(objects, new_objects):
                     assert str(old_item) == str(new_item)
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()
