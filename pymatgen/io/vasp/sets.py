@@ -1084,7 +1084,7 @@ class MPStaticSet(MPRelaxSet):
         self.small_gap_multiply = small_gap_multiply
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         parent_incar = super().incar
         incar = Incar(self.prev_incar or parent_incar)
@@ -1245,7 +1245,7 @@ class MatPESStaticSet(MPStaticSet):
         self.functional = functional
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         parent_incar = super().incar
         return Incar(self.prev_incar or parent_incar)
@@ -1281,7 +1281,7 @@ class MPScanStaticSet(MPScanRelaxSet):
         self.lcalcpol = lcalcpol
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         parent_incar = super().incar
         incar = Incar(self.prev_incar or parent_incar)
@@ -1928,7 +1928,7 @@ class MPNMRSet(MPStaticSet):
         super().__init__(structure, prev_incar=prev_incar, reciprocal_density=reciprocal_density, **kwargs)
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         incar = super().incar
 
@@ -2073,7 +2073,7 @@ class MVLGWSet(DictSet):
         self.ncores = ncores
 
     @property
-    def kpoints(self):
+    def kpoints(self) -> Kpoints:
         """
         Generate gamma center k-points mesh grid for GW calc,
         which is requested by GW calculation.
@@ -2081,7 +2081,7 @@ class MVLGWSet(DictSet):
         return Kpoints.automatic_density_by_vol(self.structure, self.reciprocal_density, force_gamma=True)
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         parent_incar = super().incar
         incar = Incar(self.prev_incar or parent_incar)
@@ -2338,7 +2338,7 @@ class MVLGBSet(MPRelaxSet):
         return kpt
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         incar = super().incar
 
@@ -2566,7 +2566,7 @@ class MITMDSet(MITRelaxSet):
         self._config_dict["INCAR"].update(defaults)
 
     @property
-    def kpoints(self):
+    def kpoints(self) -> Kpoints:
         """Kpoints"""
         return Kpoints.gamma_automatic()
 
@@ -2648,7 +2648,7 @@ class MPMDSet(MPRelaxSet):
         self._config_dict["INCAR"].update(defaults)
 
     @property
-    def kpoints(self):
+    def kpoints(self) -> Kpoints:
         """Kpoints"""
         return Kpoints.gamma_automatic()
 
@@ -3142,7 +3142,7 @@ class MPAbsorptionSet(MPRelaxSet):
         self.kwargs = kwargs
 
     @property
-    def kpoints(self):
+    def kpoints(self) -> Kpoints:
         """
         Generate gamma center k-points mesh grid for optical calculation. It is not mandatory for 'ALGO = Exact',
         but is requested by 'ALGO = CHI' calculation.
@@ -3150,7 +3150,7 @@ class MPAbsorptionSet(MPRelaxSet):
         return Kpoints.automatic_density_by_vol(self.structure, self.reciprocal_density, force_gamma=True)
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         parent_incar = super().incar
         absorption_incar = {
