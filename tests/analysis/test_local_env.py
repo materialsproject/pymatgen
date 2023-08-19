@@ -72,10 +72,6 @@ class TestValenceIonicRadiusEvaluator(PymatgenTest):
         for rad in list(radii_dict.values()):
             assert rad in {0.86, 1.26}
 
-    def tearDown(self):
-        del self._mgo_uc
-        del self._mgo_valrad_evaluator
-
 
 class TestVoronoiNN(PymatgenTest):
     def setUp(self):
@@ -283,10 +279,6 @@ class TestJmolNN(PymatgenTest):
         # Verify get_nn function works
         assert len(self.jmol_update.get_nn(struct, 0)) == 2
 
-    def tearDown(self):
-        del self.jmol
-        del self.jmol_update
-
 
 class TestIsayevNN(PymatgenTest):
     def test_get_nn(self):
@@ -330,10 +322,6 @@ class TestOpenBabelNN(PymatgenTest):
 
         assert strategy.get_nn_info(self.acetylene, 0)[0]["weight"] == approx(1.19, abs=1e-2)
 
-    def tearDown(self):
-        del self.benzene
-        del self.acetylene
-
 
 class TestCovalentBondNN(PymatgenTest):
     def setUp(self):
@@ -372,10 +360,6 @@ class TestCovalentBondNN(PymatgenTest):
 
         acetylene = strategy.get_bonded_structure(self.acetylene)
         assert len(acetylene.graph.nodes) == 4
-
-    def tearDown(self):
-        del self.benzene
-        del self.acetylene
 
 
 class TestMiniDistNN(PymatgenTest):
@@ -620,9 +604,6 @@ class TestNearNeighbor(PymatgenTest):
             "take_max_species",
             "error",
         )
-
-    def tearDown(self):
-        del self.diamond
 
 
 class TestLocalStructOrderParams(PymatgenTest):
@@ -1187,29 +1168,6 @@ class TestLocalStructOrderParams(PymatgenTest):
         assert op_vals[3] is None
         with pytest.raises(ValueError, match="Neighbor site index beyond maximum!"):
             ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[2])
-
-    def tearDown(self):
-        del self.single_bond
-        del self.linear
-        del self.bent45
-        del self.cubic
-        del self.fcc
-        del self.bcc
-        del self.hcp
-        del self.diamond
-        del self.regular_triangle
-        del self.square
-        del self.square_pyramid
-        del self.trigonal_off_plane
-        del self.trigonal_pyramid
-        del self.trigonal_planar
-        del self.square_planar
-        del self.pentagonal_pyramid
-        del self.hexagonal_pyramid
-        del self.pentagonal_bipyramid
-        del self.T_shape
-        del self.cuboctahedron
-        del self.see_saw_rect
 
 
 class TestCrystalNN(PymatgenTest):

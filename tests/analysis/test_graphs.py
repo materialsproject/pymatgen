@@ -569,11 +569,6 @@ class TestMoleculeGraph(unittest.TestCase):
             [6, 10],
         )
 
-    def tearDown(self):
-        del self.ethylene
-        del self.butadiene
-        del self.cyclohexene
-
     def test_construction(self):
         pytest.importorskip("openbabel")
         edges_frag = {(e[0], e[1]): {"weight": 1.0} for e in self.pc_frag1_edges}

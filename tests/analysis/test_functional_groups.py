@@ -32,13 +32,6 @@ class TestFunctionalGroupExtractor(unittest.TestCase):
         self.mg = MoleculeGraph.with_local_env_strategy(self.mol, self.strategy)
         self.extractor = FunctionalGroupExtractor(self.mg)
 
-    def tearDown(self):
-        del self.extractor
-        del self.mg
-        del self.strategy
-        del self.mol
-        del self.file
-
     def test_init(self):
         # Ensure that instantiation is equivalent for all valid input types
         extractor_str = FunctionalGroupExtractor(self.file)
