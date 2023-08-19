@@ -27,7 +27,6 @@ from pymatgen.io.vasp.sets import (
     BadInputSetWarning,
     DictSet,
     LobsterSet,
-    MatPESStaticSet,
     MITMDSet,
     MITNEBSet,
     MITRelaxSet,

@@ -1219,6 +1219,7 @@ class MatPESStaticSet(MPStaticSet):
     """Creates input files for a MatPES static calculation."""
 
     CONFIG = _load_yaml_config("MatPESStaticSet")
+
     def __init__(
         self,
         structure,
@@ -1236,11 +1237,11 @@ class MatPESStaticSet(MPStaticSet):
         kwargs.setdefault("user_potcar_functional", "PBE_54")
         if isinstance(functional, str):
             if functional == "R2SCAN":
-                self.user_incar_settings={"METAGGA": "R2SCAN"}
+                self.user_incar_settings = {"METAGGA": "R2SCAN"}
             if functional == "R2SCAN+U":
-                self.user_incar_settings = {"METAGGA": "R2SCAN","LDAU": True}
+                self.user_incar_settings = {"METAGGA": "R2SCAN", "LDAU": True}
             if functional == "PBE+U":
-                self.user_incar_settings={"LDAU": True}
+                self.user_incar_settings = {"LDAU": True}
 
         self.kwargs = kwargs
         self.functional = functional
@@ -1260,24 +1261,23 @@ class MatPESStaticSet(MPStaticSet):
                 "ENCUT": 680,
                 "IBRION": 2,
                 "ISIF": 3,
-                "ISMEAR": 0,# change from 2 to 0, included to have some reasonable default
+                "ISMEAR": 0,  # change from 2 to 0, included to have some reasonable default
                 "ISPIN": 2,
-                "KSPACING": 0.22, # included to have some reasonable default
+                "KSPACING": 0.22,  # included to have some reasonable default
                 "LAECHG": True,
                 "LASPH": True,
                 "LCHARG": True,
-                "LELF": False, # LELF = True restricts calculation to KPAR = 1
+                "LELF": False,  # LELF = True restricts calculation to KPAR = 1
                 "LMIXTAU": True,
                 "LORBIT": 11,
                 "LREAL": "Auto",
                 "LVTOT": True,
                 "LWAVE": False,
-                "GGA": "PE", # change R2SCAN to PBE as default
+                "GGA": "PE",  # change R2SCAN to PBE as default
                 "NELM": 200,
-                "NSW": 0, # static calculation
+                "NSW": 0,  # static calculation
                 "PREC": "Accurate",
-                "SIGMA": 0.05, # change from 0.02 to 0.05, included to have some reasonable default
-
+                "SIGMA": 0.05,  # change from 0.02 to 0.05, included to have some reasonable default
             }
         )
 
