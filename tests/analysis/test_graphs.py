@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import os
 import unittest
-import warnings
 from glob import glob
 from shutil import which
 
@@ -102,11 +101,6 @@ class TestStructureGraph(PymatgenTest):
 
         # BCC example.
         self.bcc = Structure(Lattice.cubic(5.0), ["He", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_inappropriate_construction(self):
         # Check inappropriate strategy
@@ -574,14 +568,6 @@ class TestMoleculeGraph(unittest.TestCase):
             [6, 9],
             [6, 10],
         )
-
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-        del self.ethylene
-        del self.butadiene
-        del self.cyclohexene
 
     def test_construction(self):
         pytest.importorskip("openbabel")

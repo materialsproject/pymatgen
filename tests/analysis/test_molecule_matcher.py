@@ -816,8 +816,7 @@ class TestGeneticOrderMatcherSi2O(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    pass
     # Run the following code to generate test cases:
     # generate_Si_cluster()
     # generate_Si2O_cluster()
-
-    unittest.main()

@@ -61,9 +61,3 @@ class NeighborsTestCase(PymatgenTest):
             lattice=np.array(lattice.matrix),
         )
         assert len(nns[0]) == 4
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

@@ -3,7 +3,6 @@ from __future__ import annotations
 import collections
 import os
 import unittest
-import warnings
 from numbers import Number
 from pathlib import Path
 
@@ -165,10 +164,6 @@ class TestPhaseDiagram(PymatgenTest):
     def setUp(self):
         self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         self.pd = PhaseDiagram(self.entries)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_init(self):
         # Ensure that a bad set of entries raises a PD error. Remove all Li

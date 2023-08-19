@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 from shutil import which
 
 import pytest
@@ -65,11 +64,6 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0.5, 0.5], [0, 0, 0], [0, 0.5, 0], [0.5, 0, 0.5]]
         self.NiO_unphysical = Structure(latt, species, coords, site_properties={"magmom": [-3, 0, 0, 0]})
-
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_get_representations(self):
         # tests to convert between storing magnetic moment information
