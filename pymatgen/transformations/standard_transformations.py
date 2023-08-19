@@ -489,6 +489,9 @@ class RandomStructureTransformation(AbstractTransformation):
     """
 
     def __init__(self):
+        """
+        Default __init__ method.
+        """
         pass
 
     def apply_transformation(self, structure: Structure, n_copies: int) -> list[Structure]:
