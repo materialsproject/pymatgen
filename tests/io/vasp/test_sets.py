@@ -589,7 +589,7 @@ class TestMITMPRelaxSet(PymatgenTest):
             get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="a")
         assert "Magmom type conflict" in str(exc.value)
 
-        # Test the behavior of MPRelaxSet to atomacically fill in the missing magmom
+        # Test the behavior of MPRelaxSet to automatically fill in the missing magmom
         struct = self.structure.copy()
         get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="s")
         struct.insert(0, "Li", [0, 0, 0])
@@ -604,7 +604,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         # Test the behavior of constraining the net magnetic moment with a non-integer
         struct = self.structure.copy()
-        with pytest.warns(UserWarning, match=r"constrain_total_magmom"):
+        with pytest.warns(UserWarning, match="constrain_total_magmom"):
             vis = MPRelaxSet(
                 struct,
                 user_incar_settings={"MAGMOM": {"Fe": 5.1}},

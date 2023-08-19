@@ -22,12 +22,12 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-struct_env_files_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments"
+struct_env_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments"
 
 
 class TestStructureEnvironments(PymatgenTest):
     def test_structure_environments(self):
-        with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
+        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
             dd = json.load(f)
 
         struct_envs = StructureEnvironments.from_dict(dd)
@@ -118,7 +118,7 @@ class TestStructureEnvironments(PymatgenTest):
         assert ce != ce2
 
     def test_light_structure_environments(self):
-        with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
+        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
             dd = json.load(f)
 
         struct_envs = StructureEnvironments.from_dict(dd)

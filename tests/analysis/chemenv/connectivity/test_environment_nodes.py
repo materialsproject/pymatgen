@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -12,11 +10,7 @@ except ModuleNotFoundError:
 
 __author__ = "waroquiers"
 
-json_files_dir = os.path.join(
-    TEST_FILES_DIR,
-    "chemenv",
-    "json_test_files",
-)
+json_files_dir = f"{TEST_FILES_DIR}/chemenv/json"
 
 
 class TestEnvironmentNodes(PymatgenTest):

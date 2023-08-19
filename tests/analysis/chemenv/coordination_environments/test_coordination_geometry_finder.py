@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
@@ -18,11 +16,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-json_files_dir = os.path.join(
-    TEST_FILES_DIR,
-    "chemenv",
-    "json_test_files",
-)
+json_files_dir = f"{TEST_FILES_DIR}/chemenv/json"
 
 
 class TestCoordinationGeometryFinder(PymatgenTest):

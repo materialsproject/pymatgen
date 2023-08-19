@@ -11,7 +11,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-json_files_dir = f"{TEST_FILES_DIR}/chemenv/json_test_files"
+json_files_dir = f"{TEST_FILES_DIR}/chemenv/json"
 img_files_dir = f"{TEST_FILES_DIR}/chemenv/images"
 
 
