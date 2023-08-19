@@ -571,9 +571,3 @@ class LatticeTestCase(PymatgenTest):
     def test_is_3d_periodic(self):
         assert self.cubic.is_3d_periodic
         assert not self.cubic_partial_pbc.is_3d_periodic
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

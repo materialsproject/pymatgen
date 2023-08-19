@@ -4,7 +4,6 @@ import json
 import os
 import tempfile
 import unittest
-import warnings
 
 import numpy as np
 import pytest
@@ -901,7 +900,6 @@ class TestCharge(PymatgenTest):
 
 class TestLobsterout(PymatgenTest):
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.lobsterout_normal = Lobsterout(filename=f"{TEST_FILES_DIR}/cohp/lobsterout.normal")
         # make sure .gz files are also read correctly
         self.lobsterout_normal = Lobsterout(filename=f"{TEST_FILES_DIR}/cohp/lobsterout.normal2.gz")
@@ -925,9 +923,6 @@ class TestLobsterout(PymatgenTest):
         self.lobsterout_skipping_cobi_madelung = Lobsterout(
             filename=f"{TEST_FILES_DIR}/cohp/lobsterout.skip_cobi_madelung"
         )
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def testattributes(self):
         assert self.lobsterout_normal.basis_functions == [
@@ -1349,7 +1344,6 @@ class TestLobsterout(PymatgenTest):
 
 class TestFatband(PymatgenTest):
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.fatband_SiO2_p_x = Fatband(
             filenames=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x",
             Kpointsfile=f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
@@ -1381,9 +1375,6 @@ class TestFatband(PymatgenTest):
             )
         )
         self.bs_symmline_spin = self.vasprun_SiO2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_attributes(self):
         assert list(self.fatband_SiO2_p_x.label_dict["M"]) == approx([0.5, 0.0, 0.0])
@@ -1553,7 +1544,6 @@ class TestFatband(PymatgenTest):
 
 class TestLobsterin(unittest.TestCase):
     def setUp(self):
-        warnings.simplefilter("ignore")
         self.Lobsterinfromfile = Lobsterin.from_file(f"{TEST_FILES_DIR}/cohp/lobsterin.1")
         self.Lobsterinfromfile2 = Lobsterin.from_file(f"{TEST_FILES_DIR}/cohp/lobsterin.2")
         self.Lobsterinfromfile3 = Lobsterin.from_file(f"{TEST_FILES_DIR}/cohp/lobsterin.3")
@@ -2003,13 +1993,9 @@ class TestLobsterin(unittest.TestCase):
         assert newLobsterin == self.Lobsterinfromfile
         newLobsterin.to_json()
 
-    def tearDown(self):
-        warnings.simplefilter("default")
-
 
 class TestBandoverlaps(unittest.TestCase):
     def setUp(self):
-        warnings.simplefilter("ignore")
         # test spin polarlized calc and non spinpolarized calc
 
         self.bandoverlaps1 = Bandoverlaps(f"{TEST_FILES_DIR}/cohp/bandOverlaps.lobster.1")
@@ -2415,9 +2401,6 @@ class TestWavefunction(PymatgenTest):
         wave1.write_file(filename=os.path.join("density.vasp"), part="density")
         assert os.path.isfile("density.vasp")
         os.remove("density.vasp")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
 
 class TestSitePotentials(PymatgenTest):

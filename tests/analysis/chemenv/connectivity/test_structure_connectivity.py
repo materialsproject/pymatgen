@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 
 from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
 from pymatgen.analysis.chemenv.connectivity.structure_connectivity import StructureConnectivity
@@ -22,12 +21,7 @@ __author__ = "waroquiers"
 
 class TestStructureConnectivity(PymatgenTest):
     def test_serialization(self):
-        BaTiO3_se_fpath = os.path.join(
-            TEST_FILES_DIR,
-            "chemenv",
-            "structure_environments_files",
-            "se_mp-5020.json",
-        )
+        BaTiO3_se_fpath = f"{TEST_FILES_DIR}/chemenv/structure_environments/se_mp-5020.json"
         with open(BaTiO3_se_fpath) as file:
             dd = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dd)

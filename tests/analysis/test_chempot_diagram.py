@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from pathlib import Path
 
 import numpy as np
@@ -35,10 +34,6 @@ class TestChemicalPotentialDiagram(PymatgenTest):
             )
         )
         self.cpd_binary = ChemicalPotentialDiagram(entries=binary_entries, default_min_limit=-25, formal_chempots=False)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_dim(self):
         assert self.cpd_binary.dim == 2

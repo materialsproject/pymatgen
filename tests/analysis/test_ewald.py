@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 import numpy as np
 import pytest
@@ -14,15 +13,11 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 class TestEwaldSummation(unittest.TestCase):
     def setUp(self):
-        warnings.simplefilter("ignore")
         filepath = f"{TEST_FILES_DIR}/POSCAR"
         p = Poscar.from_file(filepath, check_for_POTCAR=False)
         self.original_s = p.structure
         self.s = self.original_s.copy()
         self.s.add_oxidation_state_by_element({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_init(self):
         ham = EwaldSummation(self.s, compute_forces=True)
@@ -87,12 +82,6 @@ class TestEwaldSummation(unittest.TestCase):
 
 
 class TestEwaldMinimizer(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_init(self):
         matrix = np.array(
             [

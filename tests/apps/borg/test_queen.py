@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
@@ -19,12 +18,6 @@ __date__ = "Mar 18, 2012"
 
 
 class TestBorgQueen(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_get_data(self):
         drone = VaspToComputedEntryDrone()
         self.queen = BorgQueen(drone, TEST_FILES_DIR, 1)

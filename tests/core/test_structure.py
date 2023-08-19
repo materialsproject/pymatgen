@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import os
 import random
-import warnings
 from pathlib import Path
 from shutil import which
 from unittest import skipIf
@@ -572,7 +571,7 @@ Direct
 
     # @skipIf(not os.getenv("CI"), "Only run this in CI tests")
     # def test_get_all_neighbors_crosscheck_old(self):
-    #     warnings.simplefilter("ignore")
+    #
     #     for i in range(100):
     #         alpha, beta = np.random.rand(2) * 90
     #         a, b, c = 3 + np.random.rand(3) * 5
@@ -632,7 +631,6 @@ Direct
     #     assert {i[0] for i in struct.get_neighbors(struct[0], 0.05)} == {
     #         i[0] for i in struct.get_neighbors_old(struct[0], 0.05)
     #     }
-    #     warnings.simplefilter("default")
 
     def test_get_symmetric_neighbor_list(self):
         # tetragonal group with all bonds related by symmetry
@@ -1866,10 +1864,6 @@ class TestMolecule(PymatgenTest):
             [-0.513360, 0.889165, -0.363000],
         ]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_mutable_sequence_methods(self):
         mol = self.mol

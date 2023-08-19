@@ -89,9 +89,3 @@ PRIMCOORD
 
         structure2 = XSF.from_str(test_string2).structure
         assert structure == structure2
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

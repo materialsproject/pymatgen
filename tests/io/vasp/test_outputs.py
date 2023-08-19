@@ -4,7 +4,6 @@ import gzip
 import json
 import os
 import unittest
-import warnings
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from shutil import copyfile, copyfileobj
@@ -49,12 +48,6 @@ except ImportError:
 
 class TestVasprun(PymatgenTest):
     _multiprocess_shared_ = True
-
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_vasprun_ml(self):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.ml_md")

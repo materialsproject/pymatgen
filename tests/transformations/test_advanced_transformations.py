@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import unittest
-import warnings
 from shutil import which
 
 import numpy as np
@@ -78,12 +77,6 @@ enumlib_present = enum_cmd and makestr_cmd
 
 
 class TestSuperTransformation(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_apply_transformation(self):
         trafo = SuperTransformation(
             [SubstitutionTransformation({"Li+": "Na+"}), SubstitutionTransformation({"Li+": "K+"})]
@@ -132,12 +125,6 @@ class TestSuperTransformation(unittest.TestCase):
 
 
 class TestMultipleSubstitutionTransformation(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_apply_transformation(self):
         sub_dict = {1: ["Na", "K"]}
         trafo = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
@@ -185,12 +172,6 @@ class TestChargeBalanceTransformation(unittest.TestCase):
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class TestEnumerateStructureTransformation(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         enum_trans2 = EnumerateStructureTransformation(refine_structure=True, sort_criteria="nsites")
@@ -339,10 +320,6 @@ class TestMagOrderingTransformation(PymatgenTest):
         parser = CifParser(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif")
         self.Li8Fe2NiCoO8 = parser.get_structures()[0]
         self.Li8Fe2NiCoO8.remove_oxidation_states()
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
@@ -534,12 +511,6 @@ class TestMagOrderingTransformation(PymatgenTest):
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class TestDopingTransformation(PymatgenTest):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_apply_transformation(self):
         structure = PymatgenTest.get_structure("LiFePO4")
         spga = SpacegroupAnalyzer(structure, 0.1)

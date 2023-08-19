@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import os
-
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import PymatgenTest
 
 try:
     import bson
@@ -11,12 +9,6 @@ except ModuleNotFoundError:
     bson = None  # type: ignore
 
 __author__ = "waroquiers"
-
-json_files_dir = os.path.join(
-    TEST_FILES_DIR,
-    "chemenv",
-    "json_test_files",
-)
 
 
 class TestEnvironmentNodes(PymatgenTest):
@@ -56,9 +48,3 @@ class TestEnvironmentNodes(PymatgenTest):
         struct = self.get_structure("SiO2")
         en = EnvironmentNode(central_site=struct[2], i_central_site=2, ce_symbol="T:4")
         assert str(en) == "Node #2 Si (T:4)"
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

@@ -3,8 +3,6 @@ from __future__ import annotations
 import filecmp
 import os
 import re
-import shutil
-import unittest
 
 import pandas as pd
 import pytest
@@ -565,7 +563,7 @@ write_data run.data"""
         ]
 
 
-class TestLammpsRun(unittest.TestCase):
+class TestLammpsRun(PymatgenTest):
     maxDiff = None
 
     def test_md(self):
@@ -574,7 +572,7 @@ class TestLammpsRun(unittest.TestCase):
         ff = "pair_style eam\npair_coeff * * Cu_u3.eam"
         md = LammpsRun.md(data=ld, force_field=ff, temperature=1600.0, nsteps=10000)
         md.write_inputs(output_dir="md")
-        with open(os.path.join("md", "in.md")) as f:
+        with open(f"{self.tmp_path}/md/in.md") as f:
             md_script = f.read()
         script_string = """# Sample input script template for MD
 
@@ -614,24 +612,17 @@ thermo          100  # output thermo data every N steps
 run             10000
 """
         assert md_script == script_string
-        assert os.path.exists(os.path.join("md", "md.data"))
-
-    @classmethod
-    def tearDownClass(cls):
-        temp_dirs = ["md"]
-        for td in temp_dirs:
-            if os.path.exists(td):
-                shutil.rmtree(td)
+        assert os.path.exists(f"{self.tmp_path}/md/md.data")
 
 
-class TestFunc(unittest.TestCase):
+class TestFunc(PymatgenTest):
     def test_write_lammps_inputs(self):
         # script template
         with open(f"{TEST_FILES_DIR}/lammps/kappa.txt") as f:
             kappa_template = f.read()
         kappa_settings = {"method": "heat"}
         write_lammps_inputs(output_dir="heat", script_template=kappa_template, settings=kappa_settings)
-        with open(os.path.join("heat", "in.lammps")) as f:
+        with open(f"{self.tmp_path}/heat/in.lammps") as f:
             kappa_script = f.read()
         fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
         # placeholders supposed to be filled
@@ -649,22 +640,15 @@ class TestFunc(unittest.TestCase):
         # copy data file
         src = f"{TEST_FILES_DIR}/lammps/data.quartz"
         write_lammps_inputs(output_dir="path", script_template=peptide_script, data=src)
-        dst = os.path.join("path", "data.peptide")
+        dst = f"{self.tmp_path}/path/data.peptide"
         assert filecmp.cmp(src, dst, shallow=False)
         # write data file from obj
         obj = LammpsData.from_file(src, atom_style="atomic")
         with pytest.warns(FutureWarning):
             write_lammps_inputs(output_dir="obj", script_template=peptide_script, data=obj)
-            obj_read = LammpsData.from_file(os.path.join("obj", "data.peptide"), atom_style="atomic")
+            obj_read = LammpsData.from_file(f"{self.tmp_path}/obj/data.peptide", atom_style="atomic")
             pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
             pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
-
-    @classmethod
-    def tearDownClass(cls):
-        temp_dirs = ["heat", "path", "obj"]
-        for td in temp_dirs:
-            if os.path.exists(td):
-                shutil.rmtree(td)
 
 
 class TestLammpsTemplateGen(PymatgenTest):

@@ -283,9 +283,3 @@ class MagSymmOpTestCase(PymatgenTest):
             for magmom in magmoms:
                 op = MagSymmOp.from_xyzt_string(xyzt_string)
                 assert_allclose(transformed_magmom, op.operate_magmom(magmom).global_moment)
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()
