@@ -260,8 +260,8 @@ def unicodeify_species(specie_string):
     return specie_string
 
 
-def stream_has_colours(stream):
-    """True if stream supports colours. Python cookbook, #475186."""
+def stream_has_colors(stream):
+    """True if stream supports colors. Python cookbook, #475186."""
     if not hasattr(stream, "isatty"):
         return False
 
