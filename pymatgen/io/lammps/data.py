@@ -1276,7 +1276,7 @@ class CombinedData(LammpsData):
         count = {"Bonds": 0, "Angles": 0, "Dihedrals": 0, "Impropers": 0}
         for i, mol in enumerate(self.mols):
             for kw in SECTION_KEYWORDS["topology"]:
-                if bool(mol.topology) and kw in mol.topology:
+                if mol.topology and kw in mol.topology:
                     if kw not in self.topology:
                         self.topology[kw] = pd.DataFrame()
                     topo_df = mol.topology[kw].copy()
@@ -1292,7 +1292,7 @@ class CombinedData(LammpsData):
         for kw in SECTION_KEYWORDS["topology"]:
             if kw in self.topology:
                 self.topology[kw].index += 1
-        if not bool(self.topology):
+        if not self.topology:
             self.topology = None
 
     @property

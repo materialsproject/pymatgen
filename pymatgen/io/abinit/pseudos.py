@@ -310,7 +310,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     def has_dojo_report(self):
         """True if the pseudo has an associated `DOJO_REPORT` section."""
         # pylint: disable=E1101
-        return hasattr(self, "dojo_report") and bool(self.dojo_report)
+        return hasattr(self, "dojo_report") and self.dojo_report
 
     @property
     def djrepo_path(self):

@@ -144,15 +144,15 @@ class InputVariable:
 
         if fval == 0 or (1e-3 < abs(fval) < 1e4):
             form = "f"
-            addlen = 5
+            add_len = 5
         else:
             form = "e"
-            addlen = 8
+            add_len = 8
 
         n_dec = max(len(str(fval - int(fval))) - 2, float_decimal)
         n_dec = min(n_dec, 10)
 
-        str_val = f"{fval:>{n_dec + addlen}.{n_dec}{form}}"
+        str_val = f"{fval:>{n_dec + add_len}.{n_dec}{form}}"
 
         return str_val.replace("e", "d")
 

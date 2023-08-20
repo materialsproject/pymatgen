@@ -434,7 +434,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         if len(self) == 1:
             return True
         all_dists = self.distance_matrix[np.triu_indices(len(self), 1)]
-        return bool(np.min(all_dists) > tol)
+        return np.min(all_dists) > tol
 
     @abstractmethod
     def to(self, filename: str = "", fmt: str = "") -> str | None:
