@@ -118,10 +118,7 @@ class LammpsBox(MSONable):
                 orthogonal box.
         """
         bounds_arr = np.array(bounds)
-        assert bounds_arr.shape == (
-            3,
-            2,
-        ), f"Expecting a (3, 2) array for bounds, got {bounds_arr.shape}"
+        assert bounds_arr.shape == (3, 2), f"Expecting a (3, 2) array for bounds, got {bounds_arr.shape}"
         self.bounds = bounds_arr.tolist()
         matrix = np.diag(bounds_arr[:, 1] - bounds_arr[:, 0])
 
@@ -1455,7 +1452,7 @@ class CombinedData(LammpsData):
         """
         lines = LammpsData.get_str(self, distance, velocity, charge, hybrid).splitlines()
         info = "# " + " + ".join(
-            f"{a} {b}" if c == 1 else f"{a} ({c}) {b}" for a, b, c in zip(self.nums, self.names, self.mols_per_data)
+            f"{a} {b}" if c == 1 else f"{a}({c}) {b}" for a, b, c in zip(self.nums, self.names, self.mols_per_data)
         )
         lines.insert(1, info)
         return "\n".join(lines)
