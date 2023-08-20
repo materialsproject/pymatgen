@@ -251,7 +251,7 @@ class CifFile:
         :return: CifFile
         """
         dct = {}
-        for x in re.split(r"^\s*data_", "x\n" + string, flags=re.MULTILINE | re.DOTALL)[1:]:
+        for x in re.split(r"^\s*data_", f"x\n{string}", flags=re.MULTILINE | re.DOTALL)[1:]:
             # Skip over Cif block that contains powder diffraction data.
             # Some elements in this block were missing from CIF files in
             # Springer materials/Pauling file DBs.

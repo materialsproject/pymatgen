@@ -1171,7 +1171,7 @@ class PseudoParser:
         try:
             header = parsers[ppdesc.name](path, ppdesc)
         except Exception:
-            raise self.Error(path + ":\n" + straceback())
+            raise self.Error(f"{path}:\n{straceback()}")
 
         if psp_type == "NC":
             pseudo = NcAbinitPseudo(path, header)

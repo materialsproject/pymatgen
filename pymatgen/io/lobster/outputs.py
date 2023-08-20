@@ -76,11 +76,13 @@ class Cohpcar:
 
     .. attribute: orb_cohp
 
-        orb_cohp[label] = {bond_data["orb_label"]: {"COHP": {Spin.up: cohps, Spin.down:cohps},
-                                                     "ICOHP": {Spin.up: icohps, Spin.down: icohps},
-                                                     "orbitals": orbitals,
-                                                     "length": bond lengths,
-                                                     "sites": sites corresponding to the bond}}
+        orb_cohp[label] = {bond_data["orb_label"]: {
+            "COHP": {Spin.up: cohps, Spin.down:cohps},
+            "ICOHP": {Spin.up: icohps, Spin.down: icohps},
+            "orbitals": orbitals,
+            "length": bond lengths,
+            "sites": sites corresponding to the bond},
+        }
 
     """
 

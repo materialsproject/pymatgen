@@ -1455,15 +1455,14 @@ class CombinedData(LammpsData):
         """
         lines = LammpsData.get_str(self, distance, velocity, charge, hybrid).splitlines()
         info = "# " + " + ".join(
-            (str(a) + " " + b) if c == 1 else (str(a) + "(" + str(c) + ") " + b)
-            for a, b, c in zip(self.nums, self.names, self.mols_per_data)
+            f"{a} {b}" if c == 1 else f"{a} ({c}) {b}" for a, b, c in zip(self.nums, self.names, self.mols_per_data)
         )
         lines.insert(1, info)
         return "\n".join(lines)
 
     def as_lammpsdata(self):
         """
-        Convert a CombinedData object to a LammpsData object. attributes are deepcopied.
+        Convert a CombinedData object to a LammpsData object. attributes are deep-copied.
 
         box (LammpsBox): Simulation box.
         force_field (dict): Data for force field sections. Optional

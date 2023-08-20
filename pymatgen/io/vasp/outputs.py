@@ -3737,8 +3737,7 @@ class Procar:
 
         Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
         {
-            spin: complex nd.array accessed with (k-point index, band index,
-                                                  ion index, orbital index)
+            spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)
         }
 
     ..attribute:: nbands

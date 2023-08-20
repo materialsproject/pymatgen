@@ -588,11 +588,11 @@ class Lobsterin(dict, MSONable):
                         if raw_datum[0].lower() not in Lobsterindict:
                             Lobsterindict[raw_datum[0].lower()] = " ".join(raw_datum[1:])
                         else:
-                            raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                            raise ValueError(f"Same keyword {raw_datum[0].lower()} twice!")
                     elif raw_datum[0].lower() not in Lobsterindict:
                         Lobsterindict[raw_datum[0].lower()] = float(raw_datum[1])
                     else:
-                        raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                        raise ValueError(f"Same keyword {raw_datum[0].lower()} twice!")
                 elif raw_datum[0].lower() not in Lobsterindict:
                     Lobsterindict[raw_datum[0].lower()] = [" ".join(raw_datum[1:])]
                 else:

@@ -225,9 +225,9 @@ def unicodeify_spacegroup(spacegroup_symbol):
 
     symbol = latexify_spacegroup(spacegroup_symbol)
 
-    for number, unicode_number in SUBSCRIPT_UNICODE.items():
-        symbol = symbol.replace("$_{" + str(number) + "}$", unicode_number)
-        symbol = symbol.replace("_" + str(number), unicode_number)
+    for num, unicode_number in SUBSCRIPT_UNICODE.items():
+        symbol = symbol.replace(f"$_{{{num}}}$", unicode_number)
+        symbol = symbol.replace(f"_{num}", unicode_number)
 
     overline = "\u0305"  # u"\u0304" (macron) is also an option
 
@@ -302,7 +302,7 @@ def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x",
                     string += "-"
                 string += c + dim
                 if f.denominator != 1:
-                    string += "/" + str(f.denominator)
+                    string += f"/{f.denominator}"
         if offset != 0:
             string += ("+" if (offset > 0 and string != "") else "") + str(Fraction(offset).limit_denominator())
         if string == "":

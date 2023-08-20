@@ -2792,9 +2792,9 @@ class LobsterSet(MPRelaxSet):
             )
         elif user_supplied_basis is not None:
             # test if all elements from structure are in user_supplied_basis
-            for atomtype in structure.symbol_set:
-                if atomtype not in user_supplied_basis:
-                    raise ValueError("There are no basis functions for the atom type " + str(atomtype))
+            for atom_type in structure.symbol_set:
+                if atom_type not in user_supplied_basis:
+                    raise ValueError(f"There are no basis functions for the atom type {atom_type}")
             basis = [f"{key} {value}" for key, value in user_supplied_basis.items()]
 
         lobsterin = Lobsterin(settingsdict={"basisfunctions": basis})
