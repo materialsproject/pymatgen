@@ -560,18 +560,15 @@ class LobsterNeighbors(NearNeighbors):
     def _get_plot_label(self, atoms, per_bond):
         # count the types of bonds and append a label:
         all_labels = []
-        for atomsnames in atoms:
-            new = [
-                self._split_string(atomsnames[0])[0],
-                self._split_string(atomsnames[1])[0],
-            ]
+        for atoms_names in atoms:
+            new = [self._split_string(atoms_names[0])[0], self._split_string(atoms_names[1])[0]]
             new.sort()
             string_here = new[0] + "-" + new[1]
             all_labels.append(string_here)
         count = collections.Counter(all_labels)
         plotlabels = []
         for key, item in count.items():
-            plotlabels.append(str(item) + " x " + str(key))
+            plotlabels.append(f"{item} x {key}")
         plotlabel = ", ".join(plotlabels)
         if per_bond:
             plotlabel = plotlabel + " (per bond)"
