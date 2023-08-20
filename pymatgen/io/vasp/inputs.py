@@ -2002,99 +2002,94 @@ class PotcarSingle:
                 while 'file' mode checks the hash of the entire POTCAR file.
 
         Returns:
-            symbol (List): List of symbols associated with the PotcarSingle
-            potcar_functionals (List): List of potcar functionals associated with
-                                       the PotcarSingle
+            symbol (list): List of symbols associated with the PotcarSingle
+            potcar_functionals (list): List of potcar functionals associated with
+                the PotcarSingle
         """
-        # Dict to translate the sets in the .json file to the keys used in
-        # DictSet
+        # Dict to translate the sets in the .json file to the keys used in DictSet
         mapping_dict = {
             "potUSPP_GGA": {
                 "pymatgen_key": "PW91_US",
-                "vasp_description": "Ultrasoft pseudo potentials\
-                                         for LDA and PW91 (dated 2002-08-20 and 2002-04-08,\
-                                         respectively). These files are outdated, not\
-                                         supported and only distributed as is.",
+                "vasp_description": "Ultrasoft pseudo potentials"
+                "for LDA and PW91 (dated 2002-08-20 and 2002-04-08,"
+                "respectively). These files are outdated, not"
+                "supported and only distributed as is.",
             },
             "potUSPP_LDA": {
                 "pymatgen_key": "LDA_US",
-                "vasp_description": "Ultrasoft pseudo potentials\
-                                         for LDA and PW91 (dated 2002-08-20 and 2002-04-08,\
-                                         respectively). These files are outdated, not\
-                                         supported and only distributed as is.",
+                "vasp_description": "Ultrasoft pseudo potentials"
+                "for LDA and PW91 (dated 2002-08-20 and 2002-04-08,"
+                "respectively). These files are outdated, not"
+                "supported and only distributed as is.",
             },
             "potpaw_GGA": {
                 "pymatgen_key": "PW91",
-                "vasp_description": "The LDA, PW91 and PBE PAW datasets\
-                                        (snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,\
-                                        respectively). These files are outdated, not\
-                                        supported and only distributed as is.",
+                "vasp_description": "The LDA, PW91 and PBE PAW datasets"
+                "(snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,"
+                "respectively). These files are outdated, not"
+                "supported and only distributed as is.",
             },
             "potpaw_LDA": {
                 "pymatgen_key": "Perdew-Zunger81",
-                "vasp_description": "The LDA, PW91 and PBE PAW datasets\
-                                        (snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,\
-                                        respectively). These files are outdated, not\
-                                        supported and only distributed as is.",
+                "vasp_description": "The LDA, PW91 and PBE PAW datasets"
+                "(snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,"
+                "respectively). These files are outdated, not"
+                "supported and only distributed as is.",
             },
             "potpaw_LDA.52": {
                 "pymatgen_key": "LDA_52",
-                "vasp_description": "LDA PAW datasets version 52,\
-                                           including the early GW variety (snapshot 19-04-2012).\
-                                           When read by VASP these files yield identical results\
-                                           as the files distributed in 2012 ('unvie' release).",
+                "vasp_description": "LDA PAW datasets version 52,"
+                "including the early GW variety (snapshot 19-04-2012)."
+                "When read by VASP these files yield identical results"
+                "as the files distributed in 2012 ('unvie' release).",
             },
             "potpaw_LDA.54": {
                 "pymatgen_key": "LDA_54",
-                "vasp_description": "LDA PAW datasets version 54,\
-                                           including the GW variety (original release 2015-09-04).\
-                                           When read by VASP these files yield identical results as\
-                                           the files distributed before.",
+                "vasp_description": "LDA PAW datasets version 54,"
+                "including the GW variety (original release 2015-09-04)."
+                "When read by VASP these files yield identical results as"
+                "the files distributed before.",
             },
             "potpaw_PBE": {
                 "pymatgen_key": "PBE",
-                "vasp_description": "The LDA, PW91 and PBE PAW datasets\
-                                        (snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,\
-                                        respectively). These files are outdated, not\
-                                        supported and only distributed as is.",
+                "vasp_description": "The LDA, PW91 and PBE PAW datasets"
+                "(snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,"
+                "respectively). These files are outdated, not"
+                "supported and only distributed as is.",
             },
             "potpaw_PBE.52": {
                 "pymatgen_key": "PBE_52",
-                "vasp_description": "PBE PAW datasets version 52,\
-                                           including early GW variety (snapshot 19-04-2012).\
-                                           When read by VASP these files yield identical\
-                                           results as the files distributed in 2012.",
+                "vasp_description": "PBE PAW datasets version 52,"
+                "including early GW variety (snapshot 19-04-2012)."
+                "When read by VASP these files yield identical"
+                "results as the files distributed in 2012.",
             },
             "potpaw_PBE.54": {
                 "pymatgen_key": "PBE_54",
-                "vasp_description": "PBE PAW datasets version 54,\
-                                           including the GW variety (original release 2015-09-04).\
-                                           When read by VASP these files yield identical results as\
-                                           the files distributed before.",
+                "vasp_description": "PBE PAW datasets version 54,"
+                "including the GW variety (original release 2015-09-04)."
+                "When read by VASP these files yield identical results as"
+                "the files distributed before.",
             },
             "unvie_potpaw.52": {
                 "pymatgen_key": "unvie_LDA_52",
-                "vasp_description": "files released previously\
-                                             for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
-                                             by univie.",
+                "vasp_description": "files released previously"
+                "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
             "unvie_potpaw.54": {
                 "pymatgen_key": "unvie_LDA_54",
-                "vasp_description": "files released previously\
-                                             for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
-                                             by univie.",
+                "vasp_description": "files released previously"
+                "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
             "unvie_potpaw_PBE.52": {
                 "pymatgen_key": "unvie_PBE_52",
-                "vasp_description": "files released previously\
-                                                for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
-                                                by univie.",
+                "vasp_description": "files released previously"
+                "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
             "unvie_potpaw_PBE.54": {
                 "pymatgen_key": "unvie_PBE_52",
-                "vasp_description": "files released previously\
-                                                for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
-                                                by univie.",
+                "vasp_description": "files released previously"
+                "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
         }
 

@@ -575,8 +575,8 @@ class SurfaceEnergyPlotter:
         Args:
             ref_delu (Symbol): The free variable chempot with the format:
                 Symbol("delu_el") where el is the name of the element.
-            chempot_range (List[float]): Min/max range of chemical potential to plot along.
-            delu_dict (Dict[Symbol, float]): Dictionary of the chemical potentials to be set as
+            chempot_range (list[float]): Min/max range of chemical potential to plot along.
+            delu_dict (dict[Symbol, float]): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials.
@@ -871,8 +871,8 @@ class SurfaceEnergyPlotter:
                 to plot. (Add appropriate description for type)
             ref_delu (Symbol): The range stability of each slab is based
                 on the chempot range of this chempot.
-            chempot_range (List[float]): Range to consider the stability of the slabs.
-            delu_dict (Dict[Symbol, float]): Dictionary of the chemical potentials.
+            chempot_range (list[float]): Range to consider the stability of the slabs.
+            delu_dict (dict[Symbol, float]): Dictionary of the chemical potentials.
             delu_default (float): Default value for all unset chemical potentials.
             label (str): Label of the slab for the legend.
             JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
