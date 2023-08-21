@@ -6,24 +6,24 @@ Testing for quasirrho.py
 from __future__ import annotations
 
 import os
+import unittest
 
 import pytest
 
 from pymatgen.analysis.quasirrho import QuasiRRHO
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.qchem.outputs import QCOutput
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestQuasiRRHO(PymatgenTest):
+class TestQuasiRRHO(unittest.TestCase):
     """
     Test class for QuasiRRHO
     """
-
     def setUp(self):
-        test_dir = self.TEST_FILES_DIR
+        test_dir = TEST_FILES_DIR
         self.gout = GaussianOutput(os.path.join(test_dir, "molecules", "quasirrho_gaufreq.log"))
-        self.linear_gout = GaussianOutput(os.path.join(test_dir, "molecules", "co2.log"))
+        self.linear_gout = GaussianOutput(os.path.join(test_dir, "molecules","co2.log.gz"))
         self.qout = QCOutput(os.path.join(test_dir, "molecules", "new_qchem_files", "Frequency_no_equal.qout"))
 
     def test_qrrho_gaussian(self):
