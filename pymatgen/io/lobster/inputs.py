@@ -804,7 +804,7 @@ class Lobsterin(dict, MSONable):
         if dict_for_basis is not None:
             # dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'}
             # will just insert this basis and not check with poscar
-            basis = [key + " " + value for key, value in dict_for_basis.items()]
+            basis = [f"{key} {value}" for key, value in dict_for_basis.items()]
         elif POTCAR_input is not None:
             # get basis from POTCAR
             potcar_names = Lobsterin._get_potcar_symbols(POTCAR_input=POTCAR_input)

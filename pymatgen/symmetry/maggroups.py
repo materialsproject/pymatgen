@@ -440,9 +440,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         desc["bns_number"] = ".".join(map(str, self._data["bns_number"]))
         desc["bns_label"] = self._data["bns_label"]
         desc["og_id"] = (
-            "\t\tOG: " + ".".join(map(str, self._data["og_number"])) + " " + self._data["og_label"]
-            if include_og
-            else ""
+            f"\t\tOG: {'.'.join(map(str, self._data['og_number']))} {self._data['og_label']}" if include_og else ""
         )
         desc["bns_operators"] = " ".join(op_data["str"] for op_data in self._data["bns_operators"])
 

@@ -1605,9 +1605,7 @@ class _MPResterLegacy:
         if response.status_code != 200:
             return False
         content = json.loads(response.text)
-        if content["pagination"]["total"] == 0:
-            return False
-        return True
+        return content["pagination"]["total"] != 0
 
     @staticmethod
     def parse_criteria(criteria_string):

@@ -30,9 +30,7 @@ class Spin(Enum):
 
 @unique
 class OrbitalType(Enum):
-    """Enum type for orbital type. Indices are basically the azimuthal quantum
-    number, l.
-    """
+    """Enum type for orbital type. Indices are the azimuthal quantum number l."""
 
     s = 0
     p = 1
@@ -45,7 +43,7 @@ class OrbitalType(Enum):
 
 @unique
 class Orbital(Enum):
-    """Enum type for specific orbitals. The indices are basically the order in
+    """Enum type for specific orbitals. The indices are the order in
     which the orbitals are reported in VASP and has no special meaning.
     """
 
@@ -228,7 +226,7 @@ class Magmom(MSONable):
 
     @property
     def projection(self):
-        """Projects moment along spin quantisation axis. Useful for obtaining
+        """Projects moment along spin quantization axis. Useful for obtaining
         collinear approximation for slightly non-collinear magmoms.
 
         :return: float
@@ -356,9 +354,7 @@ class Magmom(MSONable):
         ref_magmom = magmoms[0]
         # magnitude of cross products != 0 if non-collinear with reference
         num_ncl = np.count_nonzero(np.linalg.norm(np.cross(ref_magmom, magmoms), axis=1))
-        if num_ncl > 0:
-            return False
-        return True
+        return num_ncl == 0
 
     @classmethod
     def from_moment_relative_to_crystal_axes(cls, moment, lattice):
