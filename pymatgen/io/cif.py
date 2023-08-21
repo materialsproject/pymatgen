@@ -1103,14 +1103,7 @@ class CifParser:
                 all_labels = None  # type: ignore
 
             struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
-            if skip_occu_checks:
-                struct_2 = Structure(
-                    lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels
-                )
-                for idx in range(len(struct_2)):
-                    struct_2[idx] = PeriodicSite(
-                        all_species_noedit[idx], all_coords[idx], lattice, properties=site_properties, skip_checks=True
-                    )
+                
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
                 # TODO: extract Wyckoff labels (or other CIF attributes) and include as site_properties
@@ -1123,21 +1116,29 @@ class CifParser:
                 struct = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
 
                 if skip_occu_checks:
-                    struct_2 = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
-                    for idx in range(len(struct_2)):
-                        struct_2[idx] = PeriodicSite(
+                    for idx in range(len(struct)):
+                        struct[idx] = PeriodicSite(
                             all_species_noedit[idx],
                             all_coords[idx],
                             lattice,
                             properties=site_properties,
                             skip_checks=True,
                         )
-                    return struct_2
-
                 return struct
 
             if skip_occu_checks:
-                return struct_2
+                struct = Structure(
+                    lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels
+                )
+                for idx in range(len(struct)):
+                    struct[idx] = PeriodicSite(
+                        all_species_noedit[idx],
+                        all_coords[idx],
+                        lattice,
+                        properties=site_properties,
+                        skip_checks=True
+                    )
+                return struct
 
             struct = struct.get_sorted_structure()
 
