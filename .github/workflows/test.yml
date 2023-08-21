@@ -118,20 +118,10 @@ jobs:
           python -m pip install numpy cython packaging
           python -m pip install -e '.[dev,optional]'
       - name: pytest split ${{ matrix.split }}
-        if: github.event_name == 'release' || github.event_name == 'push'
-        # For releases, we do non-parallel runs, which usually makes sure that the coverage is properly completed.
         run: |
-          pytest --cov=pymatgen tests
-      - name: pytest split ${{ matrix.split }}
-        if: github.event_name == 'pull_request'
-        # To update the test durations, do pip install pytest-split and run
-        # pytest --store-durations --durations-path tests/files/.pytest-split-durations
-        # and commit the results (requires pip install pytest-split)
-        run: |
-          pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
+          pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
       - name: Upload coverage
         # Only upload coverage for ubuntu py3.11 runs. Continue on error as coverage is not critical.
-        continue-on-error: true
         if: github.event_name != 'pull_request' && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
         uses: actions/upload-artifact@v3
         with:
@@ -140,7 +130,6 @@ jobs:
 
   coverage:
     # Only upload coverage for ubuntu py3.11 runs. Continue on error as coverage is not critical.
-    continue-on-error: true
     if: github.event_name != 'pull_request'
     needs: test
     runs-on: ubuntu-latest
