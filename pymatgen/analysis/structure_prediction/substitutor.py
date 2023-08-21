@@ -90,12 +90,11 @@ class Substitutor(MSONable):
         Args:
             target_species:
                 a list of species with oxidation states
-                e.g., [Species('Li',1),Species('Ni',2), Species('O',-2)]
+                e.g., [Species('Li+'), Species('Ni2+'), Species('O-2')]
 
             structures_list:
-                a list of dictionary of the form {'structure':Structure object
-                ,'id':some id where it comes from}
-                the id can for instance refer to an ICSD id.
+                list of dictionary of the form {'structure': Structure object, 'id': some id where it comes from}
+                The id can for instance refer to an ICSD id.
 
             remove_duplicates:
                 if True, the duplicates in the predicted structures will
@@ -111,20 +110,20 @@ class Substitutor(MSONable):
         target_species = [get_el_sp(sp) for sp in target_species]
         result = []
         transmuter = StandardTransmuter([])
-        if len(list(set(target_species) & set(self.get_allowed_species()))) != len(target_species):
+        if len(set(target_species) & set(self.get_allowed_species())) != len(target_species):
             raise ValueError("the species in target_species are not allowed for the probability model you are using")
 
-        for permut in itertools.permutations(target_species):
+        for permutation in itertools.permutations(target_species):
             for s in structures_list:
                 # check if: species are in the domain,
                 # and the probability of subst. is above the threshold
-                els = s["structure"].composition.elements
+                els = s["structure"].elements
                 if (
-                    len(els) == len(permut)
-                    and len(list(set(els) & set(self.get_allowed_species()))) == len(els)
-                    and self._sp.cond_prob_list(permut, els) > self._threshold
+                    len(els) == len(permutation)
+                    and len(set(els) & set(self.get_allowed_species())) == len(els)
+                    and self._sp.cond_prob_list(permutation, els) > self._threshold
                 ):
-                    clean_subst = {els[i]: permut[i] for i in range(0, len(els)) if els[i] != permut[i]}
+                    clean_subst = {els[i]: permutation[i] for i in range(0, len(els)) if els[i] != permutation[i]}
 
                     if len(clean_subst) == 0:
                         continue
@@ -138,7 +137,7 @@ class Substitutor(MSONable):
                             history=[{"source": s["id"]}],
                             other_parameters={
                                 "type": "structure_prediction",
-                                "proba": self._sp.cond_prob_list(permut, els),
+                                "proba": self._sp.cond_prob_list(permutation, els),
                             },
                         )
                         result.append(ts)

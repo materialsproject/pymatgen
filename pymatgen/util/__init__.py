@@ -1,5 +1,4 @@
-"""
-The util package implements various utilities that are commonly used by various
+"""The util package implements various utilities that are commonly used by various
 packages.
 """
 

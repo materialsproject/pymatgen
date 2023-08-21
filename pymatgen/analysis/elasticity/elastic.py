@@ -164,24 +164,24 @@ class ElasticTensor(NthOrderElasticTensor):
         return ComplianceTensor.from_voigt(s_voigt)
 
     @property
-    def k_voigt(self):
+    def k_voigt(self) -> float:
         """Returns the K_v bulk modulus."""
         return self.voigt[:3, :3].mean()
 
     @property
-    def g_voigt(self):
+    def g_voigt(self) -> float:
         """Returns the G_v shear modulus."""
         return (
             2 * self.voigt[:3, :3].trace() - np.triu(self.voigt[:3, :3]).sum() + 3 * self.voigt[3:, 3:].trace()
         ) / 15.0
 
     @property
-    def k_reuss(self):
+    def k_reuss(self) -> float:
         """Returns the K_r bulk modulus."""
         return 1 / self.compliance_tensor.voigt[:3, :3].sum()
 
     @property
-    def g_reuss(self):
+    def g_reuss(self) -> float:
         """Returns the G_r shear modulus."""
         return 15 / (
             8 * self.compliance_tensor.voigt[:3, :3].trace()
@@ -190,17 +190,17 @@ class ElasticTensor(NthOrderElasticTensor):
         )
 
     @property
-    def k_vrh(self):
+    def k_vrh(self) -> float:
         """Returns the K_vrh (Voigt-Reuss-Hill) average bulk modulus."""
         return 0.5 * (self.k_voigt + self.k_reuss)
 
     @property
-    def g_vrh(self):
+    def g_vrh(self) -> float:
         """Returns the G_vrh (Voigt-Reuss-Hill) average shear modulus."""
         return 0.5 * (self.g_voigt + self.g_reuss)
 
     @property
-    def y_mod(self):
+    def y_mod(self) -> float:
         """
         Calculates Young's modulus (in SI units) using the
         Voigt-Reuss-Hill averages of bulk and shear moduli.
@@ -240,11 +240,11 @@ class ElasticTensor(NthOrderElasticTensor):
 
         Returns: transverse sound velocity (in SI units)
         """
-        nsites = structure.num_sites
+        n_sites = len(structure)
         volume = structure.volume
-        natoms = structure.composition.num_atoms
+        n_atoms = structure.composition.num_atoms
         weight = float(structure.composition.weight)
-        mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
+        mass_density = 1.6605e3 * n_sites * weight / (n_atoms * volume)
         if self.g_vrh < 0:
             raise ValueError("k_vrh or g_vrh is negative, sound velocity is undefined")
         return (1e9 * self.g_vrh / mass_density) ** 0.5
@@ -260,11 +260,11 @@ class ElasticTensor(NthOrderElasticTensor):
 
         Returns: longitudinal sound velocity (in SI units)
         """
-        nsites = structure.num_sites
+        n_sites = len(structure)
         volume = structure.volume
-        natoms = structure.composition.num_atoms
+        n_atoms = structure.composition.num_atoms
         weight = float(structure.composition.weight)
-        mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
+        mass_density = 1.6605e3 * n_sites * weight / (n_atoms * volume)
         if self.g_vrh < 0:
             raise ValueError("k_vrh or g_vrh is negative, sound velocity is undefined")
         return (1e9 * (self.k_vrh + 4 / 3 * self.g_vrh) / mass_density) ** 0.5
@@ -279,17 +279,17 @@ class ElasticTensor(NthOrderElasticTensor):
 
         Returns: Snyder's acoustic sound velocity (in SI units)
         """
-        nsites = structure.num_sites
+        n_sites = len(structure)
         volume = structure.volume
-        natoms = structure.composition.num_atoms
-        num_density = 1e30 * nsites / volume
+        n_atoms = structure.composition.num_atoms
+        num_density = 1e30 * n_sites / volume
         tot_mass = sum(e.atomic_mass for e in structure.species)
-        avg_mass = 1.6605e-27 * tot_mass / natoms
+        avg_mass = 1.6605e-27 * tot_mass / n_atoms
         return (
             0.38483
             * avg_mass
             * ((self.long_v(structure) + 2 * self.trans_v(structure)) / 3) ** 3.0
-            / (300 * num_density ** (-2 / 3) * nsites ** (1 / 3))
+            / (300 * num_density ** (-2 / 3) * n_sites ** (1 / 3))
         )
 
     @raise_error_if_unphysical
@@ -302,15 +302,15 @@ class ElasticTensor(NthOrderElasticTensor):
 
         Returns: Snyder's optical sound velocity (in SI units)
         """
-        nsites = structure.num_sites
+        n_sites = len(structure)
         volume = structure.volume
-        num_density = 1e30 * nsites / volume
+        num_density = 1e30 * n_sites / volume
         return (
             1.66914e-23
             * (self.long_v(structure) + 2 * self.trans_v(structure))
             / 3.0
             / num_density ** (-2 / 3)
-            * (1 - nsites ** (-1 / 3))
+            * (1 - n_sites ** (-1 / 3))
         )
 
     @raise_error_if_unphysical
@@ -335,13 +335,13 @@ class ElasticTensor(NthOrderElasticTensor):
 
         Returns: Clarke's thermal conductivity (in SI units)
         """
-        nsites = structure.num_sites
+        n_sites = len(structure)
         volume = structure.volume
         tot_mass = sum(e.atomic_mass for e in structure.species)
-        natoms = structure.composition.num_atoms
+        n_atoms = structure.composition.num_atoms
         weight = float(structure.composition.weight)
-        avg_mass = 1.6605e-27 * tot_mass / natoms
-        mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
+        avg_mass = 1.6605e-27 * tot_mass / n_atoms
+        mass_density = 1.6605e3 * n_sites * weight / (n_atoms * volume)
         return 0.87 * 1.3806e-23 * avg_mass ** (-2 / 3) * mass_density ** (1 / 6) * self.y_mod**0.5
 
     @raise_error_if_unphysical
@@ -354,9 +354,9 @@ class ElasticTensor(NthOrderElasticTensor):
 
         Returns: Cahill's thermal conductivity (in SI units)
         """
-        nsites = structure.num_sites
+        n_sites = len(structure)
         volume = structure.volume
-        num_density = 1e30 * nsites / volume
+        num_density = 1e30 * n_sites / volume
         return 1.3806e-23 / 2.48 * num_density ** (2 / 3) * (self.long_v(structure) + 2 * self.trans_v(structure))
 
     @raise_error_if_unphysical
@@ -370,7 +370,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
         Returns: debye temperature (in SI units)
         """
-        v0 = structure.volume * 1e-30 / structure.num_sites
+        v0 = structure.volume * 1e-30 / len(structure)
         vl, vt = self.long_v(structure), self.trans_v(structure)
         vm = 3 ** (1 / 3) * (1 / vl**3 + 2 / vt**3) ** (-1 / 3)
         return 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1 / 3)
@@ -690,7 +690,7 @@ class ElasticTensorExpansion(TensorCollection):
                 current supported modes are 'debye' and 'dulong-petit'
         """
         soec = ElasticTensor(self[0])
-        v0 = structure.volume * 1e-30 / structure.num_sites
+        v0 = structure.volume * 1e-30 / len(structure)
         if mode == "debye":
             td = soec.debye_temperature(structure)
             t_ratio = temperature / td
@@ -717,8 +717,8 @@ class ElasticTensorExpansion(TensorCollection):
         if not self.order <= 4:
             raise ValueError("Compliance tensor expansion only supported for fourth-order and lower")
         ce_exp = [ElasticTensor(self[0]).compliance_tensor]
-        einstring = "ijpq,pqrsuv,rskl,uvmn->ijklmn"
-        ce_exp.append(np.einsum(einstring, -ce_exp[-1], self[1], ce_exp[-1], ce_exp[-1]))
+        ein_string = "ijpq,pqrsuv,rskl,uvmn->ijklmn"
+        ce_exp.append(np.einsum(ein_string, -ce_exp[-1], self[1], ce_exp[-1], ce_exp[-1]))
         if self.order == 4:
             # Four terms in the Fourth-Order compliance tensor
             # pylint: disable=E1130

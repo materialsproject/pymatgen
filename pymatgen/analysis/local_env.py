@@ -51,13 +51,13 @@ __date__ = "August 17, 2017"
 _directory = os.path.join(os.path.dirname(__file__))
 yaml = YAML()
 
-with open(os.path.join(_directory, "op_params.yaml")) as f:
+with open(f"{_directory}/op_params.yaml") as f:
     default_op_params = yaml.load(f)
 
-with open(os.path.join(_directory, "cn_opt_params.yaml")) as f:
+with open(f"{_directory}/cn_opt_params.yaml") as f:
     cn_opt_params = yaml.load(f)
 
-with open(os.path.join(_directory, "ionic_radii.json")) as fp:
+with open(f"{_directory}/ionic_radii.json") as fp:
     _ion_radii = json.load(fp)
 
 
@@ -183,7 +183,7 @@ class ValenceIonicRadiusEvaluator:
                     else:
                         valences.append(0)
                 if sum(valences):
-                    valences = [0] * self._structure.num_sites
+                    valences = [0] * len(self._structure)
                 else:
                     self._structure.add_oxidation_state_by_site(valences)
                 # raise
@@ -479,6 +479,7 @@ class NearNeighbors:
             _previous_steps ({(site_idx, image}) - Internal use only: Set of
                 sites that have already been traversed.
             _cur_image (tuple) - Internal use only Image coordinates of current atom
+
         Returns:
             list of dictionaries. Each entry in the list is information about
                 a certain neighbor in the structure, in the same format as
@@ -744,7 +745,7 @@ class VoronoiNN(NearNeighbors):
         """
         # Assemble the list of neighbors used in the tessellation
         #   Gets all atoms within a certain radius
-        targets = structure.composition.elements if self.targets is None else self.targets
+        targets = structure.elements if self.targets is None else self.targets
         center = structure[n]
 
         cutoff = self.cutoff
@@ -782,6 +783,7 @@ class VoronoiNN(NearNeighbors):
 
         Args:
             structure (Structure): Structure to be evaluated
+
         Returns:
             A dict of sites sharing a common Voronoi facet with the site
             n mapped to a directory containing statistics about the facet:
@@ -802,7 +804,7 @@ class VoronoiNN(NearNeighbors):
             return [self.get_voronoi_polyhedra(structure, 0)]
 
         # Assemble the list of neighbors used in the tessellation
-        targets = structure.composition.elements if self.targets is None else self.targets
+        targets = structure.elements if self.targets is None else self.targets
 
         # Initialize the list of sites with the atoms in the origin unit cell
         # The `get_all_neighbors` function returns neighbors for each site's image in
@@ -849,6 +851,7 @@ class VoronoiNN(NearNeighbors):
             targets ([Element]) - Target elements
             voro - Output of qvoronoi
             compute_adj_neighbors (boolean) - Whether to compute which neighbors are adjacent
+
         Returns:
             A dict of sites sharing a common Voronoi facet. Key is facet id
              (not useful) and values are dictionaries containing statistics
@@ -1008,11 +1011,12 @@ class VoronoiNN(NearNeighbors):
         Args:
             structure (Structure): Structure being evaluated
             nns ([dicts]): Nearest neighbor information for a structure
+
         Returns:
             (list of tuples (Site, array, float)): See nn_info
         """
         # Get the target information
-        targets = structure.composition.elements if self.targets is None else self.targets
+        targets = structure.elements if self.targets is None else self.targets
 
         # Extract the NN info
         siw = []
@@ -1120,7 +1124,7 @@ class IsayevNN(VoronoiNN):
             See get_nn_info for the format of the returned data.
         """
         # Get the target information
-        targets = structure.composition.elements if self.targets is None else self.targets
+        targets = structure.elements if self.targets is None else self.targets
 
         site = structure[n]
 
@@ -1157,6 +1161,7 @@ def _is_in_targets(site, targets):
     Args:
         site (Site): Site to assess
         targets ([Element]) List of elements
+
     Returns:
          (boolean) Whether this site contains a certain list of elements
     """
@@ -1170,6 +1175,7 @@ def _get_elements(site):
 
     Args:
          site (Site): Site to assess
+
     Returns:
         [Element]: List of elements
     """
@@ -1273,7 +1279,7 @@ class JmolNN(NearNeighbors):
 
         # Determine relevant bond lengths based on atomic radii table
         bonds = {}
-        for el in structure.composition.elements:
+        for el in structure.elements:
             bonds[site.specie, el] = self.get_max_bond_distance(site.specie.symbol, el.symbol)
 
         # Search for neighbors up to max bond length + tolerance
@@ -1605,7 +1611,8 @@ class CovalentBondNN(NearNeighbors):
 
         :param structure: input Molecule.
         :param n: index of site for which to determine near neighbors.
-        :return: [dict] representing a neighboring site and the type of
+        Returns:
+            [dict] representing a neighboring site and the type of
             bond present between site n and the neighboring site.
         """
         # This is unfortunately inefficient, but is the best way to fit the
@@ -1993,6 +2000,7 @@ def get_okeeffe_distance_prediction(el1, el2):
 
     Args:
         el1, el2 (Element): two Element objects
+
     Returns:
         a float value of the predicted bond length
     """
@@ -4218,7 +4226,7 @@ class CutOffDictNN(NearNeighbors):
             A CutOffDictNN using the preset cut-off dictionary.
         """
         if preset == "vesta_2019":
-            cut_offs = loadfn(os.path.join(_directory, "vesta_cutoffs.yaml"))
+            cut_offs = loadfn(f"{_directory}/vesta_cutoffs.yaml")
             return CutOffDictNN(cut_off_dict=cut_offs)
 
         raise ValueError(f"Unknown {preset=}")

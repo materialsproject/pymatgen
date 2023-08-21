@@ -1,4 +1,5 @@
 """This module provides classes to handle thermal displacement matrices (anisotropic displacement parameters)."""
+
 from __future__ import annotations
 
 import re
@@ -33,8 +34,7 @@ __date__ = "August 09, 2022"
 
 
 class ThermalDisplacementMatrices(MSONable):
-    """
-    Class to handle thermal displacement matrices
+    """Class to handle thermal displacement matrices
     This class stores thermal displacement matrices in Ucart format.
 
     An earlier implementation based on Matlab can be found here:
@@ -76,8 +76,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @staticmethod
     def get_full_matrix(thermal_displacement):
-        """
-        Transfers the reduced matrix to the full matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).
+        """Transfers the reduced matrix to the full matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).
 
         Args:
             thermal_displacement: 2d numpy array, first dimension are the atoms
@@ -101,8 +100,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @staticmethod
     def get_reduced_matrix(thermal_displacement):
-        """
-        Transfers the full matrix to reduced matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).
+        """Transfers the full matrix to reduced matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).
 
         Args:
             thermal_displacement: 2d numpy array, first dimension are the atoms
@@ -123,8 +121,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @property
     def Ustar(self):
-        """
-        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+        """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
         Returns: Ustar as a numpy array, first dimension are the atoms in the structure.
         """
         A = self.structure.lattice.matrix.T
@@ -137,8 +134,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @property
     def Ucif(self):
-        """
-        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+        """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
         Returns: Ucif as a numpy array, first dimension are the atoms in the structure.
         """
         if self.thermal_displacement_matrix_cif is None:
@@ -158,8 +154,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @property
     def B(self):
-        """
-        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+        """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
         Returns: B as a numpy array, first dimension are the atoms in the structure.
         """
         B = []
@@ -170,8 +165,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @property
     def beta(self):
-        """
-        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+        """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
         Returns: beta as a numpy array, first dimension are the atoms in the structure.
         """
         # will compute beta based on Ustar
@@ -183,8 +177,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @property
     def U1U2U3(self):
-        """
-        Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+        """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
         Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure.
         """
         U1U2U3 = []
@@ -193,8 +186,7 @@ class ThermalDisplacementMatrices(MSONable):
         return U1U2U3
 
     def write_cif(self, filename):
-        """
-        Writes a cif including thermal displacements.
+        """Writes a cif including thermal displacements.
 
         Args:
             filename: name of the cif file
@@ -236,8 +228,7 @@ class ThermalDisplacementMatrices(MSONable):
         "parameters with experiment.",
     )
     def compute_directionality_quality_criterion(self, other):
-        """
-        Will compute directionality of prolate displacement ellipsoids as described in
+        """Will compute directionality of prolate displacement ellipsoids as described in
         https://doi.org/10.1039/C9CE00794F with the earlier implementation: https://github.com/damMroz/Angle/.
 
         Args:
@@ -292,8 +283,7 @@ class ThermalDisplacementMatrices(MSONable):
     def visualize_directionality_quality_criterion(
         self, other, filename: str = "visualization.vesta", which_structure: int = 0
     ):
-        """
-        Will create a VESTA file for visualization of the directionality criterion.
+        """Will create a VESTA file for visualization of the directionality criterion.
 
         Args:
             other: ThermalDisplacementMatrices
@@ -397,8 +387,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @staticmethod
     def from_Ucif(thermal_displacement_matrix_cif, structure, temperature):
-        """
-        Starting from a numpy array, it will convert Ucif values into Ucart values and initialize the class.
+        """Starting from a numpy array, it will convert Ucif values into Ucart values and initialize the class.
 
         Args:
             thermal_displacement_matrix_cif: np.array,
@@ -438,8 +427,7 @@ class ThermalDisplacementMatrices(MSONable):
         )
 
     def to_structure_with_site_properties_Ucif(self):
-        """
-        Transfers this object into a structure with site properties (Ucif).
+        """Transfers this object into a structure with site properties (Ucif).
         This is useful for sorting the atoms in the structure including site properties.
         E.g., with code like this:
         def sort_order(site):
@@ -466,8 +454,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @staticmethod
     def from_structure_with_site_properties_Ucif(structure: Structure, temperature: float | None = None):
-        """
-        Will create this object with the help of a structure with site properties.
+        """Will create this object with the help of a structure with site properties.
 
         Args:
             structure: Structure object including U11_cif, U22_cif, U33_cif, U23_cif, U13_cif, U12_cif as site
@@ -495,8 +482,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @staticmethod
     def from_cif_P1(filename: str):
-        """
-        Reads a cif with P1 symmetry including positions and ADPs.
+        """Reads a cif with P1 symmetry including positions and ADPs.
         Currently, no check of symmetry is performed as CifParser methods cannot be easily reused
         Args:
             filename: Filename of the cif.

@@ -97,7 +97,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                     color=color,
                 )
         else:
-            ecolor = color if np.allclose(np.array(delta), np.zeros(3)) else periodic_color
+            ecolor = color if np.allclose(delta, np.zeros(3)) else periodic_color
             e = FancyArrowPatch(
                 n1center,
                 n2center,
@@ -846,6 +846,7 @@ class ConnectedComponent(MSONable):
 
         Args:
             d (dict): dict representation of the ConnectedComponent object
+
         Returns:
             ConnectedComponent: The connected component representing the links of a given set of environments.
         """

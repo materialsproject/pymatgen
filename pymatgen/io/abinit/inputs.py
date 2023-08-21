@@ -85,16 +85,6 @@ _IRDVARS = {
     "ird1wf",
 }
 
-# Name of the (default) tolerance used by the runlevels.
-_runl2tolname = {
-    "scf": "tolvrs",
-    "nscf": "tolwfr",
-    "dfpt": "toldfe",  # ?
-    "screening": "toldfe",  # dummy
-    "sigma": "toldfe",  # dummy
-    "bse": "toldfe",  # ?
-    "relax": "tolrff",
-}
 
 # Tolerances for the different levels of accuracy.
 
@@ -155,7 +145,7 @@ class ShiftMode(Enum):
     def from_object(cls, obj):
         """
         Returns an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
-        on the iniital letter of the string. G for GammaCenterd, M for MonkhorstPack,
+        on the initial letter of the string. G for GammaCentered, M for MonkhorstPack,
         S for Symmetric, O for OneSymmetric.
         Case insensitive.
         """
@@ -166,14 +156,25 @@ class ShiftMode(Enum):
         raise TypeError(f"The object provided is not handled: type {type(obj).__name__}")
 
 
-def _stopping_criterion(runlevel, accuracy):
-    """Return the stopping criterion for this runlevel with the given accuracy."""
-    tolname = _runl2tolname[runlevel]
-    return {tolname: getattr(_tolerances[tolname], accuracy)}
+def _stopping_criterion(run_level, accuracy):
+    """Return the stopping criterion for this run_level with the given accuracy."""
+
+    # Name of the (default) tolerance used by the run levels.
+    _run_level_tolname_map = {
+        "scf": "tolvrs",
+        "nscf": "tolwfr",
+        "dfpt": "toldfe",  # ?
+        "screening": "toldfe",  # dummy
+        "sigma": "toldfe",  # dummy
+        "bse": "toldfe",  # ?
+        "relax": "tolrff",
+    }
+    tol_name = _run_level_tolname_map[run_level]
+    return {tol_name: getattr(_tolerances[tol_name], accuracy)}
 
 
 def _find_ecut_pawecutdg(ecut, pawecutdg, pseudos, accuracy):
-    """Return a |AttrDict| with the value of ``ecut`` and ``pawecutdg``."""
+    """Return a |AttrDict| with the value of ecut and pawecutdg."""
     # Get ecut and pawecutdg from the pseudo hints.
     if ecut is None or (pawecutdg is None and any(p.ispaw for p in pseudos)):
         has_hints = all(p.has_hints for p in pseudos)
@@ -194,18 +195,18 @@ def _find_ecut_pawecutdg(ecut, pawecutdg, pseudos, accuracy):
 
 
 def _find_scf_nband(structure, pseudos, electrons, spinat=None):
-    """Find the value of ``nband``."""
+    """Find the value of nband."""
     if electrons.nband is not None:
         return electrons.nband
 
     nsppol, smearing = electrons.nsppol, electrons.smearing
 
     # Number of valence electrons including possible extra charge
-    nval = num_valence_electrons(structure, pseudos)
-    nval -= electrons.charge
+    n_val_elec = num_valence_electrons(structure, pseudos)
+    n_val_elec -= electrons.charge
 
     # First guess (semiconductors)
-    nband = nval // 2
+    nband = n_val_elec // 2
 
     # TODO: Find better algorithm
     # If nband is too small we may kill the job, increase nband and restart
@@ -234,7 +235,7 @@ def _get_shifts(shift_mode, structure):
         centered otherwise.
 
     Note: for some cases (e.g. body centered tetragonal), both the Symmetric and OneSymmetric may fail to satisfy the
-        ``chksymbreak`` condition (Abinit input variable).
+        chksymbreak condition (Abinit input variable).
     """
     if shift_mode == ShiftMode.GammaCentered:
         return ((0, 0, 0),)
@@ -475,7 +476,7 @@ def ion_ioncell_relax_input(
 
 def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
     """
-    Find the values of ``shiftk`` and ``nshiftk`` appropriated for the sampling of the Brillouin zone.
+    Find the values of shiftk and nshiftk appropriated for the sampling of the Brillouin zone.
 
     When the primitive vectors of the lattice do NOT form a FCC or a BCC lattice,
     the usual (shifted) Monkhorst-Pack grids are formed by using nshiftk=1 and shiftk 0.5 0.5 0.5 .
@@ -611,7 +612,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return self.to_str()
 
     def write(self, filepath="run.abi"):
-        """Write the input file to file to ``filepath``."""
+        """Write the input file to file to filepath."""
         dirname = os.path.dirname(os.path.abspath(filepath))
         if not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -699,7 +700,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
 
 
 class BasicAbinitInputError(Exception):
-    """Base error class for exceptions raised by ``BasicAbinitInput``."""
+    """Base error class for exceptions raised by BasicAbinitInput."""
 
 
 class BasicAbinitInput(AbstractInput, MSONable):
@@ -790,7 +791,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
     def add_abiobjects(self, *abi_objects):
         """
-        This function receive a list of ``AbiVarable`` objects and add
+        This function receive a list of AbiVarable objects and add
         the corresponding variables to the input.
         """
         dct = {}
@@ -1010,7 +1011,7 @@ class BasicMultiDataset:
     that provides an easy-to-use interface to apply global changes to the
     the inputs stored in the objects.
 
-    Let's assume for example that multi contains two ``BasicAbinitInput`` objects and we
+    Let's assume for example that multi contains two BasicAbinitInput objects and we
     want to set `ecut` to 1 in both dictionaries. The direct approach would be:
 
         for inp in multi:
@@ -1204,7 +1205,7 @@ class BasicMultiDataset:
         self._inputs.extend(abinit_inputs)
 
     def addnew_from(self, dtindex):
-        """Add a new entry in the multidataset by copying the input with index ``dtindex``."""
+        """Add a new entry in the multidataset by copying the input with index dtindex."""
         self.append(self[dtindex].deepcopy())
 
     def split_datasets(self):
@@ -1301,7 +1302,7 @@ class BasicMultiDataset:
 
     def write(self, filepath="run.abi"):
         """
-        Write ``ndset`` input files to disk. The name of the file
+        Write ndset input files to disk. The name of the file
         is constructed from the dataset index e.g. run0.abi.
         """
         root, ext = os.path.splitext(filepath)

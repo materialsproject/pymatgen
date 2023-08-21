@@ -169,7 +169,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             if make_dir_if_not_present and not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
-            with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as file:
+            with zopen(f"{output_dir}/POTCAR.spec", "wt") as file:
                 file.write("\n".join(self.potcar_symbols))
 
             for key in ["INCAR", "POSCAR", "KPOINTS"]:
@@ -436,7 +436,7 @@ class DictSet(VaspInputSet):
 
     @property
     def structure(self) -> Structure:
-        """:return: Structure"""
+        """Structure"""
         if self.standardize and self.sym_prec:
             return standardize_structure(
                 self._structure,
@@ -447,7 +447,7 @@ class DictSet(VaspInputSet):
 
     @property
     def incar(self) -> Incar:
-        """:return: Incar"""
+        """Incar"""
         settings = dict(self._config_dict["INCAR"])
         for k, v in self.user_incar_settings.items():
             if v is None:
@@ -508,7 +508,7 @@ class DictSet(VaspInputSet):
                         ]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
-                    incar["EDIFF"] = float(v) * structure.num_sites
+                    incar["EDIFF"] = float(v) * len(structure)
                 else:
                     incar["EDIFF"] = float(settings["EDIFF"])
             else:
@@ -596,7 +596,7 @@ class DictSet(VaspInputSet):
 
     @property
     def poscar(self) -> Poscar:
-        """:return: Poscar"""
+        """Poscar"""
         return Poscar(self.structure)
 
     @property
@@ -1085,7 +1085,7 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         parent_incar = super().incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
 
@@ -1150,7 +1150,7 @@ class MPStaticSet(MPRelaxSet):
 
     @property
     def kpoints(self) -> Kpoints | None:
-        """:return: Kpoints"""
+        """Kpoints"""
         self._config_dict["KPOINTS"]["reciprocal_density"] = self.reciprocal_density
         kpoints = super().kpoints
 
@@ -1246,7 +1246,7 @@ class MPScanStaticSet(MPScanRelaxSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         parent_incar = super().incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
 
@@ -1383,8 +1383,8 @@ class MPHSEBSSet(MPHSERelaxSet):
 
     @property
     def kpoints(self) -> Kpoints:
-        """:return: Kpoints"""
-        kpts: list[int | float | None] = []
+        """Kpoints"""
+        kpts: list[float | None] = []
         weights: list[float | None] = []
         all_labels: list[str | None] = []
         structure = self.structure
@@ -1559,7 +1559,7 @@ class MPNonSCFSet(MPRelaxSet):
 
     @property
     def incar(self) -> Incar:
-        """:return: Incar"""
+        """Incar"""
         incar = super().incar
         if self.prev_incar is not None:
             incar.update(self.prev_incar.items())
@@ -1602,7 +1602,7 @@ class MPNonSCFSet(MPRelaxSet):
 
     @property
     def kpoints(self) -> Kpoints | None:
-        """:return: Kpoints"""
+        """Kpoints"""
         # override pymatgen kpoints if provided
         user_kpoints = self.user_kpoints_settings
         if isinstance(user_kpoints, Kpoints):
@@ -1771,7 +1771,7 @@ class MPSOCSet(MPStaticSet):
 
     @property
     def incar(self) -> Incar:
-        """:return: Incar"""
+        """Incar"""
         incar = super().incar
         if self.prev_incar is not None:
             incar.update(self.prev_incar.items())
@@ -1893,7 +1893,7 @@ class MPNMRSet(MPStaticSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         incar = super().incar
 
         if self.mode.lower() == "cs":
@@ -2046,7 +2046,7 @@ class MVLGWSet(DictSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         parent_incar = super().incar
         incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
 
@@ -2236,7 +2236,8 @@ class MVLSlabSet(MPRelaxSet):
     def as_dict(self, verbosity=2):
         """
         :param verbosity: Verbosity of dict. E.g., whether to include Structure.
-        :return: MSONable dict
+        Returns:
+            MSONable dict
         """
         d = MSONable.as_dict(self)
         if verbosity == 1:
@@ -2303,7 +2304,7 @@ class MVLGBSet(MPRelaxSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         incar = super().incar
 
         # The default incar setting is used for metallic system, for
@@ -2391,12 +2392,12 @@ class MITNEBSet(MITRelaxSet):
 
     @property
     def poscar(self):
-        """:return: Poscar for structure of first end point."""
+        """Poscar for structure of first end point."""
         return Poscar(self.structures[0])
 
     @property
     def poscars(self):
-        """:return: List of Poscars."""
+        """List of Poscars."""
         return [Poscar(s) for s in self.structures]
 
     @staticmethod
@@ -2531,7 +2532,7 @@ class MITMDSet(MITRelaxSet):
 
     @property
     def kpoints(self):
-        """:return: Kpoints"""
+        """Kpoints"""
         return Kpoints.gamma_automatic()
 
 
@@ -2613,7 +2614,7 @@ class MPMDSet(MPRelaxSet):
 
     @property
     def kpoints(self):
-        """:return: Kpoints"""
+        """Kpoints"""
         return Kpoints.gamma_automatic()
 
 
@@ -2792,9 +2793,9 @@ class LobsterSet(MPRelaxSet):
             )
         elif user_supplied_basis is not None:
             # test if all elements from structure are in user_supplied_basis
-            for atomtype in structure.symbol_set:
-                if atomtype not in user_supplied_basis:
-                    raise ValueError("There are no basis functions for the atom type " + str(atomtype))
+            for atom_type in structure.symbol_set:
+                if atom_type not in user_supplied_basis:
+                    raise ValueError(f"There are no basis functions for the atom type {atom_type}")
             basis = [f"{key} {value}" for key, value in user_supplied_basis.items()]
 
         lobsterin = Lobsterin(settingsdict={"basisfunctions": basis})
@@ -2901,8 +2902,8 @@ def standardize_structure(structure, sym_prec=0.1, international_monoclinic=True
 
     # the primitive structure finding has had several bugs in the past
     # defend through validation
-    vpa_old = structure.volume / structure.num_sites
-    vpa_new = new_structure.volume / new_structure.num_sites
+    vpa_old = structure.volume / len(structure)
+    vpa_new = new_structure.volume / len(new_structure)
 
     if abs(vpa_old - vpa_new) / vpa_old > 0.02:
         raise ValueError(f"Standardizing cell failed! VPA old: {vpa_old}, VPA new: {vpa_new}")
@@ -3115,7 +3116,7 @@ class MPAbsorptionSet(MPRelaxSet):
 
     @property
     def incar(self):
-        """:return: Incar"""
+        """Incar"""
         parent_incar = super().incar
         absorption_incar = {
             "ALGO": "Exact",

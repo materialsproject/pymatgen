@@ -14,8 +14,7 @@ if TYPE_CHECKING:
 
 
 class SymmetrizedStructure(Structure):
-    """
-    This class represents a symmetrized structure, i.e. a structure
+    """This class represents a symmetrized structure, i.e. a structure
     where the spacegroup and symmetry operations are defined. This class is
     typically not called but instead is typically obtained by calling
     pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure.
@@ -63,7 +62,7 @@ class SymmetrizedStructure(Structure):
         self.wyckoff_symbols = [f"{len(symb)}{symb[0]}" for symb in wyckoff_symbols]
 
     def copy(self):
-        """:return: Copy of structure."""
+        """Copy of structure."""
         return SymmetrizedStructure(
             self,
             spacegroup=self.spacegroup,
@@ -72,8 +71,7 @@ class SymmetrizedStructure(Structure):
         )
 
     def find_equivalent_sites(self, site: PeriodicSite) -> list[PeriodicSite]:
-        """
-        Finds all symmetrically equivalent sites for a particular site.
+        """Finds all symmetrically equivalent sites for a particular site.
 
         Args:
             site (PeriodicSite): A site in the structure
@@ -124,7 +122,7 @@ class SymmetrizedStructure(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict."""
         structure = Structure.from_sites(self.sites)
         return {
             "structure": structure.as_dict(),
@@ -135,9 +133,10 @@ class SymmetrizedStructure(Structure):
 
     @classmethod
     def from_dict(cls, dct):
-        """
-        :param d: Dict representation
-        :return: SymmetrizedStructure
+        """:param d: Dict representation
+
+        Returns:
+            SymmetrizedStructure
         """
         return cls(
             Structure.from_dict(dct["structure"]),

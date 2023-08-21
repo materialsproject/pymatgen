@@ -1,5 +1,4 @@
-"""
-Module to call mcsqs, distributed with AT-AT
+"""Module to call mcsqs, distributed with AT-AT
 https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/.
 """
 
@@ -39,14 +38,13 @@ def run_mcsqs(
     search_time: float = 60,
     directory: str | None = None,
     instances: int | None = None,
-    temperature: int | float = 1,
+    temperature: float = 1,
     wr: float = 1,
     wn: float = 1,
     wd: float = 0.5,
     tol: float = 1e-3,
 ) -> Sqs:
-    """
-    Helper function for calling mcsqs with different arguments
+    """Helper function for calling mcsqs with different arguments
     Args:
         structure (Structure): Disordered pymatgen Structure object
         clusters (dict): Dictionary of cluster interactions with entries in the form
@@ -170,8 +168,7 @@ def run_mcsqs(
 
 
 def _parse_sqs_path(path) -> Sqs:
-    """
-    Private function to parse mcsqs output directory
+    """Private function to parse mcsqs output directory
     Args:
         path: directory to perform parsing.
 
@@ -230,8 +227,7 @@ def _parse_sqs_path(path) -> Sqs:
 
 
 def _parse_clusters(filename):
-    """
-    Private function to parse clusters.out file
+    """Private function to parse clusters.out file
     Args:
         path: directory to perform parsing.
 

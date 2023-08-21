@@ -148,6 +148,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
         Args:
             interplanar_spacings (dict): dictionary of hkl to interplanar spacing
+
         Returns:
             dict of hkl plane (3-tuple) to Bragg angle in radians (float)
         """
@@ -188,7 +189,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         x_ray_factors = {}
         s2 = self.get_s2(bragg_angles)
-        atoms = structure.composition.elements
+        atoms = structure.elements
         scattering_factors_for_atom = {}
         for atom in atoms:
             coeffs = np.array(ATOMIC_SCATTERING_PARAMS[atom.symbol])
@@ -217,7 +218,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         electron_scattering_factors = {}
         x_ray_factors = self.x_ray_factors(structure, bragg_angles)
         s2 = self.get_s2(bragg_angles)
-        atoms = structure.composition.elements
+        atoms = structure.elements
         prefactor = 0.023934
         scattering_factors_for_atom = {}
         for atom in atoms:
@@ -286,6 +287,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): The input structure.
             scaled (bool): Required value for inheritance, does nothing in TEM pattern
             two_theta_range (Tuple): Required value for inheritance, does nothing in TEM pattern
+
         Returns:
             PandasDataFrame
         """
@@ -385,6 +387,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): The input structure.
             p1 (3-tuple): plane 1
             p2 (3-tuple): plane 2
+
         Returns:
             float
         """

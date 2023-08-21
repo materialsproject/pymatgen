@@ -15,8 +15,7 @@ THZ_TO_J = const.value("hertz-joule relationship") * const.tera
 
 
 def coth(x):
-    """
-    Coth function.
+    """Coth function.
 
     Args:
         x (): value
@@ -28,8 +27,7 @@ def coth(x):
 
 
 class PhononDos(MSONable):
-    """
-    Basic DOS object. All other DOS objects are extended versions of this
+    """Basic DOS object. All other DOS objects are extended versions of this
     object.
     """
 
@@ -43,8 +41,7 @@ class PhononDos(MSONable):
         self.densities = np.array(densities)
 
     def get_smeared_densities(self, sigma):
-        """
-        Returns the densities, but with a Gaussian smearing of
+        """Returns the densities, but with a Gaussian smearing of
         std dev sigma applied.
 
         Args:
@@ -61,8 +58,7 @@ class PhononDos(MSONable):
         return gaussian_filter1d(self.densities, sigma / avgdiff)
 
     def __add__(self, other):
-        """
-        Adds two DOS together. Checks that frequency scales are the same.
+        """Adds two DOS together. Checks that frequency scales are the same.
         Otherwise, a ValueError is thrown.
 
         Args:
@@ -77,8 +73,7 @@ class PhononDos(MSONable):
         return PhononDos(self.frequencies, densities)
 
     def __radd__(self, other):
-        """
-        Reflected addition of two DOS objects.
+        """Reflected addition of two DOS objects.
 
         Args:
             other: Another DOS object.
@@ -89,8 +84,7 @@ class PhononDos(MSONable):
         return self.__add__(other)
 
     def get_interpolated_value(self, frequency):
-        """
-        Returns interpolated density for a particular frequency.
+        """Returns interpolated density for a particular frequency.
 
         Args:
             frequency: frequency to return the density for.
@@ -137,8 +131,7 @@ class PhononDos(MSONable):
         return self.densities[self.ind_zero_freq :]
 
     def cv(self, t, structure=None):
-        """
-        Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.
+        """Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
@@ -149,6 +142,7 @@ class PhononDos(MSONable):
             t: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+
         Returns:
             Constant volume specific heat C_v
         """
@@ -172,8 +166,7 @@ class PhononDos(MSONable):
         return cv
 
     def entropy(self, t, structure=None):
-        """
-        Vibrational entropy at temperature T obtained from the integration of the DOS.
+        """Vibrational entropy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
@@ -184,6 +177,7 @@ class PhononDos(MSONable):
             t: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+
         Returns:
             Vibrational entropy
         """
@@ -205,8 +199,7 @@ class PhononDos(MSONable):
         return s
 
     def internal_energy(self, t, structure=None):
-        """
-        Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.
+        """Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
@@ -217,6 +210,7 @@ class PhononDos(MSONable):
             t: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+
         Returns:
             Phonon contribution to the internal energy
         """
@@ -238,8 +232,7 @@ class PhononDos(MSONable):
         return e
 
     def helmholtz_free_energy(self, t, structure=None):
-        """
-        Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.
+        """Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
@@ -250,6 +243,7 @@ class PhononDos(MSONable):
             t: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+
         Returns:
             Phonon contribution to the Helmholtz free energy
         """
@@ -271,8 +265,7 @@ class PhononDos(MSONable):
         return f
 
     def zero_point_energy(self, structure=None):
-        """
-        Zero point energy of the system. Only positive frequencies will be used.
+        """Zero point energy of the system. Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
@@ -281,6 +274,7 @@ class PhononDos(MSONable):
         Args:
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+
         Returns:
             Phonon contribution to the internal energy
         """
@@ -298,8 +292,7 @@ class PhononDos(MSONable):
 
 
 class CompletePhononDos(PhononDos):
-    """
-    This wrapper class defines a total dos, and also provides a list of PDos.
+    """This wrapper class defines a total dos, and also provides a list of PDos.
 
     .. attribute:: pdos
 
@@ -318,8 +311,7 @@ class CompletePhononDos(PhononDos):
         self.structure = structure
 
     def get_site_dos(self, site):
-        """
-        Get the Dos for a site.
+        """Get the Dos for a site.
 
         Args:
             site: Site in Structure associated with CompletePhononDos.
@@ -330,8 +322,7 @@ class CompletePhononDos(PhononDos):
         return PhononDos(self.frequencies, self.pdos[site])
 
     def get_element_dos(self):
-        """
-        Get element projected Dos.
+        """Get element projected Dos.
 
         Returns:
             dict of {Element: Dos}

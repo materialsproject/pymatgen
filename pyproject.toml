@@ -70,6 +70,7 @@ ignore = [
   "PLR",     # pylint refactor
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT013",   # pytest-incorrect-pytest-import
+  "PYI024",  # collections-named-tuple (TODO should maybe fix these)
   "RUF012",  # Disable checks for mutable class args. This is a non-problem.
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
 ]
@@ -79,7 +80,7 @@ isort.split-on-trailing-comma = false
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
-"*/tests/*" = ["D"]
+"tests/**" = ["D"]
 "tasks.py" = ["D"]
 "pymatgen/analysis/*" = ["D"]
 "pymatgen/vis/*" = ["D"]
@@ -90,17 +91,29 @@ isort.split-on-trailing-comma = false
 addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mode=importlib"
 
 [tool.coverage.run]
-omit = ["pymatgen/cli"]
-relative_files = true
+branch = true
+omit = [
+  "pymatgen/cli/feff_plot_cross_section.py",
+  "pymatgen/cli/feff_plot_dos.py",
+  "pymatgen/cli/pmg_config.py",
+  "pymatgen/cli/pmg_plot.py",
+  "pymatgen/cli/pmg_potcar.py",
+  "pymatgen/cli/pmg_query.py",
+  "pymatgen/dao.py",
+]
 
 [tool.coverage.report]
-exclude_lines = [
+exclude_also = [
   "@deprecated",
+  "@np.deprecate",
   "def __repr__",
+  "except ImportError:",
   "if 0:",
+  "if TYPE_CHECKING:",
   "if __name__ == .__main__.:",
   "if self.debug:",
   "if settings.DEBUG",
+  "if typing.TYPE_CHECKING:",
   "pragma: no cover",
   "raise AssertionError",
   "raise NotImplementedError",
@@ -112,6 +125,7 @@ ignore_missing_imports = true
 namespace_packages = true
 explicit_package_bases = true
 no_implicit_optional = false
+disable_error_code = "annotation-unchecked"
 
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*"]

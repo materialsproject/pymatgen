@@ -28,7 +28,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2023.7.20",
+    version="2023.08.10",
     python_requires=">=3.8",
     install_requires=[
         "matplotlib>=1.5",
@@ -187,7 +187,6 @@ setup(
             "pmg = pymatgen.cli.pmg:main",
             "feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main",
             "feff_plot_dos = pymatgen.cli.feff_plot_dos:main",
-            "gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main",
             "get_environment = pymatgen.cli.get_environment:main",
         ]
     },

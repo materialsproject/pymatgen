@@ -86,10 +86,10 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
     # get a series of tuples with (coordination number, specie)
     cn_and_species = {
         (
-            bonded_structure.get_coordination_of_site(i),
-            bonded_structure.structure[i].specie,
+            bonded_structure.get_coordination_of_site(idx),
+            bonded_structure.structure[idx].specie,
         )
-        for i in range(bonded_structure.structure.num_sites)
+        for idx in range(len(bonded_structure))
     }
 
     cn_to_radii_map = {}

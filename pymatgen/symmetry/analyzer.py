@@ -105,7 +105,7 @@ class SpacegroupAnalyzer:
                 tuple(map(tuple, structure.lattice.matrix.tolist())),
                 tuple(map(tuple, structure.frac_coords.tolist())),
                 tuple(zs),
-                tuple(magmoms),
+                tuple(map(tuple, magmoms) if isinstance(magmoms[0], Sequence) else magmoms),
             )
         else:  # if no magmoms given do not add to cell
             self._cell = (

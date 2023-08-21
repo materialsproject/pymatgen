@@ -27,7 +27,9 @@ class EnergyModel(MSONable, metaclass=abc.ABCMeta):
     def get_energy(self, structure) -> float:
         """
         :param structure: Structure
-        :return: Energy value
+
+        Returns:
+            Energy value
         """
         return 0.0
 
@@ -72,7 +74,9 @@ class EwaldElectrostaticModel(EnergyModel):
     def get_energy(self, structure: Structure):
         """
         :param structure: Structure
-        :return: Energy value
+
+        Returns:
+            Energy value
         """
         e = EwaldSummation(
             structure,
@@ -84,7 +88,7 @@ class EwaldElectrostaticModel(EnergyModel):
         return e.total_energy
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -119,13 +123,15 @@ class SymmetryModel(EnergyModel):
     def get_energy(self, structure: Structure):
         """
         :param structure: Structure
-        :return: Energy value
+
+        Returns:
+            Energy value
         """
         f = SpacegroupAnalyzer(structure, symprec=self.symprec, angle_tolerance=self.angle_tolerance)
         return -f.get_space_group_number()
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -152,7 +158,9 @@ class IsingModel(EnergyModel):
     def get_energy(self, structure: Structure):
         """
         :param structure: Structure
-        :return: Energy value
+
+        Returns:
+            Energy value
         """
         all_nn = structure.get_all_neighbors(r=self.max_radius)
         energy = 0
@@ -163,7 +171,7 @@ class IsingModel(EnergyModel):
         return energy
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -182,12 +190,14 @@ class NsitesModel(EnergyModel):
     def get_energy(self, structure: Structure):
         """
         :param structure: Structure
-        :return: Energy value
+
+        Returns:
+            Energy value
         """
         return len(structure)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,

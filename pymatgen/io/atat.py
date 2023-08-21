@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+from monty.dev import deprecated
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import get_el_sp
@@ -29,7 +30,7 @@ class Mcsqs:
         """
         self.structure = structure
 
-    @np.deprecate(message="Use to_str instead")
+    @deprecated(message="Use to_str instead")
     def to_string(cls, *args, **kwargs):
         return cls.to_str(*args, **kwargs)
 
@@ -62,7 +63,7 @@ class Mcsqs:
 
         return "\n".join(output)
 
-    @np.deprecate(message="Use from_str instead")
+    @deprecated(message="Use from_str instead")
     def structure_from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
@@ -73,7 +74,9 @@ class Mcsqs:
         Structure format.
 
         :param data: contents of a rndstr.in, lat.in or bestsqs.out file
-        :return: Structure object
+
+        Returns:
+            Structure object
         """
         data = data.splitlines()
         data = [x.split() for x in data if x]  # remove empty lines

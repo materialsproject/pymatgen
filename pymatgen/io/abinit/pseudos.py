@@ -28,6 +28,8 @@ from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 
 if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+
     from pymatgen.core import Structure
 
 logger = logging.getLogger(__name__)
@@ -308,7 +310,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     def has_dojo_report(self):
         """True if the pseudo has an associated `DOJO_REPORT` section."""
         # pylint: disable=E1101
-        return hasattr(self, "dojo_report") and bool(self.dojo_report)
+        return hasattr(self, "dojo_report") and self.dojo_report
 
     @property
     def djrepo_path(self):
@@ -688,23 +690,20 @@ def _int_from_str(string):
 class NcAbinitHeader(AbinitHeader):
     """The abinit header found in the NC pseudopotential files."""
 
-    _attr_desc = namedtuple("_attr_desc", "default astype")
-
     _VARS = dict(
-        zatom=_attr_desc(None, _int_from_str),
-        zion=_attr_desc(None, float),
-        pspdat=_attr_desc(None, float),
-        pspcod=_attr_desc(None, int),
-        pspxc=_attr_desc(None, int),
-        lmax=_attr_desc(None, int),
-        lloc=_attr_desc(None, int),
-        r2well=_attr_desc(None, float),
-        mmax=_attr_desc(None, float),
-        rchrg=_attr_desc(0.0, float),
-        fchrg=_attr_desc(0.0, float),
-        qchrg=_attr_desc(0.0, float),
+        zatom=(None, _int_from_str),
+        zion=(None, float),
+        pspdat=(None, float),
+        pspcod=(None, int),
+        pspxc=(None, int),
+        lmax=(None, int),
+        lloc=(None, int),
+        r2well=(None, float),
+        mmax=(None, float),
+        rchrg=(0.0, float),
+        fchrg=(0.0, float),
+        qchrg=(0.0, float),
     )
-    del _attr_desc
 
     def __init__(self, summary, **kwargs):
         super().__init__()
@@ -716,7 +715,7 @@ class NcAbinitHeader(AbinitHeader):
         self.summary = summary.strip()
 
         for key, desc in NcAbinitHeader._VARS.items():
-            default, astype = desc.default, desc.astype
+            default, astype = desc
             value = kwargs.pop(key, None)
 
             if value is None:
@@ -884,29 +883,26 @@ class NcAbinitHeader(AbinitHeader):
 class PawAbinitHeader(AbinitHeader):
     """The abinit header found in the PAW pseudopotential files."""
 
-    _attr_desc = namedtuple("_attr_desc", "default astype")
-
     _VARS = dict(
-        zatom=_attr_desc(None, _int_from_str),
-        zion=_attr_desc(None, float),
-        pspdat=_attr_desc(None, float),
-        pspcod=_attr_desc(None, int),
-        pspxc=_attr_desc(None, int),
-        lmax=_attr_desc(None, int),
-        lloc=_attr_desc(None, int),
-        mmax=_attr_desc(None, int),
-        r2well=_attr_desc(None, float),
-        pspfmt=_attr_desc(None, str),
-        creatorID=_attr_desc(None, int),
-        basis_size=_attr_desc(None, int),
-        lmn_size=_attr_desc(None, int),
-        orbitals=_attr_desc(None, list),
-        number_of_meshes=_attr_desc(None, int),
-        r_cut=_attr_desc(None, float),  # r_cut(PAW) in the header
-        shape_type=_attr_desc(None, int),
-        rshape=_attr_desc(None, float),
+        zatom=(None, _int_from_str),
+        zion=(None, float),
+        pspdat=(None, float),
+        pspcod=(None, int),
+        pspxc=(None, int),
+        lmax=(None, int),
+        lloc=(None, int),
+        mmax=(None, int),
+        r2well=(None, float),
+        pspfmt=(None, str),
+        creatorID=(None, int),
+        basis_size=(None, int),
+        lmn_size=(None, int),
+        orbitals=(None, list),
+        number_of_meshes=(None, int),
+        r_cut=(None, float),  # r_cut(PAW) in the header
+        shape_type=(None, int),
+        rshape=(None, float),
     )
-    del _attr_desc
 
     def __init__(self, summary, **kwargs):
         super().__init__()
@@ -914,7 +910,7 @@ class PawAbinitHeader(AbinitHeader):
         self.summary = summary.strip()
 
         for key, desc in self._VARS.items():
-            default, astype = desc.default, desc.astype
+            default, astype = desc
 
             value = kwargs.pop(key, None)
 
@@ -1175,7 +1171,7 @@ class PseudoParser:
         try:
             header = parsers[ppdesc.name](path, ppdesc)
         except Exception:
-            raise self.Error(path + ":\n" + straceback())
+            raise self.Error(f"{path}:\n{straceback()}")
 
         if psp_type == "NC":
             pseudo = NcAbinitPseudo(path, header)
@@ -1418,7 +1414,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # yield self.plot_potentials(title="potentials", show=False)
 
     @add_fig_kwargs
-    def plot_densities(self, ax=None, **kwargs):
+    def plot_densities(self, ax: plt.Axes = None, **kwargs):
         """
         Plot the PAW densities.
 
@@ -1444,7 +1440,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return fig
 
     @add_fig_kwargs
-    def plot_waves(self, ax=None, fontsize=12, **kwargs):
+    def plot_waves(self, ax: plt.Axes = None, fontsize=12, **kwargs):
         """
         Plot the AE and the pseudo partial waves.
 
@@ -1475,7 +1471,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return fig
 
     @add_fig_kwargs
-    def plot_projectors(self, ax=None, fontsize=12, **kwargs):
+    def plot_projectors(self, ax: plt.Axes = None, fontsize=12, **kwargs):
         """
         Plot the PAW projectors.
 
@@ -1677,7 +1673,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
     @property
     def zlist(self):
         """Ordered list with the atomic numbers available in the table."""
-        return sorted(list(self._pseudos_with_z))
+        return sorted(self._pseudos_with_z)
 
     # def max_ecut_pawecutdg(self, accuracy):
     # """Return the maximum value of ecut and pawecutdg based on the hints available in the pseudos."""

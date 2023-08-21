@@ -39,10 +39,10 @@ __date__ = "Feb 2017"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 try:
-    DEFAULT_MAGMOMS = loadfn(os.path.join(MODULE_DIR, "default_magmoms.yaml"))
+    DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/default_magmoms.yaml")
 except Exception:
     warnings.warn("Could not load default_magmoms.yaml, falling back to VASPIncarBase.yaml")
-    DEFAULT_MAGMOMS = loadfn(os.path.join(MODULE_DIR, "../../io/vasp/VASPIncarBase.yaml"))
+    DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/../../io/vasp/VASPIncarBase.yaml")
     DEFAULT_MAGMOMS = DEFAULT_MAGMOMS["MAGMOM"]
 
 
@@ -166,10 +166,8 @@ class CollinearMagneticStructureAnalyzer:
                     has_spin = True
 
         # perform input sanitation ...
-        # rest of class will assume magnetic moments
-        # are stored on site properties:
-        # this is somewhat arbitrary, arguments can
-        # be made for both approaches
+        # rest of class will assume magnetic moments are stored on site properties:
+        # this is somewhat arbitrary, arguments can be made for both approaches
 
         if has_magmoms and has_spin:
             raise ValueError(
@@ -294,7 +292,7 @@ class CollinearMagneticStructureAnalyzer:
 
     @no_type_check  # ignore seemingly false mypy errors
     @staticmethod
-    def _round_magmoms(magmoms: ArrayLike, round_magmoms_mode: int | float) -> np.ndarray:
+    def _round_magmoms(magmoms: ArrayLike, round_magmoms_mode: float) -> np.ndarray:
         """If round_magmoms_mode is an integer, simply round to that number
         of decimal places, else if set to a float will try and round
         intelligently by grouping magmoms.

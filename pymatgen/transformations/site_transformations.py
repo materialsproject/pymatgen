@@ -1,5 +1,4 @@
-"""
-This module defines site transformations which transforms a structure into
+"""This module defines site transformations which transforms a structure into
 another structure. Site transformations differ from standard transformations
 in that they operate in a site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
@@ -48,8 +47,7 @@ class InsertSitesTransformation(AbstractTransformation):
         self.validate_proximity = validate_proximity
 
     def apply_transformation(self, structure: Structure):
-        """
-        Apply the transformation.
+        """Apply the transformation.
 
         Arg:
             structure (Structure): A structurally similar structure in
@@ -102,8 +100,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         self.indices_species_map = indices_species_map
 
     def apply_transformation(self, structure: Structure):
-        """
-        Apply the transformation.
+        """Apply the transformation.
 
         Arg:
             structure (Structure): A structurally similar structure in
@@ -147,8 +144,7 @@ class RemoveSitesTransformation(AbstractTransformation):
         self.indices_to_remove = indices_to_remove
 
     def apply_transformation(self, structure: Structure):
-        """
-        Apply the transformation.
+        """Apply the transformation.
 
         Arg:
             structure (Structure): A structurally similar structure in
@@ -198,8 +194,7 @@ class TranslateSitesTransformation(AbstractTransformation):
         self.vector_in_frac_coords = vector_in_frac_coords
 
     def apply_transformation(self, structure: Structure):
-        """
-        Apply the transformation.
+        """Apply the transformation.
 
         Arg:
             structure (Structure): A structurally similar structure in
@@ -247,8 +242,7 @@ class TranslateSitesTransformation(AbstractTransformation):
 
 
 class PartialRemoveSitesTransformation(AbstractTransformation):
-    """
-    Remove fraction of specie from a structure.
+    """Remove fraction of specie from a structure.
     Requires an oxidation state decorated structure for Ewald sum to be
     computed.
 
@@ -393,8 +387,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return sorted(all_structures, key=lambda s: s["energy"])
 
     def _fast_ordering(self, structure: Structure, num_remove_dict, num_to_return=1):
-        """
-        This method uses the matrix form of ewaldsum to calculate the ewald
+        """This method uses the matrix form of ewaldsum to calculate the ewald
         sums of the potential structures. This is on the order of 4 orders of
         magnitude faster when there are large numbers of permutations to
         consider. There are further optimizations possible (doing a smarter
@@ -454,8 +447,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return trans.apply_transformation(struct, 10000)
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
-        """
-        Apply the transformation.
+        """Apply the transformation.
 
         Args:
             structure: input structure
@@ -538,8 +530,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
         self.site_properties = site_properties
 
     def apply_transformation(self, structure: Structure):
-        """
-        Apply the transformation.
+        """Apply the transformation.
 
         Arg:
             structure (Structure): A structurally similar structure in
@@ -565,8 +556,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
 
 
 class RadialSiteDistortionTransformation(AbstractTransformation):
-    """
-    Radially perturbs atoms around a site. Can be used to create spherical distortion due to a
+    """Radially perturbs atoms around a site. Can be used to create spherical distortion due to a
     point defect.
     """
 
@@ -589,8 +579,7 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
         self.nn_only = nn_only
 
     def apply_transformation(self, structure: Structure):
-        """
-        Apply the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Structure or Molecule to apply the transformation to
@@ -627,16 +616,14 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """
-        Returns the inverse transformation if available.
+        """Returns the inverse transformation if available.
         Otherwise, should return None.
         """
         return False
 
     @property
     def is_one_to_many(self) -> bool:
-        """
-        Determines if a Transformation is a one-to-many transformation. If a
+        """Determines if a Transformation is a one-to-many transformation. If a
         Transformation is a one-to-many transformation, the
         apply_transformation method should have a keyword arg
         "return_ranked_list" which allows for the transformed structures to be
@@ -646,8 +633,7 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
 
     @property
     def use_multiprocessing(self):
-        """
-        Indicates whether the transformation can be applied by a
+        """Indicates whether the transformation can be applied by a
         subprocessing pool. This should be overridden to return True for
         transformations that the transmuter can parallelize.
         """
