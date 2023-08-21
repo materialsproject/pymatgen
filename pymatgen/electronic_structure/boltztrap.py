@@ -490,7 +490,7 @@ class BoltztrapRunner(MSONable):
                 fout.write("BANDS                     # run mode (only BOLTZ is supported)\n")
                 fout.write(f"P {len(self.kpt_line)}\n")
                 for kp in self.kpt_line:
-                    fout.writelines([str(k) + " " for k in kp])
+                    fout.writelines([f"{k} " for k in kp])
                     fout.write("\n")
 
     def write_input(self, output_dir):

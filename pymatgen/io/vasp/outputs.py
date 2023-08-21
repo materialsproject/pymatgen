@@ -4223,14 +4223,14 @@ class Xdatcar:
             ionicstep_cnt = cnt + 1
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
-                    lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
+                    lines.append(f"Direct configuration={' '*(7-len(str(output_cnt)))}{output_cnt}")
                     for site in structure:
                         coords = site.frac_coords
                         line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
             elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
+                lines.append(f"Direct configuration={' '*(7-len(str(output_cnt)))}{output_cnt}")
                 for site in structure:
                     coords = site.frac_coords
                     line = " ".join(format_str.format(c) for c in coords)
