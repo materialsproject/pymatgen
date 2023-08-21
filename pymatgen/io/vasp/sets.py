@@ -1236,6 +1236,7 @@ class MatPESStaticSet(MPStaticSet):
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
         if functional.startswith("R2SCAN"):
             self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
+            self.user_incar_settings.setdefault("Normal", "ALL")
         if functional.startswith("PBE"):
             self.user_incar_settings.setdefault("GGA", "PE")
         if functional.endswith("+U"):
