@@ -177,73 +177,73 @@ single_job_out_names = {
     "qchem_energies/hf_xyg3.qcout",
     "qchem_energies/hf_xygjos.qcout",
     "qchem_energies/hf_wb97xd_gen_scfman.qcout",
-    "new_qchem/pt_n2_n_wb_180.0.qcout",
-    "new_qchem/pt_n2_trip_wb_90.0.qcout",
-    "new_qchem/pt_n2_gs_rimp2_pvqz_90.0.qcout",
-    "new_qchem/VC_solv_eps10.2.qcout",
+    "new_qchem_files/pt_n2_n_wb_180.0.qcout",
+    "new_qchem_files/pt_n2_trip_wb_90.0.qcout",
+    "new_qchem_files/pt_n2_gs_rimp2_pvqz_90.0.qcout",
+    "new_qchem_files/VC_solv_eps10.2.qcout",
     "crazy_scf_values.qcout",
-    "new_qchem/N2.qcout",
-    "new_qchem/julian.qcout.gz",
-    "new_qchem/Frequency_no_equal.qout",
-    "new_qchem/gdm.qout",
-    "new_qchem/DinfH.qout",
-    "new_qchem/mpi_error.qout",
-    "new_qchem/molecule_read_error.qout",
-    "new_qchem/basis_not_supported.qout",
-    "new_qchem/lebdevpts.qout",
-    "new_qchem/Optimization_no_equal.qout",
-    "new_qchem/2068.qout",
-    "new_qchem/2620.qout",
-    "new_qchem/1746.qout",
-    "new_qchem/1570.qout",
-    "new_qchem/1570_2.qout",
-    "new_qchem/single_point.qout",
-    "new_qchem/roothaan_diis_gdm.qout",
-    "new_qchem/pes_scan_single_variable.qout",
-    "new_qchem/pes_scan_double_variable.qout",
-    "new_qchem/ts.out",
-    "new_qchem/ccsd.qout",
-    "new_qchem/ccsdt.qout",
-    "new_qchem/almo.out",
-    "new_qchem/cdft_simple.qout",
-    "new_qchem/fodft.out",
-    "new_qchem/fodft_2.out",
-    "new_qchem/fodft_3.out",
-    "new_qchem/pod1.out",
-    "new_qchem/pod2_gs.out",
+    "new_qchem_files/N2.qcout",
+    "new_qchem_files/julian.qcout.gz",
+    "new_qchem_files/Frequency_no_equal.qout",
+    "new_qchem_files/gdm.qout",
+    "new_qchem_files/DinfH.qout",
+    "new_qchem_files/mpi_error.qout",
+    "new_qchem_files/molecule_read_error.qout",
+    "new_qchem_files/basis_not_supported.qout",
+    "new_qchem_files/lebdevpts.qout",
+    "new_qchem_files/Optimization_no_equal.qout",
+    "new_qchem_files/2068.qout",
+    "new_qchem_files/2620.qout",
+    "new_qchem_files/1746.qout",
+    "new_qchem_files/1570.qout",
+    "new_qchem_files/1570_2.qout",
+    "new_qchem_files/single_point.qout",
+    "new_qchem_files/roothaan_diis_gdm.qout",
+    "new_qchem_files/pes_scan_single_variable.qout",
+    "new_qchem_files/pes_scan_double_variable.qout",
+    "new_qchem_files/ts.out",
+    "new_qchem_files/ccsd.qout",
+    "new_qchem_files/ccsdt.qout",
+    "new_qchem_files/almo.out",
+    "new_qchem_files/cdft_simple.qout",
+    "new_qchem_files/fodft.out",
+    "new_qchem_files/fodft_2.out",
+    "new_qchem_files/fodft_3.out",
+    "new_qchem_files/pod1.out",
+    "new_qchem_files/pod2_gs.out",
     "extra_scf_print.qcout",
-    "new_qchem/cmirs_benzene_single.qcout",
-    "new_qchem/cmirs_dielst10_single.qcout",
-    "new_qchem/cmirs_water_single.qcout",
-    "new_qchem/isosvp_water_single.qcout",
-    "new_qchem/isosvp_dielst10_single.qcout",
-    "new_qchem/custom_gdm_gdmqls_opt.qout",
-    "new_qchem/unable.qout",
-    "new_qchem/unexpected_ts.out",
-    "new_qchem/svd_failed.qout",
-    "new_qchem/v6_old_driver.out",
-    "new_qchem/gap.qout",
-    "new_qchem/3C.qout",
-    "new_qchem/hyper.qout",
-    "new_qchem/os_gap.qout",
+    "new_qchem_files/cmirs_benzene_single.qcout",
+    "new_qchem_files/cmirs_dielst10_single.qcout",
+    "new_qchem_files/cmirs_water_single.qcout",
+    "new_qchem_files/isosvp_water_single.qcout",
+    "new_qchem_files/isosvp_dielst10_single.qcout",
+    "new_qchem_files/custom_gdm_gdmqls_opt.qout",
+    "new_qchem_files/unable.qout",
+    "new_qchem_files/unexpected_ts.out",
+    "new_qchem_files/svd_failed.qout",
+    "new_qchem_files/v6_old_driver.out",
+    "new_qchem_files/gap.qout",
+    "new_qchem_files/3C.qout",
+    "new_qchem_files/hyper.qout",
+    "new_qchem_files/os_gap.qout",
 }
 
 multi_job_out_names = {
     "not_enough_total_memory.qcout",
-    "new_qchem/VC_solv_eps10.qcout",
-    "new_qchem/MECLi_solv_eps10.qcout",
+    "new_qchem_files/VC_solv_eps10.qcout",
+    "new_qchem_files/MECLi_solv_eps10.qcout",
     "pcm_solvent_deprecated.qcout",
     "qchem43_batch_job.qcout",
     "ferrocenium_1pos.qcout",
     "CdBr2.qcout",
     "killed.qcout",
     "aux_mpi_time_mol.qcout",
-    "new_qchem/VCLi_solv_eps10.qcout",
-    "new_qchem/cdft_dc.qout",
-    "new_qchem/cmirs_benzene.qcout",
-    "new_qchem/cmirs_dielst10.qcout",
-    "new_qchem/isosvp_water.qcout",
-    "new_qchem/isosvp_dielst10.qcout",
+    "new_qchem_files/VCLi_solv_eps10.qcout",
+    "new_qchem_files/cdft_dc.qout",
+    "new_qchem_files/cmirs_benzene.qcout",
+    "new_qchem_files/cmirs_dielst10.qcout",
+    "new_qchem_files/isosvp_water.qcout",
+    "new_qchem_files/isosvp_dielst10.qcout",
 }
 
 
@@ -311,8 +311,8 @@ class TestQCOutput(PymatgenTest):
         thio_1 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/thiophene1.xyz")
         thio_2 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/thiophene2.xyz")
 
-        frag_1 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem/test_structure_change/frag_1.xyz")
-        frag_2 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem/test_structure_change/frag_2.xyz")
+        frag_1 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/test_structure_change/frag_1.xyz")
+        frag_2 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/test_structure_change/frag_2.xyz")
 
         assert check_for_structure_changes(t1, t1) == "no_change"
         assert check_for_structure_changes(t2, t3) == "no_change"
@@ -324,7 +324,7 @@ class TestQCOutput(PymatgenTest):
         assert check_for_structure_changes(frag_1, frag_2) == "bond_change"
 
     def test_NBO_parsing(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/nbo.qout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo.qout").data
         assert len(data["nbo_data"]["natural_populations"]) == 3
         assert len(data["nbo_data"]["hybridization_character"]) == 6
         assert len(data["nbo_data"]["perturbation_energy"]) == 2
@@ -335,18 +335,18 @@ class TestQCOutput(PymatgenTest):
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][0] == "RY*"
 
     def test_NBO7_parsing(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/nbo7_1.qout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_1.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][9] == 15.73
         assert len(data["nbo_data"]["perturbation_energy"][0]["donor bond index"]) == 84
         assert len(data["nbo_data"]["perturbation_energy"][1]["donor bond index"]) == 29
 
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/nbo7_2.qout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_2.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == 32.93
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13] == "LV"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][12] == "RY"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][12] == "Mg"
 
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/nbo7_3.qout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_3.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == 34.54
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13] == "BD*"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][13] == "B"
@@ -354,8 +354,8 @@ class TestQCOutput(PymatgenTest):
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 number"][13] == 3
 
     def test_NBO5_vs_NBO7_hybridization_character(self):
-        data5 = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/nbo5_1.qout").data
-        data7 = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/nbo7_1.qout").data
+        data5 = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo5_1.qout").data
+        data7 = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_1.qout").data
         assert len(data5["nbo_data"]["hybridization_character"]) == len(data7["nbo_data"]["hybridization_character"])
         assert (
             data5["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9]
@@ -369,38 +369,38 @@ class TestQCOutput(PymatgenTest):
         assert data7["nbo_data"]["hybridization_character"][1]["bond index"][7] == "21"
 
     def test_NBO7_infinite_e2pert(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/nbo7_inf.qout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7_inf.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][0] == float("inf")
 
     def test_cdft_parsing(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/cdft_simple.qout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/cdft_simple.qout").data
         assert data["cdft_becke_excess_electrons"][0][0] == 0.432641
         assert len(data["cdft_becke_population"][0]) == 12
         assert data["cdft_becke_net_spin"][0][6] == -0.000316
 
     def test_cdft_dc_parsing(self):
         data = QCOutput.multiple_outputs_from_file(
-            f"{TEST_FILES_DIR}/molecules/new_qchem/cdft_dc.qout",
+            f"{TEST_FILES_DIR}/molecules/new_qchem_files/cdft_dc.qout",
             keep_sub_files=False,
         )[-1].data
         assert data["direct_coupling_eV"] == 0.0103038246
 
     def test_almo_msdft2_parsing(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/almo.out").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/almo.out").data
         assert data["almo_coupling_states"] == [[[1, 2], [0, 1]], [[0, 1], [1, 2]]]
         assert data["almo_hamiltonian"][0][0] == -156.62929
         assert data["almo_coupling_eV"] == approx(0.26895)
 
     def test_pod_parsing(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/pod2_gs.out").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/pod2_gs.out").data
         assert data["pod_coupling_eV"] == 0.247818
 
     def test_fodft_parsing(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/fodft.out").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/fodft.out").data
         assert data["fodft_coupling_eV"] == 0.268383
 
     def test_isosvp_water(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/isosvp_water_single.qcout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/isosvp_water_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
         # ISOSVP parameters
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 78.39
@@ -414,7 +414,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is False
 
     def test_isosvp_dielst10(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/isosvp_dielst10_single.qcout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/isosvp_dielst10_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
 
         # ISOSVP parameters
@@ -429,7 +429,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is False
 
     def test_cmirs_benzene(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/cmirs_benzene_single.qcout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/cmirs_benzene_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 2.28
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
@@ -439,7 +439,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0178177740
 
     def test_cmirs_dielst10(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/cmirs_dielst10_single.qcout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/cmirs_dielst10_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 10
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
@@ -449,7 +449,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0179866718
 
     def test_cmirs_water(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/cmirs_water_single.qcout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/cmirs_water_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
 
         # ISOSVP parameters
@@ -468,14 +468,14 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0180445935
 
     def test_NBO_hyperbonds(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/hyper.qout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/hyper.qout").data
         assert len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"].keys()) == 2
         assert data["nbo_data"]["hyperbonds"][0]["BD(A-B)"][1] == 106
         assert data["nbo_data"]["hyperbonds"][0]["bond atom 2 symbol"][0] == "C"
         assert data["nbo_data"]["hyperbonds"][0]["occ"][1] == 3.0802
 
     def test_NBO_3C(self):
-        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/3C.qout").data
+        data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/3C.qout").data
         hybrid_char = data["nbo_data"]["hybridization_character"]
         assert len(hybrid_char) == 3
         hybrid_type = hybrid_char[2]["type"]

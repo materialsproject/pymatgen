@@ -41,7 +41,7 @@ from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = f"{TEST_FILES_DIR}/fragmenter"
+test_dir = f"{TEST_FILES_DIR}/fragmenter_files"
 
 
 class TestValenceIonicRadiusEvaluator(PymatgenTest):

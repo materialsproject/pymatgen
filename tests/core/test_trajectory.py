@@ -21,7 +21,7 @@ class TestTrajectory(PymatgenTest):
         self.traj = Trajectory.from_file(f"{TEST_FILES_DIR}/Traj_XDATCAR")
         self.structures = xdatcar.structures
 
-        out = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem/ts.out")
+        out = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/ts.out")
         last_mol = out.data["molecule_from_last_geometry"]
         species = last_mol.species
         coords = out.data["geometries"]
