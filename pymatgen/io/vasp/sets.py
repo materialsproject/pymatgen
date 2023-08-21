@@ -1250,6 +1250,7 @@ class MatPESStaticSet(MPStaticSet):
         parent_incar = super().incar
         return Incar(self.prev_incar or parent_incar)
 
+
 class MPScanStaticSet(MPScanRelaxSet):
     """
     Creates input files for a static calculation using the accurate and numerically
