@@ -5,6 +5,7 @@ from __future__ import annotations
 import collections
 import collections.abc
 import string
+from typing import Iterable
 
 import numpy as np
 
@@ -49,7 +50,7 @@ class InputVariable:
         if name in ["bdgw"]:
             self.valperline = 2
 
-        if is_iter(self.value) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:
+        if isinstance(self.value, Iterable) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:
             self.value = list(self.value)
             self._units = self.value.pop(-1)
 
@@ -143,15 +144,15 @@ class InputVariable:
 
         if fval == 0 or (1e-3 < abs(fval) < 1e4):
             form = "f"
-            addlen = 5
+            add_len = 5
         else:
             form = "e"
-            addlen = 8
+            add_len = 8
 
         n_dec = max(len(str(fval - int(fval))) - 2, float_decimal)
         n_dec = min(n_dec, 10)
 
-        str_val = f"{fval:>{n_dec + addlen}.{n_dec}{form}}"
+        str_val = f"{fval:>{n_dec + add_len}.{n_dec}{form}}"
 
         return str_val.replace("e", "d")
 
@@ -213,11 +214,6 @@ class InputVariable:
             line = "\n" + line
 
         return line.rstrip("\n")
-
-
-def is_iter(obj) -> bool:
-    """Return True if the argument is list-like."""
-    return hasattr(obj, "__iter__")
 
 
 def flatten(iterable):

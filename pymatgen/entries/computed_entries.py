@@ -473,7 +473,9 @@ class ComputedEntry(Entry):
     @classmethod
     def from_dict(cls, d) -> ComputedEntry:
         """:param d: Dict representation.
-        :return: ComputedEntry
+
+        Returns:
+            ComputedEntry
         """
         dec = MontyDecoder()
         # the first block here is for legacy ComputedEntry that were
@@ -606,7 +608,9 @@ class ComputedStructureEntry(ComputedEntry):
     @classmethod
     def from_dict(cls, d) -> ComputedStructureEntry:
         """:param d: Dict representation.
-        :return: ComputedStructureEntry
+
+        Returns:
+            ComputedStructureEntry
         """
         dec = MontyDecoder()
         # the first block here is for legacy ComputedEntry that were
@@ -936,7 +940,9 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
     @classmethod
     def from_dict(cls, d) -> GibbsComputedStructureEntry:
         """:param d: Dict representation.
-        :return: GibbsComputedStructureEntry
+
+        Returns:
+            GibbsComputedStructureEntry
         """
         dec = MontyDecoder()
         return cls(

@@ -1075,7 +1075,9 @@ class Vasprun(MSONable):
     def get_potcars(self, path):
         """
         :param path: Path to search for POTCARs
-        :return: Potcar from path.
+
+        Returns:
+            Potcar from path.
         """
 
         def get_potcar_in_path(p):
@@ -1124,7 +1126,9 @@ class Vasprun(MSONable):
     def update_potcar_spec(self, path):
         """
         :param path: Path to search for POTCARs
-        :return: Potcar spec from path.
+
+        Returns:
+            Potcar spec from path.
         """
         if potcar := self.get_potcars(path):
             self.potcar_spec = [
@@ -3541,7 +3545,9 @@ class VolumetricData(BaseVolumetricData):
             to ensure written CHGCAR files are byte-to-byte identical to
             their input files as far as possible.
             :param f: float
-            :return: str.
+
+            Returns:
+                str.
             """
             s = f"{f:.10E}"
             if f >= 0:
@@ -3612,7 +3618,9 @@ class Locpot(VolumetricData):
         Reads a LOCPOT file.
 
         :param filename: Filename
-        :return: Locpot
+
+        Returns:
+            Locpot
         """
         (poscar, data, data_aug) = VolumetricData.parse_file(filename)
         return cls(poscar, data, **kwargs)
@@ -3647,7 +3655,9 @@ class Chgcar(VolumetricData):
         Read a CHGCAR file.
 
         :param filename: Filename
-        :return: Chgcar
+
+        Returns:
+            Chgcar
         """
         poscar, data, data_aug = VolumetricData.parse_file(filename)
         return Chgcar(poscar, data, data_aug=data_aug)
@@ -3697,7 +3707,9 @@ class Elfcar(VolumetricData):
         Reads a ELFCAR file.
 
         :param filename: Filename
-        :return: Elfcar
+
+        Returns:
+            Elfcar
         """
         (poscar, data, data_aug) = VolumetricData.parse_file(filename)
         return cls(poscar, data)
@@ -3737,8 +3749,7 @@ class Procar:
 
         Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
         {
-            spin: complex nd.array accessed with (k-point index, band index,
-                                                  ion index, orbital index)
+            spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)
         }
 
     ..attribute:: nbands
@@ -4224,14 +4235,14 @@ class Xdatcar:
             ionicstep_cnt = cnt + 1
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
-                    lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
+                    lines.append(f"Direct configuration={' '*(7-len(str(output_cnt)))}{output_cnt}")
                     for site in structure:
                         coords = site.frac_coords
                         line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
             elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
+                lines.append(f"Direct configuration={' '*(7-len(str(output_cnt)))}{output_cnt}")
                 for site in structure:
                     coords = site.frac_coords
                     line = " ".join(format_str.format(c) for c in coords)
@@ -4787,6 +4798,7 @@ class Wavecar:
                             if vasp_type == 'ncl')
             shift (bool): determines if the zero frequency coefficient is
                             placed at index (0, 0, 0) or centered
+
         Returns:
             a numpy ndarray representing the 3D mesh of coefficients
         """

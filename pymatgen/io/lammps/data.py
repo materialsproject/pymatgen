@@ -118,10 +118,7 @@ class LammpsBox(MSONable):
                 orthogonal box.
         """
         bounds_arr = np.array(bounds)
-        assert bounds_arr.shape == (
-            3,
-            2,
-        ), f"Expecting a (3, 2) array for bounds, got {bounds_arr.shape}"
+        assert bounds_arr.shape == (3, 2), f"Expecting a (3, 2) array for bounds, got {bounds_arr.shape}"
         self.bounds = bounds_arr.tolist()
         matrix = np.diag(bounds_arr[:, 1] - bounds_arr[:, 0])
 
@@ -1276,7 +1273,7 @@ class CombinedData(LammpsData):
         count = {"Bonds": 0, "Angles": 0, "Dihedrals": 0, "Impropers": 0}
         for i, mol in enumerate(self.mols):
             for kw in SECTION_KEYWORDS["topology"]:
-                if bool(mol.topology) and kw in mol.topology:
+                if mol.topology and kw in mol.topology:
                     if kw not in self.topology:
                         self.topology[kw] = pd.DataFrame()
                     topo_df = mol.topology[kw].copy()
@@ -1292,7 +1289,7 @@ class CombinedData(LammpsData):
         for kw in SECTION_KEYWORDS["topology"]:
             if kw in self.topology:
                 self.topology[kw].index += 1
-        if not bool(self.topology):
+        if not self.topology:
             self.topology = None
 
     @property
@@ -1455,15 +1452,14 @@ class CombinedData(LammpsData):
         """
         lines = LammpsData.get_str(self, distance, velocity, charge, hybrid).splitlines()
         info = "# " + " + ".join(
-            (str(a) + " " + b) if c == 1 else (str(a) + "(" + str(c) + ") " + b)
-            for a, b, c in zip(self.nums, self.names, self.mols_per_data)
+            f"{a} {b}" if c == 1 else f"{a}({c}) {b}" for a, b, c in zip(self.nums, self.names, self.mols_per_data)
         )
         lines.insert(1, info)
         return "\n".join(lines)
 
     def as_lammpsdata(self):
         """
-        Convert a CombinedData object to a LammpsData object. attributes are deepcopied.
+        Convert a CombinedData object to a LammpsData object. attributes are deep-copied.
 
         box (LammpsBox): Simulation box.
         force_field (dict): Data for force field sections. Optional

@@ -841,7 +841,7 @@ class BuckinghamPotential:
                         else:
                             metal = elmnt.split("_")[0]
                             # oxi_state = metaloxi.split('_')[1][0]
-                            pot_dict[elmnt] = metal + " " + " ".join(row.split()[1:]) + "\n"
+                            pot_dict[elmnt] = f"{metal} {' '.join(row.split()[1:])}\n"
                     continue
 
                 if spring_flg:

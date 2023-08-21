@@ -597,7 +597,7 @@ class BandStructure:
 
         # MongoDB does not accept keys starting with $. Add a blank space to fix the problem
         for c, label in self.labels_dict.items():
-            mongo_key = c if not c.startswith("$") else " " + c
+            mongo_key = c if not c.startswith("$") else f" {c}"
             d["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
         d["projections"] = {}
         if len(self.projections) != 0:

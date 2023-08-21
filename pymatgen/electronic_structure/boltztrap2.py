@@ -754,8 +754,6 @@ class BztTransportProperties:
             self.Power_Factor_mu = (self.Seebeck_mu @ self.Seebeck_mu) @ self.Conductivity_mu
             self.Power_Factor_mu *= 1e-9  # milliWatt / m / K**2
 
-            # self.props_as_dict()
-
             self.contain_props_doping = False
 
             if isinstance(doping, np.ndarray):
@@ -803,13 +801,7 @@ class BztTransportProperties:
             for t, temp in enumerate(temp_r):
                 for i, dop_car in enumerate(doping_carriers):
                     mu_doping[dop_type][t, i] = BL.solve_for_mu(
-                        self.epsilon,
-                        self.dos,
-                        self.nelect + dop_car,
-                        temp,
-                        self.dosweight,
-                        True,
-                        False,
+                        self.epsilon, self.dos, self.nelect + dop_car, temp, self.dosweight, True, False
                     )
                     # mu_doping[dop_type][t, i] = self.find_mu_doping(
                     #     self.epsilon, self.dos, self.nelect + dop_car, temp,
@@ -825,13 +817,7 @@ class BztTransportProperties:
                 )
 
                 cond[t], sbk[t], kappa[t], hall[t] = BL.calc_Onsager_coefficients(
-                    L0,
-                    L1,
-                    L2,
-                    mu_doping[dop_type][t],
-                    np.array([temp]),
-                    self.volume,
-                    Lm11,
+                    L0, L1, L2, mu_doping[dop_type][t], np.array([temp]), self.volume, Lm11
                 )
 
                 dc[t] = self.nelect + N
@@ -949,42 +935,6 @@ class BztTransportProperties:
             self.contains_doping_props = True
 
         return True
-
-
-#   def props_as_dict(self):
-#       """
-#       :return: Get the properties as a dict.
-#       """
-#       props = ("Conductivity", "Seebeck", "Kappa")  # ,"Hall"
-#       props_unit = (r"$\mathrm{kS\,m^{-1}}$", r"$\mu$V/K", r"")
-#
-#       p_dict = {
-#           'Temps': self.temp_r,
-#           'mu': self.mu_r / units.eV - self.efermi
-#       }
-#       for prop, unit in zip(props, props_unit):
-#           p_array = eval("self." + prop)
-#           if prop is not None:
-#               p_dict[prop] = {'units': unit}
-#           else:
-#               continue
-#           for it, temp in enumerate(self.temp_r):
-#               p_dict[prop][str(temp)] = {}
-#               p_dict[prop][str(temp)]['tensor'] = p_array[it]
-#               p_dict[prop][str(temp)]['eigs'] = np.linalg.eigh(
-#                   p_array[it])[0]
-#               p_dict[prop][str(temp)]['avg_eigs'] = p_dict[prop][str(
-#                   temp)]['eigs'].mean(axis=1)
-#
-#       self.props_dict = p_dict
-#
-#   def save_old(self, fname="Transport_Properties.json"):
-#       """
-#       Writes the properties to a json file.
-#
-#       :param fname: Filename
-#       """
-#       dumpfn(self.props_dict, fname)
 
 
 class BztPlotter:
@@ -1175,7 +1125,7 @@ class BztPlotter:
             plt.xlabel(r"Temperature (K)", fontsize=30)
             leg_title = f"{dop_type}-type"
 
-        plt.ylabel(props_lbl[idx_prop] + " " + props_unit[idx_prop], fontsize=30)
+        plt.ylabel(f"{props_lbl[idx_prop]} {props_unit[idx_prop]}", fontsize=30)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
         plt.legend(title=leg_title if leg_title != "" else "", fontsize=15)

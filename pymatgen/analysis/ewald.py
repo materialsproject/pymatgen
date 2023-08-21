@@ -286,7 +286,8 @@ class EwaldSummation(MSONable):
 
         Args:
             site_index (int): Index of site
-        ReturnS:
+
+        Returns:
         (float) - Energy of that site
         """
         if not self._initialized:

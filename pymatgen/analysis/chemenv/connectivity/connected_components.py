@@ -846,6 +846,7 @@ class ConnectedComponent(MSONable):
 
         Args:
             d (dict): dict representation of the ConnectedComponent object
+
         Returns:
             ConnectedComponent: The connected component representing the links of a given set of environments.
         """

@@ -142,6 +142,7 @@ class PhononDos(MSONable):
             t: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+
         Returns:
             Constant volume specific heat C_v
         """
@@ -176,6 +177,7 @@ class PhononDos(MSONable):
             t: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+
         Returns:
             Vibrational entropy
         """
@@ -208,6 +210,7 @@ class PhononDos(MSONable):
             t: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+
         Returns:
             Phonon contribution to the internal energy
         """
@@ -240,6 +243,7 @@ class PhononDos(MSONable):
             t: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+
         Returns:
             Phonon contribution to the Helmholtz free energy
         """
@@ -270,6 +274,7 @@ class PhononDos(MSONable):
         Args:
             structure: the structure of the system. If not None it will be used to determine the number of
                 formula units
+
         Returns:
             Phonon contribution to the internal energy
         """

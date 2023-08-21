@@ -86,7 +86,8 @@ class Nwchem2Fiesta(MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation.
-        :return: Nwchem2Fiesta
+        Returns:
+            Nwchem2Fiesta
         """
         return cls(folder=d["folder"], filename=d["filename"])
 
@@ -182,7 +183,9 @@ class FiestaRun(MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: FiestaRun
+
+        Returns:
+            FiestaRun
         """
         return cls(folder=d["folder"], grid=d["grid"], log_file=d["log_file"])
 
@@ -376,7 +379,9 @@ class FiestaInput(MSONable):
     def dump_BSE_data_in_GW_run(self, BSE_dump=True):
         """
         :param BSE_dump: boolean
-        :return: set the "do_bse" variable to one in cell.in
+
+        Returns:
+            set the "do_bse" variable to one in cell.in
         """
         if BSE_dump:
             self.BSE_TDDFT_options.update(do_bse=1, do_tddft=0)
@@ -386,7 +391,9 @@ class FiestaInput(MSONable):
     def dump_TDDFT_data_in_GW_run(self, TDDFT_dump=True):
         """
         :param TDDFT_dump: boolean
-        :return: set the do_tddft variable to one in cell.in
+
+        Returns:
+            set the do_tddft variable to one in cell.in
         """
         if TDDFT_dump:
             self.BSE_TDDFT_options.update(do_bse=0, do_tddft=1)
@@ -543,7 +550,9 @@ $geometry
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: FiestaInput
+
+        Returns:
+            FiestaInput
         """
         return cls(
             Molecule.from_dict(d["mol"]),

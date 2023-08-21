@@ -179,7 +179,8 @@ class CifBlock:
         Reads CifBlock from string.
 
         :param string: String representation.
-        :return: CifBlock
+        Returns:
+            CifBlock
         """
         q = cls._process_string(string)
         header = q.popleft()[0][5:]
@@ -248,10 +249,11 @@ class CifFile:
         Reads CifFile from a string.
 
         :param string: String representation.
-        :return: CifFile
+        Returns:
+            CifFile
         """
         dct = {}
-        for x in re.split(r"^\s*data_", "x\n" + string, flags=re.MULTILINE | re.DOTALL)[1:]:
+        for x in re.split(r"^\s*data_", f"x\n{string}", flags=re.MULTILINE | re.DOTALL)[1:]:
             # Skip over Cif block that contains powder diffraction data.
             # Some elements in this block were missing from CIF files in
             # Springer materials/Pauling file DBs.
@@ -269,7 +271,9 @@ class CifFile:
         Reads CifFile from a filename.
 
         :param filename: Filename
-        :return: CifFile
+
+        Returns:
+            CifFile
         """
         with zopen(str(filename), "rt", errors="replace") as f:
             return cls.from_str(f.read())
@@ -380,7 +384,9 @@ class CifParser:
         This function is here so that CifParser can assume its
         input conforms to spec, simplifying its implementation.
         :param data: CifBlock
-        :return: data CifBlock
+
+        Returns:
+            data CifBlock
         """
         """
         This part of the code deals with handling formats of data as found in
@@ -1175,7 +1181,8 @@ class CifParser:
         """
         Get BibTeX reference from CIF file.
         :param data:
-        :return: BibTeX string.
+        Returns:
+            BibTeX string.
         """
         try:
             from pybtex.database import BibliographyData, Entry
