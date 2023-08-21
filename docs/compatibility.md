@@ -67,6 +67,10 @@ Windows and Linux.
 
 ## Recent Breaking Changes
 
+### v2023.7.11
+
+Rename `[SomeCode]ParserError` to `[SomeCode]ParseError` and inherit from `SyntaxError`. [#3140](https://github.com/materialsproject/pymatgen/pull/3140)
+
 ### v2022.9.28
 
 Merge `Waverder` and `Wavederf` objects into a single `Waverder` object. [#2666](https://github.com/materialsproject/pymatgen/pull/2666)
