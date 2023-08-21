@@ -1,11 +1,5 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-"""
-Testing for quasirrho.py
-"""
 from __future__ import annotations
 
-import os
 import unittest
 
 import pytest
@@ -17,15 +11,13 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestQuasiRRHO(unittest.TestCase):
-    """
-    Test class for QuasiRRHO
-    """
+    """Test class for QuasiRRHO"""
 
     def setUp(self):
         test_dir = TEST_FILES_DIR
-        self.gout = GaussianOutput(os.path.join(test_dir, "molecules", "quasirrho_gaufreq.log"))
-        self.linear_gout = GaussianOutput(os.path.join(test_dir, "molecules", "co2.log.gz"))
-        self.qout = QCOutput(os.path.join(test_dir, "molecules", "new_qchem_files", "Frequency_no_equal.qout"))
+        self.gout = GaussianOutput(f"{test_dir}/molecules/quasirrho_gaufreq.log")
+        self.linear_gout = GaussianOutput(f"{test_dir}/molecules/co2.log.gz")
+        self.qout = QCOutput(f"{test_dir}/molecules/new_qchem_files/Frequency_no_equal.qout")
 
     def test_qrrho_gaussian(self):
         """
@@ -34,7 +26,7 @@ class TestQuasiRRHO(unittest.TestCase):
         """
         correct_g = -884.776886
         correct_stot = 141.584080
-        qrrho = QuasiRRHO.from_GaussianOutput(self.gout)
+        qrrho = QuasiRRHO.from_gaussian_output(self.gout)
         assert correct_stot == pytest.approx(qrrho.entropy_quasiRRHO, 0.1), "Incorrect total entropy"
         assert correct_g == pytest.approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
 
@@ -48,7 +40,7 @@ class TestQuasiRRHO(unittest.TestCase):
         correct_stot = 103.41012732045324
         # HO total entropy from QChem = 106.521
 
-        qrrho = QuasiRRHO.from_QCOutput(self.qout)
+        qrrho = QuasiRRHO.from_qc_output(self.qout)
         assert correct_stot == pytest.approx(qrrho.entropy_quasiRRHO, 0.1), "Incorrect total entropy"
         assert correct_g == pytest.approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
 
@@ -67,17 +59,15 @@ class TestQuasiRRHO(unittest.TestCase):
         assert correct_g == pytest.approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
 
     def test_rrho_linear(self):
-        """
-        Testing on a linear CO2 molecule from Gaussian Output file.
+        """Test on a linear CO2 molecule from Gaussian Output file.
         Correct free_energy_ho is checked with Gaussian's internal calculation.
         Correct free_energy_quasirrho is compared internally in the hope of
         preventing future errors.
-        .
         """
         correct_g_ho = -187.642070
         correct_g_qrrho = -187.642725
-        qrrho = QuasiRRHO.from_GaussianOutput(self.linear_gout)
+        qrrho = QuasiRRHO.from_gaussian_output(self.linear_gout)
         assert correct_g_ho == pytest.approx(
-            qrrho.free_energy_ho, 0.0001
+            qrrho.free_energy_ho, rel=1e-5
         ), f"Incorrect harmonic oscillator free energy, {correct_g_ho} != {qrrho.free_energy_ho}"
         assert correct_g_qrrho == pytest.approx(qrrho.free_energy_quasiRRHO), "Incorrect  Quasi-RRHO free energy"
