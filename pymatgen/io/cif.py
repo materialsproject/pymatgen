@@ -911,7 +911,9 @@ class CifParser:
 
         return parsed_sym
 
-    def _get_structure(self, data, primitive, symmetrized, skip_occu_checks=False) -> Structure | None:
+    def _get_structure(
+        self, data: str, primitive: bool, symmetrized: bool, skip_occu_checks: bool = False
+    ) -> Structure | None:
         """Generate structure from part of the cif."""
 
         def get_num_implicit_hydrogens(sym):
@@ -980,27 +982,20 @@ class CifParser:
                 occu = str2float(data["_atom_site_occupancy"][idx])
             except (KeyError, ValueError):
                 occu = 1
-            coord = (x, y, z)
-            match = get_matching_coord(coord)
-            comp_d_ready = False
-            if skip_occu_checks:
-                # Generate the skip_occu_checks version of comp_d. If the occupancy is zero pymatgen normally excludes
-                # that comp_d. skip_occu_checks includes those values by setting them to a very small number
-                comp_d = {el: occu} if occu > 0 else {el: 1e-08}
-                comp_d_ready = True
-            else:
-                if occu > 0:
-                    comp_d = {el: occu}
-                    comp_d_ready = True
-            if comp_d_ready:
+            # If skip_occu_checks is True or the occupancy is greater than 0, create comp_d
+            if skip_occu_checks or occu > 0:
+                comp_dict = {el: max(occu, 1e-8)}
+
+                coord = (x, y, z)
+                match = get_matching_coord(coord)
+
                 if num_h > 0:
-                    comp_d["H"] = num_h  # type: ignore
+                    comp_dict["H"] = num_h  # type: ignore
                     self.warnings.append(
-                        "Structure has implicit hydrogens defined, "
-                        "parsed structure unlikely to be suitable for use "
-                        "in calculations unless hydrogens added."
+                        "Structure has implicit hydrogens defined, parsed structure unlikely to be "
+                        "suitable for use in calculations unless hydrogens added."
                     )
-                comp = Composition(comp_d)
+                comp = Composition(comp_dict)
 
                 if not match:
                     coord_to_species[coord] = comp
@@ -1068,7 +1063,7 @@ class CifParser:
 
                 # The following might be a more natural representation of equivalent indices,
                 # but is not in the format expect by SymmetrizedStructure:
-                #   equivalent_indices.append(list(range(len(allcoords), len(coords)+len(allcoords))))
+                #   equivalent_indices.append(list(range(len(all_coords), len(coords)+len(all_coords))))
                 # The above gives a list like:
                 #   [[0, 1, 2, 3], [4, 5, 6, 7, 8, 9, 10, 11]] where the
                 # integers are site indices, whereas the version used below will give a version like:
