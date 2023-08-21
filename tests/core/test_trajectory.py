@@ -473,9 +473,3 @@ class TestTrajectory(PymatgenTest):
         written_traj = Trajectory.from_file("traj_test_XDATCAR")
         self._check_traj_equality(self.traj, written_traj)
         os.remove("traj_test_XDATCAR")
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

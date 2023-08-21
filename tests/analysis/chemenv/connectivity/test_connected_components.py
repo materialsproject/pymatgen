@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import json
-import os
 
 import networkx as nx
 import numpy as np
@@ -847,12 +846,7 @@ Node #3 Li (O:6), connected to :
         assert ccs_periodicities == {"0D", "2D"}
 
     def test_coordination_sequences(self):
-        BaTiO3_se_fpath = os.path.join(
-            TEST_FILES_DIR,
-            "chemenv",
-            "structure_environments_files",
-            "se_mp-5020.json",
-        )
+        BaTiO3_se_fpath = f"{TEST_FILES_DIR}/chemenv/structure_environments/se_mp-5020.json"
         with open(BaTiO3_se_fpath) as file:
             dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import warnings
 
 from pytest import approx
 
@@ -11,12 +10,6 @@ from pymatgen.util.testing import PymatgenTest
 
 class TestSolar(PymatgenTest):
     _multiprocess_shared_ = True
-
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_slme_from_vasprun(self):
         en, abz, dir_gap, indir_gap = optics(f"{os.path.dirname(__file__)}/vasprun.xml")

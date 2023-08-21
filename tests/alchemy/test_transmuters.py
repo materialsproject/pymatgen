@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import warnings
-
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
 from pymatgen.transformations.advanced_transformations import SuperTransformation
@@ -14,12 +12,6 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestCifTransmuter(PymatgenTest):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_init(self):
         trans = []
         trans.append(SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"}))
@@ -77,9 +69,3 @@ class TestPoscarTransmuter(PymatgenTest):
         assert tsc.transformed_structures[0].as_dict()["other_parameters"]["para1"] == "hello"
         tsc.add_tags(["world", "universe"])
         assert tsc.transformed_structures[0].as_dict()["other_parameters"]["tags"] == ["world", "universe"]
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

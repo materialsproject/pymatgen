@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 from shutil import which
 
 import requests
@@ -17,12 +16,6 @@ except requests.exceptions.ConnectionError:
 @unittest.skipIf(website_down, "www.crystallography.net is down.")
 class TestCOD(unittest.TestCase):
     _multiprocess_shared_ = True
-
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     @unittest.skipIf(not which("mysql"), "No mysql.")
     def test_get_cod_ids(self):

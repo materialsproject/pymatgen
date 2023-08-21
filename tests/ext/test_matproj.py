@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import random
 import re
-import warnings
 from unittest.mock import patch
 
 import pytest
@@ -53,10 +52,8 @@ class TestMPResterOld(PymatgenTest):
 
     def setUp(self):
         self.rester = _MPResterLegacy()
-        warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.simplefilter("default")
         self.rester.session.close()
 
     def test_get_all_materials_ids_doc(self):

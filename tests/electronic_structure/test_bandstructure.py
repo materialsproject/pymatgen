@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import unittest
-import warnings
 
 import numpy as np
 import pytest
@@ -67,10 +66,6 @@ class TestBandStructureSymmLine(PymatgenTest):
         self.bs_cbm0: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/InN_22205_bandstructure.json")
         self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu_30_bandstructure.json")
         self.bs_diff_spins: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/VBr2_971787_bandstructure.json")
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_basic(self):
         assert_allclose(self.bs.projections[Spin.up][10][12][0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
@@ -254,10 +249,6 @@ class TestReconstructBandStructure(PymatgenTest):
     def setUp(self):
         self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu_30_bandstructure.json")
         self.bs_cu2: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu_30_bandstructure.json")
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_reconstruct_band_structure(self):
         bs = get_reconstructed_band_structure([self.bs_cu, self.bs_cu2])
@@ -275,7 +266,6 @@ class TestReconstructBandStructure(PymatgenTest):
 
 class TestLobsterBandStructureSymmLine(PymatgenTest):
     def setUp(self):
-        warnings.simplefilter("ignore")
         with open(
             f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
         ) as f:
@@ -287,9 +277,6 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
         ) as f:
             bs_dict = json.load(f)
         self.bs_p = LobsterBandStructureSymmLine.from_dict(bs_dict)
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_basic(self):
         bs_p = self.bs_p

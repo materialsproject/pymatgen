@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 from pytest import approx
 
@@ -12,12 +11,6 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestEwaldElectrostaticModel(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_get_energy(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
@@ -76,8 +69,3 @@ class TestIsingModel(unittest.TestCase):
         o = IsingModel.from_dict(d)
         assert isinstance(o, IsingModel)
         assert o.j == approx(5)
-
-
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()

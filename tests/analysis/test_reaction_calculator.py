@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 from collections import defaultdict
 from math import isnan
 
@@ -15,12 +14,6 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 
 class TestReaction(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_init(self):
         reactants = [Composition("Fe"), Composition("O2")]
         products = [Composition("Fe2O3")]
@@ -295,12 +288,6 @@ class TestReaction(unittest.TestCase):
 
 
 class TestBalancedReaction(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_init(self):
         rct = {Composition("K2SO4"): 3, Composition("Na2S"): 1, Composition("Li"): 24}
         prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
