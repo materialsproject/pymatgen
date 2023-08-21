@@ -1103,7 +1103,7 @@ class CifParser:
                 all_labels = None  # type: ignore
 
             struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
-                
+
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
                 # TODO: extract Wyckoff labels (or other CIF attributes) and include as site_properties
@@ -1127,16 +1127,10 @@ class CifParser:
                 return struct
 
             if skip_occu_checks:
-                struct = Structure(
-                    lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels
-                )
+                struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
                 for idx in range(len(struct)):
                     struct[idx] = PeriodicSite(
-                        all_species_noedit[idx],
-                        all_coords[idx],
-                        lattice,
-                        properties=site_properties,
-                        skip_checks=True
+                        all_species_noedit[idx], all_coords[idx], lattice, properties=site_properties, skip_checks=True
                     )
                 return struct
 
