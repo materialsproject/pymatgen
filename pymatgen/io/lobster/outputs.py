@@ -76,11 +76,13 @@ class Cohpcar:
 
     .. attribute: orb_cohp
 
-        orb_cohp[label] = {bond_data["orb_label"]: {"COHP": {Spin.up: cohps, Spin.down:cohps},
-                                                     "ICOHP": {Spin.up: icohps, Spin.down: icohps},
-                                                     "orbitals": orbitals,
-                                                     "length": bond lengths,
-                                                     "sites": sites corresponding to the bond}}
+        orb_cohp[label] = {bond_data["orb_label"]: {
+            "COHP": {Spin.up: cohps, Spin.down:cohps},
+            "ICOHP": {Spin.up: icohps, Spin.down: icohps},
+            "orbitals": orbitals,
+            "length": bond lengths,
+            "sites": sites corresponding to the bond},
+        }
 
     """
 
@@ -642,6 +644,7 @@ class Charge:
         Get a Structure with Mulliken and Loewdin charges as site properties
         Args:
             structure_filename: filename of POSCAR
+
         Returns:
             Structure Object with Mulliken and Loewdin charges as site properties.
         """
@@ -1385,6 +1388,7 @@ class Grosspop:
         Get a Structure with Mulliken and Loewdin total grosspopulations as site properties
         Args:
             structure_filename (str): filename of POSCAR
+
         Returns:
             Structure Object with Mulliken and Loewdin total grosspopulations as site properties.
         """
@@ -1665,6 +1669,7 @@ class SitePotential:
         Get a Structure with Mulliken and Loewdin charges as site properties
         Args:
             structure_filename: filename of POSCAR
+
         Returns:
             Structure Object with Mulliken and Loewdin charges as site properties.
         """

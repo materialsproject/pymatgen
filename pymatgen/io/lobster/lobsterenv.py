@@ -216,6 +216,7 @@ class LobsterNeighbors(NearNeighbors):
     def anion_types(self):
         """
         Return the types of anions present in crystal structure as a set
+
         Returns: set of Element describing anions in the crystal structure.
         """
         if self.valences is None:
@@ -244,6 +245,7 @@ class LobsterNeighbors(NearNeighbors):
                 or not (False, default: each coordinated site has equal
                 weight).
                 True is not implemented for LobsterNeighbors
+
         Returns:
             cn (integer or float): coordination number.
         """
@@ -261,6 +263,7 @@ class LobsterNeighbors(NearNeighbors):
         Args:
             only_cation_environments: only data for cations will be returned
             only_indices: will only evaluate the list of isites in this list
+
         Returns: LobsterLightStructureEnvironments Object
         """
         lgf = LocalGeometryFinder()
@@ -560,18 +563,15 @@ class LobsterNeighbors(NearNeighbors):
     def _get_plot_label(self, atoms, per_bond):
         # count the types of bonds and append a label:
         all_labels = []
-        for atomsnames in atoms:
-            new = [
-                self._split_string(atomsnames[0])[0],
-                self._split_string(atomsnames[1])[0],
-            ]
+        for atoms_names in atoms:
+            new = [self._split_string(atoms_names[0])[0], self._split_string(atoms_names[1])[0]]
             new.sort()
             string_here = new[0] + "-" + new[1]
             all_labels.append(string_here)
         count = collections.Counter(all_labels)
         plotlabels = []
         for key, item in count.items():
-            plotlabels.append(str(item) + " x " + str(key))
+            plotlabels.append(f"{item} x {key}")
         plotlabel = ", ".join(plotlabels)
         if per_bond:
             plotlabel = plotlabel + " (per bond)"
@@ -1348,7 +1348,8 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
     def as_dict(self):
         """
         Bson-serializable dict representation of the LightStructureEnvironments object.
-        :return: Bson-serializable dict representation of the LightStructureEnvironments object.
+        Returns:
+            Bson-serializable dict representation of the LightStructureEnvironments object.
         """
         return {
             "@module": type(self).__module__,

@@ -35,7 +35,8 @@ class Ion(Composition, MSONable, Stringify):
         Also note that (aq) can be included in the formula, e.g. "NaOH (aq)".
 
         :param formula:
-        :return: Ion
+        Returns:
+            Ion
         """
         charge = 0.0
         f = formula
@@ -78,7 +79,7 @@ class Ion(Composition, MSONable, Stringify):
         e.g., Li4 Fe4 P4 O16.
         """
         formula = super().formula
-        return formula + " " + charge_string(self.charge, brackets=False)
+        return f"{formula} {charge_string(self.charge, brackets=False)}"
 
     @property
     def anonymized_formula(self) -> str:
@@ -185,7 +186,7 @@ class Ion(Composition, MSONable, Stringify):
         appended charge.
         """
         alph_formula = self.composition.alphabetical_formula
-        return alph_formula + " " + charge_string(self.charge, brackets=False)
+        return f"{alph_formula} {charge_string(self.charge, brackets=False)}"
 
     @property
     def charge(self) -> float:
@@ -271,9 +272,7 @@ class Ion(Composition, MSONable, Stringify):
             return NotImplemented
         if self.composition != other.composition:
             return False
-        if self.charge != other.charge:
-            return False
-        return True
+        return self.charge == other.charge
 
     def __add__(self, other):
         """Addition of two ions."""

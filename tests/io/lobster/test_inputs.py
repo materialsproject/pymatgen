@@ -1793,10 +1793,7 @@ class TestLobsterin(unittest.TestCase):
     def test_get_potcar_symbols(self):
         lobsterin1 = Lobsterin({})
         assert lobsterin1._get_potcar_symbols(f"{test_dir_doscar}/POTCAR.Fe3O4") == ["Fe", "O"]
-        assert lobsterin1._get_potcar_symbols(f"{TEST_FILES_DIR}/cohp/POTCAR.GaAs") == [
-            "Ga_d",
-            "As",
-        ]
+        assert lobsterin1._get_potcar_symbols(f"{TEST_FILES_DIR}/cohp/POTCAR.GaAs") == ["Ga_d", "As"]
 
     def test_write_lobsterin(self):
         # write lobsterin, read it and compare it
@@ -1843,8 +1840,7 @@ class TestLobsterin(unittest.TestCase):
         lobsterin1 = Lobsterin({})
         # test writing primitive cell
         lobsterin1.write_POSCAR_with_standard_primitive(
-            POSCAR_input=f"{test_dir_doscar}/POSCAR.Fe3O4",
-            POSCAR_output=outfile_path2,
+            POSCAR_input=f"{test_dir_doscar}/POSCAR.Fe3O4", POSCAR_output=outfile_path2
         )
 
         lobsterin1.write_KPOINTS(

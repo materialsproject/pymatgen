@@ -315,7 +315,9 @@ class VolumetricData(MSONable):
         Reads VolumetricData from HDF5 file.
 
         :param filename: Filename
-        :return: VolumetricData
+
+        Returns:
+            VolumetricData
         """
         import h5py
 

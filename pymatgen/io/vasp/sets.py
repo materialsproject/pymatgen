@@ -2272,7 +2272,8 @@ class MVLSlabSet(MPRelaxSet):
     def as_dict(self, verbosity=2):
         """
         :param verbosity: Verbosity of dict. E.g., whether to include Structure.
-        :return: MSONable dict
+        Returns:
+            MSONable dict
         """
         d = MSONable.as_dict(self)
         if verbosity == 1:
@@ -2828,9 +2829,9 @@ class LobsterSet(MPRelaxSet):
             )
         elif user_supplied_basis is not None:
             # test if all elements from structure are in user_supplied_basis
-            for atomtype in structure.symbol_set:
-                if atomtype not in user_supplied_basis:
-                    raise ValueError("There are no basis functions for the atom type " + str(atomtype))
+            for atom_type in structure.symbol_set:
+                if atom_type not in user_supplied_basis:
+                    raise ValueError(f"There are no basis functions for the atom type {atom_type}")
             basis = [f"{key} {value}" for key, value in user_supplied_basis.items()]
 
         lobsterin = Lobsterin(settingsdict={"basisfunctions": basis})

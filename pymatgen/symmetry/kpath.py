@@ -1269,9 +1269,9 @@ class KPathLatimerMunro(KPathBase):
 
         orbit_labels = self._get_orbit_labels(orbit_cosines, key_points_inds_orbits, atol)
         key_points_labels = ["" for i in range(len(key_points))]
-        for i, orbit in enumerate(key_points_inds_orbits):
+        for idx, orbit in enumerate(key_points_inds_orbits):
             for point_ind in orbit:
-                key_points_labels[point_ind] = self.LabelSymbol(int(orbit_labels[i]))
+                key_points_labels[point_ind] = self.LabelSymbol(int(orbit_labels[idx]))
 
         kpoints = {}
         reverse_kpoints = {}
@@ -1290,27 +1290,27 @@ class KPathLatimerMunro(KPathBase):
                     max_occurence = max(int(label[3:-1]) for label in existing_labels[1:])
                 else:
                     max_occurence = max(int(label[4:-1]) for label in existing_labels[1:])
-                kpoints[point_label + "_{" + str(max_occurence + 1) + "}"] = key_points[point_ind]
-                reverse_kpoints[point_ind] = point_label + "_{" + str(max_occurence + 1) + "}"
+                kpoints[f"{point_label}_{{{max_occurence + 1}}}"] = key_points[point_ind]
+                reverse_kpoints[point_ind] = f"{point_label}_{{{max_occurence + 1}}}"
 
         path = []
-        i = 0
+        idx = 0
         start_of_subpath = True
-        while i < len(points_in_path_inds):
+        while idx < len(points_in_path_inds):
             if start_of_subpath:
-                path.append([reverse_kpoints[points_in_path_inds[i]]])
-                i += 1
+                path.append([reverse_kpoints[points_in_path_inds[idx]]])
+                idx += 1
                 start_of_subpath = False
-            elif points_in_path_inds[i] == points_in_path_inds[i + 1]:
-                path[-1].append(reverse_kpoints[points_in_path_inds[i]])
-                i += 2
+            elif points_in_path_inds[idx] == points_in_path_inds[idx + 1]:
+                path[-1].append(reverse_kpoints[points_in_path_inds[idx]])
+                idx += 2
             else:
-                path[-1].append(reverse_kpoints[points_in_path_inds[i]])
-                i += 1
+                path[-1].append(reverse_kpoints[points_in_path_inds[idx]])
+                idx += 1
                 start_of_subpath = True
-            if i == len(points_in_path_inds) - 1:
-                path[-1].append(reverse_kpoints[points_in_path_inds[i]])
-                i += 1
+            if idx == len(points_in_path_inds) - 1:
+                path[-1].append(reverse_kpoints[points_in_path_inds[idx]])
+                idx += 1
 
         return {"kpoints": kpoints, "path": path}
 

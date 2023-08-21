@@ -21,7 +21,9 @@ def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
     """:param x: x values
     :param x_0: Center
     :param sigma: FWHM
-    :return: Value of lorentzian at x.
+
+    Returns:
+        Value of lorentzian at x.
     """
     return 1 / np.pi * 0.5 * sigma / ((x - x_0) ** 2 + (0.5 * sigma) ** 2)
 
@@ -170,6 +172,7 @@ class Spectrum(MSONable):
 
         Args:
             other: scalar, The scale amount
+
         Returns:
             Spectrum object with y values scaled
         """

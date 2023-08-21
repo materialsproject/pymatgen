@@ -724,7 +724,9 @@ class MagOrderingTransformation(AbstractTransformation):
     def _add_dummy_species(structure, order_parameters):
         """:param structure: ordered Structure
         :param order_parameters: list of MagOrderParameterConstraints
-        :return: A structure decorated with disordered
+
+        Returns:
+            A structure decorated with disordered
             DummySpecies on which to perform the enumeration.
             Note that the DummySpecies are super-imposed on
             to the original sites, to make it easier to
@@ -1978,7 +1980,8 @@ class SQSTransformation(AbstractTransformation):
     def _get_disordered_substructure(struc_disordered):
         """Converts disordered structure into a substructure consisting of only disordered sites
         Args:
-            struc_disordered: pymatgen disordered Structure object
+            struc_disordered: pymatgen disordered Structure object.
+
         Returns:
             pymatgen Structure object representing a substructure of disordered sites.
         """
