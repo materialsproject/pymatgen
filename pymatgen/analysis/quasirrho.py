@@ -97,24 +97,24 @@ class QuasiRRHO:
     def __init__(
         self,
         mol: Molecule,
-        frequencies: list,
+        frequencies: list[float],
         energy: float,
         mult: int,
-        sigma_r=1,
-        temp=298.15,
-        press=101317,
-        v0=100,
-    ):
+        sigma_r: float = 1,
+        temp: float = 298.15,
+        press: float = 101_317,
+        v0: float = 100,
+    ) -> None:
         """
         Args:
             mol (Molecule): Pymatgen molecule
             frequencies (list): List of frequencies (float) [cm^-1]
             energy (float): Electronic energy [Ha]
-            mult (int): Spin muliplicity
-            sigma_r (int): Rotational symmetry number
-            temp (float): Temperature [K]
-            press (float): Pressure [Pa]
-            v0 (float): Cutoff frequency for Quasi-RRHO method [cm^-1]
+            mult (int): Spin multiplicity
+            sigma_r (int): Rotational symmetry number. Defaults to 1.
+            temp (float): Temperature [K]. Defaults to 298.15.
+            press (float): Pressure [Pa]. Defaults to 101_317.
+            v0 (float): Cutoff frequency for Quasi-RRHO method [cm^-1]. Defaults to 100.
         """
         # TO-DO: calculate sigma_r with PointGroupAnalyzer
         # and/or edit Gaussian and QChem io to parse for sigma_r
@@ -149,7 +149,7 @@ class QuasiRRHO:
         return cls(mol=mol, frequencies=vib_freqs, energy=elec_e, mult=mult, **kwargs)
 
     @classmethod
-    def from_QCOutput(cls, output: QCOutput, **kwargs):
+    def from_qc_output(cls, output: QCOutput, **kwargs) -> QuasiRRHO:
         """
 
         Args:
@@ -173,9 +173,12 @@ class QuasiRRHO:
         Doi("10.1002/chem.201200497"),
         description="Supramolecular Binding Thermodynamics by Dispersion-Corrected Density Functional Theory",
     )
-    def _get_quasirrho_thermo(self, mol, mult, sigma_r, frequencies, elec_energy):
+    def _get_quasirrho_thermo(
+        self, mol: Molecule, mult: int, sigma_r: int, frequencies: list[float], elec_energy: float
+    ) -> None:
         """
         Calculate Quasi-RRHO thermochemistry
+
         Args:
             mol (Molecule): Pymatgen molecule
             mult (int): Spin multiplicity
