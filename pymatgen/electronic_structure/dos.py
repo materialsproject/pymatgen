@@ -1485,7 +1485,8 @@ def _get_orb_type_lobster(orb) -> OrbitalType | None:
 def _get_orb_lobster(orb):
     """
     Args:
-        orb: string representation of orbital
+        orb: string representation of orbital.
+
     Returns:
          Orbital.
     """

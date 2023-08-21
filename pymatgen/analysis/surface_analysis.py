@@ -1641,7 +1641,9 @@ class WorkFunctionAnalyzer:
         :param shift: shift
         :param blength: The longest bond length in the material.
             Used to handle pbc for noncontiguous slab layers
-        :return: WorkFunctionAnalyzer
+
+        Returns:
+            WorkFunctionAnalyzer
         """
         poscar = Poscar.from_file(poscar_filename)
         locpot = Locpot.from_file(locpot_filename)
@@ -1968,6 +1970,7 @@ def sub_chempots(gamma_dict, chempots):
             as a coefficient dictionary
         chempots (dict): Dictionary assigning each chemical
             potential (key) in gamma a value
+
     Returns:
         Surface energy as a float
     """

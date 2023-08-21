@@ -292,7 +292,9 @@ class Lobsterin(dict, MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: Lobsterin
+
+        Returns:
+            Lobsterin
         """
         return Lobsterin({k: v for k, v in d.items() if k not in ["@module", "@class"]})
 

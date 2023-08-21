@@ -644,6 +644,7 @@ class Charge:
         Get a Structure with Mulliken and Loewdin charges as site properties
         Args:
             structure_filename: filename of POSCAR
+
         Returns:
             Structure Object with Mulliken and Loewdin charges as site properties.
         """
@@ -1387,6 +1388,7 @@ class Grosspop:
         Get a Structure with Mulliken and Loewdin total grosspopulations as site properties
         Args:
             structure_filename (str): filename of POSCAR
+
         Returns:
             Structure Object with Mulliken and Loewdin total grosspopulations as site properties.
         """
@@ -1667,6 +1669,7 @@ class SitePotential:
         Get a Structure with Mulliken and Loewdin charges as site properties
         Args:
             structure_filename: filename of POSCAR
+
         Returns:
             Structure Object with Mulliken and Loewdin charges as site properties.
         """

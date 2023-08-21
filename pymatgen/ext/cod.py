@@ -50,7 +50,9 @@ class COD:
         """Perform a query.
 
         :param sql: SQL string
-        :return: Response from SQL query.
+
+        Returns:
+            Response from SQL query.
         """
         r = subprocess.check_output(["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"])
         return r.decode("utf-8")

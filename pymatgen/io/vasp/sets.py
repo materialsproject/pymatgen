@@ -2236,7 +2236,8 @@ class MVLSlabSet(MPRelaxSet):
     def as_dict(self, verbosity=2):
         """
         :param verbosity: Verbosity of dict. E.g., whether to include Structure.
-        :return: MSONable dict
+        Returns:
+            MSONable dict
         """
         d = MSONable.as_dict(self)
         if verbosity == 1:

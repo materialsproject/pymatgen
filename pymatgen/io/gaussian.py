@@ -475,7 +475,9 @@ class GaussianInput:
     def from_dict(cls, d):
         """
         :param d: dict
-        :return: GaussianInput
+
+        Returns:
+            GaussianInput
         """
         return cls(
             mol=Molecule.from_dict(d["molecule"]),

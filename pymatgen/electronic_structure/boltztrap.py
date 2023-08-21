@@ -1254,6 +1254,7 @@ class BoltztrapAnalyzer:
             doping_levels (bool): True for the results to be given at
             different doping levels, False for results
             at different electron chemical potentials
+
         Returns:
             If doping_levels=True,a dictionary {'p':{temp:[]},'n':{temp:[]}}
             with an array of effective mass tensor, eigenvalues of average
@@ -1615,7 +1616,9 @@ class BoltztrapAnalyzer:
 
     def get_mu_bounds(self, temp=300):
         """:param temp: Temperature.
-        :return: The chemical potential bounds at that temperature.
+
+        Returns:
+            The chemical potential bounds at that temperature.
         """
         return min(self.mu_doping["p"][temp]), max(self.mu_doping["n"][temp])
 
@@ -2027,7 +2030,9 @@ class BoltztrapAnalyzer:
     @staticmethod
     def from_dict(data):
         """:param data: Dict representation.
-        :return: BoltztrapAnalyzer
+
+        Returns:
+            BoltztrapAnalyzer
         """
 
         def _make_float_array(a):
@@ -2163,7 +2168,9 @@ class BoltztrapAnalyzer:
 
 def read_cube_file(filename):
     """:param filename: Cube filename
-    :return: Energy data.
+
+    Returns:
+        Energy data.
     """
     with open(filename) as f:
         natoms = 0
@@ -2285,7 +2292,8 @@ def seebeck_spb(eta, Lambda=0.5):
 
 
 def eta_from_seebeck(seeb, Lambda):
-    """It takes a value of seebeck and adjusts the analytic seebeck until it's equal
+    """It takes a value of seebeck and adjusts the analytic seebeck until it's equal.
+
     Returns: eta where the two seebeck coefficients are equal
     (reduced chemical potential).
     """

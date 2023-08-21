@@ -163,6 +163,7 @@ class PhononBandStructure(MSONable):
 
         Args:
             direction: the direction as a list of 3 elements
+
         Returns:
             the frequencies as a numpy array o(3*len(structure), len(qpoints)).
             None if not found.
@@ -180,6 +181,7 @@ class PhononBandStructure(MSONable):
 
         Args:
             direction: the direction as a list of 3 elements
+
         Returns:
             the eigendisplacements as a numpy array of complex numbers with shape
             (3*len(structure), len(structure), 3). None if not found.
@@ -254,7 +256,9 @@ class PhononBandStructure(MSONable):
     @classmethod
     def from_dict(cls, dct):
         """:param dct: Dict representation
-        :return: PhononBandStructure
+
+        Returns:
+            PhononBandStructure
         """
         lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
         eigendisplacements = (

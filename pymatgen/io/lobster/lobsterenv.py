@@ -216,6 +216,7 @@ class LobsterNeighbors(NearNeighbors):
     def anion_types(self):
         """
         Return the types of anions present in crystal structure as a set
+
         Returns: set of Element describing anions in the crystal structure.
         """
         if self.valences is None:
@@ -244,6 +245,7 @@ class LobsterNeighbors(NearNeighbors):
                 or not (False, default: each coordinated site has equal
                 weight).
                 True is not implemented for LobsterNeighbors
+
         Returns:
             cn (integer or float): coordination number.
         """
@@ -261,6 +263,7 @@ class LobsterNeighbors(NearNeighbors):
         Args:
             only_cation_environments: only data for cations will be returned
             only_indices: will only evaluate the list of isites in this list
+
         Returns: LobsterLightStructureEnvironments Object
         """
         lgf = LocalGeometryFinder()
@@ -1345,7 +1348,8 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
     def as_dict(self):
         """
         Bson-serializable dict representation of the LightStructureEnvironments object.
-        :return: Bson-serializable dict representation of the LightStructureEnvironments object.
+        Returns:
+            Bson-serializable dict representation of the LightStructureEnvironments object.
         """
         return {
             "@module": type(self).__module__,

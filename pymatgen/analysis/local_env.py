@@ -479,6 +479,7 @@ class NearNeighbors:
             _previous_steps ({(site_idx, image}) - Internal use only: Set of
                 sites that have already been traversed.
             _cur_image (tuple) - Internal use only Image coordinates of current atom
+
         Returns:
             list of dictionaries. Each entry in the list is information about
                 a certain neighbor in the structure, in the same format as
@@ -782,6 +783,7 @@ class VoronoiNN(NearNeighbors):
 
         Args:
             structure (Structure): Structure to be evaluated
+
         Returns:
             A dict of sites sharing a common Voronoi facet with the site
             n mapped to a directory containing statistics about the facet:
@@ -849,6 +851,7 @@ class VoronoiNN(NearNeighbors):
             targets ([Element]) - Target elements
             voro - Output of qvoronoi
             compute_adj_neighbors (boolean) - Whether to compute which neighbors are adjacent
+
         Returns:
             A dict of sites sharing a common Voronoi facet. Key is facet id
              (not useful) and values are dictionaries containing statistics
@@ -1008,6 +1011,7 @@ class VoronoiNN(NearNeighbors):
         Args:
             structure (Structure): Structure being evaluated
             nns ([dicts]): Nearest neighbor information for a structure
+
         Returns:
             (list of tuples (Site, array, float)): See nn_info
         """
@@ -1157,6 +1161,7 @@ def _is_in_targets(site, targets):
     Args:
         site (Site): Site to assess
         targets ([Element]) List of elements
+
     Returns:
          (boolean) Whether this site contains a certain list of elements
     """
@@ -1170,6 +1175,7 @@ def _get_elements(site):
 
     Args:
          site (Site): Site to assess
+
     Returns:
         [Element]: List of elements
     """
@@ -1605,7 +1611,8 @@ class CovalentBondNN(NearNeighbors):
 
         :param structure: input Molecule.
         :param n: index of site for which to determine near neighbors.
-        :return: [dict] representing a neighboring site and the type of
+        Returns:
+            [dict] representing a neighboring site and the type of
             bond present between site n and the neighboring site.
         """
         # This is unfortunately inefficient, but is the best way to fit the
@@ -1993,6 +2000,7 @@ def get_okeeffe_distance_prediction(el1, el2):
 
     Args:
         el1, el2 (Element): two Element objects
+
     Returns:
         a float value of the predicted bond length
     """

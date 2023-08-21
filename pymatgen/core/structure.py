@@ -1470,6 +1470,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
             exclude_self (bool): whether to exclude atom neighboring with itself within
                 numerical tolerance distance, default to True
+
         Returns: (center_indices, points_indices, offset_vectors, distances)
         """
         neighbors = self.get_all_neighbors_py(
@@ -1520,6 +1521,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
             exclude_self (bool): whether to exclude atom neighboring with itself within
                 numerical tolerance distance, default to True
+
         Returns: (center_indices, points_indices, offset_vectors, distances)
         """
         try:
@@ -1586,6 +1588,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
             exclude_self (bool): whether to exclude atom neighboring with itself within
                 numerical tolerance distance, default to True
+
         Returns: (center_indices, points_indices, offset_vectors, distances,
                   symmetry_indices, symmetry_ops)
         """

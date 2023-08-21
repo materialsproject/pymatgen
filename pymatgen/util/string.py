@@ -43,7 +43,8 @@ class Stringify:
         "SUBSCRIPT". E.g., Fe2O3 is transformed to Fe$_{2}$O$_{3}$. Setting STRING_MODE to "SUPERSCRIPT" creates
         superscript, e.g., Fe2+ becomes Fe^{2+}. The initial string is obtained from the class's __str__ method.
 
-        :return: String for display as in LaTeX with proper superscripts and subscripts.
+        Returns:
+            String for display as in LaTeX with proper superscripts and subscripts.
         """
         str_ = self.to_pretty_string()
         # First we process strings that already have _ and ^ by escaping the relevant parts.
@@ -57,7 +58,9 @@ class Stringify:
 
     def to_html_string(self) -> str:
         """Generates a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
-        :return: HTML formatted string.
+
+        Returns:
+            HTML formatted string.
         """
         str_ = re.sub(r"\$_\{([^}]+)\}\$", r"<sub>\1</sub>", self.to_latex_string())
         str_ = re.sub(r"\$\^\{([^}]+)\}\$", r"<sup>\1</sup>", str_)
@@ -283,8 +286,10 @@ def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x",
     :param translation_vec
     :param components: either ('x', 'y', 'z') or ('a', 'b', 'c')
     :param c: optional additional character to print (used for magmoms)
-    :param delim: delimiter
-    :return: xyz string.
+    :param delim: delimiter.
+
+    Returns:
+        xyz string.
     """
     parts = []
     for idx in range(3):

@@ -335,7 +335,9 @@ class TransformedStructure(MSONable):
 
         :param authors: List of authors
         :param **kwargs: All kwargs supported by StructureNL.
-        :return: StructureNL
+
+        Returns:
+            StructureNL
         """
         if self.other_parameters:
             warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL")

@@ -1346,6 +1346,7 @@ class _MPResterLegacy:
             orient (list) : substrate orientation to look for
             number (int) : number of substrates to return
                 n=0 returns all available matches
+
         Returns:
             list of dicts with substrate matches
         """

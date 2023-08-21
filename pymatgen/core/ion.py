@@ -35,7 +35,8 @@ class Ion(Composition, MSONable, Stringify):
         Also note that (aq) can be included in the formula, e.g. "NaOH (aq)".
 
         :param formula:
-        :return: Ion
+        Returns:
+            Ion
         """
         charge = 0.0
         f = formula
