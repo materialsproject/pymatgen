@@ -172,8 +172,7 @@ def setup_potcars(potcar_dirs: list[str]):
 
 
 def build_enum(fortran_command: str = "gfortran") -> bool:
-    """
-    Build enum.
+    """Build enum.
 
     :param fortran_command:
     """
@@ -199,8 +198,7 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
 
 
 def build_bader(fortran_command="gfortran"):
-    """
-    Build bader package.
+    """Build bader package.
 
     :param fortran_command:
     """

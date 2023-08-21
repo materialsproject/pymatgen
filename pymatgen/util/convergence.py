@@ -1,5 +1,4 @@
-"""
-Functions for calculating the convergence of an x, y data set.
+"""Functions for calculating the convergence of an x, y data set.
 
 Main API:
 
@@ -33,8 +32,7 @@ __date__ = "June 2014"
 
 
 def id_generator(size: int = 8, chars: str = string.ascii_uppercase + string.digits) -> str:
-    """
-    Generate a random string of specified size and characters.
+    """Generate a random string of specified size and characters.
 
     Args:
         size (int): The length of the generated string.
@@ -58,8 +56,7 @@ class SplineInputError(Exception):
 
 
 def get_derivatives(xs, ys, fd=False):
-    """
-    return the derivatives of y(x) at the points x
+    """Return the derivatives of y(x) at the points x
     if scipy is available a spline is generated to calculate the derivatives
     if scipy is not available the left and right slopes are calculated, if both exist the average is returned
     putting fd to zero always returns the finite difference slopes.
@@ -98,8 +95,7 @@ functions used in the fitting procedure, with initial guesses
 
 
 def print_and_raise_error(xs, ys, name):
-    """
-    Print error message and raise a RuntimeError.
+    """Print error message and raise a RuntimeError.
 
     Args:
         xs (list): List of x values.
@@ -149,8 +145,7 @@ def exponential(x, a, b, n):
 
 
 def p0_exponential(xs, ys):
-    """
-    Calculate the initial guess parameters for the exponential function.
+    """Calculate the initial guess parameters for the exponential function.
 
     Args:
         xs (list): List of x values.
@@ -180,8 +175,7 @@ def single_reciprocal(x, a, b, c):
 
 
 def p0_single_reciprocal(xs, ys):
-    """
-    Calculate the initial guess parameters for the single reciprocal function.
+    """Calculate the initial guess parameters for the single reciprocal function.
 
     Args:
         xs (list): List of x values.
@@ -203,8 +197,7 @@ def simple_reciprocal(x, a, b):
 
 
 def p0_simple_reciprocal(xs, ys):
-    """
-    Calculate the initial guess parameters for the simple reciprocal function.
+    """Calculate the initial guess parameters for the simple reciprocal function.
 
     Args:
         xs (list): List of x values.
@@ -232,8 +225,7 @@ def simple_2reciprocal(x, a, b):
 
 
 def p0_simple_2reciprocal(xs, ys):
-    """
-    Calculate the initial guess parameters for the simple reciprocal function with a power of 2.
+    """Calculate the initial guess parameters for the simple reciprocal function with a power of 2.
 
     Args:
         xs (list): List of x values.
@@ -255,8 +247,7 @@ def simple_4reciprocal(x, a, b):
 
 
 def p0_simple_4reciprocal(xs, ys):
-    """
-    Calculate the initial guess parameters for the simple reciprocal function with a power of 4.
+    """Calculate the initial guess parameters for the simple reciprocal function with a power of 4.
 
     Args:
         xs (list): List of x values.
@@ -278,8 +269,7 @@ def simple_5reciprocal(x, a, b):
 
 
 def p0_simple_5reciprocal(xs, ys):
-    """
-    Calculate the initial guess parameters for the simple reciprocal function with a power of 0.5.
+    """Calculate the initial guess parameters for the simple reciprocal function with a power of 0.5.
 
     Args:
         xs (list): List of x values.
@@ -295,8 +285,7 @@ def p0_simple_5reciprocal(xs, ys):
 
 
 def extrapolate_simple_reciprocal(xs, ys):
-    """
-    Extrapolate simple reciprocal function to fit convergence data.
+    """Extrapolate simple reciprocal function to fit convergence data.
 
     Args:
         xs: List of x values.
@@ -416,8 +405,7 @@ def multi_curve_fit(xs, ys, verbose):
 
 
 def multi_reciprocal_extra(xs, ys, noise=False):
-    """
-    Calculates for a series of powers ns the parameters for which the last two points are at the curve.
+    """Calculates for a series of powers ns the parameters for which the last two points are at the curve.
     With these parameters measure how well the other data points fit.
     return the best fit.
     """

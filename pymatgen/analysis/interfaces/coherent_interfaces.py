@@ -6,6 +6,7 @@ from itertools import product
 from typing import TYPE_CHECKING, Iterator, Sequence
 
 import numpy as np
+from numpy.testing import assert_allclose
 from scipy.linalg import polar
 
 from pymatgen.analysis.elasticity.strain import Deformation
@@ -87,14 +88,14 @@ class CoherentInterfaceBuilder:
         for match in self.zsl_matches:
             xform = get_2d_transform(film_vectors, match.film_vectors)
             strain, rot = polar(xform)
-            assert np.allclose(
-                strain, np.round(strain)
+            assert_allclose(
+                strain, np.round(strain), atol=1e-12
             ), "Film lattice vectors changed during ZSL match, check your ZSL Generator parameters"
 
             xform = get_2d_transform(substrate_vectors, match.substrate_vectors)
             strain, rot = polar(xform)
-            assert np.allclose(
-                strain, strain.astype(int)
+            assert_allclose(
+                strain, strain.astype(int), atol=1e-12
             ), "Substrate lattice vectors changed during ZSL match, check your ZSL Generator parameters"
 
     def _find_terminations(self):
@@ -195,10 +196,10 @@ class CoherentInterfaceBuilder:
             ).astype(int)
             film_sl_slab = film_slab.copy()
             film_sl_slab.make_supercell(super_film_transform)
-            assert np.allclose(
+            assert_allclose(
                 film_sl_slab.lattice.matrix[2], film_slab.lattice.matrix[2]
             ), "2D transformation affected C-axis for Film transformation"
-            assert np.allclose(
+            assert_allclose(
                 film_sl_slab.lattice.matrix[:2], match.film_sl_vectors
             ), "Transformation didn't make proper supercell for film"
 
@@ -208,10 +209,10 @@ class CoherentInterfaceBuilder:
             ).astype(int)
             sub_sl_slab = sub_slab.copy()
             sub_sl_slab.make_supercell(super_sub_transform)
-            assert np.allclose(
+            assert_allclose(
                 sub_sl_slab.lattice.matrix[2], sub_slab.lattice.matrix[2]
             ), "2D transformation affected C-axis for Film transformation"
-            assert np.allclose(
+            assert_allclose(
                 sub_sl_slab.lattice.matrix[:2], match.substrate_sl_vectors
             ), "Transformation didn't make proper supercell for substrate"
 

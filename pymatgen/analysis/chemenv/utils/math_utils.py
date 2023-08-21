@@ -76,7 +76,9 @@ def divisors(n):
     """
     From a given natural integer, returns the list of divisors in ascending order
     :param n: Natural integer
-    :return: List of divisors of n in ascending order.
+
+    Returns:
+        List of divisors of n in ascending order.
     """
     factors = _factor_generator(n)
     _divisors = []

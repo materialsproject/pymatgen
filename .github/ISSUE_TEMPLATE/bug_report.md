@@ -5,7 +5,9 @@ about: Create a report to help us improve
 
 #### Description
 
-A clear and concise bug description.
+A clear and concise bug description. Please submit only issues regarding pymatgen only. If you encounter errors
+related to any of pymatgen's dependencies (e.g., [mp-api](https://github.com/materialsproject/api)), please post
+Issues on the respective Github Issues pages.
 
 #### Repro
 

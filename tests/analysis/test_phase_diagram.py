@@ -3,13 +3,13 @@ from __future__ import annotations
 import collections
 import os
 import unittest
-import warnings
 from numbers import Number
 from pathlib import Path
 
 import numpy as np
 import pytest
 from monty.serialization import dumpfn, loadfn
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.phase_diagram import (
@@ -39,28 +39,28 @@ class TestPDEntry(unittest.TestCase):
     def setUp(self):
         comp = Composition("LiFeO2")
         self.entry = PDEntry(comp, 53, name="mp-757614")
-        self.gpentry = GrandPotPDEntry(self.entry, {Element("O"): 1.5})
+        self.gp_entry = GrandPotPDEntry(self.entry, {Element("O"): 1.5})
 
     def test_get_energy(self):
         assert self.entry.energy == 53, "Wrong energy!"
-        assert self.gpentry.energy == 50, "Wrong energy!"
+        assert self.gp_entry.energy == 50, "Wrong energy!"
 
     def test_get_chemical_energy(self):
-        assert self.gpentry.chemical_energy == 3, "Wrong energy!"
+        assert self.gp_entry.chemical_energy == 3, "Wrong energy!"
 
     def test_get_energy_per_atom(self):
         assert self.entry.energy_per_atom == 53.0 / 4, "Wrong energy per atom!"
-        assert self.gpentry.energy_per_atom == 50.0 / 2, "Wrong energy per atom!"
+        assert self.gp_entry.energy_per_atom == 50.0 / 2, "Wrong energy per atom!"
 
     def test_get_name(self):
         assert self.entry.name == "mp-757614"
-        assert self.gpentry.name == "mp-757614"
+        assert self.gp_entry.name == "mp-757614"
 
     def test_composition(self):
         comp = self.entry.composition
         expected_comp = Composition("LiFeO2")
         assert comp == expected_comp
-        comp = self.gpentry.composition
+        comp = self.gp_entry.composition
         expected_comp = Composition("LiFe")
         assert comp == expected_comp
 
@@ -70,11 +70,11 @@ class TestPDEntry(unittest.TestCase):
 
     def test_is_element(self):
         assert not self.entry.is_element
-        assert not self.gpentry.is_element
+        assert not self.gp_entry.is_element
 
     def test_to_from_dict(self):
         d = self.entry.as_dict()
-        gpd = self.gpentry.as_dict()
+        gpd = self.gp_entry.as_dict()
         entry = PDEntry.from_dict(d)
 
         assert entry.name == "mp-757614"
@@ -164,10 +164,6 @@ class TestPhaseDiagram(PymatgenTest):
     def setUp(self):
         self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         self.pd = PhaseDiagram(self.entries)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_init(self):
         # Ensure that a bad set of entries raises a PD error. Remove all Li
@@ -917,12 +913,12 @@ class TestPDPlotter(unittest.TestCase):
 
     def test_mpl_plots(self):
         # Some very basic ("non")-tests. Just to make sure the methods are callable.
-        self.plotter_binary_mpl.get_plot().close()
-        self.plotter_ternary_mpl.get_plot().close()
-        self.plotter_quaternary_mpl.get_plot().close()
-        self.plotter_ternary_mpl.get_contour_pd_plot().close()
-        self.plotter_ternary_mpl.get_chempot_range_map_plot([Element("Li"), Element("O")]).close()
-        self.plotter_ternary_mpl.plot_element_profile(Element("O"), Composition("Li2O")).close()
+        self.plotter_binary_mpl.get_plot()
+        self.plotter_ternary_mpl.get_plot()
+        self.plotter_quaternary_mpl.get_plot()
+        self.plotter_ternary_mpl.get_contour_pd_plot()
+        self.plotter_ternary_mpl.get_chempot_range_map_plot([Element("Li"), Element("O")])
+        self.plotter_ternary_mpl.plot_element_profile(Element("O"), Composition("Li2O"))
 
     def test_plotly_plots(self):
         # Also very basic tests. Ensures callability and 2D vs 3D properties.
@@ -978,9 +974,9 @@ class TestUtilityFunction(unittest.TestCase):
     def test_triangular_coord(self):
         coord = [0.5, 0.5]
         coord = triangular_coord(coord)
-        assert np.allclose(coord, [0.75, 0.4330127])
+        assert_allclose(coord, [0.75, 0.4330127])
 
     def test_tet_coord(self):
         coord = [0.5, 0.5, 0.5]
         coord = tet_coord(coord)
-        assert np.allclose(coord, [1.0, 0.57735027, 0.40824829])
+        assert_allclose(coord, [1.0, 0.57735027, 0.40824829])

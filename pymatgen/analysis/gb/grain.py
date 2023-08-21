@@ -799,7 +799,7 @@ class GrainBoundaryGenerator:
                 0-a, 1-b, 2-c. Only may be needed for orthorhombic system.
 
         Returns:
-               axial ratio needed for GB generator (list of integers).
+            axial ratio needed for GB generator (list of integers).
         """
         structure = self.initial_structure
         lat_type = self.lat_type
@@ -1374,6 +1374,7 @@ class GrainBoundaryGenerator:
             c2_a2_ratio (list of two integers, e.g. mu, mv):
                     mu/mv is the square of the hexagonal axial ratio, which is rational
                     number. If irrational, set c2_a2_ratio = None
+
         Returns:
             sigmas (dict):
                     dictionary with keys as the possible integer sigma values
@@ -1616,6 +1617,7 @@ class GrainBoundaryGenerator:
             c2_a2_ratio (list of two integers, e.g. mu, mv):
                     mu/mv is the square of the tetragonal axial ratio with rational number.
                     if irrational, set c2_a2_ratio = None
+
         Returns:
             sigmas (dict):
                     dictionary with keys as the possible integer sigma values

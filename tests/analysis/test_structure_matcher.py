@@ -6,6 +6,7 @@ import os
 import numpy as np
 import pytest
 from monty.json import MontyDecoder
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.structure_matcher import (
@@ -120,21 +121,21 @@ class TestStructureMatcher(PymatgenTest):
             sm._cart_dists(s1, s2, latt, mask.T, n1)
 
         d, ft, s = sm._cart_dists(s1, s2, latt, mask, n1)
-        assert np.allclose(d, [0])
-        assert np.allclose(ft, [-0.01, -0.02, -0.03])
-        assert np.allclose(s, [1])
+        assert_allclose(d, [0])
+        assert_allclose(ft, [-0.01, -0.02, -0.03])
+        assert_allclose(s, [1])
 
         # check that masking best value works
         d, ft, s = sm._cart_dists(s1, s2, latt, mask2, n1)
-        assert np.allclose(d, [0])
-        assert np.allclose(ft, [0.02, 0.03, 0.04])
-        assert np.allclose(s, [0])
+        assert_allclose(d, [0])
+        assert_allclose(ft, [0.02, 0.03, 0.04])
+        assert_allclose(s, [0])
 
         # check that averaging of translation is done properly
         d, ft, s = sm._cart_dists(s1, s3, latt, mask3, n1)
-        assert np.allclose(d, [0.08093341] * 2)
-        assert np.allclose(ft, [0.01, 0.025, 0.035])
-        assert np.allclose(s, [1, 0])
+        assert_allclose(d, [0.08093341] * 2)
+        assert_allclose(ft, [0.01, 0.025, 0.035])
+        assert_allclose(s, [1, 0])
 
         # check distances are large when mask allows no 'real' mapping
         d, ft, s = sm._cart_dists(s1, s4, latt, mask4, n1)
@@ -166,7 +167,7 @@ class TestStructureMatcher(PymatgenTest):
         m, inds, i = sm._get_mask(s1, s2, 2, True)
         assert np.all(m == result)
         assert i == 2
-        assert np.allclose(inds, np.array([4]))
+        assert_allclose(inds, np.array([4]))
 
         # test supercell without match
         result = [
@@ -178,7 +179,7 @@ class TestStructureMatcher(PymatgenTest):
         m, inds, i = sm._get_mask(s2, s1, 2, True)
         assert np.all(m == result)
         assert i == 0
-        assert np.allclose(inds, np.array([]))
+        assert_allclose(inds, np.array([]))
 
         # test s2_supercell
         result = [
@@ -194,7 +195,7 @@ class TestStructureMatcher(PymatgenTest):
         m, inds, i = sm._get_mask(s2, s1, 2, False)
         assert np.all(m == result)
         assert i == 0
-        assert np.allclose(inds, np.array([]))
+        assert_allclose(inds, np.array([]))
 
         # test for multiple translation indices
         s1 = Structure(latt, ["Cu", "Ag", "Cu", "Ag", "Ag"], [[0] * 3] * 5)
@@ -204,7 +205,7 @@ class TestStructureMatcher(PymatgenTest):
 
         assert np.all(m == result)
         assert i == 1
-        assert np.allclose(inds, [0, 2])
+        assert_allclose(inds, [0, 2])
 
     def test_get_supercells(self):
         sm = StructureMatcher(comparator=ElementComparator())
@@ -488,8 +489,8 @@ class TestStructureMatcher(PymatgenTest):
         assert sm_no_s.fit(s2, s1)
 
         rms = (0.048604032430991401, 0.059527539448807391)
-        assert np.allclose(sm.get_rms_dist(s1, s2), rms)
-        assert np.allclose(sm.get_rms_dist(s2, s1), rms)
+        assert_allclose(sm.get_rms_dist(s1, s2), rms)
+        assert_allclose(sm.get_rms_dist(s2, s1), rms)
 
         # test when the supercell is a subset of s2
         subset_supercell = s1.copy()
@@ -506,8 +507,8 @@ class TestStructureMatcher(PymatgenTest):
         assert not sm_no_s.fit(s2, subset_supercell)
 
         rms = (0.053243049896333279, 0.059527539448807336)
-        assert np.allclose(sm.get_rms_dist(subset_supercell, s2), rms)
-        assert np.allclose(sm.get_rms_dist(s2, subset_supercell), rms)
+        assert_allclose(sm.get_rms_dist(subset_supercell, s2), rms)
+        assert_allclose(sm.get_rms_dist(s2, subset_supercell), rms)
 
         # test when s2 (once made a supercell) is a subset of s1
         s2_missing_site = s2.copy()
@@ -523,8 +524,8 @@ class TestStructureMatcher(PymatgenTest):
         assert not sm_no_s.fit(s2_missing_site, s1)
 
         rms = (0.029763769724403633, 0.029763769724403987)
-        assert np.allclose(sm.get_rms_dist(s1, s2_missing_site), rms)
-        assert np.allclose(sm.get_rms_dist(s2_missing_site, s1), rms)
+        assert_allclose(sm.get_rms_dist(s1, s2_missing_site), rms)
+        assert_allclose(sm.get_rms_dist(s2_missing_site, s1), rms)
 
     def test_get_s2_large_s2(self):
         sm = StructureMatcher(
@@ -805,7 +806,7 @@ class TestStructureMatcher(PymatgenTest):
         sp = ["Si", "Si", "Al"]
         s1 = Structure(latt, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.5]])
         s2 = Structure(latt, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.6]])
-        assert np.allclose(sm.get_rms_dist(s1, s2), (0.32**0.5 / 2, 0.4))
+        assert_allclose(sm.get_rms_dist(s1, s2), (0.32**0.5 / 2, 0.4))
 
         assert sm.fit(s1, s2) is False
         assert sm.fit_anonymous(s1, s2) is False

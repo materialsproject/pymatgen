@@ -156,7 +156,9 @@ class SimpleGraphCycle(MSONable):
         This method checks :
         - that there are no duplicate nodes,
         - that there are either 1 or more than 2 nodes
-        :return: True if the SimpleGraphCycle is valid, False otherwise.
+
+        Returns:
+            True if the SimpleGraphCycle is valid, False otherwise.
         """
         if len(self.nodes) == 1:
             return True, ""
@@ -340,7 +342,9 @@ class MultiGraphCycle(MSONable):
         This method checks :
         - that there are no duplicate nodes,
         - that there are either 1 or more than 2 nodes
-        :return: True if the SimpleGraphCycle is valid, False otherwise.
+
+        Returns:
+            True if the SimpleGraphCycle is valid, False otherwise.
         """
         if len(self.nodes) != len(self.edge_indices):  # Should have the same number of nodes and edges
             return False, "Number of nodes different from number of edge indices."
@@ -389,7 +393,8 @@ class MultiGraphCycle(MSONable):
 
         :param raise_on_fail: If set to True, will raise a RuntimeError if the
                               ordering fails.
-        :return: None
+        Returns:
+            None
         """
         # always validate the cycle if it needs to be ordered
         # also validates that the nodes can be strictly ordered

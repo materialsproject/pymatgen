@@ -3,12 +3,11 @@ from __future__ import annotations
 import os
 import random
 import re
-import warnings
 from unittest.mock import patch
 
-import numpy as np
 import pytest
 import requests
+from numpy.testing import assert_allclose
 from pytest import approx
 from ruamel.yaml import YAML
 
@@ -23,16 +22,17 @@ from pymatgen.electronic_structure.bandstructure import BandStructure, BandStruc
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, TaskType, _MPResterLegacy
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
-    website_down = requests.get("https://materialsproject.org").status_code != 200
-except requests.exceptions.ConnectionError:
-    website_down = True
+    skip_mprester_tests = requests.get("https://materialsproject.org").status_code != 200
+    from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, TaskType, _MPResterLegacy
+except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
+    # Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
+    skip_mprester_tests = True
 
 
 PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY")
@@ -44,7 +44,7 @@ if os.getenv("CI") and PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
 
 
 @pytest.mark.skipif(
-    website_down or not PMG_MAPI_KEY,
+    skip_mprester_tests or not PMG_MAPI_KEY,
     reason="PMG_MAPI_KEY environment variable not set or MP API is down.",
 )
 class TestMPResterOld(PymatgenTest):
@@ -52,10 +52,8 @@ class TestMPResterOld(PymatgenTest):
 
     def setUp(self):
         self.rester = _MPResterLegacy()
-        warnings.simplefilter("ignore")
 
     def tearDown(self):
-        warnings.simplefilter("default")
         self.rester.session.close()
 
     def test_get_all_materials_ids_doc(self):
@@ -373,7 +371,7 @@ class TestMPResterOld(PymatgenTest):
         data = self.rester.get_surface_data("mp-126")  # Pt
         one_surf = self.rester.get_surface_data("mp-129", miller_index=[-2, -3, 1])
         assert one_surf["surface_energy"] == approx(2.99156963)
-        assert np.allclose(one_surf["miller_index"], [3, 2, 1])
+        assert_allclose(one_surf["miller_index"], [3, 2, 1])
         assert "surfaces" in data
         surfaces = data["surfaces"]
         assert len(surfaces) > 0
@@ -405,7 +403,7 @@ class TestMPResterOld(PymatgenTest):
         )
         assert len(mo_s3_112) == 1
         gb_f = mo_s3_112[0]["final_structure"]
-        assert np.allclose(gb_f.rotation_axis, [1, 1, 0])
+        assert_allclose(gb_f.rotation_axis, [1, 1, 0])
         assert gb_f.rotation_angle == approx(109.47122)
         assert mo_s3_112[0]["gb_energy"] == approx(0.47965, rel=1e-4)
         assert mo_s3_112[0]["work_of_separation"] == approx(6.318144)

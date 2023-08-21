@@ -22,10 +22,6 @@ class TestBaderAnalysis(PymatgenTest):
 
     def setUp(self):
         warnings.catch_warnings()
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_init(self):
         # test with reference file

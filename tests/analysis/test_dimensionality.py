@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import warnings
-
 import networkx as nx
 import pytest
 from monty.serialization import loadfn
@@ -51,10 +49,6 @@ class TestLarsenDimensionality(PymatgenTest):
             [[0.752, 0.752, 0], [0.004, 0.004, 0.0], [0.272, 0.272, 0.0]],
         )
         self.mol_structure = cnn.get_bonded_structure(mol_structure)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self) -> None:
-        warnings.simplefilter("default")
 
     def test_get_dimensionality(self):
         assert get_dimensionality_larsen(self.lifepo) == 3

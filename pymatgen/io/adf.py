@@ -146,7 +146,7 @@ class AdfKey(MSONable):
 
     def is_block_key(self) -> bool:
         """Return True if this key is a block key."""
-        return bool(self.name.upper() in self.block_keys)
+        return self.name.upper() in self.block_keys
 
     @property
     def key(self):

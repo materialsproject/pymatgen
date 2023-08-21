@@ -476,21 +476,24 @@ class TestQCOutput(PymatgenTest):
 
     def test_NBO_3C(self):
         data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/3C.qout").data
-        assert len(data["nbo_data"]["hybridization_character"]) == 3
-        assert data["nbo_data"]["hybridization_character"][2]["type"][0] == "3C"
-        assert data["nbo_data"]["hybridization_character"][2]["type"][10] == "3Cn"
-        assert data["nbo_data"]["hybridization_character"][2]["type"][20] == "3C*"
-        assert data["nbo_data"]["hybridization_character"][2]["atom 3 pol coeff"][15] == "0.3643"
-        assert data["nbo_data"]["hybridization_character"][2]["atom 3 polarization"][8] == "56.72"
-        assert data["nbo_data"]["hybridization_character"][2]["atom 3 symbol"][3] == "B"
-        assert data["nbo_data"]["perturbation_energy"][0]["donor atom 2 number"][2592] == 36
-        assert data["nbo_data"]["perturbation_energy"][0]["donor atom 2 symbol"][2125] == "B12"
-        assert data["nbo_data"]["perturbation_energy"][0]["donor atom 2 number"][2593] == "info_is_from_3C"
-        assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][723] == "3C*"
-        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][3209] == 3.94
+        hybrid_char = data["nbo_data"]["hybridization_character"]
+        assert len(hybrid_char) == 3
+        hybrid_type = hybrid_char[2]["type"]
+        assert hybrid_type[0] == "3C"
+        assert hybrid_type[10] == "3Cn"
+        assert hybrid_type[20] == "3C*"
+        assert hybrid_char[2]["atom 3 pol coeff"][15] == "0.3643"
+        assert hybrid_char[2]["atom 3 polarization"][8] == "56.72"
+        assert hybrid_char[2]["atom 3 symbol"][3] == "B"
+        perturb_ene = data["nbo_data"]["perturbation_energy"]
+        assert perturb_ene[0]["donor atom 2 number"][2592] == 36
+        assert perturb_ene[0]["donor atom 2 symbol"][2125] == "B12"
+        assert perturb_ene[0]["donor atom 2 number"][2593] == "info_is_from_3C"
+        assert perturb_ene[0]["acceptor type"][723] == "3C*"
+        assert perturb_ene[0]["perturbation energy"][3209] == 3.94
 
 
 if __name__ == "__main__":
     # TestQCOutput.generate_single_job_dict()
     # TestQCOutput.generate_multi_job_dict()
-    unittest.main()
+    pass

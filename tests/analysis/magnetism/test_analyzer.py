@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 from shutil import which
 
-import numpy as np
 import pytest
 from monty.serialization import loadfn
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.magnetism import (
@@ -66,11 +65,6 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
         coords = [[0.5, 0.5, 0.5], [0, 0, 0], [0, 0.5, 0], [0.5, 0, 0.5]]
         self.NiO_unphysical = Structure(latt, species, coords, site_properties={"magmom": [-3, 0, 0, 0]})
 
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_get_representations(self):
         # tests to convert between storing magnetic moment information
         # on site_properties or on Species 'spin' property
@@ -90,10 +84,7 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
         assert "magmom" not in Fe_spin.site_properties
 
         # test with disorder on magnetic site
-        self.Fe[0] = {
-            Species("Fe", oxidation_state=0, properties={"spin": 5}): 0.5,
-            "Ni": 0.5,
-        }
+        self.Fe[0] = {Species("Fe", 0, spin=5): 0.5, "Ni": 0.5}
         with pytest.raises(
             NotImplementedError,
             match="CollinearMagneticStructureAnalyzer not implemented for disordered structures,"
@@ -225,13 +216,13 @@ Magmoms Sites
         struct.add_site_property("magmom", [-5.0143, -5.02, 0.147, 0.146])
 
         msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
-        assert np.allclose(msa.magmoms, [5.0171, 5.0171, -0.1465, -0.1465])
+        assert_allclose(msa.magmoms, [5.0171, 5.0171, -0.1465, -0.1465])
         assert msa.magnetic_species_and_magmoms["Ni"] == approx(5.0171)
         assert msa.magnetic_species_and_magmoms["O"] == approx(0.1465)
 
         struct.add_site_property("magmom", [-5.0143, 4.5, 0.147, 0.146])
         msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
-        assert np.allclose(msa.magmoms, [5.0143, -4.5, -0.1465, -0.1465])
+        assert_allclose(msa.magmoms, [5.0143, -4.5, -0.1465, -0.1465])
         assert msa.magnetic_species_and_magmoms["Ni"][0] == approx(4.5)
         assert msa.magnetic_species_and_magmoms["Ni"][1] == approx(5.0143)
         assert msa.magnetic_species_and_magmoms["O"] == approx(0.1465)

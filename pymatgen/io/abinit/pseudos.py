@@ -28,6 +28,8 @@ from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 
 if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+
     from pymatgen.core import Structure
 
 logger = logging.getLogger(__name__)
@@ -308,7 +310,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     def has_dojo_report(self):
         """True if the pseudo has an associated `DOJO_REPORT` section."""
         # pylint: disable=E1101
-        return hasattr(self, "dojo_report") and bool(self.dojo_report)
+        return hasattr(self, "dojo_report") and self.dojo_report
 
     @property
     def djrepo_path(self):
@@ -1169,7 +1171,7 @@ class PseudoParser:
         try:
             header = parsers[ppdesc.name](path, ppdesc)
         except Exception:
-            raise self.Error(path + ":\n" + straceback())
+            raise self.Error(f"{path}:\n{straceback()}")
 
         if psp_type == "NC":
             pseudo = NcAbinitPseudo(path, header)
@@ -1412,7 +1414,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # yield self.plot_potentials(title="potentials", show=False)
 
     @add_fig_kwargs
-    def plot_densities(self, ax=None, **kwargs):
+    def plot_densities(self, ax: plt.Axes = None, **kwargs):
         """
         Plot the PAW densities.
 
@@ -1438,7 +1440,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return fig
 
     @add_fig_kwargs
-    def plot_waves(self, ax=None, fontsize=12, **kwargs):
+    def plot_waves(self, ax: plt.Axes = None, fontsize=12, **kwargs):
         """
         Plot the AE and the pseudo partial waves.
 
@@ -1469,7 +1471,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return fig
 
     @add_fig_kwargs
-    def plot_projectors(self, ax=None, fontsize=12, **kwargs):
+    def plot_projectors(self, ax: plt.Axes = None, fontsize=12, **kwargs):
         """
         Plot the PAW projectors.
 
@@ -1671,7 +1673,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
     @property
     def zlist(self):
         """Ordered list with the atomic numbers available in the table."""
-        return sorted(list(self._pseudos_with_z))
+        return sorted(self._pseudos_with_z)
 
     # def max_ecut_pawecutdg(self, accuracy):
     # """Return the maximum value of ecut and pawecutdg based on the hints available in the pseudos."""

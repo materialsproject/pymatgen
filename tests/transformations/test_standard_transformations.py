@@ -4,9 +4,9 @@ import functools
 import json
 import random
 import unittest
-import warnings
 from shutil import which
 
+import numpy as np
 import pytest
 from monty.json import MontyDecoder
 from pytest import approx
@@ -158,6 +158,43 @@ class TestSupercellTransformation(unittest.TestCase):
         struct = trafo.apply_transformation(self.struct)
         assert len(struct) == 4 * functools.reduce(lambda a, b: a * b, scale_factors)
 
+    def test_from_boundary_distance(self):
+        struct_cubic = Structure.from_spacegroup("Pm-3m", 4 * np.eye(3), ["H"], [[0, 0, 0]])
+
+        for struct in [struct_cubic, self.struct]:
+            for min_dist in range(6, 19, 4):
+                trafo = SupercellTransformation.from_boundary_distance(
+                    structure=struct, min_boundary_dist=min_dist, allow_rotation=False
+                )
+                trafo_allow_rotate = SupercellTransformation.from_boundary_distance(
+                    structure=struct, min_boundary_dist=min_dist, allow_rotation=True
+                )
+                struct_super = trafo.apply_transformation(struct.copy())
+                struct_super_allow_rotate = trafo_allow_rotate.apply_transformation(struct.copy())
+
+                if min_dist == 9 and struct is struct_cubic:
+                    assert len(struct_super_allow_rotate) == 14
+                    assert len(struct_super) == 27
+
+                min_expand_allow_rotate_true = np.int8(
+                    min_dist / np.array([struct_super_allow_rotate.lattice.d_hkl(plane) for plane in np.eye(3)])
+                )
+                min_expand_allow_rotate_false = np.int8(
+                    min_dist / np.array([struct_super.lattice.d_hkl(plane) for plane in np.eye(3)])
+                )
+
+                assert sum(min_expand_allow_rotate_true != 0) == 0
+                assert sum(min_expand_allow_rotate_false != 0) == 0
+                assert len(struct_super_allow_rotate) <= len(struct_super)
+
+        max_atoms = 10
+        with pytest.raises(
+            RuntimeError,
+            match=f"{max_atoms=} exceeded while trying to solve for supercell. "
+            f"You can try lowering min_boundary_dist=6",
+        ):
+            SupercellTransformation.from_boundary_distance(structure=self.struct, max_atoms=max_atoms)
+
 
 class TestOxidationStateDecorationTransformation(unittest.TestCase):
     def test_apply_transformation(self):
@@ -224,12 +261,6 @@ class TestOxidationStateRemovalTransformation(unittest.TestCase):
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class TestPartialRemoveSpecieTransformation(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_apply_transformation(self):
         trafo = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
         coords = []

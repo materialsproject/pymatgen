@@ -37,7 +37,9 @@ class ConnectivityFinder:
 
         :param light_structure_environments: LightStructureEnvironments with the
         relevant coordination environments in the structure
-        :return: a StructureConnectivity object describing the connectivity of
+
+        Returns:
+            a StructureConnectivity object describing the connectivity of
         the environments in the structure
         """
         logging.info("Setup of structure connectivity graph")

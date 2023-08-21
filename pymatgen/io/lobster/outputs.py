@@ -76,11 +76,13 @@ class Cohpcar:
 
     .. attribute: orb_cohp
 
-        orb_cohp[label] = {bond_data["orb_label"]: {"COHP": {Spin.up: cohps, Spin.down:cohps},
-                                                     "ICOHP": {Spin.up: icohps, Spin.down: icohps},
-                                                     "orbitals": orbitals,
-                                                     "length": bond lengths,
-                                                     "sites": sites corresponding to the bond}}
+        orb_cohp[label] = {bond_data["orb_label"]: {
+            "COHP": {Spin.up: cohps, Spin.down:cohps},
+            "ICOHP": {Spin.up: icohps, Spin.down: icohps},
+            "orbitals": orbitals,
+            "length": bond lengths,
+            "sites": sites corresponding to the bond},
+        }
 
     """
 
@@ -642,6 +644,7 @@ class Charge:
         Get a Structure with Mulliken and Loewdin charges as site properties
         Args:
             structure_filename: filename of POSCAR
+
         Returns:
             Structure Object with Mulliken and Loewdin charges as site properties.
         """
@@ -762,11 +765,7 @@ class Lobsterout:
         self.charge_spilling = chargespilling
         self.total_spilling = totalspilling
 
-        (
-            elements,
-            basistype,
-            basisfunctions,
-        ) = self._get_elements_basistype_basisfunctions(data=data)
+        elements, basistype, basisfunctions = self._get_elements_basistype_basisfunctions(data=data)
         self.elements = elements
         self.basis_type = basistype
         self.basis_functions = basisfunctions
@@ -1292,10 +1291,12 @@ class Bandoverlaps:
     def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """
         Will check if the maxDeviation from the ideal bandoverlap is smaller or equal to limit_maxDeviation
+
         Args:
-         limit_maxDeviation: limit of the maxDeviation
+            limit_maxDeviation: limit of the maxDeviation
+
         Returns:
-             Boolean that will give you information about the quality of the projection.
+            Boolean that will give you information about the quality of the projection.
         """
         return all(deviation <= limit_maxDeviation for deviation in self.max_deviation)
 
@@ -1307,16 +1308,17 @@ class Bandoverlaps:
         limit_deviation: float = 0.1,
     ) -> bool:
         """
-        Will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
-        limit_deviation.
+        Will check if the deviation from the ideal bandoverlap of all occupied bands
+        is smaller or equal to limit_deviation.
 
         Args:
-        number_occ_bands_spin_up (int): number of occupied bands of spin up
-        number_occ_bands_spin_down (int): number of occupied bands of spin down
-        spin_polarized (bool):  If True, then it was a spin polarized calculation
-        limit_deviation (float): limit of the maxDeviation
+            number_occ_bands_spin_up (int): number of occupied bands of spin up
+            number_occ_bands_spin_down (int): number of occupied bands of spin down
+            spin_polarized (bool):  If True, then it was a spin polarized calculation
+            limit_deviation (float): limit of the maxDeviation
+
         Returns:
-             Boolean that will give you information about the quality of the projection
+            Boolean that will give you information about the quality of the projection
         """
         for matrix in self.bandoverlapsdict[Spin.up].values():
             for iband1, band1 in enumerate(matrix["matrix"]):
@@ -1386,6 +1388,7 @@ class Grosspop:
         Get a Structure with Mulliken and Loewdin total grosspopulations as site properties
         Args:
             structure_filename (str): filename of POSCAR
+
         Returns:
             Structure Object with Mulliken and Loewdin total grosspopulations as site properties.
         """
@@ -1437,14 +1440,7 @@ class Wavefunction:
         """
         self.filename = filename
         self.structure = structure
-
-        (
-            self.grid,
-            self.points,
-            self.real,
-            self.imaginary,
-            self.distance,
-        ) = Wavefunction._parse_file(filename)
+        self.grid, self.points, self.real, self.imaginary, self.distance = Wavefunction._parse_file(filename)
 
     @staticmethod
     def _parse_file(filename):
@@ -1673,6 +1669,7 @@ class SitePotential:
         Get a Structure with Mulliken and Loewdin charges as site properties
         Args:
             structure_filename: filename of POSCAR
+
         Returns:
             Structure Object with Mulliken and Loewdin charges as site properties.
         """

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import warnings
-
 import numpy as np
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.gb.grain import GrainBoundary, GrainBoundaryGenerator
@@ -20,7 +19,6 @@ test_dir = f"{TEST_FILES_DIR}/grain_boundary"
 class TestGrainBoundary(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        warnings.filterwarnings("ignore")
         cls.Cu_conv = Structure.from_file(f"{test_dir}/Cu_mp-30_conventional_standard.cif")
         GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
         cls.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
@@ -41,22 +39,15 @@ class TestGrainBoundary(PymatgenTest):
             rm_ratio=0.0,
         )
 
-    @classmethod
-    def tearDownClass(cls):
-        warnings.simplefilter("default")
-
     def test_init(self):
         assert self.Cu_GB1.rotation_angle == approx(123.74898859588858)
         assert self.Cu_GB1.vacuum_thickness == approx(1.5)
         assert self.Cu_GB2.rotation_axis == [1, 2, 3]
-        assert np.allclose(np.array(self.Cu_GB1.ab_shift), np.array([0.0, 0.0]))
-        assert np.allclose(np.array(self.Cu_GB2.ab_shift), np.array([0.2, 0.2]))
+        assert_allclose(self.Cu_GB1.ab_shift, [0.0, 0.0])
+        assert_allclose(self.Cu_GB2.ab_shift, [0.2, 0.2])
         assert self.Cu_GB1.gb_plane == [1, 3, 1]
         assert self.Cu_GB2.gb_plane == [1, 2, 3]
-        assert np.allclose(
-            np.array(self.Cu_GB1.init_cell.lattice.matrix),
-            np.array(self.Cu_conv.lattice.matrix),
-        )
+        assert_allclose(self.Cu_GB1.init_cell.lattice.matrix, self.Cu_conv.lattice.matrix)
 
     def test_copy(self):
         Cu_GB1_copy = self.Cu_GB1.copy()
@@ -64,28 +55,28 @@ class TestGrainBoundary(PymatgenTest):
         assert Cu_GB1_copy.rotation_angle == approx(self.Cu_GB1.rotation_angle)
         assert Cu_GB1_copy.rotation_axis == self.Cu_GB1.rotation_axis
         assert Cu_GB1_copy.gb_plane == self.Cu_GB1.gb_plane
-        assert np.allclose(Cu_GB1_copy.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix)
-        assert np.allclose(
+        assert_allclose(Cu_GB1_copy.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix)
+        assert_allclose(
             Cu_GB1_copy.oriented_unit_cell.lattice.matrix,
             self.Cu_GB1.oriented_unit_cell.lattice.matrix,
         )
-        assert np.allclose(Cu_GB1_copy.lattice.matrix, self.Cu_GB1.lattice.matrix)
+        assert_allclose(Cu_GB1_copy.lattice.matrix, self.Cu_GB1.lattice.matrix)
 
     def test_sigma(self):
         assert self.Cu_GB1.sigma == approx(9)
         assert self.Cu_GB2.sigma == approx(9)
 
     def test_top_grain(self):
-        assert len(self.Cu_GB1) == approx(len(self.Cu_GB1.top_grain) * 2)
-        assert np.allclose(self.Cu_GB1.lattice.matrix, self.Cu_GB1.top_grain.lattice.matrix)
+        assert len(self.Cu_GB1) == len(self.Cu_GB1.top_grain) * 2
+        assert_allclose(self.Cu_GB1.lattice.matrix, self.Cu_GB1.top_grain.lattice.matrix)
 
     def test_bottom_grain(self):
-        assert len(self.Cu_GB1) == approx(len(self.Cu_GB1.bottom_grain) * 2)
-        assert np.allclose(self.Cu_GB1.lattice.matrix, self.Cu_GB1.bottom_grain.lattice.matrix)
+        assert len(self.Cu_GB1) == len(self.Cu_GB1.bottom_grain) * 2
+        assert_allclose(self.Cu_GB1.lattice.matrix, self.Cu_GB1.bottom_grain.lattice.matrix)
 
     def test_coincidents(self):
-        assert len(self.Cu_GB1) / self.Cu_GB1.sigma == approx(len(self.Cu_GB1.coincidents))
-        assert len(self.Cu_GB2) / self.Cu_GB2.sigma == approx(len(self.Cu_GB2.coincidents))
+        assert len(self.Cu_GB1) / self.Cu_GB1.sigma == len(self.Cu_GB1.coincidents)
+        assert len(self.Cu_GB2) / self.Cu_GB2.sigma == len(self.Cu_GB2.coincidents)
 
     def test_as_dict_and_from_dict(self):
         d1 = self.Cu_GB1.as_dict()
@@ -96,28 +87,26 @@ class TestGrainBoundary(PymatgenTest):
         assert Cu_GB1_new.rotation_angle == approx(self.Cu_GB1.rotation_angle)
         assert Cu_GB1_new.rotation_axis == self.Cu_GB1.rotation_axis
         assert Cu_GB1_new.gb_plane == self.Cu_GB1.gb_plane
-        assert np.allclose(Cu_GB1_new.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix)
-        assert np.allclose(
-            Cu_GB1_new.oriented_unit_cell.lattice.matrix,
-            self.Cu_GB1.oriented_unit_cell.lattice.matrix,
+        assert_allclose(Cu_GB1_new.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix)
+        assert_allclose(
+            Cu_GB1_new.oriented_unit_cell.lattice.matrix, self.Cu_GB1.oriented_unit_cell.lattice.matrix, atol=1e-9
         )
-        assert np.allclose(Cu_GB1_new.lattice.matrix, self.Cu_GB1.lattice.matrix)
+        assert_allclose(Cu_GB1_new.lattice.matrix, self.Cu_GB1.lattice.matrix)
         assert Cu_GB2_new.sigma == approx(self.Cu_GB2.sigma)
         assert Cu_GB2_new.rotation_angle == approx(self.Cu_GB2.rotation_angle)
         assert Cu_GB2_new.rotation_axis == self.Cu_GB2.rotation_axis
         assert Cu_GB2_new.gb_plane == self.Cu_GB2.gb_plane
-        assert np.allclose(Cu_GB2_new.init_cell.lattice.matrix, self.Cu_GB2.init_cell.lattice.matrix)
-        assert np.allclose(
+        assert_allclose(Cu_GB2_new.init_cell.lattice.matrix, self.Cu_GB2.init_cell.lattice.matrix)
+        assert_allclose(
             Cu_GB2_new.oriented_unit_cell.lattice.matrix,
             self.Cu_GB2.oriented_unit_cell.lattice.matrix,
         )
-        assert np.allclose(Cu_GB2_new.lattice.matrix, self.Cu_GB2.lattice.matrix)
+        assert_allclose(Cu_GB2_new.lattice.matrix, self.Cu_GB2.lattice.matrix)
 
 
 class TestGrainBoundaryGenerator(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        warnings.filterwarnings("ignore")
         cls.Cu_prim = Structure.from_file(f"{test_dir}/Cu_mp-30_primitive.cif")
         cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
         cls.Cu_conv = Structure.from_file(f"{test_dir}/Cu_mp-30_conventional_standard.cif")
@@ -130,10 +119,6 @@ class TestGrainBoundaryGenerator(PymatgenTest):
         cls.GB_Br = GrainBoundaryGenerator(cls.Br)
         cls.Bi = Structure.from_file(f"{test_dir}/Bi_mp-23152_primitive.cif")
         cls.GB_Bi = GrainBoundaryGenerator(cls.Bi)
-
-    @classmethod
-    def tearDownClass(cls):
-        warnings.simplefilter("default")
 
     def test_gb_from_parameters(self):
         # from fcc primitive cell,axis[1,2,3],sigma 9.
@@ -340,7 +325,7 @@ class TestGrainBoundaryGenerator(PymatgenTest):
     def test_get_rotation_angle_from_sigma(self):
         true_angle = [12.680383491819821, 167.3196165081802]
         angle = GrainBoundaryGenerator.get_rotation_angle_from_sigma(41, [1, 0, 0], lat_type="o", ratio=[270, 30, 29])
-        assert np.allclose(true_angle, angle)
+        assert_allclose(true_angle, angle)
         close_angle = [36.86989764584403, 143.13010235415598]
         angle = GrainBoundaryGenerator.get_rotation_angle_from_sigma(6, [1, 0, 0], lat_type="o", ratio=[270, 30, 29])
-        assert np.allclose(close_angle, angle)
+        assert_allclose(close_angle, angle)

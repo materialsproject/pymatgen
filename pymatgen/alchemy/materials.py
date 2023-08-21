@@ -1,5 +1,4 @@
-"""
-This module provides various representations of transformed structures. A
+"""This module provides various representations of transformed structures. A
 TransformedStructure is a structure that has been modified by undergoing a
 series of transformations.
 """
@@ -26,8 +25,7 @@ if TYPE_CHECKING:
 
 
 class TransformedStructure(MSONable):
-    """
-    Container object for new structures that include history of
+    """Container object for new structures that include history of
     transformations.
 
     Each transformed structure is made up of a sequence of structures with
@@ -41,8 +39,7 @@ class TransformedStructure(MSONable):
         history: list[AbstractTransformation | dict[str, Any]] | None = None,
         other_parameters: dict[str, Any] | None = None,
     ) -> None:
-        """
-        Initializes a transformed structure from a structure.
+        """Initializes a transformed structure from a structure.
 
         Args:
             structure (Structure): Input structure
@@ -61,8 +58,7 @@ class TransformedStructure(MSONable):
             self.append_transformation(trafo)
 
     def undo_last_change(self) -> None:
-        """
-        Undo the last change in the TransformedStructure.
+        """Undo the last change in the TransformedStructure.
 
         Raises:
             IndexError: If already at the oldest change.
@@ -79,8 +75,7 @@ class TransformedStructure(MSONable):
         self.final_structure = struct
 
     def redo_next_change(self) -> None:
-        """
-        Redo the last undone change in the TransformedStructure.
+        """Redo the last undone change in the TransformedStructure.
 
         Raises:
             IndexError: If already at the latest change.
@@ -101,8 +96,7 @@ class TransformedStructure(MSONable):
     def append_transformation(
         self, transformation, return_alternatives: bool = False, clear_redo: bool = True
     ) -> list[TransformedStructure] | None:
-        """
-        Appends a transformation to the TransformedStructure.
+        """Appends a transformation to the TransformedStructure.
 
         Args:
             transformation: Transformation to append
@@ -157,8 +151,7 @@ class TransformedStructure(MSONable):
         return None
 
     def append_filter(self, structure_filter: AbstractStructureFilter) -> None:
-        """
-        Adds a filter.
+        """Adds a filter.
 
         Args:
             structure_filter (StructureFilter): A filter implementing the
@@ -171,8 +164,7 @@ class TransformedStructure(MSONable):
     def extend_transformations(
         self, transformations: list[AbstractTransformation], return_alternatives: bool = False
     ) -> None:
-        """
-        Extends a sequence of transformations to the TransformedStructure.
+        """Extends a sequence of transformations to the TransformedStructure.
 
         Args:
             transformations: Sequence of Transformations
@@ -185,8 +177,7 @@ class TransformedStructure(MSONable):
             self.append_transformation(t, return_alternatives=return_alternatives)
 
     def get_vasp_input(self, vasp_input_set: type[VaspInputSet] = MPRelaxSet, **kwargs) -> dict[str, Any]:
-        """
-        Returns VASP input as a dict of VASP objects.
+        """Returns VASP input as a dict of VASP objects.
 
         Args:
             vasp_input_set (pymatgen.io.vasp.sets.VaspInputSet): input set
@@ -204,8 +195,7 @@ class TransformedStructure(MSONable):
         create_directory: bool = True,
         **kwargs,
     ) -> None:
-        """
-        Writes VASP input to an output_dir.
+        """Writes VASP input to an output_dir.
 
         Args:
             vasp_input_set: pymatgen.io.vasp.sets.VaspInputSet like object that creates vasp input files from
@@ -230,8 +220,7 @@ class TransformedStructure(MSONable):
         return "\n".join(output)
 
     def set_parameter(self, key: str, value: Any) -> None:
-        """
-        Set a parameter.
+        """Set a parameter.
 
         :param key: The string key
         :param value: The value.
@@ -240,8 +229,7 @@ class TransformedStructure(MSONable):
 
     @property
     def was_modified(self) -> bool:
-        """
-        Boolean describing whether the last transformation on the structure
+        """Boolean describing whether the last transformation on the structure
         made any alterations to it one example of when this would return false
         is in the case of performing a substitution transformation on the
         structure when the specie to replace isn't in the structure.
@@ -250,8 +238,7 @@ class TransformedStructure(MSONable):
 
     @property
     def structures(self) -> list[Structure]:
-        """
-        Copy of all structures in the TransformedStructure. A
+        """Copy of all structures in the TransformedStructure. A
         structure is stored after every single transformation.
         """
         h_structs = [Structure.from_dict(s["input_structure"]) for s in self.history if "input_structure" in s]
@@ -264,8 +251,7 @@ class TransformedStructure(MSONable):
         primitive: bool = True,
         occupancy_tolerance: float = 1.0,
     ) -> TransformedStructure:
-        """
-        Generates TransformedStructure from a cif string.
+        """Generates TransformedStructure from a cif string.
 
         Args:
             cif_string (str): Input cif string. Should contain only one
@@ -307,8 +293,7 @@ class TransformedStructure(MSONable):
     def from_poscar_string(
         poscar_string: str, transformations: list[AbstractTransformation] | None = None
     ) -> TransformedStructure:
-        """
-        Generates TransformedStructure from a poscar string.
+        """Generates TransformedStructure from a poscar string.
 
         Args:
             poscar_string (str): Input POSCAR string.
@@ -346,12 +331,13 @@ class TransformedStructure(MSONable):
         return cls(struct, history=d["history"], other_parameters=d.get("other_parameters"))
 
     def to_snl(self, authors, **kwargs) -> StructureNL:
-        """
-        Generate SNL from TransformedStructure.
+        """Generate SNL from TransformedStructure.
 
         :param authors: List of authors
         :param **kwargs: All kwargs supported by StructureNL.
-        :return: StructureNL
+
+        Returns:
+            StructureNL
         """
         if self.other_parameters:
             warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL")
@@ -370,8 +356,7 @@ class TransformedStructure(MSONable):
 
     @classmethod
     def from_snl(cls, snl: StructureNL) -> TransformedStructure:
-        """
-        Create TransformedStructure from SNL.
+        """Create TransformedStructure from SNL.
 
         Args:
             snl (StructureNL): Starting snl

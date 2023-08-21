@@ -16,6 +16,7 @@ from pymatgen.core.structure import Molecule
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.coord import get_angle
+from pymatgen.util.plotting import pretty_plot
 
 __author__ = "Shyue Ping Ong, Germain Salvato-Vallverdu, Xin Chen"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -474,7 +475,9 @@ class GaussianInput:
     def from_dict(cls, d):
         """
         :param d: dict
-        :return: GaussianInput
+
+        Returns:
+            GaussianInput
         """
         return cls(
             mol=Molecule.from_dict(d["molecule"]),
@@ -1263,26 +1266,25 @@ class GaussianOutput:
         Args:
             coords: internal coordinate name to use as abscissa.
         """
-        from pymatgen.util.plotting import pretty_plot
 
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
         d = self.read_scan()
 
         if coords and coords in d["coords"]:
             x = d["coords"][coords]
-            plt.xlabel(coords)
+            ax.set_xlabel(coords)
         else:
             x = range(len(d["energies"]))
-            plt.xlabel("points")
+            ax.set_xlabel("points")
 
-        plt.ylabel("Energy (eV)")
+        ax.set_ylabel("Energy (eV)")
 
         e_min = min(d["energies"])
         y = [(e - e_min) * Ha_to_eV for e in d["energies"]]
 
-        plt.plot(x, y, "ro--")
-        return plt
+        ax.plot(x, y, "ro--")
+        return ax
 
     def save_scan_plot(self, filename="scan.pdf", img_format="pdf", coords=None):
         """
@@ -1339,9 +1341,7 @@ class GaussianOutput:
         """
         from scipy.stats import norm
 
-        from pymatgen.util.plotting import pretty_plot
-
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
         transitions = self.read_excitation_energies()
 
@@ -1357,12 +1357,12 @@ class GaussianOutput:
         for trans in transitions:
             spectre += trans[2] * norm(eneval, trans[0], sigma)
         spectre /= spectre.max()
-        plt.plot(lambdaval, spectre, "r-", label="spectre")
+        ax.plot(lambdaval, spectre, "r-", label="spectre")
 
         data = {"energies": eneval, "lambda": lambdaval, "xas": spectre}
 
         # plot transitions as vlines
-        plt.vlines(
+        ax.vlines(
             [val[1] for val in transitions],
             0.0,
             [val[2] for val in transitions],
@@ -1371,11 +1371,11 @@ class GaussianOutput:
             linewidth=2,
         )
 
-        plt.xlabel("$\\lambda$ (nm)")
-        plt.ylabel("Arbitrary unit")
-        plt.legend()
+        ax.set_xlabel("$\\lambda$ (nm)")
+        ax.set_ylabel("Arbitrary unit")
+        ax.legend()
 
-        return data, plt
+        return data, ax
 
     def save_spectre_plot(self, filename="spectre.pdf", img_format="pdf", sigma=0.05, step=0.01):
         """

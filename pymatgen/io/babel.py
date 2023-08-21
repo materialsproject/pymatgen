@@ -250,7 +250,7 @@ class BabelMolAdaptor:
                 default is False.
 
         Returns:
-             (list): list of pymatgen Molecule objects for generated conformers.
+            list[Molecule]: Molecule objects for generated conformers.
         """
         if self._obmol.GetDimension() != 3:
             self.make3d()

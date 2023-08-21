@@ -236,12 +236,10 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
         for obj in objects_with_unit:
             assert hasattr(obj, "unit")
 
-        objects_without_unit = [
-            # Here we could return a FloatWithUnit object but I prefer this
-            # a bare scalar since FloatWithUnit extends float while we could
-            # have an int.
-            ene_ha[0],
-        ]
+        # Here we could return a FloatWithUnit object but I prefer this
+        # a bare scalar since FloatWithUnit extends float while we could
+        # have an int.
+        objects_without_unit = [ene_ha[0]]
 
         for obj in objects_without_unit:
             assert not hasattr(obj, "unit")
@@ -275,9 +273,3 @@ class TestDataPersistence(PymatgenTest):
             for new_objects in new_objects_from_protocol:
                 for old_item, new_item in zip(objects, new_objects):
                     assert str(old_item) == str(new_item)
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

@@ -37,8 +37,8 @@ class TestBVAnalyzer(PymatgenTest):
     def test_get_oxi_state_structure(self):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiMn2O4.json")
         oxi_struct = self.analyzer.get_oxi_state_decorated_structure(struct)
-        assert Species("Mn", 3) in oxi_struct.composition.elements
-        assert Species("Mn", 4) in oxi_struct.composition.elements
+        assert Species("Mn3+") in oxi_struct.composition.elements
+        assert Species("Mn4+") in oxi_struct.composition.elements
 
 
 class TestBondValenceSum(PymatgenTest):

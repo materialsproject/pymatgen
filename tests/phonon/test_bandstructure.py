@@ -3,8 +3,7 @@ from __future__ import annotations
 import json
 import os
 
-import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
@@ -32,7 +31,7 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
         assert self.bs.bands[5][100] == approx(5.2548379776)
         assert_array_equal(self.bs.bands.shape, (6, 204))
         assert_array_equal(self.bs.eigendisplacements.shape, (6, 204, 2, 3))
-        assert np.allclose(
+        assert_allclose(
             self.bs.eigendisplacements[3][50][0],
             [0.0 + 0.0j, 0.14166569 + 0.04098339j, -0.14166569 - 0.04098339j],
         )
@@ -42,12 +41,12 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
         assert self.bs.min_freq()[1] == approx(-0.03700895020)
         assert self.bs.has_imaginary_freq()
         assert not self.bs.has_imaginary_freq(tol=0.5)
-        assert np.allclose(self.bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
+        assert_allclose(self.bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
 
         assert self.bs.nb_bands == 6
         assert self.bs.nb_qpoints == 204
 
-        assert np.allclose(self.bs.qpoints[1].frac_coords, [0.01, 0, 0])
+        assert_allclose(self.bs.qpoints[1].frac_coords, [0.01, 0, 0])
 
     def test_nac(self):
         assert self.bs.has_nac
@@ -55,7 +54,7 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
         assert self.bs.get_nac_frequencies_along_dir([1, 1, 0])[3] == approx(4.6084532143)
         assert self.bs.get_nac_frequencies_along_dir([0, 1, 1]) is None
         assert self.bs2.get_nac_frequencies_along_dir([0, 0, 1]) is None
-        assert np.allclose(
+        assert_allclose(
             self.bs.get_nac_eigendisplacements_along_dir([1, 1, 0])[3][1],
             [(0.1063906409128248 + 0j), 0j, 0j],
         )

@@ -5,6 +5,7 @@ from __future__ import annotations
 import collections
 import collections.abc
 import string
+from typing import Iterable
 
 import numpy as np
 
@@ -49,7 +50,7 @@ class InputVariable:
         if name in ["bdgw"]:
             self.valperline = 2
 
-        if is_iter(self.value) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:
+        if isinstance(self.value, Iterable) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:
             self.value = list(self.value)
             self._units = self.value.pop(-1)
 
@@ -127,36 +128,36 @@ class InputVariable:
         return line
 
     @staticmethod
-    def format_scalar(val, floatdecimal=0):
+    def format_scalar(val, float_decimal=0):
         """
         Format a single numerical value into a string
         with the appropriate number of decimal.
         """
-        sval = str(val)
-        if sval.lstrip("-").lstrip("+").isdigit() and floatdecimal == 0:
-            return sval
+        str_val = str(val)
+        if str_val.lstrip("-").lstrip("+").isdigit() and float_decimal == 0:
+            return str_val
 
         try:
             fval = float(val)
         except Exception:
-            return sval
+            return str_val
 
         if fval == 0 or (1e-3 < abs(fval) < 1e4):
             form = "f"
-            addlen = 5
+            add_len = 5
         else:
             form = "e"
-            addlen = 8
+            add_len = 8
 
-        ndec = max(len(str(fval - int(fval))) - 2, floatdecimal)
-        ndec = min(ndec, 10)
+        n_dec = max(len(str(fval - int(fval))) - 2, float_decimal)
+        n_dec = min(n_dec, 10)
 
-        sval = f"{fval:>{ndec + addlen}.{ndec}{form}}"
+        str_val = f"{fval:>{n_dec + add_len}.{n_dec}{form}}"
 
-        return sval.replace("e", "d")
+        return str_val.replace("e", "d")
 
     @staticmethod
-    def format_list2d(values, floatdecimal=0):
+    def format_list2d(values, float_decimal=0):
         """Format a list of lists."""
         lvals = flatten(values)
 
@@ -180,7 +181,7 @@ class InputVariable:
         else:
             # Number of decimal
             max_dec = max(len(str(f - int(f))) - 2 for f in lvals)
-            ndec = min(max(max_dec, floatdecimal), 10)
+            ndec = min(max(max_dec, float_decimal), 10)
 
             if all(f == 0 or (abs(f) > 1e-3 and abs(f) < 1e4) for f in lvals):
                 fmt_spec = f">{ndec + 5}.{ndec}f"
@@ -195,7 +196,7 @@ class InputVariable:
 
         return line.rstrip("\n")
 
-    def format_list(self, values, floatdecimal=0):
+    def format_list(self, values, float_decimal=0):
         """
         Format a list of values into a string.
         The result might be spread among several lines.
@@ -204,7 +205,7 @@ class InputVariable:
 
         # Format the line declaring the value
         for i, val in enumerate(values):
-            line += " " + self.format_scalar(val, floatdecimal)
+            line += " " + self.format_scalar(val, float_decimal)
             if self.valperline is not None and (i + 1) % self.valperline == 0:
                 line += "\n"
 
@@ -213,11 +214,6 @@ class InputVariable:
             line = "\n" + line
 
         return line.rstrip("\n")
-
-
-def is_iter(obj) -> bool:
-    """Return True if the argument is list-like."""
-    return hasattr(obj, "__iter__")
 
 
 def flatten(iterable):

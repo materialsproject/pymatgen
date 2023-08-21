@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 import numpy as np
 import pytest
@@ -926,15 +925,11 @@ Si1 Si 0 0 0 1 0.0
 
 class TestMagCif(PymatgenTest):
     def setUp(self):
-        warnings.filterwarnings("ignore")
         self.mcif = CifParser(f"{TEST_FILES_DIR}/magnetic.example.NiO.mcif")
         self.mcif_ncl = CifParser(f"{TEST_FILES_DIR}/magnetic.ncl.example.GdB4.mcif")
         self.mcif_incom = CifParser(f"{TEST_FILES_DIR}/magnetic.incommensurate.example.Cr.mcif")
         self.mcif_disord = CifParser(f"{TEST_FILES_DIR}/magnetic.disordered.example.CuMnO2.mcif")
         self.mcif_ncl2 = CifParser(f"{TEST_FILES_DIR}/Mn3Ge_IR2.mcif")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_mcif_detection(self):
         assert self.mcif.feature_flags["magcif"]

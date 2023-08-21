@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
 from pymatgen.analysis.chemenv.utils.graph_utils import MultiGraphCycle, SimpleGraphCycle, get_delta
@@ -73,9 +73,9 @@ class TestGraphUtils(PymatgenTest):
         n1 = FakeNode(3)
         n2 = FakeNode(7)
         edge_data = {"start": 3, "end": 7, "delta": [2, 6, 4]}
-        assert np.allclose(get_delta(n1, n2, edge_data), [2, 6, 4])
+        assert_allclose(get_delta(n1, n2, edge_data), [2, 6, 4])
         edge_data = {"start": 7, "end": 3, "delta": [2, 6, 4]}
-        assert np.allclose(get_delta(n1, n2, edge_data), [-2, -6, -4])
+        assert_allclose(get_delta(n1, n2, edge_data), [-2, -6, -4])
         edge_data = {"start": 6, "end": 3, "delta": [2, 6, 4]}
         err_msg = "Trying to find a delta between two nodes with an edge that seems not to link these nodes."
         with pytest.raises(ValueError, match=err_msg):
@@ -695,9 +695,3 @@ class TestEnvironmentNodesGraphUtils(PymatgenTest):
         assert c1 == c2
         c2 = MultiGraphCycle([e2, e3, e1], [1, 2, 0])
         assert c1 == c2
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

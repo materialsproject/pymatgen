@@ -118,10 +118,7 @@ class ChemicalPotentialDiagram(MSONable):
         self._min_entries, self._el_refs = self._get_min_entries_and_el_refs(self.entries)
         self._entry_dict = {e.composition.reduced_formula: e for e in self._min_entries}
         self._border_hyperplanes = self._get_border_hyperplanes()
-        (
-            self._hyperplanes,
-            self._hyperplane_entries,
-        ) = self._get_hyperplanes_and_entries()
+        self._hyperplanes, self._hyperplane_entries = self._get_hyperplanes_and_entries()
 
         if self.dim < 2:
             raise ValueError("ChemicalPotentialDiagram currently requires phase diagrams with 2 or more elements!")

@@ -573,7 +573,8 @@ class Poscar(MSONable):
     def from_dict(cls, d: dict) -> Poscar:
         """
         :param d: Dict representation.
-        :return: Poscar
+        Returns:
+            Poscar
         """
         return Poscar(
             Structure.from_dict(d["structure"]),
@@ -693,7 +694,8 @@ class Incar(dict, MSONable):
     def from_dict(cls, d) -> Incar:
         """
         :param d: Dict representation.
-        :return: Incar
+        Returns:
+            Incar
         """
         if d.get("MAGMOM") and isinstance(d["MAGMOM"][0], dict):
             d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
@@ -1024,7 +1026,9 @@ class KpointsSupportedModes(Enum):
     def from_str(s: str) -> KpointsSupportedModes:
         """
         :param s: String
-        :return: Kpoints_supported_modes
+
+        Returns:
+            Kpoints_supported_modes
         """
         c = s.lower()[0]
         for m in KpointsSupportedModes:
@@ -1118,7 +1122,9 @@ class Kpoints(MSONable):
     def style(self, style):
         """
         :param style: Style
-        :return: Sets the style for the Kpoints. One of Kpoints_supported_modes
+
+        Returns:
+            Sets the style for the Kpoints. One of Kpoints_supported_modes
             enum.
         """
         if isinstance(style, str):
@@ -1192,7 +1198,7 @@ class Kpoints(MSONable):
     def automatic_density(structure: Structure, kppa: float, force_gamma: bool = False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
-        density. Uses Gamma centered meshes for hexagonal cells and
+        density. Uses Gamma centered meshes for hexagonal cells and face-centered cells,
         Monkhorst-Pack grids otherwise.
 
         Algorithm:
@@ -1219,9 +1225,9 @@ class Kpoints(MSONable):
         num_div = [int(math.floor(max(mult / length, 1))) for length in lengths]
 
         is_hexagonal = latt.is_hexagonal()
-
+        is_face_centered = structure.get_space_group_info()[0][0] == "F"
         has_odd = any(i % 2 == 1 for i in num_div)
-        if has_odd or is_hexagonal or force_gamma:
+        if has_odd or is_hexagonal or is_face_centered or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
             style = Kpoints.supported_modes.Monkhorst
@@ -1310,8 +1316,9 @@ class Kpoints(MSONable):
         abc = lattice.abc
         num_div = [np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities)]
         is_hexagonal = lattice.is_hexagonal()
+        is_face_centered = structure.get_space_group_info()[0][0] == "F"
         has_odd = any(idx % 2 == 1 for idx in num_div)
-        if has_odd or is_hexagonal or force_gamma:
+        if has_odd or is_hexagonal or is_face_centered or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
             style = Kpoints.supported_modes.Monkhorst
@@ -1561,7 +1568,8 @@ class Kpoints(MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation.
-        :return: Kpoints
+        Returns:
+            Kpoints
         """
         comment = d.get("comment", "")
         generation_style = d.get("generation_style")
@@ -1866,7 +1874,8 @@ class PotcarSingle:
         Reads PotcarSingle from file.
 
         :param filename: Filename.
-        :return: PotcarSingle.
+        Returns:
+            PotcarSingle.
         """
         match = re.search(r"(?<=POTCAR\.)(.*)(?=.gz)", str(filename))
         symbol = match.group(0) if match else ""
@@ -1888,7 +1897,9 @@ class PotcarSingle:
 
         :param symbol: Symbol, e.g., Li_sv
         :param functional: E.g., PBE
-        :return: PotcarSingle
+
+        Returns:
+            PotcarSingle
         """
         functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
         assert isinstance(functional, str)  # mypy type narrowing
@@ -2001,99 +2012,94 @@ class PotcarSingle:
                 while 'file' mode checks the hash of the entire POTCAR file.
 
         Returns:
-            symbol (List): List of symbols associated with the PotcarSingle
-            potcar_functionals (List): List of potcar functionals associated with
-                                       the PotcarSingle
+            symbol (list): List of symbols associated with the PotcarSingle
+            potcar_functionals (list): List of potcar functionals associated with
+                the PotcarSingle
         """
-        # Dict to translate the sets in the .json file to the keys used in
-        # DictSet
+        # Dict to translate the sets in the .json file to the keys used in DictSet
         mapping_dict = {
             "potUSPP_GGA": {
                 "pymatgen_key": "PW91_US",
-                "vasp_description": "Ultrasoft pseudo potentials\
-                                         for LDA and PW91 (dated 2002-08-20 and 2002-04-08,\
-                                         respectively). These files are outdated, not\
-                                         supported and only distributed as is.",
+                "vasp_description": "Ultrasoft pseudo potentials"
+                "for LDA and PW91 (dated 2002-08-20 and 2002-04-08,"
+                "respectively). These files are outdated, not"
+                "supported and only distributed as is.",
             },
             "potUSPP_LDA": {
                 "pymatgen_key": "LDA_US",
-                "vasp_description": "Ultrasoft pseudo potentials\
-                                         for LDA and PW91 (dated 2002-08-20 and 2002-04-08,\
-                                         respectively). These files are outdated, not\
-                                         supported and only distributed as is.",
+                "vasp_description": "Ultrasoft pseudo potentials"
+                "for LDA and PW91 (dated 2002-08-20 and 2002-04-08,"
+                "respectively). These files are outdated, not"
+                "supported and only distributed as is.",
             },
             "potpaw_GGA": {
                 "pymatgen_key": "PW91",
-                "vasp_description": "The LDA, PW91 and PBE PAW datasets\
-                                        (snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,\
-                                        respectively). These files are outdated, not\
-                                        supported and only distributed as is.",
+                "vasp_description": "The LDA, PW91 and PBE PAW datasets"
+                "(snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,"
+                "respectively). These files are outdated, not"
+                "supported and only distributed as is.",
             },
             "potpaw_LDA": {
                 "pymatgen_key": "Perdew-Zunger81",
-                "vasp_description": "The LDA, PW91 and PBE PAW datasets\
-                                        (snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,\
-                                        respectively). These files are outdated, not\
-                                        supported and only distributed as is.",
+                "vasp_description": "The LDA, PW91 and PBE PAW datasets"
+                "(snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,"
+                "respectively). These files are outdated, not"
+                "supported and only distributed as is.",
             },
             "potpaw_LDA.52": {
                 "pymatgen_key": "LDA_52",
-                "vasp_description": "LDA PAW datasets version 52,\
-                                           including the early GW variety (snapshot 19-04-2012).\
-                                           When read by VASP these files yield identical results\
-                                           as the files distributed in 2012 ('unvie' release).",
+                "vasp_description": "LDA PAW datasets version 52,"
+                "including the early GW variety (snapshot 19-04-2012)."
+                "When read by VASP these files yield identical results"
+                "as the files distributed in 2012 ('unvie' release).",
             },
             "potpaw_LDA.54": {
                 "pymatgen_key": "LDA_54",
-                "vasp_description": "LDA PAW datasets version 54,\
-                                           including the GW variety (original release 2015-09-04).\
-                                           When read by VASP these files yield identical results as\
-                                           the files distributed before.",
+                "vasp_description": "LDA PAW datasets version 54,"
+                "including the GW variety (original release 2015-09-04)."
+                "When read by VASP these files yield identical results as"
+                "the files distributed before.",
             },
             "potpaw_PBE": {
                 "pymatgen_key": "PBE",
-                "vasp_description": "The LDA, PW91 and PBE PAW datasets\
-                                        (snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,\
-                                        respectively). These files are outdated, not\
-                                        supported and only distributed as is.",
+                "vasp_description": "The LDA, PW91 and PBE PAW datasets"
+                "(snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,"
+                "respectively). These files are outdated, not"
+                "supported and only distributed as is.",
             },
             "potpaw_PBE.52": {
                 "pymatgen_key": "PBE_52",
-                "vasp_description": "PBE PAW datasets version 52,\
-                                           including early GW variety (snapshot 19-04-2012).\
-                                           When read by VASP these files yield identical\
-                                           results as the files distributed in 2012.",
+                "vasp_description": "PBE PAW datasets version 52,"
+                "including early GW variety (snapshot 19-04-2012)."
+                "When read by VASP these files yield identical"
+                "results as the files distributed in 2012.",
             },
             "potpaw_PBE.54": {
                 "pymatgen_key": "PBE_54",
-                "vasp_description": "PBE PAW datasets version 54,\
-                                           including the GW variety (original release 2015-09-04).\
-                                           When read by VASP these files yield identical results as\
-                                           the files distributed before.",
+                "vasp_description": "PBE PAW datasets version 54,"
+                "including the GW variety (original release 2015-09-04)."
+                "When read by VASP these files yield identical results as"
+                "the files distributed before.",
             },
             "unvie_potpaw.52": {
                 "pymatgen_key": "unvie_LDA_52",
-                "vasp_description": "files released previously\
-                                             for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
-                                             by univie.",
+                "vasp_description": "files released previously"
+                "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
             "unvie_potpaw.54": {
                 "pymatgen_key": "unvie_LDA_54",
-                "vasp_description": "files released previously\
-                                             for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
-                                             by univie.",
+                "vasp_description": "files released previously"
+                "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
             "unvie_potpaw_PBE.52": {
                 "pymatgen_key": "unvie_PBE_52",
-                "vasp_description": "files released previously\
-                                                for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
-                                                by univie.",
+                "vasp_description": "files released previously"
+                "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
             "unvie_potpaw_PBE.54": {
                 "pymatgen_key": "unvie_PBE_52",
-                "vasp_description": "files released previously\
-                                                for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
-                                                by univie.",
+                "vasp_description": "files released previously"
+                "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
         }
 
@@ -2127,7 +2133,8 @@ class PotcarSingle:
 
         This hash corresponds to the sha256 hash printed in the header of modern POTCAR files.
 
-        :return: Hash value.
+        Returns:
+            Hash value.
         """
         # we have to remove lines with the hash itself and the copyright
         # notice to get the correct hash.
@@ -2142,7 +2149,8 @@ class PotcarSingle:
 
         This hash corresponds to the md5 hash of the POTCAR file itself.
 
-        :return: Hash value.
+        Returns:
+            Hash value.
         """
         # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
         # https://github.com/materialsproject/pymatgen/issues/2804
@@ -2154,7 +2162,8 @@ class PotcarSingle:
         """
         Computes a md5 hash of the metadata defining the PotcarSingle.
 
-        :return: Hash value.
+        Returns:
+            Hash value.
         """
         hash_str = ""
         for k, v in self.PSCTR.items():
@@ -2249,7 +2258,9 @@ class Potcar(list, MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: Potcar
+
+        Returns:
+            Potcar
         """
         return Potcar(symbols=d["symbols"], functional=d["functional"])
 
@@ -2259,7 +2270,9 @@ class Potcar(list, MSONable):
         Reads Potcar from file.
 
         :param filename: Filename
-        :return: Potcar
+
+        Returns:
+            Potcar
         """
         with zopen(filename, "rt") as f:
             fdata = f.read()
@@ -2369,7 +2382,8 @@ class VaspInput(dict, MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation.
-        :return: VaspInput
+        Returns:
+            VaspInput
         """
         dec = MontyDecoder()
         sub_d = {"optional_files": {}}

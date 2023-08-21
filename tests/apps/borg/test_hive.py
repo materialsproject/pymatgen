@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import unittest
-import warnings
 
 from pytest import approx
 
@@ -39,9 +38,6 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
         assert entry.structure is not None
         # assert len(entry.parameters["history"]) == 2
 
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_to_from_dict(self):
         d = self.structure_drone.as_dict()
         drone = VaspToComputedEntryDrone.from_dict(d)
@@ -52,10 +48,6 @@ class TestSimpleVaspToComputedEntryDrone(unittest.TestCase):
     def setUp(self):
         self.drone = SimpleVaspToComputedEntryDrone()
         self.structure_drone = SimpleVaspToComputedEntryDrone(True)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_get_valid_paths(self):
         for path in os.walk(TEST_FILES_DIR):
@@ -72,10 +64,6 @@ class TestGaussianToComputedEntryDrone(unittest.TestCase):
     def setUp(self):
         self.drone = GaussianToComputedEntryDrone(data=["corrections"])
         self.structure_drone = GaussianToComputedEntryDrone(True)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_get_valid_paths(self):
         for path in os.walk(f"{TEST_FILES_DIR}/molecules"):

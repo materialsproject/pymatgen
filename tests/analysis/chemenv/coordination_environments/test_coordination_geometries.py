@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
@@ -14,7 +15,7 @@ from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"
 
-allcg = AllCoordinationGeometries()
+all_cg = AllCoordinationGeometries()
 
 
 class FakeSite:
@@ -28,40 +29,37 @@ class TestCoordinationGeometries(PymatgenTest):
         expl_algo2 = ExplicitPermutationsAlgorithm.from_dict(expl_algo.as_dict)
         assert expl_algo.permutations == expl_algo2.permutations
 
-        sepplane_algos_oct = allcg["O:6"].algorithms
-        assert len(sepplane_algos_oct[0].safe_separation_permutations()) == 24
-        assert len(sepplane_algos_oct[1].safe_separation_permutations()) == 36
+        sep_plane_algos_oct = all_cg["O:6"].algorithms
+        assert len(sep_plane_algos_oct[0].safe_separation_permutations()) == 24
+        assert len(sep_plane_algos_oct[1].safe_separation_permutations()) == 36
 
-        sepplane_algos_oct_0 = SeparationPlane.from_dict(sepplane_algos_oct[0].as_dict)
-        assert sepplane_algos_oct[0].plane_points == sepplane_algos_oct_0.plane_points
-        assert sepplane_algos_oct[0].mirror_plane == sepplane_algos_oct_0.mirror_plane
-        assert sepplane_algos_oct[0].ordered_plane == sepplane_algos_oct_0.ordered_plane
-        assert sepplane_algos_oct[0].point_groups == sepplane_algos_oct_0.point_groups
-        assert sepplane_algos_oct[0].ordered_point_groups == sepplane_algos_oct_0.ordered_point_groups
+        sep_plane_algos_oct_0 = SeparationPlane.from_dict(sep_plane_algos_oct[0].as_dict)
+        assert sep_plane_algos_oct[0].plane_points == sep_plane_algos_oct_0.plane_points
+        assert sep_plane_algos_oct[0].mirror_plane == sep_plane_algos_oct_0.mirror_plane
+        assert sep_plane_algos_oct[0].ordered_plane == sep_plane_algos_oct_0.ordered_plane
+        assert sep_plane_algos_oct[0].point_groups == sep_plane_algos_oct_0.point_groups
+        assert sep_plane_algos_oct[0].ordered_point_groups == sep_plane_algos_oct_0.ordered_point_groups
         assert all(
-            np.array_equal(
-                perm,
-                sepplane_algos_oct_0.explicit_optimized_permutations[idx],
-            )
-            for idx, perm in enumerate(sepplane_algos_oct[0].explicit_optimized_permutations)
+            np.array_equal(perm, sep_plane_algos_oct_0.explicit_optimized_permutations[idx])
+            for idx, perm in enumerate(sep_plane_algos_oct[0].explicit_optimized_permutations)
         )
 
-        assert (
-            str(sepplane_algos_oct[0])
-            == "Separation plane algorithm with the following reference separation :\n[[4]] | [[0, 2, 1, 3]] | [[5]]"
+        expected_str = (
+            "Separation plane algorithm with the following reference separation :\n[[4]] | [[0, 2, 1, 3]] | [[5]]"
         )
+        assert str(sep_plane_algos_oct[0]) == expected_str
 
     def test_hints(self):
         hints = CoordinationGeometry.NeighborsSetsHints(hints_type="single_cap", options={"cap_index": 2, "csm_max": 8})
-        myhints = hints.hints({"csm": 12.0})
-        assert myhints == []
+        csm_hints = hints.hints({"csm": 12.0})
+        assert csm_hints == []
 
         hints2 = CoordinationGeometry.NeighborsSetsHints.from_dict(hints.as_dict())
         assert hints.hints_type == hints2.hints_type
         assert hints.options == hints2.options
 
     def test_coordination_geometry(self):
-        cg_oct = allcg["O:6"]
+        cg_oct = all_cg["O:6"]
         cg_oct2 = CoordinationGeometry.from_dict(cg_oct.as_dict())
 
         assert cg_oct.central_site == approx(cg_oct2.central_site)
@@ -105,7 +103,7 @@ class TestCoordinationGeometries(PymatgenTest):
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, -1.0, 0.0]],
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]],
         ]
-        assert np.allclose(cg_oct.faces(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), faces)
+        assert_allclose(cg_oct.faces(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), faces)
 
         faces = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
@@ -117,7 +115,7 @@ class TestCoordinationGeometries(PymatgenTest):
             [[0.0, 0.0, -1.0], [-1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             [[0.0, 0.0, -1.0], [-1.0, 0.0, 0.0], [0.0, -1.0, 0.0]],
         ]
-        assert np.allclose(cg_oct.faces(sites=sites), faces)
+        assert_allclose(cg_oct.faces(sites=sites), faces)
 
         edges = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
@@ -133,7 +131,7 @@ class TestCoordinationGeometries(PymatgenTest):
             [[0.0, 1.0, 0.0], [0.0, -1.0, 0.0]],
             [[0.0, 1.0, 0.0], [0.0, 0.0, -1.0]],
         ]
-        assert np.allclose(cg_oct.edges(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), edges)
+        assert_allclose(cg_oct.edges(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), edges)
 
         edges = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
@@ -149,9 +147,9 @@ class TestCoordinationGeometries(PymatgenTest):
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0]],
         ]
-        assert np.allclose(cg_oct.edges(sites=sites), edges)
+        assert_allclose(cg_oct.edges(sites=sites), edges)
 
-        assert np.allclose(
+        assert_allclose(
             cg_oct.solid_angles(),
             [2.0943951, 2.0943951, 2.0943951, 2.0943951, 2.0943951, 2.0943951],
         )
@@ -185,13 +183,13 @@ class TestCoordinationGeometries(PymatgenTest):
             "  - coordination number : 1\n"
             "  - list of points :\n"
             "    - [0.0, 0.0, 1.0]\n"
-            "------------------------------------------------------------\n\n" in str(allcg)
+            "------------------------------------------------------------\n\n" in str(all_cg)
         )
 
         assert (
             "Coordination geometry type : Trigonal plane (IUPAC: TP-3 || IUCr: [3l])\n\n"
             "  - coordination number : 3\n"
-            "  - list of points :\n" in str(allcg)
+            "  - list of points :\n" in str(all_cg)
         )
 
         all_symbols = [
@@ -265,24 +263,24 @@ class TestCoordinationGeometries(PymatgenTest):
             "UNCLEAR",
         ]
 
-        assert len(allcg.get_geometries()) == 68
-        assert len(allcg.get_geometries(coordination=3)) == 3
-        assert sorted(allcg.get_geometries(returned="mp_symbol")) == sorted(all_symbols)
-        assert sorted(allcg.get_geometries(returned="mp_symbol", coordination=3)) == ["TL:3", "TS:3", "TY:3"]
+        assert len(all_cg.get_geometries()) == 68
+        assert len(all_cg.get_geometries(coordination=3)) == 3
+        assert sorted(all_cg.get_geometries(returned="mp_symbol")) == sorted(all_symbols)
+        assert sorted(all_cg.get_geometries(returned="mp_symbol", coordination=3)) == ["TL:3", "TS:3", "TY:3"]
 
-        assert allcg.get_symbol_name_mapping(coordination=3) == {
+        assert all_cg.get_symbol_name_mapping(coordination=3) == {
             "TY:3": "Triangular non-coplanar",
             "TL:3": "Trigonal plane",
             "TS:3": "T-shaped",
         }
-        assert allcg.get_symbol_cn_mapping(coordination=3) == {"TY:3": 3, "TL:3": 3, "TS:3": 3}
-        assert sorted(allcg.get_implemented_geometries(coordination=4, returned="mp_symbol")) == [
+        assert all_cg.get_symbol_cn_mapping(coordination=3) == {"TY:3": 3, "TL:3": 3, "TS:3": 3}
+        assert sorted(all_cg.get_implemented_geometries(coordination=4, returned="mp_symbol")) == [
             "S:4",
             "SS:4",
             "SY:4",
             "T:4",
         ]
-        assert sorted(allcg.get_not_implemented_geometries(returned="mp_symbol")) == [
+        assert sorted(all_cg.get_not_implemented_geometries(returned="mp_symbol")) == [
             "CO:11",
             "H:10",
             "S:10",
@@ -291,27 +289,27 @@ class TestCoordinationGeometries(PymatgenTest):
             "UNKNOWN",
         ]
 
-        assert allcg.get_geometry_from_name("Octahedron").mp_symbol == cg_oct.mp_symbol
+        assert all_cg.get_geometry_from_name("Octahedron").mp_symbol == cg_oct.mp_symbol
         with pytest.raises(LookupError) as exc:
-            allcg.get_geometry_from_name("Octahedran")
+            all_cg.get_geometry_from_name("Octahedran")
         assert str(exc.value) == "No coordination geometry found with name 'Octahedran'"
 
-        assert allcg.get_geometry_from_IUPAC_symbol("OC-6").mp_symbol == cg_oct.mp_symbol
+        assert all_cg.get_geometry_from_IUPAC_symbol("OC-6").mp_symbol == cg_oct.mp_symbol
         with pytest.raises(LookupError) as exc:
-            allcg.get_geometry_from_IUPAC_symbol("OC-7")
+            all_cg.get_geometry_from_IUPAC_symbol("OC-7")
         assert str(exc.value) == "No coordination geometry found with IUPAC symbol 'OC-7'"
 
-        assert allcg.get_geometry_from_IUCr_symbol("[6o]").mp_symbol == cg_oct.mp_symbol
+        assert all_cg.get_geometry_from_IUCr_symbol("[6o]").mp_symbol == cg_oct.mp_symbol
         with pytest.raises(LookupError) as exc:
-            allcg.get_geometry_from_IUCr_symbol("[6oct]")
+            all_cg.get_geometry_from_IUCr_symbol("[6oct]")
         assert str(exc.value) == "No coordination geometry found with IUCr symbol '[6oct]'"
 
         with pytest.raises(LookupError) as exc:
-            allcg.get_geometry_from_mp_symbol("O:7")
+            all_cg.get_geometry_from_mp_symbol("O:7")
         assert str(exc.value) == "No coordination geometry found with mp_symbol 'O:7'"
 
         assert (
-            allcg.pretty_print(maxcn=4)
+            all_cg.pretty_print(maxcn=4)
             == "+-------------------------+\n| Coordination geometries |\n+-------------------------+\n"
             "\n==>> CN = 1 <<==\n - S:1 : Single neighbor\n\n"
             "==>> CN = 2 <<==\n"
@@ -322,7 +320,7 @@ class TestCoordinationGeometries(PymatgenTest):
             " - SY:4 : Square non-coplanar\n - SS:4 : See-saw\n\n"
         )
         assert (
-            allcg.pretty_print(maxcn=2, type="all_geometries_latex")
+            all_cg.pretty_print(maxcn=2, type="all_geometries_latex")
             == "\\subsection*{Coordination 1}\n\n\\begin{itemize}\n"
             "\\item S:1 $\\rightarrow$ Single neighbor (IUPAC : None - IUCr : $[$1l$]$)\n"
             "\\end{itemize}\n\n\\subsection*{Coordination 2}\n\n\\begin{itemize}\n"
@@ -331,7 +329,7 @@ class TestCoordinationGeometries(PymatgenTest):
             "\\end{itemize}\n\n"
         )
         assert (
-            allcg.pretty_print(maxcn=2, type="all_geometries_latex_images")
+            all_cg.pretty_print(maxcn=2, type="all_geometries_latex_images")
             == "\\section*{Coordination 1}\n\n\\subsubsection*{S:1 : Single neighbor}\n\n"
             "IUPAC : None\n\nIUCr : [1l]\n\n\\begin{center}\n"
             "\\includegraphics[scale=0.15]{images/S_1.png}\n"
@@ -341,10 +339,10 @@ class TestCoordinationGeometries(PymatgenTest):
             "\\end{center}\n\n\\subsubsection*{A:2 : Angular}\n\nIUPAC : A-2\n\nIUCr : [2n]\n\n"
             "\\begin{center}\n\\includegraphics[scale=0.15]{images/A_2.png}\n\\end{center}\n\n"
         )
-        assert allcg.minpoints == {6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 3, 20: 2}
-        assert allcg.maxpoints == {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10}
-        assert allcg.maxpoints_inplane == {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10}
-        assert allcg.separations_cg == {
+        assert all_cg.minpoints == {6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 3, 20: 2}
+        assert all_cg.maxpoints == {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10}
+        assert all_cg.maxpoints_inplane == {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10}
+        assert all_cg.separations_cg == {
             6: {
                 (0, 3, 3): ["O:6", "T:6"],
                 (1, 4, 1): ["O:6"],

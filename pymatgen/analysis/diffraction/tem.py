@@ -148,6 +148,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
         Args:
             interplanar_spacings (dict): dictionary of hkl to interplanar spacing
+
         Returns:
             dict of hkl plane (3-tuple) to Bragg angle in radians (float)
         """
@@ -286,6 +287,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): The input structure.
             scaled (bool): Required value for inheritance, does nothing in TEM pattern
             two_theta_range (Tuple): Required value for inheritance, does nothing in TEM pattern
+
         Returns:
             PandasDataFrame
         """
@@ -385,6 +387,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): The input structure.
             p1 (3-tuple): plane 1
             p2 (3-tuple): plane 2
+
         Returns:
             float
         """

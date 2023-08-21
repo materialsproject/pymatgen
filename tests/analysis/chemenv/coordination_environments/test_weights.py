@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 
 import pytest
 from pytest import approx
@@ -21,11 +20,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-se_files_dir = os.path.join(
-    TEST_FILES_DIR,
-    "chemenv",
-    "structure_environments_files",
-)
+struct_env_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments"
 
 
 class FakeNbSet:
@@ -248,7 +243,7 @@ class StrategyWeights(PymatgenTest):
 
     def test_self_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
-        with open(f"{se_files_dir}/se_mp-743972.json") as f:
+        with open(f"{struct_env_dir}/se_mp-743972.json") as f:
             dct = json.load(f)
         struct_envs = StructureEnvironments.from_dict(dct)
 
@@ -324,7 +319,7 @@ class StrategyWeights(PymatgenTest):
         assert abs(self_w - 0.14204073172729198) < 1e-8
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
-        with open(f"{se_files_dir}/se_mp-7000.json") as f:
+        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
             dct = json.load(f)
         struct_envs = StructureEnvironments.from_dict(dct)
 
@@ -368,7 +363,7 @@ class StrategyWeights(PymatgenTest):
 
     def test_delta_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
-        with open(f"{se_files_dir}/se_mp-743972.json") as f:
+        with open(f"{struct_env_dir}/se_mp-743972.json") as f:
             dd = json.load(f)
         struct_envs = StructureEnvironments.from_dict(dd)
 
@@ -500,7 +495,7 @@ class StrategyWeights(PymatgenTest):
         assert abs(delta_w - 0.103515625) < 1e-8
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
-        with open(f"{se_files_dir}/se_mp-7000.json") as f:
+        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
             dd = json.load(f)
         struct_envs = StructureEnvironments.from_dict(dd)
 

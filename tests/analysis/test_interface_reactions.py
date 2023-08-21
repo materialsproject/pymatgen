@@ -5,6 +5,7 @@ import unittest
 import numpy as np
 import pytest
 from matplotlib.figure import Figure as mpl_figure
+from numpy.testing import assert_allclose
 from pandas import DataFrame
 from plotly.graph_objects import Figure as plotly_figure
 from scipy.spatial import ConvexHull
@@ -240,13 +241,13 @@ class TestInterfaceReaction(unittest.TestCase):
         test_array = [(0.5, 1, 3), (0.4, 2, 3), (0, 1, 9), (1, 2, 7)]
         result = [InterfacialReactivity._convert(x, f1, f2) for x, f1, f2 in test_array]
         answer = [0.75, 0.5, 0, 1]
-        assert np.allclose(result, answer), f"_convert: conversion gets error! {answer} expected, but gets {result}"
+        assert_allclose(result, answer), f"_convert: conversion gets error! {answer} expected, but gets {result}"
 
     def test_reverse_convert(self):
         test_array = [(0.5, 1, 3), (0.4, 2, 3), (0, 1, 9), (1, 2, 7)]
         result = [InterfacialReactivity._reverse_convert(x, f1, f2) for x, f1, f2 in test_array]
         answer = [0.25, 0.3076923, 0, 1]
-        assert np.allclose(result, answer), f"_convert: conversion gets error! {answer} expected, but gets {result}"
+        assert_allclose(result, answer), f"_convert: conversion gets error! {answer} expected, but gets {result}"
 
     def test_products_property(self):
         test1 = sorted(self.irs[0].products) == sorted(["MnO2", "O2", "Mn"])
@@ -414,7 +415,7 @@ class TestInterfaceReaction(unittest.TestCase):
             (0.3333333, -4.0),
         ]
         for i, j in zip(self.irs, answer):
-            assert np.allclose(i.minimum, j), (
+            assert_allclose(i.minimum, j, atol=1e-7), (
                 f"minimum: the system with {i.c1_original.reduced_formula} and {i.c2_original.reduced_formula} "
                 f"gets error!{j} expected, but gets {i.minimum}"
             )
@@ -437,14 +438,11 @@ class TestInterfaceReaction(unittest.TestCase):
         result_info = [i.get_no_mixing_energy() for i in self.irs if i.grand]
         print(result_info)
         for i, j in zip(result_info, answer):
-            assert name_lst(i) == name_lst(
-                j
-            ), f"get_no_mixing_energy: names get error, {name_lst(j)} expected but gets {name_lst(i)}"
-            assert np.allclose(energy_lst(i), energy_lst(j)), (
-                "get_no_mixing_energy: "
-                "no_mixing energies get error, "
-                f"{energy_lst(j)} expected but gets {energy_lst(i)}"
-            )
+            err_msg = f"get_no_mixing_energy: names get error, {name_lst(j)} expected but gets {name_lst(i)}"
+            assert name_lst(i) == name_lst(j), err_msg
+            assert_allclose(
+                energy_lst(i), energy_lst(j), atol=1e-9
+            ), f"get_no_mixing_energy: {energy_lst(j)} expected but gets {energy_lst(i)}"
 
     def test_get_chempot_correction(self):
         # test data from fig. 6 in ref:
