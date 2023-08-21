@@ -102,7 +102,8 @@ class FunctionalGroupExtractor:
 
         :param elements: List of elements to identify (if only certain
             functional groups are of interest).
-        :return: set of ints representing node indices
+        Returns:
+            set of ints representing node indices
         """
         heteroatoms = set()
 
@@ -131,7 +132,8 @@ class FunctionalGroupExtractor:
         :param elements: List of elements that will qualify a carbon as special
             (if only certain functional groups are of interest).
             Default None.
-        :return: set of ints representing node indices
+        Returns:
+            set of ints representing node indices
         """
         specials = set()
 
@@ -195,7 +197,8 @@ class FunctionalGroupExtractor:
 
         :param atoms: set of marked "interesting" atoms, presumably identified
             using other functions in this class.
-        :return: list of sets of ints, representing groups of connected atoms
+        Returns:
+            list of sets of ints, representing groups of connected atoms
         """
         # We will add hydrogens to functional groups
         hydrogens = {n for n in self.molgraph.graph.nodes if str(self.species[n]) == "H"}
@@ -230,7 +233,8 @@ class FunctionalGroupExtractor:
         :param func_groups: List of strs representing the functional groups of
             interest. Default to None, meaning that all of the functional groups
             defined in this function will be sought.
-        :return: list of sets of ints, representing groups of connected atoms
+        Returns:
+            list of sets of ints, representing groups of connected atoms
         """
         strat = OpenBabelNN()
 
@@ -294,7 +298,9 @@ class FunctionalGroupExtractor:
             defined in this function will be sought.
         :param catch_basic: bool. If True, use get_basic_functional_groups and
             other methods
-        :return: list of sets of ints, representing groups of connected atoms
+
+        Returns:
+            list of sets of ints, representing groups of connected atoms
         """
         heteroatoms = self.get_heteroatoms(elements=elements)
         special_cs = self.get_special_carbon(elements=elements)
@@ -310,7 +316,8 @@ class FunctionalGroupExtractor:
         Determine classes of functional groups present in a set.
 
         :param groups: Set of functional groups.
-        :return: dict containing representations of the groups, the indices of
+        Returns:
+            dict containing representations of the groups, the indices of
             where the group occurs in the MoleculeGraph, and how many of each
             type of group there is.
         """

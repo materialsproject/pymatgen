@@ -70,7 +70,8 @@ class Lattice(MSONable):
     def lengths(self) -> Vector3D:
         """Lattice lengths.
 
-        :return: The lengths (a, b, c) of the lattice.
+        Returns:
+            The lengths (a, b, c) of the lattice.
         """
         return tuple(np.sqrt(np.sum(self._matrix**2, axis=1)).tolist())  # type: ignore
 
@@ -78,7 +79,8 @@ class Lattice(MSONable):
     def angles(self) -> Vector3D:
         """Lattice angles.
 
-        :return: The angles (alpha, beta, gamma) of the lattice.
+        Returns:
+            The angles (alpha, beta, gamma) of the lattice.
         """
         mat = self._matrix
         lengths = self.lengths
@@ -1047,7 +1049,9 @@ class Lattice(MSONable):
 
     def get_lll_reduced_lattice(self, delta: float = 0.75) -> Lattice:
         """:param delta: Delta parameter.
-        :return: LLL reduced Lattice.
+
+        Returns:
+            LLL reduced Lattice.
         """
         if delta not in self._lll_matrix_mappings:
             self._lll_matrix_mappings[delta] = self._calculate_lll()
@@ -1638,7 +1642,9 @@ class Lattice(MSONable):
     def is_hexagonal(self, hex_angle_tol: float = 5, hex_length_tol: float = 0.01) -> bool:
         """:param hex_angle_tol: Angle tolerance
         :param hex_length_tol: Length tolerance
-        :return: Whether lattice corresponds to hexagonal lattice.
+
+        Returns:
+            Whether lattice corresponds to hexagonal lattice.
         """
         lengths = self.lengths
         angles = self.angles

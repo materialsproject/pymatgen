@@ -436,7 +436,8 @@ def bader_analysis_from_path(path, suffix=""):
 
     :param path: path to folder to search in
     :param suffix: specific suffix to look for (e.g. '.relax1' for 'CHGCAR.relax1.gz'
-    :return: summary dict
+    Returns:
+        summary dict
     """
 
     def _get_filepath(filename, warning, path=path, suffix=suffix):
@@ -483,7 +484,9 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
     :param potcar: (optional) Potcar object
     :param aeccar0: (optional) Chgcar object from aeccar0 file
     :param aeccar2: (optional) Chgcar object from aeccar2 file
-    :return: summary dict
+
+    Returns:
+        summary dict
     """
     orig_dir = os.getcwd()
     try:

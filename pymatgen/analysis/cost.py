@@ -143,6 +143,7 @@ class CostAnalyzer:
         Args:
             composition:
                 Composition as a pymatgen.core.structure.Composition
+
         Returns:
             Decomposition as a dict of {Entry: amount}
         """
@@ -166,6 +167,7 @@ class CostAnalyzer:
         Args:
             comp:
                 Composition as a pymatgen.core.structure.Composition
+
         Returns:
             float of cost/mol
         """
@@ -180,6 +182,7 @@ class CostAnalyzer:
         Args:
             comp:
                 Composition as a pymatgen.core.structure.Composition
+
         Returns:
             float of cost/kg
         """

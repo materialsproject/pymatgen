@@ -286,7 +286,7 @@ class QCOutput(MSONable):
             for val in temp_solvent:
                 if val[0] != temp_solvent[0][0]:
                     if val[0] != "for":
-                        self.data["warnings"]["SMD_two_solvents"] = str(temp_solvent[0][0]) + " and " + str(val[0])
+                        self.data["warnings"]["SMD_two_solvents"] = f"{temp_solvent[0][0]} and {val[0]}"
                     elif (
                         "unrecognized_solvent" not in self.data["errors"]
                         and "unrecognized_solvent" not in self.data["warnings"]
@@ -634,12 +634,12 @@ class QCOutput(MSONable):
         if text[0] == "":
             text = text[1:]
         for i, sub_text in enumerate(text):
-            with open(filename + "." + str(i), "w") as temp:
+            with open(f"{filename}.{i}", "w") as temp:
                 temp.write(sub_text)
-            tempOutput = QCOutput(filename + "." + str(i))
+            tempOutput = QCOutput(f"{filename}.{i}")
             to_return.append(tempOutput)
             if not keep_sub_files:
-                os.remove(filename + "." + str(i))
+                os.remove(f"{filename}.{i}")
         return to_return
 
     def _read_eigenvalues(self):
@@ -1264,7 +1264,7 @@ class QCOutput(MSONable):
             if read_pattern(self.text, {"key": pattern}, terminate_on_match=True).get("key") != [[]]:
                 found_end = True
             else:
-                pattern = pattern + r"\s+" + str(index)
+                pattern = f"{pattern}\\s+{index}"
                 index += 1
         return index - 2
 

@@ -74,7 +74,9 @@ class Mcsqs:
         Structure format.
 
         :param data: contents of a rndstr.in, lat.in or bestsqs.out file
-        :return: Structure object
+
+        Returns:
+            Structure object
         """
         data = data.splitlines()
         data = [x.split() for x in data if x]  # remove empty lines
