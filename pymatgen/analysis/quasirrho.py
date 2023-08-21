@@ -4,7 +4,7 @@
 
 """
 A module to calculate free energies using the Quasi-Rigid Rotor Harmonic
- Oscillator approximation. Modified from a script by Steven Wheeler.
+Oscillator approximation. Modified from a script by Steven Wheeler.
 See: Grimme, S. Chem. Eur. J. 2012, 18, 9955
 """
 
@@ -34,15 +34,15 @@ if TYPE_CHECKING:
 
 # Define useful constants
 kb = kb_ev * const.eV  # Pymatgen kb [J/K]
-c = const.speed_of_light * 100  # [cm/s]
-h = const.h  # Planck's constant [J.s]
-R = const.R / const.calorie  # Ideal gas constant [cal/mol/K]
+light_speed = const.speed_of_light * 100  # [cm/s]
+h_plank = const.h  # Planck's constant [J.s]
+ideal_gas_const = const.R / const.calorie  # Ideal gas constant [cal/mol/K]
 R_ha = const.R / const.value("Hartree energy") / const.Avogadro  # Ideal gas
 
 # Define useful conversion factors
 amu_to_kg = const.value("atomic mass unit-kilogram relationship")  # AMU to kg
 # kcal2hartree = 0.0015936  # kcal/mol to hartree/mol
-kcal2hartree = 1000 * const.calorie / const.value("Hartree energy") / const.Avogadro
+kcal_to_hartree = 1000 * const.calorie / const.value("Hartree energy") / const.Avogadro
 
 
 def get_avg_mom_inertia(mol):
@@ -133,7 +133,7 @@ class QuasiRRHO:
         self._get_quasirrho_thermo(mol=mol, mult=mult, frequencies=frequencies, elec_energy=energy, sigma_r=sigma_r)
 
     @classmethod
-    def from_GaussianOutput(cls, output: GaussianOutput, **kwargs):
+    def from_gaussian_output(cls, output: GaussianOutput, **kwargs) -> QuasiRRHO:
         """
 
         Args:
@@ -187,24 +187,21 @@ class QuasiRRHO:
             elec_energy (float): Electronic energy [Ha]
         """
         # Calculate mass in kg
-        mass = 0
+        mass: float = 0
         for site in mol.sites:
             mass += site.specie.atomic_mass
         mass *= amu_to_kg
 
         # Calculate vibrational temperatures
-        vib_temps = []
-        for f in frequencies:
-            if f > 0:
-                vib_temps.append(f * c * h / kb)
+        vib_temps = [freq * light_speed * h_plank / kb for freq in frequencies if freq > 0]
 
         # Translational component of entropy and energy
-        qt = (2 * np.pi * mass * kb * self.temp / (h * h)) ** (3 / 2) * kb * self.temp / self.press
-        st = R * (np.log(qt) + 5 / 2)
-        et = 3 * R * self.temp / 2
+        qt = (2 * np.pi * mass * kb * self.temp / (h_plank * h_plank)) ** (3 / 2) * kb * self.temp / self.press
+        st = ideal_gas_const * (np.log(qt) + 5 / 2)
+        et = 3 * ideal_gas_const * self.temp / 2
 
         # Electronic component of Entropy
-        se = R * np.log(mult)
+        se = ideal_gas_const * np.log(mult)
 
         # Get properties related to rotational symmetry. Bav is average moment of inertia
         Bav, i_eigen = get_avg_mom_inertia(mol)
@@ -221,14 +218,14 @@ class QuasiRRHO:
         # Rotational component of Entropy and Energy
         if linear:
             i = np.amax(i_eigen)
-            qr = 8 * np.pi**2 * i * kb * self.temp / (sigma_r * (h * h))
-            sr = R * (np.log(qr) + 1)
-            er = R * self.temp
+            qr = 8 * np.pi**2 * i * kb * self.temp / (sigma_r * (h_plank * h_plank))
+            sr = ideal_gas_const * (np.log(qr) + 1)
+            er = ideal_gas_const * self.temp
         else:
-            rot_temps = [h**2 / (np.pi**2 * kb * 8 * i) for i in i_eigen]
+            rot_temps = [h_plank**2 / (np.pi**2 * kb * 8 * i) for i in i_eigen]
             qr = np.sqrt(np.pi) / sigma_r * self.temp ** (3 / 2) / np.sqrt(rot_temps[0] * rot_temps[1] * rot_temps[2])
-            sr = R * (np.log(qr) + 3 / 2)
-            er = 3 * R * self.temp / 2
+            sr = ideal_gas_const * (np.log(qr) + 3 / 2)
+            er = 3 * ideal_gas_const * self.temp / 2
 
         # Vibrational component of Entropy and Energy
         ev = 0
@@ -240,20 +237,20 @@ class QuasiRRHO:
             sv_temp = vt / (self.temp * (np.exp(vt / self.temp) - 1)) - np.log(1 - np.exp(-vt / self.temp))
             sv += sv_temp
 
-            mu = h / (8 * np.pi**2 * vt * c)
+            mu = h_plank / (8 * np.pi**2 * vt * light_speed)
             mu_prime = mu * Bav / (mu + Bav)
-            srotor = 1 / 2 + np.log(np.sqrt(8 * np.pi**3 * mu_prime * kb * self.temp / h**2))
+            s_rotor = 1 / 2 + np.log(np.sqrt(8 * np.pi**3 * mu_prime * kb * self.temp / h_plank**2))
             weight = 1 / (1 + (self.v0 / vt) ** 4)
-            sv_quasiRRHO += weight * sv_temp + (1 - weight) * srotor
+            sv_quasiRRHO += weight * sv_temp + (1 - weight) * s_rotor
 
-        sv_quasiRRHO *= R
-        sv *= R
-        ev *= R
-        etot = (et + er + ev) * kcal2hartree / 1000
-        self.h_corrected = etot + R * self.temp * kcal2hartree / 1000
+        sv_quasiRRHO *= ideal_gas_const
+        sv *= ideal_gas_const
+        ev *= ideal_gas_const
+        e_tot = (et + er + ev) * kcal_to_hartree / 1000
+        self.h_corrected = e_tot + ideal_gas_const * self.temp * kcal_to_hartree / 1000
         self.entropy_ho = st + sr + sv + se
-        self.free_energy_ho = elec_energy + self.h_corrected - (self.temp * self.entropy_ho * kcal2hartree / 1000)
+        self.free_energy_ho = elec_energy + self.h_corrected - (self.temp * self.entropy_ho * kcal_to_hartree / 1000)
         self.entropy_quasiRRHO = st + sr + sv_quasiRRHO + se
         self.free_energy_quasiRRHO = (
-            elec_energy + self.h_corrected - (self.temp * self.entropy_quasiRRHO * kcal2hartree / 1000)
+            elec_energy + self.h_corrected - (self.temp * self.entropy_quasiRRHO * kcal_to_hartree / 1000)
         )
