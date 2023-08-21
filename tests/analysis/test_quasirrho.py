@@ -20,10 +20,11 @@ class TestQuasiRRHO(unittest.TestCase):
     """
     Test class for QuasiRRHO
     """
+
     def setUp(self):
         test_dir = TEST_FILES_DIR
         self.gout = GaussianOutput(os.path.join(test_dir, "molecules", "quasirrho_gaufreq.log"))
-        self.linear_gout = GaussianOutput(os.path.join(test_dir, "molecules","co2.log.gz"))
+        self.linear_gout = GaussianOutput(os.path.join(test_dir, "molecules", "co2.log.gz"))
         self.qout = QCOutput(os.path.join(test_dir, "molecules", "new_qchem_files", "Frequency_no_equal.qout"))
 
     def test_qrrho_gaussian(self):
