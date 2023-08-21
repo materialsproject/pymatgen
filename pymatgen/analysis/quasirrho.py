@@ -60,17 +60,18 @@ def get_avg_mom_inertia(mol):
     for site in centered_mol:
         c = site.coords
         wt = site.specie.atomic_mass
-        for i in range(3):
-            inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2 + c[(i + 2) % 3] ** 2)
-        for i, j in [(0, 1), (1, 2), (0, 2)]:
-            inertia_tensor[i, j] += -wt * c[i] * c[j]
-            inertia_tensor[j, i] += -wt * c[j] * c[i]
+        for dim in range(3):
+            inertia_tensor[dim, dim] += wt * (c[(dim + 1) % 3] ** 2 + c[(dim + 2) % 3] ** 2)
+        for ii, jj in [(0, 1), (1, 2), (0, 2)]:
+            inertia_tensor[ii, jj] += -wt * c[ii] * c[jj]
+            inertia_tensor[jj, ii] += -wt * c[jj] * c[ii]
 
-    inertia_eigenvals = np.multiply(np.linalg.eig(inertia_tensor)[0], amu_to_kg * 1e-20).tolist()  # amuangs^2 to kg m^2
+    # amuangs^2 to kg m^2
+    inertia_eigen_vals = np.linalg.eig(inertia_tensor)[0] * amu_to_kg * 1e-20
 
-    iav = np.average(inertia_eigenvals)
+    iav = np.average(inertia_eigen_vals)
 
-    return iav, inertia_eigenvals
+    return iav, inertia_eigen_vals
 
 
 class QuasiRRHO:

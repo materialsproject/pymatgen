@@ -4,7 +4,7 @@ import unittest
 
 import pytest
 
-from pymatgen.analysis.quasirrho import QuasiRRHO
+from pymatgen.analysis.quasirrho import QuasiRRHO, get_avg_mom_inertia
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -71,3 +71,14 @@ class TestQuasiRRHO(unittest.TestCase):
             qrrho.free_energy_ho, rel=1e-5
         ), f"Incorrect harmonic oscillator free energy, {correct_g_ho} != {qrrho.free_energy_ho}"
         assert correct_g_qrrho == pytest.approx(qrrho.free_energy_quasiRRHO), "Incorrect  Quasi-RRHO free energy"
+
+    def test_extreme_temperature_and_pressure(self):
+        qrrho = QuasiRRHO.from_gaussian_output(self.gout, temp=0.1, press=1e9)
+        assert qrrho.temp == 0.1
+        assert qrrho.press == 1e9
+
+    def test_get_avg_mom_inertia(self):
+        mol = self.gout.final_structure
+        avg_mom_inertia, inertia_eigen_vals = get_avg_mom_inertia(mol)
+        assert avg_mom_inertia == pytest.approx(0)
+        assert inertia_eigen_vals == pytest.approx([0, 0, 0])
