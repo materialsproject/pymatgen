@@ -1346,6 +1346,7 @@ class _MPResterLegacy:
             orient (list) : substrate orientation to look for
             number (int) : number of substrates to return
                 n=0 returns all available matches
+
         Returns:
             list of dicts with substrate matches
         """
@@ -1605,9 +1606,7 @@ class _MPResterLegacy:
         if response.status_code != 200:
             return False
         content = json.loads(response.text)
-        if content["pagination"]["total"] == 0:
-            return False
-        return True
+        return content["pagination"]["total"] != 0
 
     @staticmethod
     def parse_criteria(criteria_string):

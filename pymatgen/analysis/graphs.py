@@ -198,7 +198,8 @@ class StructureGraph(MSONable):
             where props is a dictionary of properties, including weight.
             Props should be None if no additional properties are to be
             specified.
-        :return: sg, a StructureGraph
+        Returns:
+            sg, a StructureGraph
         """
         sg = StructureGraph.with_empty_graph(structure, name="bonds", edge_weight_name="weight", edge_weight_units="")
 
@@ -738,7 +739,9 @@ class StructureGraph(MSONable):
         None if not defined.
         :param n: index of Site in Structure
         :param jimage: lattice vector of site
-        :return: list of ConnectedSite tuples,
+
+        Returns:
+            list of ConnectedSite tuples,
             sorted by closest first.
         """
         connected_sites = set()
@@ -965,7 +968,8 @@ class StructureGraph(MSONable):
         Extract a dictionary summarizing the types and weights
         of edges in the graph.
 
-        :return: A dictionary with keys specifying the
+        Returns:
+            A dictionary with keys specifying the
             species involved in a connection in alphabetical order
             (e.g. string 'Fe-O') and values which are a list of
             weights for those connections (e.g. bond lengths).
@@ -989,7 +993,8 @@ class StructureGraph(MSONable):
         Extract a statistical summary of edge weights present in
         the graph.
 
-        :return: A dict with an 'all_weights' list, 'minimum',
+        Returns:
+            A dict with an 'all_weights' list, 'minimum',
             'maximum', 'median', 'mean', 'std_dev'
         """
         all_weights = [d.get("weight") for u, v, d in self.graph.edges(data=True)]
@@ -1010,7 +1015,8 @@ class StructureGraph(MSONable):
 
         :param anonymous: if anonymous, will replace specie names
             with A, B, C, etc.
-        :return: a list of co-ordination environments,
+        Returns:
+            a list of co-ordination environments,
             e.g. ['Mo-S(6)', 'S-Mo(3)']
         """
         motifs = set()
@@ -1460,7 +1466,8 @@ class StructureGraph(MSONable):
             lengths can differ. This is a fairly robust approach,
             but will treat e.g. enantiomers as being duplicates.
 
-        :return: list of unique Molecules in Structure
+        Returns:
+            list of unique Molecules in Structure
         """
         # creating a supercell is an easy way to extract
         # molecules (and not, e.g., layers of a 2D crystal)
@@ -1630,7 +1637,8 @@ class MoleculeGraph(MSONable):
             group (format: {(u, v): props}, where props is a dictionary of
             properties, including weight. Props should be None if no
             additional properties are to be specified.
-        :return: mg, a MoleculeGraph
+        Returns:
+            mg, a MoleculeGraph
         """
         mg = MoleculeGraph.with_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
 
@@ -1668,7 +1676,9 @@ class MoleculeGraph(MSONable):
         :param molecule: Molecule object
         :param strategy: an instance of a
             :class:`pymatgen.analysis.local_env.NearNeighbors` object
-        :return: mg, a MoleculeGraph
+
+        Returns:
+            mg, a MoleculeGraph
         """
         if not strategy.molecules_allowed:
             raise ValueError(f"{strategy=} is not designed for use with molecules! Choose another strategy.")
@@ -2047,7 +2057,8 @@ class MoleculeGraph(MSONable):
         :param allow_reverse: If allow_reverse is True, then break_edge will
             attempt to break both (from_index, to_index) and, failing that,
             will attempt to break (to_index, from_index).
-        :return: list of MoleculeGraphs.
+        Returns:
+            list of MoleculeGraphs.
         """
         self.set_node_attributes()
         original = copy.deepcopy(self)
@@ -2402,7 +2413,9 @@ class MoleculeGraph(MSONable):
         None if not defined.
         :param n: index of Site in Molecule
         :param jimage: lattice vector of site
-        :return: list of ConnectedSite tuples,
+
+        Returns:
+            list of ConnectedSite tuples,
             sorted by closest first.
         """
         connected_sites = set()
@@ -2755,7 +2768,8 @@ class MoleculeGraph(MSONable):
         graphs are converted into undirected nx.Graph objects.
 
         :param other: MoleculeGraph object to be compared.
-        :return: bool
+        Returns:
+            bool
         """
         if len(self.molecule) != len(other.molecule):
             return False

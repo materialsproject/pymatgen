@@ -383,6 +383,7 @@ class CompleteCohp(Cohp):
             label_list: list of labels for the COHP that should be included in the summed cohp
             divisor: float/int, the summed cohp will be divided by this divisor
             summed_spin_channels: bool, will sum the spin channels and return the sum in Spin.up if true
+
         Returns:
             Returns a COHP object including a summed COHP
         """
@@ -889,7 +890,8 @@ class IcohpValue(MSONable):
 
     @property
     def num_bonds(self):
-        """Tells the number of bonds for which the ICOHP value is an average
+        """Tells the number of bonds for which the ICOHP value is an average.
+
         Returns:
             Int.
         """
@@ -897,7 +899,8 @@ class IcohpValue(MSONable):
 
     @property
     def are_coops(self) -> bool:
-        """Tells if ICOOPs or not
+        """Tells if ICOOPs or not.
+
         Returns:
             Boolean.
         """
@@ -905,7 +908,8 @@ class IcohpValue(MSONable):
 
     @property
     def are_cobis(self) -> bool:
-        """Tells if ICOBIs or not
+        """Tells if ICOBIs or not.
+
         Returns:
             Boolean.
         """
@@ -913,7 +917,8 @@ class IcohpValue(MSONable):
 
     @property
     def is_spin_polarized(self) -> bool:
-        """Tells if spin polarized calculation or not
+        """Tells if spin polarized calculation or not.
+
         Returns:
             Boolean.
         """
@@ -922,7 +927,8 @@ class IcohpValue(MSONable):
     def icohpvalue(self, spin=Spin.up):
         """
         Args:
-            spin: Spin.up or Spin.down
+            spin: Spin.up or Spin.down.
+
         Returns:
             icohpvalue (float) corresponding to chosen spin.
         """
@@ -935,7 +941,8 @@ class IcohpValue(MSONable):
         """
         Args:
             orbitals: List of Orbitals or "str(Orbital1)-str(Orbital2)"
-            spin: Spin.up or Spin.down
+            spin: Spin.up or Spin.down.
+
         Returns:
             icohpvalue (float) corresponding to chosen spin.
         """
@@ -964,7 +971,8 @@ class IcohpValue(MSONable):
 
     @property
     def summed_orbital_icohp(self):
-        """Sums orbitals-resolved ICOHPs of both spin channels for spin-plarized compounds
+        """Sums orbitals-resolved ICOHPs of both spin channels for spin-plarized compounds.
+
         Returns:
             {"str(Orbital1)-str(Ortibal2)": icohp value in eV}.
 
@@ -1112,7 +1120,8 @@ class IcohpCollection(MSONable):
         """Get a dict of IcohpValues corresponding to certain bond lengths
         Args:
             minbondlength: defines the minimum of the bond lengths of the bonds
-            maxbondlength: defines the maximum of the bond lengths of the bonds
+            maxbondlength: defines the maximum of the bond lengths of the bonds.
+
         Returns:
              dict of IcohpValues, the keys correspond to the values from the initial list_labels.
         """
@@ -1180,6 +1189,7 @@ class IcohpCollection(MSONable):
             summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed.
 
             spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
+
         Returns:
             lowest ICOHP/largest ICOOP value (i.e. ICOHP/ICOOP value of strongest bond)
         """

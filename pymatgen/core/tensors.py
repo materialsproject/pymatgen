@@ -684,7 +684,9 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     def zeroed(self, tol: float = 1e-3):
         """:param tol: Tolerance
-        :return: TensorCollection where small values are set to 0.
+
+        Returns:
+            TensorCollection where small values are set to 0.
         """
         return self.__class__([t.zeroed(tol) for t in self])
 
@@ -692,7 +694,9 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """Transforms TensorCollection with a symmetry operation.
 
         :param symm_op: SymmetryOperation.
-        :return: TensorCollection.
+
+        Returns:
+            TensorCollection.
         """
         return self.__class__([t.transform(symm_op) for t in self])
 
@@ -701,7 +705,9 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
         :param matrix: Rotation matrix.
         :param tol: tolerance.
-        :return: TensorCollection.
+
+        Returns:
+            TensorCollection.
         """
         return self.__class__([t.rotate(matrix, tol) for t in self])
 
@@ -712,7 +718,9 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     def is_symmetric(self, tol: float = 1e-5):
         """:param tol: tolerance
-        :return: Whether all tensors are symmetric.
+
+        Returns:
+            Whether all tensors are symmetric.
         """
         return all(t.is_symmetric(tol) for t in self)
 
@@ -721,14 +729,18 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
         :param structure: Structure
         :param symprec: symmetry precision.
-        :return: TensorCollection.
+
+        Returns:
+            TensorCollection.
         """
         return self.__class__([t.fit_to_structure(structure, symprec) for t in self])
 
     def is_fit_to_structure(self, structure: Structure, tol: float = 1e-2):
         """:param structure: Structure
         :param tol: tolerance
-        :return: Whether all tensors are fitted to Structure.
+
+        Returns:
+            Whether all tensors are fitted to Structure.
         """
         return all(t.is_fit_to_structure(structure, tol) for t in self)
 
@@ -744,7 +756,9 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     def is_voigt_symmetric(self, tol: float = 1e-6):
         """:param tol: tolerance
-        :return: Whether all tensors are voigt symmetric.
+
+        Returns:
+            Whether all tensors are voigt symmetric.
         """
         return all(t.is_voigt_symmetric(tol) for t in self)
 
@@ -754,7 +768,9 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
         :param voigt_input_list: List of voigt tensors
         :param base_class: Class for tensor.
-        :return: TensorCollection.
+
+        Returns:
+            TensorCollection.
         """
         return cls([base_class.from_voigt(v) for v in voigt_input_list])
 
@@ -764,7 +780,9 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param structure: Structure
         :param initial_fit: Whether to perform an initial fit.
         :param refine_rotation: Whether to refine the rotation.
-        :return: TensorCollection.
+
+        Returns:
+            TensorCollection.
         """
         return self.__class__([t.convert_to_ieee(structure, initial_fit, refine_rotation) for t in self])
 
@@ -773,7 +791,9 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
         :param args: Passthrough to Tensor.round
         :param kwargs: Passthrough to Tensor.round
-        :return: TensorCollection.
+
+        Returns:
+            TensorCollection.
         """
         return self.__class__([t.round(*args, **kwargs) for t in self])
 
@@ -784,7 +804,9 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     def as_dict(self, voigt=False):
         """:param voigt: Whether to use voight form.
-        :return: Dict representation of TensorCollection.
+
+        Returns:
+            Dict representation of TensorCollection.
         """
         tensor_list = self.voigt if voigt else self
         d = {
@@ -801,7 +823,9 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         """Creates TensorCollection from dict.
 
         :param d: dict
-        :return: TensorCollection
+
+        Returns:
+            TensorCollection
         """
         voigt = d.get("voigt")
         if voigt:

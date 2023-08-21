@@ -2983,7 +2983,7 @@ class PDPlotter:
             """
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
 
-            is_stable = [bool(entry in self._pd.stable_entries) for entry in entries]
+            is_stable = [entry in self._pd.stable_entries for entry in entries]
 
             for coord, entry, stable in zip(coords, entries, is_stable):
                 energy = round(self._pd.get_form_energy_per_atom(entry), 3)

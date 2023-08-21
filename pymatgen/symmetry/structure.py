@@ -134,7 +134,9 @@ class SymmetrizedStructure(Structure):
     @classmethod
     def from_dict(cls, dct):
         """:param d: Dict representation
-        :return: SymmetrizedStructure
+
+        Returns:
+            SymmetrizedStructure
         """
         return cls(
             Structure.from_dict(dct["structure"]),

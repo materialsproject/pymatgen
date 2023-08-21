@@ -53,11 +53,11 @@ def main():
 
     x = data["energies"]
     y = data["scross"]
-    tle = "Single " + data["atom"] + " " + data["edge"] + " edge"
+    tle = f"Single {data['atom']} {data['edge']} edge"
     ax.plot(x, y, color_order[1 % 7], label=tle)
 
     y = data["across"]
-    tle = data["atom"] + " " + data["edge"] + " edge in " + data["formula"]
+    tle = f"{data['atom']} {data['edge']} edge in {data['formula']}"
     ax.plot(x, y, color_order[2 % 7], label=tle)
 
     ax.legend()

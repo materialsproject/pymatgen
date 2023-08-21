@@ -284,7 +284,9 @@ class Interface(Structure):
     @classmethod
     def from_dict(cls, d):
         """:param d: dict
-        :return: Creates slab from dict.
+
+        Returns:
+            Creates slab from dict.
         """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]

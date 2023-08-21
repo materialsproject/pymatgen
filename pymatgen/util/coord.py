@@ -419,7 +419,8 @@ class Simplex(MSONable):
     def line_intersection(self, point1, point2, tolerance=1e-8):
         """Computes the intersection points of a line with a simplex
         Args:
-            point1, point2 ([float]): Points that determine the line
+            point1, point2 ([float]): Points that determine the line.
+
         Returns:
             points where the line intersects the simplex (0, 1, or 2).
         """

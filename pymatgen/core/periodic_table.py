@@ -1291,7 +1291,9 @@ class Species(MSONable, Stringify):
     @classmethod
     def from_dict(cls, d) -> Species:
         """:param d: Dict representation.
-        :return: Species.
+
+        Returns:
+            Species.
         """
         return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
 
@@ -1437,7 +1439,9 @@ class DummySpecies(Species):
     @classmethod
     def from_dict(cls, d) -> DummySpecies:
         """:param d: Dict representation
-        :return: DummySpecies
+
+        Returns:
+            DummySpecies
         """
         return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
 

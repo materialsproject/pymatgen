@@ -53,7 +53,9 @@ class ExpEntry(PDEntry, MSONable):
     @classmethod
     def from_dict(cls, d):
         """:param d: Dict representation.
-        :return: ExpEntry
+
+        Returns:
+            ExpEntry
         """
         thermodata = [ThermoData.from_dict(td) for td in d["thermodata"]]
         return cls(d["composition"], thermodata, d["temperature"])
