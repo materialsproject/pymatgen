@@ -455,9 +455,9 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert kpoints.kpts == [[25]]
         assert kpoints.style == Kpoints.supported_modes.Automatic
 
-        recip_paramset = MPRelaxSet(self.structure, force_gamma=True)
-        recip_paramset.kpoints_settings = {"reciprocal_density": 40}
-        kpoints = recip_paramset.kpoints
+        recip_param_set = MPRelaxSet(self.structure, force_gamma=True)
+        recip_param_set.kpoints_settings = {"reciprocal_density": 40}
+        kpoints = recip_param_set.kpoints
         assert kpoints.kpts == [[2, 4, 5]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
@@ -540,24 +540,17 @@ class TestMITMPRelaxSet(PymatgenTest):
 
     @skip_if_no_psp_dir
     def test_write_input(self):
-        self.mit_set.write_input(".", make_dir_if_not_present=True)
-        for file in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
-            assert os.path.isfile(file)
-        assert not os.path.isfile("Fe4P4O16.cif")
+        vasp_files = {"INCAR", "KPOINTS", "POSCAR", "POTCAR"}
+        self.mit_set.write_input(self.tmp_path)
+        assert {*os.listdir(self.tmp_path)} == vasp_files
 
-        self.mit_set.write_input(".", make_dir_if_not_present=True, include_cif=True)
-        assert os.path.isfile("Fe4P4O16.cif")
-        for file in ["INCAR", "KPOINTS", "POSCAR", "POTCAR", "Fe4P4O16.cif"]:
-            os.remove(file)
+        self.mit_set.write_input(self.tmp_path, include_cif=True)
+        assert {*os.listdir(self.tmp_path)} == {*vasp_files, "Fe4P4O16.cif"}
 
-        self.mit_set.write_input(".", make_dir_if_not_present=True, potcar_spec=True)
-
-        for file in ["INCAR", "KPOINTS", "POSCAR"]:
-            assert os.path.isfile(file)
-        assert not os.path.isfile("POTCAR")
-        assert os.path.isfile("POTCAR.spec")
-        for file in ["INCAR", "KPOINTS", "POSCAR", "POTCAR.spec"]:
-            os.remove(file)
+    @skip_if_no_psp_dir
+    def test_write_input_potcar_spec(self):
+        self.mit_set.write_input(self.tmp_path, potcar_spec=True)
+        assert {*os.listdir(self.tmp_path)} == {"INCAR", "KPOINTS", "POSCAR", "POTCAR.spec"}
 
     @skip_if_no_psp_dir
     def test_user_potcar_settings(self):
