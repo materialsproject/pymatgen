@@ -99,7 +99,7 @@ class TestShengBTE(PymatgenTest):
     @unittest.skipIf(f90nml is None, "No f90nml")
     def test_MSONable_implementation(self):
         # tests as dict and from dict methods
-        Controlinfromfile = Control.from_file(self.filename)
-        newControlin = Control.from_dict(Controlinfromfile.as_dict())
-        assert newControlin == Controlinfromfile
-        newControlin.to_json()
+        ctrl_from_file = Control.from_file(self.filename)
+        control_from_dict = Control.from_dict(ctrl_from_file.as_dict())
+        assert control_from_dict == ctrl_from_file
+        assert control_from_dict.to_json() == ctrl_from_file.to_json()
