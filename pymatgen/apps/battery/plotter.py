@@ -108,7 +108,7 @@ class VoltageProfilePlotter:
             ax.plot(x, y, "-", linewidth=2, label=label)
 
         ax.legend()
-        ax.set_xlabel(self._choose_best_x_lable(formula=formula, wion_symbol=wion_symbol))
+        ax.set_xlabel(self._choose_best_x_label(formula=formula, wion_symbol=wion_symbol))
         ax.set_ylabel("Voltage (V)")
         plt.tight_layout()
         return ax
@@ -157,7 +157,7 @@ class VoltageProfilePlotter:
                 width=width,
                 height=height,
                 font=font_dict,
-                xaxis={"title": self._choose_best_x_lable(formula=formula, wion_symbol=wion_symbol)},
+                xaxis={"title": self._choose_best_x_label(formula=formula, wion_symbol=wion_symbol)},
                 yaxis={"title": "Voltage (V)"},
                 **kwargs,
             ),
@@ -166,7 +166,7 @@ class VoltageProfilePlotter:
         fig.update_layout(template="plotly_white", title_x=0.5)
         return fig
 
-    def _choose_best_x_lable(self, formula, wion_symbol):
+    def _choose_best_x_label(self, formula, wion_symbol):
         if self.xaxis in {"capacity", "capacity_grav"}:
             return "Capacity (mAh/g)"
         if self.xaxis == "capacity_vol":
