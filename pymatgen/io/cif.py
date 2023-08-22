@@ -983,7 +983,7 @@ class CifParser:
             except (KeyError, ValueError):
                 occu = 1
             # If check_occu is True or the occupancy is greater than 0, create comp_d
-            if check_occu or occu > 0:
+            if not check_occu or occu > 0:
                 coord = (x, y, z)
                 match = get_matching_coord(coord)
                 comp_dict = {el: max(occu, 1e-8)}
@@ -1078,7 +1078,7 @@ class CifParser:
                 all_labels.extend(new_labels)
 
             # rescale occupancies if necessary
-            all_species_noedit = all_species[:]  # save copy before scaling in case of check_occu=True, used below
+            all_species_noedit = all_species[:]  # save copy before scaling in case of check_occu=False, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:
@@ -1114,14 +1114,14 @@ class CifParser:
                 sg = SpacegroupOperations("Not Parsed", -1, self.symmetry_operations)
                 struct = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
 
-            if check_occu:
+            if not check_occu:
                 struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
                 for idx in range(len(struct)):
                     struct[idx] = PeriodicSite(
                         all_species_noedit[idx], all_coords[idx], lattice, properties=site_properties, skip_checks=True
                     )
 
-            if symmetrized or check_occu:
+            if symmetrized or not check_occu:
                 return struct
 
             struct = struct.get_sorted_structure()
@@ -1166,7 +1166,7 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
-        if check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
+        if not check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
             warnings.warn("Structures with unphysical site occupancies are not compatible with many pymatgen features.")
         if primitive and symmetrized:
             raise ValueError(
