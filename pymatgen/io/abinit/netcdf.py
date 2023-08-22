@@ -35,15 +35,6 @@ __email__ = "gmatteo at gmail.com"
 __status__ = "Development"
 __date__ = "Feb 21, 2013M"
 
-__all__ = [
-    "as_ncreader",
-    "as_etsfreader",
-    "NetcdfReader",
-    "ETSF_Reader",
-    "NO_DEFAULT",
-    "structure_from_ncdata",
-]
-
 
 def _asreader(file, cls):
     closeit = False
