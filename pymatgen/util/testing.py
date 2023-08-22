@@ -50,10 +50,7 @@ class PymatgenTest(unittest.TestCase):
         Returns:
             Structure
         """
-        if name not in cls.TEST_STRUCTURES:
-            struct = cls.TEST_STRUCTURES[name] = loadfn(f"{cls.STRUCTURES_DIR}/{name}.json")
         struct = cls.TEST_STRUCTURES.get(name) or loadfn(f"{cls.STRUCTURES_DIR}/{name}.json")
-
         return struct.copy()
 
     @staticmethod
