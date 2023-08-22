@@ -13,7 +13,7 @@ from inspect import getfullargspec as getargspec
 from io import StringIO
 from itertools import groupby
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from monty.io import zopen
@@ -912,7 +912,7 @@ class CifParser:
         return parsed_sym
 
     def _get_structure(
-        self, data: str, primitive: bool, symmetrized: bool, skip_occu_checks: bool = False
+        self, data: dict[str, Any], primitive: bool, symmetrized: bool, skip_occu_checks: bool = False
     ) -> Structure | None:
         """Generate structure from part of the cif."""
 
@@ -963,7 +963,7 @@ class CifParser:
             if oxi_states is not None:
                 o_s = oxi_states.get(symbol, 0)
                 # use _atom_site_type_symbol if possible for oxidation state
-                if "_atom_site_type_symbol" in data.data:
+                if "_atom_site_type_symbol" in data.data:  # type: ignore[attr-defined]
                     oxi_symbol = data["_atom_site_type_symbol"][idx]
                     o_s = oxi_states.get(oxi_symbol, o_s)
                 try:
