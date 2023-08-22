@@ -6,7 +6,6 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
-from pymatgen.core import Element
 from pymatgen.core.structure import Lattice, Molecule, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
