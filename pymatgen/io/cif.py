@@ -984,10 +984,9 @@ class CifParser:
                 occu = 1
             # If skip_occu_checks is True or the occupancy is greater than 0, create comp_d
             if skip_occu_checks or occu > 0:
-                comp_dict = {el: max(occu, 1e-8)}
-
                 coord = (x, y, z)
                 match = get_matching_coord(coord)
+                comp_dict = {el: max(occu, 1e-8)}
 
                 if num_h > 0:
                     comp_dict["H"] = num_h  # type: ignore
@@ -1178,7 +1177,7 @@ class CifParser:
         structures = []
         for idx, dct in enumerate(self._cif.data.values()):
             try:
-                struct = self._get_structure(dct, primitive, symmetrized, skip_occu_checks)
+                struct = self._get_structure(dct, primitive, symmetrized, skip_occu_checks=skip_occu_checks)
                 if struct:
                     structures.append(struct)
             except (KeyError, ValueError) as exc:
