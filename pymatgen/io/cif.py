@@ -1109,22 +1109,11 @@ class CifParser:
                 # TODO: extract Wyckoff labels (or other CIF attributes) and include as site_properties
                 wyckoffs = ["Not Parsed"] * len(struct)
 
-                # Names of space groups are likewise not parsed (again, not all CIFs will contain this information)
+                # space groups names are likewise not parsed (again, not all CIFs will contain this information)
                 # What is stored are the lists of symmetry operations used to generate the structure
                 # TODO: ensure space group labels are stored if present
                 sg = SpacegroupOperations("Not Parsed", -1, self.symmetry_operations)
                 struct = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
-
-                if skip_occu_checks:
-                    for idx in range(len(struct)):
-                        struct[idx] = PeriodicSite(
-                            all_species_noedit[idx],
-                            all_coords[idx],
-                            lattice,
-                            properties=site_properties,
-                            skip_checks=True,
-                        )
-                return struct
 
             if skip_occu_checks:
                 struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
@@ -1132,6 +1121,8 @@ class CifParser:
                     struct[idx] = PeriodicSite(
                         all_species_noedit[idx], all_coords[idx], lattice, properties=site_properties, skip_checks=True
                     )
+
+            if symmetrized or skip_occu_checks:
                 return struct
 
             struct = struct.get_sorted_structure()
