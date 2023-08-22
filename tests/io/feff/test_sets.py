@@ -265,5 +265,4 @@ TITLE sites: 4
         cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
         structure = CifParser(cif_file).get_structures()[0]
         for idx in range(len(structure.species)):
-            if structure.species[idx] == Element("O"):
-                assert Atoms(structure, idx, 3).cluster
+            assert Atoms(structure, idx, 3).cluster
