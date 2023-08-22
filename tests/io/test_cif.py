@@ -914,33 +914,46 @@ Si1 Si 0 0 0 1 0.0
         with pytest.raises(ValueError, match="Invalid CIF file with no structures"):
             parser.get_structures()
 
+    def test_skip_checks(self):
+        with open(f"{TEST_FILES_DIR}/site_type_symbol_test.cif") as c:
+            cif_str = c.read()
+        cif_str = cif_str.replace("Te    Te 1.0000", "Te    Te 1.5000", 1)
+
+        with pytest.raises(ValueError, match="Invalid CIF file with no structures"):
+            # should fail without setting custom occupancy tolerance
+            CifParser.from_string(cif_str).get_structures()
+
+        parser = CifParser.from_string(cif_str, occupancy_tolerance=1.5)
+        structs = parser.get_structures(primitive=False, symmetrized=True, check_occu=False)[0]
+        assert structs[0].species.as_dict()["Te"] == 1.5
+
 
 class TestMagCif(PymatgenTest):
     def setUp(self):
         self.mcif = CifParser(f"{TEST_FILES_DIR}/magnetic.example.NiO.mcif")
         self.mcif_ncl = CifParser(f"{TEST_FILES_DIR}/magnetic.ncl.example.GdB4.mcif")
-        self.mcif_incom = CifParser(f"{TEST_FILES_DIR}/magnetic.incommensurate.example.Cr.mcif")
-        self.mcif_disord = CifParser(f"{TEST_FILES_DIR}/magnetic.disordered.example.CuMnO2.mcif")
+        self.mcif_incommensurate = CifParser(f"{TEST_FILES_DIR}/magnetic.incommensurate.example.Cr.mcif")
+        self.mcif_disordered = CifParser(f"{TEST_FILES_DIR}/magnetic.disordered.example.CuMnO2.mcif")
         self.mcif_ncl2 = CifParser(f"{TEST_FILES_DIR}/Mn3Ge_IR2.mcif")
 
     def test_mcif_detection(self):
         assert self.mcif.feature_flags["magcif"]
         assert self.mcif_ncl.feature_flags["magcif"]
-        assert self.mcif_incom.feature_flags["magcif"]
-        assert self.mcif_disord.feature_flags["magcif"]
+        assert self.mcif_incommensurate.feature_flags["magcif"]
+        assert self.mcif_disordered.feature_flags["magcif"]
         assert not self.mcif.feature_flags["magcif_incommensurate"]
         assert not self.mcif_ncl.feature_flags["magcif_incommensurate"]
-        assert self.mcif_incom.feature_flags["magcif_incommensurate"]
-        assert not self.mcif_disord.feature_flags["magcif_incommensurate"]
+        assert self.mcif_incommensurate.feature_flags["magcif_incommensurate"]
+        assert not self.mcif_disordered.feature_flags["magcif_incommensurate"]
 
     def test_get_structures(self):
         # incommensurate structures not currently supported
         with pytest.raises(NotImplementedError, match="Incommensurate structures not currently supported"):
-            self.mcif_incom.get_structures()
+            self.mcif_incommensurate.get_structures()
 
         # disordered magnetic structures not currently supported
         with pytest.raises(NotImplementedError, match="Disordered magnetic structures not currently supported"):
-            self.mcif_disord.get_structures()
+            self.mcif_disordered.get_structures()
 
         # taken from self.mcif_ncl, removing explicit magnetic symmops
         # so that MagneticSymmetryGroup() has to be invoked
