@@ -31,7 +31,8 @@ class PymatgenTest(unittest.TestCase):
     _multiprocess_shared_ = True
     STRUCTURES_DIR = MODULE_DIR / "structures"
 
-    TEST_STRUCTURES: ClassVar[dict[str, Structure]] = {}  # Dict for test structures to aid testing.
+    # dict of lazily-loaded test structures (initialized to None)
+    TEST_STRUCTURES: ClassVar[dict[str | Path, Structure | None]] = {key: None for key in STRUCTURES_DIR.glob("*")}
 
     @pytest.fixture(autouse=True)  # make all tests run a in a temporary directory accessible via self.tmp_path
     def _tmp_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -49,9 +50,8 @@ class PymatgenTest(unittest.TestCase):
         Returns:
             Structure
         """
-        if name not in cls.TEST_STRUCTURES:
-            cls.TEST_STRUCTURES[name] = loadfn(cls.STRUCTURES_DIR / f"{name}.json")
-        return cls.TEST_STRUCTURES[name].copy()
+        struct = cls.TEST_STRUCTURES.get(name) or loadfn(f"{cls.STRUCTURES_DIR}/{name}.json")
+        return struct.copy()
 
     @staticmethod
     def assert_str_content_equal(actual, expected):

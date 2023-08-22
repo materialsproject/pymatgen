@@ -18,6 +18,13 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.xcfunc import XcFunc
 
+try:
+    import netCDF4
+except ImportError:
+    netCDF4 = None
+    warnings.warn("Can't import netCDF4. Some features will be disabled unless you pip install netCDF4.")
+
+
 logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
@@ -27,30 +34,6 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 __status__ = "Development"
 __date__ = "Feb 21, 2013M"
-
-__all__ = [
-    "as_ncreader",
-    "as_etsfreader",
-    "NetcdfReader",
-    "ETSF_Reader",
-    "NO_DEFAULT",
-    "structure_from_ncdata",
-]
-
-try:
-    import netCDF4
-except ImportError as exc:
-    netCDF4 = None
-    warnings.warn(
-        f"""\
-`import netCDF4` failed with the following error:
-
-{exc}
-
-Please install netcdf4 with `conda install netcdf4`
-If the conda version does not work, uninstall it with `conda uninstall hdf4 hdf5 netcdf4`
-and use `pip install netcdf4`"""
-    )
 
 
 def _asreader(file, cls):
