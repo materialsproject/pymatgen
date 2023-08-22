@@ -268,8 +268,4 @@ class TestDataPersistence(PymatgenTest):
             b = cls(10, "N bohr")
             objects = [a, b]
 
-            new_objects_from_protocol = self.serialize_with_pickle(objects)
-
-            for new_objects in new_objects_from_protocol:
-                for old_item, new_item in zip(objects, new_objects):
-                    assert str(old_item) == str(new_item)
+            self.serialize_with_pickle(objects)

@@ -122,7 +122,7 @@ class AbinitInputTestCase(PymatgenTest):
         assert inp.structure == new_structure
 
         # Compatible with Pickle and MSONable?
-        self.serialize_with_pickle(inp, test_eq=False)
+        self.serialize_with_pickle(inp)
 
     def test_input_errors(self):
         """Testing typical BasicAbinitInput Error."""

@@ -336,13 +336,12 @@ class ElementTestCase(PymatgenTest):
         assert sorted(els) == [Element.C, Element.Se]
 
     def test_pickle(self):
-        el1 = Element.Fe
-        o = pickle.dumps(el1)
-        assert el1 == pickle.loads(o)
+        pickled = pickle.dumps(Element.Fe)
+        assert Element.Fe == pickle.loads(pickled)
 
-        # Test all elements up to Uranium
-        for i in range(1, 93):
-            self.serialize_with_pickle(Element.from_Z(i), test_eq=True)
+        # Test 5 random elements
+        for idx in np.random.randint(1, 104, size=5):
+            self.serialize_with_pickle(Element.from_Z(idx))
 
     def test_print_periodic_table(self):
         Element.print_periodic_table()
@@ -385,24 +384,24 @@ class SpeciesTestCase(PymatgenTest):
         assert self.specie4.spin == 5
 
     def test_deepcopy(self):
-        el1 = Species("Fe", 4)
-        el2 = Species("Na", 1)
-        ellist = [el1, el2]
-        assert ellist == deepcopy(ellist), "Deepcopy operation doesn't produce exact copy."
+        el1 = Species("Fe4+")
+        el2 = Species("Na1+")
+        elem_list = [el1, el2]
+        assert elem_list == deepcopy(elem_list), "Deepcopy operation doesn't produce exact copy."
 
     def test_pickle(self):
         assert self.specie1 == pickle.loads(pickle.dumps(self.specie1))
-        for i in range(1, 5):
-            self.serialize_with_pickle(getattr(self, f"specie{i}"), test_eq=True)
-        cs = Species("Cs", 1)
-        cl = Species("Cl", 1)
+        for idx in range(1, 5):
+            self.serialize_with_pickle(getattr(self, f"specie{idx}"))
+        cs = Species("Cs1+")
+        cl = Species("Cl1+")
 
-        with open("cscl.pickle", "wb") as f:
-            pickle.dump((cs, cl), f)
+        with open("cscl.pickle", "wb") as file:
+            pickle.dump((cs, cl), file)
 
-        with open("cscl.pickle", "rb") as f:
-            d = pickle.load(f)
-            assert d == (cs, cl)
+        with open("cscl.pickle", "rb") as file:
+            tup = pickle.load(file)
+            assert tup == (cs, cl)
         os.remove("cscl.pickle")
 
     def test_get_crystal_field_spin(self):

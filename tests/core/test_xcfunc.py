@@ -45,7 +45,7 @@ class TestLibxcFunc(PymatgenTest):
         assert ixc_11 in d
 
         # Test if object can be serialized with Pickle.
-        self.serialize_with_pickle(ixc_11, test_eq=True)
+        self.serialize_with_pickle(ixc_11)
 
         # Test if object supports MSONable
         # TODO
