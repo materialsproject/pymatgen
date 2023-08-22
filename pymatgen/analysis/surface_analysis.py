@@ -1316,24 +1316,6 @@ class SurfaceEnergyPlotter:
 
         return all_delu_dict
 
-        # def surface_phase_diagram(self, y_param, x_param, miller_index):
-        #     return
-        #
-        # def wulff_shape_extrapolated_model(self):
-        #     return
-        #
-        # def surface_pourbaix_diagram(self):
-        #
-        #     return
-        #
-        # def surface_p_vs_t_phase_diagram(self):
-        #
-        #     return
-        #
-        # def broken_bond_vs_gamma(self):
-        #
-        #     return
-
 
 def entry_dict_from_list(all_slab_entries):
     """
@@ -1948,15 +1930,6 @@ class NanoscaleStability:
             )
 
         return plt
-
-        # class GetChempotRange:
-        #     def __init__(self, entry):
-        #         self.entry = entry
-        #
-        #
-        # class SlabEntryGenerator:
-        #     def __init__(self, entry):
-        #         self.entry = entry
 
 
 def sub_chempots(gamma_dict, chempots):

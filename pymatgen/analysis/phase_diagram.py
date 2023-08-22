@@ -1722,19 +1722,19 @@ class PatchedPhaseDiagram(PhaseDiagram):
         elements = [Element.from_dict(elem) for elem in dct["elements"]]
         return cls(entries, elements)
 
-    # NOTE the following could be inherited unchanged from PhaseDiagram:
-    #     __repr__,
-    #     as_dict,
-    #     all_entries_hulldata,
-    #     unstable_entries,
-    #     stable_entries,
-    #     get_form_energy(),
-    #     get_form_energy_per_atom(),
-    #     get_hull_energy(),
-    #     get_e_above_hull(),
-    #     get_decomp_and_e_above_hull(),
-    #     get_decomp_and_phase_separation_energy(),
-    #     get_phase_separation_energy()
+    # NOTE following methods are inherited unchanged from PhaseDiagram:
+    # __repr__,
+    # as_dict,
+    # all_entries_hulldata,
+    # unstable_entries,
+    # stable_entries,
+    # get_form_energy(),
+    # get_form_energy_per_atom(),
+    # get_hull_energy(),
+    # get_e_above_hull(),
+    # get_decomp_and_e_above_hull(),
+    # get_decomp_and_phase_separation_energy(),
+    # get_phase_separation_energy()
 
     def get_pd_for_entry(self, entry: Entry | Composition) -> PhaseDiagram:
         """
