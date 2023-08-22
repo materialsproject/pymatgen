@@ -924,7 +924,7 @@ Si1 Si 0 0 0 1 0.0
             CifParser.from_string(cif_str).get_structures()
 
         parser = CifParser.from_string(cif_str, occupancy_tolerance=1.5)
-        structs = parser.get_structures(primitive=False, symmetrized=True, skip_occu_checks=True)[0]
+        structs = parser.get_structures(primitive=False, symmetrized=True, check_occu=False)[0]
         assert structs[0].species.as_dict()["Te"] == 1.5
 
 

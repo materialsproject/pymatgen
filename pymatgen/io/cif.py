@@ -912,7 +912,7 @@ class CifParser:
         return parsed_sym
 
     def _get_structure(
-        self, data: dict[str, Any], primitive: bool, symmetrized: bool, skip_occu_checks: bool = False
+        self, data: dict[str, Any], primitive: bool, symmetrized: bool, check_occu: bool = False
     ) -> Structure | None:
         """Generate structure from part of the cif."""
 
@@ -982,8 +982,8 @@ class CifParser:
                 occu = str2float(data["_atom_site_occupancy"][idx])
             except (KeyError, ValueError):
                 occu = 1
-            # If skip_occu_checks is True or the occupancy is greater than 0, create comp_d
-            if skip_occu_checks or occu > 0:
+            # If check_occu is True or the occupancy is greater than 0, create comp_d
+            if check_occu or occu > 0:
                 coord = (x, y, z)
                 match = get_matching_coord(coord)
                 comp_dict = {el: max(occu, 1e-8)}
@@ -1078,7 +1078,7 @@ class CifParser:
                 all_labels.extend(new_labels)
 
             # rescale occupancies if necessary
-            all_species_noedit = all_species[:]  # save copy before scaling in case of skip_occu_checks=True, used below
+            all_species_noedit = all_species[:]  # save copy before scaling in case of check_occu=True, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:
@@ -1114,14 +1114,14 @@ class CifParser:
                 sg = SpacegroupOperations("Not Parsed", -1, self.symmetry_operations)
                 struct = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
 
-            if skip_occu_checks:
+            if check_occu:
                 struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
                 for idx in range(len(struct)):
                     struct[idx] = PeriodicSite(
                         all_species_noedit[idx], all_coords[idx], lattice, properties=site_properties, skip_checks=True
                     )
 
-            if symmetrized or skip_occu_checks:
+            if symmetrized or check_occu:
                 return struct
 
             struct = struct.get_sorted_structure()
@@ -1139,7 +1139,7 @@ class CifParser:
         self,
         primitive: bool = True,
         symmetrized: bool = False,
-        skip_occu_checks: bool = False,
+        check_occu: bool = True,
         on_error: Literal["ignore", "warn", "raise"] = "warn",
     ) -> list[Structure]:
         """Return list of structures in CIF file.
@@ -1156,18 +1156,18 @@ class CifParser:
                 currently Wyckoff labels and space group labels or numbers are
                 not included in the generated SymmetrizedStructure, these will be
                 notated as "Not Parsed" or -1 respectively.
-            skip_occu_checks (bool): Default is False. If True, site occupancy will
-                not be checked, allowing aphysical occupancy != 1. Useful for experimental
-                results in which occupancy was allowed to refine to aphysical values.
-                Warning: Aphysical site occupancies are incompatible with many pymatgen features.
+            check_occu (bool): If False, site occupancy will not be checked, allowing unphysical
+                occupancy != 1. Useful for experimental results in which occupancy was allowed
+                to refine to unphysical values. Warning: unphysical site occupancies are incompatible
+                with many pymatgen features. Defaults to True.
             on_error ('ignore' | 'warn' | 'raise'): What to do in case of KeyError or ValueError
                 while parsing CIF file. Defaults to 'warn'.
 
         Returns:
             list[Structure]: All structures in CIF file.
         """
-        if skip_occu_checks:  # added in https://github.com/materialsproject/pymatgen/pull/2836
-            warnings.warn("Structures with aphysical site occupancies are not compatible with many pymatgen features.")
+        if check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
+            warnings.warn("Structures with unphysical site occupancies are not compatible with many pymatgen features.")
         if primitive and symmetrized:
             raise ValueError(
                 "Using both 'primitive' and 'symmetrized' arguments is not currently supported "
@@ -1177,7 +1177,7 @@ class CifParser:
         structures = []
         for idx, dct in enumerate(self._cif.data.values()):
             try:
-                struct = self._get_structure(dct, primitive, symmetrized, skip_occu_checks=skip_occu_checks)
+                struct = self._get_structure(dct, primitive, symmetrized, check_occu=check_occu)
                 if struct:
                     structures.append(struct)
             except (KeyError, ValueError) as exc:
