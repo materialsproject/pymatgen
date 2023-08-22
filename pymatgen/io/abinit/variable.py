@@ -9,18 +9,8 @@ from typing import Iterable
 
 import numpy as np
 
-__all__ = [
-    "InputVariable",
-]
-
 _SPECIAL_DATASET_INDICES = (":", "+", "?")
-
-_DATASET_INDICES = "".join(list(string.digits) + list(_SPECIAL_DATASET_INDICES))
-
-_INTERNAL_DATASET_INDICES = ("__s", "__i", "__a")
-
-_SPECIAL_CONVERSION = zip(_INTERNAL_DATASET_INDICES, _SPECIAL_DATASET_INDICES)
-
+_DATASET_INDICES = "".join([*string.digits, *_SPECIAL_DATASET_INDICES])
 _UNITS = {
     "bohr": 1.0,
     "angstrom": 1.8897261328856432,
@@ -47,7 +37,7 @@ class InputVariable:
 
         # Maximum number of values per line.
         self.valperline = valperline
-        if name in ["bdgw"]:
+        if name == "bdgw":
             self.valperline = 2
 
         if isinstance(self.value, Iterable) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:

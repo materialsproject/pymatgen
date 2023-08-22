@@ -30,6 +30,7 @@ try:
     from openbabel import openbabel
 except ImportError:
     openbabel = None
+
 try:
     import pygraphviz
 except ImportError:

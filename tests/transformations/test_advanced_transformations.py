@@ -51,7 +51,6 @@ try:
 except ImportError:
     hiphive = None
 
-
 try:
     import matgl
 except ImportError:

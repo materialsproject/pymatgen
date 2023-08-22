@@ -10,6 +10,13 @@ import time
 from typing import Sequence
 
 import numpy as np
+from monty.dev import requires
+from monty.serialization import loadfn
+
+from pymatgen.core.periodic_table import Species
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
+from pymatgen.util.coord import in_coord_list
 
 try:
     import vtk
@@ -18,14 +25,6 @@ except ImportError:
     # VTK not present. The Camera is to set object to avoid errors in unittest.
     vtk = None
     vtkInteractorStyleTrackballCamera = object
-
-from monty.dev import requires
-from monty.serialization import loadfn
-
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
-from pymatgen.util.coord import in_coord_list
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")

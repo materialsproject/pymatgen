@@ -8,14 +8,14 @@ from numpy.testing import assert_array_equal
 from pymatgen.io.shengbte import Control
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = f"{TEST_FILES_DIR}/shengbte"
-
-this_dir = os.path.dirname(os.path.abspath(__file__))
-
 try:
     import f90nml
 except ImportError:
     f90nml = None
+
+test_dir = f"{TEST_FILES_DIR}/shengbte"
+
+this_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestShengBTE(PymatgenTest):
