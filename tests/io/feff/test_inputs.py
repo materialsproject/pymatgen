@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import unittest
 
-import numpy as np
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Molecule, Structure
@@ -105,7 +105,7 @@ class TestFeffAtoms(unittest.TestCase):
         atoms_2 = Atoms.atoms_string_from_file(f"{TEST_FILES_DIR}/ATOMS")
         atoms_2 = atoms_2.splitlines()[3:]
         distances_2 = [float(a.split()[5]) for a in atoms_2]
-        np.testing.assert_allclose(distances_1, distances_2, rtol=1e-5)
+        assert_allclose(distances_1, distances_2, rtol=1e-5)
 
     def test_atoms_from_file(self):
         filepath = f"{TEST_FILES_DIR}/ATOMS"

@@ -445,8 +445,7 @@ class NearNeighbors:
         all_nn_info = self.get_all_nn_info(structure)
         sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
-        # Update the site positions
-        #   Did not do this during NN options because that can be slower
+        # Now update the site positions. Did not do this during NN options because that can be slower.
         output = []
         for info in sites:
             orig_site = structure[info["site_index"]]
@@ -495,8 +494,8 @@ class NearNeighbors:
         possible_steps = list(all_nn_info[site_idx])
         for i, step in enumerate(possible_steps):
             # Update the image information
-            #  Note: We do not update the site position yet, as making a
-            #    PeriodicSite for each intermediate step is too costly
+            # Note: We do not update the site position yet, as making a PeriodicSite
+            # for each intermediate step is too costly
             step = dict(step)
             step["image"] = tuple(np.add(step["image"], _cur_image).tolist())
             possible_steps[i] = step
@@ -743,8 +742,7 @@ class VoronoiNN(NearNeighbors):
                 - volume - Volume of Voronoi cell for this face
                 - n_verts - Number of vertices on the facet
         """
-        # Assemble the list of neighbors used in the tessellation
-        #   Gets all atoms within a certain radius
+        # Assemble the list of neighbors used in the tessellation. Gets all atoms within a certain radius
         targets = structure.elements if self.targets is None else self.targets
         center = structure[n]
 
@@ -814,8 +812,7 @@ class VoronoiNN(NearNeighbors):
         sites = [x.to_unit_cell() for x in structure]
         indices = [(i, 0, 0, 0) for i, _ in enumerate(structure)]
 
-        # Get all neighbors within a certain cutoff
-        #   Record both the list of these neighbors, and the site indices
+        # Get all neighbors within a certain cutoff. Record both the list of these neighbors and the site indices.
         all_neighs = structure.get_all_neighbors(self.cutoff, include_index=True, include_image=True)
         for neighs in all_neighs:
             sites.extend([x[0] for x in neighs])
@@ -1548,8 +1545,7 @@ class OpenBabelNN(NearNeighbors):
         all_nn_info = self.get_all_nn_info(structure)
         sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
-        # Update the site positions
-        #   Did not do this during NN options because that can be slower
+        # Now update the site positions. Did not do this during NN options because that can be slower.
         output = []
         for info in sites:
             orig_site = structure[info["site_index"]]
@@ -1694,8 +1690,7 @@ class CovalentBondNN(NearNeighbors):
         all_nn_info = self.get_all_nn_info(structure)
         sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
-        # Update the site positions
-        #   Did not do this during NN options because that can be slower
+        # Now update the site positions. Did not do this during NN options because that can be slower.
         output = []
         for info in sites:
             orig_site = structure[info["site_index"]]
@@ -2663,7 +2658,7 @@ class LocalStructOrderParams:
         real = 0.0
         imag = 0.0
         for idx in nnn_range:
-            real += pre_y_6_6[idx] * self._cos_n_p[6][idx]  # cos(x) =  cos(-x)
+            real += pre_y_6_6[idx] * self._cos_n_p[6][idx]  # cos(x) = cos(-x)
             imag -= pre_y_6_6[idx] * self._sin_n_p[6][idx]  # sin(x) = -sin(-x)
         acc += real * real + imag * imag
 

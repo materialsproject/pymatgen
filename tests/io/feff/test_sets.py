@@ -37,7 +37,6 @@ TITLE sites: 4
     def test_get_header(self):
         comment = "From cif file"
         header = str(self.mp_xanes.header(source="CoO19128.cif", comment=comment))
-        print(header)
 
         ref = self.header_string.splitlines()
         last4 = [" ".join(line.split()[2:]) for line in ref[-4:]]

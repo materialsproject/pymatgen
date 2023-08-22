@@ -435,8 +435,7 @@ class TestInterfaceReaction(unittest.TestCase):
         def energy_lst(lst):
             return lst[0][1], lst[1][1]
 
-        result_info = [i.get_no_mixing_energy() for i in self.irs if i.grand]
-        print(result_info)
+        result_info = [ir.get_no_mixing_energy() for ir in self.irs if ir.grand]
         for i, j in zip(result_info, answer):
             err_msg = f"get_no_mixing_energy: names get error, {name_lst(j)} expected but gets {name_lst(i)}"
             assert name_lst(i) == name_lst(j), err_msg
