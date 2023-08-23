@@ -1570,7 +1570,7 @@
     "tests/io/exciting/test_inputs.py::TestExcitingInput::test_fromfile": 0.0033374580089002848,
     "tests/io/exciting/test_inputs.py::TestExcitingInput::test_paramdict": 0.008810124010778964,
     "tests/io/exciting/test_inputs.py::TestExcitingInput::test_writebandstr": 0.009053541987668723,
-    "tests/io/exciting/test_inputs.py::TestExcitingInput::test_writestring": 0.01415829302277416,
+    "tests/io/exciting/test_inputs.py::TestExcitingInput::test_write_string": 0.01415829302277416,
     "tests/io/feff/test_inputs.py::TestFeffAtoms::test_absorber_line": 0.007966249017044902,
     "tests/io/feff/test_inputs.py::TestFeffAtoms::test_absorbing_atom": 0.0037107079406268895,
     "tests/io/feff/test_inputs.py::TestFeffAtoms::test_as_dict_and_from_dict": 0.025775165995582938,
