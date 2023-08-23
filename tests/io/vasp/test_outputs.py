@@ -1600,6 +1600,13 @@ class TestProcar(PymatgenTest):
         )
         d = p.get_projection_on_elements(struct)
         assert d[Spin.up][2][2] == approx({"Na": 0.042, "K": 0.646, "Li": 0.042})
+        struct2 = Structure(
+            lat,
+            ["Li", "Na", "Na"],
+            [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25], [0.75, 0.75, 0.75]],
+        )
+        d2 = p.get_projection_on_elements(struct2)
+        assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
         filepath = f"{TEST_FILES_DIR}/PROCAR"
         p = Procar(filepath)
         assert p.get_occupation(0, "dxy")[Spin.up] == approx(0.96214813853000025)
