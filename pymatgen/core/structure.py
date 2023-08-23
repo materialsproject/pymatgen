@@ -2627,11 +2627,11 @@ class IStructure(SiteCollection, MSONable):
 
             writer = Cssr(self)  # type: ignore
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
-            dct = json.dumps(self.as_dict())
+            json_str = json.dumps(self.as_dict())
             if filename:
                 with zopen(filename, "wt") as file:
-                    file.write(dct)
-            return dct
+                    file.write(json_str)
+            return json_str
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
 

@@ -944,6 +944,25 @@ class TestStructure(PymatgenTest):
         self.struct.append("Li", [0.3, 0.3, 0.3])
         assert len(self.struct.site_properties["charge"]) == 3
 
+        props = {"test_property": 42}
+        struct_with_props = Structure(
+            lattice=Lattice.cubic(3),
+            species=("Fe", "Fe"),
+            coords=((0, 0, 0), (0.5, 0.5, 0.5)),
+            site_properties={"magmom": [5, -5]},
+            properties=props,
+        )
+
+        dct = struct_with_props.as_dict()
+        struct = Structure.from_dict(dct)
+        assert struct.properties == props
+        assert dct == struct.as_dict()
+
+        prop_str = struct_with_props.to(fmt="json")
+        struct = Structure.from_str(prop_str, fmt="json")
+        assert struct.properties == props
+        assert dct == struct.as_dict()
+
     def test_perturb(self):
         dist = 0.1
         pre_perturbation_sites = self.struct.copy()
