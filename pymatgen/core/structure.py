@@ -1990,7 +1990,7 @@ class IStructure(SiteCollection, MSONable):
                 as if each comparison were reversed.
         """
         sites = sorted(self, key=key, reverse=reverse)
-        return type(self).from_sites(sites, charge=self._charge)
+        return type(self).from_sites(sites, charge=self._charge, properties=self.properties)
 
     def get_reduced_structure(self, reduction_algo: Literal["niggli", "LLL"] = "niggli") -> IStructure | Structure:
         """Get a reduced structure.
@@ -2586,7 +2586,7 @@ class IStructure(SiteCollection, MSONable):
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         charge = d.get("charge")
-        return cls.from_sites(sites, charge=charge)
+        return cls.from_sites(sites, charge=charge, properties=d.get("properties"))
 
     def to(self, filename: str = "", fmt: str = "", **kwargs) -> str:
         """Outputs the structure to a file or string.
@@ -3367,6 +3367,7 @@ class IMolecule(SiteCollection, MSONable):
             site_properties=self.site_properties,
             charge_spin_check=self._charge_spin_check,
             labels=self.labels,
+            properties=self.properties,
         )
 
     def to(self, filename: str = "", fmt: str = "") -> str | None:

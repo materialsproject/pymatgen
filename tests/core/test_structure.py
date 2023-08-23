@@ -286,10 +286,12 @@ class TestIStructure(PymatgenTest):
                     "xyz": [3.8401979336749994, 1.2247250003039056e-06, 2.351631795225],
                 },
             ],
+            "properties": {"test_property": "test"},
         }
         struct = IStructure.from_dict(d)
         assert struct[0].magmom == 5
         assert struct[0].specie.spin == 3
+        assert struct.properties["test_property"] == "test"
         assert isinstance(struct, IStructure)
 
     def test_site_properties(self):

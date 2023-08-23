@@ -517,7 +517,7 @@ class Slab(Structure):
             scale_factor=d["scale_factor"],
             site_properties=struct.site_properties,
             energy=d["energy"],
-            properties=d["properties"],
+            properties=d.get("properties"),
         )
 
     def get_surface_sites(self, tag=False):
