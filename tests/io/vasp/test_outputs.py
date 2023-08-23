@@ -1592,21 +1592,6 @@ class TestProcar(PymatgenTest):
         assert p.nbands == 10
         assert p.nkpoints == 10
         assert p.nions == 3
-        lat = Lattice.cubic(3.0)
-        struct = Structure(
-            lat,
-            ["Li", "Na", "K"],
-            [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25], [0.75, 0.75, 0.75]],
-        )
-        d = p.get_projection_on_elements(struct)
-        assert d[Spin.up][2][2] == approx({"Na": 0.042, "K": 0.646, "Li": 0.042})
-        struct2 = Structure(
-            lat,
-            ["Li", "Na", "Na"],
-            [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25], [0.75, 0.75, 0.75]],
-        )
-        d2 = p.get_projection_on_elements(struct2)
-        assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
         filepath = f"{TEST_FILES_DIR}/PROCAR"
         p = Procar(filepath)
         assert p.get_occupation(0, "dxy")[Spin.up] == approx(0.96214813853000025)
@@ -1627,6 +1612,21 @@ class TestProcar(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/PROCAR.new_format_5.4.4"
         p = Procar(filepath)
         assert p.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.13 + 0.199j)
+
+    def test_get_projection_on_elements(self):
+        filepath = f"{TEST_FILES_DIR}/PROCAR.simple"
+        p = Procar(filepath)
+        struct = Structure(
+            Lattice.cubic(3.0),
+            ["Li", "Na", "K"],
+            [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25], [0.75, 0.75, 0.75]],
+        )
+        d = p.get_projection_on_elements(struct)
+        assert d[Spin.up][2][2] == approx({"Na": 0.042, "K": 0.646, "Li": 0.042})
+        # https://github.com/materialsproject/pymatgen/pull/3261
+        struct.replace_species({"K": "Na"})
+        d2 = p.get_projection_on_elements(struct)
+        assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
 
 
 class TestXdatcar(PymatgenTest):
