@@ -958,8 +958,9 @@ class TestStructure(PymatgenTest):
         assert struct.properties == props
         assert dct == struct.as_dict()
 
-        prop_str = struct_with_props.to(fmt="json")
-        struct = Structure.from_str(prop_str, fmt="json")
+        json_str = struct_with_props.to(fmt="json")
+        assert '"test_property": 42' in json_str
+        struct = Structure.from_str(json_str, fmt="json")
         assert struct.properties == props
         assert dct == struct.as_dict()
 
