@@ -1878,12 +1878,15 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert d["spin_multiplicity"] == 1
 
     def test_to_from_file_string(self):
+        self.mol.properties["test_prop"] = 42
         for fmt in ["xyz", "json", "g03", "yaml"]:
             mol = self.mol.to(fmt=fmt)
             assert isinstance(mol, str)
             mol = IMolecule.from_str(mol, fmt=fmt)
             assert mol == self.mol
             assert isinstance(mol, IMolecule)
+            if fmt in ["json", "yaml"]:
+                assert mol.properties.get("test_prop") == 42
 
         ch4_xyz_str = self.mol.to(filename=f"{self.tmp_path}/CH4_testing.xyz")
         with open("CH4_testing.xyz") as xyz_file:

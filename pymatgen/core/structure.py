@@ -2766,7 +2766,7 @@ class IStructure(SiteCollection, MSONable):
             struct = struct.get_sorted_structure()
         if merge_tol:
             struct.merge_sites(merge_tol)
-        return cls.from_sites(struct)
+        return cls.from_sites(struct, properties=struct.properties)
 
     @classmethod
     def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, **kwargs) -> Structure | IStructure:
@@ -3458,7 +3458,7 @@ class IMolecule(SiteCollection, MSONable):
             from pymatgen.io.babel import BabelMolAdaptor
 
             mol = BabelMolAdaptor.from_str(input_string, file_format=fmt).pymatgen_mol
-        return cls.from_sites(mol)
+        return cls.from_sites(mol, properties=mol.properties)
 
     @classmethod
     def from_file(cls, filename):
