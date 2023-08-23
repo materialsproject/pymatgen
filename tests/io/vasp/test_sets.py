@@ -674,7 +674,7 @@ class TestMPStaticSet(PymatgenTest):
     def test_user_incar_kspacing(self):
         # Make sure user KSPACING settings properly overrides KPOINTS.
         si = self.get_structure("Si")
-        vis = MPRelaxSet(si, user_incar_settings={"KSPACING": 0.22})
+        vis = MPStaticSet(si, user_incar_settings={"KSPACING": 0.22})
         assert vis.incar["KSPACING"] == 0.22
         assert vis.kpoints is None
 
@@ -682,7 +682,7 @@ class TestMPStaticSet(PymatgenTest):
         # If KSPACING is set and user_kpoints_settings are given,
         # make sure the user_kpoints_settings override KSPACING
         si = self.get_structure("Si")
-        vis = MPRelaxSet(
+        vis = MPStaticSet(
             si,
             user_incar_settings={"KSPACING": 0.22},
             user_kpoints_settings={"reciprocal_density": 1000},
