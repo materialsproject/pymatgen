@@ -1455,13 +1455,12 @@ class TestMPScanRelaxSet(PymatgenTest):
 
 class TestMPScanStaticSet(PymatgenTest):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
+        self.prev_run = f"{TEST_FILES_DIR}/scan_relaxation"
+        # test inheriting from a previous SCAN relaxation
+        self.vis = MPScanStaticSet.from_prev_calc(prev_calc_dir=self.prev_run)
 
     def test_init(self):
-        # test inheriting from a previous SCAN relaxation
-        prev_run = f"{TEST_FILES_DIR}/scan_relaxation"
-
-        vis = MPScanStaticSet.from_prev_calc(prev_calc_dir=prev_run)
+        vis, prev_run = self.vis, self.prev_run
         # check that StaticSet settings were applied
         assert vis.incar["NSW"] == 0
         assert vis.incar["LREAL"] is False
@@ -1469,17 +1468,6 @@ class TestMPScanStaticSet(PymatgenTest):
         assert vis.incar["LVHAR"]
         assert vis.incar["ISMEAR"] == -5
         # Check that ENCUT and other INCAR settings were inherited.
-        assert vis.incar["ENCUT"] == 680
-        assert vis.incar["METAGGA"] == "R2scan"
-        assert vis.incar["KSPACING"] == 0.34292842
-
-        # Check as from dict.
-        # check that StaticSet settings were applied
-        assert vis.incar["NSW"] == 0
-        assert vis.incar["LREAL"] is False
-        assert vis.incar["LORBIT"] == 11
-        assert vis.incar["LVHAR"]
-        # Check that ENCUT and KSPACING were inherited.
         assert vis.incar["ENCUT"] == 680
         assert vis.incar["METAGGA"] == "R2scan"
         assert vis.incar["KSPACING"] == 0.34292842
@@ -1520,11 +1508,12 @@ class TestMPScanStaticSet(PymatgenTest):
         assert lepsilon_vis.incar.get("NSW") is None
         assert lepsilon_vis.incar.get("NPAR") is None
 
-    def test_override_from_prev_calc(self):
-        # test override_from_prev
-        prev_run = f"{TEST_FILES_DIR}/scan_relaxation"
+    def test_as_from_dict(self):
+        vis_dict = self.vis.as_dict()
+        assert vis_dict == MPScanStaticSet.from_dict(vis_dict).as_dict()
 
-        vis = MPScanStaticSet(dummy_structure)
+    def test_override_from_prev_calc(self):
+        vis, prev_run = self.vis, self.prev_run
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         # check that StaticSet settings were applied
         assert vis.incar["NSW"] == 0
