@@ -54,48 +54,22 @@ logger = logging.getLogger(__name__)
 class Poscar(MSONable):
     """
     Object for representing the data in a POSCAR or CONTCAR file.
-    Please note that this current implementation. Most attributes can be set
-    directly.
 
-    .. attribute:: structure
-
-        Associated Structure.
-
-    .. attribute:: comment
-
-        Optional comment string.
-
-    .. attribute:: true_names
-
-        Boolean indication whether Poscar contains actual real names parsed
-        from either a POTCAR or the POSCAR itself.
-
-    .. attribute:: selective_dynamics
-
-        Selective dynamics attribute for each site if available. A Nx3 array of
-        booleans.
-
-    .. attribute:: velocities
-
-        Velocities for each site (typically read in from a CONTCAR). A Nx3
-        array of floats.
-
-    .. attribute:: predictor_corrector
-
-        Predictor corrector coordinates and derivatives for each site; i.e.
-        a list of three 1x3 arrays for each site (typically read in from a MD
-        CONTCAR).
-
-    .. attribute:: predictor_corrector_preamble
-
-        Predictor corrector preamble contains the predictor-corrector key,
-        POTIM, and thermostat parameters that precede the site-specic predictor
-        corrector data in MD CONTCAR
-
-    .. attribute:: temperature
-
-        Temperature of velocity Maxwell-Boltzmann initialization. Initialized
-        to -1 (MB hasn"t been performed).
+    Attributes:
+        structure: Associated Structure.
+        comment: Optional comment string.
+        true_names: Boolean indication whether Poscar contains actual real names parsed
+            from either a POTCAR or the POSCAR itself.
+        selective_dynamics: Selective dynamics attribute for each site if available.
+            A Nx3 array of booleans.
+        velocities: Velocities for each site (typically read in from a CONTCAR).
+            A Nx3 array of floats.
+        predictor_corrector: Predictor corrector coordinates and derivatives for each site;
+            i.e. a list of three 1x3 arrays for each site (typically read in from a MD CONTCAR).
+        predictor_corrector_preamble: Predictor corrector preamble contains the predictor-corrector key,
+            POTIM, and thermostat parameters that precede the site-specic predictor corrector data in MD CONTCAR.
+        temperature: Temperature of velocity Maxwell-Boltzmann initialization.
+            Initialized to -1 (MB hasn't been performed).
     """
 
     def __init__(

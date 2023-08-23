@@ -72,7 +72,7 @@ end
 task dft optimize"""
         assert str(self.task) == answer
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         dct = self.task.as_dict()
         task = NwTask.from_dict(dct)
         assert isinstance(task, NwTask)
@@ -315,7 +315,7 @@ task dft energy
 
         assert str(self.nwi_symm) == ans_symm
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.nwi.as_dict()
         nwi = NwInput.from_dict(d)
         assert isinstance(nwi, NwInput)

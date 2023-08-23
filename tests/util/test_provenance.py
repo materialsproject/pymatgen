@@ -205,7 +205,7 @@ class StructureNLCase(unittest.TestCase):
         )
         assert a != d, "__eq__() method is broken! false positive"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         # no complicated objects in the 'data' or 'nodes' field
         a = StructureNL(
             self.struct,

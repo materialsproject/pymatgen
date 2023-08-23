@@ -146,7 +146,7 @@ direct
         ]
         assert [site.specie.symbol for site in poscar.structure] == ordered_expected_elements
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         poscar_string = """Test3
 1.0
 3.840198 0.000000 0.000000
@@ -1109,7 +1109,7 @@ class TestPotcar:
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
         assert potcar.symbols == ["Fe_pv"], "Wrong symbols read in for POTCAR"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.potcar.as_dict()
         potcar = Potcar.from_dict(d)
         assert potcar.symbols == ["Fe", "P", "O"]
@@ -1171,7 +1171,7 @@ class TestVaspInput:
         kpoints = Kpoints.from_file(filepath)
         self.vasp_input = VaspInput(incar, kpoints, poscar, potcar)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.vasp_input.as_dict()
         vasp_input = VaspInput.from_dict(d)
         comp = vasp_input["POSCAR"].structure.composition

@@ -47,7 +47,7 @@ class TestContainsSpecieFilter(PymatgenTest):
         f8 = ContainsSpecieFilter(species4, strict_compare=False, AND=True)
         assert not f8.test(struct), "Incorrect filter"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         species1 = ["Si5+", "Mg2+"]
         f1 = ContainsSpecieFilter(species1, strict_compare=True, AND=False)
         d = f1.as_dict()
@@ -66,7 +66,7 @@ class TestSpecieProximityFilter(PymatgenTest):
         sf = SpecieProximityFilter({"P": 5})
         assert not sf.test(struct)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         sf = SpecieProximityFilter({"Li": 1})
         d = sf.as_dict()
         assert isinstance(SpecieProximityFilter.from_dict(d), SpecieProximityFilter)
@@ -85,7 +85,7 @@ class TestRemoveDuplicatesFilter(unittest.TestCase):
         transmuter.apply_filter(dup_filter)
         assert len(transmuter.transformed_structures) == 11
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         fil = RemoveDuplicatesFilter()
         d = fil.as_dict()
         assert isinstance(RemoveDuplicatesFilter().from_dict(d), RemoveDuplicatesFilter)

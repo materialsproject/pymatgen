@@ -284,7 +284,7 @@ class LatticeTestCase(PymatgenTest):
         assert len(map) == 3
         assert latt.find_mapping(l2, ltol=0.1) is not None
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         dct = self.tetragonal.as_dict()
         expected_keys = {"matrix", "@class", "pbc", "@module"}
         assert {*dct} == expected_keys

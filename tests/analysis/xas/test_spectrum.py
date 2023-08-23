@@ -55,7 +55,7 @@ class TestXAS(PymatgenTest):
         assert_allclose(scaled_spect2.y, 3 * self.k_xanes.y)
         assert approx(self.k_xanes.get_interpolated_value(7720.422), abs=1e-3) == 0.274302
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         s = XAS.from_dict(self.k_xanes.as_dict())
         assert_allclose(s.y, self.k_xanes.y)
 
