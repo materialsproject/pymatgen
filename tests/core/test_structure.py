@@ -302,24 +302,32 @@ class TestIStructure(PymatgenTest):
         assert self.propertied_structure.properties == {"test_property": "test"}
 
     def test_copy(self):
-        new_struct = self.propertied_structure.copy(site_properties={"charge": [2, 3]})
+        new_struct = self.propertied_structure.copy(
+            site_properties={"charge": [2, 3]}, properties={"another_prop": "test"}
+        )
         assert new_struct[0].magmom == 5
         assert new_struct[1].magmom == -5
         assert new_struct[0].charge == 2
         assert new_struct[1].charge == 3
+        assert new_struct.properties["another_prop"] == "test"
+        assert new_struct.properties["test_property"] == "test"
 
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.0, 0, 0.0000001])
 
-        struct = IStructure(self.lattice, ["O", "Si"], coords, site_properties={"magmom": [5, -5]})
+        struct = IStructure(
+            self.lattice, ["O", "Si"], coords, site_properties={"magmom": [5, -5]}, properties={"test_property": "test"}
+        )
 
-        new_struct = struct.copy(site_properties={"charge": [2, 3]}, sanitize=True)
+        new_struct = struct.copy(site_properties={"charge": [2, 3]}, sanitize=True, properties={"another_prop": "test"})
         assert new_struct[0].magmom == -5
         assert new_struct[1].magmom == 5
         assert new_struct[0].charge == 3
         assert new_struct[1].charge == 2
         assert new_struct.volume == approx(struct.volume)
+        assert new_struct.properties["another_prop"] == "test"
+        assert new_struct.properties["test_property"] == "test"
 
     def test_interpolate(self):
         coords = []
