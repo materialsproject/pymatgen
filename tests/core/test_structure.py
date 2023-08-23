@@ -76,7 +76,9 @@ class TestIStructure(PymatgenTest):
         coords.append([0.0, 0, 0.0000001])
         with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
             IStructure(self.lattice, ["Si"] * 2, coords, validate_proximity=True)
-        self.propertied_structure = IStructure(self.lattice, ["Si"] * 2, coords, site_properties={"magmom": [5, -5]})
+        self.propertied_structure = IStructure(
+            self.lattice, ["Si"] * 2, coords, site_properties={"magmom": [5, -5]}, properties={"test_property": "test"}
+        )
         self.labeled_structure = IStructure(self.lattice, ["Si"] * 2, coords, labels=["Si1", "Si2"])
 
         self.lattice_pbc = Lattice(
@@ -218,10 +220,12 @@ class TestIStructure(PymatgenTest):
             ],
             coords,
             site_properties={"magmom": [5, -5]},
+            properties={"general_property": "test"},
         )
         d = struct.as_dict()
         assert d["sites"][0]["properties"]["magmom"] == 5
         assert d["sites"][0]["species"][0]["spin"] == 3
+        assert d["properties"]["general_property"] == "test"
 
         d = struct.as_dict(0)
         assert "volume" not in d["lattice"]
@@ -293,6 +297,9 @@ class TestIStructure(PymatgenTest):
         assert site_props["magmom"] == [5, -5]
         assert self.propertied_structure[0].magmom == 5
         assert self.propertied_structure[1].magmom == -5
+
+    def test_properties_dict(self):
+        assert self.propertied_structure.properties == {"test_property": "test"}
 
     def test_copy(self):
         new_struct = self.propertied_structure.copy(site_properties={"charge": [2, 3]})
@@ -1659,6 +1666,11 @@ class TestIMolecule(PymatgenTest):
         assert self.mol.is_ordered
         assert self.mol.formula == "H4 C1"
 
+    def test_properties_dict(self):
+        properties = {"test_property": "test"}
+        self.mol.properties = properties
+        assert self.mol.properties == properties
+
     def test_repr_str(self):
         expected = """Full Formula (H4 C1)
 Reduced Formula: H4C
@@ -1819,6 +1831,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             self.coords,
             charge=1,
             site_properties={"magmom": [0.5, -0.5, 1, 2, 3]},
+            properties={"test_properties": "test"},
         )
         dct = propertied_mol.as_dict()
         assert dct["sites"][0]["properties"]["magmom"] == 0.5
@@ -1827,6 +1840,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert mol[0].magmom == 0.5
         assert mol.formula == "H4 C1"
         assert mol.charge == 1
+        assert mol.properties == {"test_properties": "test"}
 
     def test_default_dict_attrs(self):
         d = self.mol.as_dict()

@@ -848,6 +848,7 @@ class IStructure(SiteCollection, MSONable):
         coords_are_cartesian: bool = False,
         site_properties: dict | None = None,
         labels: Sequence[str | None] | None = None,
+        properties: dict | None = None,
     ) -> None:
         """Create a periodic structure.
 
@@ -886,6 +887,8 @@ class IStructure(SiteCollection, MSONable):
                 list of strings, e.g. ['Li1', 'Li2']. Must have the same
                 length as the species and fractional coords. Defaults to
                 None for no labels.
+            properties (dict): dictionary containing properties associated
+                with the whole structure.
         """
         if len(species) != len(coords):
             raise StructureError("atomic species and fractional coordinates must have same length")
@@ -914,6 +917,7 @@ class IStructure(SiteCollection, MSONable):
         if validate_proximity and not self.is_valid():
             raise StructureError("Structure contains sites that are less than 0.01 Angstrom apart!")
         self._charge = charge
+        self.properties = properties or {}
 
     @classmethod
     def from_sites(
@@ -922,6 +926,7 @@ class IStructure(SiteCollection, MSONable):
         charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
+        properties: dict | None = None,
     ) -> IStructure:
         """Convenience constructor to make a Structure from a list of sites.
 
@@ -933,6 +938,8 @@ class IStructure(SiteCollection, MSONable):
                 that are less than 0.01 Ang apart. Defaults to False.
             to_unit_cell (bool): Whether to translate sites into the unit
                 cell.
+            properties (dict): dictionary containing properties associated
+                with the whole structure.
 
         Returns:
             (Structure) Note that missing properties are set as None.
@@ -963,6 +970,7 @@ class IStructure(SiteCollection, MSONable):
             validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
             labels=labels,
+            properties=properties,
         )
 
     @classmethod
@@ -2519,6 +2527,7 @@ class IStructure(SiteCollection, MSONable):
             "@class": type(self).__name__,
             "charge": self.charge,
             "lattice": latt_dict,
+            "properties": self.properties,
         }
         for site in self:
             site_dict = site.as_dict(verbosity=verbosity)  # type: ignore[call-arg]
@@ -2853,6 +2862,7 @@ class IMolecule(SiteCollection, MSONable):
         site_properties: dict | None = None,
         labels: Sequence[str | None] | None = None,
         charge_spin_check: bool = True,
+        properties: dict | None = None,
     ) -> None:
         """Create a Molecule.
 
@@ -2880,6 +2890,8 @@ class IMolecule(SiteCollection, MSONable):
             charge_spin_check (bool): Whether to check that the charge and
                 spin multiplicity are compatible with each other. Defaults
                 to True.
+            properties (dict): dictionary containing properties associated
+                with the whole molecule.
         """
         if len(species) != len(coords):
             raise StructureError(
@@ -2918,6 +2930,7 @@ class IMolecule(SiteCollection, MSONable):
             self._spin_multiplicity = spin_multiplicity
         else:
             self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+        self.properties = properties or {}
 
     @property
     def charge(self) -> float:
@@ -2961,6 +2974,7 @@ class IMolecule(SiteCollection, MSONable):
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
         charge_spin_check: bool = True,
+        properties: dict | None = None,
     ) -> IMolecule | Molecule:
         """Convenience constructor to make a Molecule from a list of sites.
 
@@ -2974,6 +2988,8 @@ class IMolecule(SiteCollection, MSONable):
             charge_spin_check (bool): Whether to check that the charge and
                 spin multiplicity are compatible with each other. Defaults
                 to True.
+            properties (dict): dictionary containing properties associated
+                with the whole molecule.
         """
         props = collections.defaultdict(list)
         for site in sites:
@@ -2989,6 +3005,7 @@ class IMolecule(SiteCollection, MSONable):
             site_properties=props,
             labels=labels,
             charge_spin_check=charge_spin_check,
+            properties=properties,
         )
 
     def break_bond(self, ind1: int, ind2: int, tol: float = 0.2) -> tuple[IMolecule | Molecule, ...]:
@@ -3126,6 +3143,7 @@ class IMolecule(SiteCollection, MSONable):
             "charge": self.charge,
             "spin_multiplicity": self.spin_multiplicity,
             "sites": [],
+            "properties": self.properties,
         }
         for site in self:
             site_dict = site.as_dict()
@@ -3148,7 +3166,8 @@ class IMolecule(SiteCollection, MSONable):
         sites = [Site.from_dict(sd) for sd in d["sites"]]
         charge = d.get("charge", 0)
         spin_multiplicity = d.get("spin_multiplicity")
-        return cls.from_sites(sites, charge=charge, spin_multiplicity=spin_multiplicity)
+        properties = d.get("properties")
+        return cls.from_sites(sites, charge=charge, spin_multiplicity=spin_multiplicity, properties=properties)
 
     def get_distance(self, i: int, j: int) -> float:
         """Get distance between site i and j.
@@ -3491,6 +3510,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         coords_are_cartesian: bool = False,
         site_properties: dict | None = None,
         labels: Sequence[str | None] | None = None,
+        properties: dict | None = None,
     ):
         """Create a periodic structure.
 
@@ -3528,6 +3548,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 list of strings, e.g. ['Li1', 'Li2']. Must have the same
                 length as the species and fractional coords. Defaults to
                 None for no labels.
+            properties (dict): dictionary containing properties associated
+                with the whole structure.
         """
         super().__init__(
             lattice,
@@ -3539,6 +3561,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
             labels=labels,
+            properties=properties,
         )
 
         self._sites: list[PeriodicSite] = list(self._sites)  # type: ignore
@@ -4262,6 +4285,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         site_properties: dict | None = None,
         labels: Sequence[str | None] | None = None,
         charge_spin_check: bool = True,
+        properties: dict | None = None,
     ) -> None:
         """Creates a MutableMolecule.
 
@@ -4289,6 +4313,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             charge_spin_check (bool): Whether to check that the charge and
                 spin multiplicity are compatible with each other. Defaults
                 to True.
+            properties (dict): dictionary containing properties associated
+                with the whole molecule.
         """
         super().__init__(
             species,
@@ -4299,6 +4325,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             site_properties=site_properties,
             labels=labels,
             charge_spin_check=charge_spin_check,
+            properties=properties,
         )
         self._sites: list[Site] = list(self._sites)  # type: ignore
 
