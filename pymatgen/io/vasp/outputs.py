@@ -3864,7 +3864,7 @@ class Procar:
             name = structure.species[iat].symbol
             for spin, d in self.data.items():
                 for k, b in itertools.product(range(self.nkpoints), range(self.nbands)):
-                    dico[spin][b][k][name] = np.sum(d[k, b, iat, :])
+                    dico[spin][b][k][name] += np.sum(d[k, b, iat, :])
 
         return dico
 
