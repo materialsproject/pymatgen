@@ -2019,7 +2019,7 @@ class IStructure(SiteCollection, MSONable):
             )
         return self.copy()
 
-    def copy(self, site_properties=None, sanitize=False):
+    def copy(self, site_properties=None, sanitize=False, properties=None):
         """Convenience method to get a copy of the structure, with options to add
         site properties.
 
@@ -2035,29 +2035,34 @@ class IStructure(SiteCollection, MSONable):
                 carried out to obtain a relatively orthogonalized cell,
                 (iii) all fractional coords for sites are mapped into the
                 unit cell.
+            properties (dict): General properties to add or override.
 
         Returns:
             A copy of the Structure, with optionally new site_properties and
             optionally sanitized.
         """
-        props = self.site_properties
+        site_props = self.site_properties
         if site_properties:
-            props.update(site_properties)
+            site_props.update(site_properties)
+        props = self.properties
+        if properties:
+            props.update(properties)
         if not sanitize:
             return self.__class__(
                 self._lattice,
                 self.species_and_occu,
                 self.frac_coords,
                 charge=self._charge,
-                site_properties=props,
+                site_properties=site_props,
                 labels=self.labels,
+                properties=properties,
             )
         reduced_latt = self._lattice.get_lll_reduced_lattice()
         new_sites = []
         for idx, site in enumerate(self):
             frac_coords = reduced_latt.get_fractional_coords(site.coords)
             site_props = {}
-            for prop, val in props.items():
+            for prop, val in site_props.items():
                 site_props[prop] = val[idx]
             new_sites.append(
                 PeriodicSite(
@@ -2071,7 +2076,7 @@ class IStructure(SiteCollection, MSONable):
                 )
             )
         new_sites = sorted(new_sites)
-        return type(self).from_sites(new_sites, charge=self._charge)
+        return type(self).from_sites(new_sites, charge=self._charge, properties=properties)
 
     def interpolate(
         self,
@@ -2964,7 +2969,7 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             IMolecule | Molecule
         """
-        return type(self).from_sites(self)
+        return type(self).from_sites(self, properties=self.properties)
 
     @classmethod
     def from_sites(
