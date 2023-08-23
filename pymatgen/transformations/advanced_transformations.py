@@ -773,9 +773,8 @@ class MagOrderingTransformation(AbstractTransformation):
 
     @staticmethod
     def _remove_dummy_species(structure):
-        """:return: Structure with dummy species removed, but
-        their corresponding spin properties merged with the
-        original sites. Used after performing enumeration.
+        """Structure with dummy species removed, but their corresponding spin properties
+        merged with the original sites. Used after performing enumeration.
         """
         if not structure.is_ordered:
             raise Exception("Something went wrong with enumeration.")
