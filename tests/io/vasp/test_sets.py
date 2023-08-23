@@ -786,18 +786,18 @@ class TestMPNonSCFSet(PymatgenTest):
         assert vis.kpoints.style == Kpoints.supported_modes.Reciprocal
 
         vis.write_input(self.tmp)
-        assert not os.path.isfile(os.path.join(self.tmp, "CHGCAR"))
+        assert not os.path.isfile(f"{self.tmp}/CHGCAR")
 
         vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run, mode="Line", copy_chgcar=True)
         # check ISMEAR set correctly for line mode
         assert vis.incar["ISMEAR"] == 0
         vis.write_input(self.tmp)
-        assert os.path.isfile(os.path.join(self.tmp, "CHGCAR"))
-        os.remove(os.path.join(self.tmp, "CHGCAR"))
+        assert os.path.isfile(f"{self.tmp}/CHGCAR")
+        os.remove(f"{self.tmp}/CHGCAR")
 
         vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run, standardize=True, mode="Line", copy_chgcar=True)
         vis.write_input(self.tmp)
-        assert not os.path.isfile(os.path.join(self.tmp, "CHGCAR"))
+        assert not os.path.isfile(f"{self.tmp}/CHGCAR")
 
     @skip_if_no_psp_dir
     def test_override_from_prev(self):
@@ -835,13 +835,13 @@ class TestMPNonSCFSet(PymatgenTest):
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert vis.incar["ISMEAR"] == 0
         vis.write_input(self.tmp)
-        assert os.path.isfile(os.path.join(self.tmp, "CHGCAR"))
-        os.remove(os.path.join(self.tmp, "CHGCAR"))
+        assert os.path.isfile(f"{self.tmp}/CHGCAR")
+        os.remove(f"{self.tmp}/CHGCAR")
 
         vis = MPNonSCFSet(dummy_structure, standardize=True, mode="Line", copy_chgcar=True)
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         vis.write_input(self.tmp)
-        assert not os.path.isfile(os.path.join(self.tmp, "CHGCAR"))
+        assert not os.path.isfile(f"{self.tmp}/CHGCAR")
 
     def test_kpoints(self):
         # test k-points are generated in the correct format
@@ -1151,7 +1151,8 @@ class TestMVLSlabSet(PymatgenTest):
 
     def test_as_dict(self):
         vis_dict = self.vis.as_dict()
-        MVLSlabSet.from_dict(vis_dict)
+        vis = MVLSlabSet.from_dict(vis_dict)
+        assert vis.as_dict() == vis_dict
 
 
 class TestMVLElasticSet(PymatgenTest):
@@ -1167,7 +1168,6 @@ class TestMVLElasticSet(PymatgenTest):
 @skip_if_no_psp_dir
 class TestMVLGWSet(PymatgenTest):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp()
         self.struct = PymatgenTest.get_structure("Li2O")
 
     def test_static(self):
@@ -1182,8 +1182,8 @@ class TestMVLGWSet(PymatgenTest):
     def test_diag(self):
         prev_run = f"{TEST_FILES_DIR}/relaxation"
         mvlgwdiag = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=True, mode="diag")
-        mvlgwdiag.write_input(self.tmp)
-        assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
+        mvlgwdiag.write_input(self.tmp_path)
+        assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
         assert mvlgwdiag.incar["NBANDS"] == 32
         assert mvlgwdiag.incar["ALGO"] == "Exact"
         assert mvlgwdiag.incar["LOPTICS"]
@@ -1191,8 +1191,8 @@ class TestMVLGWSet(PymatgenTest):
         # test override_from_prev_calc
         mvlgwdiag = MVLGWSet(dummy_structure, copy_wavecar=True, mode="diag")
         mvlgwdiag.override_from_prev_calc(prev_calc_dir=prev_run)
-        mvlgwdiag.write_input(self.tmp)
-        assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
+        mvlgwdiag.write_input(self.tmp_path)
+        assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
         assert mvlgwdiag.incar["NBANDS"] == 32
         assert mvlgwdiag.incar["ALGO"] == "Exact"
         assert mvlgwdiag.incar["LOPTICS"]
@@ -1200,9 +1200,9 @@ class TestMVLGWSet(PymatgenTest):
     def test_bse(self):
         prev_run = f"{TEST_FILES_DIR}/relaxation"
         mvlgwgbse = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=True, mode="BSE")
-        mvlgwgbse.write_input(self.tmp)
-        assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
-        assert os.path.isfile(os.path.join(self.tmp, "WAVEDER"))
+        mvlgwgbse.write_input(self.tmp_path)
+        assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
+        assert os.path.isfile(f"{self.tmp_path}/WAVEDER")
 
         prev_run = f"{TEST_FILES_DIR}/relaxation"
         mvlgwgbse = MVLGWSet.from_prev_calc(prev_run, copy_wavecar=False, mode="GW")
@@ -1218,9 +1218,9 @@ class TestMVLGWSet(PymatgenTest):
         prev_run = f"{TEST_FILES_DIR}/relaxation"
         mvlgwgbse = MVLGWSet(dummy_structure, copy_wavecar=True, mode="BSE")
         mvlgwgbse.override_from_prev_calc(prev_calc_dir=prev_run)
-        mvlgwgbse.write_input(self.tmp)
-        assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
-        assert os.path.isfile(os.path.join(self.tmp, "WAVEDER"))
+        mvlgwgbse.write_input(self.tmp_path)
+        assert os.path.isfile(f"{self.tmp_path}/WAVECAR")
+        assert os.path.isfile(f"{self.tmp_path}/WAVEDER")
 
         prev_run = f"{TEST_FILES_DIR}/relaxation"
         mvlgwgbse = MVLGWSet(dummy_structure, copy_wavecar=True, mode="GW")
@@ -1706,7 +1706,7 @@ class TestMPAbsorptionSet(PymatgenTest):
         prev_run = f"{TEST_FILES_DIR}/absorption/static"
         absorption_ipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, copy_wavecar=True, mode="IPA")
         absorption_ipa.write_input(self.tmp)
-        assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
+        assert os.path.isfile(f"{self.tmp}/WAVECAR")
         assert absorption_ipa.incar["NBANDS"] == 32
         assert absorption_ipa.incar["ALGO"] == "Exact"
         assert absorption_ipa.incar["LOPTICS"]
@@ -1715,7 +1715,7 @@ class TestMPAbsorptionSet(PymatgenTest):
         absorption_ipa = MPAbsorptionSet(dummy_structure, copy_wavecar=True, mode="IPA")
         absorption_ipa.override_from_prev_calc(prev_calc_dir=prev_run)
         absorption_ipa.write_input(self.tmp)
-        assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
+        assert os.path.isfile(f"{self.tmp}/WAVECAR")
         assert absorption_ipa.incar["NBANDS"] == 32
         assert absorption_ipa.incar["ALGO"] == "Exact"
         assert absorption_ipa.incar["LOPTICS"]
@@ -1724,8 +1724,8 @@ class TestMPAbsorptionSet(PymatgenTest):
         prev_run = f"{TEST_FILES_DIR}/absorption/ipa"
         absorption_rpa = MPAbsorptionSet.from_prev_calc(prev_run, copy_wavecar=True, mode="RPA")
         absorption_rpa.write_input(self.tmp)
-        assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
-        assert os.path.isfile(os.path.join(self.tmp, "WAVEDER"))
+        assert os.path.isfile(f"{self.tmp}/WAVECAR")
+        assert os.path.isfile(f"{self.tmp}/WAVEDER")
         assert absorption_rpa.incar["NOMEGA"] == 1000
         assert absorption_rpa.incar["NBANDS"] == 48
         assert absorption_rpa.incar["ALGO"] == "CHI"
@@ -1735,8 +1735,8 @@ class TestMPAbsorptionSet(PymatgenTest):
         absorption_rpa = MPAbsorptionSet(dummy_structure, copy_wavecar=True, mode="RPA")
         absorption_rpa.override_from_prev_calc(prev_calc_dir=prev_run)
         absorption_rpa.write_input(self.tmp)
-        assert os.path.isfile(os.path.join(self.tmp, "WAVECAR"))
-        assert os.path.isfile(os.path.join(self.tmp, "WAVEDER"))
+        assert os.path.isfile(f"{self.tmp}/WAVECAR")
+        assert os.path.isfile(f"{self.tmp}/WAVEDER")
         assert absorption_rpa.incar["NOMEGA"] == 1000
         assert absorption_rpa.incar["NBANDS"] == 48
         assert absorption_rpa.incar["ALGO"] == "CHI"
