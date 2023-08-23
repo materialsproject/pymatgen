@@ -1882,18 +1882,17 @@ class PotcarSingle:
         if d is None:
             raise ValueError(
                 f"No POTCAR for {symbol} with {functional=} found. Please set the PMG_VASP_PSP_DIR "
-                "environment in .pmgrc.yaml, or you may need to set PMG_DEFAULT_FUNCTIONAL to PBE_52 or "
-                "PBE_54 if you are using newer psps from VASP."
+                "environment in .pmgrc.yaml."
             )
         paths_to_try = [
             os.path.join(d, funcdir, f"POTCAR.{symbol}"),
             os.path.join(d, funcdir, symbol, "POTCAR"),
         ]
-        for p in paths_to_try:
-            p = os.path.expanduser(p)
-            p = zpath(p)
-            if os.path.exists(p):
-                return PotcarSingle.from_file(p)
+        for path in paths_to_try:
+            path = os.path.expanduser(path)
+            path = zpath(path)
+            if os.path.isfile(path):
+                return PotcarSingle.from_file(path)
         raise OSError(
             f"You do not have the right POTCAR with {functional=} and label {symbol} "
             f"in your VASP_PSP_DIR. Paths tried: {paths_to_try}"
