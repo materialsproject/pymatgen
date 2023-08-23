@@ -1020,7 +1020,7 @@ class MPMetalRelaxSet(MPRelaxSet):
         """
         super().__init__(structure, **kwargs)
         self._config_dict["INCAR"].update({"ISMEAR": 1, "SIGMA": 0.2})
-        self._config_dict["KPOINTS"].update({"reciprocal_density": 200})
+        self._config_dict["KPOINTS"]["reciprocal_density"] = 200
         self.kwargs = kwargs
 
 
@@ -1141,7 +1141,7 @@ class MPStaticSet(MPRelaxSet):
                     incar.update({tag: parent_incar[tag]})
             # ensure to have LMAXMIX for GGA+U static run
             if "LMAXMIX" not in incar:
-                incar.update({"LMAXMIX": parent_incar["LMAXMIX"]})
+                incar["LMAXMIX"] = parent_incar["LMAXMIX"]
 
         # Compare ediff between previous and staticinputset values,
         # choose the tighter ediff
@@ -1828,7 +1828,7 @@ class MPSOCSet(MPStaticSet):
             raise ValueError("Neither the previous structure has magmom property nor magmom provided")
 
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * self.nbands_factor))
-        self.prev_incar.update({"NBANDS": nbands})
+        self.prev_incar["NBANDS"] = nbands
 
         files_to_transfer = {}
         if self.copy_chgcar:
@@ -2777,7 +2777,7 @@ class LobsterSet(MPRelaxSet):
         else:
             self.reciprocal_density = reciprocal_density
 
-        self._config_dict["POTCAR"].update({"W": "W_sv"})
+        self._config_dict["POTCAR"]["W"] = "W_sv"
         self.isym = isym
         self.ismear = ismear
         self.user_supplied_basis = user_supplied_basis
@@ -2815,7 +2815,7 @@ class LobsterSet(MPRelaxSet):
         }
 
         self._config_dict["INCAR"].update(update_dict)
-        self._config_dict["KPOINTS"].update({"reciprocal_density": self.reciprocal_density})
+        self._config_dict["KPOINTS"]["reciprocal_density"] = self.reciprocal_density
 
 
 def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
@@ -2861,9 +2861,9 @@ def get_structure_from_prev_run(vasprun, outcar=None):
     # magmom
     if vasprun.is_spin:
         if outcar and outcar.magnetization:
-            site_properties.update({"magmom": [i["tot"] for i in outcar.magnetization]})
+            site_properties["magmom"] = [i["tot"] for i in outcar.magnetization]
         else:
-            site_properties.update({"magmom": vasprun.parameters["MAGMOM"]})
+            site_properties["magmom"] = vasprun.parameters["MAGMOM"]
     # ldau
     if vasprun.parameters.get("LDAU", False):
         for k in ("LDAUU", "LDAUJ", "LDAUL"):
@@ -3141,7 +3141,7 @@ class MPAbsorptionSet(MPRelaxSet):
                 incar = Incar(self.prev_incar)
                 # Default parameters for diagonalization calculation.
                 incar.update({"ALGO": "Exact", "LOPTICS": True, "CSHIFT": 0.1, "LWAVE": "True"})
-                incar.update({"NEDOS": self.nedos}) if self.nedos is not None else incar.update({"NEDOS": 2001})
+                incar.update({"NEDOS": self.nedos or 2001})
             else:
                 incar = Incar(parent_incar)
 

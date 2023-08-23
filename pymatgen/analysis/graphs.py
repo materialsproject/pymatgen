@@ -943,9 +943,9 @@ class StructureGraph(MSONable):
                     # edge has been added
                     green_edges.append((u, v, k))
             for u, v, k in green_edges:
-                g.edges[u, v, k].update({"color_uv": "#00ff00"})
+                g.edges[u, v, k]["color_uv"] = "#00ff00"
             for u, v, k in red_edges:
-                g.edges[u, v, k].update({"color_uv": "#ff0000"})
+                g.edges[u, v, k]["color_uv"] = "#ff0000"
 
         basename, extension = os.path.splitext(filename)
         extension = extension[1:]
@@ -2608,9 +2608,9 @@ class MoleculeGraph(MSONable):
                     # edge has been added
                     green_edges.append((u, v, k))
             for u, v, k in green_edges:
-                g.edges[u, v, k].update({"color_uv": "#00ff00"})
+                g.edges[u, v, k]["color_uv"] = "#00ff00"
             for u, v, k in red_edges:
-                g.edges[u, v, k].update({"color_uv": "#ff0000"})
+                g.edges[u, v, k]["color_uv"] = "#ff0000"
 
         basename, extension = os.path.splitext(filename)
         extension = extension[1:]
