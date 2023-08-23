@@ -459,9 +459,9 @@ class LatticeTestCase(PymatgenTest):
         l1 = Lattice([a, b, c])
         l2 = Lattice([a + b, b + c, c])
 
-        ccoords = np.array([[1, 1, 2], [2, 2, 1.5]])
-        l1_fcoords = l1.get_fractional_coords(ccoords)
-        l2_fcoords = l2.get_fractional_coords(ccoords)
+        cart_coords = np.array([[1, 1, 2], [2, 2, 1.5]])
+        l1_fcoords = l1.get_fractional_coords(cart_coords)
+        l2_fcoords = l2.get_fractional_coords(cart_coords)
 
         assert_allclose(l1.matrix, l2.lll_matrix)
         assert_allclose(np.dot(l2.lll_mapping, l2.matrix), l1.matrix)
