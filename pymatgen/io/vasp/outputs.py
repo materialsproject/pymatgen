@@ -3299,7 +3299,7 @@ class Outcar:
             )
 
         if self.dfpt:
-            d.update({"internal_strain_tensor": self.internal_strain_tensor})
+            d["internal_strain_tensor"] = self.internal_strain_tensor
 
         if self.dfpt and self.lepsilon:
             d.update(
@@ -3313,7 +3313,7 @@ class Outcar:
             d.update({"p_elec": self.p_elec, "p_ion": self.p_ion})
             if self.spin and not self.noncollinear:
                 d.update({"p_sp1": self.p_sp1, "p_sp2": self.p_sp2})
-            d.update({"zval_dict": self.zval_dict})
+            d["zval_dict"] = self.zval_dict
 
         if self.nmr_cs:
             d.update(
@@ -3342,7 +3342,7 @@ class Outcar:
             # cast Spin to str for consistency with electronic_structure
             # TODO: improve handling of Enum (de)serialization in monty
             onsite_density_matrices = [{str(k): v for k, v in d.items()} for d in self.data["onsite_density_matrices"]]
-            d.update({"onsite_density_matrices": onsite_density_matrices})
+            d["onsite_density_matrices"] = onsite_density_matrices
 
         return d
 

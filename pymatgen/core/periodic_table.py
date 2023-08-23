@@ -211,7 +211,7 @@ class ElementBase(Enum):
 
     @property
     def X(self) -> float:
-        """:return: Pauling electronegativity of element. Note that if an element does not
+        """Pauling electronegativity of element. Note that if an element does not
         have an Pauling electronegativity, a NaN float is returned.
         """
         if "X" in self._data:

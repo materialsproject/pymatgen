@@ -813,7 +813,7 @@ class NcAbinitHeader(AbinitHeader):
         summary = lines[0]
 
         # Replace pspd with pspdata
-        header.update({"pspdat": header["pspd"]})
+        header["pspdat"] = header["pspd"]
         header.pop("pspd")
 
         # Read extension switch
