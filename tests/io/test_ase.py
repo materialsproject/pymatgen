@@ -266,7 +266,7 @@ class TestAseAtomsAdaptor:
         structure.add_site_property("final_charge", [3.0] * len(structure))
         structure.add_site_property("charge", [4.0] * len(structure))
         structure.add_site_property("prop", [5.0] * len(structure))
-        structure.info = {"test": "hi"}
+        structure.properties = {"test": "hi"}
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         structure_back = aio.AseAtomsAdaptor.get_structure(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(structure_back)
@@ -292,7 +292,7 @@ class TestAseAtomsAdaptor:
         # Molecule --> Atoms --> Molecule --> Atoms
         molecule = Molecule.from_file(TEST_FILES_DIR / "acetylene.xyz")
         molecule.set_charge_and_spin(-2, spin_multiplicity=3)
-        molecule.info = {"test": "hi"}
+        molecule.properties = {"test": "hi"}
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         molecule_back = aio.AseAtomsAdaptor.get_molecule(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(molecule_back)
