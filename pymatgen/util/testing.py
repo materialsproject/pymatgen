@@ -20,7 +20,7 @@ from monty.serialization import loadfn
 from pymatgen.core import SETTINGS, Structure
 
 if TYPE_CHECKING:
-    from git import Sequence
+    from typing import Sequence
 
 MODULE_DIR = Path(__file__).absolute().parent
 STRUCTURES_DIR = MODULE_DIR / "structures"
@@ -52,7 +52,7 @@ class PymatgenTest(unittest.TestCase):
         Returns:
             Structure
         """
-        struct = cls.TEST_STRUCTURES.get(name) or loadfn(f"{cls.STRUCTURES_DIR}/{name}.json")
+        struct = cls.TEST_STRUCTURES.get(name) or loadfn(f"{STRUCTURES_DIR}/{name}.json")
         cls.TEST_STRUCTURES[name] = struct
         return struct.copy()
 
@@ -62,7 +62,7 @@ class PymatgenTest(unittest.TestCase):
         strip_whitespace = {ord(c): None for c in string.whitespace}
         return actual.translate(strip_whitespace) == expected.translate(strip_whitespace)
 
-    def serialize_with_pickle(self, objects: Any, protocols: Sequence[int] = None, test_eq: bool = True):
+    def serialize_with_pickle(self, objects: Any, protocols: Sequence[int] | None = None, test_eq: bool = True):
         """Test whether the object(s) can be serialized and deserialized with
         pickle. This method tries to serialize the objects with pickle and the
         protocols specified in input. Then it deserializes the pickle format
