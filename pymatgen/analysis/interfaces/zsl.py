@@ -181,7 +181,6 @@ class ZSLGenerator(MSONable):
     def __call__(self, film_vectors, substrate_vectors, lowest=False) -> Iterator[ZSLMatch]:
         """
         Runs the ZSL algorithm to generate all possible matching
-        :return:
         """
         film_area = vec_area(*film_vectors)
         substrate_area = vec_area(*substrate_vectors)

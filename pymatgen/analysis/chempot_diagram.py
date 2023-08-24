@@ -296,7 +296,7 @@ class ChemicalPotentialDiagram(MSONable):
         layout = plotly_layouts["default_layout_2d"].copy()
         layout.update(self._get_axis_layout_dict(elements))
         if label_stable:
-            layout.update({"annotations": annotations})
+            layout["annotations"] = annotations
 
         data = self._get_2d_domain_lines(draw_domains)
 
@@ -367,7 +367,7 @@ class ChemicalPotentialDiagram(MSONable):
         layout["scene"]["annotations"] = None
 
         if label_stable:
-            layout["scene"].update({"annotations": annotations})
+            layout["scene"]["annotations"] = annotations
         layout["scene_camera"] = {
             "eye": {"x": 5, "y": 5, "z": 5},  # zoomed out
             "projection": {"type": "orthographic"},
@@ -565,7 +565,7 @@ class ChemicalPotentialDiagram(MSONable):
         annotation = plotly_layouts["default_annotation_layout"].copy()
         annotation.update({"x": ann_loc[0], "y": ann_loc[1], "text": formula})
         if len(ann_loc) == 3:
-            annotation.update({"z": ann_loc[2]})
+            annotation["z"] = ann_loc[2]
         return annotation
 
     @staticmethod

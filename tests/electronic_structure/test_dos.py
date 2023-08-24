@@ -146,7 +146,7 @@ class TestCompleteDos(unittest.TestCase):
         with pytest.raises(ValueError, match="x is out of range of provided x_values"):
             dos.get_interpolated_value(1000)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.dos.as_dict()
         dos = CompleteDos.from_dict(d)
         el_dos = dos.get_element_dos()

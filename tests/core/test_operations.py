@@ -173,7 +173,7 @@ class SymmOpTestCase(PymatgenTest):
         assert self.op.are_symmetrically_related_vectors(to_a, from_a, -r_a, from_b, to_b, r_b)[0]
         assert self.op.are_symmetrically_related_vectors(to_a, from_a, -r_a, from_b, to_b, r_b)[1]
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.op.as_dict()
         op = SymmOp.from_dict(d)
         point = np.random.rand(3)
@@ -253,7 +253,7 @@ class MagSymmOpTestCase(PymatgenTest):
         assert magop.time_reversal == -1
         assert magop_str == "3x-2y-z+1/2, -x+12/13, z+1/2, -1"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         op = SymmOp(
             [
                 [3, -2, -1, 0.5],

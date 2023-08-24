@@ -330,7 +330,7 @@ class AdfKey(MSONable):
             subkeys = []
             for subkey in self.subkeys:
                 subkeys.append(subkey.as_dict())
-            d.update({"subkeys": subkeys})
+            d["subkeys"] = subkeys
         return d
 
     @classmethod

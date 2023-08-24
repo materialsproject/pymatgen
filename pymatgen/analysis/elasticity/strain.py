@@ -38,9 +38,8 @@ class Deformation(SquareTensor):
 
     def __new__(cls, deformation_gradient):
         """
-        Create a Deformation object. Note that the constructor uses __new__
-        rather than __init__ according to the standard method of subclassing
-        numpy ndarrays.
+        Create a Deformation object. Note that the constructor uses __new__ rather than
+        __init__ according to the standard method of subclassing numpy ndarrays.
 
         Args:
             deformation_gradient (3x3 array-like): the 3x3 array-like

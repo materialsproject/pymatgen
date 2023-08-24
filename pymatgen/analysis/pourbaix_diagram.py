@@ -70,7 +70,7 @@ PREFAC = 0.0591
 
 # TODO: Revise to more closely reflect PDEntry, invoke from energy/composition
 # TODO: PourbaixEntries depend implicitly on having entry energies be
-#       formation energies, should be a better way to get from raw energies
+# formation energies, should be a better way to get from raw energies
 # TODO: uncorrected_energy is a bit of a misnomer, but not sure what to rename
 class PourbaixEntry(MSONable, Stringify):
     """
@@ -338,7 +338,7 @@ class MultiEntry(PourbaixEntry):
 
 
 # TODO: this class isn't particularly useful in its current form, could be
-#       refactored to include information about the reference solid
+# refactored to include information about the reference solid
 class IonEntry(PDEntry):
     """
     Object similar to PDEntry, but contains an Ion object instead of a
@@ -404,12 +404,11 @@ ELEMENTS_HO = {Element("H"), Element("O")}
 
 
 # TODO: the solids filter breaks some of the functionality of the
-#       heatmap plotter, because the reference states for decomposition
-#       don't include oxygen/hydrogen in the OER/HER regions
+# heatmap plotter, because the reference states for decomposition
+# don't include oxygen/hydrogen in the OER/HER regions
 
 
-# TODO: create a from_phase_diagram class method for non-formation energy
-#       invocation
+# TODO: create a from_phase_diagram class method for non-formation energy invocation
 # TODO: invocation from a MultiEntry entry list could be a bit more robust
 # TODO: serialization is still a bit rough around the edges
 class PourbaixDiagram(MSONable):

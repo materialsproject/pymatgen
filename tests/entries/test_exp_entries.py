@@ -19,7 +19,7 @@ class TestExpEntry(unittest.TestCase):
     def test_energy(self):
         assert self.entry.energy == approx(-825.5)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.entry.as_dict()
         e = ExpEntry.from_dict(d)
         assert e.energy == approx(-825.5)

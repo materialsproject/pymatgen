@@ -75,7 +75,6 @@ def draw_cg(
     :param perfect_radius:
     :param show_distorted:
     :param faces_color_override:
-    :return:
     """
     if show_perfect:
         if csm_info is None:
@@ -160,7 +159,6 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_colo
     :param myfactor:
     :param view_index:
     :param faces_color_override:
-    :return:
     """
     if vis is None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
@@ -194,7 +192,6 @@ def compute_environments(chemenv_configuration):
     Compute the environments.
 
     :param chemenv_configuration:
-    :return:
     """
     string_sources = {
         "cif": {"string": "a Cif file", "regexp": r".*\.cif$"},

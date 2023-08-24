@@ -17,8 +17,6 @@ test_dir = f"{TEST_FILES_DIR}/magnetic_orderings"
 class TestVampireCaller(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        print("Testing with: ", which("vampire-serial"))
-
         cls.Mn3Al = pd.read_json(f"{test_dir}/Mn3Al.json")
 
         cls.compounds = [cls.Mn3Al]

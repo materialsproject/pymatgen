@@ -14,10 +14,6 @@ from pymatgen.io.cif import CifFile, CifParser, CifWriter, str2float
 from pymatgen.symmetry.groups import SYMM_DATA
 from pymatgen.util.due import Doi, due
 
-sub_spgrp = partial(re.sub, r"[\s_]", "")
-
-space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # type: ignore
-
 try:
     import phonopy
 except ImportError as exc:
@@ -31,6 +27,10 @@ __maintainer__ = "J. George"
 __email__ = "janine.george@bam.de"
 __status__ = "Testing"
 __date__ = "August 09, 2022"
+
+sub_spgrp = partial(re.sub, r"[\s_]", "")
+
+space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # type: ignore
 
 
 class ThermalDisplacementMatrices(MSONable):

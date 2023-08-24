@@ -54,48 +54,22 @@ logger = logging.getLogger(__name__)
 class Poscar(MSONable):
     """
     Object for representing the data in a POSCAR or CONTCAR file.
-    Please note that this current implementation. Most attributes can be set
-    directly.
 
-    .. attribute:: structure
-
-        Associated Structure.
-
-    .. attribute:: comment
-
-        Optional comment string.
-
-    .. attribute:: true_names
-
-        Boolean indication whether Poscar contains actual real names parsed
-        from either a POTCAR or the POSCAR itself.
-
-    .. attribute:: selective_dynamics
-
-        Selective dynamics attribute for each site if available. A Nx3 array of
-        booleans.
-
-    .. attribute:: velocities
-
-        Velocities for each site (typically read in from a CONTCAR). A Nx3
-        array of floats.
-
-    .. attribute:: predictor_corrector
-
-        Predictor corrector coordinates and derivatives for each site; i.e.
-        a list of three 1x3 arrays for each site (typically read in from a MD
-        CONTCAR).
-
-    .. attribute:: predictor_corrector_preamble
-
-        Predictor corrector preamble contains the predictor-corrector key,
-        POTIM, and thermostat parameters that precede the site-specic predictor
-        corrector data in MD CONTCAR
-
-    .. attribute:: temperature
-
-        Temperature of velocity Maxwell-Boltzmann initialization. Initialized
-        to -1 (MB hasn"t been performed).
+    Attributes:
+        structure: Associated Structure.
+        comment: Optional comment string.
+        true_names: Boolean indication whether Poscar contains actual real names parsed
+            from either a POTCAR or the POSCAR itself.
+        selective_dynamics: Selective dynamics attribute for each site if available.
+            A Nx3 array of booleans.
+        velocities: Velocities for each site (typically read in from a CONTCAR).
+            A Nx3 array of floats.
+        predictor_corrector: Predictor corrector coordinates and derivatives for each site;
+            i.e. a list of three 1x3 arrays for each site (typically read in from a MD CONTCAR).
+        predictor_corrector_preamble: Predictor corrector preamble contains the predictor-corrector key,
+            POTIM, and thermostat parameters that precede the site-specic predictor corrector data in MD CONTCAR.
+        temperature: Temperature of velocity Maxwell-Boltzmann initialization.
+            Initialized to -1 (MB hasn't been performed).
     """
 
     def __init__(
@@ -153,7 +127,8 @@ class Poscar(MSONable):
                 self.structure = self.structure.get_sorted_structure()
             self.true_names = true_names
             self.comment = structure.formula if comment is None else comment
-            self.predictor_corrector_preamble = predictor_corrector_preamble
+            if predictor_corrector_preamble:
+                self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into POSCAR!")
 
@@ -174,6 +149,11 @@ class Poscar(MSONable):
         """Predictor corrector in Poscar."""
         return self.structure.site_properties.get("predictor_corrector")
 
+    @property
+    def predictor_corrector_preamble(self):
+        """Predictor corrector preamble in Poscar."""
+        return self.structure.properties.get("predictor_corrector_preamble")
+
     @velocities.setter  # type: ignore
     def velocities(self, velocities):
         """Setter for Poscar.velocities."""
@@ -188,6 +168,11 @@ class Poscar(MSONable):
     def predictor_corrector(self, predictor_corrector):
         """Setter for Poscar.predictor_corrector."""
         self.structure.add_site_property("predictor_corrector", predictor_corrector)
+
+    @predictor_corrector_preamble.setter  # type: ignore
+    def predictor_corrector_preamble(self, predictor_corrector_preamble):
+        """Setter for Poscar.predictor_corrector."""
+        self.structure.properties["predictor_corrector"] = predictor_corrector_preamble
 
     @property
     def site_symbols(self):
@@ -1908,18 +1893,17 @@ class PotcarSingle:
         if d is None:
             raise ValueError(
                 f"No POTCAR for {symbol} with {functional=} found. Please set the PMG_VASP_PSP_DIR "
-                "environment in .pmgrc.yaml, or you may need to set PMG_DEFAULT_FUNCTIONAL to PBE_52 or "
-                "PBE_54 if you are using newer psps from VASP."
+                "environment in .pmgrc.yaml."
             )
         paths_to_try = [
             os.path.join(d, funcdir, f"POTCAR.{symbol}"),
             os.path.join(d, funcdir, symbol, "POTCAR"),
         ]
-        for p in paths_to_try:
-            p = os.path.expanduser(p)
-            p = zpath(p)
-            if os.path.exists(p):
-                return PotcarSingle.from_file(p)
+        for path in paths_to_try:
+            path = os.path.expanduser(path)
+            path = zpath(path)
+            if os.path.isfile(path):
+                return PotcarSingle.from_file(path)
         raise OSError(
             f"You do not have the right POTCAR with {functional=} and label {symbol} "
             f"in your VASP_PSP_DIR. Paths tried: {paths_to_try}"

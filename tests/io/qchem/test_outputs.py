@@ -299,7 +299,6 @@ class TestQCOutput(PymatgenTest):
             )
 
         for key in property_list:
-            print("Testing ", key)
             self._test_property(key, single_outs, multi_outs)
 
     @unittest.skipIf((openbabel is None), "OpenBabel not installed.")

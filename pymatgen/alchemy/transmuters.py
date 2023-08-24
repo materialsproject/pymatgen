@@ -346,9 +346,9 @@ def batch_write_vasp_input(
         formula = re.sub(r"\s+", "", struct.final_structure.formula)
         if subfolder is not None:
             subdir = subfolder(struct)
-            dirname = os.path.join(output_dir, subdir, f"{formula}_{idx}")
+            dirname = f"{output_dir}/{subdir}/{formula}_{idx}"
         else:
-            dirname = os.path.join(output_dir, f"{formula}_{idx}")
+            dirname = f"{output_dir}/{formula}_{idx}"
         struct.write_vasp_input(vasp_input_set, dirname, create_directory=create_directory, **kwargs)
         if include_cif:
             from pymatgen.io.cif import CifWriter

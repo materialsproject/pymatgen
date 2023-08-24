@@ -403,13 +403,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def hill_formula(self) -> str:
-        """:return: Hill formula. The Hill system (or Hill notation) is a system
-        of writing empirical chemical formulas, molecular chemical formulas and
-        components of a condensed formula such that the number of carbon atoms
-        in a molecule is indicated first, the number of hydrogen atoms next,
-        and then the number of all other chemical elements subsequently, in
-        alphabetical order of the chemical symbols. When the formula contains
-        no carbon, all the elements, including hydrogen, are listed
+        """The Hill system (or Hill notation) is a system of writing empirical chemical
+        formulas, molecular chemical formulas and components of a condensed formula such
+        that the number of carbon atoms in a molecule is indicated first, the number of
+        hydrogen atoms next, and then the number of all other chemical elements
+        subsequently, in alphabetical order of the chemical symbols. When the formula
+        contains no carbon, all the elements, including hydrogen, are listed
         alphabetically.
         """
         elem_comp = self.element_composition

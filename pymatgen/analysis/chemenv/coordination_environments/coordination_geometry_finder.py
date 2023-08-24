@@ -192,7 +192,6 @@ class AbstractGeometry:
         :param cg:
         :param centering_type:
         :param include_central_site_in_centroid:
-        :return:
         """
         central_site = cg.get_central_site()
         bare_coords = [np.array(pt, np.float_) for pt in cg.points]
@@ -206,7 +205,6 @@ class AbstractGeometry:
     def points_wcs_csc(self, permutation=None):
         """
         :param permutation:
-        :return:
         """
         if permutation is None:
             return self._points_wcs_csc
@@ -215,7 +213,6 @@ class AbstractGeometry:
     def points_wocs_csc(self, permutation=None):
         """
         :param permutation:
-        :return:
         """
         if permutation is None:
             return self._points_wocs_csc
@@ -224,7 +221,6 @@ class AbstractGeometry:
     def points_wcs_ctwcc(self, permutation=None):
         """
         :param permutation:
-        :return:
         """
         if permutation is None:
             return self._points_wcs_ctwcc
@@ -238,7 +234,6 @@ class AbstractGeometry:
     def points_wocs_ctwcc(self, permutation=None):
         """
         :param permutation:
-        :return:
         """
         if permutation is None:
             return self._points_wocs_ctwcc
@@ -247,7 +242,6 @@ class AbstractGeometry:
     def points_wcs_ctwocc(self, permutation=None):
         """
         :param permutation:
-        :return:
         """
         if permutation is None:
             return self._points_wcs_ctwocc
@@ -261,7 +255,6 @@ class AbstractGeometry:
     def points_wocs_ctwocc(self, permutation=None):
         """
         :param permutation:
-        :return:
         """
         if permutation is None:
             return self._points_wocs_ctwocc
@@ -508,7 +501,6 @@ class LocalGeometryFinder:
         :param strategy:
         :param valences:
         :param initial_structure_environments:
-        :return:
         """
         self.setup_structure(structure=structure)
         if valences == "bond-valence-analysis":
@@ -867,7 +859,6 @@ class LocalGeometryFinder:
         :param nb_set:
         :param recompute:
         :param optimization:
-        :return:
         """
         ce = se.get_coordination_environments(isite=isite, cn=cn, nb_set=nb_set)
         if ce is not None and not recompute:
@@ -961,7 +952,6 @@ class LocalGeometryFinder:
         :param random_rotation:
         :param random_scale:
         :param points:
-        :return:
         """
         if symbol_type == "IUPAC":
             cg = self.allcg.get_geometry_from_IUPAC_symbol(symbol)

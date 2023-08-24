@@ -222,7 +222,7 @@ finder.get_space_group_symbol()
 
 # Convenient IO to various formats. You can specify various formats.
 # Without a filename, a string is returned. Otherwise,
-# the output is written to the file. If only the filenmae is provided,
+# the output is written to the file. If only the filename is provided,
 # the format is intelligently determined from a file.
 structure.to(fmt="poscar")
 structure.to(filename="POSCAR")
@@ -320,7 +320,7 @@ well as the extremely useful [custodian] error management and [FireWorks]
 workflow software. The slides for these workshops are available on the
 [Materials Virtual Lab].
 
-### pmg - Command line tool
+### `pmg` command line interface
 
 To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
@@ -455,8 +455,8 @@ they commit the change to one of the pymatgen repositories.
 [Github repo]: https://github.com/materialsproject/pymatgen/
 [custodian]: https://pypi.python.org/pypi/custodian
 [FireWorks]: https://materialsproject.github.io/fireworks
-[Materials Project]: https://www.materialsproject.org
-[Materials Virtual Lab]: http://www.materialsvirtuallab.org
+[Materials Project]: https://materialsproject.org
+[Materials Virtual Lab]: http://materialsvirtuallab.org
 [pymatgen docs]: https://pymatgen.org
 [pymatgen development team]: https://pymatgen.org/team
 [matgenb]: https://matgenb.materialsvirtuallab.org/

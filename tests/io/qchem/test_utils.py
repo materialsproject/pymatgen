@@ -30,7 +30,7 @@ class TestUtil(PymatgenTest):
         d4 = {"jobType": "SP", "JOBtype": "SP"}
         # should not raise an exception
         assert lower_and_check_unique(d4) == {"job_type": "sp"}
-        d4.update({"jobType": "opt"})
+        d4["jobType"] = "opt"
         with pytest.raises(ValueError, match="Multiple instances of key"):
             lower_and_check_unique(d4)
 

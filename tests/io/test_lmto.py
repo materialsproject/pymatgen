@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import numpy as np
 from numpy.testing import assert_array_equal
@@ -24,7 +23,7 @@ test_dir = f"{TEST_FILES_DIR}/cohp"
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestCtrl(unittest.TestCase):
+class TestCtrl(PymatgenTest):
     def setUp(self):
         os.chdir(test_dir)
         self.ctrl_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
@@ -42,10 +41,10 @@ class TestCtrl(unittest.TestCase):
         assert self.ctrl_bise == LMTOCtrl(self.ctrl_bise.structure, header="Bi6Se6, hexagonal")
 
     def test_read_write(self):
-        self.ctrl_bise.write_file(filename="CTRL.tmp")
-        ctrl_tmp = LMTOCtrl.from_file(filename="CTRL.tmp")
-        assert self.ctrl_bise.structure.matches(ctrl_tmp.structure)
-        os.remove("CTRL.tmp")
+        ctrl_path = f"{self.tmp_path}/CTRL.tmp"
+        self.ctrl_bise.write_file(filename=ctrl_path)
+        ctrl_file = LMTOCtrl.from_file(filename=ctrl_path)
+        assert self.ctrl_bise.structure.matches(ctrl_file.structure)
 
 
 class TestCopl(PymatgenTest):

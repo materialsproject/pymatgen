@@ -30,6 +30,7 @@ try:
     from openbabel import openbabel
 except ImportError:
     openbabel = None
+
 try:
     import pygraphviz
 except ImportError:
@@ -389,7 +390,7 @@ from    to  to_image
         }
         assert pdfs == expected_pdfs
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.mos2_sg.as_dict()
         sg = StructureGraph.from_dict(d)
         d2 = sg.as_dict()
