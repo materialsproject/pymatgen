@@ -407,8 +407,7 @@ class Atoms(MSONable):
         self.absorbing_atom, self.center_index = get_absorbing_atom_symbol_index(absorbing_atom, struct)
         self.radius = radius
         self._cluster = self._set_cluster()
-        atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, self._cluster)[0]
-        self.pot_dict = get_atom_map(self._cluster, atom_sym)
+        self.pot_dict = get_atom_map(self._cluster, self.absorbing_atom)
 
     def _set_cluster(self):
         """

@@ -158,27 +158,27 @@ class TestComputedEntry(unittest.TestCase):
         for ea in normed_entry.energy_adjustments:
             assert ea.value == 1
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         dct = self.entry.as_dict()
         entry = ComputedEntry.from_dict(dct)
         assert self.entry == entry
         assert entry.energy == approx(-269.38319884)
 
-    def test_to_from_dict_with_adjustment(self):
+    def test_as_from_dict_with_adjustment(self):
         """Legacy case where adjustment was provided manually."""
         dct = self.entry6.as_dict()
         entry = ComputedEntry.from_dict(dct)
         assert entry.uncorrected_energy == approx(6.9)
         assert entry.energy_adjustments[0].value == self.entry6.energy_adjustments[0].value
 
-    def test_to_from_dict_with_adjustment_2(self):
+    def test_as_from_dict_with_adjustment_2(self):
         """Modern case where correction was provided manually."""
         dct = self.entry7.as_dict()
         entry = ComputedEntry.from_dict(dct)
         assert entry.uncorrected_energy == approx(6.9)
         assert entry.energy_adjustments[0].value == self.entry7.energy_adjustments[0].value
 
-    def test_to_from_dict_with_adjustment_3(self):
+    def test_as_from_dict_with_adjustment_3(self):
         """
         Legacy case where the entry was serialized before the energy_adjustment
         attribute was part of ComputedEntry.
@@ -245,7 +245,7 @@ class TestComputedStructureEntry(unittest.TestCase):
     def test_composition(self):
         assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         dct = self.entry.as_dict()
         entry = ComputedStructureEntry.from_dict(dct)
         assert self.entry == entry
@@ -254,7 +254,7 @@ class TestComputedStructureEntry(unittest.TestCase):
     def test_str(self):
         assert str(self.entry) is not None
 
-    def test_to_from_dict_structure_with_adjustment_3(self):
+    def test_as_from_dict_structure_with_adjustment_3(self):
         """
         Legacy case where the structure entry was serialized before the energy_adjustment
         attribute was part of ComputedEntry.
@@ -481,7 +481,7 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
         gibbs_entries = GibbsComputedStructureEntry.from_pd(pd)
         assert gibbs_entries is not None
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         test_entry = self.entries_with_temps[300]
         dct = test_entry.as_dict()
         entry = GibbsComputedStructureEntry.from_dict(dct)

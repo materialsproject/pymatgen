@@ -684,7 +684,6 @@ class Cp2kOutput:
     def parse_overlap_condition(self):
         """
         Retrieve the overlap condition number
-        :return:
         """
         overlap_condition = re.compile(r"\|A\|\*\|A\^-1\|.+=\s+(-?\d+\.\d+E[+\-]?\d+)\s+Log")
         self.read_pattern(
@@ -953,7 +952,6 @@ class Cp2kOutput:
     def parse_mulliken(self):
         """
         Parse the mulliken population analysis info for each step
-        :return:
         """
         header = r"Mulliken Population Analysis.+Net charge"
         pattern = r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"

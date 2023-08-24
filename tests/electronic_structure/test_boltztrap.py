@@ -259,7 +259,7 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
         assert x["p"]["temperature"] == 400
         assert x["n"]["isotropic"] is False
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         btr_dict = self.btr.as_dict()
         s = json.dumps(btr_dict)
         assert s is not None

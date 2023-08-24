@@ -282,7 +282,6 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         :param id: OG number supplied as list of 3 ints or
             or OG label as str
-        :return:
         """
         db = sqlite3.connect(MAGSYMM_DATA)
         c = db.cursor()

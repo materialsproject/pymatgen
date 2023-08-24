@@ -115,7 +115,6 @@ class BondDissociationEnergies(MSONable):
         Fragment and process bonds.
 
         :param bonds: Bonds to process.
-        :return:
         """
         # Try to split the principle:
         try:
@@ -269,7 +268,6 @@ class BondDissociationEnergies(MSONable):
         Filter the fragment entries.
 
         :param fragment_entries:
-        :return:
         """
         self.filtered_entries = []
         for entry in fragment_entries:
@@ -331,7 +329,6 @@ class BondDissociationEnergies(MSONable):
 
         :param frags:
         :param bonds:
-        :return:
         """
         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
         if len(frags) == 2:

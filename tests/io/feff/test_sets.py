@@ -37,7 +37,6 @@ TITLE sites: 4
     def test_get_header(self):
         comment = "From cif file"
         header = str(self.mp_xanes.header(source="CoO19128.cif", comment=comment))
-        print(header)
 
         ref = self.header_string.splitlines()
         last4 = [" ".join(line.split()[2:]) for line in ref[-4:]]
@@ -184,7 +183,7 @@ TITLE sites: 4
         assert "CIF" not in elnes.tags
         assert "TARGET" not in elnes.tags
 
-    def test_postfeffset(self):
+    def test_post_feffset(self):
         self.mp_xanes.write_input(f"{self.tmp_path}/xanes_3")
         feff_dict_input = FEFFDictSet.from_directory(f"{self.tmp_path}/xanes_3")
         assert feff_dict_input.tags == Tags.from_file(f"{self.tmp_path}/xanes_3/feff.inp")
@@ -223,7 +222,7 @@ TITLE sites: 4
         struct_reci = Structure.from_file(f"{self.tmp_path}/Dup_reci/Co2O2.cif")
         assert struct_orig == struct_reci
 
-    def test_post_distdiff(self):
+    def test_post_dist_diff(self):
         feff_dict_input = FEFFDictSet.from_directory(f"{TEST_FILES_DIR}/feff_dist_test")
         assert feff_dict_input.tags == Tags.from_file(f"{TEST_FILES_DIR}/feff_dist_test/feff.inp")
         assert str(feff_dict_input.header()) == str(Header.from_file(f"{TEST_FILES_DIR}/feff_dist_test/HEADER"))
@@ -259,3 +258,10 @@ TITLE sites: 4
             },
         )
         assert str(dict_set) is not None
+
+    def test_cluster_index(self):
+        # https://github.com/materialsproject/pymatgen/pull/3256
+        cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
+        structure = CifParser(cif_file).get_structures()[0]
+        for idx in range(len(structure.species)):
+            assert Atoms(structure, idx, 3).cluster

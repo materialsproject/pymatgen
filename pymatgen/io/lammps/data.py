@@ -825,7 +825,7 @@ class LammpsData(MSONable):
             velos = np.array(struct.site_properties["velocities"])
             rot = SymmOp.from_rotation_and_translation(symm_op.rotation_matrix)
             rot_velos = rot.operate_multi(velos)
-            site_properties.update({"velocities": rot_velos})  # type: ignore
+            site_properties["velocities"] = rot_velos  # type: ignore
         boxed_s = Structure(
             box.to_lattice(),
             struct.species,

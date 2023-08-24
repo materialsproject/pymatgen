@@ -378,9 +378,9 @@ class TestComposition(PymatgenTest):
         assert d["O"] == correct_dict["O"]
 
     def test_pickle(self):
-        for c in self.comps:
-            self.serialize_with_pickle(c, test_eq=True)
-            self.serialize_with_pickle(c.to_data_dict, test_eq=True)
+        for comp in self.comps:
+            self.serialize_with_pickle(comp)
+            self.serialize_with_pickle(comp.to_data_dict)
 
     def test_to_data_dict(self):
         comp = Composition("Fe0.00009Ni0.99991")

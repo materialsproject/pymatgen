@@ -257,7 +257,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
         for d in lst:
             assert len(d["structure"]) == 10
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         trans = EnumerateStructureTransformation()
         dct = trans.as_dict()
         trans = EnumerateStructureTransformation.from_dict(dct)

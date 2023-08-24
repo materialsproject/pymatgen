@@ -71,9 +71,7 @@ class TestIStructure(PymatgenTest):
         assert len(self.struct) == 2, "Wrong number of sites in structure!"
         assert self.struct.is_ordered
         assert self.struct.ntypesp == 1
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.0, 0, 0.0000001])
+        coords = [[0, 0, 0], [0.0, 0, 0.0000001]]
         with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
             IStructure(self.lattice, ["Si"] * 2, coords, validate_proximity=True)
         self.propertied_structure = IStructure(
@@ -1172,10 +1170,10 @@ class TestStructure(PymatgenTest):
         struct.make_supercell([[0, 2, 0], [1, 0, 0], [0, 0, 1]])
         assert struct.formula == "Si4"
 
-    def test_to_from_dict(self):
-        d = self.struct.as_dict()
-        s2 = Structure.from_dict(d)
-        assert isinstance(s2, Structure)
+    def test_as_from_dict(self):
+        dct = self.struct.as_dict()
+        s1 = Structure.from_dict(dct)
+        assert isinstance(s1, Structure)
 
     def test_default_dict_attrs(self):
         d = self.struct.as_dict()
@@ -1852,7 +1850,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         centered = mol.get_centered_molecule()
         assert_allclose(centered.center_of_mass, [0, 0, 0])
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         dct = self.mol.as_dict()
         mol2 = IMolecule.from_dict(dct)
         assert isinstance(mol2, IMolecule)
@@ -1980,7 +1978,7 @@ class TestMolecule(PymatgenTest):
         with pytest.raises(AttributeError, match="attr='magmom' not found on Site"):
             _ = self.mol[0].magmom
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         self.mol.append("X", [2, 0, 0])
         d = self.mol.as_dict()
         mol2 = Molecule.from_dict(d)
