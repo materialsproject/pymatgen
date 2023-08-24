@@ -3443,14 +3443,15 @@ class IMolecule(SiteCollection, MSONable):
         from pymatgen.io.gaussian import GaussianInput
         from pymatgen.io.xyz import XYZ
 
-        if fmt.lower() == "xyz":
+        fmt = fmt.lower()  # type: ignore[assignment]
+        if fmt == "xyz":
             mol = XYZ.from_str(input_string).molecule
         elif fmt in ["gjf", "g03", "g09", "com", "inp"]:
             mol = GaussianInput.from_str(input_string).molecule
         elif fmt == "json":
             dct = json.loads(input_string)
             return cls.from_dict(dct)
-        elif fmt == "yaml":
+        elif fmt in ("yaml", "yml"):
             yaml = YAML()
             dct = yaml.load(input_string)
             return cls.from_dict(dct)
