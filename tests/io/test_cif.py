@@ -914,18 +914,19 @@ Si1 Si 0 0 0 1 0.0
         with pytest.raises(ValueError, match="Invalid CIF file with no structures"):
             parser.get_structures()
 
-    def test_skip_checks(self):
-        with open(f"{TEST_FILES_DIR}/site_type_symbol_test.cif") as c:
-            cif_str = c.read()
+    def test_no_check_occu(self):
+        with open(f"{TEST_FILES_DIR}/site_type_symbol_test.cif") as cif_file:
+            cif_str = cif_file.read()
         cif_str = cif_str.replace("Te    Te 1.0000", "Te    Te 1.5000", 1)
 
         with pytest.raises(ValueError, match="Invalid CIF file with no structures"):
             # should fail without setting custom occupancy tolerance
-            CifParser.from_string(cif_str).get_structures()
+            CifParser.from_str(cif_str).get_structures()
 
-        parser = CifParser.from_string(cif_str, occupancy_tolerance=1.5)
-        structs = parser.get_structures(primitive=False, symmetrized=True, check_occu=False)[0]
-        assert structs[0].species.as_dict()["Te"] == 1.5
+        for tol in (1.5, 10):
+            parser = CifParser.from_str(cif_str, occupancy_tolerance=tol)
+            structs = parser.get_structures(primitive=False, check_occu=False)[0]
+            assert structs[0].species.as_dict()["Te"] == 1.5
 
 
 class TestMagCif(PymatgenTest):
