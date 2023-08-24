@@ -2921,22 +2921,16 @@ class IMolecule(SiteCollection, MSONable):
             raise StructureError("Molecule contains sites that are less than 0.01 Angstrom apart!")
 
         self._charge = charge
-        nelectrons = 0.0
-        for site in sites:
-            for sp, amt in site.species.items():
-                if not isinstance(sp, DummySpecies):
-                    nelectrons += sp.Z * amt
-        nelectrons -= charge
-        self._nelectrons = nelectrons
+        n_electrons = self.nelectrons
         if spin_multiplicity:
-            if charge_spin_check and (nelectrons + spin_multiplicity) % 2 != 1:
+            if charge_spin_check and (n_electrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
                     f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} "
                     "is not possible for this molecule!"
                 )
             self._spin_multiplicity = spin_multiplicity
         else:
-            self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+            self._spin_multiplicity = 1 if n_electrons % 2 == 0 else 2
         self.properties = properties or {}
 
     @property
@@ -2952,7 +2946,13 @@ class IMolecule(SiteCollection, MSONable):
     @property
     def nelectrons(self) -> float:
         """Number of electrons in the molecule."""
-        return self._nelectrons
+        n_electrons = 0.0
+        for site in self:
+            for sp, amt in site.species.items():
+                if not isinstance(sp, DummySpecies):
+                    n_electrons += sp.Z * amt
+        n_electrons -= self.charge
+        return n_electrons
 
     @property
     def center_of_mass(self) -> np.ndarray:

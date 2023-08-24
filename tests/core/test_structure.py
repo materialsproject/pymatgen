@@ -1821,6 +1821,10 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
         assert mol.spin_multiplicity == 2
         assert mol.nelectrons == 9
+        # https://github.com/materialsproject/pymatgen/issues/3265
+        # replace species and ensure nelectrons is updated
+        mol[0] = "N"
+        assert mol.nelectrons == 10
 
         # Triplet O2
         mol = IMolecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]], spin_multiplicity=3)
