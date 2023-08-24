@@ -3403,7 +3403,7 @@ class IMolecule(SiteCollection, MSONable):
                 with zopen(filename, "wt", encoding="utf8") as file:
                     file.write(json_str)
             return json_str
-        elif fmt == "yaml" or fnmatch(filename, "*.yaml*"):
+        elif fmt in ("yaml", "yml") or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
             str_io = StringIO()
             yaml.dump(self.as_dict(), str_io)
