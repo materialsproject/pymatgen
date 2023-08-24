@@ -56,10 +56,10 @@ class EwaldElectrostaticModel(EnergyModel):
         Args:
             real_space_cut (float): Real space cutoff radius dictating how
                 many terms are used in the real space sum. Defaults to None,
-                which means determine automagically using the formula given
+                which means determine automatically using the formula given
                 in gulp 3.1 documentation.
             recip_space_cut (float): Reciprocal space cutoff radius.
-                Defaults to None, which means determine automagically using
+                Defaults to None, which means determine automatically using
                 the formula given in gulp 3.1 documentation.
             eta (float): Screening parameter. Defaults to None, which means
                 determine automatically.

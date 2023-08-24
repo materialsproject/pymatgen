@@ -1381,11 +1381,7 @@ class TestStructure(PymatgenTest):
 
     def test_init_error(self):
         with pytest.raises(StructureError, match="atomic species and fractional coordinates must have same length"):
-            Structure(
-                Lattice.cubic(3),
-                ["Si"],
-                [[0, 0, 0], [0.5, 0.5, 0.5]],
-            )
+            Structure(Lattice.cubic(3), ["Si"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
     def test_from_sites(self):
         self.struct.add_site_property("hello", [1, 2])
