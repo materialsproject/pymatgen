@@ -942,11 +942,14 @@ class IStructure(SiteCollection, MSONable):
                 Will be serialized when writing the structure to JSON or YAML but is
                 lost when converting to other formats.
 
+        Raises:
+            ValueError: If sites is empty or sites do not have the same lattice.
+
         Returns:
             (Structure) Note that missing properties are set as None.
         """
         if len(sites) < 1:
-            raise ValueError(f"You need at least one site to construct a {cls}")
+            raise ValueError(f"You need at least 1 site to construct a {cls.__name__}")
         prop_keys: list[str] = []
         props = {}
         labels = [site.label for site in sites]
@@ -2996,7 +2999,15 @@ class IMolecule(SiteCollection, MSONable):
                 to True.
             properties (dict): dictionary containing properties associated
                 with the whole molecule.
+
+        Raises:
+            ValueError: If sites is empty
+
+        Returns:
+            Molecule
         """
+        if len(sites) < 1:
+            raise ValueError(f"You need at least 1 site to make a {cls.__name__}")
         props = collections.defaultdict(list)
         for site in sites:
             for k, v in site.properties.items():

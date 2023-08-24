@@ -1392,6 +1392,9 @@ class TestStructure(PymatgenTest):
         struct = Structure.from_sites(self.struct, to_unit_cell=True)
         assert struct.site_properties["hello"][1] == 2
 
+        with pytest.raises(ValueError, match="You need at least 1 site to construct a Structure"):
+            Structure.from_sites([])
+
     def test_charge(self):
         struct = Structure.from_sites(self.struct)
         assert struct.charge == 0, "Initial Structure not defaulting to behavior in SiteCollection"
@@ -1942,6 +1945,13 @@ class TestMolecule(PymatgenTest):
             _ = {mol: 1}
         mol.remove_sites([0, 1])
         assert mol.formula == "H3 N1"
+
+    def test_from_sites(self):
+        mol = Molecule.from_sites(self.mol)
+        assert mol == self.mol
+
+        with pytest.raises(ValueError, match="You need at least 1 site to make a Molecule"):
+            Molecule.from_sites([])
 
     def test_translate_sites(self):
         self.mol.translate_sites([0, 1], [0.5, 0.5, 0.5])
