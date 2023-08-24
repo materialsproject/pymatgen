@@ -455,7 +455,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """Reads in SiteCollection from a filename."""
         raise NotImplementedError
 
-    def add_site_property(self, property_name: str, values: list):
+    def add_site_property(self, property_name: str, values: Sequence | ArrayLike):
         """Adds a property to a site. Note: This is the preferred method
         for adding magnetic moments, selective dynamics, and related
         site-specific properties to a structure/molecule object.
@@ -593,12 +593,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 new_species[species] = occu
             site.species = Composition(new_species)
 
-    def add_spin_by_site(self, spins: list[float]) -> None:
+    def add_spin_by_site(self, spins: Sequence[float]) -> None:
         """Add spin states to structure by site.
 
         Args:
-            spins (list): List of spins
-                E.g., [+5, -5, 0, 0]
+            spins (list): e.g. [+5, -5, 0, 0]
         """
         if len(spins) != len(self):
             raise ValueError(f"Spins for all sites must be specified, expected {len(self)} spins, got {len(spins)}")
