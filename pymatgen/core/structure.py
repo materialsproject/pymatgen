@@ -887,8 +887,9 @@ class IStructure(SiteCollection, MSONable):
                 list of strings, e.g. ['Li1', 'Li2']. Must have the same
                 length as the species and fractional coords. Defaults to
                 None for no labels.
-            properties (dict): dictionary containing properties associated
-                with the whole structure.
+            properties (dict): Properties associated with the whole structure.
+                Will be serialized when writing the structure to JSON or YAML but is
+                lost when converting to other formats.
         """
         if len(species) != len(coords):
             raise StructureError("atomic species and fractional coordinates must have same length")
@@ -938,8 +939,9 @@ class IStructure(SiteCollection, MSONable):
                 that are less than 0.01 Ang apart. Defaults to False.
             to_unit_cell (bool): Whether to translate sites into the unit
                 cell.
-            properties (dict): dictionary containing properties associated
-                with the whole structure.
+            properties (dict): Properties associated with the whole structure.
+                Will be serialized when writing the structure to JSON or YAML but is
+                lost when converting to other formats.
 
         Returns:
             (Structure) Note that missing properties are set as None.
@@ -3555,8 +3557,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 list of strings, e.g. ['Li1', 'Li2']. Must have the same
                 length as the species and fractional coords. Defaults to
                 None for no labels.
-            properties (dict): dictionary containing properties associated
-                with the whole structure.
+            properties (dict): Properties associated with the whole structure.
+                Will be serialized when writing the structure to JSON or YAML but is
+                lost when converting to other formats.
         """
         super().__init__(
             lattice,
