@@ -9,6 +9,7 @@ import pytest
 import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
+from numpy.testing import assert_allclose
 from pytest import approx
 
 import pymatgen
@@ -145,7 +146,7 @@ direct
         ]
         assert [site.specie.symbol for site in poscar.structure] == ordered_expected_elements
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         poscar_string = """Test3
 1.0
 3.840198 0.000000 0.000000
@@ -178,7 +179,7 @@ cart
 """
         p = Poscar.from_str(poscar_string)
         site = p.structure[1]
-        assert np.allclose(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
+        assert_allclose(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
     def test_significant_figures(self):
         si = 14
@@ -279,9 +280,9 @@ direct
         p.write_file(path)
         p3 = Poscar.from_file(path)
 
-        assert np.allclose(p.structure.lattice.abc, p3.structure.lattice.abc, 5)
-        assert np.allclose(p.velocities, p3.velocities, 5)
-        assert np.allclose(p.predictor_corrector, p3.predictor_corrector, 5)
+        assert_allclose(p.structure.lattice.abc, p3.structure.lattice.abc, 5)
+        assert_allclose(p.velocities, p3.velocities, 5)
+        assert_allclose(p.predictor_corrector, p3.predictor_corrector, 5)
         assert p.predictor_corrector_preamble == p3.predictor_corrector_preamble
         path.unlink()
 
@@ -367,7 +368,7 @@ direct
         tempfname = Path("POSCAR.testing")
         poscar.write_file(tempfname)
         p = Poscar.from_file(tempfname)
-        assert np.allclose(poscar.structure.lattice.abc, p.structure.lattice.abc, 5)
+        assert_allclose(poscar.structure.lattice.abc, p.structure.lattice.abc, 5)
         tempfname.unlink()
 
     def test_selective_dynamics(self):
@@ -816,7 +817,7 @@ G
 0.5 0.5 0.5
 """
         )
-        assert np.allclose(kpoints.kpts_shift, [0.5, 0.5, 0.5])
+        assert_allclose(kpoints.kpts_shift, [0.5, 0.5, 0.5])
 
     def test_as_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
@@ -858,7 +859,7 @@ direct
 0.000000 0.000000 0.000000 Al"""
         )
         kpoints = Kpoints.automatic_density(p.structure, 1000)
-        assert np.allclose(kpoints.kpts[0], [10, 10, 10])
+        assert_allclose(kpoints.kpts[0], [10, 10, 10])
 
     def test_automatic_density_by_lengths(self):
         # Load a structure from a POSCAR file
@@ -877,6 +878,34 @@ direct
             assert kpoints.kpts == expected_kpts
 
             assert kpoints.style == expected_style
+
+    def test_automatic_monkhorst_vs_gamma_style_selection(self):
+        structs = {key: Structure.from_file(f"{TEST_FILES_DIR}/POSCAR_{key}") for key in ("bcc", "fcc", "hcp")}
+
+        # bcc structures should allow both Monkhorst and Gamma
+        for struct_type, struct in structs.items():
+            for density in (500, 600, 700):
+                kpoints = Kpoints.automatic_density(struct, density)
+                if struct_type == "bcc" and density in (500, 600):
+                    assert kpoints.style == Kpoints.supported_modes.Monkhorst
+                else:
+                    assert kpoints.style == Kpoints.supported_modes.Gamma
+
+        # Kpoints.automatic_density_by_lengths
+        for struct_type, struct in structs.items():
+            for lengths in [50, 50, 50], [53, 53, 53], [56, 56, 56]:
+                kpoints = Kpoints.automatic_density_by_lengths(struct, lengths)
+                if struct_type == "bcc" and all(length % 2 == 0 for length in lengths):
+                    assert kpoints.style == Kpoints.supported_modes.Monkhorst
+                else:
+                    assert kpoints.style == Kpoints.supported_modes.Gamma
+
+        # Overkill test to make sure these methods always set the style to Gamma
+        for len_density in range(1, 50):
+            for struct_type, struct in structs.items():
+                if struct_type != "bcc":
+                    kpoints = Kpoints.automatic_density_by_lengths(struct, [len_density] * 3)
+                    assert kpoints.style == Kpoints.supported_modes.Gamma
 
 
 class TestPotcarSingle:
@@ -1080,7 +1109,7 @@ class TestPotcar:
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
         assert potcar.symbols == ["Fe_pv"], "Wrong symbols read in for POTCAR"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.potcar.as_dict()
         potcar = Potcar.from_dict(d)
         assert potcar.symbols == ["Fe", "P", "O"]
@@ -1142,7 +1171,7 @@ class TestVaspInput:
         kpoints = Kpoints.from_file(filepath)
         self.vasp_input = VaspInput(incar, kpoints, poscar, potcar)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.vasp_input.as_dict()
         vasp_input = VaspInput.from_dict(d)
         comp = vasp_input["POSCAR"].structure.composition

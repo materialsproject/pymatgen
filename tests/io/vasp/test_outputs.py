@@ -4,7 +4,6 @@ import gzip
 import json
 import os
 import unittest
-import warnings
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from shutil import copyfile, copyfileobj
@@ -49,12 +48,6 @@ except ImportError:
 
 class TestVasprun(PymatgenTest):
     _multiprocess_shared_ = True
-
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_vasprun_ml(self):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.ml_md")
@@ -896,8 +889,8 @@ class TestOutcar(PymatgenTest):
         )
 
         plasma_freq = outcar.plasma_frequencies
-        assert np.allclose(plasma_freq["intraband"], np.zeros((3, 3)))
-        assert np.allclose(
+        assert_allclose(plasma_freq["intraband"], np.zeros((3, 3)))
+        assert_allclose(
             plasma_freq["interband"],
             [
                 [367.49, 63.939, 11.976],
@@ -1057,7 +1050,7 @@ class TestOutcar(PymatgenTest):
 
         assert len(outcar.data["chemical_shielding"]["valence_only"][20:28]) == approx(len(expected_chemical_shielding))
 
-        assert np.allclose(
+        assert_allclose(
             outcar.data["chemical_shielding"]["valence_and_core"][20:28],
             expected_chemical_shielding,
             atol=1e-5,
@@ -1145,7 +1138,7 @@ class TestOutcar(PymatgenTest):
 
         assert len(outcar.data["unsym_efg_tensor"][2:10]) == len(exepected_tensors)
         for e1, e2 in zip(outcar.data["unsym_efg_tensor"][2:10], exepected_tensors):
-            assert np.allclose(e1, e2)
+            assert_allclose(e1, e2)
 
     def test_read_fermi_contact_shift(self):
         filepath = f"{TEST_FILES_DIR}/OUTCAR_fc"
@@ -1422,11 +1415,18 @@ class TestBSVasprun(PymatgenTest):
 
 class TestOszicar(PymatgenTest):
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/OSZICAR"
-        oszicar = Oszicar(filepath)
+        fpath = f"{TEST_FILES_DIR}/OSZICAR"
+        oszicar = Oszicar(fpath)
         assert len(oszicar.electronic_steps) == len(oszicar.ionic_steps)
         assert len(oszicar.all_energies) == 60
         assert oszicar.final_energy == approx(-526.63928)
+        assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
+
+    def test_static(self):
+        fpath = f"{TEST_FILES_DIR}/static_silicon/OSZICAR"
+        oszicar = Oszicar(fpath)
+        assert oszicar.final_energy == approx(-10.645278)
+        assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
 
 
 class TestLocpot(PymatgenTest):
@@ -1510,10 +1510,10 @@ class TestChgcar(PymatgenTest):
         import h5py
 
         with h5py.File("chgcar_test.hdf5", "r") as f:
-            assert np.allclose(np.array(f["vdata"]["total"]), chgcar.data["total"])
-            assert np.allclose(np.array(f["vdata"]["diff"]), chgcar.data["diff"])
-            assert np.allclose(np.array(f["lattice"]), chgcar.structure.lattice.matrix)
-            assert np.allclose(np.array(f["fcoords"]), chgcar.structure.frac_coords)
+            assert_allclose(f["vdata"]["total"], chgcar.data["total"])
+            assert_allclose(f["vdata"]["diff"], chgcar.data["diff"])
+            assert_allclose(f["lattice"], chgcar.structure.lattice.matrix)
+            assert_allclose(f["fcoords"], chgcar.structure.frac_coords)
             for z in f["Z"]:
                 assert z in [Element.Ni.Z, Element.O.Z]
 
@@ -1521,7 +1521,7 @@ class TestChgcar(PymatgenTest):
                 assert sp in [b"Ni", b"O"]
 
         chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
-        assert np.allclose(chgcar2.data["total"], chgcar.data["total"])
+        assert_allclose(chgcar2.data["total"], chgcar.data["total"])
         os.remove("chgcar_test.hdf5")
 
     def test_spin_data(self):
@@ -1530,7 +1530,7 @@ class TestChgcar(PymatgenTest):
 
     def test_add(self):
         chgcar_sum = self.chgcar_spin + self.chgcar_spin
-        assert np.allclose(chgcar_sum.data["total"], self.chgcar_spin.data["total"] * 2)
+        assert_allclose(chgcar_sum.data["total"], self.chgcar_spin.data["total"] * 2)
         chgcar_copy = self.chgcar_spin.copy()
         chgcar_copy.structure = self.get_structure("Li2O")
         with pytest.warns(
@@ -1551,8 +1551,8 @@ class TestChgcar(PymatgenTest):
     def test_as_dict_and_from_dict(self):
         d = self.chgcar_NiO_SOC.as_dict()
         chgcar_from_dict = Chgcar.from_dict(d)
-        assert np.allclose(self.chgcar_NiO_SOC.data["total"], chgcar_from_dict.data["total"])
-        assert np.allclose(
+        assert_allclose(self.chgcar_NiO_SOC.data["total"], chgcar_from_dict.data["total"])
+        assert_allclose(
             self.chgcar_NiO_SOC.structure.lattice.matrix,
             chgcar_from_dict.structure.lattice.matrix,
         )
@@ -1592,14 +1592,6 @@ class TestProcar(PymatgenTest):
         assert p.nbands == 10
         assert p.nkpoints == 10
         assert p.nions == 3
-        lat = Lattice.cubic(3.0)
-        struct = Structure(
-            lat,
-            ["Li", "Na", "K"],
-            [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25], [0.75, 0.75, 0.75]],
-        )
-        d = p.get_projection_on_elements(struct)
-        assert d[Spin.up][2][2] == approx({"Na": 0.042, "K": 0.646, "Li": 0.042})
         filepath = f"{TEST_FILES_DIR}/PROCAR"
         p = Procar(filepath)
         assert p.get_occupation(0, "dxy")[Spin.up] == approx(0.96214813853000025)
@@ -1620,6 +1612,21 @@ class TestProcar(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/PROCAR.new_format_5.4.4"
         p = Procar(filepath)
         assert p.phase_factors[Spin.up][0, 0, 0, 0] == approx(-0.13 + 0.199j)
+
+    def test_get_projection_on_elements(self):
+        filepath = f"{TEST_FILES_DIR}/PROCAR.simple"
+        p = Procar(filepath)
+        struct = Structure(
+            Lattice.cubic(3.0),
+            ["Li", "Na", "K"],
+            [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25], [0.75, 0.75, 0.75]],
+        )
+        d = p.get_projection_on_elements(struct)
+        assert d[Spin.up][2][2] == approx({"Na": 0.042, "K": 0.646, "Li": 0.042})
+        # https://github.com/materialsproject/pymatgen/pull/3261
+        struct.replace_species({"K": "Na"})
+        d2 = p.get_projection_on_elements(struct)
+        assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
 
 
 class TestXdatcar(PymatgenTest):

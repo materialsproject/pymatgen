@@ -4,7 +4,6 @@ import functools
 import json
 import random
 import unittest
-import warnings
 from shutil import which
 
 import numpy as np
@@ -262,12 +261,6 @@ class TestOxidationStateRemovalTransformation(unittest.TestCase):
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class TestPartialRemoveSpecieTransformation(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_apply_transformation(self):
         trafo = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
         coords = []

@@ -75,7 +75,6 @@ def draw_cg(
     :param perfect_radius:
     :param show_distorted:
     :param faces_color_override:
-    :return:
     """
     if show_perfect:
         if csm_info is None:
@@ -160,7 +159,6 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_colo
     :param myfactor:
     :param view_index:
     :param faces_color_override:
-    :return:
     """
     if vis is None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
@@ -194,7 +192,6 @@ def compute_environments(chemenv_configuration):
     Compute the environments.
 
     :param chemenv_configuration:
-    :return:
     """
     string_sources = {
         "cif": {"string": "a Cif file", "regexp": r".*\.cif$"},
@@ -245,8 +242,8 @@ def compute_environments(chemenv_configuration):
                 input_source = input('Enter materials project id (e.g. "mp-1902") : ')
             from pymatgen.ext.matproj import MPRester
 
-            mpr = MPRester()
-            structure = mpr.get_structure_by_material_id(input_source)
+            with MPRester() as mpr:
+                structure = mpr.get_structure_by_material_id(input_source)
         lgf.setup_structure(structure)
         print(f"Computing environments for {structure.composition.reduced_formula} ... ")
         se = lgf.compute_structure_environments(maximum_distance_factor=max_dist_factor)

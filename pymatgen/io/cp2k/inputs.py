@@ -774,7 +774,7 @@ class Cp2kInput(Section):
                     if len(subsection_params) == 1 and subsection_params[0].upper() in ("T", "TRUE", "F", "FALSE", "ON")
                     else subsection_params
                 )
-                alias = name + " " + " ".join(subsection_params) if subsection_params else None
+                alias = f"{name} {' '.join(subsection_params)}" if subsection_params else None
                 s = Section(
                     name,
                     section_parameters=subsection_params,
@@ -2285,7 +2285,7 @@ class BasisInfo(MSONable):
 
         data["polarization"] = string.count("P")
         data["diffuse"] = string.count("X")
-        string = "#" + string
+        string = f"#{string}"
         for i, s in enumerate(string):
             if s == "Z":
                 z = int(tmp.get(string[i - 1], string[i - 1]))

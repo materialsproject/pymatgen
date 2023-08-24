@@ -9,8 +9,8 @@ from __future__ import annotations
 import random
 import unittest
 
-import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.composition import ChemicalPotential, Composition
@@ -314,7 +314,7 @@ class TestComposition(PymatgenTest):
             82.41634,
         ]
         all_weights = [c.weight for c in self.comps]
-        assert np.allclose(all_weights, correct_weights, 5)
+        assert_allclose(all_weights, correct_weights, 5)
 
     def test_get_atomic_fraction(self):
         correct_at_frac = {"Li": 0.15, "Fe": 0.1, "P": 0.15, "O": 0.6}
@@ -378,9 +378,9 @@ class TestComposition(PymatgenTest):
         assert d["O"] == correct_dict["O"]
 
     def test_pickle(self):
-        for c in self.comps:
-            self.serialize_with_pickle(c, test_eq=True)
-            self.serialize_with_pickle(c.to_data_dict, test_eq=True)
+        for comp in self.comps:
+            self.serialize_with_pickle(comp)
+            self.serialize_with_pickle(comp.to_data_dict)
 
     def test_to_data_dict(self):
         comp = Composition("Fe0.00009Ni0.99991")

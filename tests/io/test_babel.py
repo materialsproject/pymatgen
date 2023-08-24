@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import unittest
-import warnings
 
 import pytest
 from pytest import approx
@@ -27,16 +26,12 @@ class TestBabelMolAdaptor(unittest.TestCase):
             [-0.513360, 0.889165, -0.363000],
         ]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_init(self):
         adaptor = BabelMolAdaptor(self.mol)
-        obmol = adaptor.openbabel_mol
+        ob_mol = adaptor.openbabel_mol
         pybel = adaptor.pybel_mol
-        assert obmol.NumAtoms() == 5
+        assert ob_mol.NumAtoms() == 5
 
         adaptor = BabelMolAdaptor(adaptor.openbabel_mol)
         assert adaptor.pymatgen_mol.formula == "H4 C1"
@@ -60,8 +55,8 @@ class TestBabelMolAdaptor(unittest.TestCase):
     def test_from_molecule_graph(self):
         graph = MoleculeGraph.with_empty_graph(self.mol)
         adaptor = BabelMolAdaptor.from_molecule_graph(graph)
-        obmol = adaptor.openbabel_mol
-        assert obmol.NumAtoms() == 5
+        ob_mol = adaptor.openbabel_mol
+        assert ob_mol.NumAtoms() == 5
         mol = adaptor.pymatgen_mol
         assert mol.formula == "H4 C1"
 
@@ -75,9 +70,9 @@ class TestBabelMolAdaptor(unittest.TestCase):
         self.mol[1] = "H", [0, 0, 1.05]
         adaptor = BabelMolAdaptor(self.mol)
         adaptor.localopt()
-        optmol = adaptor.pymatgen_mol
-        for site in optmol[1:]:
-            assert site.distance(optmol[0]) == approx(1.09216, abs=1e-1)
+        opt_mol = adaptor.pymatgen_mol
+        for site in opt_mol[1:]:
+            assert site.distance(opt_mol[0]) == approx(1.09216, abs=1e-1)
 
     def test_make3d(self):
         mol_0d = pybel.readstring("smi", "CCCC").OBMol
@@ -98,27 +93,27 @@ class TestBabelMolAdaptor(unittest.TestCase):
         adaptor = BabelMolAdaptor(mol)
         rotor_args = (250, 50)
         adaptor.rotor_conformer(*rotor_args, algo="WeightedRotorSearch")
-        optmol = adaptor.pymatgen_mol
-        for site in optmol[1:]:
-            assert site.distance(optmol[0]) == approx(1.09216, abs=1e-1)
+        opt_mol = adaptor.pymatgen_mol
+        for site in opt_mol[1:]:
+            assert site.distance(opt_mol[0]) == approx(1.09216, abs=1e-1)
 
     def test_rotor_search_srs(self):
         mol = copy.deepcopy(self.mol)
         mol[1] = "H", [0, 0, 1.05]
         adaptor = BabelMolAdaptor(mol)
         adaptor.rotor_conformer(200, algo="SystematicRotorSearch")
-        optmol = adaptor.pymatgen_mol
-        for site in optmol[1:]:
-            assert site.distance(optmol[0]) == approx(1.09216, abs=1e-1)
+        opt_mol = adaptor.pymatgen_mol
+        for site in opt_mol[1:]:
+            assert site.distance(opt_mol[0]) == approx(1.09216, abs=1e-1)
 
     def test_rotor_search_rrs(self):
         mol = copy.deepcopy(self.mol)
         mol[1] = "H", [0, 0, 1.05]
         adaptor = BabelMolAdaptor(mol)
         adaptor.rotor_conformer(250, 50, algo="RandomRotorSearch")
-        optmol = adaptor.pymatgen_mol
-        for site in optmol[1:]:
-            assert site.distance(optmol[0]) == approx(1.09216, abs=1e-1)
+        opt_mol = adaptor.pymatgen_mol
+        for site in opt_mol[1:]:
+            assert site.distance(opt_mol[0]) == approx(1.09216, abs=1e-1)
 
     def test_confab_conformers(self):
         mol = pybel.readstring("smi", "CCCC").OBMol

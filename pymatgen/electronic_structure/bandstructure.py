@@ -54,14 +54,14 @@ class Kpoint(MSONable):
             label: the label of the kpoint if any (None by default).
         """
         self._lattice = lattice
-        self._fcoords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
+        self._frac_coords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
         self._label = label
 
         if to_unit_cell:
-            for i, fc in enumerate(self._fcoords):
-                self._fcoords[i] -= math.floor(fc)
+            for idx, fc in enumerate(self._frac_coords):
+                self._frac_coords[idx] -= math.floor(fc)
 
-        self._ccoords = lattice.get_cartesian_coords(self._fcoords)
+        self._cart_coords = lattice.get_cartesian_coords(self._frac_coords)
 
     @property
     def lattice(self):
@@ -78,27 +78,27 @@ class Kpoint(MSONable):
     @property
     def frac_coords(self):
         """The fractional coordinates of the kpoint as a numpy array."""
-        return np.copy(self._fcoords)
+        return np.copy(self._frac_coords)
 
     @property
     def cart_coords(self):
         """The Cartesian coordinates of the kpoint as a numpy array."""
-        return np.copy(self._ccoords)
+        return np.copy(self._cart_coords)
 
     @property
     def a(self):
         """Fractional a coordinate of the kpoint."""
-        return self._fcoords[0]
+        return self._frac_coords[0]
 
     @property
     def b(self):
         """Fractional b coordinate of the kpoint."""
-        return self._fcoords[1]
+        return self._frac_coords[1]
 
     @property
     def c(self):
         """Fractional c coordinate of the kpoint."""
-        return self._fcoords[2]
+        return self._frac_coords[2]
 
     def __str__(self):
         """Returns a string with fractional, Cartesian coordinates and label."""
@@ -597,7 +597,7 @@ class BandStructure:
 
         # MongoDB does not accept keys starting with $. Add a blank space to fix the problem
         for c, label in self.labels_dict.items():
-            mongo_key = c if not c.startswith("$") else " " + c
+            mongo_key = c if not c.startswith("$") else f" {c}"
             d["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
         d["projections"] = {}
         if len(self.projections) != 0:

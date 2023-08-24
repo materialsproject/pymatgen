@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 from pytest import approx
 
@@ -12,12 +11,6 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestEwaldElectrostaticModel(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_get_energy(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
@@ -38,7 +31,7 @@ class TestEwaldElectrostaticModel(unittest.TestCase):
         s2 = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
         assert m.get_energy(s2) == approx(-145.39050015844839, abs=1e-4)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         m = EwaldElectrostaticModel()
         d = m.as_dict()
         assert isinstance(EwaldElectrostaticModel.from_dict(d), EwaldElectrostaticModel)
@@ -50,7 +43,7 @@ class TestSymmetryModel(unittest.TestCase):
         s2 = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
         assert m.get_energy(s2) == approx(-225)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         m = SymmetryModel(symprec=0.2)
         d = m.as_dict()
         o = SymmetryModel.from_dict(d)
@@ -70,14 +63,9 @@ class TestIsingModel(unittest.TestCase):
         struct[5] = Species("Fe", 2, spin=-4)
         assert m.get_energy(struct) == approx(51.97424405382921)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         m = IsingModel(5, 4)
         d = m.as_dict()
         o = IsingModel.from_dict(d)
         assert isinstance(o, IsingModel)
         assert o.j == approx(5)
-
-
-if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()

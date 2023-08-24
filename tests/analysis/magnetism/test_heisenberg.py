@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 import pandas as pd
 
@@ -34,9 +33,6 @@ class TestHeisenbergMapper(unittest.TestCase):
 
     def setUp(self):
         pass
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_graphs(self):
         for hm in self.hms:

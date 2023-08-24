@@ -211,7 +211,7 @@ class ElementBase(Enum):
 
     @property
     def X(self) -> float:
-        """:return: Pauling electronegativity of element. Note that if an element does not
+        """Pauling electronegativity of element. Note that if an element does not
         have an Pauling electronegativity, a NaN float is returned.
         """
         if "X" in self._data:
@@ -1291,7 +1291,9 @@ class Species(MSONable, Stringify):
     @classmethod
     def from_dict(cls, d) -> Species:
         """:param d: Dict representation.
-        :return: Species.
+
+        Returns:
+            Species.
         """
         return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
 
@@ -1437,7 +1439,9 @@ class DummySpecies(Species):
     @classmethod
     def from_dict(cls, d) -> DummySpecies:
         """:param d: Dict representation
-        :return: DummySpecies
+
+        Returns:
+            DummySpecies
         """
         return cls(d["element"], d["oxidation_state"], spin=d.get("spin"))
 

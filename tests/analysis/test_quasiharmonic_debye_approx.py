@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 import numpy as np
+from numpy.testing import assert_allclose
 
 from pymatgen.analysis.eos import EOS
 from pymatgen.analysis.quasiharmonic import QuasiharmonicDebyeApprox
@@ -107,34 +108,33 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
     def test_bulk_modulus(self):
         eos = EOS(self.eos)
         eos_fit = eos.fit(self.volumes, self.energies)
-        print(f"{eos_fit.b0_GPa=!s}")
         bulk_modulus = float(str(eos_fit.b0_GPa).split()[0])
         bulk_modulus_ans = float(str(self.qhda.bulk_modulus).split()[0])
-        np.testing.assert_almost_equal(bulk_modulus, bulk_modulus_ans, 3)
+        assert_allclose(bulk_modulus, bulk_modulus_ans, atol=1e-3)
 
     def test_optimum_volume(self):
         opt_vol = self.qhda.optimum_volumes[0]
-        np.testing.assert_almost_equal(opt_vol, self.opt_vol, 3)
+        assert_allclose(opt_vol, self.opt_vol, atol=1e-3)
 
     def test_debye_temperature(self):
         theta = self.qhda.debye_temperature(self.opt_vol)
-        np.testing.assert_almost_equal(theta, 2559.675227, 3)
+        assert_allclose(theta, 2559.675227, atol=1e-3)
 
     def test_gruneisen_parameter(self):
         gamma = self.qhda.gruneisen_parameter(self.T, self.opt_vol)
-        np.testing.assert_almost_equal(gamma, 1.670486, 3)
+        assert_allclose(gamma, 1.670486, atol=1e-3)
 
     def test_thermal_conductivity(self):
         kappa = self.qhda.thermal_conductivity(self.T, self.opt_vol)
-        np.testing.assert_almost_equal(kappa, 131.736242, 1)
+        assert_allclose(kappa, 131.736242, atol=1e-1)
 
     def test_vibrational_internal_energy(self):
         u = self.qhda.vibrational_internal_energy(self.T, self.opt_vol)
-        np.testing.assert_almost_equal(u, 0.50102, 3)
+        assert_allclose(u, 0.50102, atol=1e-3)
 
     def test_vibrational_free_energy(self):
         A = self.qhda.vibrational_free_energy(self.T, self.opt_vol)
-        np.testing.assert_almost_equal(A, 0.494687, 3)
+        assert_allclose(A, 0.494687, atol=1e-3)
 
 
 class TestAnharmonicQuasiharmociDebyeApprox(unittest.TestCase):
@@ -185,7 +185,7 @@ direct
 
     def test_optimum_volume(self):
         opt_vol = self.qhda.optimum_volumes[0]
-        np.testing.assert_almost_equal(opt_vol, self.opt_vol, 3)
+        assert_allclose(opt_vol, self.opt_vol, atol=1e-3)
 
     def test_debye_temperature(self):
         theta = self.qhda.debye_temperature(self.opt_vol)
@@ -193,16 +193,16 @@ direct
 
     def test_gruneisen_parameter(self):
         gamma = self.qhda.gruneisen_parameter(0, self.qhda.ev_eos_fit.v0)
-        np.testing.assert_almost_equal(gamma, 2.188302, 3)
+        assert_allclose(gamma, 2.188302, atol=1e-3)
 
     def test_thermal_conductivity(self):
         kappa = self.qhda.thermal_conductivity(self.T, self.opt_vol)
-        np.testing.assert_almost_equal(kappa, 21.810997, 1)
+        assert_allclose(kappa, 21.810997, atol=1e-1)
 
     def test_vibrational_internal_energy(self):
         u = self.qhda.vibrational_internal_energy(self.T, self.opt_vol)
-        np.testing.assert_almost_equal(u, 0.13845, 3)
+        assert_allclose(u, 0.13845, atol=1e-3)
 
     def test_vibrational_free_energy(self):
         A = self.qhda.vibrational_free_energy(self.T, self.opt_vol)
-        np.testing.assert_almost_equal(A, -0.014620, 3)
+        assert_allclose(A, -0.014620, atol=1e-3)

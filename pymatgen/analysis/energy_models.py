@@ -27,7 +27,9 @@ class EnergyModel(MSONable, metaclass=abc.ABCMeta):
     def get_energy(self, structure) -> float:
         """
         :param structure: Structure
-        :return: Energy value
+
+        Returns:
+            Energy value
         """
         return 0.0
 
@@ -54,10 +56,10 @@ class EwaldElectrostaticModel(EnergyModel):
         Args:
             real_space_cut (float): Real space cutoff radius dictating how
                 many terms are used in the real space sum. Defaults to None,
-                which means determine automagically using the formula given
+                which means determine automatically using the formula given
                 in gulp 3.1 documentation.
             recip_space_cut (float): Reciprocal space cutoff radius.
-                Defaults to None, which means determine automagically using
+                Defaults to None, which means determine automatically using
                 the formula given in gulp 3.1 documentation.
             eta (float): Screening parameter. Defaults to None, which means
                 determine automatically.
@@ -72,7 +74,9 @@ class EwaldElectrostaticModel(EnergyModel):
     def get_energy(self, structure: Structure):
         """
         :param structure: Structure
-        :return: Energy value
+
+        Returns:
+            Energy value
         """
         e = EwaldSummation(
             structure,
@@ -119,7 +123,9 @@ class SymmetryModel(EnergyModel):
     def get_energy(self, structure: Structure):
         """
         :param structure: Structure
-        :return: Energy value
+
+        Returns:
+            Energy value
         """
         f = SpacegroupAnalyzer(structure, symprec=self.symprec, angle_tolerance=self.angle_tolerance)
         return -f.get_space_group_number()
@@ -152,7 +158,9 @@ class IsingModel(EnergyModel):
     def get_energy(self, structure: Structure):
         """
         :param structure: Structure
-        :return: Energy value
+
+        Returns:
+            Energy value
         """
         all_nn = structure.get_all_neighbors(r=self.max_radius)
         energy = 0
@@ -182,7 +190,9 @@ class NsitesModel(EnergyModel):
     def get_energy(self, structure: Structure):
         """
         :param structure: Structure
-        :return: Energy value
+
+        Returns:
+            Energy value
         """
         return len(structure)
 

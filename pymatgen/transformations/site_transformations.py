@@ -57,11 +57,11 @@ class InsertSitesTransformation(AbstractTransformation):
             Returns a copy of structure with sites inserted.
         """
         struct = structure.copy()
-        for i, sp in enumerate(self.species):
+        for idx, sp in enumerate(self.species):
             struct.insert(
-                i,
+                idx,
                 sp,
-                self.coords[i],
+                self.coords[idx],
                 coords_are_cartesian=self.coords_are_cartesian,
                 validate_proximity=self.validate_proximity,
             )
@@ -307,36 +307,36 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.logger.debug("Performing best first ordering")
         start_time = time.perf_counter()
         self.logger.debug("Performing initial Ewald sum...")
-        ewaldsum = EwaldSummation(structure)
+        ewald_sum = EwaldSummation(structure)
         self.logger.debug(f"Ewald sum took {time.perf_counter() - start_time} seconds.")
         start_time = time.perf_counter()
 
-        ematrix = ewaldsum.total_energy_matrix
+        e_matrix = ewald_sum.total_energy_matrix
         to_delete = []
 
-        totalremovals = sum(num_remove_dict.values())
+        total_removals = sum(num_remove_dict.values())
         removed = {k: 0 for k in num_remove_dict}
-        for _ in range(totalremovals):
+        for _ in range(total_removals):
             max_idx = None
-            maxe = float("-inf")
-            maxindices = None
+            max_ene = float("-inf")
+            max_indices = None
             for indices in num_remove_dict:
                 if removed[indices] < num_remove_dict[indices]:
                     for ind in indices:
                         if ind not in to_delete:
-                            energy = sum(ematrix[:, ind]) + sum(ematrix[:, ind]) - ematrix[ind, ind]
-                            if energy > maxe:
+                            energy = sum(e_matrix[:, ind]) + sum(e_matrix[:, ind]) - e_matrix[ind, ind]
+                            if energy > max_ene:
                                 max_idx = ind
-                                maxe = energy
-                                maxindices = indices
-            removed[maxindices] += 1
+                                max_ene = energy
+                                max_indices = indices
+            removed[max_indices] += 1
             to_delete.append(max_idx)
-            ematrix[:, max_idx] = 0
-            ematrix[max_idx, :] = 0
+            e_matrix[:, max_idx] = 0
+            e_matrix[max_idx, :] = 0
         struct = structure.copy()
         struct.remove_sites(to_delete)
         self.logger.debug(f"Minimizing Ewald took {time.perf_counter() - start_time} seconds.")
-        return [{"energy": sum(ematrix), "structure": struct.get_sorted_structure()}]
+        return [{"energy": sum(e_matrix), "structure": struct.get_sorted_structure()}]
 
     def _complete_ordering(self, structure: Structure, num_remove_dict):
         self.logger.debug("Performing complete ordering...")

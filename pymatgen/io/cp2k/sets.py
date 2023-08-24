@@ -1209,7 +1209,6 @@ class DftSet(Cp2kInput):
     def activate_very_strict_minimization(self) -> None:
         """
         Method to modify the set to use very strict SCF minimization scheme
-        :return:
         """
         ot = OrbitalTransformation(
             minimizer="CG",

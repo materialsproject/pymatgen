@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from numpy.testing import assert_allclose
 
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder, generate_all_slabs, get_rot, reorient_z
 from pymatgen.core.lattice import Lattice
@@ -90,7 +91,7 @@ class TestAdsorbateSiteFinder(PymatgenTest):
             self.asf_111.slab
         )
         for n, structure in enumerate(structures):
-            assert np.allclose(structure[-2].coords, sites["all"][n])
+            assert_allclose(structure[-2].coords, sites["all"][n], atol=1e-9)
         find_args = {"positions": ["hollow"]}
         structures_hollow = self.asf_111.generate_adsorption_structures(co, find_args=find_args)
         assert len(structures_hollow) == len(sites["hollow"])
@@ -105,14 +106,14 @@ class TestAdsorbateSiteFinder(PymatgenTest):
         ads_site_coords = sites["all"][0]
         c_site = structures[0][-2]
         assert str(c_site.specie) == "C"
-        assert np.allclose(c_site.coords, sites["all"][0])
+        assert_allclose(c_site.coords, sites["all"][0])
         # Check no translation
         structures = self.asf_111.generate_adsorption_structures(co, translate=False)
         assert co == Molecule("CO", [[1.0, -0.5, 3], [0.8, 0.46, 3.75]])
         sites = self.asf_111.find_adsorption_sites()
         ads_site_coords = sites["all"][0]
         c_site = structures[0][-2]
-        assert np.allclose(c_site.coords, ads_site_coords + np.array([1.0, -0.5, 3]))
+        assert_allclose(c_site.coords, ads_site_coords + np.array([1.0, -0.5, 3]))
 
     def test_adsorb_both_surfaces(self):
         # Test out for monatomic adsorption
@@ -143,34 +144,32 @@ class TestAdsorbateSiteFinder(PymatgenTest):
         # Test this for a low miller index halite structure
         slabs = generate_all_slabs(self.MgO, 1, 10, 10, center_slab=True, max_normal_search=1)
         for slab in slabs:
-            adsgen = AdsorbateSiteFinder(slab)
+            site_finder = AdsorbateSiteFinder(slab)
 
-            ad_slabss = adsgen.generate_substitution_structures("Ni")
+            sub_structs = site_finder.generate_substitution_structures("Ni")
             # There should be 2 configs (sub O and sub
             # Mg) for (110) and (100), 1 for (111)
             if tuple(slab.miller_index) != (1, 1, 1):
-                assert len(ad_slabss) == 2
+                assert len(sub_structs) == 2
             else:
-                assert len(ad_slabss) == 1
+                assert len(sub_structs) == 1
 
             # Test out whether it can correctly dope both
             # sides. Avoid (111) because it is not symmetric
             if tuple(slab.miller_index) != (1, 1, 1):
-                ad_slabss = adsgen.generate_substitution_structures("Ni", sub_both_sides=True, target_species=["Mg"])
+                sub_structs = site_finder.generate_substitution_structures(
+                    "Ni", sub_both_sides=True, target_species=["Mg"]
+                )
                 # Test if default parameters dope the surface site
-                for i, site in enumerate(ad_slabss[0]):
-                    if adsgen.slab[i].surface_properties == "surface" and site.species_string == "Mg":
-                        print(
-                            ad_slabss[0][i].surface_properties,
-                            adsgen.slab[i].surface_properties,
-                        )
-                        assert ad_slabss[0][i].surface_properties == "substitute"
+                for i, site in enumerate(sub_structs[0]):
+                    if site_finder.slab[i].surface_properties == "surface" and site.species_string == "Mg":
+                        assert sub_structs[0][i].surface_properties == "substitute"
 
-                assert ad_slabss[0].is_symmetric()
+                assert sub_structs[0].is_symmetric()
                 # Correctly dope the target species
-                assert ad_slabss[0].composition.as_dict()["Mg"] == slab.composition.as_dict()["Mg"] - 2
+                assert sub_structs[0].composition.as_dict()["Mg"] == slab.composition.as_dict()["Mg"] - 2
                 # There should be one config (sub Mg)
-                assert len(ad_slabss) == 1
+                assert len(sub_structs) == 1
 
     def test_functions(self):
         slab = self.slab_dict["111"]

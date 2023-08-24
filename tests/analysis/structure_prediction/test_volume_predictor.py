@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import warnings
 
 import pytest
 from pytest import approx
@@ -14,12 +13,6 @@ module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 
 class TestRLSVolumePredictor(PymatgenTest):
-    def setUp(self):
-        warnings.filterwarnings("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_predict(self):
         struct = PymatgenTest.get_structure("CsCl")
         nacl = PymatgenTest.get_structure("CsCl")

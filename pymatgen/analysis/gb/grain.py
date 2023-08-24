@@ -67,6 +67,7 @@ class GrainBoundary(Structure):
         oriented_unit_cell: Structure,
         validate_proximity: bool = False,
         coords_are_cartesian: bool = False,
+        properties: dict | None = None,
     ) -> None:
         """
         Makes a GB structure, a structure object with additional information
@@ -109,6 +110,8 @@ class GrainBoundary(Structure):
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
+            properties (dict): dictionary containing properties associated
+                with the whole GrainBoundary.
         """
         self.oriented_unit_cell = oriented_unit_cell
         self.rotation_axis = rotation_axis
@@ -125,6 +128,7 @@ class GrainBoundary(Structure):
             validate_proximity=validate_proximity,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
+            properties=properties,
         )
 
     def copy(self):
@@ -1374,6 +1378,7 @@ class GrainBoundaryGenerator:
             c2_a2_ratio (list of two integers, e.g. mu, mv):
                     mu/mv is the square of the hexagonal axial ratio, which is rational
                     number. If irrational, set c2_a2_ratio = None
+
         Returns:
             sigmas (dict):
                     dictionary with keys as the possible integer sigma values
@@ -1616,6 +1621,7 @@ class GrainBoundaryGenerator:
             c2_a2_ratio (list of two integers, e.g. mu, mv):
                     mu/mv is the square of the tetragonal axial ratio with rational number.
                     if irrational, set c2_a2_ratio = None
+
         Returns:
             sigmas (dict):
                     dictionary with keys as the possible integer sigma values

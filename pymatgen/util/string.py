@@ -33,7 +33,7 @@ class Stringify:
     STRING_MODE = "SUBSCRIPT"
 
     def to_pretty_string(self) -> str:
-        """:return: A pretty string representation. By default, the __str__ output is used, but this method can be
+        """A pretty string representation. By default, the __str__ output is used, but this method can be
         overridden if a different representation from default is desired.
         """
         return str(self)
@@ -43,7 +43,8 @@ class Stringify:
         "SUBSCRIPT". E.g., Fe2O3 is transformed to Fe$_{2}$O$_{3}$. Setting STRING_MODE to "SUPERSCRIPT" creates
         superscript, e.g., Fe2+ becomes Fe^{2+}. The initial string is obtained from the class's __str__ method.
 
-        :return: String for display as in LaTeX with proper superscripts and subscripts.
+        Returns:
+            String for display as in LaTeX with proper superscripts and subscripts.
         """
         str_ = self.to_pretty_string()
         # First we process strings that already have _ and ^ by escaping the relevant parts.
@@ -57,14 +58,16 @@ class Stringify:
 
     def to_html_string(self) -> str:
         """Generates a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
-        :return: HTML formatted string.
+
+        Returns:
+            HTML formatted string.
         """
         str_ = re.sub(r"\$_\{([^}]+)\}\$", r"<sub>\1</sub>", self.to_latex_string())
         str_ = re.sub(r"\$\^\{([^}]+)\}\$", r"<sup>\1</sup>", str_)
         return re.sub(r"\$\\overline\{([^}]+)\}\$", r'<span style="text-decoration:overline">\1</span>', str_)
 
     def to_unicode_string(self):
-        """:return: Unicode string with proper sub and superscripts. Note that this works only
+        """Unicode string with proper sub and superscripts. Note that this works only
         with systems where the sub and superscripts are pure integers.
         """
         str_ = self.to_latex_string()
@@ -166,7 +169,6 @@ def htmlify(formula):
     be used instead.
 
     :param formula:
-    :return:
     """
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", formula)
 
@@ -179,7 +181,6 @@ def unicodeify(formula):
     be used instead.
 
     :param formula:
-    :return:
     """
     if "." in formula:
         raise ValueError("No unicode character exists for subscript period.")
@@ -225,9 +226,9 @@ def unicodeify_spacegroup(spacegroup_symbol):
 
     symbol = latexify_spacegroup(spacegroup_symbol)
 
-    for number, unicode_number in SUBSCRIPT_UNICODE.items():
-        symbol = symbol.replace("$_{" + str(number) + "}$", unicode_number)
-        symbol = symbol.replace("_" + str(number), unicode_number)
+    for num, unicode_number in SUBSCRIPT_UNICODE.items():
+        symbol = symbol.replace(f"$_{{{num}}}$", unicode_number)
+        symbol = symbol.replace(f"_{num}", unicode_number)
 
     overline = "\u0305"  # u"\u0304" (macron) is also an option
 
@@ -260,8 +261,8 @@ def unicodeify_species(specie_string):
     return specie_string
 
 
-def stream_has_colours(stream):
-    """True if stream supports colours. Python cookbook, #475186."""
+def stream_has_colors(stream):
+    """True if stream supports colors. Python cookbook, #475186."""
     if not hasattr(stream, "isatty"):
         return False
 
@@ -283,8 +284,10 @@ def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x",
     :param translation_vec
     :param components: either ('x', 'y', 'z') or ('a', 'b', 'c')
     :param c: optional additional character to print (used for magmoms)
-    :param delim: delimiter
-    :return: xyz string.
+    :param delim: delimiter.
+
+    Returns:
+        xyz string.
     """
     parts = []
     for idx in range(3):
@@ -302,7 +305,7 @@ def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x",
                     string += "-"
                 string += c + dim
                 if f.denominator != 1:
-                    string += "/" + str(f.denominator)
+                    string += f"/{f.denominator}"
         if offset != 0:
             string += ("+" if (offset > 0 and string != "") else "") + str(Fraction(offset).limit_denominator())
         if string == "":

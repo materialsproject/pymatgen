@@ -4,6 +4,7 @@ import itertools
 import random
 
 import numpy as np
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
@@ -23,8 +24,8 @@ class TestPlanesUtils(PymatgenTest):
 
     def test_factors_abcd_normal_vector(self):
         factors = self.plane.coefficients / self.expected_coefficients
-        assert np.allclose([factors[0]] * 4, list(factors))
-        assert np.allclose([2 / 3, 1 / 3, -2 / 3], self.plane.normal_vector)
+        assert_allclose([factors[0]] * 4, list(factors))
+        assert_allclose([2 / 3, 1 / 3, -2 / 3], self.plane.normal_vector)
 
     def test_from_npoints_plane(self):
         best_fits = ["least_square_distance", "maximum_distance"]
@@ -94,12 +95,12 @@ class TestPlanesUtils(PymatgenTest):
         assert np.isclose(np.dot(ortho[0], ortho[1]), 0)
         assert np.isclose(np.dot(ortho[1], ortho[2]), 0)
         assert np.isclose(np.dot(ortho[2], ortho[0]), 0)
-        assert np.allclose(np.cross(ortho[0], ortho[1]), ortho[2])
-        assert np.allclose(np.cross(ortho[0], ortho[1]), self.plane.normal_vector)
-        assert np.allclose(np.cross(ortho[1], ortho[2]), ortho[0])
-        assert np.allclose(np.cross(ortho[2], ortho[0]), ortho[1])
+        assert_allclose(np.cross(ortho[0], ortho[1]), ortho[2])
+        assert_allclose(np.cross(ortho[0], ortho[1]), self.plane.normal_vector)
+        assert_allclose(np.cross(ortho[1], ortho[2]), ortho[0])
+        assert_allclose(np.cross(ortho[2], ortho[0]), ortho[1])
         assert not np.allclose(np.cross(ortho[1], ortho[0]), ortho[2])
-        assert np.allclose(np.cross(ortho[0], ortho[1]), self.plane.normal_vector)
+        assert_allclose(np.cross(ortho[0], ortho[1]), self.plane.normal_vector)
 
     def test_plane_comparison(self):
         plane_test_1 = Plane.from_coefficients(4, 2, -4, 3)
@@ -164,14 +165,14 @@ class TestPlanesUtils(PymatgenTest):
         assert len(sep[0]) == 0
         assert len(sep[1]) == 3
         assert len(sep[2]) == 5
-        assert np.allclose(sep[1], [1, 2, 4])
-        assert np.allclose(sep[2], [0, 3, 5, 6, 7])
+        assert_allclose(sep[1], [1, 2, 4])
+        assert_allclose(sep[2], [0, 3, 5, 6, 7])
         sep = self.plane.indices_separate(plist, 10)
         assert len(sep[0]) == 0
         assert len(sep[1]) == 6
         assert len(sep[2]) == 2
-        assert np.allclose(sep[1], [0, 1, 2, 3, 4, 6])
-        assert np.allclose(sep[2], [5, 7])
+        assert_allclose(sep[1], [0, 1, 2, 3, 4, 6])
+        assert_allclose(sep[2], [5, 7])
         sep = self.plane.indices_separate(plist, 100000)
         assert len(sep[0]) == 0
         assert len(sep[1]) == 8
@@ -243,39 +244,33 @@ class TestPlanesUtils(PymatgenTest):
         point_8 = np.array([100, 0, 0], np.float_)
         plist = [point_1, point_2, point_4, point_6, point_7, point_8]
         distances, indices_sorted = self.plane.distances_indices_sorted(plist)
-        assert np.allclose(
+        assert_allclose(
             distances,
-            [
-                0.5,
-                0,
-                1.16666666666666,
-                21.1666666666666,
-                3.8333333333333,
-                67.1666666666666,
-            ],
+            [0.5, 0, 1.16666666666666, 21.1666666666666, 3.8333333333333, 67.1666666666666],
+            atol=1e-9,
         )
         assert indices_sorted == [1, 0, 2, 4, 3, 5]
         # Plane 2y+1=0 (perpendicular to y)
         plane = Plane.from_coefficients(0, 2, 0, 1)
         plist = [point_1, point_5, point_6, point_7]
         distances, indices_sorted = plane.distances_indices_sorted(plist)
-        assert np.allclose(distances, [0.5, -1, 2.5, 10.5])
+        assert_allclose(distances, [0.5, -1, 2.5, 10.5])
         assert indices_sorted == [0, 1, 2, 3]
         plist = [point_1, point_5, point_6, point_7]
         distances, indices_sorted = plane.distances_indices_sorted(plist)
-        assert np.allclose(distances, [0.5, -1, 2.5, 10.5])
+        assert_allclose(distances, [0.5, -1, 2.5, 10.5])
         assert indices_sorted == [0, 1, 2, 3]
         distances, indices_sorted = plane.distances_indices_sorted(plist, sign=True)
-        assert np.allclose(distances, [0.5, -1, 2.5, 10.5])
+        assert_allclose(distances, [0.5, -1, 2.5, 10.5])
         assert indices_sorted == [(0, 1), (1, -1), (2, 1), (3, 1)]
         plist = [point_5, point_1, point_6, point_7]
         distances, indices_sorted, groups = plane.distances_indices_groups(plist)
-        assert np.allclose(distances, [-1, 0.5, 2.5, 10.5])
+        assert_allclose(distances, [-1, 0.5, 2.5, 10.5])
         assert indices_sorted == [1, 0, 2, 3]
         assert groups == [[1, 0], [2], [3]]
         plist = [point_1, point_2, point_3, point_4, point_5, point_6, point_7, point_8]
         distances, indices_sorted = plane.distances_indices_sorted(plist)
-        assert np.allclose(distances, [0.5, 0.5, 0.5, 0.5, -1, 2.5, 10.5, 0.5])
+        assert_allclose(distances, [0.5, 0.5, 0.5, 0.5, -1, 2.5, 10.5, 0.5])
         assert set(indices_sorted[:5]) == {0, 1, 2, 3, 7}
         # Plane z=0 (plane xy)
         plane = Plane.from_coefficients(0, 0, 1, 0)
@@ -286,11 +281,11 @@ class TestPlanesUtils(PymatgenTest):
         distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta=0.25)
         assert indices_sorted == [5, 0, 1, 2, 6, 7, 9, 4, 3, 8]
         assert groups == [[5, 0, 1], [2, 6, 7], [9, 4, 3], [8]]
-        assert np.allclose(distances, zzs)
+        assert_allclose(distances, zzs)
         distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta_factor=0.1)
         assert indices_sorted == [5, 0, 1, 2, 6, 7, 9, 4, 3, 8]
         assert groups == [[5, 0, 1, 2, 6, 7], [9, 4, 3], [8]]
-        assert np.allclose(distances, zzs)
+        assert_allclose(distances, zzs)
         distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta_factor=0.1, sign=True)
         assert indices_sorted == [(5, 0), (0, 1), (1, -1), (2, 1), (6, -1), (7, -1), (9, 1), (4, -1), (3, -1), (8, -1)]
         assert groups == [
@@ -298,7 +293,7 @@ class TestPlanesUtils(PymatgenTest):
             [(9, 1), (4, -1), (3, -1)],
             [(8, -1)],
         ]
-        assert np.allclose(distances, zzs)
+        assert_allclose(distances, zzs)
 
     def test_projections(self):
         # Projections of points that are already on the plane
@@ -313,7 +308,7 @@ class TestPlanesUtils(PymatgenTest):
         projected_points = self.plane.projectionpoints(expected_projected_points)
         projected_2d = self.plane.project_and_to2dim(expected_projected_points, "mean")
         for ii, pp in enumerate(expected_projected_points):
-            assert np.allclose(pp, projected_points[ii])
+            assert_allclose(pp, projected_points[ii], atol=1e-9)
         for i1, i2 in itertools.combinations(list(range(len(expected_projected_points))), 2):
             assert np.isclose(
                 np.linalg.norm(expected_projected_points[i1] - expected_projected_points[i2]),
@@ -329,11 +324,11 @@ class TestPlanesUtils(PymatgenTest):
             np.array([10, 8.3, -6.32]),
         ]
         projected_points = self.plane.projectionpoints(points_to_project)
-        meanpoint = np.array([np.mean([pp[ii] for pp in points_to_project]) for ii in range(3)])
+        mean_point = np.array([np.mean([pp[ii] for pp in points_to_project]) for ii in range(3)])
         projected_2d = self.plane.project_and_to2dim(points_to_project, "mean")
-        projected_2d_bis = self.plane.project_and_to2dim(points_to_project, meanpoint)
+        projected_2d_bis = self.plane.project_and_to2dim(points_to_project, mean_point)
         for ii, pp in enumerate(projected_2d):
-            assert np.allclose(pp, projected_2d_bis[ii])
+            assert_allclose(pp, projected_2d_bis[ii])
         for i1, i2 in itertools.combinations(list(range(len(projected_points))), 2):
             assert np.isclose(
                 np.linalg.norm(projected_points[i1] - projected_points[i2]),
@@ -341,7 +336,7 @@ class TestPlanesUtils(PymatgenTest):
             )
         for pp in points_to_project:
             projected_2d = self.plane.project_and_to2dim([pp], pp)
-            assert np.allclose(projected_2d[0], 0)
+            assert_allclose(projected_2d[0], 0)
         # Check some specific projections
         points = [
             np.zeros(3, np.float_),
@@ -359,7 +354,7 @@ class TestPlanesUtils(PymatgenTest):
             np.array([-1.55555556, 0.72222222, -0.44444444]),
         ]
         for ii, pp in enumerate(projected_points):
-            assert np.allclose(pp, expected_projected_points[ii])
+            assert_allclose(pp, expected_projected_points[ii])
             assert self.plane.is_in_plane(pp, 0.0000001)
         projected_2d_points_000 = self.plane.project_and_to2dim(points, [0, 0, 0])
         projected_2d_points_mean = self.plane.project_and_to2dim(points, "mean")

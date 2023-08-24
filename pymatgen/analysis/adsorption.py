@@ -110,7 +110,7 @@ class AdsorbateSiteFinder:
                 are 10% less coordinated than their bulk counterpart
         """
         # TODO: for some reason this works poorly with primitive cells
-        #       may want to switch the coordination algorithm eventually
+        # may want to switch the coordination algorithm eventually
         vnn_bulk = VoronoiNN(tol=0.05)
         bulk_coords = [len(vnn_bulk.get_nn(structure, n)) for n in range(len(structure))]
         struct = structure.copy(site_properties={"bulk_coordinations": bulk_coords})

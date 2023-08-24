@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 
-from numpy.testing import assert_allclose
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
@@ -23,8 +23,8 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
     def test_basic(self):
         assert self.bs.bands[1][10] == approx(0.7753555184)
         assert self.bs.bands[5][100] == approx(5.2548379776)
-        assert self.bs.bands.shape == (6, 204)
-        assert self.bs.eigendisplacements.shape == (6, 204, 2, 3)
+        assert_array_equal(self.bs.bands.shape, (6, 204))
+        assert_array_equal(self.bs.eigendisplacements.shape, (6, 204, 2, 3))
         assert_allclose(
             self.bs.eigendisplacements[3][50][0],
             [0.0 + 0.0j, 0.14166569 + 0.04098339j, -0.14166569 - 0.04098339j],

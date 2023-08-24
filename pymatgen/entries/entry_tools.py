@@ -167,7 +167,7 @@ def group_entries_by_composition(entries, sort_by_e_per_atom=True):
         optionally sort by energy above hull.
 
     Args:
-        entries (List): Sequence of Entry-like objects.
+        entries (list): Sequence of Entry-like objects.
         sort_by_e_per_atom (bool): Whether to sort the grouped entries by
             energy per atom (lowest energy first). Default True.
 

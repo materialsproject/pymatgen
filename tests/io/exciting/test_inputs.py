@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 
-import numpy as np
+from numpy.testing import assert_allclose
 
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.exciting import ExcitingInput
@@ -26,16 +26,16 @@ class TestExcitingInput(PymatgenTest):
         # Test for the import of a structure directly from an exciting
         # input file
         filepath = f"{TEST_FILES_DIR}/input_exciting1.xml"
-        excin = ExcitingInput.from_file(filepath)
+        exc_input = ExcitingInput.from_file(filepath)
         lattice = [[0.0, 2.81, 2.81], [2.81, 0.0, 2.81], [2.81, 2.81, 0.0]]
         atoms = ["Na", "Cl"]
-        fraccoords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-        assert np.allclose(lattice, excin.structure.lattice.matrix.tolist())
-        assert atoms == [site.specie.symbol for site in excin.structure]
-        assert fraccoords == [site.frac_coords.tolist() for site in excin.structure]
+        frac_coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+        assert_allclose(lattice, exc_input.structure.lattice.matrix.tolist())
+        assert atoms == [site.specie.symbol for site in exc_input.structure]
+        assert frac_coords == [site.frac_coords.tolist() for site in exc_input.structure]
 
-    def test_writestring(self):
-        # Test for the string export of s atructure into the exciting input xml schema
+    def test_write_string(self):
+        # Test for the string export of structure into the exciting input xml schema
         input_string = (
             '<input xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             'xsi:noNamespaceSchemaLocation="http://xml.exciting-code.org/excitinginput'

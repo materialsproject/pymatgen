@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 from collections import defaultdict
 from math import isnan
 
@@ -15,12 +14,6 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 
 class TestReaction(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_init(self):
         reactants = [Composition("Fe"), Composition("O2")]
         products = [Composition("Fe2O3")]
@@ -240,7 +233,7 @@ class TestReaction(unittest.TestCase):
         assert rxn.normalized_repr == "4 Li3Fe2(PO4)3 + 2 Fe2O3 -> 3 O2 + 12 LiFePO4"
         assert rxn.calculate_energy(energies) == approx(-0.48333333, abs=1e-5)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         reactants = [Composition("Fe"), Composition("O2")]
         products = [Composition("Fe2O3")]
         rxn = Reaction(reactants, products)
@@ -295,12 +288,6 @@ class TestReaction(unittest.TestCase):
 
 
 class TestBalancedReaction(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_init(self):
         rct = {Composition("K2SO4"): 3, Composition("Na2S"): 1, Composition("Li"): 24}
         prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
@@ -313,7 +300,7 @@ class TestBalancedReaction(unittest.TestCase):
         with pytest.raises(ReactionError, match="Reaction is unbalanced"):
             BalancedReaction(rct, prod)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         rct = {Composition("K2SO4"): 3, Composition("Na2S"): 1, Composition("Li"): 24}
         prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
         rxn = BalancedReaction(rct, prod)
@@ -529,7 +516,7 @@ class TestComputedReaction(unittest.TestCase):
     def test_init(self):
         assert str(self.rxn) == "2 Li + O2 -> Li2O2"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.rxn.as_dict()
         new_rxn = ComputedReaction.from_dict(d)
         assert str(new_rxn) == "2 Li + O2 -> Li2O2"

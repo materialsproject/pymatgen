@@ -3,13 +3,13 @@ from __future__ import annotations
 import collections
 import os
 import unittest
-import warnings
 from numbers import Number
 from pathlib import Path
 
 import numpy as np
 import pytest
 from monty.serialization import dumpfn, loadfn
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.phase_diagram import (
@@ -72,7 +72,7 @@ class TestPDEntry(unittest.TestCase):
         assert not self.entry.is_element
         assert not self.gp_entry.is_element
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.entry.as_dict()
         gpd = self.gp_entry.as_dict()
         entry = PDEntry.from_dict(d)
@@ -142,7 +142,7 @@ class TestTransformedPDEntry(unittest.TestCase):
         iron = Composition("Fe")
         assert TransformedPDEntry(PDEntry(iron, 0), {iron: iron}).is_element is True
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         dct = self.transformed_entry.as_dict()
         entry = TransformedPDEntry.from_dict(dct)
         assert entry.name == "LiFeO2" == self.transformed_entry.name
@@ -164,10 +164,6 @@ class TestPhaseDiagram(PymatgenTest):
     def setUp(self):
         self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         self.pd = PhaseDiagram(self.entries)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
 
     def test_init(self):
         # Ensure that a bad set of entries raises a PD error. Remove all Li
@@ -603,7 +599,7 @@ class TestPhaseDiagram(PymatgenTest):
     def test_get_plot(self):
         self.pd.get_plot()  # PDPlotter functionality is tested separately
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         # test round-trip for other entry types such as ComputedEntry
         entry = ComputedEntry("H", 0.0, 0.0, entry_id="test")
         pd = PhaseDiagram([entry])
@@ -772,7 +768,7 @@ class TestPatchedPhaseDiagram(unittest.TestCase):
     def test_repr(self):
         assert repr(self.ppd) == str(self.ppd) == "PatchedPhaseDiagram covering 15 sub-spaces"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         ppd_dict = self.ppd.as_dict()
         assert ppd_dict["@module"] == self.ppd.__class__.__module__
         assert ppd_dict["@class"] == self.ppd.__class__.__name__
@@ -978,9 +974,9 @@ class TestUtilityFunction(unittest.TestCase):
     def test_triangular_coord(self):
         coord = [0.5, 0.5]
         coord = triangular_coord(coord)
-        assert np.allclose(coord, [0.75, 0.4330127])
+        assert_allclose(coord, [0.75, 0.4330127])
 
     def test_tet_coord(self):
         coord = [0.5, 0.5, 0.5]
         coord = tet_coord(coord)
-        assert np.allclose(coord, [1.0, 0.57735027, 0.40824829])
+        assert_allclose(coord, [1.0, 0.57735027, 0.40824829])

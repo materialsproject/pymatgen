@@ -3,9 +3,8 @@ from __future__ import annotations
 import json
 import unittest
 
-import numpy as np
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.electronic_structure.cohp import (
@@ -898,7 +897,7 @@ class TestCompleteCohp(PymatgenTest):
         # test to fail
         cohp_lmto_dict = self.cohp_lmto.as_dict()
         for key in ["COHP", "ICOHP"]:
-            assert np.allclose(
+            assert_allclose(
                 cohp_lmto_dict[key]["average"]["1"],
                 self.cohp_lmto_dict.as_dict()[key]["average"]["1"],
                 5,
@@ -1133,12 +1132,12 @@ class TestCompleteCohp(PymatgenTest):
         # the total COHP calculated by LOBSTER. Due to numerical errors in
         # the LOBSTER calculation, the precision is not very high though.
 
-        assert np.allclose(
+        assert_allclose(
             self.cohp_orb.all_cohps["1"].cohp[Spin.up],
             self.cohp_notot.all_cohps["1"].cohp[Spin.up],
             atol=1e-3,
         )
-        assert np.allclose(
+        assert_allclose(
             self.cohp_orb.all_cohps["1"].icohp[Spin.up],
             self.cohp_notot.all_cohps["1"].icohp[Spin.up],
             atol=1e-3,

@@ -166,10 +166,8 @@ class CollinearMagneticStructureAnalyzer:
                     has_spin = True
 
         # perform input sanitation ...
-        # rest of class will assume magnetic moments
-        # are stored on site properties:
-        # this is somewhat arbitrary, arguments can
-        # be made for both approaches
+        # rest of class will assume magnetic moments are stored on site properties:
+        # this is somewhat arbitrary, arguments can be made for both approaches
 
         if has_magmoms and has_spin:
             raise ValueError(
@@ -555,16 +553,16 @@ class CollinearMagneticStructureAnalyzer:
         b_positive = CollinearMagneticStructureAnalyzer(other, overwrite_magmom_mode="normalize", make_primitive=False)
 
         b_negative = b_positive.structure.copy()
-        b_negative.add_site_property("magmom", np.multiply(-1, b_negative.site_properties["magmom"]))
+        b_negative.add_site_property("magmom", -np.array(b_negative.site_properties["magmom"]))
 
-        b_negative = CollinearMagneticStructureAnalyzer(
+        analyzer = CollinearMagneticStructureAnalyzer(
             b_negative, overwrite_magmom_mode="normalize", make_primitive=False
         )
 
         b_positive = b_positive.get_structure_with_spin()
-        b_negative = b_negative.get_structure_with_spin()
+        analyzer = analyzer.get_structure_with_spin()
 
-        return a.matches(b_positive) or a.matches(b_negative)
+        return a.matches(b_positive) or a.matches(analyzer)
 
     def __str__(self):
         """

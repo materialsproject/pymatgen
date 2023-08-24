@@ -22,6 +22,7 @@ from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
+from numpy.testing import assert_allclose
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -1074,7 +1075,9 @@ class Vasprun(MSONable):
     def get_potcars(self, path):
         """
         :param path: Path to search for POTCARs
-        :return: Potcar from path.
+
+        Returns:
+            Potcar from path.
         """
 
         def get_potcar_in_path(p):
@@ -1123,7 +1126,9 @@ class Vasprun(MSONable):
     def update_potcar_spec(self, path):
         """
         :param path: Path to search for POTCARs
-        :return: Potcar spec from path.
+
+        Returns:
+            Potcar spec from path.
         """
         if potcar := self.get_potcars(path):
             self.potcar_spec = [
@@ -3294,7 +3299,7 @@ class Outcar:
             )
 
         if self.dfpt:
-            d.update({"internal_strain_tensor": self.internal_strain_tensor})
+            d["internal_strain_tensor"] = self.internal_strain_tensor
 
         if self.dfpt and self.lepsilon:
             d.update(
@@ -3308,7 +3313,7 @@ class Outcar:
             d.update({"p_elec": self.p_elec, "p_ion": self.p_ion})
             if self.spin and not self.noncollinear:
                 d.update({"p_sp1": self.p_sp1, "p_sp2": self.p_sp2})
-            d.update({"zval_dict": self.zval_dict})
+            d["zval_dict"] = self.zval_dict
 
         if self.nmr_cs:
             d.update(
@@ -3337,7 +3342,7 @@ class Outcar:
             # cast Spin to str for consistency with electronic_structure
             # TODO: improve handling of Enum (de)serialization in monty
             onsite_density_matrices = [{str(k): v for k, v in d.items()} for d in self.data["onsite_density_matrices"]]
-            d.update({"onsite_density_matrices": onsite_density_matrices})
+            d["onsite_density_matrices"] = onsite_density_matrices
 
         return d
 
@@ -3540,7 +3545,9 @@ class VolumetricData(BaseVolumetricData):
             to ensure written CHGCAR files are byte-to-byte identical to
             their input files as far as possible.
             :param f: float
-            :return: str.
+
+            Returns:
+                str.
             """
             s = f"{f:.10E}"
             if f >= 0:
@@ -3611,7 +3618,9 @@ class Locpot(VolumetricData):
         Reads a LOCPOT file.
 
         :param filename: Filename
-        :return: Locpot
+
+        Returns:
+            Locpot
         """
         (poscar, data, data_aug) = VolumetricData.parse_file(filename)
         return cls(poscar, data, **kwargs)
@@ -3646,7 +3655,9 @@ class Chgcar(VolumetricData):
         Read a CHGCAR file.
 
         :param filename: Filename
-        :return: Chgcar
+
+        Returns:
+            Chgcar
         """
         poscar, data, data_aug = VolumetricData.parse_file(filename)
         return Chgcar(poscar, data, data_aug=data_aug)
@@ -3696,7 +3707,9 @@ class Elfcar(VolumetricData):
         Reads a ELFCAR file.
 
         :param filename: Filename
-        :return: Elfcar
+
+        Returns:
+            Elfcar
         """
         (poscar, data, data_aug) = VolumetricData.parse_file(filename)
         return cls(poscar, data)
@@ -3736,8 +3749,7 @@ class Procar:
 
         Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
         {
-            spin: complex nd.array accessed with (k-point index, band index,
-                                                  ion index, orbital index)
+            spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)
         }
 
     ..attribute:: nbands
@@ -3852,7 +3864,7 @@ class Procar:
             name = structure.species[iat].symbol
             for spin, d in self.data.items():
                 for k, b in itertools.product(range(self.nkpoints), range(self.nbands)):
-                    dico[spin][b][k][name] = np.sum(d[k, b, iat, :])
+                    dico[spin][b][k][name] += np.sum(d[k, b, iat, :])
 
         return dico
 
@@ -3904,6 +3916,7 @@ class Oszicar:
             [{"dE": -526.36, "E0": -526.36024, "mag": 0.0, "F": -526.36024},
             ...]
             This is the typical output from VASP at the end of each ionic step.
+            The stored dict might be different depending on the type of VASP run.
     """
 
     def __init__(self, filename):
@@ -3913,22 +3926,7 @@ class Oszicar:
         """
         electronic_steps = []
         ionic_steps = []
-        ionic_pattern = re.compile(r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+E0=\s*([\d\-\.E\+]+)\s+d\s*E\s*=\s*([\d\-\.E\+]+)$")
-        ionic_mag_pattern = re.compile(
-            r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
-            r"E0=\s*([\d\-\.E\+]+)\s+"
-            r"d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
-            r"mag=\s*([\d\-\.E\+]+)"
-        )
-        ionic_MD_pattern = re.compile(
-            r"(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
-            r"E=\s*([\d\-\.E\+]+)\s+"
-            r"F=\s*([\d\-\.E\+]+)\s+"
-            r"E0=\s*([\d\-\.E\+]+)\s+"
-            r"EK=\s*([\d\-\.E\+]+)\s+"
-            r"SP=\s*([\d\-\.E\+]+)\s+"
-            r"SK=\s*([\d\-\.E\+]+)"
-        )
+        ionic_general_pattern = re.compile(r"(\w+)=\s*(\S+)")
         electronic_pattern = re.compile(r"\s*\w+\s*:(.*)")
 
         def smart_convert(header, num):
@@ -3942,8 +3940,7 @@ class Oszicar:
         header = []
         with zopen(filename, "rt") as fid:
             for line in fid:
-                line = line.strip()
-                m = electronic_pattern.match(line)
+                m = electronic_pattern.match(line.strip())
                 if m:
                     toks = m.group(1).split()
                     data = {header[i]: smart_convert(header[i], toks[i]) for i in range(len(toks))}
@@ -3951,40 +3948,13 @@ class Oszicar:
                         electronic_steps.append([data])
                     else:
                         electronic_steps[-1].append(data)
-                elif ionic_pattern.match(line.strip()):
-                    m = ionic_pattern.match(line.strip())
-                    ionic_steps.append(
-                        {
-                            "F": float(m.group(2)),
-                            "E0": float(m.group(3)),
-                            "dE": float(m.group(4)),
-                        }
-                    )
-                elif ionic_mag_pattern.match(line.strip()):
-                    m = ionic_mag_pattern.match(line.strip())
-                    ionic_steps.append(
-                        {
-                            "F": float(m.group(2)),
-                            "E0": float(m.group(3)),
-                            "dE": float(m.group(4)),
-                            "mag": float(m.group(5)),
-                        }
-                    )
-                elif ionic_MD_pattern.match(line.strip()):
-                    m = ionic_MD_pattern.match(line.strip())
-                    ionic_steps.append(
-                        {
-                            "T": float(m.group(2)),
-                            "E": float(m.group(3)),
-                            "F": float(m.group(4)),
-                            "E0": float(m.group(5)),
-                            "EK": float(m.group(6)),
-                            "SP": float(m.group(7)),
-                            "SK": float(m.group(8)),
-                        }
-                    )
-                elif re.match(r"^\s*N\s+E\s*", line):
+                elif re.match(r"^\s*N\s+E\s*", line.strip()):
                     header = line.strip().replace("d eps", "deps").split()
+                elif line.strip() != "":
+                    # remove space first and apply field agnostic extraction
+                    matches = re.findall(ionic_general_pattern, re.sub(r"d E ", "dE", line))
+                    ionic_steps.append({key: float(value) for key, value in matches})
+
         self.electronic_steps = electronic_steps
         self.ionic_steps = ionic_steps
 
@@ -4265,14 +4235,14 @@ class Xdatcar:
             ionicstep_cnt = cnt + 1
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
-                    lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
+                    lines.append(f"Direct configuration={' '*(7-len(str(output_cnt)))}{output_cnt}")
                     for site in structure:
                         coords = site.frac_coords
                         line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
             elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
+                lines.append(f"Direct configuration={' '*(7-len(str(output_cnt)))}{output_cnt}")
                 for site in structure:
                     coords = site.frac_coords
                     line = " ".join(format_str.format(c) for c in coords)
@@ -4611,7 +4581,7 @@ class Wavecar:
                     if ispin == 0:
                         self.kpoints.append(kpoint)
                     else:
-                        assert np.allclose(self.kpoints[ink], kpoint)
+                        assert_allclose(self.kpoints[ink], kpoint)
 
                     if verbose:
                         print(f"kpoint {ink: 4} with {nplane: 5} plane waves at {kpoint}")
@@ -4828,6 +4798,7 @@ class Wavecar:
                             if vasp_type == 'ncl')
             shift (bool): determines if the zero frequency coefficient is
                             placed at index (0, 0, 0) or centered
+
         Returns:
             a numpy ndarray representing the 3D mesh of coefficients
         """

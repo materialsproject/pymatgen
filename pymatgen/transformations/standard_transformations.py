@@ -344,7 +344,7 @@ class SubstitutionTransformation(AbstractTransformation):
             value = {get_el_sp(x): y for x, y in v.items()} if isinstance(v, dict) else get_el_sp(v)
             species_map[get_el_sp(k)] = value
         struct = structure.copy()
-        struct.replace_species(species_map)
+        struct.replace_species(species_map)  # type: ignore[arg-type]
         return struct
 
     def __str__(self):

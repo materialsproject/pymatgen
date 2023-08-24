@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import numpy as np
+from numpy.testing import assert_allclose
 
 from pymatgen.analysis.interfaces.coherent_interfaces import (
     CoherentInterfaceBuilder,
@@ -21,9 +21,9 @@ class TestInterfaceBuilder(PymatgenTest):
         cls.sio2_conventional = SpacegroupAnalyzer(sio2_struct).get_conventional_standard_structure()
 
     def test_utils(self):
-        assert np.allclose(from_2d_to_3d([[1, 2], [3, 4]]), [[1, 2, 0], [3, 4, 0], [0, 0, 1]])
-        assert np.allclose(get_2d_transform([[1, 0], [0, 1]], [[1, 2], [3, 4]]), [[1, 2], [3, 4]])
-        assert np.allclose(
+        assert_allclose(from_2d_to_3d([[1, 2], [3, 4]]), [[1, 2, 0], [3, 4, 0], [0, 0, 1]])
+        assert_allclose(get_2d_transform([[1, 0], [0, 1]], [[1, 2], [3, 4]]), [[1, 2], [3, 4]])
+        assert_allclose(
             get_rot_3d_for_2d([[1, 0, 0], [0, 1, 0]], [[1, 1, 0], [0, 1, 1]]),
             [
                 [0.78867513, -0.21132487, 0.57735027],

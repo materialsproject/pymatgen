@@ -193,7 +193,9 @@ class GasCorrection(Correction):
 
     def get_correction(self, entry) -> ufloat:
         """:param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction.
+
+        Returns:
+            Correction.
         """
         comp = entry.composition
 
@@ -238,7 +240,9 @@ class AnionCorrection(Correction):
 
     def get_correction(self, entry) -> ufloat:
         """:param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction.
+
+        Returns:
+            Correction.
         """
         comp = entry.composition
         if len(comp) == 1:  # Skip element entry
@@ -337,7 +341,9 @@ class AqueousCorrection(Correction):
 
     def get_correction(self, entry) -> ufloat:
         """:param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction, Uncertainty.
+
+        Returns:
+            Correction, Uncertainty.
         """
         from pymatgen.analysis.pourbaix_diagram import MU_H2O
 
@@ -455,7 +461,9 @@ class UCorrection(Correction):
 
     def get_correction(self, entry) -> ufloat:
         """:param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction, Uncertainty.
+
+        Returns:
+            Correction, Uncertainty.
         """
         if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             raise CompatibilityError(

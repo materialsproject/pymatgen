@@ -575,8 +575,8 @@ class SurfaceEnergyPlotter:
         Args:
             ref_delu (Symbol): The free variable chempot with the format:
                 Symbol("delu_el") where el is the name of the element.
-            chempot_range (List[float]): Min/max range of chemical potential to plot along.
-            delu_dict (Dict[Symbol, float]): Dictionary of the chemical potentials to be set as
+            chempot_range (list[float]): Min/max range of chemical potential to plot along.
+            delu_dict (dict[Symbol, float]): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials.
@@ -871,8 +871,8 @@ class SurfaceEnergyPlotter:
                 to plot. (Add appropriate description for type)
             ref_delu (Symbol): The range stability of each slab is based
                 on the chempot range of this chempot.
-            chempot_range (List[float]): Range to consider the stability of the slabs.
-            delu_dict (Dict[Symbol, float]): Dictionary of the chemical potentials.
+            chempot_range (list[float]): Range to consider the stability of the slabs.
+            delu_dict (dict[Symbol, float]): Dictionary of the chemical potentials.
             delu_default (float): Default value for all unset chemical potentials.
             label (str): Label of the slab for the legend.
             JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
@@ -1316,24 +1316,6 @@ class SurfaceEnergyPlotter:
 
         return all_delu_dict
 
-        # def surface_phase_diagram(self, y_param, x_param, miller_index):
-        #     return
-        #
-        # def wulff_shape_extrapolated_model(self):
-        #     return
-        #
-        # def surface_pourbaix_diagram(self):
-        #
-        #     return
-        #
-        # def surface_p_vs_t_phase_diagram(self):
-        #
-        #     return
-        #
-        # def broken_bond_vs_gamma(self):
-        #
-        #     return
-
 
 def entry_dict_from_list(all_slab_entries):
     """
@@ -1641,7 +1623,9 @@ class WorkFunctionAnalyzer:
         :param shift: shift
         :param blength: The longest bond length in the material.
             Used to handle pbc for noncontiguous slab layers
-        :return: WorkFunctionAnalyzer
+
+        Returns:
+            WorkFunctionAnalyzer
         """
         poscar = Poscar.from_file(poscar_filename)
         locpot = Locpot.from_file(locpot_filename)
@@ -1947,15 +1931,6 @@ class NanoscaleStability:
 
         return plt
 
-        # class GetChempotRange:
-        #     def __init__(self, entry):
-        #         self.entry = entry
-        #
-        #
-        # class SlabEntryGenerator:
-        #     def __init__(self, entry):
-        #         self.entry = entry
-
 
 def sub_chempots(gamma_dict, chempots):
     """
@@ -1968,6 +1943,7 @@ def sub_chempots(gamma_dict, chempots):
             as a coefficient dictionary
         chempots (dict): Dictionary assigning each chemical
             potential (key) in gamma a value
+
     Returns:
         Surface energy as a float
     """

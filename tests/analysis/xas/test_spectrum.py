@@ -5,7 +5,7 @@ import json
 import numpy as np
 import pytest
 from monty.json import MontyDecoder
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
@@ -51,13 +51,13 @@ class TestXAS(PymatgenTest):
     def test_add_mul(self):
         scaled_spect = self.k_xanes + self.k_xanes
         scaled_spect2 = self.k_xanes * 3
-        assert np.allclose(scaled_spect.y, 2 * self.k_xanes.y)
-        assert np.allclose(scaled_spect2.y, 3 * self.k_xanes.y)
+        assert_allclose(scaled_spect.y, 2 * self.k_xanes.y)
+        assert_allclose(scaled_spect2.y, 3 * self.k_xanes.y)
         assert approx(self.k_xanes.get_interpolated_value(7720.422), abs=1e-3) == 0.274302
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         s = XAS.from_dict(self.k_xanes.as_dict())
-        assert np.allclose(s.y, self.k_xanes.y)
+        assert_allclose(s.y, self.k_xanes.y)
 
     def test_attributes(self):
         assert_array_equal(self.k_xanes.energy, self.k_xanes.x)

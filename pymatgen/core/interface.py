@@ -5,6 +5,7 @@ from __future__ import annotations
 from itertools import chain, combinations, product
 
 import numpy as np
+from numpy.testing import assert_allclose
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 
@@ -200,8 +201,7 @@ class Interface(Structure):
             tolerance: tolerance for "uniqueness" for shifts in Cartesian unit
                 This is usually Angstroms.
         """
-        substrate = self.substrate
-        film = self.film
+        substrate, film = self.substrate, self.film
 
         substrate_surface_sites = np.dot(
             list(chain.from_iterable(AdsorbateSiteFinder(substrate).find_adsorption_sites().values())),
@@ -284,7 +284,9 @@ class Interface(Structure):
     @classmethod
     def from_dict(cls, d):
         """:param d: dict
-        :return: Creates slab from dict.
+
+        Returns:
+            Creates slab from dict.
         """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
@@ -340,10 +342,10 @@ class Interface(Structure):
             substrate_slab = substrate_slab.get_orthogonal_c_slab()
         if isinstance(film_slab, Slab):
             film_slab = film_slab.get_orthogonal_c_slab()
-        assert np.allclose(film_slab.lattice.alpha, 90, 0.1)
-        assert np.allclose(film_slab.lattice.beta, 90, 0.1)
-        assert np.allclose(substrate_slab.lattice.alpha, 90, 0.1)
-        assert np.allclose(substrate_slab.lattice.beta, 90, 0.1)
+        assert_allclose(film_slab.lattice.alpha, 90, 0.1)
+        assert_allclose(film_slab.lattice.beta, 90, 0.1)
+        assert_allclose(substrate_slab.lattice.alpha, 90, 0.1)
+        assert_allclose(substrate_slab.lattice.beta, 90, 0.1)
 
         # Ensure sub is right-handed
         # IE sub has surface facing "up"

@@ -4,6 +4,7 @@ import pickle
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.composition import Composition
@@ -35,7 +36,7 @@ class TestSite(PymatgenTest):
         assert self.propertied_site.properties["magmom"] == 5.1
         assert self.propertied_site.properties["charge"] == 4.2
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         dct = self.disordered_site.as_dict()
         site = Site.from_dict(dct)
         assert site == self.disordered_site
@@ -193,13 +194,13 @@ class TestPeriodicSite(PymatgenTest):
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
         site.to_unit_cell(in_place=True)
         val = [0.25, 0.35, 0.46]
-        assert np.allclose(site.frac_coords, val)
+        assert_allclose(site.frac_coords, val)
 
         lattice_pbc = Lattice(self.lattice.matrix, pbc=(True, True, False))
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), lattice_pbc)
         site.to_unit_cell(in_place=True)
         val = [0.25, 0.35, 4.46]
-        assert np.allclose(site.frac_coords, val)
+        assert_allclose(site.frac_coords, val)
 
     def test_setters(self):
         site = self.propertied_site
@@ -218,9 +219,9 @@ class TestPeriodicSite(PymatgenTest):
             site.species = {"Cu": 0.5, "Gd": 0.6}
 
         site.frac_coords = [0, 0, 0.1]
-        assert np.allclose(site.coords, [0, 0, 10])
+        assert_allclose(site.coords, [0, 0, 10])
         site.coords = [1.5, 3.25, 5]
-        assert np.allclose(site.frac_coords, [0.015, 0.0325, 0.05])
+        assert_allclose(site.frac_coords, [0.015, 0.0325, 0.05])
 
     def test_repr(self):
         assert repr(self.propertied_site) == "PeriodicSite: Fe2+ (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
@@ -261,9 +262,3 @@ def get_distance_and_image_old(site1, site2, jimage=None):
     mapped_vec = site1.lattice.get_cartesian_coords(jimage + site2.frac_coords - site1.frac_coords)
     dist = np.linalg.norm(mapped_vec)
     return dist, jimage
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

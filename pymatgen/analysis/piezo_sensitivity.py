@@ -131,14 +131,14 @@ class BornEffectiveCharge:
                 )
                 BEC[atom] = temp_tensor
             else:
-                tempfcm = np.zeros([3, 3])
+                temp_fcm = np.zeros([3, 3])
                 for op in ops[2]:
-                    tempfcm += op.transform_tensor(BEC[self.BEC_operations[atom][1]])
-                BEC[ops[0]] = tempfcm
+                    temp_fcm += op.transform_tensor(BEC[self.BEC_operations[atom][1]])
+                BEC[ops[0]] = temp_fcm
                 if len(ops[2]) != 0:
                     BEC[ops[0]] = BEC[ops[0]] / len(ops[2])
 
-        #     Enforce Acoustic Sum
+        # Enforce Acoustic Sum
         disp_charge = np.einsum("ijk->jk", BEC) / n_atoms
         add = np.zeros([n_atoms, 3, 3])
 

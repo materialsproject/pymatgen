@@ -1722,19 +1722,19 @@ class PatchedPhaseDiagram(PhaseDiagram):
         elements = [Element.from_dict(elem) for elem in dct["elements"]]
         return cls(entries, elements)
 
-    # NOTE the following could be inherited unchanged from PhaseDiagram:
-    #     __repr__,
-    #     as_dict,
-    #     all_entries_hulldata,
-    #     unstable_entries,
-    #     stable_entries,
-    #     get_form_energy(),
-    #     get_form_energy_per_atom(),
-    #     get_hull_energy(),
-    #     get_e_above_hull(),
-    #     get_decomp_and_e_above_hull(),
-    #     get_decomp_and_phase_separation_energy(),
-    #     get_phase_separation_energy()
+    # NOTE following methods are inherited unchanged from PhaseDiagram:
+    # __repr__,
+    # as_dict,
+    # all_entries_hulldata,
+    # unstable_entries,
+    # stable_entries,
+    # get_form_energy(),
+    # get_form_energy_per_atom(),
+    # get_hull_energy(),
+    # get_e_above_hull(),
+    # get_decomp_and_e_above_hull(),
+    # get_decomp_and_phase_separation_energy(),
+    # get_phase_separation_energy()
 
     def get_pd_for_entry(self, entry: Entry | Composition) -> PhaseDiagram:
         """
@@ -2617,10 +2617,10 @@ class PDPlotter:
                 }
         elif self._dim == 3 and self.ternary_style == "3d":
             layout = plotly_layouts["default_ternary_3d_layout"].copy()
-            layout["scene"].update({"annotations": annotations_list})
+            layout["scene"]["annotations"] = annotations_list
         elif self._dim == 4:
             layout = plotly_layouts["default_quaternary_layout"].copy()
-            layout["scene"].update({"annotations": annotations_list})
+            layout["scene"]["annotations"] = annotations_list
 
         return layout
 
@@ -2956,7 +2956,7 @@ class PDPlotter:
                         if entry.composition.is_element:
                             z = 0.9 * self._min_energy  # place label 10% above base
 
-                annotation.update({"z": z})
+                annotation["z"] = z
 
             annotations_list.append(annotation)
 
@@ -2983,7 +2983,7 @@ class PDPlotter:
             """
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
 
-            is_stable = [bool(entry in self._pd.stable_entries) for entry in entries]
+            is_stable = [entry in self._pd.stable_entries for entry in entries]
 
             for coord, entry, stable in zip(coords, entries, is_stable):
                 energy = round(self._pd.get_form_energy_per_atom(entry), 3)

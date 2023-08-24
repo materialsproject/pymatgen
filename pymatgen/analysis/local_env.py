@@ -445,8 +445,7 @@ class NearNeighbors:
         all_nn_info = self.get_all_nn_info(structure)
         sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
-        # Update the site positions
-        #   Did not do this during NN options because that can be slower
+        # Now update the site positions. Did not do this during NN options because that can be slower.
         output = []
         for info in sites:
             orig_site = structure[info["site_index"]]
@@ -479,6 +478,7 @@ class NearNeighbors:
             _previous_steps ({(site_idx, image}) - Internal use only: Set of
                 sites that have already been traversed.
             _cur_image (tuple) - Internal use only Image coordinates of current atom
+
         Returns:
             list of dictionaries. Each entry in the list is information about
                 a certain neighbor in the structure, in the same format as
@@ -494,8 +494,8 @@ class NearNeighbors:
         possible_steps = list(all_nn_info[site_idx])
         for i, step in enumerate(possible_steps):
             # Update the image information
-            #  Note: We do not update the site position yet, as making a
-            #    PeriodicSite for each intermediate step is too costly
+            # Note: We do not update the site position yet, as making a PeriodicSite
+            # for each intermediate step is too costly
             step = dict(step)
             step["image"] = tuple(np.add(step["image"], _cur_image).tolist())
             possible_steps[i] = step
@@ -742,8 +742,7 @@ class VoronoiNN(NearNeighbors):
                 - volume - Volume of Voronoi cell for this face
                 - n_verts - Number of vertices on the facet
         """
-        # Assemble the list of neighbors used in the tessellation
-        #   Gets all atoms within a certain radius
+        # Assemble the list of neighbors used in the tessellation. Gets all atoms within a certain radius
         targets = structure.elements if self.targets is None else self.targets
         center = structure[n]
 
@@ -782,6 +781,7 @@ class VoronoiNN(NearNeighbors):
 
         Args:
             structure (Structure): Structure to be evaluated
+
         Returns:
             A dict of sites sharing a common Voronoi facet with the site
             n mapped to a directory containing statistics about the facet:
@@ -812,8 +812,7 @@ class VoronoiNN(NearNeighbors):
         sites = [x.to_unit_cell() for x in structure]
         indices = [(i, 0, 0, 0) for i, _ in enumerate(structure)]
 
-        # Get all neighbors within a certain cutoff
-        #   Record both the list of these neighbors, and the site indices
+        # Get all neighbors within a certain cutoff. Record both the list of these neighbors and the site indices.
         all_neighs = structure.get_all_neighbors(self.cutoff, include_index=True, include_image=True)
         for neighs in all_neighs:
             sites.extend([x[0] for x in neighs])
@@ -849,6 +848,7 @@ class VoronoiNN(NearNeighbors):
             targets ([Element]) - Target elements
             voro - Output of qvoronoi
             compute_adj_neighbors (boolean) - Whether to compute which neighbors are adjacent
+
         Returns:
             A dict of sites sharing a common Voronoi facet. Key is facet id
              (not useful) and values are dictionaries containing statistics
@@ -1008,6 +1008,7 @@ class VoronoiNN(NearNeighbors):
         Args:
             structure (Structure): Structure being evaluated
             nns ([dicts]): Nearest neighbor information for a structure
+
         Returns:
             (list of tuples (Site, array, float)): See nn_info
         """
@@ -1157,6 +1158,7 @@ def _is_in_targets(site, targets):
     Args:
         site (Site): Site to assess
         targets ([Element]) List of elements
+
     Returns:
          (boolean) Whether this site contains a certain list of elements
     """
@@ -1170,6 +1172,7 @@ def _get_elements(site):
 
     Args:
          site (Site): Site to assess
+
     Returns:
         [Element]: List of elements
     """
@@ -1453,14 +1456,14 @@ class OpenBabelNN(NearNeighbors):
         """
         from pymatgen.io.babel import BabelMolAdaptor
 
-        obmol = BabelMolAdaptor(structure).openbabel_mol
+        ob_mol = BabelMolAdaptor(structure).openbabel_mol
 
         siw = []
 
         # Get only the atom of interest
         site_atom = next(
             a
-            for i, a in enumerate(openbabel.OBMolAtomDFSIter(obmol))
+            for i, a in enumerate(openbabel.OBMolAtomDFSIter(ob_mol))
             if [a.GetX(), a.GetY(), a.GetZ()] == list(structure[n].coords)
         )
 
@@ -1472,7 +1475,7 @@ class OpenBabelNN(NearNeighbors):
             bond = site_atom.GetBond(neighbor)
 
             if self.order:
-                obmol.PerceiveBondOrders()
+                ob_mol.PerceiveBondOrders()
                 weight = bond.GetBondOrder()
             else:
                 weight = bond.GetLength()
@@ -1542,8 +1545,7 @@ class OpenBabelNN(NearNeighbors):
         all_nn_info = self.get_all_nn_info(structure)
         sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
-        # Update the site positions
-        #   Did not do this during NN options because that can be slower
+        # Now update the site positions. Did not do this during NN options because that can be slower.
         output = []
         for info in sites:
             orig_site = structure[info["site_index"]]
@@ -1605,7 +1607,8 @@ class CovalentBondNN(NearNeighbors):
 
         :param structure: input Molecule.
         :param n: index of site for which to determine near neighbors.
-        :return: [dict] representing a neighboring site and the type of
+        Returns:
+            [dict] representing a neighboring site and the type of
             bond present between site n and the neighboring site.
         """
         # This is unfortunately inefficient, but is the best way to fit the
@@ -1687,8 +1690,7 @@ class CovalentBondNN(NearNeighbors):
         all_nn_info = self.get_all_nn_info(structure)
         sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
-        # Update the site positions
-        #   Did not do this during NN options because that can be slower
+        # Now update the site positions. Did not do this during NN options because that can be slower.
         output = []
         for info in sites:
             orig_site = structure[info["site_index"]]
@@ -1967,15 +1969,13 @@ def get_okeeffe_params(el_symbol):
         el_symbol (str): element symbol.
 
     Returns:
-        (dict): atom-size ('r') and electronegativity-related ('c')
-                parameter.
+        (dict): atom-size ('r') and electronegativity-related ('c') parameter.
     """
     el = Element(el_symbol)
     if el not in list(BV_PARAMS):
         raise RuntimeError(
             "Could not find O'Keeffe parameters for element"
-            f' {el_symbol!r} in "BV_PARAMS"dictionary'
-            " provided by pymatgen"
+            f' {el_symbol!r} in "BV_PARAMS" dictionary provided by pymatgen'
         )
 
     return BV_PARAMS[el]
@@ -1993,6 +1993,7 @@ def get_okeeffe_distance_prediction(el1, el2):
 
     Args:
         el1, el2 (Element): two Element objects
+
     Returns:
         a float value of the predicted bond length
     """
@@ -2065,14 +2066,7 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10, 
     Returns: motif type (str).
     """
     if thresh is None:
-        thresh = {
-            "qtet": 0.5,
-            "qoct": 0.5,
-            "qbcc": 0.5,
-            "q6": 0.4,
-            "qtribipyr": 0.8,
-            "qsqpyr": 0.8,
-        }
+        thresh = {"qtet": 0.5, "qoct": 0.5, "qbcc": 0.5, "q6": 0.4, "qtribipyr": 0.8, "qsqpyr": 0.8}
 
     ops = LocalStructOrderParams(["cn", "tet", "oct", "bcc", "q6", "sq_pyr", "tri_bipyr"])
 
@@ -2368,8 +2362,7 @@ class LocalStructOrderParams:
     def num_ops(self):
         """
         Returns:
-            int: the number of different order parameters that are targeted
-                to be calculated.
+            int: the number of different order parameters that are targeted to be calculated.
         """
         return len(self._types)
 
@@ -2379,8 +2372,7 @@ class LocalStructOrderParams:
         Returns:
             int: the number of neighbors encountered during the most
                 recent order parameter calculation. A value of -1 indicates
-                that no such calculation has yet been performed for this
-                instance.
+                that no such calculation has yet been performed for this instance.
         """
         return len(self._last_nneigh)
 
@@ -2655,7 +2647,7 @@ class LocalStructOrderParams:
         real = 0.0
         imag = 0.0
         for idx in nnn_range:
-            real += pre_y_6_6[idx] * self._cos_n_p[6][idx]  # cos(x) =  cos(-x)
+            real += pre_y_6_6[idx] * self._cos_n_p[6][idx]  # cos(x) = cos(-x)
             imag -= pre_y_6_6[idx] * self._sin_n_p[6][idx]  # sin(x) = -sin(-x)
         acc += real * real + imag * imag
 

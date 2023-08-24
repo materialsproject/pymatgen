@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 import pytest
 from pytest import approx
@@ -19,12 +18,6 @@ __date__ = "Jul 26, 2012"
 
 
 class TestCovalentBond(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.simplefilter("default")
-
     def test_length(self):
         site1 = Site("C", [0, 0, 0])
         site2 = Site("H", [0, 0.7, 0.6])

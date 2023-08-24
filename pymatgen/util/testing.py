@@ -9,17 +9,18 @@ from __future__ import annotations
 
 import json
 import string
-import tempfile
 import unittest
 from pathlib import Path
-from typing import ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import pytest
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
-from numpy.testing import assert_allclose
 
 from pymatgen.core import SETTINGS, Structure
+
+if TYPE_CHECKING:
+    from git import Sequence
 
 MODULE_DIR = Path(__file__).absolute().parent
 STRUCTURES_DIR = MODULE_DIR / "structures"
@@ -31,7 +32,8 @@ class PymatgenTest(unittest.TestCase):
 
     _multiprocess_shared_ = True
 
-    TEST_STRUCTURES: ClassVar[dict[str, Structure]] = {}  # Dict for test structures to aid testing.
+    # dict of lazily-loaded test structures (initialized to None)
+    TEST_STRUCTURES: ClassVar[dict[str | Path, Structure | None]] = {key: None for key in STRUCTURES_DIR.glob("*")}
 
     @pytest.fixture(autouse=True)  # make all tests run a in a temporary directory accessible via self.tmp_path
     def _tmp_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -50,15 +52,9 @@ class PymatgenTest(unittest.TestCase):
         Returns:
             Structure
         """
-        if name not in cls.TEST_STRUCTURES:
-            cls.TEST_STRUCTURES[name] = loadfn(f"{STRUCTURES_DIR}/{name}.json")
-        return cls.TEST_STRUCTURES[name].copy()
-
-    @staticmethod
-    def assert_all_close(actual, desired, decimal=7, err_msg="", verbose=True):
-        """Tests if two arrays are almost equal up to some relative or absolute tolerance."""
-        # TODO (janosh): replace the decimal kwarg with assert_allclose() atol and rtol kwargs
-        return assert_allclose(actual, desired, atol=10**-decimal, err_msg=err_msg, verbose=verbose)
+        struct = cls.TEST_STRUCTURES.get(name) or loadfn(f"{cls.STRUCTURES_DIR}/{name}.json")
+        cls.TEST_STRUCTURES[name] = struct
+        return struct.copy()
 
     @staticmethod
     def assert_str_content_equal(actual, expected):
@@ -66,7 +62,7 @@ class PymatgenTest(unittest.TestCase):
         strip_whitespace = {ord(c): None for c in string.whitespace}
         return actual.translate(strip_whitespace) == expected.translate(strip_whitespace)
 
-    def serialize_with_pickle(self, objects, protocols=None, test_eq=True):
+    def serialize_with_pickle(self, objects: Any, protocols: Sequence[int] = None, test_eq: bool = True):
         """Test whether the object(s) can be serialized and deserialized with
         pickle. This method tries to serialize the objects with pickle and the
         protocols specified in input. Then it deserializes the pickle format
@@ -84,7 +80,7 @@ class PymatgenTest(unittest.TestCase):
             Nested list with the objects deserialized with the specified
             protocols.
         """
-        # Use the python version so that we get the traceback in case of errors
+        # use pickle, not cPickle so that we get the traceback in case of errors
         import pickle
 
         # Build a list even when we receive a single object.
@@ -93,20 +89,17 @@ class PymatgenTest(unittest.TestCase):
             got_single_object = True
             objects = [objects]
 
-        if protocols is None:
-            protocols = [pickle.HIGHEST_PROTOCOL]
+        protocols = protocols or [pickle.HIGHEST_PROTOCOL]
 
-        # This list will contains the object deserialized with the different
-        # protocols.
+        # This list will contain the objects deserialized with the different protocols.
         objects_by_protocol, errors = [], []
 
         for protocol in protocols:
             # Serialize and deserialize the object.
-            mode = "wb"
-            fd, tmpfile = tempfile.mkstemp(text="b" not in mode)
+            tmpfile = self.tmp_path / f"tempfile_{protocol}.pkl"
 
             try:
-                with open(tmpfile, mode) as fh:
+                with open(tmpfile, "wb") as fh:
                     pickle.dump(objects, fh, protocol=protocol)
             except Exception as exc:
                 errors.append(f"pickle.dump with {protocol=} raised:\n{exc}")
@@ -114,18 +107,20 @@ class PymatgenTest(unittest.TestCase):
 
             try:
                 with open(tmpfile, "rb") as fh:
-                    new_objects = pickle.load(fh)
+                    unpickled_objs = pickle.load(fh)
             except Exception as exc:
                 errors.append(f"pickle.load with {protocol=} raised:\n{exc}")
                 continue
 
             # Test for equality
             if test_eq:
-                for old_obj, new_obj in zip(objects, new_objects):
-                    assert old_obj == new_obj
+                for orig, unpickled in zip(objects, unpickled_objs):
+                    assert (
+                        orig == unpickled
+                    ), f"Unpickled and original objects are unequal for {protocol=}\n{orig=}\n{unpickled=}"
 
             # Save the deserialized objects and test for equality.
-            objects_by_protocol.append(new_objects)
+            objects_by_protocol.append(unpickled_objs)
 
         if errors:
             raise ValueError("\n".join(errors))

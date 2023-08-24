@@ -86,7 +86,6 @@ class ChemEnvConfig:
     def has_materials_project_access(self):
         """
         Whether MP access is enabled.
-        :return:
         """
         return self.materials_project_configuration is not None
 

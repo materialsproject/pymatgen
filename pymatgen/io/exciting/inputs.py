@@ -151,7 +151,9 @@ class ExcitingInput(MSONable):
     def from_file(filename):
         """
         :param filename: Filename
-        :return: ExcitingInput
+
+        Returns:
+            ExcitingInput
         """
         with zopen(filename, "rt") as f:
             data = f.read().replace("\n", "")
@@ -343,7 +345,6 @@ class ExcitingInput(MSONable):
 
         :param elem:
         :param level:
-        :return:
         """
         i = "\n" + level * "  "
         if len(elem):

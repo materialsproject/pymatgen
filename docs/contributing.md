@@ -12,22 +12,26 @@ For developers interested in expanding `pymatgen` for their own purposes, we rec
 
 1. Fork the `pymatgen` GitHub repo, i.e., go to the main [`pymatgen` GitHub repo](https://github.com/materialsproject/pymatgen) and click fork to create a copy of the `pymatgen` code base on your own GitHub account.
 
-1. Install git on your local machine (if you don't already have it).
+1. Install `git` on your local machine (if you don't already have it).
 
 1. Clone *your forked repo* to your local machine. You will work mostly with your local repo and only publish changes when they are ready to be merged:
 
     ```sh
-    git clone git@github.com:YOURNAME/pymatgen
+    git clone https://github.com/<username>/pymatgen
     ```
 
-    Note that the entire Github repo is fairly large because of the presence of test files, but these are absolutely necessary for rigorous testing of the code.
+    Note that the entire Github repo is fairly large because of the presence of test files, but these are necessary for rigorous testing.
 
-1. It is highly recommended you install all the optional dependencies as well.
+1. Make a new branch for your contributions
+
+    ```sh
+    git checkout -b my-new-fix-or-feature # should be run from up-to-date master
+    ```
 
 1. Code (see [Coding Guidelines](#coding-guidelines)). Commit early and commit often. Keep your code up to date. You need to add the main repository to the list of your remotes.
 
     ```sh
-    git remote add upstream git://github.com/materialsproject/`pymatgen`
+    git remote add upstream https://github.com/materialsproject/pymatgen
     ```
 
     Make sure your repository is clean (no uncommitted changes) and is currently on the master branch. If not, commit or stash any changes and switch to the master.
@@ -75,6 +79,6 @@ Given that `pymatgen` is intended to be a long-term code base, we adopt very str
    ```
 
 1. **Python 3**. We only support Python 3.8+.
-1. **Documentation** is required for all modules, classes and methods. In particular, the method doc strings should make clear the arguments expected and the return values. For complex algorithms (e.g., an Ewald summation), a summary of the algorithm should be provided, and preferably with a link to a publication outlining the method in detail.
+1. **Documentation** is required for all modules, classes and methods. In particular, the method doc strings should make clear the arguments expected and the return values. For complex algorithms (e.g., an Ewald summation), a summary of the algorithm should be provided and preferably with a link to a publication outlining the method in detail.
 
 For the above, if in doubt, please refer to the core classes in `pymatgen` for examples of what is expected.

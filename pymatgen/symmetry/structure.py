@@ -47,6 +47,7 @@ class SymmetrizedStructure(Structure):
             [site.species for site in structure],
             structure.frac_coords,
             site_properties=structure.site_properties,
+            properties=structure.properties,
         )
 
         equivalent_indices: list[list[int]] = [[] for _ in range(len(uniq))]
@@ -134,7 +135,9 @@ class SymmetrizedStructure(Structure):
     @classmethod
     def from_dict(cls, dct):
         """:param d: Dict representation
-        :return: SymmetrizedStructure
+
+        Returns:
+            SymmetrizedStructure
         """
         return cls(
             Structure.from_dict(dct["structure"]),

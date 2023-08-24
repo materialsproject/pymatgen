@@ -76,7 +76,9 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: Comparator.
+
+        Returns:
+            Comparator.
         """
         for trans_modules in ["structure_matcher"]:
             mod = __import__(
@@ -265,7 +267,8 @@ class OccupancyComparator(AbstractComparator):
     def get_hash(self, composition):
         """
         :param composition: Composition.
-        :return: 1. Difficult to define sensible hash
+        Returns:
+            1. Difficult to define sensible hash
         """
         return 1
 
@@ -852,7 +855,9 @@ class StructureMatcher(MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: StructureMatcher
+
+        Returns:
+            StructureMatcher
         """
         return cls(
             ltol=d["ltol"],
@@ -916,7 +921,7 @@ class StructureMatcher(MSONable):
                 continue
 
             mapped_struct = struct1.copy()
-            mapped_struct.replace_species(sp_mapping)
+            mapped_struct.replace_species(sp_mapping)  # type: ignore[arg-type]
             if swapped:
                 m = self._strict_match(
                     struct2,

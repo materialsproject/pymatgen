@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import ETSF_Reader
@@ -62,7 +62,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
             # Test float variables
             for varname, float_ref in ref_float_values.items():
                 value = data.read_value(varname)
-                assert np.allclose(value, float_ref)
+                assert_allclose(value, float_ref)
             # assert 0
 
             # Reading non-existent variables or dims should raise

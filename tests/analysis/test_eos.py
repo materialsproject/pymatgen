@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.eos import EOS, NumericalEOS
@@ -128,7 +128,7 @@ class TestEOS(PymatgenTest):
             for param in ("b0", "b1", "e0", "b0"):
                 # TODO: solutions only stable to 2 decimal places
                 # between different machines, this seems far too low?
-                assert np.allclose(_.results[param], test_output[eos_name][param], atol=1e-1)
+                assert_allclose(_.results[param], test_output[eos_name][param], atol=1e-1)
 
     def test_fitting(self):
         # courtesy of @katherinelatimer2013
@@ -217,7 +217,7 @@ class TestEOS(PymatgenTest):
 
         fit = eos.fit(mp153_volumes, mp153_energies)
 
-        assert_array_almost_equal(fit.func(mp153_volumes), mp153_known_energies_vinet, decimal=5)
+        assert_allclose(fit.func(mp153_volumes), mp153_known_energies_vinet, atol=1e-5)
 
         assert mp153_known_e0_vinet == approx(fit.e0, abs=1e-4)
         assert mp153_known_v0_vinet == approx(fit.v0, abs=1e-4)
@@ -276,27 +276,10 @@ class TestEOS(PymatgenTest):
         ]
 
         mp149_known_energies_vinet = [
-            -4.866834585,
-            -4.711786499,
-            -5.109642598,
-            -5.420093739,
-            -5.274605844,
-            -5.201025714,
-            -5.331899365,
-            -5.374315789,
-            -5.419671568,
-            -4.998827503,
-            -5.383703409,
-            -5.406038887,
-            -5.353926272,
-            -5.317484252,
-            -5.424963418,
-            -5.175090887,
-            -5.403166824,
-            -5.275096644,
-            -5.227427635,
-            -5.058639193,
-            -5.118654229,
+            *[-4.866834585, -4.711786499, -5.109642598, -5.420093739, -5.274605844, -5.201025714],
+            *[-5.331899365, -5.374315789, -5.419671568, -4.998827503, -5.383703409, -5.406038887],
+            *[-5.353926272, -5.317484252, -5.424963418, -5.175090887, -5.403166824, -5.275096644],
+            *[-5.227427635, -5.058639193, -5.118654229],
         ]
 
         # C: 4.986513158
@@ -308,7 +291,7 @@ class TestEOS(PymatgenTest):
 
         fit = eos.fit(mp149_volumes, mp149_energies)
 
-        assert_array_almost_equal(fit.func(mp149_volumes), mp149_known_energies_vinet, decimal=5)
+        assert_allclose(fit.func(mp149_volumes), mp149_known_energies_vinet, atol=1e-5)
 
         assert mp149_known_e0_vinet == approx(fit.e0, abs=1e-4)
         assert mp149_known_v0_vinet == approx(fit.v0, abs=1e-4)
@@ -399,7 +382,7 @@ class TestEOS(PymatgenTest):
 
         fit = eos.fit(mp72_volumes, mp72_energies)
 
-        assert_array_almost_equal(fit.func(mp72_volumes), mp72_known_energies_vinet, decimal=5)
+        assert_allclose(fit.func(mp72_volumes), mp72_known_energies_vinet, atol=1e-5)
 
         assert mp72_known_e0_vinet == approx(fit.e0, abs=1e-4)
         assert mp72_known_v0_vinet == approx(fit.v0, abs=1e-4)
@@ -416,44 +399,41 @@ class TestEOS(PymatgenTest):
         assert float(numerical_eos.v0) == approx(self.num_eos_fit.v0, abs=1e-3)
         assert float(numerical_eos.b0) == approx(self.num_eos_fit.b0, abs=1e-3)
         assert float(numerical_eos.b1) == approx(self.num_eos_fit.b1, abs=1e-3)
-        assert np.allclose(numerical_eos.eos_params, self.num_eos_fit.eos_params)
+        assert_allclose(numerical_eos.eos_params, self.num_eos_fit.eos_params)
 
     def test_numerical_eos_values(self):
-        np.testing.assert_almost_equal(self.num_eos_fit.e0, -10.84749, decimal=3)
-        np.testing.assert_almost_equal(self.num_eos_fit.v0, 40.857201, decimal=1)
-        np.testing.assert_almost_equal(self.num_eos_fit.b0, 0.55, decimal=2)
+        assert_allclose(self.num_eos_fit.e0, -10.84749, atol=1e-3)
+        assert_allclose(self.num_eos_fit.v0, 40.857201, atol=1e-1)
+        assert_allclose(self.num_eos_fit.b0, 0.55, atol=1e-2)
         # TODO: why were these tests commented out?
-        # np.testing.assert_almost_equal(self.num_eos_fit.b0_GPa, 89.0370727, decimal=1)
-        # np.testing.assert_almost_equal(self.num_eos_fit.b1, 4.344039, decimal=2)
+        # assert_allclose(self.num_eos_fit.b0_GPa, 89.0370727, atol=1e-1)
+        # assert_allclose(self.num_eos_fit.b1, 4.344039, atol=1e-2)
 
     def test_eos_func(self):
         # list vs np.array arguments
-        np.testing.assert_almost_equal(
+        assert_allclose(
             self.num_eos_fit.func([0, 1, 2]),
             self.num_eos_fit.func(np.array([0, 1, 2])),
-            decimal=10,
         )
         # func vs _func
-        np.testing.assert_almost_equal(
+        assert_allclose(
             self.num_eos_fit.func(0.0),
             self.num_eos_fit._func(0.0, self.num_eos_fit.eos_params),
-            decimal=10,
         )
         # test the eos function: energy = f(volume)
         # numerical eos evaluated at volume=0 == a0 of the fit polynomial
-        np.testing.assert_almost_equal(self.num_eos_fit.func(0.0), self.num_eos_fit.eos_params[-1], decimal=6)
+        assert_allclose(self.num_eos_fit.func(0.0), self.num_eos_fit.eos_params[-1])
         birch_eos = EOS(eos_name="birch")
         birch_eos_fit = birch_eos.fit(self.volumes, self.energies)
         # birch eos evaluated at v0 == e0
-        np.testing.assert_almost_equal(birch_eos_fit.func(birch_eos_fit.v0), birch_eos_fit.e0, decimal=6)
+        assert_allclose(birch_eos_fit.func(birch_eos_fit.v0), birch_eos_fit.e0)
 
-        # TODO: Reactivate
-        # fig = birch_eos_fit.plot_ax(ax=None, show=False, fontsize=8, title="birch eos")
-        # assert hasattr(fig, "savefig")
+        fig = birch_eos_fit.plot_ax(ax=None, show=False, fontsize=8, title="birch eos")
+        assert hasattr(fig, "savefig")
 
     def test_eos_func_call(self):
         # eos_fit_obj.func(volume) == eos_fit_obj(volume)
-        np.testing.assert_almost_equal(self.num_eos_fit.func(0.0), self.num_eos_fit(0.0), decimal=10)
+        assert_allclose(self.num_eos_fit.func(0.0), self.num_eos_fit(0.0))
 
     def test_summary_dict(self):
         d = {

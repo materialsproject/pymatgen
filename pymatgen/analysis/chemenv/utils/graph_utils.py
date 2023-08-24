@@ -18,7 +18,6 @@ def get_delta(node1, node2, edge_data):
     :param node1:
     :param node2:
     :param edge_data:
-    :return:
     """
     if node1.isite == edge_data["start"] and node2.isite == edge_data["end"]:
         return np.array(edge_data["delta"], dtype=int)
@@ -35,7 +34,6 @@ def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
     :param target:
     :param cutoff:
     :param data:
-    :return:
     """
     edge_paths = []
     if not graph.is_multigraph():
@@ -156,7 +154,9 @@ class SimpleGraphCycle(MSONable):
         This method checks :
         - that there are no duplicate nodes,
         - that there are either 1 or more than 2 nodes
-        :return: True if the SimpleGraphCycle is valid, False otherwise.
+
+        Returns:
+            True if the SimpleGraphCycle is valid, False otherwise.
         """
         if len(self.nodes) == 1:
             return True, ""
@@ -185,7 +185,6 @@ class SimpleGraphCycle(MSONable):
     def validate(self, check_strict_ordering=False):
         """
         :param check_strict_ordering:
-        :return:
         """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
@@ -299,7 +298,6 @@ class SimpleGraphCycle(MSONable):
         Serialize from dict.
         :param d:
         :param validate:
-        :return:
         """
         return cls(nodes=d["nodes"], validate=validate, ordered=d["ordered"])
 
@@ -340,7 +338,9 @@ class MultiGraphCycle(MSONable):
         This method checks :
         - that there are no duplicate nodes,
         - that there are either 1 or more than 2 nodes
-        :return: True if the SimpleGraphCycle is valid, False otherwise.
+
+        Returns:
+            True if the SimpleGraphCycle is valid, False otherwise.
         """
         if len(self.nodes) != len(self.edge_indices):  # Should have the same number of nodes and edges
             return False, "Number of nodes different from number of edge indices."
@@ -373,7 +373,6 @@ class MultiGraphCycle(MSONable):
     def validate(self, check_strict_ordering=False):
         """
         :param check_strict_ordering:
-        :return:
         """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
@@ -389,7 +388,8 @@ class MultiGraphCycle(MSONable):
 
         :param raise_on_fail: If set to True, will raise a RuntimeError if the
                               ordering fails.
-        :return: None
+        Returns:
+            None
         """
         # always validate the cycle if it needs to be ordered
         # also validates that the nodes can be strictly ordered
@@ -463,7 +463,6 @@ class MultiGraphCycle(MSONable):
 def get_all_elementary_cycles(graph):
     """
     :param graph:
-    :return:
     """
     if not isinstance(graph, nx.Graph):
         raise TypeError("graph should be a networkx Graph object.")
