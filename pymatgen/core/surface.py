@@ -95,6 +95,7 @@ class Slab(Structure):
         coords_are_cartesian=False,
         site_properties=None,
         energy=None,
+        properties=None,
     ):
         """Makes a Slab structure, a structure object with additional information
         and methods pertaining to slabs.
@@ -141,6 +142,8 @@ class Slab(Structure):
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
             energy (float): A value for the energy.
+            properties (dict): dictionary containing properties associated
+                with the whole slab.
         """
         self.oriented_unit_cell = oriented_unit_cell
         self.miller_index = tuple(miller_index)
@@ -514,6 +517,7 @@ class Slab(Structure):
             scale_factor=d["scale_factor"],
             site_properties=struct.site_properties,
             energy=d["energy"],
+            properties=d.get("properties"),
         )
 
     def get_surface_sites(self, tag=False):

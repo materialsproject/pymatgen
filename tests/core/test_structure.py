@@ -74,7 +74,9 @@ class TestIStructure(PymatgenTest):
         coords = [[0, 0, 0], [0.0, 0, 0.0000001]]
         with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
             IStructure(self.lattice, ["Si"] * 2, coords, validate_proximity=True)
-        self.propertied_structure = IStructure(self.lattice, ["Si"] * 2, coords, site_properties={"magmom": [5, -5]})
+        self.propertied_structure = IStructure(
+            self.lattice, ["Si"] * 2, coords, site_properties={"magmom": [5, -5]}, properties={"test_property": "test"}
+        )
         self.labeled_structure = IStructure(self.lattice, ["Si"] * 2, coords, labels=["Si1", "Si2"])
 
         self.lattice_pbc = Lattice(
@@ -216,10 +218,12 @@ class TestIStructure(PymatgenTest):
             ],
             coords,
             site_properties={"magmom": [5, -5]},
+            properties={"general_property": "test"},
         )
         d = struct.as_dict()
         assert d["sites"][0]["properties"]["magmom"] == 5
         assert d["sites"][0]["species"][0]["spin"] == 3
+        assert d["properties"]["general_property"] == "test"
 
         d = struct.as_dict(0)
         assert "volume" not in d["lattice"]
@@ -280,10 +284,12 @@ class TestIStructure(PymatgenTest):
                     "xyz": [3.8401979336749994, 1.2247250003039056e-06, 2.351631795225],
                 },
             ],
+            "properties": {"test_property": "test"},
         }
         struct = IStructure.from_dict(d)
         assert struct[0].magmom == 5
         assert struct[0].specie.spin == 3
+        assert struct.properties["test_property"] == "test"
         assert isinstance(struct, IStructure)
 
     def test_site_properties(self):
@@ -292,25 +298,36 @@ class TestIStructure(PymatgenTest):
         assert self.propertied_structure[0].magmom == 5
         assert self.propertied_structure[1].magmom == -5
 
+    def test_properties_dict(self):
+        assert self.propertied_structure.properties == {"test_property": "test"}
+
     def test_copy(self):
-        new_struct = self.propertied_structure.copy(site_properties={"charge": [2, 3]})
+        new_struct = self.propertied_structure.copy(
+            site_properties={"charge": [2, 3]}, properties={"another_prop": "test"}
+        )
         assert new_struct[0].magmom == 5
         assert new_struct[1].magmom == -5
         assert new_struct[0].charge == 2
         assert new_struct[1].charge == 3
+        assert new_struct.properties["another_prop"] == "test"
+        assert new_struct.properties["test_property"] == "test"
 
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.0, 0, 0.0000001])
 
-        struct = IStructure(self.lattice, ["O", "Si"], coords, site_properties={"magmom": [5, -5]})
+        struct = IStructure(
+            self.lattice, ["O", "Si"], coords, site_properties={"magmom": [5, -5]}, properties={"test_property": "test"}
+        )
 
-        new_struct = struct.copy(site_properties={"charge": [2, 3]}, sanitize=True)
+        new_struct = struct.copy(site_properties={"charge": [2, 3]}, sanitize=True, properties={"another_prop": "test"})
         assert new_struct[0].magmom == -5
         assert new_struct[1].magmom == 5
         assert new_struct[0].charge == 3
         assert new_struct[1].charge == 2
         assert new_struct.volume == approx(struct.volume)
+        assert new_struct.properties["another_prop"] == "test"
+        assert new_struct.properties["test_property"] == "test"
 
     def test_interpolate(self):
         coords = []
@@ -924,6 +941,26 @@ class TestStructure(PymatgenTest):
         self.struct.add_site_property("charge", [4.1, -5])
         self.struct.append("Li", [0.3, 0.3, 0.3])
         assert len(self.struct.site_properties["charge"]) == 3
+
+        props = {"test_property": 42}
+        struct_with_props = Structure(
+            lattice=Lattice.cubic(3),
+            species=("Fe", "Fe"),
+            coords=((0, 0, 0), (0.5, 0.5, 0.5)),
+            site_properties={"magmom": [5, -5]},
+            properties=props,
+        )
+
+        dct = struct_with_props.as_dict()
+        struct = Structure.from_dict(dct)
+        assert struct.properties == props
+        assert dct == struct.as_dict()
+
+        json_str = struct_with_props.to(fmt="json")
+        assert '"test_property": 42' in json_str
+        struct = Structure.from_str(json_str, fmt="json")
+        assert struct.properties == props
+        assert dct == struct.as_dict()
 
     def test_perturb(self):
         dist = 0.1
@@ -1657,6 +1694,11 @@ class TestIMolecule(PymatgenTest):
         assert self.mol.is_ordered
         assert self.mol.formula == "H4 C1"
 
+    def test_properties_dict(self):
+        properties = {"test_property": "test"}
+        self.mol.properties = properties
+        assert self.mol.properties == properties
+
     def test_repr_str(self):
         expected = """Full Formula (H4 C1)
 Reduced Formula: H4C
@@ -1821,6 +1863,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             self.coords,
             charge=1,
             site_properties={"magmom": [0.5, -0.5, 1, 2, 3]},
+            properties={"test_properties": "test"},
         )
         dct = propertied_mol.as_dict()
         assert dct["sites"][0]["properties"]["magmom"] == 0.5
@@ -1829,6 +1872,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert mol[0].magmom == 0.5
         assert mol.formula == "H4 C1"
         assert mol.charge == 1
+        assert mol.properties == {"test_properties": "test"}
 
     def test_default_dict_attrs(self):
         d = self.mol.as_dict()
@@ -1836,12 +1880,15 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert d["spin_multiplicity"] == 1
 
     def test_to_from_file_string(self):
-        for fmt in ["xyz", "json", "g03", "yaml"]:
+        self.mol.properties["test_prop"] = 42
+        for fmt in ("xyz", "json", "g03", "yaml", "yml"):
             mol = self.mol.to(fmt=fmt)
             assert isinstance(mol, str)
             mol = IMolecule.from_str(mol, fmt=fmt)
             assert mol == self.mol
             assert isinstance(mol, IMolecule)
+            if fmt in ("json", "yaml", "yml"):
+                assert mol.properties.get("test_prop") == 42
 
         ch4_xyz_str = self.mol.to(filename=f"{self.tmp_path}/CH4_testing.xyz")
         with open("CH4_testing.xyz") as xyz_file:
