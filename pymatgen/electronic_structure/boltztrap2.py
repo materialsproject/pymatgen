@@ -854,7 +854,6 @@ class BztTransportProperties:
     #     :param N0:
     #     :param T:
     #     :param dosweight:
-    #     :return:
     #     """
     #     delta = np.empty_like(epsilon)
     #     for i, e in enumerate(epsilon):

@@ -155,7 +155,6 @@ class Magmom(MSONable):
 
         :param global_moment:
         :param saxis: desired saxis
-        :return:
         """
         magmom = Magmom(global_moment)
         return cls(magmom.get_moment(saxis=saxis), saxis=saxis)

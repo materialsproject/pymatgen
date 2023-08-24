@@ -953,7 +953,8 @@ class SlabGenerator:
         if self.lll_reduce:
             lll_slab = slab.copy(sanitize=True)
             mapping = lll_slab.lattice.find_mapping(slab.lattice)
-            scale_factor = np.dot(mapping[2], scale_factor)
+            assert mapping is not None, "LLL reduction has failed"  # mypy type narrowing
+            scale_factor = np.dot(mapping[2], scale_factor)  # type: ignore[index]
             slab = lll_slab
 
         # Whether or not to center the slab layer around the vacuum

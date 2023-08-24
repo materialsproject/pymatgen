@@ -2823,7 +2823,6 @@ def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     :param path: Path to get the vasprun.xml and OUTCAR.
     :param parse_dos: Whether to parse dos. Defaults to True.
     :param parse_eigen: Whether to parse eigenvalue. Defaults to True.
-    :return:
     """
     path = Path(path)
     vruns = list(glob(str(path / "vasprun.xml*")))

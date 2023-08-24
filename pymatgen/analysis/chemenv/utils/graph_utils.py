@@ -18,7 +18,6 @@ def get_delta(node1, node2, edge_data):
     :param node1:
     :param node2:
     :param edge_data:
-    :return:
     """
     if node1.isite == edge_data["start"] and node2.isite == edge_data["end"]:
         return np.array(edge_data["delta"], dtype=int)
@@ -35,7 +34,6 @@ def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
     :param target:
     :param cutoff:
     :param data:
-    :return:
     """
     edge_paths = []
     if not graph.is_multigraph():
@@ -187,7 +185,6 @@ class SimpleGraphCycle(MSONable):
     def validate(self, check_strict_ordering=False):
         """
         :param check_strict_ordering:
-        :return:
         """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
@@ -301,7 +298,6 @@ class SimpleGraphCycle(MSONable):
         Serialize from dict.
         :param d:
         :param validate:
-        :return:
         """
         return cls(nodes=d["nodes"], validate=validate, ordered=d["ordered"])
 
@@ -377,7 +373,6 @@ class MultiGraphCycle(MSONable):
     def validate(self, check_strict_ordering=False):
         """
         :param check_strict_ordering:
-        :return:
         """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
@@ -468,7 +463,6 @@ class MultiGraphCycle(MSONable):
 def get_all_elementary_cycles(graph):
     """
     :param graph:
-    :return:
     """
     if not isinstance(graph, nx.Graph):
         raise TypeError("graph should be a networkx Graph object.")

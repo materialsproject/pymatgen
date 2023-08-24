@@ -212,7 +212,6 @@ class BalancedReaction(MSONable):
     def as_entry(self, energies):
         """
         Returns a ComputedEntry representation of the reaction.
-        :return:
         """
         relevant_comp = [comp * abs(coeff) for coeff, comp in zip(self._coeffs, self._all_comp)]
         comp = sum(relevant_comp, Composition())

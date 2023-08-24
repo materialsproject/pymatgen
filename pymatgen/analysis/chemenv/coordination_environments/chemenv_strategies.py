@@ -440,7 +440,6 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         """
         Equality method that should be implemented for any strategy
         :param other: strategy to be compared with the current one
-        :return:
         """
         raise NotImplementedError
 
@@ -1343,7 +1342,6 @@ class AngleNbSetWeight(NbSetWeight):
         """
         From dict
         :param dd:
-        :return:
         """
         return cls(aa=dd["aa"])
 
@@ -1903,7 +1901,6 @@ class DeltaCSMNbSetWeight(NbSetWeight):
     def as_dict(self):
         """
         MSONable dict.
-        :return:
         """
         return {
             "@module": type(self).__module__,
@@ -2206,7 +2203,6 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         :param d2: upper d.
         :param a1: lower a.
         :param a2: upper a.
-        :return:
         """
         # Case 1
         if d1 <= self.dmin and d2 <= self.dmin:

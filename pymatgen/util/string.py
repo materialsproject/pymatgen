@@ -169,7 +169,6 @@ def htmlify(formula):
     be used instead.
 
     :param formula:
-    :return:
     """
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", formula)
 
@@ -182,7 +181,6 @@ def unicodeify(formula):
     be used instead.
 
     :param formula:
-    :return:
     """
     if "." in formula:
         raise ValueError("No unicode character exists for subscript period.")
