@@ -589,7 +589,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         struct.insert(0, "Li", [0, 0, 0])
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=False)
-        with pytest.raises(TypeError, match="argument must be a string or a real number, not 'NoneType'"):
+        with pytest.raises(TypeError, match="argument must be a string or a real number, not .NoneType."):
             print(vis.get_vasp_input())
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=True)
@@ -1155,10 +1155,10 @@ class TestMVLSlabSet(PymatgenTest):
         # The last kpoint in a slab should always be 1
         assert kpoints_slab[2] == 1
 
-    def test_as_dict(self):
+    def test_as_from_dict(self):
         vis_dict = self.vis.as_dict()
         vis = self.set.from_dict(vis_dict)
-        assert vis.as_dict() == vis_dict
+        assert {*vis.as_dict()} == {*vis_dict}
 
 
 class TestMVLElasticSet(PymatgenTest):

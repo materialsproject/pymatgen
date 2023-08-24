@@ -44,7 +44,7 @@ from pymatgen.util.string import htmlify
 if TYPE_CHECKING:
     from pymatgen.entries.computed_entries import ComputedEntry
 
-with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_chempot_layouts.json")) as file:
+with open(f"{os.path.dirname(__file__)}/../util/plotly_chempot_layouts.json") as file:
     plotly_layouts = json.load(file)
 
 
