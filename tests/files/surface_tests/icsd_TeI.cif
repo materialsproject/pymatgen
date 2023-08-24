@@ -1,0 +1,84 @@
+
+#(C) 2014 by Fachinformationszentrum Karlsruhe.  All rights reserved.
+data_109-ICSD
+_database_code_ICSD 109
+_audit_creation_date 1980-01-01
+_audit_update_record 2011-08-01
+_chemical_name_systematic 'Tellurium iodide (1/1) - alpha'
+_chemical_formula_structural 'Te I'
+_chemical_formula_sum 'I1 Te1'
+_exptl_crystal_density_diffrn 5.49
+_publ_section_title 'Zur Kenntnis der Subhalogenide des Tellurs'
+loop_
+_citation_id
+_citation_journal_full
+_citation_year
+_citation_journal_volume
+_citation_page_first
+_citation_page_last
+_citation_journal_id_ASTM
+primary 'Zeitschrift fuer Anorganische und Allgemeine Chemie (1950) (DE)' 1976
+422 17 38 ZAACAB
+loop_
+_publ_author_name
+'Kniep, R.'
+'Mootz, D.'
+'Rabenau, A.'
+_cell_length_a 9.958(3)
+_cell_length_b 7.992(2)
+_cell_length_c 8.212(4)
+_cell_angle_alpha 104.37(11)
+_cell_angle_beta 90.13(4)
+_cell_angle_gamma 102.89(7)
+_cell_volume 615.99
+_cell_formula_units_Z 8
+_symmetry_space_group_name_H-M 'P -1'
+_symmetry_Int_Tables_number 2
+_refine_ls_R_factor_all 0.06
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+1 '-x, -y, -z'
+2 'x, y, z'
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+Te1+ 1
+I1- -1
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_B_iso_or_equiv
+_atom_site_occupancy
+_atom_site_attached_hydrogens
+Te1 Te1+ 2 i 0.19346(7) 0.50486(12) 0.50438(11) . 1. 0
+Te2 Te1+ 2 i 0.19005(8) 0.23142(13) 0.68554(12) . 1. 0
+Te3 Te1+ 2 i 0.28874(8) 0.77280(13) 0.81519(11) . 1. 0
+Te4 Te1+ 2 i 0.20012(8) 0.50105(13) 0.97882(11) . 1. 0
+I1 I1- 2 i 0.06734(8) 0.20027(13) 0.18989(12) . 1. 0
+I2 I1- 2 i 0.17132(8) 0.80236(13) 0.34297(12) . 1. 0
+I3 I1- 2 i 0.56670(8) 0.78853(14) 0.81927(12) . 1. 0
+I4 I1- 2 i 0.46158(9) 0.21294(14) 0.68258(12) . 1. 0
+loop_
+_atom_site_aniso_label
+_atom_site_aniso_type_symbol
+_atom_site_aniso_U_11
+_atom_site_aniso_U_22
+_atom_site_aniso_U_33
+_atom_site_aniso_U_12
+_atom_site_aniso_U_13
+_atom_site_aniso_U_23
+Te1 Te1+ 0.0144 0.0204 0.0201 0.0042 0.0031 0.004
+Te2 Te1+ 0.0215 0.0144 0.0225 0.0032 0.0045 0.0026
+Te3 Te1+ 0.0197 0.0146 0.0227 0.0017 0.0019 0.0017
+Te4 Te1+ 0.0194 0.0205 0.0196 0.0044 0.003 0.0035
+I1 I1- 0.0241 0.0193 0.0277 0.0027 0.0012 0.002
+I2 I1- 0.0247 0.0182 0.0269 0.0036 0.0034 0.0055
+I3 I1- 0.0202 0.0283 0.0264 0.0041 0.0029 0.0057
+I4 I1- 0.0244 0.032 0.0272 0.0118 0.005 0.0065
+#End of TTdata_109-ICSD

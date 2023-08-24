@@ -1,4 +1,5 @@
 """This module provides classes to perform fitting of structures."""
+
 from __future__ import annotations
 
 import abc
@@ -75,7 +76,9 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: Comparator.
+
+        Returns:
+            Comparator.
         """
         for trans_modules in ["structure_matcher"]:
             mod = __import__(
@@ -91,7 +94,7 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
         raise ValueError("Invalid Comparator dict")
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -264,7 +267,8 @@ class OccupancyComparator(AbstractComparator):
     def get_hash(self, composition):
         """
         :param composition: Composition.
-        :return: 1. Difficult to define sensible hash
+        Returns:
+            1. Difficult to define sensible hash
         """
         return 1
 
@@ -386,7 +390,7 @@ class StructureMatcher(MSONable):
         If fu == 1, s1_supercell is returned as true, to avoid ambiguity.
         """
         if self._supercell_size == "num_sites":
-            fu = s2.num_sites / s1.num_sites
+            fu = len(s2) / len(s1)
         elif self._supercell_size == "num_atoms":
             fu = s2.composition.num_atoms / s1.composition.num_atoms
         elif self._supercell_size == "volume":
@@ -830,7 +834,7 @@ class StructureMatcher(MSONable):
         return all_groups
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -851,7 +855,9 @@ class StructureMatcher(MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: StructureMatcher
+
+        Returns:
+            StructureMatcher
         """
         return cls(
             ltol=d["ltol"],
@@ -895,8 +901,8 @@ class StructureMatcher(MSONable):
             raise ValueError("Anonymous fitting currently requires SpeciesComparator")
 
         # check that species lists are comparable
-        sp1 = struct1.composition.elements
-        sp2 = struct2.composition.elements
+        sp1 = struct1.elements
+        sp2 = struct2.elements
         if len(sp1) != len(sp2):
             return None
 
@@ -915,7 +921,7 @@ class StructureMatcher(MSONable):
                 continue
 
             mapped_struct = struct1.copy()
-            mapped_struct.replace_species(sp_mapping)
+            mapped_struct.replace_species(sp_mapping)  # type: ignore[arg-type]
             if swapped:
                 m = self._strict_match(
                     struct2,

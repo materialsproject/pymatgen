@@ -1,5 +1,4 @@
-"""
-This module calculates corrections for the species listed below, fitted to the experimental and computed
+"""This module calculates corrections for the species listed below, fitted to the experimental and computed
 entries given to the CorrectionCalculator constructor.
 """
 
@@ -21,8 +20,7 @@ from pymatgen.core.periodic_table import Element
 
 
 class CorrectionCalculator:
-    """
-    A CorrectionCalculator contains experimental and computed entries which it uses to compute corrections.
+    """A CorrectionCalculator contains experimental and computed entries which it uses to compute corrections.
 
     It graphs residual errors after applying the computed corrections and creates the MPCompatibility.yaml
     file the Correction classes use.
@@ -43,8 +41,7 @@ class CorrectionCalculator:
         allow_unstable: float | bool = 0.1,
         exclude_polyanions: list[str] | None = None,
     ) -> None:
-        """
-        Initializes a CorrectionCalculator.
+        """Initializes a CorrectionCalculator.
 
         Args:
             species: list of species to calculate corrections for
@@ -101,8 +98,7 @@ class CorrectionCalculator:
         return self.compute_corrections(exp_entries, calc_entries)
 
     def compute_corrections(self, exp_entries: list, calc_entries: dict) -> dict:
-        """
-        Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
+        """Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
 
         Args:
             exp_entries: list of dictionary objects with the following keys/values:
@@ -286,19 +282,18 @@ class CorrectionCalculator:
         )
 
         print("Residual Error:")
-        print("Median = " + str(np.median(np.array(abs_errors))))
-        print("Mean = " + str(np.mean(np.array(abs_errors))))
-        print("Std Dev = " + str(np.std(np.array(abs_errors))))
+        print(f"Median = {np.median(np.array(abs_errors))}")
+        print(f"Mean = {np.mean(np.array(abs_errors))}")
+        print(f"Std Dev = {np.std(np.array(abs_errors))}")
         print("Original Error:")
-        print("Median = " + str(abs(np.median(np.array(self.diffs)))))
-        print("Mean = " + str(abs(np.mean(np.array(self.diffs)))))
-        print("Std Dev = " + str(np.std(np.array(self.diffs))))
+        print(f"Median = {abs(np.median(np.array(self.diffs)))}")
+        print(f"Mean = {abs(np.mean(np.array(self.diffs)))}")
+        print(f"Std Dev = {np.std(np.array(self.diffs))}")
 
         return fig
 
     def graph_residual_error_per_species(self, specie: str) -> go.Figure:
-        """
-        Graphs the residual errors for each compound that contains specie after applying computed corrections.
+        """Graphs the residual errors for each compound that contains specie after applying computed corrections.
 
         Args:
             specie: the specie/group that residual errors are being plotted for
@@ -326,17 +321,17 @@ class CorrectionCalculator:
                 compounds = self.superoxides
             else:
                 compounds = self.sulfides
-            for i in range(num):
-                if labels_species[num - i - 1] not in compounds:
-                    del labels_species[num - i - 1]
-                    del abs_errors[num - i - 1]
-                    del diffs_cpy[num - i - 1]
+            for idx in range(num):
+                if labels_species[num - idx - 1] not in compounds:
+                    del labels_species[num - idx - 1]
+                    del abs_errors[num - idx - 1]
+                    del diffs_cpy[num - idx - 1]
         else:
-            for i in range(num):
-                if not Composition(labels_species[num - i - 1])[specie]:
-                    del labels_species[num - i - 1]
-                    del abs_errors[num - i - 1]
-                    del diffs_cpy[num - i - 1]
+            for idx in range(num):
+                if not Composition(labels_species[num - idx - 1])[specie]:
+                    del labels_species[num - idx - 1]
+                    del abs_errors[num - idx - 1]
+                    del diffs_cpy[num - idx - 1]
         abs_errors, labels_species = (list(t) for t in zip(*sorted(zip(abs_errors, labels_species))))  # sort by error
 
         num = len(abs_errors)
@@ -354,19 +349,18 @@ class CorrectionCalculator:
         )
 
         print("Residual Error:")
-        print("Median = " + str(np.median(np.array(abs_errors))))
-        print("Mean = " + str(np.mean(np.array(abs_errors))))
-        print("Std Dev = " + str(np.std(np.array(abs_errors))))
+        print(f"Median = {np.median(np.array(abs_errors))}")
+        print(f"Mean = {np.mean(np.array(abs_errors))}")
+        print(f"Std Dev = {np.std(np.array(abs_errors))}")
         print("Original Error:")
-        print("Median = " + str(abs(np.median(np.array(diffs_cpy)))))
-        print("Mean = " + str(abs(np.mean(np.array(diffs_cpy)))))
-        print("Std Dev = " + str(np.std(np.array(diffs_cpy))))
+        print(f"Median = {abs(np.median(np.array(diffs_cpy)))}")
+        print(f"Mean = {abs(np.mean(np.array(diffs_cpy)))}")
+        print(f"Std Dev = {np.std(np.array(diffs_cpy))}")
 
         return fig
 
     def make_yaml(self, name: str = "MP2020", dir: str | None = None) -> None:
-        """
-        Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
+        """Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
         for correction uncertainties.
 
         Args:

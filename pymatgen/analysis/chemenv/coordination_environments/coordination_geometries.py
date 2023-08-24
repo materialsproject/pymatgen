@@ -631,9 +631,11 @@ class CoordinationGeometry:
             if dct["_algorithms"] is not None
             else None,
             equivalent_indices=dct.get("equivalent_indices"),
-            neighbors_sets_hints=[cls.NeighborsSetsHints.from_dict(nbshd) for nbshd in dct["neighbors_sets_hints"]]
-            if ("neighbors_sets_hints" in dct and dct["neighbors_sets_hints"] is not None)
-            else None,
+            neighbors_sets_hints=[
+                cls.NeighborsSetsHints.from_dict(nb_sets_hints)
+                for nb_sets_hints in dct.get("neighbors_sets_hints") or []
+            ]
+            or None,
         )
 
     def __str__(self):
@@ -848,12 +850,12 @@ class CoordinationGeometry:
         # _vertices = [site.coords for site in sites]
         _vertices = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
         _face_centers = []
-        number_of_faces = 0
+        n_faces = 0
         for face in self._faces:
             if len(face) in [3, 4]:
-                number_of_faces += 1
+                n_faces += 1
             else:
-                number_of_faces += len(face)
+                n_faces += len(face)
 
             _face_centers.append(
                 np.array([np.mean([_vertices[face_vertex][ii] for face_vertex in face]) for ii in range(3)])
@@ -864,7 +866,7 @@ class CoordinationGeometry:
             out += f"{vv[0]:15.8f} {vv[1]:15.8f} {vv[2]:15.8f}\n"
         for fc in _face_centers:
             out += f"{fc[0]:15.8f} {fc[1]:15.8f} {fc[2]:15.8f}\n"
-        out += f"{number_of_faces:d}\n"
+        out += f"{n_faces}\n"
         for iface, face in enumerate(self._faces):
             if len(face) == 3:
                 out += "4\n"
@@ -873,14 +875,14 @@ class CoordinationGeometry:
             else:
                 for ii, f in enumerate(face):
                     out += "4\n"
-                    out += f"{len(_vertices) + iface:d}\n"
-                    out += f"{f:d}\n"
-                    out += f"{face[np.mod(ii + 1, len(face))]:d}\n"
-                    out += f"{len(_vertices) + iface:d}\n"
+                    out += f"{len(_vertices) + iface}\n"
+                    out += f"{f}\n"
+                    out += f"{face[np.mod(ii + 1, len(face))]}\n"
+                    out += f"{len(_vertices) + iface}\n"
             if len(face) in [3, 4]:
                 for face_vertex in face:
-                    out += f"{face_vertex:d}\n"
-                out += f"{face[0]:d}\n"
+                    out += f"{face_vertex}\n"
+                out += f"{face[0]}\n"
         pmeshes.append({"pmesh_string": out})
         return pmeshes
 

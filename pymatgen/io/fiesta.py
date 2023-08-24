@@ -16,6 +16,7 @@ import shutil
 import subprocess
 from string import Template
 
+import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -73,7 +74,7 @@ class Nwchem2Fiesta(MSONable):
         os.chdir(init_folder)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -85,7 +86,8 @@ class Nwchem2Fiesta(MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation.
-        :return: Nwchem2Fiesta
+        Returns:
+            Nwchem2Fiesta
         """
         return cls(folder=d["folder"], filename=d["filename"])
 
@@ -168,7 +170,7 @@ class FiestaRun(MSONable):
             os.chdir(init_folder)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -181,7 +183,9 @@ class FiestaRun(MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: FiestaRun
+
+        Returns:
+            FiestaRun
         """
         return cls(folder=d["folder"], grid=d["grid"], log_file=d["log_file"])
 
@@ -257,7 +261,7 @@ class BasisSetReader:
         return basis_set
 
     def set_n_nlmo(self):
-        """:return: the number of nlm orbitals for the basis set"""
+        """the number of nlm orbitals for the basis set"""
         nnlmo = 0
 
         data_tmp = self.data
@@ -375,7 +379,9 @@ class FiestaInput(MSONable):
     def dump_BSE_data_in_GW_run(self, BSE_dump=True):
         """
         :param BSE_dump: boolean
-        :return: set the "do_bse" variable to one in cell.in
+
+        Returns:
+            set the "do_bse" variable to one in cell.in
         """
         if BSE_dump:
             self.BSE_TDDFT_options.update(do_bse=1, do_tddft=0)
@@ -385,7 +391,9 @@ class FiestaInput(MSONable):
     def dump_TDDFT_data_in_GW_run(self, TDDFT_dump=True):
         """
         :param TDDFT_dump: boolean
-        :return: set the do_tddft variable to one in cell.in
+
+        Returns:
+            set the do_tddft variable to one in cell.in
         """
         if TDDFT_dump:
             self.BSE_TDDFT_options.update(do_bse=0, do_tddft=1)
@@ -439,9 +447,7 @@ class FiestaInput(MSONable):
             o.append(" Dumping data for TD-DFT treatment")
         o.append("")
         o.append(" Atoms in cell cartesian A:")
-        symbols = []
-        for syb in self._mol.symbol_set:
-            symbols.append(syb)
+        symbols = list(self._mol.symbol_set)
 
         for site in self._mol:
             o.append(f" {site.x} {site.y} {site.z} {int(symbols.index(site.specie.symbol)) + 1}")
@@ -456,9 +462,7 @@ class FiestaInput(MSONable):
         return self._mol
 
     def __str__(self):
-        symbols = []
-        for syb in self._mol.symbol_set:
-            symbols.append(syb)
+        symbols = list(self._mol.symbol_set)
 
         geometry = []
         for site in self._mol:
@@ -532,7 +536,7 @@ $geometry
             f.write(str(self))
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "mol": self._mol.as_dict(),
             "correlation_grid": self.correlation_grid,
@@ -546,7 +550,9 @@ $geometry
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: FiestaInput
+
+        Returns:
+            FiestaInput
         """
         return cls(
             Molecule.from_dict(d["mol"]),
@@ -558,7 +564,12 @@ $geometry
         )
 
     @classmethod
-    def from_string(cls, string_input):
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, string_input):
         """
         Read an FiestaInput from a string. Currently tested to work with
         files generated from this class itself.
@@ -705,7 +716,7 @@ $geometry
             FiestaInput object
         """
         with zopen(filename) as f:
-            return cls.from_string(f.read())
+            return cls.from_str(f.read())
 
 
 class FiestaOutput:

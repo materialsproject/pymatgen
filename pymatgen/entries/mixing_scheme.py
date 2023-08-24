@@ -1,5 +1,4 @@
-"""
-This module implements Compatibility corrections for mixing runs of different
+"""This module implements Compatibility corrections for mixing runs of different
 functionals.
 """
 
@@ -34,8 +33,7 @@ __date__ = "October 2021"
 
 
 class MaterialsProjectDFTMixingScheme(Compatibility):
-    """
-    This class implements the Materials Project mixing scheme, which allows mixing of
+    """This class implements the Materials Project mixing scheme, which allows mixing of
     energies from different DFT functionals. Note that this should only be used for
     VASP calculations using the MaterialsProject parameters (e.g. MPRelaxSet or
     MPScanRelaxSet). Using this compatibility scheme on runs with different parameters
@@ -54,9 +52,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         compat_1: Compatibility | None = MaterialsProject2020Compatibility(),  # noqa: B008
         compat_2: Compatibility | None = None,
         fuzzy_matching: bool = True,
-    ):
-        """
-        Instantiate the mixing scheme. The init method creates a generator class that
+        check_potcar: bool = True,
+    ) -> None:
+        """Instantiate the mixing scheme. The init method creates a generator class that
         contains relevant settings (e.g., StructureMatcher instance, Compatibility settings
         for each functional) for processing groups of entries.
 
@@ -93,29 +91,28 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 space group are all identical. If there are multiple materials of run_type_2
                 that satisfy these criteria, the one with lowest energy is considered to
                 match.
+            check_potcar: Whether to ensure the POTCARs used for the run_type_1 and run_type_2 calculations
+                are the same. This is useful for ensuring that the mixing scheme is not used on calculations
+                that used different POTCARs, which can lead to unphysical results. Defaults to True.
+                Has no effect if neither compat_1 nor compat_2 have a check_potcar attribute.
+                Can also be disabled globally by running `pmg config --add PMG_POTCAR_CHECKS false`.
         """
         self.name = "MP DFT mixing scheme"
         self.structure_matcher = structure_matcher or StructureMatcher()
         if run_type_1 == run_type_2:
-            raise ValueError(
-                f"You specified the same run_type {run_type_1} for both run_type_1 and run_type_2. "
-                "The mixing scheme is meaningless unless run_type_1 and run_type_2 are different"
-            )
+            raise ValueError(f"run_type_1={run_type_2=}. The mixing scheme is meaningless unless run_types different")
         self.run_type_1 = run_type_1
         self.run_type_2 = run_type_2
-        if self.run_type_1 == "GGA(+U)":
-            self.valid_rtypes_1 = ["GGA", "GGA+U"]
-        else:
-            self.valid_rtypes_1 = [self.run_type_1]
-
-        if self.run_type_2 == "GGA(+U)":
-            self.valid_rtypes_2 = ["GGA", "GGA+U"]
-        else:
-            self.valid_rtypes_2 = [self.run_type_2]
+        self.valid_rtypes_1 = ["GGA", "GGA+U"] if self.run_type_1 == "GGA(+U)" else [self.run_type_1]
+        self.valid_rtypes_2 = ["GGA", "GGA+U"] if self.run_type_2 == "GGA(+U)" else [self.run_type_2]
 
         self.compat_1 = compat_1
         self.compat_2 = compat_2
         self.fuzzy_matching = fuzzy_matching
+        self.check_potcar = check_potcar
+        for compat in (self.compat_1, self.compat_2):
+            if hasattr(compat, "check_potcar"):
+                compat.check_potcar = check_potcar  # type: ignore[union-attr]
 
     def process_entries(
         self,
@@ -125,8 +122,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         inplace: bool = True,
         mixing_state_data=None,
     ) -> list[AnyComputedEntry]:
-        """
-        Process a sequence of entries with the DFT mixing scheme. Note
+        """Process a sequence of entries with the DFT mixing scheme. Note
         that this method will change the data of the original entries.
 
         Args:
@@ -253,8 +249,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         return processed_entry_list
 
     def get_adjustments(self, entry, mixing_state_data: pd.DataFrame | None = None):
-        """
-        Returns the corrections applied to a particular entry. Note that get_adjustments is not
+        """Returns the corrections applied to a particular entry. Note that get_adjustments is not
         intended to be called directly in the R2SCAN mixing scheme. Call process_entries instead,
         and it will pass the required arguments to get_adjustments.
 
@@ -453,8 +448,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         )
 
     def get_mixing_state_data(self, entries: list[ComputedStructureEntry]):
-        """
-        Generate internal state data to be passed to get_adjustments.
+        """Generate internal state data to be passed to get_adjustments.
 
         Args:
             entries: The list of ComputedStructureEntry to process. It is assumed that the entries have
@@ -546,34 +540,31 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             structures.append(struct)
 
         # First group by composition, then by spacegroup number, then by structure matching
-        for comp, compgroup in groupby(sorted(structures, key=lambda s: s.composition), key=lambda s: s.composition):
-            l_compgroup = list(compgroup)
+        for comp, comp_group in groupby(sorted(structures, key=lambda s: s.composition), key=lambda s: s.composition):
+            l_comp_group = list(comp_group)
             # group by spacegroup, then by number of sites (for diatmics) or by structure matching
-            for sg, pregroup in groupby(sorted(l_compgroup, key=_get_sg), key=_get_sg):
-                l_pregroup = list(pregroup)
+            for sg, pre_group in groupby(sorted(l_comp_group, key=_get_sg), key=_get_sg):
+                l_pre_group = list(pre_group)
                 if comp.reduced_formula in ["O2", "H2", "Cl2", "F2", "N2", "I", "Br", "H2O"] and self.fuzzy_matching:
                     # group by number of sites
-                    for n, sitegroup in groupby(
-                        sorted(l_pregroup, key=lambda s: s.num_sites), key=lambda s: s.num_sites
-                    ):
-                        l_sitegroup = list(sitegroup)
+                    for idx, site_group in groupby(sorted(l_pre_group, key=lambda s: len(s)), key=lambda s: len(s)):
+                        l_sitegroup = list(site_group)
                         row_list.append(
-                            self._populate_df_row(l_sitegroup, comp, sg, n, pd_type_1, pd_type_2, all_entries)
+                            self._populate_df_row(l_sitegroup, comp, sg, idx, pd_type_1, pd_type_2, all_entries)
                         )
                 else:
-                    for group in self.structure_matcher.group_structures(l_pregroup):
-                        grp = list(group)
-                        n = group[0].num_sites
+                    for group in self.structure_matcher.group_structures(l_pre_group):
+                        group = list(group)
+                        idx = len(group[0])
                         # StructureMatcher.group_structures returns a list of lists,
                         # so each group should be a list containing matched structures
-                        row_list.append(self._populate_df_row(grp, comp, sg, n, pd_type_1, pd_type_2, all_entries))
+                        row_list.append(self._populate_df_row(group, comp, sg, idx, pd_type_1, pd_type_2, all_entries))
 
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
         return mixing_state_data.sort_values(["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True)
 
     def _filter_and_sort_entries(self, entries, verbose=True):
-        """
-        Given a single list of entries, separate them by run_type and return two lists, one containing
+        """Given a single list of entries, separate them by run_type and return two lists, one containing
         only entries of each run_type.
         """
         filtered_entries = []
@@ -663,8 +654,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         return list(entries_type_1), list(entries_type_2)
 
     def _populate_df_row(self, struct_group, comp, sg, n, pd_type_1, pd_type_2, all_entries):
-        """
-        Helper function to populate a row of the mixing state DataFrame, given
+        """Helper function to populate a row of the mixing state DataFrame, given
         a list of matched structures.
         """
         # within the group of matched structures, keep the lowest energy entry from

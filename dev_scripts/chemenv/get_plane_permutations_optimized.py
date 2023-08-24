@@ -175,7 +175,7 @@ if __name__ == "__main__":
         # 1. Check the algorithms defined for this coordination geometry and get the explicit permutations
         original_n_explicit_perms = []
         original_n_explicit_optimized_perms = []
-        for ialgo, algo in enumerate(cg.algorithms):
+        for idx, algo in enumerate(cg.algorithms):
             algo._permutations = algo.explicit_permutations
             algo.minimum_number_of_points = 4
             if algo.algorithm_type == "EXPLICIT_PERMUTATIONS":
@@ -185,7 +185,7 @@ if __name__ == "__main__":
             else:
                 eop = str(len(algo.explicit_optimized_permutations))
             print(
-                f"For ialgo {ialgo,:d}, plane_points are "
+                f"For {idx=}, plane_points are "
                 f"[{', '.join(map(str, algo.plane_points))}], "
                 f"side_0 is [{', '.join(map(str, algo.point_groups[0]))}] and "
                 f"side_1 is [{', '.join(map(str, algo.point_groups[1]))}]."
@@ -194,7 +194,7 @@ if __name__ == "__main__":
             original_n_explicit_optimized_perms.append(eop)
             print(
                 f"  For this algorithm, there are {eop} optimized permutations and "
-                f"{len(algo.explicit_permutations):d} explicit permutations"
+                f"{len(algo.explicit_permutations)} explicit permutations"
             )
             if algo.other_plane_points is None:
                 input("Multiplicity and other plane points is not defined for this algorithm !")
@@ -204,7 +204,7 @@ if __name__ == "__main__":
                 ordered_plane=algo.ordered_plane, ordered_point_groups=algo.ordered_point_groups
             )
             algo._permutations = permutations
-            print(f"Safe permutations found ({len(permutations):d})")
+            print(f"Safe permutations found ({len(permutations)})")
 
             # Definition of the facets
             all_planes_point_indices = [algo.plane_points]
@@ -213,9 +213,9 @@ if __name__ == "__main__":
 
             # Loop on the facets
             explicit_permutations_per_plane = []
-            for iplane, plane_point_indices in enumerate(all_planes_point_indices):
+            for idx_plane, plane_point_indices in enumerate(all_planes_point_indices):
                 prt1(
-                    string=f"In plane {iplane:d} ({'-'.join(str(pp) for pp in plane_point_indices)})",
+                    string=f"In plane {idx_plane} ({'-'.join(str(pp) for pp in plane_point_indices)})",
                     printing_volume=printing_volume,
                 )
 
@@ -268,7 +268,7 @@ if __name__ == "__main__":
             algo.explicit_permutations = [list(perm) for perm in list(explicit_permutations_per_plane[0])]
             algo.explicit_permutations.sort()
             algo.explicit_permutations = np.array(algo.explicit_permutations)
-            print(f"Explicit permutations found ({len(algo.explicit_permutations):d})")
+            print(f"Explicit permutations found ({len(algo.explicit_permutations)})")
             print(algo.explicit_permutations)
             print()
             # Setup the permutations for the next optimization
@@ -291,10 +291,10 @@ if __name__ == "__main__":
         perms_used_algos: list[dict] = [{} for _ in cg.algorithms]
 
         # Loop on algorithms
-        for ialgo, algo in enumerate(cg.algorithms):
+        for idx, algo in enumerate(cg.algorithms):
             perms_used: dict[tuple, int] = {}
             print(
-                f"In ialgo {ialgo:d} (plane_points : "
+                f"In {idx=} (plane_points : "
                 f"[{', '.join(map(str, algo.plane_points))}], "
                 f"side_0 : [{', '.join(map(str, algo.point_groups[0]))}] and "
                 f"side_1 : [{', '.join(map(str, algo.point_groups[1]))}])"
@@ -334,12 +334,12 @@ if __name__ == "__main__":
                 raise ValueError("Permutation setup not allowed ...")
 
             # Loop on permutations
-            iperm = 1
+            idx_perm = 1
             t0 = time.process_time()
             time_left: float | str = "Unknown"
             for indices_perm in perms_iterator:
                 prt1(
-                    string=f"Perm # {iperm:d}/{n_permutations:d} : "
+                    string=f"Perm # {idx_perm}/{n_permutations} : "
                     f"{'-'.join(map(str, indices_perm))} "
                     f"(est. rem. time : {time_left} sec)",
                     printing_volume=printing_volume,
@@ -353,9 +353,9 @@ if __name__ == "__main__":
 
                 # Loop on the facets
                 separation_permutations = []
-                for iplane, plane_point_indices in enumerate(all_planes_point_indices):
+                for idx_plane, plane_point_indices in enumerate(all_planes_point_indices):
                     prt2(
-                        string=f"In plane {iplane:d} ({'-'.join(str(pp) for pp in plane_point_indices)})",
+                        string=f"In plane {idx_plane} ({'-'.join(str(pp) for pp in plane_point_indices)})",
                         printing_volume=printing_volume,
                     )
 
@@ -399,28 +399,28 @@ if __name__ == "__main__":
                     else:
                         perms_used[some_perm] = 1
                 tcurrent = time.process_time()
-                time_left = (n_permutations - iperm) * (tcurrent - t0) / iperm  # type: ignore
+                time_left = (n_permutations - idx_perm) * (tcurrent - t0) / idx_perm  # type: ignore
                 time_left = f"{time_left:.1f}"
-                iperm += 1
+                idx_perm += 1
             print(
-                f"Optimized permutations {len(perms_used):d}/{len(algo.permutations):d}"
-                f"(old : {original_n_explicit_optimized_perms[ialgo]}/{original_n_explicit_perms[ialgo]}) : "
+                f"Optimized permutations {len(perms_used)}/{len(algo.permutations)}"
+                f"(old : {original_n_explicit_optimized_perms[idx]}/{original_n_explicit_perms[idx]}) : "
             )
             for perm, number in perms_used.items():
-                print(f" - permutation {'-'.join(map(str, perm))} : {number:d}")
+                print(f" - permutation {'-'.join(map(str, perm))} : {number}")
             print(
-                f"For {ialgo=} (plane_points : [{', '.join(map(str, algo.plane_points))}], "
+                f"For {idx=} (plane_points : [{', '.join(map(str, algo.plane_points))}], "
                 f"side_0 : [{', '.join(map(str, algo.point_groups[0]))}] and "
                 f"side_1 : [{', '.join(map(str, algo.point_groups[1]))}]),\n"
                 f"Optimized perturbations {len(perms_used)}/{len(algo.permutations)} (old : "
-                f"{original_n_explicit_optimized_perms[ialgo]}/{original_n_explicit_perms[ialgo]}) are :"
+                f"{original_n_explicit_optimized_perms[idx]}/{original_n_explicit_perms[idx]}) are :"
             )
-            # print(f"Optimized permutations ({len(perms_used):d}/{len(algo.permutations):d}) : ")
+            # print(f"Optimized permutations ({len(perms_used)}/{len(algo.permutations)}) : ")
             explicit_optimized_permutations = [list(perm) for perm in perms_used]
             explicit_optimized_permutations.sort()
             print(explicit_optimized_permutations)
             print()
-            test = input(f'Set optimized permutations for algorithm {ialgo:d} ? ("y" to confirm)')
+            test = input(f'Set optimized permutations for algorithm {idx} ? ("y" to confirm)')
             if test == "y":
                 algo.explicit_optimized_permutations = np.array(explicit_optimized_permutations)
 

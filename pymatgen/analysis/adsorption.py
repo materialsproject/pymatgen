@@ -17,8 +17,8 @@ from scipy.spatial import Delaunay
 from pymatgen import vis
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core import Molecule, Structure
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure import Structure
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
@@ -110,7 +110,7 @@ class AdsorbateSiteFinder:
                 are 10% less coordinated than their bulk counterpart
         """
         # TODO: for some reason this works poorly with primitive cells
-        #       may want to switch the coordination algorithm eventually
+        # may want to switch the coordination algorithm eventually
         vnn_bulk = VoronoiNN(tol=0.05)
         bulk_coords = [len(vnn_bulk.get_nn(structure, n)) for n in range(len(structure))]
         struct = structure.copy(site_properties={"bulk_coordinations": bulk_coords})
@@ -357,7 +357,7 @@ class AdsorbateSiteFinder:
 
         return np.average([site_list[idx].frac_coords for idx in indices], axis=0)
 
-    def add_adsorbate(self, molecule, ads_coord, repeat=None, translate=True, reorient=True):
+    def add_adsorbate(self, molecule: Molecule, ads_coord, repeat=None, translate=True, reorient=True):
         """Adds an adsorbate at a particular coordinate. Adsorbate represented
         by a Molecule object and is translated to (0, 0, 0) if translate is
         True, or positioned relative to the input adsorbate coordinate if
@@ -389,9 +389,9 @@ class AdsorbateSiteFinder:
         if repeat:
             struct.make_supercell(repeat)
         if "surface_properties" in struct.site_properties:
-            molecule.add_site_property("surface_properties", ["adsorbate"] * molecule.num_sites)
+            molecule.add_site_property("surface_properties", ["adsorbate"] * len(molecule))
         if "selective_dynamics" in struct.site_properties:
-            molecule.add_site_property("selective_dynamics", [[True, True, True]] * molecule.num_sites)
+            molecule.add_site_property("selective_dynamics", [[True, True, True]] * len(molecule))
         for site in molecule:
             struct.append(
                 site.specie,
@@ -558,7 +558,7 @@ class AdsorbateSiteFinder:
             props = self.slab.site_properties
             if sub_both_sides:
                 # Find an equivalent site on the other surface
-                eq_indices = [indices for indices in sym_slab.equivalent_indices if i in indices][0]
+                eq_indices = next(indices for indices in sym_slab.equivalent_indices if i in indices)
                 for ii in eq_indices:
                     if f"{sym_slab[ii].frac_coords[2]:.6f}" != f"{site.frac_coords[2]:.6f}":
                         props["surface_properties"][ii] = "substitute"
@@ -717,6 +717,5 @@ def plot_slab(
     lim_array = [center - extent * window, center + extent * window]
     x_lim = [ele[0] for ele in lim_array]
     y_lim = [ele[1] for ele in lim_array]
-    ax.set_xlim(x_lim)
-    ax.set_ylim(y_lim)
+    ax.set(xlim=x_lim, ylim=y_lim)
     return ax

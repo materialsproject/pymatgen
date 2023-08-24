@@ -17,8 +17,7 @@ logger = logging.getLogger("BorgQueen")
 
 
 class BorgQueen:
-    """
-    The Borg Queen controls the drones to assimilate data in an entire
+    """The Borg Queen controls the drones to assimilate data in an entire
     directory tree. Uses multiprocessing to speed up things considerably. It
     also contains convenience methods to save and load data between sessions.
     """
@@ -90,8 +89,7 @@ class BorgQueen:
         return self._data
 
     def save_data(self, filename):
-        """
-        Save the assimilated data to a file.
+        """Save the assimilated data to a file.
 
         Args:
             filename (str): filename to save the assimilated data to. Note

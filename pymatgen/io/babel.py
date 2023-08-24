@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import warnings
 
+import numpy as np
 from monty.dev import requires
 
 from pymatgen.core.structure import IMolecule, Molecule
@@ -76,6 +77,8 @@ class BabelMolAdaptor:
             self._obmol = mol
         elif isinstance(mol, pybel.Molecule):
             self._obmol = mol.OBMol
+        else:
+            raise ValueError(f"Unsupported input type {type(mol)}, must be Molecule, openbabel.OBMol or pybel.Molecule")
 
     @property
     def pymatgen_mol(self):
@@ -247,7 +250,7 @@ class BabelMolAdaptor:
                 default is False.
 
         Returns:
-             (list): list of pymatgen Molecule objects for generated conformers.
+            list[Molecule]: Molecule objects for generated conformers.
         """
         if self._obmol.GetDimension() != 3:
             self.make3d()
@@ -334,8 +337,13 @@ class BabelMolAdaptor:
         """
         return BabelMolAdaptor(mol.molecule)
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(string_data, file_format="xyz"):
+    def from_str(string_data, file_format="xyz"):
         """
         Uses OpenBabel to read a molecule from a string in all supported
         formats.

@@ -22,6 +22,7 @@ from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
+from numpy.testing import assert_allclose
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -37,6 +38,7 @@ from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spi
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.io.common import VolumetricData as BaseVolumetricData
+from pymatgen.io.core import ParseError
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
@@ -80,6 +82,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
     Returns:
         Parsed value.
     """
+    err = ValueError("Error in parsing vasprun.xml")
     if val_type == "logical":
         val = [i == "T" for i in val.split()]
     elif val_type == "int":
@@ -90,7 +93,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
             # LDAUL/J as 2****
             val = _parse_from_incar(filename, param_name)
             if val is None:
-                raise OSError("Error in parsing vasprun.xml")
+                raise err
     elif val_type == "string":
         val = val.split()
     else:
@@ -101,7 +104,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
             # MAGMOM as 2****
             val = _parse_from_incar(filename, param_name)
             if val is None:
-                raise OSError("Error in parsing vasprun.xml")
+                raise err
     return val
 
 
@@ -422,6 +425,7 @@ class Vasprun(MSONable):
                         self.parameters = self._parse_params(elem)
                     elif tag == "structure" and elem.attrib.get("name") == "initialpos":
                         self.initial_structure = self._parse_structure(elem)
+                        self.final_structure = self.initial_structure
                     elif tag == "atominfo":
                         self.atomic_symbols, self.potcar_symbols = self._parse_atominfo(elem)
                         self.potcar_spec = [{"titel": p, "hash": None} for p in self.potcar_symbols]
@@ -511,7 +515,7 @@ class Vasprun(MSONable):
     def structures(self):
         """
         Returns:
-             List of Structure objects for the structure at each ionic step.
+            List of Structure objects for the structure at each ionic step.
         """
         return [step["structure"] for step in self.ionic_steps]
 
@@ -603,15 +607,17 @@ class Vasprun(MSONable):
             True if electronic step convergence has been reached in the final
             ionic step.
         """
-        final_esteps = self.ionic_steps[-1]["electronic_steps"] if self.incar not in ["CHI"] else 0
+        final_elec_steps = (
+            self.ionic_steps[-1]["electronic_steps"] if self.incar.get("ALGO", "").lower() != "chi" else 0
+        )
         # In a response function run there is no ionic steps, there is no scf step
-        if "LEPSILON" in self.incar and self.incar["LEPSILON"]:
-            i = 1
+        if self.incar.get("LEPSILON"):
+            idx = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
-            while set(final_esteps[i]) == to_check:
-                i += 1
-            return i + 1 != self.parameters["NELM"]
-        return len(final_esteps) < self.parameters["NELM"]
+            while set(final_elec_steps[idx]) == to_check:
+                idx += 1
+            return idx + 1 != self.parameters["NELM"]
+        return len(final_elec_steps) < self.parameters["NELM"]
 
     @property
     def converged_ionic(self):
@@ -692,7 +698,7 @@ class Vasprun(MSONable):
             return {symbols[i]: us[i] - js[i] for i in range(len(symbols))}
         if sum(us) == 0 and sum(js) == 0:
             return {}
-        raise VaspParserError("Length of U value parameters and atomic symbols are mismatched")
+        raise VaspParseError("Length of U value parameters and atomic symbols are mismatched")
 
     @property
     def run_type(self):
@@ -875,7 +881,7 @@ class Vasprun(MSONable):
         if not kpoints_filename:
             kpoints_filename = zpath(os.path.join(os.path.dirname(self.filename), "KPOINTS"))
         if kpoints_filename and not os.path.exists(kpoints_filename) and line_mode is True:
-            raise VaspParserError("KPOINTS not found but needed to obtain band structure along symmetry lines.")
+            raise VaspParseError("KPOINTS not found but needed to obtain band structure along symmetry lines.")
 
         if efermi == "smart":
             e_fermi = self.calculate_efermi()
@@ -1069,7 +1075,9 @@ class Vasprun(MSONable):
     def get_potcars(self, path):
         """
         :param path: Path to search for POTCARs
-        :return: Potcar from path.
+
+        Returns:
+            Potcar from path.
         """
 
         def get_potcar_in_path(p):
@@ -1118,7 +1126,9 @@ class Vasprun(MSONable):
     def update_potcar_spec(self, path):
         """
         :param path: Path to search for POTCARs
-        :return: Potcar spec from path.
+
+        Returns:
+            Potcar spec from path.
         """
         if potcar := self.get_potcars(path):
             self.potcar_spec = [
@@ -1156,25 +1166,25 @@ class Vasprun(MSONable):
 
     def as_dict(self):
         """JSON-serializable dict representation."""
-        d = {
+        dct = {
             "vasp_version": self.vasp_version,
             "has_vasp_completed": self.converged,
             "nsites": len(self.final_structure),
         }
         comp = self.final_structure.composition
-        d["unit_cell_formula"] = comp.as_dict()
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        d["pretty_formula"] = comp.reduced_formula
+        dct["unit_cell_formula"] = comp.as_dict()
+        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
+        dct["pretty_formula"] = comp.reduced_formula
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split(r"_", s)[0] for s in symbols]
-        d["is_hubbard"] = self.is_hubbard
-        d["hubbards"] = self.hubbards
+        dct["is_hubbard"] = self.is_hubbard
+        dct["hubbards"] = self.hubbards
 
         unique_symbols = sorted(set(self.atomic_symbols))
-        d["elements"] = unique_symbols
-        d["nelements"] = len(unique_symbols)
+        dct["elements"] = unique_symbols
+        dct["nelements"] = len(unique_symbols)
 
-        d["run_type"] = self.run_type
+        dct["run_type"] = self.run_type
 
         vin = {
             "incar": dict(self.incar.items()),
@@ -1195,15 +1205,15 @@ class Vasprun(MSONable):
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
         vin["parameters"] = dict(self.parameters.items())
         vin["lattice_rec"] = self.final_structure.lattice.reciprocal_lattice.as_dict()
-        d["input"] = vin
+        dct["input"] = vin
 
-        nsites = len(self.final_structure)
+        n_sites = len(self.final_structure)
 
         try:
             vout = {
                 "ionic_steps": self.ionic_steps,
                 "final_energy": self.final_energy,
-                "final_energy_per_atom": self.final_energy / nsites,
+                "final_energy_per_atom": self.final_energy / n_sites,
                 "crystal": self.final_structure.as_dict(),
                 "efermi": self.efermi,
             }
@@ -1233,8 +1243,8 @@ class Vasprun(MSONable):
         vout["epsilon_static"] = self.epsilon_static
         vout["epsilon_static_wolfe"] = self.epsilon_static_wolfe
         vout["epsilon_ionic"] = self.epsilon_ionic
-        d["output"] = vout
-        return jsanitize(d, strict=True)
+        dct["output"] = vout
+        return jsanitize(dct, strict=True)
 
     def _parse_params(self, elem):
         params = {}
@@ -1293,7 +1303,7 @@ class Vasprun(MSONable):
         if elem.find("generation"):
             e = elem.find("generation")
         k = Kpoints("Kpoints from vasprun.xml")
-        k.style = Kpoints.supported_modes.from_string(e.attrib["param"] if "param" in e.attrib else "Reciprocal")
+        k.style = Kpoints.supported_modes.from_str(e.attrib["param"] if "param" in e.attrib else "Reciprocal")
         for v in e.findall("v"):
             name = v.attrib.get("name")
             toks = v.text.split()
@@ -1568,10 +1578,7 @@ class BSVasprun(Vasprun):
                 elif tag == "eigenvalues":
                     self.eigenvalues = self._parse_eigen(elem)
                 elif parse_projected_eigen and tag == "projected":
-                    (
-                        self.projected_eigenvalues,
-                        self.projected_magnetisation,
-                    ) = self._parse_projected_eigen(elem)
+                    self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
                 elif tag == "structure" and elem.attrib.get("name") == "finalpos":
                     self.final_structure = self._parse_structure(elem)
         self.vasp_version = self.generator["version"]
@@ -1580,23 +1587,23 @@ class BSVasprun(Vasprun):
 
     def as_dict(self):
         """JSON-serializable dict representation."""
-        d = {
+        dct = {
             "vasp_version": self.vasp_version,
             "has_vasp_completed": True,
             "nsites": len(self.final_structure),
         }
         comp = self.final_structure.composition
-        d["unit_cell_formula"] = comp.as_dict()
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        d["pretty_formula"] = comp.reduced_formula
-        d["is_hubbard"] = self.is_hubbard
-        d["hubbards"] = self.hubbards
+        dct["unit_cell_formula"] = comp.as_dict()
+        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
+        dct["pretty_formula"] = comp.reduced_formula
+        dct["is_hubbard"] = self.is_hubbard
+        dct["hubbards"] = self.hubbards
 
         unique_symbols = sorted(set(self.atomic_symbols))
-        d["elements"] = unique_symbols
-        d["nelements"] = len(unique_symbols)
+        dct["elements"] = unique_symbols
+        dct["nelements"] = len(unique_symbols)
 
-        d["run_type"] = self.run_type
+        dct["run_type"] = self.run_type
 
         vin = {
             "incar": dict(self.incar),
@@ -1616,7 +1623,7 @@ class BSVasprun(Vasprun):
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
         vin["parameters"] = dict(self.parameters)
         vin["lattice_rec"] = self.final_structure.lattice.reciprocal_lattice.as_dict()
-        d["input"] = vin
+        dct["input"] = vin
 
         vout = {"crystal": self.final_structure.as_dict(), "efermi": self.efermi}
 
@@ -1637,8 +1644,8 @@ class BSVasprun(Vasprun):
                             peigen[kpoint_index][str(spin)] = vv
                 vout["projected_eigenvalues"] = peigen
 
-        d["output"] = vout
-        return jsanitize(d, strict=True)
+        dct["output"] = vout
+        return jsanitize(dct, strict=True)
 
 
 class Outcar:
@@ -3265,7 +3272,7 @@ class Outcar:
         return aps
 
     def as_dict(self):
-        """:return: MSONable dict."""
+        """MSONable dict."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -3292,7 +3299,7 @@ class Outcar:
             )
 
         if self.dfpt:
-            d.update({"internal_strain_tensor": self.internal_strain_tensor})
+            d["internal_strain_tensor"] = self.internal_strain_tensor
 
         if self.dfpt and self.lepsilon:
             d.update(
@@ -3306,7 +3313,7 @@ class Outcar:
             d.update({"p_elec": self.p_elec, "p_ion": self.p_ion})
             if self.spin and not self.noncollinear:
                 d.update({"p_sp1": self.p_sp1, "p_sp2": self.p_sp2})
-            d.update({"zval_dict": self.zval_dict})
+            d["zval_dict"] = self.zval_dict
 
         if self.nmr_cs:
             d.update(
@@ -3335,7 +3342,7 @@ class Outcar:
             # cast Spin to str for consistency with electronic_structure
             # TODO: improve handling of Enum (de)serialization in monty
             onsite_density_matrices = [{str(k): v for k, v in d.items()} for d in self.data["onsite_density_matrices"]]
-            d.update({"onsite_density_matrices": onsite_density_matrices})
+            d["onsite_density_matrices"] = onsite_density_matrices
 
         return d
 
@@ -3462,7 +3469,7 @@ class VolumetricData(BaseVolumetricData):
                     if line != "" or len(poscar_string) == 0:
                         poscar_string.append(line)
                     elif line == "":
-                        poscar = Poscar.from_string("\n".join(poscar_string))
+                        poscar = Poscar.from_str("\n".join(poscar_string))
                         poscar_read = True
                 elif not dim:
                     dim = [int(i) for i in line.split()]
@@ -3538,7 +3545,9 @@ class VolumetricData(BaseVolumetricData):
             to ensure written CHGCAR files are byte-to-byte identical to
             their input files as far as possible.
             :param f: float
-            :return: str.
+
+            Returns:
+                str.
             """
             s = f"{f:.10E}"
             if f >= 0:
@@ -3609,7 +3618,9 @@ class Locpot(VolumetricData):
         Reads a LOCPOT file.
 
         :param filename: Filename
-        :return: Locpot
+
+        Returns:
+            Locpot
         """
         (poscar, data, data_aug) = VolumetricData.parse_file(filename)
         return cls(poscar, data, **kwargs)
@@ -3639,19 +3650,21 @@ class Chgcar(VolumetricData):
         self._distance_matrix = {}
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename: str):
         """
-        Reads a CHGCAR file.
+        Read a CHGCAR file.
 
         :param filename: Filename
-        :return: Chgcar
+
+        Returns:
+            Chgcar
         """
-        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
+        poscar, data, data_aug = VolumetricData.parse_file(filename)
         return Chgcar(poscar, data, data_aug=data_aug)
 
     @property
     def net_magnetization(self):
-        """:return: Net magnetization from Chgcar"""
+        """Net magnetization from Chgcar"""
         if self.is_spin_polarized:
             return np.sum(self.data["diff"])
         return None
@@ -3694,7 +3707,9 @@ class Elfcar(VolumetricData):
         Reads a ELFCAR file.
 
         :param filename: Filename
-        :return: Elfcar
+
+        Returns:
+            Elfcar
         """
         (poscar, data, data_aug) = VolumetricData.parse_file(filename)
         return cls(poscar, data)
@@ -3734,8 +3749,7 @@ class Procar:
 
         Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
         {
-            spin: complex nd.array accessed with (k-point index, band index,
-                                                  ion index, orbital index)
+            spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)
         }
 
     ..attribute:: nbands
@@ -3850,7 +3864,7 @@ class Procar:
             name = structure.species[iat].symbol
             for spin, d in self.data.items():
                 for k, b in itertools.product(range(self.nkpoints), range(self.nbands)):
-                    dico[spin][b][k][name] = np.sum(d[k, b, iat, :])
+                    dico[spin][b][k][name] += np.sum(d[k, b, iat, :])
 
         return dico
 
@@ -3902,6 +3916,7 @@ class Oszicar:
             [{"dE": -526.36, "E0": -526.36024, "mag": 0.0, "F": -526.36024},
             ...]
             This is the typical output from VASP at the end of each ionic step.
+            The stored dict might be different depending on the type of VASP run.
     """
 
     def __init__(self, filename):
@@ -3911,22 +3926,7 @@ class Oszicar:
         """
         electronic_steps = []
         ionic_steps = []
-        ionic_pattern = re.compile(r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+E0=\s*([\d\-\.E\+]+)\s+d\s*E\s*=\s*([\d\-\.E\+]+)$")
-        ionic_mag_pattern = re.compile(
-            r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
-            r"E0=\s*([\d\-\.E\+]+)\s+"
-            r"d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
-            r"mag=\s*([\d\-\.E\+]+)"
-        )
-        ionic_MD_pattern = re.compile(
-            r"(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
-            r"E=\s*([\d\-\.E\+]+)\s+"
-            r"F=\s*([\d\-\.E\+]+)\s+"
-            r"E0=\s*([\d\-\.E\+]+)\s+"
-            r"EK=\s*([\d\-\.E\+]+)\s+"
-            r"SP=\s*([\d\-\.E\+]+)\s+"
-            r"SK=\s*([\d\-\.E\+]+)"
-        )
+        ionic_general_pattern = re.compile(r"(\w+)=\s*(\S+)")
         electronic_pattern = re.compile(r"\s*\w+\s*:(.*)")
 
         def smart_convert(header, num):
@@ -3940,8 +3940,7 @@ class Oszicar:
         header = []
         with zopen(filename, "rt") as fid:
             for line in fid:
-                line = line.strip()
-                m = electronic_pattern.match(line)
+                m = electronic_pattern.match(line.strip())
                 if m:
                     toks = m.group(1).split()
                     data = {header[i]: smart_convert(header[i], toks[i]) for i in range(len(toks))}
@@ -3949,40 +3948,13 @@ class Oszicar:
                         electronic_steps.append([data])
                     else:
                         electronic_steps[-1].append(data)
-                elif ionic_pattern.match(line.strip()):
-                    m = ionic_pattern.match(line.strip())
-                    ionic_steps.append(
-                        {
-                            "F": float(m.group(2)),
-                            "E0": float(m.group(3)),
-                            "dE": float(m.group(4)),
-                        }
-                    )
-                elif ionic_mag_pattern.match(line.strip()):
-                    m = ionic_mag_pattern.match(line.strip())
-                    ionic_steps.append(
-                        {
-                            "F": float(m.group(2)),
-                            "E0": float(m.group(3)),
-                            "dE": float(m.group(4)),
-                            "mag": float(m.group(5)),
-                        }
-                    )
-                elif ionic_MD_pattern.match(line.strip()):
-                    m = ionic_MD_pattern.match(line.strip())
-                    ionic_steps.append(
-                        {
-                            "T": float(m.group(2)),
-                            "E": float(m.group(3)),
-                            "F": float(m.group(4)),
-                            "E0": float(m.group(5)),
-                            "EK": float(m.group(6)),
-                            "SP": float(m.group(7)),
-                            "SK": float(m.group(8)),
-                        }
-                    )
-                elif re.match(r"^\s*N\s+E\s*", line):
+                elif re.match(r"^\s*N\s+E\s*", line.strip()):
                     header = line.strip().replace("d eps", "deps").split()
+                elif line.strip() != "":
+                    # remove space first and apply field agnostic extraction
+                    matches = re.findall(ionic_general_pattern, re.sub(r"d E ", "dE", line))
+                    ionic_steps.append({key: float(value) for key, value in matches})
+
         self.electronic_steps = electronic_steps
         self.ionic_steps = ionic_steps
 
@@ -4007,14 +3979,14 @@ class Oszicar:
         return self.ionic_steps[-1]["E0"]
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "electronic_steps": self.electronic_steps,
             "ionic_steps": self.ionic_steps,
         }
 
 
-class VaspParserError(Exception):
+class VaspParseError(ParseError):
     """Exception class for VASP parsing."""
 
 
@@ -4037,7 +4009,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
         A BandStructure Object
     """
     # TODO: Add better error handling!!!
-    if os.path.exists(os.path.join(dir_name, "branch_0")):
+    if os.path.exists(f"{dir_name}/branch_0"):
         # get all branch dir names
         branch_dir_names = [os.path.abspath(d) for d in glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
 
@@ -4047,7 +4019,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
         # populate branches with Bandstructure instances
         branches = []
         for dname in sorted_branch_dir_names:
-            xml_file = os.path.join(dname, "vasprun.xml")
+            xml_file = f"{dname}/vasprun.xml"
             if os.path.exists(xml_file):
                 run = Vasprun(xml_file, parse_projected_eigen=projections)
                 branches.append(run.get_band_structure(efermi=efermi))
@@ -4057,7 +4029,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
 
         return get_reconstructed_band_structure(branches, efermi)
 
-    xml_file = os.path.join(dir_name, "vasprun.xml")
+    xml_file = f"{dir_name}/vasprun.xml"
     # Better handling of Errors
     if os.path.exists(xml_file):
         return Vasprun(xml_file, parse_projected_eigen=projections).get_band_structure(
@@ -4109,7 +4081,7 @@ class Xdatcar:
                     title = line
                 elif title == line:
                     preamble_done = False
-                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4134,7 +4106,7 @@ class Xdatcar:
                     else:
                         preamble.append(line)
                 elif line == "" or "Direct configuration=" in line:
-                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4147,7 +4119,7 @@ class Xdatcar:
                     coords_str = []
                 else:
                     coords_str.append(line)
-            p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+            p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
@@ -4215,7 +4187,7 @@ class Xdatcar:
                     else:
                         preamble.append(line)
                 elif line == "" or "Direct configuration=" in line:
-                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4225,7 +4197,7 @@ class Xdatcar:
                     coords_str = []
                 else:
                     coords_str.append(line)
-            p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+            p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
@@ -4233,7 +4205,11 @@ class Xdatcar:
                 structures.append(p.structure)
         self.structures = structures
 
-    def get_string(self, ionicstep_start=1, ionicstep_end=None, significant_figures=8):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, ionicstep_start: int = 1, ionicstep_end: int | None = None, significant_figures: int = 8) -> str:
         """
         Write  Xdatcar class to a string.
 
@@ -4259,14 +4235,14 @@ class Xdatcar:
             ionicstep_cnt = cnt + 1
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
-                    lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
+                    lines.append(f"Direct configuration={' '*(7-len(str(output_cnt)))}{output_cnt}")
                     for site in structure:
                         coords = site.frac_coords
                         line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
             elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
+                lines.append(f"Direct configuration={' '*(7-len(str(output_cnt)))}{output_cnt}")
                 for site in structure:
                     coords = site.frac_coords
                     line = " ".join(format_str.format(c) for c in coords)
@@ -4284,10 +4260,10 @@ class Xdatcar:
                 Xdatcar.get_string method and are passed through directly.
         """
         with zopen(filename, "wt") as f:
-            f.write(self.get_string(**kwargs))
+            f.write(self.get_str(**kwargs))
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
 
 class Dynmat:
@@ -4605,7 +4581,7 @@ class Wavecar:
                     if ispin == 0:
                         self.kpoints.append(kpoint)
                     else:
-                        assert np.allclose(self.kpoints[ink], kpoint)
+                        assert_allclose(self.kpoints[ink], kpoint)
 
                     if verbose:
                         print(f"kpoint {ink: 4} with {nplane: 5} plane waves at {kpoint}")
@@ -4822,6 +4798,7 @@ class Wavecar:
                             if vasp_type == 'ncl')
             shift (bool): determines if the zero frequency coefficient is
                             placed at index (0, 0, 0) or centered
+
         Returns:
             a numpy ndarray representing the 3D mesh of coefficients
         """
@@ -5301,11 +5278,11 @@ class WSWQ(MSONable):
         return self.me_real + 1j * self.me_imag
 
     @classmethod
-    def from_file(cls, filename) -> WSWQ:
+    def from_file(cls, filename: str) -> WSWQ:
         """Constructs a WSWQ object from a file.
 
         Args:
-            filename: Name of WSWQ file.
+            filename (str): Name of WSWQ file.
 
         Returns:
             WSWQ object.

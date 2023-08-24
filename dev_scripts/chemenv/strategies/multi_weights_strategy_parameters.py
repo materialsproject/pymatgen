@@ -121,16 +121,16 @@ class CoordinationEnvironmentMorphing:
         fig_height = fig_height_cm / 2.54
 
         fig = plt.figure(num=1, figsize=(fig_width, fig_height))
-        subplot = fig.add_subplot(111)
+        ax = fig.add_subplot(111)
 
-        subplot.plot(
+        ax.plot(
             morphing_factors,
             fractions_initial_environment,
             "b-",
             label=self.initial_environment_symbol,
             linewidth=1.5,
         )
-        subplot.plot(
+        ax.plot(
             morphing_factors,
             fractions_final_environment,
             "g--",
@@ -277,7 +277,7 @@ if __name__ == "__main__":
     for ii in range(1, 14):
         self_weight_max_csms_per_cn[str(ii)] = []
         for jj in range(ii + 1, 14):
-            cn_pair = f"{ii:d}_{jj:d}"
+            cn_pair = f"{ii}_{jj}"
             self_weight_max_csms[cn_pair] = []
             delta_csm_mins[cn_pair] = []
             all_cn_pairs.append(cn_pair)
@@ -301,16 +301,16 @@ if __name__ == "__main__":
         self_weight_max_csms_per_cn[ce1.split(":")[1]].append(params["self_weight_max_csm"])
 
     fig = plt.figure(1)
-    subplot = fig.add_subplot(111)
+    ax = fig.add_subplot(111)
 
     for idx, cn_pair in enumerate(all_cn_pairs):
         if len(self_weight_max_csms[cn_pair]) == 0:
             continue
-        subplot.plot(idx * np.ones_like(self_weight_max_csms[cn_pair]), self_weight_max_csms[cn_pair], "rx")
-        subplot.plot(idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
+        ax.plot(idx * np.ones_like(self_weight_max_csms[cn_pair]), self_weight_max_csms[cn_pair], "rx")
+        ax.plot(idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
 
-    subplot.set_xticks(range(len(all_cn_pairs)))
-    subplot.set_xticklabels(all_cn_pairs, rotation="vertical")
+    ax.set_xticks(range(len(all_cn_pairs)))
+    ax.set_xticklabels(all_cn_pairs, rotation="vertical")
     fig.savefig("self_delta_params.pdf")
 
     fig2 = plt.figure(2)

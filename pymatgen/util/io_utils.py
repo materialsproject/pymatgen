@@ -18,8 +18,7 @@ __date__ = "Sep 23, 2011"
 
 
 def clean_lines(string_list, remove_empty_lines=True):
-    """
-    Strips whitespace, carriage returns and empty lines from a list of strings.
+    """Strips whitespace, carriage returns and empty lines from a list of strings.
 
     Args:
         string_list: List of strings
@@ -40,8 +39,7 @@ def clean_lines(string_list, remove_empty_lines=True):
 
 
 def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
-    """
-    Small awk-mimicking search routine.
+    """Small awk-mimicking search routine.
 
     'file' is file to search through.
     'search' is the "search program", a list of lists/tuples with 3 elements;

@@ -113,6 +113,7 @@ class ZSLGenerator(MSONable):
         Args:
             film_area(int): the unit cell area for the film
             substrate_area(int): the unit cell area for the substrate
+
         Returns:
             transformation_sets: a set of transformation_sets defined as:
                 1.) the transformation matrices for the film to create a
@@ -180,7 +181,6 @@ class ZSLGenerator(MSONable):
     def __call__(self, film_vectors, substrate_vectors, lowest=False) -> Iterator[ZSLMatch]:
         """
         Runs the ZSL algorithm to generate all possible matching
-        :return:
         """
         film_area = vec_area(*film_vectors)
         substrate_area = vec_area(*substrate_vectors)

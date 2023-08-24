@@ -98,7 +98,7 @@ if __name__ == "__main__":
                 lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
                 points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
 
-                print(f"Perm # {i_perm:d}/{n_perms:d} : ", indices_perm)
+                print(f"Perm # {i_perm}/{n_perms} : ", indices_perm)
 
                 algos_results = []
                 for algo in cg.algorithms:

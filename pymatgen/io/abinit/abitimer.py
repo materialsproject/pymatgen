@@ -9,12 +9,17 @@ import collections
 import logging
 import os
 import sys
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.string import is_string, list_strings
 
+from pymatgen.io.core import ParseError
 from pymatgen.util.num import minloc
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +36,7 @@ def alternate(*iterables):
     return items
 
 
-class AbinitTimerParserError(Exception):
+class AbinitTimerParseError(ParseError):
     """Errors raised by AbinitTimerParser."""
 
 
@@ -54,7 +59,7 @@ class AbinitTimerParser(collections.abc.Iterable):
     BEGIN_TAG = "-<BEGIN_TIMER"
     END_TAG = "-<END_TIMER>"
 
-    Error = AbinitTimerParserError
+    Error = AbinitTimerParseError
 
     # DEFAULT_MPI_RANK = "0"
 
@@ -152,7 +157,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         parser_failed = False
         inside, has_timer = 0, False
         for line in fh:
-            # print(line.strip())
             if line.startswith(self.BEGIN_TAG):
                 has_timer = True
                 sections = []
@@ -192,7 +196,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                         parser_failed = True
 
                     if not parser_failed:
-                        raise self.Error("line should be empty: " + str(inside) + line)
+                        raise self.Error(f"line should be empty: {inside}{line}")
 
         if not has_timer:
             raise self.Error(f"{fname}: No timer section found")
@@ -276,7 +280,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         peff["total"]["wall_fract"] = n * [100]
 
         for sect_name in self.section_names():
-            # print(sect_name)
             ref_sect = ref_t.get_section(sect_name)
             sects = [t.get_section(sect_name) for t in timers]
             try:
@@ -316,7 +319,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         return frame
 
     @add_fig_kwargs
-    def plot_efficiency(self, key="wall_time", what="good+bad", nmax=5, ax=None, **kwargs):
+    def plot_efficiency(self, key="wall_time", what="good+bad", nmax=5, ax: plt.Axes = None, **kwargs):
         """
         Plot the parallel efficiency.
 
@@ -355,7 +358,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         if "good" in what:
             good = peff.good_sections(key=key, nmax=nmax)
             for g in good:
-                # print(g, peff[g])
                 yy = peff[g][key]
                 (line,) = ax.plot(xx, yy, "-->", linewidth=lw, markersize=msize)
                 lines.append(line)
@@ -365,7 +367,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         if "bad" in what:
             bad = peff.bad_sections(key=key, nmax=nmax)
             for b in bad:
-                # print(b, peff[b])
                 yy = peff[b][key]
                 (line,) = ax.plot(xx, yy, "-.<", linewidth=lw, markersize=msize)
                 lines.append(line)
@@ -421,7 +422,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         return fig
 
     @add_fig_kwargs
-    def plot_stacked_hist(self, key="wall_time", nmax=5, ax=None, **kwargs):
+    def plot_stacked_hist(self, key="wall_time", nmax=5, ax: plt.Axes = None, **kwargs):
         """
         Plot stacked histogram of the different timers.
 
@@ -517,7 +518,6 @@ class ParallelEfficiency(dict):
             # Ignore values where we had a division by zero.
             if all(v != -1 for v in peff[key]):
                 values = peff[key][:]
-                # print(sect_name, values)
                 if len(values) > 1:
                     ref_value = values.pop(self._ref_idx)
                     assert ref_value == 1.0
@@ -752,7 +752,7 @@ class AbinitTimer:
                 else:
                     other_val += v
 
-            new_names.append("below minval " + str(minval))
+            new_names.append(f"below minval {minval}")
             new_values.append(other_val)
 
         elif minfract is not None:
@@ -767,7 +767,7 @@ class AbinitTimer:
                 else:
                     other_val += v
 
-            new_names.append("below minfract " + str(minfract))
+            new_names.append(f"below minfract {minfract}")
             new_values.append(other_val)
 
         else:
@@ -794,7 +794,7 @@ class AbinitTimer:
         return sorted(self.sections, key=lambda s: s.__dict__[key], reverse=reverse)
 
     @add_fig_kwargs
-    def cpuwall_histogram(self, ax=None, **kwargs):
+    def cpuwall_histogram(self, ax: plt.Axes = None, **kwargs):
         """
         Plot histogram with cpu- and wall-time on axis `ax`.
 
@@ -828,7 +828,7 @@ class AbinitTimer:
         return fig
 
     @add_fig_kwargs
-    def pie(self, key="wall_time", minfract=0.05, ax=None, **kwargs):
+    def pie(self, key="wall_time", minfract=0.05, ax: plt.Axes = None, **kwargs):
         """
         Plot pie chart for this timer.
 
@@ -848,7 +848,7 @@ class AbinitTimer:
         return fig
 
     @add_fig_kwargs
-    def scatter_hist(self, ax=None, **kwargs):
+    def scatter_hist(self, ax: plt.Axes = None, **kwargs):
         """
         Scatter plot + histogram.
 

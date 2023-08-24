@@ -157,7 +157,6 @@ class SOCSpillage:
 
                     if np.array(noso.coeffs[1][nk1 - 1]).shape[1] == vs // 2:
                         # if nk1==10 and nk2==10:
-                        # print (np.array(noso.coeffs[1][nk1-1]).shape[1], )
                         # prepare matrices
                         for n1 in range(1, nelec_up + 1):
                             Vnoso[0 : vs // 2, n1 - 1] = np.array(noso.coeffs[0][nk1 - 1][n1 - 1])[0 : vs // 2]

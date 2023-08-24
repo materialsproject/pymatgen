@@ -26,13 +26,13 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Read in BV parameters.
 BV_PARAMS = {}
-for key, val in loadfn(os.path.join(module_dir, "bvparam_1991.yaml")).items():
+for key, val in loadfn(f"{module_dir}/bvparam_1991.yaml").items():
     BV_PARAMS[Element(key)] = val
 
 # Read in yaml containing data-mined ICSD BV data.
-all_data = loadfn(os.path.join(module_dir, "icsd_bv.yaml"))
-ICSD_BV_DATA = {Species.from_string(sp): data for sp, data in all_data["bvsum"].items()}
-PRIOR_PROB = {Species.from_string(sp): data for sp, data in all_data["occurrence"].items()}
+all_data = loadfn(f"{module_dir}/icsd_bv.yaml")
+ICSD_BV_DATA = {Species.from_str(sp): data for sp, data in all_data["bvsum"].items()}
+PRIOR_PROB = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
 
 
 def calculate_bv_sum(site, nn_list, scale_factor=1.0):
@@ -221,10 +221,10 @@ class BVAnalyzer:
         Raises:
             A ValueError if the valences cannot be determined.
         """
-        els = [Element(el.symbol) for el in structure.composition.elements]
+        els = [Element(el.symbol) for el in structure.elements]
 
-        if not set(els).issubset(set(BV_PARAMS)):
-            raise ValueError("Structure contains elements not in set of BV parameters!")
+        if diff := set(els) - set(BV_PARAMS):
+            raise ValueError(f"Structure contains elements not in set of BV parameters: {diff}")
 
         # Perform symmetry determination and get sites grouped by symmetry.
         if self.symm_tol:
@@ -339,10 +339,7 @@ class BVAnalyzer:
                     elements.append(sp.symbol)
                     fractions.append(occu)
             fractions = np.array(fractions, np.float_)  # type: ignore[assignment]
-            new_valences = []
-            for vals in valences:
-                for val in vals:
-                    new_valences.append(val)
+            new_valences = [val for vals in valences for val in vals]
             valence_min = np.array([min(i) for i in new_valences], np.float_)
             valence_max = np.array([max(i) for i in new_valences], np.float_)
 

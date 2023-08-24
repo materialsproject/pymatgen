@@ -20,7 +20,6 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import NeighborsNotComputedC
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule
-from pymatgen.ext.matproj import MPRester
 from pymatgen.io.cif import CifParser
 
 try:
@@ -76,7 +75,6 @@ def draw_cg(
     :param perfect_radius:
     :param show_distorted:
     :param faces_color_override:
-    :return:
     """
     if show_perfect:
         if csm_info is None:
@@ -123,7 +121,7 @@ def draw_cg(
             else:
                 faces = cg.faces(neighbors)
                 edges = cg.edges(neighbors)
-            symbol = list(site.species)[0].symbol
+            symbol = next(iter(site.species)).symbol
             if faces_color_override:
                 mycolor = faces_color_override
             else:
@@ -161,7 +159,6 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_colo
     :param myfactor:
     :param view_index:
     :param faces_color_override:
-    :return:
     """
     if vis is None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
@@ -195,7 +192,6 @@ def compute_environments(chemenv_configuration):
     Compute the environments.
 
     :param chemenv_configuration:
-    :return:
     """
     string_sources = {
         "cif": {"string": "a Cif file", "regexp": r".*\.cif$"},
@@ -205,7 +201,7 @@ def compute_environments(chemenv_configuration):
     questions["m"] = "mp"
     lgf = LocalGeometryFinder()
     lgf.setup_parameters()
-    allcg = AllCoordinationGeometries()
+    all_cg = AllCoordinationGeometries()
     strategy_class = strategies_class_lookup[chemenv_configuration.package_options["default_strategy"]["strategy"]]
     # TODO: Add the possibility to change the parameters and save them in the chemenv_configuration
     default_strategy = strategy_class()
@@ -233,7 +229,7 @@ def compute_environments(chemenv_configuration):
                 source_type = questions[test]
         else:
             found = False
-            source_type = list(questions.values())[0]
+            source_type = next(iter(questions.values()))
         if found and len(questions) > 1:
             input_source = test
         if source_type == "cif":
@@ -244,23 +240,25 @@ def compute_environments(chemenv_configuration):
         elif source_type == "mp":
             if not found:
                 input_source = input('Enter materials project id (e.g. "mp-1902") : ')
-            a = MPRester()
-            structure = a.get_structure_by_material_id(input_source)
+            from pymatgen.ext.matproj import MPRester
+
+            with MPRester() as mpr:
+                structure = mpr.get_structure_by_material_id(input_source)
         lgf.setup_structure(structure)
         print(f"Computing environments for {structure.composition.reduced_formula} ... ")
         se = lgf.compute_structure_environments(maximum_distance_factor=max_dist_factor)
         print("Computing environments finished")
         while True:
             test = input(
-                "See list of environments determined for each (unequivalent) site ? "
+                "See list of environments determined for each (inequivalent) site ? "
                 '("y" or "n", "d" with details, "g" to see the grid) : '
             )
             strategy = default_strategy
             if test in ["y", "d", "g"]:
                 strategy.set_structure_environments(se)
-                for eqslist in se.equivalent_sites:
-                    site = eqslist[0]
-                    isite = se.structure.index(site)
+                for equiv_list in se.equivalent_sites:
+                    site = equiv_list[0]
+                    site_idx = se.structure.index(site)
                     try:
                         if strategy.uniquely_determines_coordination_environments:
                             ces = strategy.get_site_coordination_environments(site)
@@ -274,34 +272,33 @@ def compute_environments(chemenv_configuration):
                         continue
                     comp = site.species
                     # ce = strategy.get_site_coordination_environment(site)
+                    reduced_formula = comp.get_reduced_formula_and_factor()[0]
                     if strategy.uniquely_determines_coordination_environments:
                         ce = ces[0]
                         if ce is None:
                             continue
-                        thecg = allcg.get_geometry_from_mp_symbol(ce[0])
-                        mystring = (
-                            f"Environment for site #{isite} {comp.get_reduced_formula_and_factor()[0]}"
-                            f" ({comp}) : {thecg.name} ({ce[0]})\n"
+                        the_cg = all_cg.get_geometry_from_mp_symbol(ce[0])
+                        msg = (
+                            f"Environment for site #{site_idx} {reduced_formula}"
+                            f" ({comp}) : {the_cg.name} ({ce[0]})\n"
                         )
                     else:
-                        mystring = (
-                            f"Environments for site #{isite} {comp.get_reduced_formula_and_factor()[0]} ({comp}) : \n"
-                        )
+                        msg = f"Environments for site #{site_idx} {reduced_formula} ({comp}) : \n"
                         for ce in ces:
-                            cg = allcg.get_geometry_from_mp_symbol(ce[0])
+                            cg = all_cg.get_geometry_from_mp_symbol(ce[0])
                             csm = ce[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
-                            mystring += f" - {cg.name} ({cg.mp_symbol}): {ce[2]:.2%} (csm : {csm:2f})\n"
+                            msg += f" - {cg.name} ({cg.mp_symbol}): {ce[2]:.2%} (csm : {csm:2f})\n"
                     if (
                         test in ["d", "g"]
                         and strategy.uniquely_determines_coordination_environments
-                        and thecg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL
+                        and the_cg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL
                     ):
-                        mystring += "  <Continuous symmetry measures>  "
-                        mingeoms = se.ce_list[isite][thecg.coordination_number][0].minimum_geometries()
-                        for mingeom in mingeoms:
-                            csm = mingeom[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
-                            mystring += f"{mingeom[0]} : {csm:.2f}       "
-                    print(mystring)
+                        msg += "  <Continuous symmetry measures>  "
+                        min_geoms = se.ce_list[site_idx][the_cg.coordination_number][0].minimum_geometries()
+                        for min_geom in min_geoms:
+                            csm = min_geom[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
+                            msg += f"{min_geom[0]} : {csm:.2f}       "
+                    print(msg)
             if test == "g":
                 while True:
                     test = input(
@@ -311,10 +308,10 @@ def compute_environments(chemenv_configuration):
                     try:
                         indices = [int(x) for x in test.split()]
                         print(str(indices))
-                        for isite in indices:
-                            if isite < 0:
+                        for site_idx in indices:
+                            if site_idx < 0:
                                 raise IndexError
-                            se.plot_environments(isite)
+                            se.plot_environments(site_idx)
                         break
                     except ValueError:
                         print("This is not a valid site")

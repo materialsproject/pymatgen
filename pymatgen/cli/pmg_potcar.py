@@ -11,8 +11,7 @@ from pymatgen.io.vasp import Potcar
 
 
 def proc_dir(dirname, procfilefunction):
-    """
-    Process a directory.
+    """Process a directory.
 
     Args:
         dirname (str): Directory name.
@@ -26,8 +25,7 @@ def proc_dir(dirname, procfilefunction):
 
 
 def gen_potcar(dirname, filename):
-    """
-    Generate POTCAR from POTCAR.spec in directories.
+    """Generate POTCAR from POTCAR.spec in directories.
 
     Args:
         dirname (str): Directory name.
@@ -39,12 +37,11 @@ def gen_potcar(dirname, filename):
             elements = f.readlines()
         symbols = [el.strip() for el in elements if el.strip() != ""]
         potcar = Potcar(symbols)
-        potcar.write_file(os.path.join(dirname, "POTCAR"))
+        potcar.write_file(f"{dirname}/POTCAR")
 
 
 def generate_potcar(args):
-    """
-    Generate POTCAR.
+    """Generate POTCAR.
 
     Args:
         args (dict): Args from argparse.

@@ -1,5 +1,4 @@
-"""
-This module implements an interface to the critic2 Bader analysis code.
+"""This module implements an interface to the critic2 Bader analysis code.
 
 For most Bader analysis purposes, users are referred to
 pymatgen.command_line.bader_caller instead, this module is for advanced
@@ -86,8 +85,7 @@ class Critic2Caller:
         "Please follow the instructions at https://github.com/aoterodelaroza/critic2.",
     )
     def __init__(self, input_script):
-        """
-        Run Critic2 on a given input script.
+        """Run Critic2 on a given input script.
 
         :param input_script: string defining the critic2 input
         """
@@ -130,8 +128,7 @@ class Critic2Caller:
         write_json=True,
         zpsp=None,
     ):
-        """
-        Run Critic2 in automatic mode on a supplied structure, charge
+        """Run Critic2 in automatic mode on a supplied structure, charge
         density (chgcar) and reference charge density (chgcar_ref).
 
         The reason for a separate reference field is that in
@@ -252,8 +249,7 @@ class Critic2Caller:
 
     @classmethod
     def from_path(cls, path, suffix="", zpsp=None):
-        """
-        Convenience method to run critic2 analysis on a folder with typical VASP output files.
+        """Convenience method to run critic2 analysis on a folder with typical VASP output files.
 
         This method will:
 
@@ -270,7 +266,6 @@ class Critic2Caller:
         :param suffix: specific suffix to look for (e.g. '.relax1' for
             'CHGCAR.relax1.gz')
         :param zpsp: manually specify ZPSP if POTCAR not present
-        :return:
         """
         chgcar_path = get_filepath("CHGCAR", "Could not find CHGCAR!", path, suffix)
         chgcar = Chgcar.from_file(chgcar_path)
@@ -358,8 +353,7 @@ class CriticalPoint(MSONable):
         coords=None,
         field_hessian=None,
     ):
-        """
-        Class to characterise a critical point from a topological
+        """Class to characterise a critical point from a topological
         analysis of electron charge density.
 
         Note this class is usually associated with a Structure, so
@@ -400,8 +394,7 @@ class CriticalPoint(MSONable):
 
     @property
     def ellipticity(self):
-        """
-        Most meaningful for bond critical points,
+        """Most meaningful for bond critical points,
         can be physically interpreted as e.g. degree
         of pi-bonding in organic molecules. Consult
         literature for more information.
@@ -416,8 +409,7 @@ class Critic2Analysis(MSONable):
     """Class to process the standard output from critic2 into pymatgen-compatible objects."""
 
     def __init__(self, structure: Structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None):
-        """
-        This class is used to store results from the Critic2Caller.
+        """This class is used to store results from the Critic2Caller.
 
         To explore the bond graph, use the "structure_graph"
         method, which returns a user-friendly StructureGraph
@@ -476,8 +468,7 @@ class Critic2Analysis(MSONable):
         self._remap_indices()
 
     def structure_graph(self, include_critical_points=("bond", "ring", "cage")):
-        """
-        A StructureGraph object describing bonding information
+        """A StructureGraph object describing bonding information
         in the crystal.
 
         Args:
@@ -664,8 +655,7 @@ class Critic2Analysis(MSONable):
                 )
 
     def _remap_indices(self):
-        """
-        Re-maps indices on self.nodes and self.edges such that node indices match
+        """Re-maps indices on self.nodes and self.edges such that node indices match
         that of structure, and then sorts self.nodes by index.
         """
         # Order of nuclei provided by critic2 doesn't
@@ -857,20 +847,17 @@ class Critic2Analysis(MSONable):
                     )
 
     def _add_node(self, idx, unique_idx, frac_coords):
-        """
-        Add information about a node describing a critical point.
+        """Add information about a node describing a critical point.
 
         :param idx: index
         :param unique_idx: index of unique CriticalPoint,
             used to look up more information of point (field etc.)
         :param frac_coord: fractional coordinates of point
-        :return:
         """
         self.nodes[idx] = {"unique_idx": unique_idx, "frac_coords": frac_coords}
 
     def _add_edge(self, idx, from_idx, from_lvec, to_idx, to_lvec):
-        """
-        Add information about an edge linking two critical points.
+        """Add information about an edge linking two critical points.
 
         This actually describes two edges:
 
@@ -889,7 +876,6 @@ class Critic2Analysis(MSONable):
         :param to_idx: to index of node
         :param to_lvec:  vector of lattice image the to node is in as
             tuple of ints
-        :return:
         """
         self.edges[idx] = {
             "from_idx": from_idx,

@@ -9,7 +9,6 @@ from os.path import join
 from urllib.parse import urlparse
 
 import requests
-from frozendict import frozendict
 from tqdm import tqdm
 
 from pymatgen.core.periodic_table import DummySpecies
@@ -34,8 +33,7 @@ _logger.setLevel(logging.WARNING)
     description="OPTIMADE, an API for exchanging materials data",
 )
 class OptimadeRester:
-    """
-    Class to call OPTIMADE-compliant APIs, see https://optimade.org and [1].
+    """Class to call OPTIMADE-compliant APIs, see https://optimade.org and [1].
 
     This class is ready to use but considered in-development and subject to change.
 
@@ -46,32 +44,30 @@ class OptimadeRester:
 
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
-    aliases = frozendict(
-        {
-            "aflow": "http://aflow.org/API/optimade/",
-            "cod": "https://www.crystallography.net/cod/optimade",
-            "mcloud.mc3d": "https://aiida.materialscloud.org/mc3d/optimade",
-            "mcloud.mc2d": "https://aiida.materialscloud.org/mc2d/optimade",
-            "mcloud.2dtopo": "https://aiida.materialscloud.org/2dtopo/optimade",
-            "mcloud.tc-applicability": "https://aiida.materialscloud.org/tc-applicability/optimade",
-            "mcloud.pyrene-mofs": "https://aiida.materialscloud.org/pyrene-mofs/optimade",
-            "mcloud.curated-cofs": "https://aiida.materialscloud.org/curated-cofs/optimade",
-            "mcloud.stoceriaitf": "https://aiida.materialscloud.org/stoceriaitf/optimade",
-            "mcloud.scdm": "https://aiida.materialscloud.org/autowannier/optimade",
-            "mcloud.tin-antimony-sulfoiodide": "https://aiida.materialscloud.org/tin-antimony-sulfoiodide/optimade",
-            "mcloud.optimade-sample": "https://aiida.materialscloud.org/optimade-sample/optimade",
-            "mp": "https://optimade.materialsproject.org",
-            "mpds": "https://api.mpds.io",
-            "nmd": "https://nomad-lab.eu/prod/rae/optimade/",
-            "odbx": "https://optimade.odbx.science",
-            "odbx.odbx_misc": "https://optimade-misc.odbx.science",
-            "omdb.omdb_production": "http://optimade.openmaterialsdb.se",
-            "oqmd": "http://oqmd.org/optimade/",
-            "jarvis": "https://jarvis.nist.gov/optimade/jarvisdft",
-            "tcod": "https://www.crystallography.net/tcod/optimade",
-            "twodmatpedia": "http://optimade.2dmatpedia.org",
-        }
-    )
+    aliases = {
+        "aflow": "http://aflow.org/API/optimade/",
+        "cod": "https://www.crystallography.net/cod/optimade",
+        "mcloud.mc3d": "https://aiida.materialscloud.org/mc3d/optimade",
+        "mcloud.mc2d": "https://aiida.materialscloud.org/mc2d/optimade",
+        "mcloud.2dtopo": "https://aiida.materialscloud.org/2dtopo/optimade",
+        "mcloud.tc-applicability": "https://aiida.materialscloud.org/tc-applicability/optimade",
+        "mcloud.pyrene-mofs": "https://aiida.materialscloud.org/pyrene-mofs/optimade",
+        "mcloud.curated-cofs": "https://aiida.materialscloud.org/curated-cofs/optimade",
+        "mcloud.stoceriaitf": "https://aiida.materialscloud.org/stoceriaitf/optimade",
+        "mcloud.scdm": "https://aiida.materialscloud.org/autowannier/optimade",
+        "mcloud.tin-antimony-sulfoiodide": "https://aiida.materialscloud.org/tin-antimony-sulfoiodide/optimade",
+        "mcloud.optimade-sample": "https://aiida.materialscloud.org/optimade-sample/optimade",
+        "mp": "https://optimade.materialsproject.org",
+        "mpds": "https://api.mpds.io",
+        "nmd": "https://nomad-lab.eu/prod/rae/optimade/",
+        "odbx": "https://optimade.odbx.science",
+        "odbx.odbx_misc": "https://optimade-misc.odbx.science",
+        "omdb.omdb_production": "http://optimade.openmaterialsdb.se",
+        "oqmd": "http://oqmd.org/optimade/",
+        "jarvis": "https://jarvis.nist.gov/optimade/jarvisdft",
+        "tcod": "https://www.crystallography.net/tcod/optimade",
+        "twodmatpedia": "http://optimade.2dmatpedia.org",
+    }
 
     # The set of OPTIMADE fields that are required to define a `pymatgen.core.Structure`
     mandatory_response_fields = ("lattice_vectors", "cartesian_site_positions", "species", "species_at_sites")
@@ -79,8 +75,7 @@ class OptimadeRester:
     def __init__(
         self, aliases_or_resource_urls: str | list[str] | None = None, refresh_aliases: bool = False, timeout: int = 5
     ):
-        """
-        OPTIMADE is an effort to provide a standardized interface to retrieve information
+        """OPTIMADE is an effort to provide a standardized interface to retrieve information
         from many different materials science databases.
 
         This is a client to retrieve structures from OPTIMADE v1 compliant endpoints. It
@@ -161,8 +156,7 @@ class OptimadeRester:
 
     # @retry(stop_max_attempt_number=3, wait_random_min=1000, wait_random_max=2000)
     def _get_json(self, url):
-        """
-        Retrieves JSON, will attempt to (politely) try again on failure subject to a
+        """Retrieves JSON, will attempt to (politely) try again on failure subject to a
         random delay and a maximum number of attempts.
         """
         return self.session.get(url, timeout=self._timeout).json()
@@ -212,8 +206,7 @@ class OptimadeRester:
         chemical_formula_anonymous: str | None = None,
         chemical_formula_hill: str | None = None,
     ) -> dict[str, dict[str, Structure]]:
-        """
-        Retrieve Structures from OPTIMADE providers.
+        """Retrieve Structures from OPTIMADE providers.
 
         Not all functionality of OPTIMADE is currently exposed in this convenience method. To
         use a custom filter, call get_structures_with_filter().
@@ -246,8 +239,7 @@ class OptimadeRester:
         chemical_formula_hill: str | None = None,
         additional_response_fields: str | list[str] | set[str] | None = None,
     ) -> dict[str, dict[str, StructureNL]]:
-        """
-        Retrieve StructureNL from OPTIMADE providers.
+        """Retrieve StructureNL from OPTIMADE providers.
 
         A StructureNL is an object provided by pymatgen which combines Structure with
         associated metadata, such as the URL is was downloaded from and any additional namespaced
@@ -278,8 +270,7 @@ class OptimadeRester:
         return self.get_snls_with_filter(optimade_filter, additional_response_fields=additional_response_fields)
 
     def get_structures_with_filter(self, optimade_filter: str) -> dict[str, dict[str, Structure]]:
-        """
-        Get structures satisfying a given OPTIMADE filter.
+        """Get structures satisfying a given OPTIMADE filter.
 
         Args:
             optimade_filter: An OPTIMADE-compliant filter
@@ -299,8 +290,7 @@ class OptimadeRester:
         optimade_filter: str,
         additional_response_fields: str | list[str] | set[str] | None = None,
     ) -> dict[str, dict[str, StructureNL]]:
-        """
-        Get structures satisfying a given OPTIMADE filter.
+        """Get structures satisfying a given OPTIMADE filter.
 
         Args:
             optimade_filter: An OPTIMADE-compliant filter
@@ -313,7 +303,7 @@ class OptimadeRester:
         response_fields = self._handle_response_fields(additional_response_fields)
 
         for identifier, resource in self.resources.items():
-            url = join(resource, f"v1/structures?filter={optimade_filter}&response_fields={response_fields}")
+            url = join(resource, f"v1/structures?filter={optimade_filter}&{response_fields=!s}")
 
             try:
                 json = self._get_json(url)
@@ -323,15 +313,13 @@ class OptimadeRester:
                 pbar = tqdm(total=json["meta"].get("data_returned", 0), desc=identifier, initial=len(structures))
 
                 # TODO: check spec for `more_data_available` boolean, may simplify this conditional
-                if ("links" in json) and ("next" in json["links"]) and (json["links"]["next"]):
-                    while "next" in json["links"] and json["links"]["next"]:
-                        next_link = json["links"]["next"]
-                        if isinstance(next_link, dict) and "href" in next_link:
-                            next_link = next_link["href"]
-                        json = self._get_json(next_link)
-                        additional_structures = self._get_snls_from_resource(json, url, identifier)
-                        structures.update(additional_structures)
-                        pbar.update(len(additional_structures))
+                while next_link := json.get("links", {}).get("next"):
+                    if isinstance(next_link, dict) and "href" in next_link:
+                        next_link = next_link["href"]
+                    json = self._get_json(next_link)
+                    additional_structures = self._get_snls_from_resource(json, url, identifier)
+                    structures.update(additional_structures)
+                    pbar.update(len(additional_structures))
 
                 if structures:
                     all_snls[identifier] = structures
@@ -428,8 +416,7 @@ class OptimadeRester:
         return snls
 
     def _validate_provider(self, provider_url) -> Provider | None:
-        """
-        Checks that a given URL is indeed an OPTIMADE provider,
+        """Checks that a given URL is indeed an OPTIMADE provider,
         returning None if it is not a provider, or the provider
         prefix if it is.
 
@@ -469,8 +456,7 @@ class OptimadeRester:
             return None
 
     def _parse_provider(self, provider, provider_url) -> dict[str, Provider]:
-        """
-        Used internally to update the list of providers or to
+        """Used internally to update the list of providers or to
         check a given URL is valid.
 
         It does not raise exceptions but will instead _logger.warning and provide
@@ -518,8 +504,7 @@ class OptimadeRester:
         return _parse_provider_link(provider, provider_link_json)
 
     def _handle_response_fields(self, additional_response_fields: str | list[str] | set[str] | None = None) -> str:
-        """
-        Used internally to handle the mandatory and additional response fields.
+        """Used internally to handle the mandatory and additional response fields.
 
         Args:
             additional_response_fields: A set of additional fields to request.
@@ -534,8 +519,7 @@ class OptimadeRester:
         return ",".join({*additional_response_fields, *self.mandatory_response_fields})
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
-        """
-        Updates available OPTIMADE structure resources based on the current list of OPTIMADE
+        """Updates available OPTIMADE structure resources based on the current list of OPTIMADE
         providers.
         """
         json = self._get_json(providers_url)

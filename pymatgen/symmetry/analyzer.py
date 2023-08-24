@@ -77,7 +77,6 @@ class SpacegroupAnalyzer:
         unique_species: list[Element | Species] = []
         zs = []
         magmoms = []
-
         for species, group in itertools.groupby(structure, key=lambda s: s.species):
             if species in unique_species:
                 ind = unique_species.index(species)
@@ -86,11 +85,17 @@ class SpacegroupAnalyzer:
                 unique_species.append(species)
                 zs.extend([len(unique_species)] * len(tuple(group)))
 
+        has_explicit_magmoms = "magmom" in structure.site_properties or any(
+            getattr(specie, "spin", None) is not None for specie in structure.types_of_species
+        )
+
         for site in structure:
             if hasattr(site, "magmom"):
                 magmoms.append(site.magmom)
             elif site.is_ordered and getattr(site.specie, "spin", None) is not None:
                 magmoms.append(site.specie.spin)
+            elif has_explicit_magmoms:  # if any site has a magmom, all sites must have magmoms
+                magmoms.append(0)
 
         self._unique_species = unique_species
         self._numbers = zs
@@ -100,7 +105,7 @@ class SpacegroupAnalyzer:
                 tuple(map(tuple, structure.lattice.matrix.tolist())),
                 tuple(map(tuple, structure.frac_coords.tolist())),
                 tuple(zs),
-                tuple(magmoms),
+                tuple(map(tuple, magmoms) if isinstance(magmoms[0], Sequence) else magmoms),
             )
         else:  # if no magmoms given do not add to cell
             self._cell = (
@@ -1600,7 +1605,7 @@ def generate_full_symmops(symmops: Sequence[SymmOp], tol: float) -> Sequence[Sym
             if len(full) > 1000:
                 warnings.warn(
                     f"{len(full)} matrices have been generated. The tol may be too small. Please terminate"
-                    f" and rerun with a different tolerance."
+                    " and rerun with a different tolerance."
                 )
 
     d = np.abs(full - UNIT) < tol

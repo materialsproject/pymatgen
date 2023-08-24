@@ -18,7 +18,6 @@ def get_delta(node1, node2, edge_data):
     :param node1:
     :param node2:
     :param edge_data:
-    :return:
     """
     if node1.isite == edge_data["start"] and node2.isite == edge_data["end"]:
         return np.array(edge_data["delta"], dtype=int)
@@ -35,7 +34,6 @@ def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
     :param target:
     :param cutoff:
     :param data:
-    :return:
     """
     edge_paths = []
     if not graph.is_multigraph():
@@ -156,7 +154,9 @@ class SimpleGraphCycle(MSONable):
         This method checks :
         - that there are no duplicate nodes,
         - that there are either 1 or more than 2 nodes
-        :return: True if the SimpleGraphCycle is valid, False otherwise.
+
+        Returns:
+            True if the SimpleGraphCycle is valid, False otherwise.
         """
         if len(self.nodes) == 1:
             return True, ""
@@ -185,7 +185,6 @@ class SimpleGraphCycle(MSONable):
     def validate(self, check_strict_ordering=False):
         """
         :param check_strict_ordering:
-        :return:
         """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
@@ -194,14 +193,12 @@ class SimpleGraphCycle(MSONable):
     def order(self, raise_on_fail=True):
         """Orders the SimpleGraphCycle.
 
-        The ordering is performed such that the first node is the "lowest" one
-        and the second node is the lowest one of the two neighbor nodes of the
-        first node. If raise_on_fail is set to True a RuntimeError will be
-        raised if the ordering fails.
+        The ordering is performed such that the first node is the "lowest" one and the
+        second node is the lowest one of the two neighbor nodes of the first node. If
+        raise_on_fail is set to True a RuntimeError will be raised if the ordering fails.
 
-        :param raise_on_fail: If set to True, will raise a RuntimeError if the
-                              ordering fails.
-        :return: None
+        Args:
+            raise_on_fail (bool): If set to True, will raise a RuntimeError if the ordering fails.
         """
         # always validate the cycle if it needs to be ordered
         # also validates that the nodes can be strictly ordered
@@ -236,7 +233,7 @@ class SimpleGraphCycle(MSONable):
             self.nodes = self.nodes[min_index:] + self.nodes[:min_index]
         self.ordered = True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return len(self.nodes)
 
     def __len__(self):
@@ -289,7 +286,7 @@ class SimpleGraphCycle(MSONable):
         return cls(nodes)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         d = MSONable.as_dict(self)
         # Transforming tuple object to a list to allow BSON and MongoDB
         d["nodes"] = list(d["nodes"])
@@ -301,7 +298,6 @@ class SimpleGraphCycle(MSONable):
         Serialize from dict.
         :param d:
         :param validate:
-        :return:
         """
         return cls(nodes=d["nodes"], validate=validate, ordered=d["ordered"])
 
@@ -342,7 +338,9 @@ class MultiGraphCycle(MSONable):
         This method checks :
         - that there are no duplicate nodes,
         - that there are either 1 or more than 2 nodes
-        :return: True if the SimpleGraphCycle is valid, False otherwise.
+
+        Returns:
+            True if the SimpleGraphCycle is valid, False otherwise.
         """
         if len(self.nodes) != len(self.edge_indices):  # Should have the same number of nodes and edges
             return False, "Number of nodes different from number of edge indices."
@@ -375,7 +373,6 @@ class MultiGraphCycle(MSONable):
     def validate(self, check_strict_ordering=False):
         """
         :param check_strict_ordering:
-        :return:
         """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
@@ -391,7 +388,8 @@ class MultiGraphCycle(MSONable):
 
         :param raise_on_fail: If set to True, will raise a RuntimeError if the
                               ordering fails.
-        :return: None
+        Returns:
+            None
         """
         # always validate the cycle if it needs to be ordered
         # also validates that the nodes can be strictly ordered
@@ -438,7 +436,7 @@ class MultiGraphCycle(MSONable):
             self.edge_indices = self.edge_indices[min_index:] + self.edge_indices[:min_index]
         self.ordered = True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return len(self.nodes)
 
     def __len__(self):
@@ -448,8 +446,8 @@ class MultiGraphCycle(MSONable):
         out = ["Multigraph cycle with nodes :"]
         cycle = []
         for inode, node1, node2 in zip(itertools.count(), self.nodes[:-1], self.nodes[1:]):
-            cycle.append(f"{node1} -*{self.edge_indices[inode]:d}*- {node2}")
-        cycle.append(f"{self.nodes[-1]} -*{self.edge_indices[-1]:d}*- {self.nodes[0]}")
+            cycle.append(f"{node1} -*{self.edge_indices[inode]}*- {node2}")
+        cycle.append(f"{self.nodes[-1]} -*{self.edge_indices[-1]}*- {self.nodes[0]}")
         # out.extend([str(node) for node in self.nodes])
         out.extend(cycle)
         return "\n".join(out)
@@ -465,15 +463,11 @@ class MultiGraphCycle(MSONable):
 def get_all_elementary_cycles(graph):
     """
     :param graph:
-    :return:
     """
     if not isinstance(graph, nx.Graph):
         raise TypeError("graph should be a networkx Graph object.")
 
     cycle_basis = nx.cycle_basis(graph)
-
-    # print('CYCLE BASIS')
-    # print(cycle_basis)
 
     if len(cycle_basis) < 2:
         return {SimpleGraphCycle(c) for c in cycle_basis}
@@ -493,17 +487,14 @@ def get_all_elementary_cycles(graph):
             iedge = all_edges_dict[(n1, n2)]
             cycles_matrix[icycle, iedge] = True
 
-    # print(cycles_matrix)
     elementary_cycles_list = []
 
     for ncycles in range(1, len(cycle_basis) + 1):
         for cycles_combination in itertools.combinations(cycles_matrix, ncycles):
             edges_counts = np.array(np.mod(np.sum(cycles_combination, axis=0), 2), dtype=bool)
             myedges = [edge for iedge, edge in enumerate(index2edge) if edges_counts[iedge]]
-            # print(myedges)
             try:
                 sgc = SimpleGraphCycle.from_edges(myedges, edges_are_ordered=False)
-                # print(sgc)
             except ValueError as ve:
                 msg = ve.args[0]
                 if msg == "SimpleGraphCycle is not valid : Duplicate nodes.":

@@ -59,8 +59,7 @@ class GruneisenParameter(MSONable):
         self.structure = structure
 
     def average_gruneisen(self, t=None, squared=True, limit_frequencies=None):
-        """
-        Calculates the average of the Gruneisen based on the values on the regular grid.
+        """Calculates the average of the Gruneisen based on the values on the regular grid.
         If squared is True the average will use the squared value of the Gruneisen and a squared root
         is performed on the final result.
         Values associated to negative frequencies will be ignored.
@@ -113,8 +112,7 @@ class GruneisenParameter(MSONable):
         return g
 
     def thermal_conductivity_slack(self, squared=True, limit_frequencies=None, theta_d=None, t=None):
-        """
-        Calculates the thermal conductivity at the acoustic Debye temperature with the Slack formula,
+        """Calculates the thermal conductivity at the acoustic Debye temperature with the Slack formula,
         using the average Gruneisen.
         Adapted from abipy.
 
@@ -187,8 +185,7 @@ class GruneisenParameter(MSONable):
         return np.sqrt(5 / 3 * integrals) / const.value("Boltzmann constant in Hz/K")
 
     def debye_temp_phonopy(self, freq_max_fit=None):
-        """
-        Get Debye temperature in K as implemented in phonopy.
+        """Get Debye temperature in K as implemented in phonopy.
 
         Args:
             freq_max_fit: Maximum frequency to include for fitting.
@@ -199,23 +196,21 @@ class GruneisenParameter(MSONable):
         """
         # Use of phonopy classes to compute Debye frequency
         t = self.tdos
-        t.set_Debye_frequency(num_atoms=self.structure.num_sites, freq_max_fit=freq_max_fit)
+        t.set_Debye_frequency(num_atoms=len(self.structure), freq_max_fit=freq_max_fit)
         f_d = t.get_Debye_frequency()  # in THz
         # f_d in THz is converted in a temperature (K)
         return const.value("Planck constant") * f_d * const.tera / const.value("Boltzmann constant")
 
     @property
     def acoustic_debye_temp(self):
-        """
-        Acoustic Debye temperature in K, i.e. the Debye temperature divided by nsites**(1/3).
+        """Acoustic Debye temperature in K, i.e. the Debye temperature divided by n_sites**(1/3).
         Adapted from abipy.
         """
-        return self.debye_temp_limit / self.structure.num_sites ** (1 / 3)
+        return self.debye_temp_limit / len(self.structure) ** (1 / 3)
 
 
 class GruneisenPhononBandStructure(PhononBandStructure):
-    """
-    This is the most generic phonon band structure data possible
+    """This is the most generic phonon band structure data possible
     it's defined by a list of qpoints + frequencies for each of them.
     Additional information may be given for frequencies at Gamma, where
     non-analytical contribution may be taken into account.
@@ -276,30 +271,23 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         Returns:
             MSONable (dict).
         """
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
-            "qpoints": [],
+            "qpoints": [q.as_dict()["fcoords"] for q in self.qpoints],
+            "bands": self.bands.tolist(),
+            "labels_dict": {k: v.as_dict()["fcoords"] for k, v in self.labels_dict.items()},
+            "eigendisplacements": {
+                "real": np.real(self.eigendisplacements).tolist(),
+                "imag": np.imag(self.eigendisplacements).tolist(),
+            },
+            "gruneisen": self.gruneisen.tolist(),
         }
-        # qpoints are not Kpoint objects dicts but are frac coords. This makes
-        # the dict smaller and avoids the repetition of the lattice
-        for q in self.qpoints:
-            d["qpoints"].append(q.as_dict()["fcoords"])
-        d["bands"] = self.bands.tolist()
-        d["labels_dict"] = {}
-        for kpoint_letter, kpoint_object in self.labels_dict.items():
-            d["labels_dict"][kpoint_letter] = kpoint_object.as_dict()["fcoords"]
-        # split the eigendisplacements to real and imaginary part for serialization
-        d["eigendisplacements"] = {
-            "real": np.real(self.eigendisplacements).tolist(),
-            "imag": np.imag(self.eigendisplacements).tolist(),
-        }
-        d["gruneisen"] = self.gruneisen.tolist()
         if self.structure:
-            d["structure"] = self.structure.as_dict()
+            dct["structure"] = self.structure.as_dict()
 
-        return d
+        return dct
 
     @classmethod
     def from_dict(cls, dct):
@@ -327,8 +315,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
 
 
 class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononBandStructureSymmLine):
-    """
-    This object stores a GruneisenPhononBandStructureSymmLine together with Grueneisen parameters
+    """This object stores a GruneisenPhononBandStructureSymmLine together with Grueneisen parameters
     for every frequency.
     """
 

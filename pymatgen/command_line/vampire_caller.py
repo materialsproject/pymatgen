@@ -1,5 +1,4 @@
-"""
-This module implements an interface to the VAMPIRE code for atomistic
+"""This module implements an interface to the VAMPIRE code for atomistic
 simulations of magnetic materials.
 
 This module depends on a compiled vampire executable available in the path.
@@ -36,8 +35,7 @@ VAMPEXE = which("vampire-serial")
 
 
 class VampireCaller:
-    """
-    Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
+    """Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
     temperature with classical Monte Carlo.
     """
 
@@ -58,8 +56,7 @@ class VampireCaller:
         avg=True,
         user_input_settings=None,
     ):
-        """
-        user_input_settings is a dictionary that can contain:
+        """user_input_settings is a dictionary that can contain:
         * start_t (int): Start MC sim at this temp, defaults to 0 K.
         * end_t (int): End MC sim at this temp, defaults to 1500 K.
         * temp_increment (int): Temp step size, defaults to 25 K.
@@ -370,18 +367,18 @@ class VampireCaller:
             f.write(ucf)
 
     @staticmethod
-    def parse_stdout(vamp_stdout, nmats):
+    def parse_stdout(vamp_stdout, n_mats: int) -> tuple:
         """Parse stdout from Vampire.
 
         Args:
             vamp_stdout (txt file): Vampire 'output' file.
-            nmats (int): Num of materials in Vampire sim.
+            n_mats (int): Number of materials in Vampire simulation.
 
         Returns:
             parsed_out (DataFrame): MSONable vampire output.
             critical_temp (float): Calculated critical temp.
         """
-        names = ["T", "m_total"] + ["m_" + str(i) for i in range(1, nmats + 1)] + ["X_x", "X_y", "X_z", "X_m", "nan"]
+        names = ["T", "m_total", *[f"m_{idx + 1}" for idx in range(n_mats)], "X_x", "X_y", "X_z", "X_m", "nan"]
 
         # Parsing vampire MC output
         df = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names)
@@ -396,8 +393,7 @@ class VampireCaller:
 
 
 class VampireOutput(MSONable):
-    """
-    This class processes results from a Vampire Monte Carlo simulation
+    """This class processes results from a Vampire Monte Carlo simulation
     and returns the critical temperature.
     """
 

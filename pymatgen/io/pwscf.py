@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 
-from frozendict import frozendict
+import numpy as np
 from monty.io import zopen
 from monty.re import regrep
 
@@ -97,7 +97,7 @@ class PWInput:
                         name = k
 
                 if name is None:
-                    name = site.specie.symbol + str(c)
+                    name = f"{site.specie.symbol}{c}"
                     site_descriptions[name] = site.properties
                     c += 1
 
@@ -232,10 +232,15 @@ class PWInput:
             PWInput object
         """
         with zopen(filename, "rt") as f:
-            return PWInput.from_string(f.read())
+            return PWInput.from_str(f.read())
+
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
 
     @staticmethod
-    def from_string(string):
+    def from_str(string):
         """
         Reads an PWInput object from a string.
 
@@ -367,7 +372,7 @@ class PWInput:
             "conv_thr",
             "Hubbard_U",
             "Hubbard_J0",
-            "defauss",
+            "degauss",
             "starting_magnetization",
         )
 
@@ -478,8 +483,7 @@ class PWInput:
             pass
 
         try:
-            val = val.replace("d", "e")
-            return smart_int_or_float(val)
+            return smart_int_or_float(val.replace("d", "e"))
         except ValueError:
             pass
 
@@ -501,7 +505,7 @@ class PWInputError(BaseException):
 class PWOutput:
     """Parser for PWSCF output file."""
 
-    patterns = frozendict(
+    patterns = dict(
         energies=r"total energy\s+=\s+([\d\.\-]+)\sRy",
         ecut=r"kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
         lattice_type=r"bravais\-lattice index\s+=\s+(\d+)",

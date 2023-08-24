@@ -57,7 +57,7 @@ class SubstitutionProbability:
             self._lambda_table = lambda_table
         else:
             module_dir = os.path.dirname(__file__)
-            json_file = os.path.join(module_dir, "data", "lambda.json")
+            json_file = f"{module_dir}/data/lambda.json"
             with open(json_file) as f:
                 self._lambda_table = json.load(f)
 
@@ -67,8 +67,8 @@ class SubstitutionProbability:
         self.species = set()
         for row in self._lambda_table:
             if "D1+" not in row:
-                s1 = Species.from_string(row[0])
-                s2 = Species.from_string(row[1])
+                s1 = Species.from_str(row[0])
+                s2 = Species.from_str(row[1])
                 self.species.add(s1)
                 self.species.add(s2)
                 self._l[frozenset([s1, s2])] = float(row[2])

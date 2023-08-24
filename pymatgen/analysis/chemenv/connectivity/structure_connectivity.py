@@ -266,8 +266,8 @@ class StructureConnectivity(MSONable):
     def setup_atom_environments_subgraph(self, atoms_environments):
         raise NotImplementedError
 
-    def print_links(self):
-        """Returns:"""
+    def print_links(self) -> None:
+        """Print all links in the graph."""
         nodes = self.environment_subgraph().nodes()
         print("Links in graph :")
         for node in nodes:
@@ -285,7 +285,7 @@ class StructureConnectivity(MSONable):
                     )
 
     def as_dict(self):
-        """Returns:"""
+        """Convert to MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

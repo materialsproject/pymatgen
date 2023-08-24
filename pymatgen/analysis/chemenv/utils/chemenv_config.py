@@ -6,8 +6,6 @@ import json
 from os import makedirs
 from os.path import exists, expanduser
 
-from frozendict import frozendict
-
 from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
 from pymatgen.core import SETTINGS
 
@@ -28,7 +26,7 @@ class ChemEnvConfig:
      - Default options (strategies, ...).
     """
 
-    DEFAULT_PACKAGE_OPTIONS = frozendict(
+    DEFAULT_PACKAGE_OPTIONS = dict(
         default_strategy={
             "strategy": "SimplestChemenvStrategy",
             "strategy_options": {
@@ -88,7 +86,6 @@ class ChemEnvConfig:
     def has_materials_project_access(self):
         """
         Whether MP access is enabled.
-        :return:
         """
         return self.materials_project_configuration is not None
 
