@@ -412,7 +412,7 @@ class BoltztrapRunner(MSONable):
             )
             i = 1000
             for oi, o in enumerate(Orbital):
-                for site_nb in range(0, len(self._bs.structure)):
+                for site_nb in range(len(self._bs.structure)):
                     if oi < len(self._bs.projections[Spin.up][0][0]):
                         f.write(f"{i},'boltztrap.proj_{site_nb}_{o.name}old', 'formatted',0\n")
                         i += 1

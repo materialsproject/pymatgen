@@ -268,12 +268,12 @@ class TestQCOutput(PymatgenTest):
         dumpfn(multi_job_dict, "multi_job.json")
 
     def _test_property(self, key, single_outs, multi_outs):
-        for name, outdata in single_outs.items():
+        for name, out_data in single_outs.items():
             try:
-                assert outdata.get(key) == single_job_dict[name].get(key)
+                assert out_data.get(key) == single_job_dict[name].get(key)
             except ValueError:
                 try:
-                    assert_array_equal(outdata.get(key), single_job_dict[name].get(key))
+                    assert_array_equal(out_data.get(key), single_job_dict[name].get(key))
                 except AssertionError:
                     raise RuntimeError("Issue with file: " + name + " Exiting...")
             except AssertionError:
