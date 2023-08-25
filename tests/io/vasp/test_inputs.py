@@ -1085,6 +1085,12 @@ class TestPotcarSingle:
     #     assert p.functional_class == "LDA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
+    def test_repr(self):
+        assert (
+            repr(self.psingle) == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000',"
+            " VRHFIN='Mn: 3p4s3d', n_valence_elec=13)"
+        )
+
 
 class TestPotcar:
     def setup(self):
