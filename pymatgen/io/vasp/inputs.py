@@ -2184,18 +2184,23 @@ class PotcarSingle:
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
 
-    def __getattr__(self, a):
-        """
-        Delegates attributes to keywords. For example, you can use
-        potcarsingle.enmax to get the ENMAX of the POTCAR.
+    def __getattr__(self, attr: str) -> Any:
+        """Delegates attributes to keywords. For example, you can use potcarsingle.enmax to get the ENMAX of the POTCAR.
 
         For float type properties, they are converted to the correct float. By
         default, all energies in eV and all length scales are in Angstroms.
         """
         try:
-            return self.keywords[a.upper()]
+            return self.keywords[attr.upper()]
         except Exception:
-            raise AttributeError(a)
+            raise AttributeError(attr)
+
+    def __repr__(self) -> str:
+        cls_name = type(self).__name__
+        symbol, functional = self.symbol, self.functional
+        TITEL, VRHFIN = self.keywords["TITEL"], self.keywords["VRHFIN"]
+        TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
+        return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
 
 class Potcar(list, MSONable):
