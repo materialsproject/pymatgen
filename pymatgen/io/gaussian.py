@@ -1066,7 +1066,7 @@ class GaussianOutput:
                         line = f.readline()
                         if " -- Stationary point found." not in line:
                             warnings.warn(
-                                "\n" + self.filename + ": Optimization complete but this is not a stationary point"
+                                f"\n{self.filename}: Optimization complete but this is not a stationary point"
                             )
                         if standard_orientation:
                             opt_structures.append(std_structures[-1])

@@ -982,7 +982,7 @@ class TestPotcarSingle:
         assert config[-1] == (3, "p", 6)
 
     def test_attributes(self):
-        for k in [
+        for key in [
             "DEXC",
             "RPACOR",
             "ENMAX",
@@ -1001,7 +1001,7 @@ class TestPotcarSingle:
             "POMASS",
             "RWIGS",
         ]:
-            assert getattr(self.psingle, k) is not None
+            assert getattr(self.psingle, key) is not None
 
     def test_found_unknown_key(self):
         with pytest.raises(KeyError, match="BAD_KEY"):
