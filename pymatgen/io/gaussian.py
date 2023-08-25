@@ -412,7 +412,7 @@ class GaussianInput:
         if self.link0_parameters:
             output.append(para_dict_to_string(self.link0_parameters, "\n"))
 
-        # Handle functional or basis set set to None, empty string or whitespace
+        # Handle functional or basis set to None, empty string or whitespace
         func_str = "" if self.functional is None else self.functional.strip()
         bset_str = "" if self.basis_set is None else self.basis_set.strip()
 

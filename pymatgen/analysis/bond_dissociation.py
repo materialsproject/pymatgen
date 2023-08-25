@@ -203,14 +203,14 @@ class BondDissociationEnergies(MSONable):
                     smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag1_charges_found:
-                            print(f"Missing charge {charge} for fragment {smiles}")
+                            print(f"Missing {charge=} for fragment {smiles}")
                 if len(frag2_charges_found) < len(self.expected_charges):
                     bb = BabelMolAdaptor(frags[1].molecule)
                     pb_mol = bb.pybel_mol
                     smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag2_charges_found:
-                            print(f"Missing charge {charge} for fragment {smiles}")
+                            print(f"Missing {charge=} for fragment {smiles}")
                 # Now we attempt to pair fragments with the right total charge, starting with only fragments with no
                 # structural change:
                 for frag1 in frag1_entries[0]:  # 0 -> no structural change

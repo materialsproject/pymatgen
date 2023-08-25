@@ -1042,7 +1042,7 @@ class Fatband:
     def __init__(self, filenames=".", vasprun="vasprun.xml", Kpointsfile="KPOINTS"):
         """
         Args:
-            filenames (list or string): can be a list of file names or a path to a folder folder from which all
+            filenames (list or string): can be a list of file names or a path to a folder from which all
                 "FATBAND_*" files will be read
             vasprun: corresponding vasprun file
             Kpointsfile: KPOINTS file for bandstructure calculation, typically "KPOINTS".
