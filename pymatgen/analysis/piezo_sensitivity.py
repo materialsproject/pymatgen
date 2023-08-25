@@ -215,7 +215,7 @@ class InternalStrainTensor:
         IST_operations = []
         for atom in range(len(self.ist)):  # pylint: disable=C0200
             IST_operations.append([])
-            for j in range(0, atom):
+            for j in range(atom):
                 for op in uniq_point_ops:
                     new = op.transform_tensor(self.ist[j])
 

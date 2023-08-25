@@ -1386,7 +1386,7 @@ class CombinedData(LammpsData):
         mols = []
         styles = []
         coordinates = cls.parse_xyz(filename=coordinate_file)
-        for i in range(0, len(filenames)):
+        for i in range(len(filenames)):
             exec(f"cluster{i + 1} = LammpsData.from_file(filenames[i])")
             names.append(f"cluster{i + 1}")
             mols.append(eval(f"cluster{i + 1}"))

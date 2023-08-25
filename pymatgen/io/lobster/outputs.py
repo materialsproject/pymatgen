@@ -632,7 +632,7 @@ class Charge:
         self.types: list[str] = []
         self.Mulliken: list[float] = []
         self.Loewdin: list[float] = []
-        for atom in range(0, self.num_atoms):
+        for atom in range(self.num_atoms):
             line = data[atom].split()
             self.atomlist.append(line[1] + line[0])
             self.types.append(line[1])
@@ -1488,9 +1488,9 @@ class Wavefunction:
         new_density = []
 
         runner = 0
-        for x in range(0, Nx + 1):
-            for y in range(0, Ny + 1):
-                for z in range(0, Nz + 1):
+        for x in range(Nx + 1):
+            for y in range(Ny + 1):
+                for z in range(Nz + 1):
                     x_here = x / float(Nx) * a[0] + y / float(Ny) * b[0] + z / float(Nz) * c[0]
                     y_here = x / float(Nx) * a[1] + y / float(Ny) * b[1] + z / float(Nz) * c[1]
                     z_here = x / float(Nx) * a[2] + y / float(Ny) * b[2] + z / float(Nz) * c[2]
@@ -1654,7 +1654,7 @@ class SitePotential:
         self.types: list[str] = []
         self.sitepotentials_Mulliken: list[float] = []
         self.sitepotentials_Loewdin: list[float] = []
-        for atom in range(0, self.num_atoms):
+        for atom in range(self.num_atoms):
             line = data[atom].split()
             self.atomlist.append(line[1] + str(line[0]))
             self.types.append(line[1])

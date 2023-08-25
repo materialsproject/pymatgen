@@ -184,7 +184,7 @@ class BondDissociationEnergies(MSONable):
             if not frags_done:
                 # If we haven't, we save this pair and search for the relevant fragment entries:
                 self.done_frag_pairs += [frags]
-                num_entries_for_this_frag_pair = 0
+                n_entries_for_this_frag_pair = 0
                 frag1_entries = self.search_fragment_entries(frags[0])
                 frag2_entries = self.search_fragment_entries(frags[1])
                 frag1_charges_found = []
@@ -220,10 +220,10 @@ class BondDissociationEnergies(MSONable):
                             == self.molecule_entry["final_molecule"]["charge"]
                         ):
                             self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
-                            num_entries_for_this_frag_pair += 1
+                            n_entries_for_this_frag_pair += 1
                 # If we haven't found the number of fragment pairs that we expect, we expand our search to include
                 # fragments that do exhibit structural change:
-                if num_entries_for_this_frag_pair < len(self.expected_charges):
+                if n_entries_for_this_frag_pair < len(self.expected_charges):
                     for frag1 in frag1_entries[0]:  # 0 -> no structural change
                         for frag2 in frag2_entries[1]:  # 1 -> YES structural change
                             if (
@@ -231,7 +231,7 @@ class BondDissociationEnergies(MSONable):
                                 == self.molecule_entry["final_molecule"]["charge"]
                             ):
                                 self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
-                                num_entries_for_this_frag_pair += 1
+                                n_entries_for_this_frag_pair += 1
                     for frag1 in frag1_entries[1]:  # 1 -> YES structural change
                         for frag2 in frag2_entries[0]:  # 0 -> no structural change
                             if (
@@ -239,7 +239,7 @@ class BondDissociationEnergies(MSONable):
                                 == self.molecule_entry["final_molecule"]["charge"]
                             ):
                                 self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
-                                num_entries_for_this_frag_pair += 1
+                                n_entries_for_this_frag_pair += 1
 
     def search_fragment_entries(self, frag):
         """
