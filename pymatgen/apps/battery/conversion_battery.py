@@ -205,12 +205,15 @@ class ConversionElectrode(AbstractElectrode):
         return 7
 
     def __repr__(self):
+        cls_name, formula, n_steps = type(self).__name__, self.initial_comp.reduced_formula, self.num_steps
+        avg_voltage, min_voltage, max_voltage = self.get_average_voltage(), self.min_voltage, self.max_voltage
         output = [
-            f"Conversion electrode with formula {self.initial_comp.reduced_formula} and nsteps {self.num_steps}",
-            f"Avg voltage {self.get_average_voltage()} V, min voltage {self.min_voltage} V, "
-            f"max voltage {self.max_voltage} V",
-            f"Capacity (grav.) {self.get_capacity_grav()} mAh/g, capacity (vol.) {self.get_capacity_vol()} Ah/l",
-            f"Specific energy {self.get_specific_energy()} Wh/kg, energy density {self.get_energy_density()} Wh/l",
+            f"{cls_name} with {formula=} and {n_steps=}, {avg_voltage=:.3f} V, "
+            f"{min_voltage=:.3f} V, {max_voltage=:.3f} V",
+            f"Capacity (grav.) {self.get_capacity_grav():.3f} mAh/g, capacity (vol.) "
+            f"{self.get_capacity_vol():.3f} Ah/l",
+            f"Specific energy {self.get_specific_energy():.3f} Wh/kg, energy density "
+            f"{self.get_energy_density():.3f} Wh/l",
         ]
         return "\n".join(output)
 
