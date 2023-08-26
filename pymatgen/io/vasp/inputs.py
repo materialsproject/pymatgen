@@ -1493,9 +1493,6 @@ class Kpoints(MSONable):
             f.write(str(self))
 
     def __repr__(self):
-        return str(self)
-
-    def __str__(self):
         lines = [self.comment, str(self.num_kpts), self.style.name]
         style = self.style.name.lower()[0]
         if style == "l":

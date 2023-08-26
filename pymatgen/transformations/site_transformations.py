@@ -67,11 +67,8 @@ class InsertSitesTransformation(AbstractTransformation):
             )
         return struct.get_sorted_structure()
 
-    def __str__(self):
-        return f"InsertSiteTransformation : species {self.species}, coords {self.coords}"
-
     def __repr__(self):
-        return str(self)
+        return f"InsertSiteTransformation : species {self.species}, coords {self.coords}"
 
     @property
     def inverse(self):
@@ -114,13 +111,10 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
             struct[int(i)] = sp
         return struct
 
-    def __str__(self):
+    def __repr__(self):
         return "ReplaceSiteSpeciesTransformation :" + ", ".join(
             [f"{k}->{v}" + v for k, v in self.indices_species_map.items()]
         )
-
-    def __repr__(self):
-        return str(self)
 
     @property
     def inverse(self):
@@ -157,11 +151,8 @@ class RemoveSitesTransformation(AbstractTransformation):
         struct.remove_sites(self.indices_to_remove)
         return struct
 
-    def __str__(self):
-        return "RemoveSitesTransformation :" + ", ".join(map(str, self.indices_to_remove))
-
     def __repr__(self):
-        return str(self)
+        return "RemoveSitesTransformation :" + ", ".join(map(str, self.indices_to_remove))
 
     @property
     def inverse(self):
@@ -211,15 +202,12 @@ class TranslateSitesTransformation(AbstractTransformation):
             struct.translate_sites(self.indices_to_move, self.translation_vector, self.vector_in_frac_coords)
         return struct
 
-    def __str__(self):
+    def __repr__(self):
         return (
             f"TranslateSitesTransformation for indices {self.indices_to_move}, "
             f"vect {self.translation_vector} and "
             f"vect_in_frac_coords = {self.vector_in_frac_coords}"
         )
-
-    def __repr__(self):
-        return str(self)
 
     @property
     def inverse(self):
@@ -502,11 +490,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         opt_s = all_structures[0]["structure"]
         return opt_s if not return_ranked_list else all_structures[0:num_to_return]
 
-    def __str__(self):
-        return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
-
     def __repr__(self):
-        return str(self)
+        return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
 
     @property
     def inverse(self):
