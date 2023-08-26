@@ -61,9 +61,6 @@ class Cohp(MSONable):
         self.icohp = icohp
 
     def __repr__(self):
-        return str(self)
-
-    def __str__(self):
         """Returns a string that can be easily plotted (e.g. using gnuplot)."""
         if self.are_coops:
             cohpstring = "COOP"

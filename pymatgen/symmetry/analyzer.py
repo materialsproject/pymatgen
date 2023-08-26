@@ -1687,8 +1687,5 @@ class PointGroupOperations(list):
         self.sch_symbol = sch_symbol
         super().__init__(generate_full_symmops(operations, tol))
 
-    def __str__(self):
-        return self.sch_symbol
-
     def __repr__(self):
-        return str(self)
+        return self.sch_symbol
