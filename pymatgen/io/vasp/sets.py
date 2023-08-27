@@ -870,7 +870,7 @@ class MPRelaxSet(DictSet):
     Implementation of VaspInputSet utilizing parameters in the public
     Materials Project. Typically, the pseudopotentials chosen contain more
     electrons than the MIT parameters, and the k-point grid is ~50% more dense.
-    The LDAUU parameters are also different due to the different psps used,
+    The LDAUU parameters are also different due to the different PSPs used,
     which result in different fitted values.
     """
 
@@ -1227,8 +1227,7 @@ class MPScanStaticSet(MPScanRelaxSet):
         Args:
             structure (Structure): Structure from previous run.
             bandgap (float): Bandgap of the structure in eV. The bandgap is used to
-                    compute the appropriate k-point density and determine the
-                    smearing settings.
+                compute the appropriate k-point density and determine the smearing settings.
             prev_incar (Incar): Incar file from previous run.
             lepsilon (bool): Whether to add static dielectric calculation
             lcalcpol (bool): Whether to turn on evaluation of the Berry phase approximations
@@ -2705,7 +2704,7 @@ class MVLScanRelaxSet(MPRelaxSet):
 
         updates = {
             "ADDGRID": True,
-            "EDIFF": 1e-05,
+            "EDIFF": 1e-5,
             "EDIFFG": -0.05,
             "LASPH": True,
             "LDAU": False,
