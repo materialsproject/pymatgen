@@ -175,5 +175,3 @@ _refine_ls_wR_factor_all                 ?
 _computing_structure_refinement          GSAS
 
 # End of data set 1817019
-
-
