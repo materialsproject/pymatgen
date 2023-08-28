@@ -90,15 +90,12 @@ class EnergyAdjustment(MSONable):
         """Return an explanation of how the energy adjustment is calculated."""
 
     def __repr__(self):
-        name, value, uncertainty = self.name, float(self.value), self.uncertainty
+        name, value, uncertainty, description = self.name, float(self.value), self.uncertainty, self.description
         # self.cls might not be a dict if monty decoding is enabled in the new MPRester
         # which hydrates all dicts with @class and @module keys into classes in which case
         # we expect a Compatibility subclass
         generated_by = self.cls.get("@class", "unknown") if isinstance(self.cls, dict) else type(self.cls).__name__
-        return (
-            f"{type(self).__name__}({name=}, {value=:.3}, {uncertainty=:.3}, "
-            f"description={self.description}, {generated_by=})"
-        )
+        return f"{type(self).__name__}({name=}, {value=:.3}, {uncertainty=:.3}, {description=}, {generated_by=})"
 
 
 class ConstantEnergyAdjustment(EnergyAdjustment):

@@ -455,7 +455,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """Reads in SiteCollection from a filename."""
         raise NotImplementedError
 
-    def add_site_property(self, property_name: str, values: Sequence | ArrayLike):
+    def add_site_property(self, property_name: str, values: Sequence | np.ndarray):
         """Adds a property to a site. Note: This is the preferred method
         for adding magnetic moments, selective dynamics, and related
         site-specific properties to a structure/molecule object.

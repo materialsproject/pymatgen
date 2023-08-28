@@ -82,7 +82,7 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
         """
         for trans_modules in ["structure_matcher"]:
             mod = __import__(
-                "pymatgen.analysis." + trans_modules,
+                f"pymatgen.analysis.{trans_modules}",
                 globals(),
                 locals(),
                 [d["@class"]],

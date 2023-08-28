@@ -92,7 +92,7 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
         for trans_modules in ["molecule_matcher"]:
             level = 0  # Python 3.x
             mod = __import__(
-                "pymatgen.analysis." + trans_modules,
+                f"pymatgen.analysis.{trans_modules}",
                 globals(),
                 locals(),
                 [d["@class"]],

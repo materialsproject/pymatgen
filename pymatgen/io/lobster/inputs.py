@@ -226,7 +226,7 @@ class Lobsterin(dict, MSONable):
             string_basis_raw = string_basis.strip().split(" ")
             while "" in string_basis_raw:
                 string_basis_raw.remove("")
-            for _idx in range(0, int(structure.composition.element_composition[string_basis_raw[0]])):
+            for _idx in range(int(structure.composition.element_composition[string_basis_raw[0]])):
                 basis_functions.extend(string_basis_raw[1:])
 
         no_basis_functions = 0
@@ -842,7 +842,7 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
                 basis_dict[el[0]]["fixed"].append(basis)
             if basis not in min_basis_lists[iel]:
                 basis_dict[el[0]]["variable"].append(basis)
-        for L in range(0, len(basis_dict[el[0]]["variable"]) + 1):
+        for L in range(len(basis_dict[el[0]]["variable"]) + 1):
             for subset in itertools.combinations(basis_dict[el[0]]["variable"], L):
                 basis_dict[el[0]]["combinations"].append(" ".join([el[0]] + basis_dict[el[0]]["fixed"] + list(subset)))
 

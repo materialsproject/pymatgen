@@ -1161,7 +1161,8 @@ class Species(MSONable, Stringify):
         if self.oxi_state is not None:
             output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
         if self._spin is not None:
-            output += f",spin={self._spin}"
+            spin = self._spin
+            output += f",{spin=}"
         return output
 
     def to_pretty_string(self) -> str:
@@ -1453,7 +1454,8 @@ class DummySpecies(Species):
         if self.oxi_state is not None:
             output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
         if self._spin is not None:
-            output += f",spin={self._spin}"
+            spin = self._spin
+            output += f",{spin=}"
         return output
 
 

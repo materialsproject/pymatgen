@@ -256,7 +256,7 @@ if __name__ == "__main__":
                 explicit_permutations_per_plane.append(set(explicit_permutations))
                 prt1(string="", printing_volume=printing_volume)
             # Check that the explicit permutations found are the same for each plane
-            for ip1 in range(0, len(explicit_permutations_per_plane) - 1):
+            for ip1 in range(len(explicit_permutations_per_plane) - 1):
                 ep_p1 = explicit_permutations_per_plane[ip1]
                 for ip2 in range(1, len(explicit_permutations_per_plane)):
                     ep_p2 = explicit_permutations_per_plane[ip2]

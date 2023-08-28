@@ -47,13 +47,13 @@ class FunctionalGroupExtractor:
         if isinstance(molecule, str):
             try:
                 if optimize:
-                    obmol = BabelMolAdaptor.from_file(molecule, file_format="mol")
+                    ob_mol = BabelMolAdaptor.from_file(molecule, file_format="mol")
                     # OBMolecule does not contain pymatgen Molecule information
-                    # So, we need to wrap the obmol in a BabelMolAdapter
-                    obmol.add_hydrogen()
-                    obmol.make3d()
-                    obmol.localopt()
-                    self.molecule = obmol.pymatgen_mol
+                    # So, we need to wrap the ob_mol in a BabelMolAdapter
+                    ob_mol.add_hydrogen()
+                    ob_mol.make3d()
+                    ob_mol.localopt()
+                    self.molecule = ob_mol.pymatgen_mol
                 else:
                     self.molecule = Molecule.from_file(molecule)
             except OSError:
@@ -61,23 +61,23 @@ class FunctionalGroupExtractor:
 
         elif isinstance(molecule, Molecule):
             if optimize:
-                obmol = BabelMolAdaptor(molecule)
-                obmol.add_hydrogen()
-                obmol.make3d()
-                obmol.localopt()
+                ob_mol = BabelMolAdaptor(molecule)
+                ob_mol.add_hydrogen()
+                ob_mol.make3d()
+                ob_mol.localopt()
 
-                self.molecule = obmol.pymatgen_mol
+                self.molecule = ob_mol.pymatgen_mol
             else:
                 self.molecule = molecule
 
         elif isinstance(molecule, MoleculeGraph):
             if optimize:
-                obmol = BabelMolAdaptor(molecule.molecule)
-                obmol.add_hydrogen()
-                obmol.make3d()
-                obmol.localopt()
+                ob_mol = BabelMolAdaptor(molecule.molecule)
+                ob_mol.add_hydrogen()
+                ob_mol.make3d()
+                ob_mol.localopt()
 
-                self.molecule = obmol.pymatgen_mol
+                self.molecule = ob_mol.pymatgen_mol
 
             else:
                 self.molecule = molecule.molecule

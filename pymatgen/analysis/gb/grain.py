@@ -1333,7 +1333,7 @@ class GrainBoundaryGenerator:
         for n_loop in range(1, n_max + 1):
             n = n_loop
             m_max = int(np.sqrt(cutoff * a_max - n**2 * sum(np.array(r_axis) ** 2)))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     n = 1 if m == 0 else n_loop
                     # construct the quadruple [m, U,V,W], count the number of odds in
@@ -1431,7 +1431,7 @@ class GrainBoundaryGenerator:
                 m_max = 0
             else:
                 m_max = int(np.sqrt((cutoff * 12 * mu * mv - n**2 * d) / (3 * mu)))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1544,7 +1544,7 @@ class GrainBoundaryGenerator:
                 m_max = 0
             else:
                 m_max = int(np.sqrt((cutoff * abs(4 * mu * (mu - 3 * mv)) - n**2 * d) / (mu)))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1663,7 +1663,7 @@ class GrainBoundaryGenerator:
         # Enumerate all possible n, m to give possible sigmas within the cutoff.
         for n in range(1, n_max + 1):
             m_max = 0 if c2_a2_ratio is None and w == 0 else int(np.sqrt((cutoff * 4 * mu * mv - n**2 * d) / mu))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1799,7 +1799,7 @@ class GrainBoundaryGenerator:
                 m_max = 0
             else:
                 m_max = int(np.sqrt((cutoff * 4 * mu * mv * lam * mv - n**2 * d) / mu / lam))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
