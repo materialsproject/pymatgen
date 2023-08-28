@@ -1,0 +1,26 @@
+# Default VASP settings for static calculations in the MatPES Project
+# using the Regularized-Restored Strongly Constrained and Appropriately
+# Normed functional (default PBE, PBE+U or R2SCAN or R2SCAN+U).
+PARENT: PBE54Base
+INCAR:
+  ALGO: Normal # Normal for PBE, ALL for R2SCAN, included to have some reasonable default
+  EDIFF: 1.e-05
+  ENAUG: 1360
+  ENCUT: 680
+  ISMEAR: 0 # change from 2 to 0, included to have some reasonable default
+  ISPIN: 2
+  KSPACING: 0.22 # included to have some reasonable default
+  LAECHG: True
+  LASPH: True
+  LCHARG: True
+  LELF: False # LELF = True restricts calculation to KPAR = 1
+  LMIXTAU: True
+  LORBIT: 11
+  LREAL: Auto
+  LVTOT: True
+  LWAVE: False
+  GGA: PE # change R2SCAN to PBE as default
+  NELM: 200
+  NSW: 0 # static calculation
+  PREC: Accurate
+  SIGMA: 0.05 # change from 0.02 to 0.05, included to have some reasonable default
