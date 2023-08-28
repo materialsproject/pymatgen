@@ -75,8 +75,9 @@ class Ion(Composition, MSONable, Stringify):
 
     @property
     def formula(self) -> str:
-        """Returns a formula string, with elements sorted by electronegativity,
-        e.g., Li4 Fe4 P4 O16.
+        """Returns a formula string with appended charge. The
+        charge is written with the sign preceding the magnitude, e.g.,
+        'Ca1 +2'. Uncharged species have "(aq)" appended, e.g. "O2 (aq)".
         """
         formula = super().formula
         return f"{formula} {charge_string(self.charge, brackets=False)}"
@@ -179,7 +180,7 @@ class Ion(Composition, MSONable, Stringify):
     def reduced_formula(self) -> str:
         """Returns a reduced formula string with appended charge. The
         charge is placed in brackets with the sign preceding the magnitude, e.g.,
-        'Ca[+2]'.
+        'Ca[+2]'. Uncharged species have "(aq)" appended, e.g. "O2(aq)".
         """
         reduced_formula = super().reduced_formula
         charge = self._charge / self.get_reduced_composition_and_factor()[1]
