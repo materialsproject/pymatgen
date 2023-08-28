@@ -577,7 +577,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         struct.insert(0, "Li", [0, 0, 0])
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=False)
-        with pytest.raises(TypeError, match="argument must be a string or a real number, not"):
+        with pytest.raises(TypeError, match=r"float\(\) argument must be a string or a (real )?number, not 'NoneType'"):
             print(vis.get_vasp_input())
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=True)
