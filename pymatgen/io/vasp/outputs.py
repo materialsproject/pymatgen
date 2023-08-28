@@ -248,7 +248,7 @@ class Vasprun(MSONable):
                     'e_wo_entrp': -525.07195568,
                     'kinetic': 3.17809233,
                     'lattice kinetic': 0.0,
-                    'nosekinetic': 1.323e-05,
+                    'nosekinetic': 1.323e-5,
                     'nosepot': 0.0,
                     'total': -521.89385012
                     },
@@ -2241,10 +2241,12 @@ class Outcar:
         Method to parse lines with values in scientific notation and potentially
         without spaces in between the values. This assumes that the scientific
         notation always lists two digits for the exponent, e.g. 3.535E-02
+
         Args:
             line: line to parse.
 
-        Returns: an array of numbers if found, or empty array if not
+        Returns:
+            list[float]: numbers if found, empty ist if not
         """
         m = re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line)
         if m:

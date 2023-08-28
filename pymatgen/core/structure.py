@@ -2553,7 +2553,7 @@ class IStructure(SiteCollection, MSONable):
         Example:
             Species    a    b             c    x             y             z  magmom
             0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
-            1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5
+            1    (Si)  0.0  0.0  1.000000e-7  0.0 -2.217138e-7  3.135509e-7      -5
         """
         data = []
         site_properties = self.site_properties
