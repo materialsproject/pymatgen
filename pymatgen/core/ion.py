@@ -166,6 +166,12 @@ class Ion(Composition, MSONable, Stringify):
         # butanol
         elif formula == "H10C4O":
             formula = "C4H9OH"
+        elif formula == "O" and factor % 3 == 0:
+            formula = "O3"
+            factor /= 3
+        elif formula in ["O", "N", "F", "Cl", "H"] and factor % 2 == 0:
+            formula += "2"
+            factor /= 2
 
         return formula, factor
 
