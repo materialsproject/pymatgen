@@ -19,7 +19,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.io.vasp.inputs import Kpoints, Poscar
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.sets import (
     BadInputSetWarning,
@@ -48,7 +48,6 @@ from pymatgen.io.vasp.sets import (
     MVLScanRelaxSet,
     MVLSlabSet,
     VaspInputSet,
-    _load_yaml_config,
     batch_write_input,
     get_structure_from_prev_run,
     get_valid_magmom_struct,
@@ -734,68 +733,108 @@ class TestMPStaticSet(PymatgenTest):
 
 
 class TestMatPESStaticSet(PymatgenTest):
+    def setUp(self):
+        file_path = f"{TEST_FILES_DIR}/POSCAR"
+        poscar = Poscar.from_file(file_path)
+        self.struct = poscar.structure
+
     def test_init(self):
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+        # check if default INCAR settings are loaded
+        default = MPStaticSet(self.struct)
+        incar = default.incar
+        assert incar["GGA"] == "Pe"
+        assert incar["ALGO"] == "Normal"
+        assert incar["EDIFF"] == 1.0e-05
+        assert incar["KSPACING"] == 0.22
+        assert incar["ISMEAR"] == 0
+        assert incar["SIGMA"] == 0.05
+        assert incar["ENAUG"] == 1360
+        assert incar["ENCUT"] == 680
+        assert incar["NELM"] == 200
+        assert incar["NSW"] == 0
+        assert incar["LORBIT"] == 11
+        assert incar["LASPH"]
+        assert incar["LCHARG"]
+        assert incar["LAECHG"]
+        assert incar["LDAU"] is None
+        assert default.kpoints is None
 
-        vis = MatPESStaticSet.from_prev_calc(prev_calc_dir=prev_run)
-        # Check that INCAR settings were load from yaml, check the default functional is PBE.
-        CONFIG = _load_yaml_config("MatPESStaticSet")
-        assert vis.incar == CONFIG["INCAR"]
-        assert vis.kpoints.style == Kpoints.supported_modes.Monkhorst
+        # check from_dict method
+        default_from_dict = MPStaticSet.from_dict(default.structure)
+        incar_fd = default_from_dict.incar
+        assert incar_fd["GGA"] == "Pe"
+        assert incar_fd["ALGO"] == "Normal"
+        assert incar_fd["EDIFF"] == 1.0e-05
+        assert incar_fd["KSPACING"] == 0.22
+        assert incar_fd["ISMEAR"] == 0
+        assert incar_fd["SIGMA"] == 0.05
+        assert incar_fd["ENAUG"] == 1360
+        assert incar_fd["ENCUT"] == 680
+        assert incar_fd["NELM"] == 200
+        assert incar_fd["NSW"] == 0
+        assert incar_fd["LORBIT"] == 11
+        assert incar_fd["LASPH"]
+        assert incar_fd["LCHARG"]
+        assert incar_fd["LAECHG"]
+        assert incar_fd["LWAVE"] is None
+        assert incar_fd["LDAU"] is None
+        assert default.kpoints is None
 
-        # Check as from dict.
-        vis = MatPESStaticSet.from_dict(vis.as_dict())
-        # Check that INCAR settings were load from yaml.
-        assert vis.incar == CONFIG["INCAR"]
+        # check if prev_run settings will NOT override the default settings
+        prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/relaxation/INCAR")
+        prev_struc = Poscar.from_file(f"{TEST_FILES_DIR}/relaxation/POSCAR").structure
+        default_prev = MPStaticSet(structure=prev_struc, prev_incar=prev_incar)
+        incar_prev = default_prev.incar
+        assert incar_prev["GGA"] == "Pe"
+        assert incar_prev["ALGO"] == "Normal"
+        assert incar_prev["EDIFF"] == 1.0e-05
+        assert incar_prev["KSPACING"] == 0.22
+        assert incar_prev["ISMEAR"] == 0
+        assert incar_prev["SIGMA"] == 0.05
+        assert incar_prev["ENAUG"] == 1360
+        assert incar_prev["ENCUT"] == 680
+        assert incar_prev["NELM"] == 200
+        assert incar_prev["NSW"] == 0
+        assert incar_prev["LASPH"]
+        assert incar_prev["LCHARG"]
+        assert incar_prev["LAECHG"]
+        assert incar_prev["LWAVE"] is None
+        assert incar_prev["LDAU"] is None
+        assert default_prev.kpoints is None
 
-        prev_run_scan = f"{TEST_FILES_DIR}/scan_relaxation"
+        # check if user_incar_settings will override the default settings
+        default_non_prev = MatPESStaticSet(self.struct, user_incar_settings={"ENCUT": 800, "LORBIT": 12, "LWAVE": True})
+        incar_non_prev = default_non_prev.incar
+        assert incar_non_prev["ENCUT"] == 800
+        assert incar_non_prev["LORBIT"] == 12
+        assert incar_non_prev["LWAVE"]
+        assert default_non_prev.kpoints is None
 
-        vis_scan = MatPESStaticSet.from_prev_calc(prev_calc_dir=prev_run_scan, functional="R2SCAN")
-        # Check that INCAR settings were load from yaml, check the functional "R2SCAN".
-        assert vis_scan.incar["METAGGA"] == "R2SCAN"
-        assert vis_scan.incar["ALGO"] == "ALL"
+        # check if PBE+U functional can be applied
+        default_u = MPStaticSet(self.struct, functional="PBE+U")
+        incar_u = default_u.incar
+        assert incar_u["GGA"] == "Pe"
+        assert incar["ALGO"] == "Normal"
+        assert incar["LDAU"]
+        assert default.kpoints is None
 
-        # Check as from dict.
-        vis_scan = MatPESStaticSet.from_dict(vis_scan.as_dict())
-        # Check that INCAR settings were load from yaml.
-        assert vis_scan.incar["METAGGA"] == "R2SCAN"
-        assert vis_scan.incar["ALGO"] == "ALL"
+        # check if R2SCAN functional can be applied
+        scan = MPStaticSet(self.struct, functional="R2SCAN")
+        incar_scan = scan.incar
+        assert incar_scan["METAGGA"] == "R2SCAN"
+        assert incar_scan["GGA"] is None
+        assert incar_scan["ALGO"] == "ALL"
+        assert incar["LDAU"] is None
+        assert scan.kpoints is None
 
-        # test with changed user_incar_settings
-        non_prev_vis = MatPESStaticSet(vis.structure, user_incar_settings={"ENCUT": 800, "LORBIT": 12, "LWAVE": True})
-        # Check that the ENCUT and Kpoints style has NOT been inherited.
-        assert non_prev_vis.incar["ENCUT"] == 800
-        # Check that user incar settings are applied.
-        assert non_prev_vis.incar["LORBIT"] == 12
-        assert non_prev_vis.incar["LWAVE"]
-
-        non_prev_vis = MatPESStaticSet.from_dict(non_prev_vis.as_dict())
-        assert non_prev_vis.incar["ENCUT"] == 800
-        # Check that user incar settings are applied.
-        assert non_prev_vis.incar["LORBIT"] == 12
-        assert non_prev_vis.incar["LWAVE"]
-
-        # test R2SCAN with changed user_incar_settings
-        non_prev_vis_scan = MatPESStaticSet(
-            vis_scan.structure, functional="R2SCAN", user_incar_settings={"ENCUT": 800, "LORBIT": 12, "LWAVE": True}
-        )
-        # Check functional has been changed to R2SCAN
-        assert vis_scan.incar["METAGGA"] == "R2SCAN"
-        assert vis_scan.incar["ALGO"] == "ALL"
-        # Check that the ENCUT and Kpoints style has NOT been inherited.
-        assert non_prev_vis_scan.incar["ENCUT"] == 800
-        # Check that user incar settings are applied.
-        assert non_prev_vis_scan.incar["LORBIT"] == 12
-        assert non_prev_vis_scan.incar["LWAVE"]
-
-        non_prev_vis_scan = MatPESStaticSet.from_dict(non_prev_vis_scan.as_dict())
-        # Check functional has been changed to R2SCAN
-        assert vis_scan.incar["METAGGA"] == "R2SCAN"
-        assert vis_scan.incar["ALGO"] == "ALL"
-        assert non_prev_vis_scan.incar["ENCUT"] == 800
-        # Check that user incar settings are applied.
-        assert non_prev_vis_scan.incar["LORBIT"] == 12
-        assert non_prev_vis_scan.incar["LWAVE"]
+        # check if R2SCAN+U functional can be applied
+        scan_u = MPStaticSet(self.struct, functional="R2SCAN+U")
+        incar_scan_u = scan_u.incar
+        assert incar_scan_u["METAGGA"] == "R2SCAN"
+        assert incar_scan_u["GGA"] is None
+        assert incar_scan_u["ALGO"] == "ALL"
+        assert incar_scan_u["LDAU"]
+        assert scan_u.kpoints is None
 
 
 class TestMPNonSCFSet(PymatgenTest):
