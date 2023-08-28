@@ -7,16 +7,16 @@ Yin, L. et al.Thermodynamics of Antisite Defects in Layered NMC Cathodes: System
 Diffraction Analyses Chem. Mater 2020 32 (3), 1002-1010. 10.1021/acs.chemmater.9b03646
 
 """
+from __future__ import annotations
 
 import os
+
 import numpy as np
 import pandas as pd
 import plotly.express as px
 
-
 # Load in the neutron form factors
-with open(os.path.join(os.path.dirname(__file__),
-                       "neutron_factors.csv")) as f:
+with open(os.path.join(os.path.dirname(__file__), "neutron_factors.csv")) as f:
     NEUTRON_SCATTER_DF = pd.read_csv(f)
     # from http://www.ccp14.ac.uk/ccp/web-mirrors/neutrons/n-scatter/n-lengths/LIST~1.HTM
 
@@ -26,7 +26,7 @@ class FStarDiagram:
     Take a list of structure objects and/or cifs and use them to generate an f* phase diagram.
     """
 
-    def __init__(self, structures, scattering_type='X-ray', custom_scatter=None):
+    def __init__(self, structures, scattering_type="X-ray", custom_scatter=None):
         """
         Initialize the f* diagram generator with the list of structures and scattering type.
 
@@ -35,7 +35,7 @@ class FStarDiagram:
                 objects.
             scattering_type(str): Type of scattering to use in the f* calculation. Defaults to 'X-ray'
                 which uses the atomic number as the scattering factor. 'Neutron' is a built in scattering
-                type which uses neutron scattering factors. 'Custom' allows the user to supplement their 
+                type which uses neutron scattering factors. 'Custom' allows the user to supplement their
                 own calculation with any set of scattering factors.
             custom_scatter(function): when using custom scattering set this equal to a global varialble that is equal
                 to the custom scattering function.
@@ -47,10 +47,12 @@ class FStarDiagram:
         self._equiv_inds = [struct.equivalent_indices for struct in self._structures]
         self.site_labels = self.get_site_labels()
         self.coords = self.get_fstar_coords()
-        self.plot = px.scatter_ternary(data_frame=self.coords, a=self.site_labels[0], b=self.site_labels[1],
-                                       c=self.site_labels[2])
+        self.plot = px.scatter_ternary(
+            data_frame=self.coords, a=self.site_labels[0], b=self.site_labels[1], c=self.site_labels[2]
+        )
         print("The labels for this structure's unique sites are")
         print(self.site_labels)
+
     def edit_fstar_diagram(self, combine_list=False, plot_list=False, **kwargs):
         """
         Edit the plot of the f* diagram using plotly express.
@@ -68,11 +70,13 @@ class FStarDiagram:
                 if str(combo) not in self.site_labels:
                     self.site_labels.append(str(combo))
         if plot_list:
-            self.plot = px.scatter_ternary(data_frame=self.coords, a=plot_list[0], b=plot_list[1], c=plot_list[2],
-                                           **kwargs)
+            self.plot = px.scatter_ternary(
+                data_frame=self.coords, a=plot_list[0], b=plot_list[1], c=plot_list[2], **kwargs
+            )
         else:
-            self.plot = px.scatter_ternary(data_frame=self.coords, a=self.site_labels[0], b=self.site_labels[1],
-                                           c=self.site_labels[2], **kwargs)
+            self.plot = px.scatter_ternary(
+                data_frame=self.coords, a=self.site_labels[0], b=self.site_labels[1], c=self.site_labels[2], **kwargs
+            )
 
     def get_site_labels(self):
         """
@@ -110,9 +114,10 @@ class FStarDiagram:
         site_labels_fin = []
         for ind1, struct in enumerate(self._equiv_inds):
             site_labels = []
-            for ind2, site in enumerate(struct):
-                label = str(self._structures[ind1][site[0]].frac_coords) + \
-                        [str(sp) for sp, occ in self._structures[ind1][site[0]].species.items()][0]
+            for _ind2, site in enumerate(struct):
+                label = str(self._structures[ind1][site[0]].frac_coords) + next(
+                    str(sp) for sp, occ in self._structures[ind1][site[0]].species.items()
+                )
                 if label not in site_labels:
                     site_labels.append(label)
             if len(site_labels) > len(site_labels_fin):
@@ -120,7 +125,6 @@ class FStarDiagram:
         return site_labels_fin
 
     def get_fstar_coords(self):
-
         """
         Calculate the f* coordinates for the list of structures.
         """
@@ -136,23 +140,23 @@ class FStarDiagram:
                 column = [label for label in self.site_labels if site_frac_coord in label]
                 elements_and_occupancies = self._structures[ind1][site[0]].species.items()
                 for sp, occ in elements_and_occupancies:
-                    if self._scatter == 'X-ray':
+                    if self._scatter == "X-ray":
                         f_occ = sp.Z * occ
-                    if self._scatter == 'Neutron':
-                        for i, n in enumerate(NEUTRON_SCATTER_DF['Isotope'].values):
+                    if self._scatter == "Neutron":
+                        for i, n in enumerate(NEUTRON_SCATTER_DF["Isotope"].values):
                             if hasattr(sp, "element"):
                                 if n == str(sp.element):
-                                    f_occ = float(NEUTRON_SCATTER_DF.loc[i]['Coh b']) * occ
+                                    f_occ = float(NEUTRON_SCATTER_DF.loc[i]["Coh b"]) * occ
                                     break
                                 else:
                                     continue
                             else:
                                 if n == str(sp):
-                                    f_occ = float(NEUTRON_SCATTER_DF.loc[i]['Coh b']) * occ
+                                    f_occ = float(NEUTRON_SCATTER_DF.loc[i]["Coh b"]) * occ
                                     break
                                 else:
                                     continue
-                    if self._scatter == 'Custom':
+                    if self._scatter == "Custom":
                         if hasattr(sp, "element"):
                             f_occ = self._custscat(str(sp.element), occ, ind1, ind2)
                         else:
