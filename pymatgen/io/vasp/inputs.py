@@ -127,7 +127,8 @@ class Poscar(MSONable):
                 self.structure = self.structure.get_sorted_structure()
             self.true_names = true_names
             self.comment = structure.formula if comment is None else comment
-            self.predictor_corrector_preamble = predictor_corrector_preamble
+            if predictor_corrector_preamble:
+                self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into POSCAR!")
 
@@ -148,6 +149,11 @@ class Poscar(MSONable):
         """Predictor corrector in Poscar."""
         return self.structure.site_properties.get("predictor_corrector")
 
+    @property
+    def predictor_corrector_preamble(self):
+        """Predictor corrector preamble in Poscar."""
+        return self.structure.properties.get("predictor_corrector_preamble")
+
     @velocities.setter  # type: ignore
     def velocities(self, velocities):
         """Setter for Poscar.velocities."""
@@ -162,6 +168,11 @@ class Poscar(MSONable):
     def predictor_corrector(self, predictor_corrector):
         """Setter for Poscar.predictor_corrector."""
         self.structure.add_site_property("predictor_corrector", predictor_corrector)
+
+    @predictor_corrector_preamble.setter  # type: ignore
+    def predictor_corrector_preamble(self, predictor_corrector_preamble):
+        """Setter for Poscar.predictor_corrector."""
+        self.structure.properties["predictor_corrector"] = predictor_corrector_preamble
 
     @property
     def site_symbols(self):
@@ -1482,9 +1493,6 @@ class Kpoints(MSONable):
             f.write(str(self))
 
     def __repr__(self):
-        return str(self)
-
-    def __str__(self):
         lines = [self.comment, str(self.num_kpts), self.style.name]
         style = self.style.name.lower()[0]
         if style == "l":
@@ -2173,18 +2181,23 @@ class PotcarSingle:
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
 
-    def __getattr__(self, a):
-        """
-        Delegates attributes to keywords. For example, you can use
-        potcarsingle.enmax to get the ENMAX of the POTCAR.
+    def __getattr__(self, attr: str) -> Any:
+        """Delegates attributes to keywords. For example, you can use potcarsingle.enmax to get the ENMAX of the POTCAR.
 
         For float type properties, they are converted to the correct float. By
         default, all energies in eV and all length scales are in Angstroms.
         """
         try:
-            return self.keywords[a.upper()]
+            return self.keywords[attr.upper()]
         except Exception:
-            raise AttributeError(a)
+            raise AttributeError(attr)
+
+    def __repr__(self) -> str:
+        cls_name = type(self).__name__
+        symbol, functional = self.symbol, self.functional
+        TITEL, VRHFIN = self.keywords["TITEL"], self.keywords["VRHFIN"]
+        TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
+        return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
 
 class Potcar(list, MSONable):

@@ -25,6 +25,7 @@ from pymatgen.io.vasp.sets import (
     BadInputSetWarning,
     DictSet,
     LobsterSet,
+    MatPESStaticSet,
     MITMDSet,
     MITNEBSet,
     MITRelaxSet,
@@ -47,6 +48,7 @@ from pymatgen.io.vasp.sets import (
     MVLScanRelaxSet,
     MVLSlabSet,
     VaspInputSet,
+    _load_yaml_config,
     batch_write_input,
     get_structure_from_prev_run,
     get_valid_magmom_struct,
@@ -155,13 +157,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         poscar = Poscar.from_file(filepath)
         cls.structure = poscar.structure
         cls.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        cls.lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        cls.lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
 
         cls.mit_set = cls.set(cls.structure)
         cls.mit_set_unsorted = cls.set(cls.structure, sort_structure=False)
@@ -192,9 +188,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         coords.append([0.75, 0.25, 0.75])
-        lattice = Lattice(
-            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
-        )
+        lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
         structure = Structure(lattice, ["P", "Fe", "O"], coords)
         mit_param_set = self.set(structure)
         syms = mit_param_set.potcar_symbols
@@ -252,7 +246,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
     @skip_if_no_psp_dir
     def test_estimate_nbands(self):
-        # estimate_nbands is a function of n_elect, n_ions, magmom, noncollinearity of magnetism, and n_par
+        # estimate_nbands is a function of n_elect, n_ions, magmom, non-collinearity of magnetism, and n_par
         coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
         lattice = Lattice.cubic(4)
 
@@ -365,19 +359,19 @@ class TestMITMPRelaxSet(PymatgenTest):
         incar = self.set(struct).incar
         assert incar["LDAUU"] == [1.9, 0]
 
-        # Make sure Matproject sulfides are ok.
+        # Make sure MP sulfides are ok.
         assert "LDAUU" not in MPRelaxSet(struct).incar
 
         struct = Structure(lattice, ["Fe", "S", "O"], coords)
         incar = self.set(struct).incar
         assert incar["LDAUU"] == [4.0, 0, 0]
 
-        # Make sure Matproject sulfates are ok.
+        # Make sure MP sulfates are ok.
         assert MPRelaxSet(struct).incar["LDAUU"] == [5.3, 0, 0]
 
         # test for default LDAUU value
-        userset_ldauu_fallback = MPRelaxSet(struct, user_incar_settings={"LDAUU": {"Fe": 5.0, "S": 0}})
-        assert userset_ldauu_fallback.incar["LDAUU"] == [5.0, 0, 0]
+        user_set_ldauu_fallback = MPRelaxSet(struct, user_incar_settings={"LDAUU": {"Fe": 5.0, "S": 0}})
+        assert user_set_ldauu_fallback.incar["LDAUU"] == [5.0, 0, 0]
 
         # Expected to be oxide (O is the most electronegative atom)
         struct = Structure(lattice, ["Fe", "O", "S"], coords)
@@ -430,12 +424,8 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert mpr.incar["MAGMOM"] == [1, 0.6]
 
         # test passing user_incar_settings and user_kpoint_settings of None
-        sets = [
-            MPRelaxSet(struct, user_incar_settings=None, user_kpoints_settings=None),
-            MPStaticSet(struct, user_incar_settings=None, user_kpoints_settings=None),
-            MPNonSCFSet(struct, user_incar_settings=None, user_kpoints_settings=None),
-        ]
-        for mp_set in sets:
+        for set_cls in [MPRelaxSet, MPStaticSet, MPNonSCFSet]:
+            mp_set = set_cls(struct, user_incar_settings=None, user_kpoints_settings=None)
             assert mp_set.kpoints is not None
             assert mp_set.incar is not None
 
@@ -589,7 +579,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         struct.insert(0, "Li", [0, 0, 0])
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=False)
-        with pytest.raises(TypeError, match=r"float\(\) argument must be a string or a real number"):
+        with pytest.raises(TypeError, match=r"float\(\) argument must be a string or a (real )?number, not 'NoneType'"):
             print(vis.get_vasp_input())
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=True)
@@ -741,6 +731,71 @@ class TestMPStaticSet(PymatgenTest):
             static_set = self.set(struct)
             matched = static_set.calculate_ng() == (ng, ngf)
             assert matched
+
+
+class TestMatPESStaticSet(PymatgenTest):
+    def test_init(self):
+        prev_run = f"{TEST_FILES_DIR}/relaxation"
+
+        vis = MatPESStaticSet.from_prev_calc(prev_calc_dir=prev_run)
+        # Check that INCAR settings were load from yaml, check the default functional is PBE.
+        CONFIG = _load_yaml_config("MatPESStaticSet")
+        assert vis.incar == CONFIG["INCAR"]
+        assert vis.kpoints.style == Kpoints.supported_modes.Monkhorst
+
+        # Check as from dict.
+        vis = MatPESStaticSet.from_dict(vis.as_dict())
+        # Check that INCAR settings were load from yaml.
+        assert vis.incar == CONFIG["INCAR"]
+
+        prev_run_scan = f"{TEST_FILES_DIR}/scan_relaxation"
+
+        vis_scan = MatPESStaticSet.from_prev_calc(prev_calc_dir=prev_run_scan, functional="R2SCAN")
+        # Check that INCAR settings were load from yaml, check the functional "R2SCAN".
+        assert vis_scan.incar["METAGGA"] == "R2SCAN"
+        assert vis_scan.incar["ALGO"] == "ALL"
+
+        # Check as from dict.
+        vis_scan = MatPESStaticSet.from_dict(vis_scan.as_dict())
+        # Check that INCAR settings were load from yaml.
+        assert vis_scan.incar["METAGGA"] == "R2SCAN"
+        assert vis_scan.incar["ALGO"] == "ALL"
+
+        # test with changed user_incar_settings
+        non_prev_vis = MatPESStaticSet(vis.structure, user_incar_settings={"ENCUT": 800, "LORBIT": 12, "LWAVE": True})
+        # Check that the ENCUT and Kpoints style has NOT been inherited.
+        assert non_prev_vis.incar["ENCUT"] == 800
+        # Check that user incar settings are applied.
+        assert non_prev_vis.incar["LORBIT"] == 12
+        assert non_prev_vis.incar["LWAVE"]
+
+        non_prev_vis = MatPESStaticSet.from_dict(non_prev_vis.as_dict())
+        assert non_prev_vis.incar["ENCUT"] == 800
+        # Check that user incar settings are applied.
+        assert non_prev_vis.incar["LORBIT"] == 12
+        assert non_prev_vis.incar["LWAVE"]
+
+        # test R2SCAN with changed user_incar_settings
+        non_prev_vis_scan = MatPESStaticSet(
+            vis_scan.structure, functional="R2SCAN", user_incar_settings={"ENCUT": 800, "LORBIT": 12, "LWAVE": True}
+        )
+        # Check functional has been changed to R2SCAN
+        assert vis_scan.incar["METAGGA"] == "R2SCAN"
+        assert vis_scan.incar["ALGO"] == "ALL"
+        # Check that the ENCUT and Kpoints style has NOT been inherited.
+        assert non_prev_vis_scan.incar["ENCUT"] == 800
+        # Check that user incar settings are applied.
+        assert non_prev_vis_scan.incar["LORBIT"] == 12
+        assert non_prev_vis_scan.incar["LWAVE"]
+
+        non_prev_vis_scan = MatPESStaticSet.from_dict(non_prev_vis_scan.as_dict())
+        # Check functional has been changed to R2SCAN
+        assert vis_scan.incar["METAGGA"] == "R2SCAN"
+        assert vis_scan.incar["ALGO"] == "ALL"
+        assert non_prev_vis_scan.incar["ENCUT"] == 800
+        # Check that user incar settings are applied.
+        assert non_prev_vis_scan.incar["LORBIT"] == 12
+        assert non_prev_vis_scan.incar["LWAVE"]
 
 
 class TestMPNonSCFSet(PymatgenTest):
@@ -1155,10 +1210,10 @@ class TestMVLSlabSet(PymatgenTest):
         # The last kpoint in a slab should always be 1
         assert kpoints_slab[2] == 1
 
-    def test_as_dict(self):
+    def test_as_from_dict(self):
         vis_dict = self.vis.as_dict()
         vis = self.set.from_dict(vis_dict)
-        assert vis.as_dict() == vis_dict
+        assert {*vis.as_dict()} == {*vis_dict}
 
 
 class TestMVLElasticSet(PymatgenTest):

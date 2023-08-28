@@ -23,3 +23,8 @@ class TestLibxcFunc(PymatgenTest):
 
         # Test if object supports MSONable
         self.assert_msonable(xc, test_is_subclass=False)
+
+    def test_repr(self):
+        """Test LibxcFunc.__repr__"""
+        xc = LibxcFunc.LDA_C_HL
+        assert repr(xc) == "LibxcFunc(name='LDA_C_HL', kind='CORRELATION', family='LDA')"

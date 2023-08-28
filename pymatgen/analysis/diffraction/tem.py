@@ -99,7 +99,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         points = [0, 0, 0]
         coord_values = np.arange(coord_left, coord_right + 1)
         points[0], points[1], points[2] = np.meshgrid(coord_values, coord_values, coord_values)  # type: ignore
-        points_matrix = (np.ravel(points[i]) for i in range(0, 3))
+        points_matrix = (np.ravel(points[i]) for i in range(3))
         return np.vstack(list(points_matrix)).transpose()
 
     def zone_axis_filter(

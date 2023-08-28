@@ -47,6 +47,7 @@ class SymmetrizedStructure(Structure):
             [site.species for site in structure],
             structure.frac_coords,
             site_properties=structure.site_properties,
+            properties=structure.properties,
         )
 
         equivalent_indices: list[list[int]] = [[] for _ in range(len(uniq))]

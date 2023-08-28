@@ -1456,14 +1456,14 @@ class OpenBabelNN(NearNeighbors):
         """
         from pymatgen.io.babel import BabelMolAdaptor
 
-        obmol = BabelMolAdaptor(structure).openbabel_mol
+        ob_mol = BabelMolAdaptor(structure).openbabel_mol
 
         siw = []
 
         # Get only the atom of interest
         site_atom = next(
             a
-            for i, a in enumerate(openbabel.OBMolAtomDFSIter(obmol))
+            for i, a in enumerate(openbabel.OBMolAtomDFSIter(ob_mol))
             if [a.GetX(), a.GetY(), a.GetZ()] == list(structure[n].coords)
         )
 
@@ -1475,7 +1475,7 @@ class OpenBabelNN(NearNeighbors):
             bond = site_atom.GetBond(neighbor)
 
             if self.order:
-                obmol.PerceiveBondOrders()
+                ob_mol.PerceiveBondOrders()
                 weight = bond.GetBondOrder()
             else:
                 weight = bond.GetLength()
@@ -1969,15 +1969,13 @@ def get_okeeffe_params(el_symbol):
         el_symbol (str): element symbol.
 
     Returns:
-        (dict): atom-size ('r') and electronegativity-related ('c')
-                parameter.
+        (dict): atom-size ('r') and electronegativity-related ('c') parameter.
     """
     el = Element(el_symbol)
     if el not in list(BV_PARAMS):
         raise RuntimeError(
             "Could not find O'Keeffe parameters for element"
-            f' {el_symbol!r} in "BV_PARAMS"dictionary'
-            " provided by pymatgen"
+            f' {el_symbol!r} in "BV_PARAMS" dictionary provided by pymatgen'
         )
 
     return BV_PARAMS[el]
@@ -2068,14 +2066,7 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10, 
     Returns: motif type (str).
     """
     if thresh is None:
-        thresh = {
-            "qtet": 0.5,
-            "qoct": 0.5,
-            "qbcc": 0.5,
-            "q6": 0.4,
-            "qtribipyr": 0.8,
-            "qsqpyr": 0.8,
-        }
+        thresh = {"qtet": 0.5, "qoct": 0.5, "qbcc": 0.5, "q6": 0.4, "qtribipyr": 0.8, "qsqpyr": 0.8}
 
     ops = LocalStructOrderParams(["cn", "tet", "oct", "bcc", "q6", "sq_pyr", "tri_bipyr"])
 
@@ -2371,8 +2362,7 @@ class LocalStructOrderParams:
     def num_ops(self):
         """
         Returns:
-            int: the number of different order parameters that are targeted
-                to be calculated.
+            int: the number of different order parameters that are targeted to be calculated.
         """
         return len(self._types)
 
@@ -2382,8 +2372,7 @@ class LocalStructOrderParams:
         Returns:
             int: the number of neighbors encountered during the most
                 recent order parameter calculation. A value of -1 indicates
-                that no such calculation has yet been performed for this
-                instance.
+                that no such calculation has yet been performed for this instance.
         """
         return len(self._last_nneigh)
 

@@ -43,7 +43,7 @@ def test_energy_adjustment_repr():
     for cls, label in ((None, "unknown"), (comp_cls, cls_name), ({"@class": cls_name}, cls_name)):
         ea = EnergyAdjustment(10, cls=cls)
         assert (
-            repr(ea) == "EnergyAdjustment(name='Manual adjustment', value=10.0, uncertainty=nan, description=, "
+            repr(ea) == "EnergyAdjustment(name='Manual adjustment', value=10.0, uncertainty=nan, description='', "
             f"generated_by='{label}')"
         )
 

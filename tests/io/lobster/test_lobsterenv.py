@@ -45,7 +45,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             additional_condition=0,
         )
 
-        # only cation cation, anion anion bonds
+        # only cation-cation, anion-anion bonds
         self.chemenvlobster5 = LobsterNeighbors(
             are_coops=False,
             filename_ICOHP=f"{test_dir_env}/ICOHPLIST.lobster.mp_190.gz",
@@ -53,7 +53,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             additional_condition=5,
         )
 
-        # only cation cation bonds
+        # only cation-cation bonds
         self.chemenvlobster6 = LobsterNeighbors(
             are_coops=False,
             filename_ICOHP=f"{test_dir_env}/ICOHPLIST.lobster.mp_190.gz",

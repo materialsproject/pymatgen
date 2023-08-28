@@ -982,7 +982,7 @@ class TestPotcarSingle:
         assert config[-1] == (3, "p", 6)
 
     def test_attributes(self):
-        for k in [
+        for key in [
             "DEXC",
             "RPACOR",
             "ENMAX",
@@ -1001,7 +1001,7 @@ class TestPotcarSingle:
             "POMASS",
             "RWIGS",
         ]:
-            assert getattr(self.psingle, k) is not None
+            assert getattr(self.psingle, key) is not None
 
     def test_found_unknown_key(self):
         with pytest.raises(KeyError, match="BAD_KEY"):
@@ -1084,6 +1084,12 @@ class TestPotcarSingle:
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
     #     assert p.functional_class == "LDA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
+
+    def test_repr(self):
+        assert (
+            repr(self.psingle) == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000',"
+            " VRHFIN='Mn: 3p4s3d', n_valence_elec=13)"
+        )
 
 
 class TestPotcar:
