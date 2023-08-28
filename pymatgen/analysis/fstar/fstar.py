@@ -11,16 +11,10 @@ Diffraction Analyses Chem. Mater 2020 32 (3), 1002-1010. 10.1021/acs.chemmater.9
 import os
 import numpy as np
 import pandas as pd
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import plotly.express as px
 
 
-# Load in the form factors
-
-with open(os.path.join(os.path.dirname(__file__),
-                       "xray_factors_2.csv")) as f:
-    X_RAY_SCATTER_DF = pd.read_csv(f)
-    # from https://it.iucr.org/Cb/ch6o1v0001/ table 6.1.1.4
+# Load in the neutron form factors
 with open(os.path.join(os.path.dirname(__file__),
                        "neutron_factors.csv")) as f:
     NEUTRON_SCATTER_DF = pd.read_csv(f)
@@ -32,23 +26,22 @@ class FStarDiagram:
     Take a list of structure objects and/or cifs and use them to generate an f* phase diagram.
     """
 
-    def __init__(self, structures, scattering_type='X-ray_simple', custom_scatter=None):
+    def __init__(self, structures, scattering_type='X-ray', custom_scatter=None):
         """
         Initialize the f* diagram generator with the list of structures and scattering type.
 
         Args:
-            structures(list): List of structure objects to use in the diagram. These must be symmetrized structure
+            structures(list): List of structure objects to use in the diagram. These MUST be symmetrized structure
                 objects.
-            scattering_type(str): Type of scattering to use in the f* calculation. Defaults to 'X-ray_simple'
-                which uses the atomic number as the scattering factor. 'X-ray' and 'Neutron' are built in scattering
-                types which use X-ray and neutron scattering factors, respectively. 'Custom' allows the user to
-                supplement their own calculation with any set of scattering factors.
+            scattering_type(str): Type of scattering to use in the f* calculation. Defaults to 'X-ray'
+                which uses the atomic number as the scattering factor. 'Neutron' is a built in scattering
+                type which uses neutron scattering factors. 'Custom' allows the user to supplement their 
+                own calculation with any set of scattering factors.
             custom_scatter(function): when using custom scattering set this equal to a global varialble that is equal
                 to the custom scattering function.
         """
 
-        self._structures = [SpacegroupAnalyzer(structure).get_symmetrized_structure() for structure in
-                            structures]
+        self._structures = structures
         self._scatter = scattering_type
         self._custscat = custom_scatter
         self._equiv_inds = [struct.equivalent_indices for struct in self._structures]
@@ -143,29 +136,8 @@ class FStarDiagram:
                 column = [label for label in self.site_labels if site_frac_coord in label]
                 elements_and_occupancies = self._structures[ind1][site[0]].species.items()
                 for sp, occ in elements_and_occupancies:
-                    if self._scatter == 'X-ray_simple':
-                        f_occ = sp.Z * occ
                     if self._scatter == 'X-ray':
-                        for i, n in enumerate(X_RAY_SCATTER_DF['atom'].values):
-                            if hasattr(sp, "element"):
-                                if n == str(sp.element):
-                                    f_occ = round(
-                                        sum([X_RAY_SCATTER_DF.loc[i]['a1'], X_RAY_SCATTER_DF.loc[i]['a2'],
-                                             X_RAY_SCATTER_DF.loc[i]['a3'],
-                                             X_RAY_SCATTER_DF.loc[i]['a4'], X_RAY_SCATTER_DF.loc[i]['c']]), 0) * occ
-                                    break
-                                else:
-                                    continue
-                            else:
-                                if n == str(sp):
-                                    f_occ = round(
-                                        sum([X_RAY_SCATTER_DF.loc[i]['a1'], X_RAY_SCATTER_DF.loc[i]['a2'],
-                                             X_RAY_SCATTER_DF.loc[i]['a3'],
-                                             X_RAY_SCATTER_DF.loc[i]['a4'], X_RAY_SCATTER_DF.loc[i]['c']]), 0) * occ
-                                    break
-                                else:
-                                    continue
-
+                        f_occ = sp.Z * occ
                     if self._scatter == 'Neutron':
                         for i, n in enumerate(NEUTRON_SCATTER_DF['Isotope'].values):
                             if hasattr(sp, "element"):
