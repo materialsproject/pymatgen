@@ -76,7 +76,7 @@ class FStarDiagram:
 
     def get_site_labels(self):
         """
-        Generates unique site labels based on composition, order, and symetry equivalence in the structure object.
+        Generates unique site labels based on composition, order, and symmetry equivalence in the structure object.
         Ex:
         Structure Summary
         Lattice
@@ -144,14 +144,10 @@ class FStarDiagram:
                                 if n == str(sp.element):
                                     f_occ = float(NEUTRON_SCATTER_DF.loc[i]['Coh b']) * occ
                                     break
-                                else:
-                                    continue
                             else:
                                 if n == str(sp):
                                     f_occ = float(NEUTRON_SCATTER_DF.loc[i]['Coh b']) * occ
                                     break
-                                else:
-                                    continue
                     if self._scatter == 'Custom':
                         if hasattr(sp, "element"):
                             f_occ = self._custscat(str(sp.element), occ, ind1, ind2)

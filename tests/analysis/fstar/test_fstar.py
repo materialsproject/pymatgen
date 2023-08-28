@@ -23,8 +23,8 @@ class Test_FStarDiagram(PymatgenTest):
         new.edit_fstar_diagram(combine_list=[['[0.  0.  0.5]Co', '[0. 0. 0.]Li']])
         self.assertEqual(new.site_labels, ['[0. 0. 0.]Li', '[0.  0.  0.5]Co', '[0.   0.   0.25]O',
                                            "['[0.  0.  0.5]Co', '[0. 0. 0.]Li']"])
-        self.assertEqual(list(new.coords["['[0.  0.  0.5]Co', '[0. 0. 0.]Li']"].values),
-                         list(self.fstar.coords['[0. 0. 0.]Li'].values+self.fstar.coords['[0.  0.  0.5]Co'].values))
+        self.assertEqual(list(new.coords["['[0.  0.  0.5]Co', '[0. 0. 0.]Li']"].to_numpy()),
+                         list(self.fstar.coords['[0. 0. 0.]Li'].values+self.fstar.coords['[0.  0.  0.5]Co'].to_numpy()))
         self.assertEqual(self.fstar.plot, new.plot)
         new.edit_fstar_diagram(plot_list=['[0.  0.  0.5]Co', '[0.   0.   0.25]O', '[0. 0. 0.]Li'])
         self.assertTrue(self.fstar.plot != new.plot)
