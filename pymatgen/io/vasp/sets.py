@@ -1232,6 +1232,8 @@ class MatPESStaticSet(DictSet):
             structure (Structure): Structure from previous run.
             functional ('R2SCAN' | 'R2SCAN+U' | 'PBE' | 'PBE+U'): Which functional to use and whether to include
                 Hubbard U corrections. Defaults to 'PBE'.
+            prev_incar (Incar): Incar file from previous run. We do not want to update the current INCAR
+            settings except the new settings added by Custodian.
             **kwargs: Passed to MPStaticSet.
         """
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
