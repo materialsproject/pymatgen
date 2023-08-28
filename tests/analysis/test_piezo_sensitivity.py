@@ -49,14 +49,14 @@ class TestPiezoSensitivity(PymatgenTest):
         self.piezo = np.array(
             [
                 [
-                    [5.32649351e-03, -1.33404642e-14, -6.86958142e02],
-                    [-1.33404642e-14, 4.95526253e-03, -5.60353712e-13],
-                    [-6.86958142e02, -5.60353712e-13, 1.33209787e-02],
+                    [5.32649351e-3, -1.33404642e-14, -6.86958142e02],
+                    [-1.33404642e-14, 4.95526253e-3, -5.60353712e-13],
+                    [-6.86958142e02, -5.60353712e-13, 1.33209787e-2],
                 ],
                 [
-                    [4.86622567e-03, 3.14840965e-13, -7.41608150e-13],
-                    [3.14840965e-13, 5.23745666e-03, -6.68536818e02],
-                    [-7.41608150e-13, -6.68536818e02, 1.35025755e-02],
+                    [4.86622567e-3, 3.14840965e-13, -7.41608150e-13],
+                    [3.14840965e-13, 5.23745666e-3, -6.68536818e02],
+                    [-7.41608150e-13, -6.68536818e02, 1.35025755e-2],
                 ],
                 [
                     [-1.01086427e02, 3.20177004e-14, -3.68487214e-14],
@@ -95,7 +95,7 @@ class TestPiezoSensitivity(PymatgenTest):
                 assert_allclose(
                     rand_BEC[self.BEC_operations[i][0]],
                     self.BEC_operations[i][2][j].transform_tensor(rand_BEC[self.BEC_operations[i][1]]),
-                    atol=1e-03,
+                    atol=1e-3,
                 )
 
     def test_get_rand_IST(self):
@@ -107,7 +107,7 @@ class TestPiezoSensitivity(PymatgenTest):
                 assert_allclose(
                     rand_IST[i],
                     self.IST_operations[i][j][1].transform_tensor(rand_IST[self.IST_operations[i][j][0]]),
-                    atol=1e-03,
+                    atol=1e-3,
                 )
 
     def test_get_FCM_operations(self):
@@ -130,7 +130,7 @@ class TestPiezoSensitivity(PymatgenTest):
                         rand_FCM[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                     ),
                     rand_FCM[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
-                    atol=1e-04,
+                    atol=1e-4,
                 )
 
     def test_get_FCM_symmetry(self):
@@ -146,7 +146,7 @@ class TestPiezoSensitivity(PymatgenTest):
                         fcm[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                     ),
                     fcm[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
-                    atol=1e-04,
+                    atol=1e-4,
                 )
 
     def test_get_asum_FCM(self):
@@ -163,7 +163,7 @@ class TestPiezoSensitivity(PymatgenTest):
                         rand_FCM[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                     ),
                     rand_FCM[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
-                    atol=1e-04,
+                    atol=1e-4,
                 )
 
         for i in range(len(rand_FCM)):
@@ -172,8 +172,8 @@ class TestPiezoSensitivity(PymatgenTest):
             for j in range(len(rand_FCM[i])):
                 asum1 += rand_FCM[i][j]
                 asum2 += rand_FCM[j][i]
-            assert_allclose(asum1, np.zeros([3, 3]), atol=1e-05)
-            assert_allclose(asum2, np.zeros([3, 3]), atol=1e-05)
+            assert_allclose(asum1, np.zeros([3, 3]), atol=1e-5)
+            assert_allclose(asum2, np.zeros([3, 3]), atol=1e-5)
 
     def test_get_stable_FCM(self):
         fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
@@ -184,7 +184,7 @@ class TestPiezoSensitivity(PymatgenTest):
         eigs, vecs = np.linalg.eig(rand_FCM1)
         eigsort = np.argsort(np.abs(eigs))
         for i in range(3, len(eigs)):
-            assert eigs[eigsort[i]] < 1e-06
+            assert eigs[eigsort[i]] < 1e-6
 
         rand_FCM1 = np.reshape(rand_FCM1, (10, 3, 10, 3)).swapaxes(1, 2)
 
@@ -195,7 +195,7 @@ class TestPiezoSensitivity(PymatgenTest):
                         rand_FCM1[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                     ),
                     rand_FCM1[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
-                    atol=1e-04,
+                    atol=1e-4,
                 )
 
         for i in range(len(rand_FCM1)):
@@ -204,8 +204,8 @@ class TestPiezoSensitivity(PymatgenTest):
             for j in range(len(rand_FCM1[i])):
                 asum1 += rand_FCM1[i][j]
                 asum2 += rand_FCM1[j][i]
-            assert_allclose(asum1, np.zeros([3, 3]), atol=1e-05)
-            assert_allclose(asum2, np.zeros([3, 3]), atol=1e-05)
+            assert_allclose(asum1, np.zeros([3, 3]), atol=1e-5)
+            assert_allclose(asum2, np.zeros([3, 3]), atol=1e-5)
 
     def test_rand_FCM(self):
         pytest.importorskip("phonopy")
@@ -232,7 +232,7 @@ class TestPiezoSensitivity(PymatgenTest):
         eigs, vecs = np.linalg.eig(dynmass)
         eigsort = np.argsort(np.abs(eigs))
         for i in range(3, len(eigs)):
-            assert eigs[eigsort[i]] < 1e-06
+            assert eigs[eigsort[i]] < 1e-6
         # rand_FCM1 = np.reshape(rand_FCM1, (10,3,10,3)).swapaxes(1,2)
 
         dynmass = np.reshape(dynmass, (10, 3, 10, 3)).swapaxes(1, 2)
@@ -243,7 +243,7 @@ class TestPiezoSensitivity(PymatgenTest):
                         dynmass[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                     ),
                     dynmass[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
-                    atol=1e-04,
+                    atol=1e-4,
                 )
 
         for i in range(len(dynmass)):
@@ -252,12 +252,12 @@ class TestPiezoSensitivity(PymatgenTest):
             for j in range(len(dynmass[i])):
                 asum1 += dynmass[i][j]
                 asum2 += dynmass[j][i]
-            assert_allclose(asum1, np.zeros([3, 3]), atol=1e-05)
-            assert_allclose(asum2, np.zeros([3, 3]), atol=1e-05)
+            assert_allclose(asum1, np.zeros([3, 3]), atol=1e-5)
+            assert_allclose(asum2, np.zeros([3, 3]), atol=1e-5)
 
     def test_get_piezo(self):
         piezo = get_piezo(self.BEC, self.IST, self.FCM)
-        assert_allclose(piezo, self.piezo, atol=1e-05)
+        assert_allclose(piezo, self.piezo, atol=1e-5)
 
     def test_rand_piezo(self):
         pytest.importorskip("phonopy")
@@ -275,7 +275,7 @@ class TestPiezoSensitivity(PymatgenTest):
                 assert_allclose(
                     rand_BEC[self.BEC_operations[i][0]],
                     self.BEC_operations[i][2][j].transform_tensor(rand_BEC[self.BEC_operations[i][1]]),
-                    atol=1e-03,
+                    atol=1e-3,
                 )
 
         for i in range(len(self.IST_operations)):
@@ -283,7 +283,7 @@ class TestPiezoSensitivity(PymatgenTest):
                 assert_allclose(
                     rand_IST[i],
                     self.IST_operations[i][j][1].transform_tensor(rand_IST[self.IST_operations[i][j][0]]),
-                    atol=1e-03,
+                    atol=1e-3,
                 )
 
         structure = pymatgen.io.phonopy.get_phonopy_structure(self.piezo_struc)
@@ -306,7 +306,7 @@ class TestPiezoSensitivity(PymatgenTest):
         eigs, vecs = np.linalg.eig(dynmass)
         eigsort = np.argsort(np.abs(eigs))
         for i in range(3, len(eigs)):
-            assert eigs[eigsort[i]] < 1e-06
+            assert eigs[eigsort[i]] < 1e-6
         # rand_FCM1 = np.reshape(rand_FCM1, (10,3,10,3)).swapaxes(1,2)
 
         dynmass = np.reshape(dynmass, (10, 3, 10, 3)).swapaxes(1, 2)
@@ -317,7 +317,7 @@ class TestPiezoSensitivity(PymatgenTest):
                         dynmass[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                     ),
                     dynmass[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
-                    atol=1e-04,
+                    atol=1e-4,
                 )
 
         for i in range(len(dynmass)):
@@ -326,5 +326,5 @@ class TestPiezoSensitivity(PymatgenTest):
             for j in range(len(dynmass[i])):
                 asum1 += dynmass[i][j]
                 asum2 += dynmass[j][i]
-            assert_allclose(asum1, np.zeros([3, 3]), atol=1e-05)
-            assert_allclose(asum2, np.zeros([3, 3]), atol=1e-05)
+            assert_allclose(asum1, np.zeros([3, 3]), atol=1e-5)
+            assert_allclose(asum2, np.zeros([3, 3]), atol=1e-5)

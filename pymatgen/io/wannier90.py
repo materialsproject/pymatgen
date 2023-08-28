@@ -155,10 +155,8 @@ class Unk:
                     f.write_record(self.data[ib].flatten("F"))
 
     def __repr__(self) -> str:
-        return (
-            f"<UNK ik={self.ik} nbnd={self.nbnd} ncl={self.is_noncollinear}"
-            f" ngx={self.ng[0]} ngy={self.ng[1]} ngz={self.ng[2]}>"
-        )
+        ik, nbnd, ncl, ngx, ngy, ngz = self.ik, self.nbnd, self.is_noncollinear, *self.ng
+        return f"{(type(self).__name__)}({ik=}, {nbnd=}, {ncl=}, {ngx=}, {ngy=}, {ngz=})"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Unk):

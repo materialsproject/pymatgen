@@ -73,7 +73,6 @@ class AdditionalConditions:
         :param condition:
         :param structure:
         :param parameters:
-        :return:
         """
         if condition == self.NONE:
             return True

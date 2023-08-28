@@ -72,7 +72,7 @@ class TestPDEntry(unittest.TestCase):
         assert not self.entry.is_element
         assert not self.gp_entry.is_element
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.entry.as_dict()
         gpd = self.gp_entry.as_dict()
         entry = PDEntry.from_dict(d)
@@ -142,7 +142,7 @@ class TestTransformedPDEntry(unittest.TestCase):
         iron = Composition("Fe")
         assert TransformedPDEntry(PDEntry(iron, 0), {iron: iron}).is_element is True
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         dct = self.transformed_entry.as_dict()
         entry = TransformedPDEntry.from_dict(dct)
         assert entry.name == "LiFeO2" == self.transformed_entry.name
@@ -599,7 +599,7 @@ class TestPhaseDiagram(PymatgenTest):
     def test_get_plot(self):
         self.pd.get_plot()  # PDPlotter functionality is tested separately
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         # test round-trip for other entry types such as ComputedEntry
         entry = ComputedEntry("H", 0.0, 0.0, entry_id="test")
         pd = PhaseDiagram([entry])
@@ -768,7 +768,7 @@ class TestPatchedPhaseDiagram(unittest.TestCase):
     def test_repr(self):
         assert repr(self.ppd) == str(self.ppd) == "PatchedPhaseDiagram covering 15 sub-spaces"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         ppd_dict = self.ppd.as_dict()
         assert ppd_dict["@module"] == self.ppd.__class__.__module__
         assert ppd_dict["@class"] == self.ppd.__class__.__name__

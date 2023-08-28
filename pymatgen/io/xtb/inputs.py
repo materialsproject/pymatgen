@@ -76,8 +76,9 @@ class CRESTInput(MSONable):
            Dictionary of common editable parameters for .constrains file.
             {"atoms": [List of 1-indexed atoms to fix], "force_constant":
             float]
-        :return:
-            String for .constrains file
+
+        Returns:
+            str: for .constrains file
         """
         atoms_to_constrain = constraints["atoms"]
         force_constant = constraints["force_constant"]

@@ -825,7 +825,7 @@ class LammpsData(MSONable):
             velos = np.array(struct.site_properties["velocities"])
             rot = SymmOp.from_rotation_and_translation(symm_op.rotation_matrix)
             rot_velos = rot.operate_multi(velos)
-            site_properties.update({"velocities": rot_velos})  # type: ignore
+            site_properties["velocities"] = rot_velos  # type: ignore
         boxed_s = Structure(
             box.to_lattice(),
             struct.species,
@@ -1386,7 +1386,7 @@ class CombinedData(LammpsData):
         mols = []
         styles = []
         coordinates = cls.parse_xyz(filename=coordinate_file)
-        for i in range(0, len(filenames)):
+        for i in range(len(filenames)):
             exec(f"cluster{i + 1} = LammpsData.from_file(filenames[i])")
             names.append(f"cluster{i + 1}")
             mols.append(eval(f"cluster{i + 1}"))

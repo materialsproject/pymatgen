@@ -115,7 +115,6 @@ class BondDissociationEnergies(MSONable):
         Fragment and process bonds.
 
         :param bonds: Bonds to process.
-        :return:
         """
         # Try to split the principle:
         try:
@@ -185,7 +184,7 @@ class BondDissociationEnergies(MSONable):
             if not frags_done:
                 # If we haven't, we save this pair and search for the relevant fragment entries:
                 self.done_frag_pairs += [frags]
-                num_entries_for_this_frag_pair = 0
+                n_entries_for_this_frag_pair = 0
                 frag1_entries = self.search_fragment_entries(frags[0])
                 frag2_entries = self.search_fragment_entries(frags[1])
                 frag1_charges_found = []
@@ -204,14 +203,14 @@ class BondDissociationEnergies(MSONable):
                     smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag1_charges_found:
-                            print(f"Missing charge {charge} for fragment {smiles}")
+                            print(f"Missing {charge=} for fragment {smiles}")
                 if len(frag2_charges_found) < len(self.expected_charges):
                     bb = BabelMolAdaptor(frags[1].molecule)
                     pb_mol = bb.pybel_mol
                     smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag2_charges_found:
-                            print(f"Missing charge {charge} for fragment {smiles}")
+                            print(f"Missing {charge=} for fragment {smiles}")
                 # Now we attempt to pair fragments with the right total charge, starting with only fragments with no
                 # structural change:
                 for frag1 in frag1_entries[0]:  # 0 -> no structural change
@@ -221,10 +220,10 @@ class BondDissociationEnergies(MSONable):
                             == self.molecule_entry["final_molecule"]["charge"]
                         ):
                             self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
-                            num_entries_for_this_frag_pair += 1
+                            n_entries_for_this_frag_pair += 1
                 # If we haven't found the number of fragment pairs that we expect, we expand our search to include
                 # fragments that do exhibit structural change:
-                if num_entries_for_this_frag_pair < len(self.expected_charges):
+                if n_entries_for_this_frag_pair < len(self.expected_charges):
                     for frag1 in frag1_entries[0]:  # 0 -> no structural change
                         for frag2 in frag2_entries[1]:  # 1 -> YES structural change
                             if (
@@ -232,7 +231,7 @@ class BondDissociationEnergies(MSONable):
                                 == self.molecule_entry["final_molecule"]["charge"]
                             ):
                                 self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
-                                num_entries_for_this_frag_pair += 1
+                                n_entries_for_this_frag_pair += 1
                     for frag1 in frag1_entries[1]:  # 1 -> YES structural change
                         for frag2 in frag2_entries[0]:  # 0 -> no structural change
                             if (
@@ -240,7 +239,7 @@ class BondDissociationEnergies(MSONable):
                                 == self.molecule_entry["final_molecule"]["charge"]
                             ):
                                 self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
-                                num_entries_for_this_frag_pair += 1
+                                n_entries_for_this_frag_pair += 1
 
     def search_fragment_entries(self, frag):
         """
@@ -269,7 +268,6 @@ class BondDissociationEnergies(MSONable):
         Filter the fragment entries.
 
         :param fragment_entries:
-        :return:
         """
         self.filtered_entries = []
         for entry in fragment_entries:
@@ -331,7 +329,6 @@ class BondDissociationEnergies(MSONable):
 
         :param frags:
         :param bonds:
-        :return:
         """
         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
         if len(frags) == 2:

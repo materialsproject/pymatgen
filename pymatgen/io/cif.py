@@ -1115,7 +1115,6 @@ class CifParser:
                 struct = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
 
             if not check_occu:
-                struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
                 for idx in range(len(struct)):
                     struct[idx] = PeriodicSite(
                         all_species_noedit[idx], all_coords[idx], lattice, properties=site_properties, skip_checks=True

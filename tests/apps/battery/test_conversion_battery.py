@@ -15,7 +15,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 class TestConversionElectrode(unittest.TestCase):
     def setUp(self):
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
-        self.conversion_eletrodes = {}
+        self.conversion_electrodes = {}
         for f in self.formulas:
             with open(os.path.join(TEST_FILES_DIR, f + "_batt.json")) as fid:
                 entries = json.load(fid, cls=MontyDecoder)
@@ -26,7 +26,7 @@ class TestConversionElectrode(unittest.TestCase):
             c = ConversionElectrode.from_composition_and_entries(
                 Composition(f), entries, working_ion_symbol=working_ion
             )
-            self.conversion_eletrodes[f] = {"working_ion": working_ion, "CE": c}
+            self.conversion_electrodes[f] = {"working_ion": working_ion, "CE": c}
 
         self.expected_properties = {
             "LiCoO2": {
@@ -68,7 +68,7 @@ class TestConversionElectrode(unittest.TestCase):
     def test_init(self):
         # both 'LiCoO2' and "FeF3" are using Li+ as working ion; MnO2 is for the multivalent Mg2+ ion
         for f in self.formulas:
-            c = self.conversion_eletrodes[f]["CE"]
+            c = self.conversion_electrodes[f]["CE"]
 
             assert len(c.get_sub_electrodes(True)) == c.num_steps
             assert len(c.get_sub_electrodes(False)) == sum(range(1, c.num_steps + 1))
@@ -93,10 +93,19 @@ class TestConversionElectrode(unittest.TestCase):
             for k, v in p.items():
                 assert getattr(electrode, "get_" + k)() == approx(v, abs=1e-2)
 
+    def test_repr(self):
+        conv_electrode = self.conversion_electrodes[self.formulas[0]]["CE"]
+        assert (
+            repr(conv_electrode)
+            == "ConversionElectrode with formula='LiCoO2' and n_steps=5, avg_voltage=2.269 V, min_voltage=1.656 V, "
+            "max_voltage=3.492 V\nCapacity (grav.) 903.197 mAh/g, capacity (vol.) 2903.358 Ah/l\n"
+            "Specific energy 2049.719 Wh/kg, energy density 6588.890 Wh/l"
+        )
+
     def test_summary(self):
         kmap = {"specific_energy": "energy_grav", "energy_density": "energy_vol"}
         for f in self.formulas:
-            c = self.conversion_eletrodes[f]["CE"]
+            c = self.conversion_electrodes[f]["CE"]
             d = c.get_summary_dict()
             p = self.expected_properties[f]
             for k, v in p.items():
@@ -106,7 +115,7 @@ class TestConversionElectrode(unittest.TestCase):
     def test_composite(self):
         # check entries in charged/discharged state
         for formula in self.formulas:
-            CE = self.conversion_eletrodes[formula]["CE"]
+            CE = self.conversion_electrodes[formula]["CE"]
             for step, vpair in enumerate(CE.voltage_pairs):
                 # entries_charge/entries_discharge attributes should return entries equal with the expected
                 composite_dict = self.expected_composite[formula]

@@ -250,7 +250,6 @@ class StructureGraph(MSONable):
         :param weights: if True, use weights from local_env class
             (consult relevant class for their meaning)
         :param edge_properties: if True, edge_properties from neighbors will be used
-        :return:
         """
         if not strategy.structures_allowed:
             raise ValueError("Chosen strategy is not designed for use with structures! Please choose another strategy.")
@@ -332,7 +331,6 @@ class StructureGraph(MSONable):
             be added in either case)
         :param edge_properties (dict): any other information to
             store on graph edges, similar to Structure's site_properties
-        :return:
         """
         # this is not necessary for the class to work, but
         # just makes it neater
@@ -435,7 +433,7 @@ class StructureGraph(MSONable):
 
     def insert_node(
         self,
-        i,
+        idx,
         species,
         coords,
         coords_are_cartesian=False,
@@ -447,7 +445,7 @@ class StructureGraph(MSONable):
         A wrapper around Molecule.insert(), which also incorporates the new
         site into the MoleculeGraph.
 
-        :param i: Index at which to insert the new site
+        :param idx: Index at which to insert the new site
         :param species: Species for the new site
         :param coords: 3x1 array representing coordinates of the new site
         :param coords_are_cartesian: Whether coordinates are cartesian.
@@ -462,10 +460,9 @@ class StructureGraph(MSONable):
             MoleculeGraph AFTER the insertion, NOT before. Each dict should at
             least have a "to_index" and "from_index" key, and can also have a
             "weight" and a "properties" key.
-        :return:
         """
         self.structure.insert(
-            i,
+            idx,
             species,
             coords,
             coords_are_cartesian=coords_are_cartesian,
@@ -475,13 +472,13 @@ class StructureGraph(MSONable):
 
         mapping = {}
         for j in range(len(self.structure) - 1):
-            if j < i:
+            if j < idx:
                 mapping[j] = j
             else:
                 mapping[j] = j + 1
         nx.relabel_nodes(self.graph, mapping, copy=False)
 
-        self.graph.add_node(i)
+        self.graph.add_node(idx)
         self.set_node_attributes()
 
         if edges is not None:
@@ -503,7 +500,6 @@ class StructureGraph(MSONable):
         Gives each node a "specie" and a "coords" attribute, updated with the
         current species and coordinates.
 
-        :return:
         """
         species = {}
         coords = {}
@@ -540,7 +536,6 @@ class StructureGraph(MSONable):
             that edge_properties be altered. As such, by default,
             this is None. If any edge properties are to be changed,
             it should be a dictionary of edge properties to be changed.
-        :return:
         """
         existing_edges = self.graph.get_edge_data(from_index, to_index)
 
@@ -574,7 +569,6 @@ class StructureGraph(MSONable):
         :param allow_reverse: If allow_reverse is True, then break_edge will
             attempt to break both (from_index, to_index) and, failing that,
             will attempt to break (to_index, from_index).
-        :return:
         """
         # ensure that edge exists before attempting to remove it
         existing_edges = self.graph.get_edge_data(from_index, to_index)
@@ -612,7 +606,6 @@ class StructureGraph(MSONable):
 
         :param indices: list of indices in the current Molecule (and graph) to
             be removed.
-        :return:
         """
         self.structure.remove_sites(indices)
         self.graph.remove_nodes_from(indices)
@@ -667,7 +660,6 @@ class StructureGraph(MSONable):
             a list of strategies defined in pymatgen.analysis.local_env.
         :param strategy_params: dictionary of keyword arguments for strategy.
             If None, default parameters will be used.
-        :return:
         """
 
         def map_indices(grp):
@@ -842,7 +834,6 @@ class StructureGraph(MSONable):
             visualization
         :param algo: any graphviz algo, "neato" (for simple graphs)
             or "fdp" (for more crowded graphs) usually give good outputs
-        :return:
         """
         if not which(algo):
             raise RuntimeError("StructureGraph graph drawing requires GraphViz binaries to be in the path.")
@@ -943,9 +934,9 @@ class StructureGraph(MSONable):
                     # edge has been added
                     green_edges.append((u, v, k))
             for u, v, k in green_edges:
-                g.edges[u, v, k].update({"color_uv": "#00ff00"})
+                g.edges[u, v, k]["color_uv"] = "#00ff00"
             for u, v, k in red_edges:
-                g.edges[u, v, k].update({"color_uv": "#ff0000"})
+                g.edges[u, v, k]["color_uv"] = "#ff0000"
 
         basename, extension = os.path.splitext(filename)
         extension = extension[1:]
@@ -1082,7 +1073,6 @@ class StructureGraph(MSONable):
         graph, but a larger graph can be easier to
         visualize and reason about.
         :param scaling_matrix: same as Structure.__mul__
-        :return:
         """
         # Developer note: a different approach was also trialed, using
         # a simple Graph (instead of MultiDiGraph), with node indices
@@ -1410,7 +1400,6 @@ class StructureGraph(MSONable):
             from different Structures, with node indices
             replaced by Species strings, will not count
             number of occurrences of bonds
-        :return:
         """
         if self.structure != other.structure and strict:
             return ValueError("Meaningless to compare StructureGraphs if corresponding Structures are different.")
@@ -1773,7 +1762,6 @@ class MoleculeGraph(MSONable):
             be added in either case)
         :param edge_properties (dict): any other information to
             store on graph edges, similar to Structure's site_properties
-        :return:
         """
         # this is not necessary for the class to work, but
         # just makes it neater
@@ -1802,7 +1790,7 @@ class MoleculeGraph(MSONable):
 
     def insert_node(
         self,
-        i,
+        idx,
         species,
         coords,
         validate_proximity=False,
@@ -1813,7 +1801,7 @@ class MoleculeGraph(MSONable):
         A wrapper around Molecule.insert(), which also incorporates the new
         site into the MoleculeGraph.
 
-        :param i: Index at which to insert the new site
+        :param idx: Index at which to insert the new site
         :param species: Species for the new site
         :param coords: 3x1 array representing coordinates of the new site
         :param validate_proximity: For Molecule.insert(); if True (default
@@ -1826,10 +1814,9 @@ class MoleculeGraph(MSONable):
             MoleculeGraph AFTER the insertion, NOT before. Each dict should at
             least have a "to_index" and "from_index" key, and can also have a
             "weight" and a "properties" key.
-        :return:
         """
         self.molecule.insert(
-            i,
+            idx,
             species,
             coords,
             validate_proximity=validate_proximity,
@@ -1838,13 +1825,13 @@ class MoleculeGraph(MSONable):
 
         mapping = {}
         for j in range(len(self.molecule) - 1):
-            if j < i:
+            if j < idx:
                 mapping[j] = j
             else:
                 mapping[j] = j + 1
         nx.relabel_nodes(self.graph, mapping, copy=False)
 
-        self.graph.add_node(i)
+        self.graph.add_node(idx)
         self.set_node_attributes()
 
         if edges is not None:
@@ -1864,7 +1851,6 @@ class MoleculeGraph(MSONable):
         Replicates molecule site properties (specie, coords, etc.) in the
         MoleculeGraph.
 
-        :return:
         """
         species = {}
         coords = {}
@@ -1893,7 +1879,6 @@ class MoleculeGraph(MSONable):
             that edge_properties be altered. As such, by default,
             this is None. If any edge properties are to be changed,
             it should be a dictionary of edge properties to be changed.
-        :return:
         """
         existing_edge = self.graph.get_edge_data(from_index, to_index)
 
@@ -1920,7 +1905,6 @@ class MoleculeGraph(MSONable):
         :param allow_reverse: If allow_reverse is True, then break_edge will
             attempt to break both (from_index, to_index) and, failing that,
             will attempt to break (to_index, from_index).
-        :return:
         """
         # ensure that edge exists before attempting to remove it
         existing_edge = self.graph.get_edge_data(from_index, to_index)
@@ -1947,7 +1931,6 @@ class MoleculeGraph(MSONable):
 
         :param indices: list of indices in the current Molecule (and graph) to
             be removed.
-        :return:
         """
         self.molecule.remove_sites(indices)
         self.graph.remove_nodes_from(indices)
@@ -2086,7 +2069,6 @@ class MoleculeGraph(MSONable):
         Find all possible fragment combinations of the MoleculeGraphs (in other
         words, all connected induced subgraphs).
 
-        :return:
         """
         self.set_node_attributes()
 
@@ -2195,7 +2177,6 @@ class MoleculeGraph(MSONable):
                 a list of strategies defined in pymatgen.analysis.local_env.
         :param strategy_params: dictionary of keyword arguments for strategy.
                 If None, default parameters will be used.
-        :return:
         """
 
         def map_indices(grp):
@@ -2310,7 +2291,6 @@ class MoleculeGraph(MSONable):
             a list of strategies defined in pymatgen.analysis.local_env.
         :param strategy_params: dictionary of keyword arguments for strategy.
             If None, default parameters will be used.
-        :return:
         """
         self.set_node_attributes()
         neighbors = self.get_connected_sites(index)
@@ -2507,7 +2487,6 @@ class MoleculeGraph(MSONable):
             visualization
         :param algo: any graphviz algo, "neato" (for simple graphs)
             or "fdp" (for more crowded graphs) usually give good outputs
-        :return:
         """
         if not which(algo):
             raise RuntimeError("StructureGraph graph drawing requires GraphViz binaries to be in the path.")
@@ -2608,9 +2587,9 @@ class MoleculeGraph(MSONable):
                     # edge has been added
                     green_edges.append((u, v, k))
             for u, v, k in green_edges:
-                g.edges[u, v, k].update({"color_uv": "#00ff00"})
+                g.edges[u, v, k]["color_uv"] = "#00ff00"
             for u, v, k in red_edges:
-                g.edges[u, v, k].update({"color_uv": "#ff0000"})
+                g.edges[u, v, k]["color_uv"] = "#ff0000"
 
         basename, extension = os.path.splitext(filename)
         extension = extension[1:]
@@ -2804,7 +2783,6 @@ class MoleculeGraph(MSONable):
             from different Molecules, with node indices
             replaced by Species strings, will not count
             number of occurrences of bonds
-        :return:
         """
         if self.molecule != other.molecule and strict:
             return ValueError("Meaningless to compare MoleculeGraphs if corresponding Molecules are different.")

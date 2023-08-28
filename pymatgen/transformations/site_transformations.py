@@ -57,21 +57,18 @@ class InsertSitesTransformation(AbstractTransformation):
             Returns a copy of structure with sites inserted.
         """
         struct = structure.copy()
-        for i, sp in enumerate(self.species):
+        for idx, sp in enumerate(self.species):
             struct.insert(
-                i,
+                idx,
                 sp,
-                self.coords[i],
+                self.coords[idx],
                 coords_are_cartesian=self.coords_are_cartesian,
                 validate_proximity=self.validate_proximity,
             )
         return struct.get_sorted_structure()
 
-    def __str__(self):
-        return f"InsertSiteTransformation : species {self.species}, coords {self.coords}"
-
     def __repr__(self):
-        return str(self)
+        return f"InsertSiteTransformation : species {self.species}, coords {self.coords}"
 
     @property
     def inverse(self):
@@ -114,13 +111,10 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
             struct[int(i)] = sp
         return struct
 
-    def __str__(self):
+    def __repr__(self):
         return "ReplaceSiteSpeciesTransformation :" + ", ".join(
             [f"{k}->{v}" + v for k, v in self.indices_species_map.items()]
         )
-
-    def __repr__(self):
-        return str(self)
 
     @property
     def inverse(self):
@@ -157,11 +151,8 @@ class RemoveSitesTransformation(AbstractTransformation):
         struct.remove_sites(self.indices_to_remove)
         return struct
 
-    def __str__(self):
-        return "RemoveSitesTransformation :" + ", ".join(map(str, self.indices_to_remove))
-
     def __repr__(self):
-        return str(self)
+        return "RemoveSitesTransformation :" + ", ".join(map(str, self.indices_to_remove))
 
     @property
     def inverse(self):
@@ -211,15 +202,12 @@ class TranslateSitesTransformation(AbstractTransformation):
             struct.translate_sites(self.indices_to_move, self.translation_vector, self.vector_in_frac_coords)
         return struct
 
-    def __str__(self):
+    def __repr__(self):
         return (
             f"TranslateSitesTransformation for indices {self.indices_to_move}, "
             f"vect {self.translation_vector} and "
             f"vect_in_frac_coords = {self.vector_in_frac_coords}"
         )
-
-    def __repr__(self):
-        return str(self)
 
     @property
     def inverse(self):
@@ -307,36 +295,36 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.logger.debug("Performing best first ordering")
         start_time = time.perf_counter()
         self.logger.debug("Performing initial Ewald sum...")
-        ewaldsum = EwaldSummation(structure)
+        ewald_sum = EwaldSummation(structure)
         self.logger.debug(f"Ewald sum took {time.perf_counter() - start_time} seconds.")
         start_time = time.perf_counter()
 
-        ematrix = ewaldsum.total_energy_matrix
+        e_matrix = ewald_sum.total_energy_matrix
         to_delete = []
 
-        totalremovals = sum(num_remove_dict.values())
+        total_removals = sum(num_remove_dict.values())
         removed = {k: 0 for k in num_remove_dict}
-        for _ in range(totalremovals):
+        for _ in range(total_removals):
             max_idx = None
-            maxe = float("-inf")
-            maxindices = None
+            max_ene = float("-inf")
+            max_indices = None
             for indices in num_remove_dict:
                 if removed[indices] < num_remove_dict[indices]:
                     for ind in indices:
                         if ind not in to_delete:
-                            energy = sum(ematrix[:, ind]) + sum(ematrix[:, ind]) - ematrix[ind, ind]
-                            if energy > maxe:
+                            energy = sum(e_matrix[:, ind]) + sum(e_matrix[:, ind]) - e_matrix[ind, ind]
+                            if energy > max_ene:
                                 max_idx = ind
-                                maxe = energy
-                                maxindices = indices
-            removed[maxindices] += 1
+                                max_ene = energy
+                                max_indices = indices
+            removed[max_indices] += 1
             to_delete.append(max_idx)
-            ematrix[:, max_idx] = 0
-            ematrix[max_idx, :] = 0
+            e_matrix[:, max_idx] = 0
+            e_matrix[max_idx, :] = 0
         struct = structure.copy()
         struct.remove_sites(to_delete)
         self.logger.debug(f"Minimizing Ewald took {time.perf_counter() - start_time} seconds.")
-        return [{"energy": sum(ematrix), "structure": struct.get_sorted_structure()}]
+        return [{"energy": sum(e_matrix), "structure": struct.get_sorted_structure()}]
 
     def _complete_ordering(self, structure: Structure, num_remove_dict):
         self.logger.debug("Performing complete ordering...")
@@ -502,11 +490,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         opt_s = all_structures[0]["structure"]
         return opt_s if not return_ranked_list else all_structures[0:num_to_return]
 
-    def __str__(self):
-        return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
-
     def __repr__(self):
-        return str(self)
+        return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
 
     @property
     def inverse(self):

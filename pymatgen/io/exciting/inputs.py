@@ -345,7 +345,6 @@ class ExcitingInput(MSONable):
 
         :param elem:
         :param level:
-        :return:
         """
         i = "\n" + level * "  "
         if len(elem):

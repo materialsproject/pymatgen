@@ -72,7 +72,7 @@ class TestTrajectory(PymatgenTest):
 
     def test_single_index_slice(self):
         assert all(self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19))
-        assert all(self.traj_mols[i] == self.molecules[i] for i in range(0, len(self.molecules)))
+        assert all(self.traj_mols[i] == self.molecules[i] for i in range(len(self.molecules)))
 
     def test_slice(self):
         sliced_traj = self.traj[2:99:3]
@@ -457,7 +457,7 @@ class TestTrajectory(PymatgenTest):
         self._check_traj_equality(traj, written_traj)
         os.remove("traj_test_XDATCAR")
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.traj.as_dict()
         traj = Trajectory.from_dict(d)
         assert isinstance(traj, Trajectory)

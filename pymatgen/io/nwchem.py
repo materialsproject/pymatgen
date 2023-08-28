@@ -132,7 +132,7 @@ class NwTask(MSONable):
         if NWCHEM_BASIS_LIBRARY is not None:
             for b in set(self.basis_set.values()):
                 if re.sub(r"\*", "s", b.lower()) not in NWCHEM_BASIS_LIBRARY:
-                    warnings.warn(f"Basis set {b} not in in NWCHEM_BASIS_LIBRARY")
+                    warnings.warn(f"Basis set {b} not in NWCHEM_BASIS_LIBRARY")
 
         self.basis_set_option = basis_set_option
 
@@ -861,7 +861,7 @@ class NwOutput:
                 if m:
                     cosmo_scf_energy = energies[-1]
                     energies[-1] = {}
-                    energies[-1].update({"cosmo scf": cosmo_scf_energy})
+                    energies[-1]["cosmo scf"] = cosmo_scf_energy
                     energies[-1].update({"gas phase": Energy(m.group(1), "Ha").to("eV")})
 
                 m = energy_sol_patt.search(line)

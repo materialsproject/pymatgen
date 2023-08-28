@@ -44,7 +44,7 @@ class Kpoint(MSONable):
         """
         Args:
             coords: coordinate of the kpoint as a numpy array
-            lattice: A pymatgen.core.lattice.Lattice lattice object representing
+            lattice: A pymatgen.core.lattice.Lattice object representing
                 the reciprocal lattice of the kpoint
             to_unit_cell: Translates fractional coordinate to the basic unit
                 cell, i.e., all fractional coordinates satisfy 0 <= a < 1.
@@ -54,14 +54,14 @@ class Kpoint(MSONable):
             label: the label of the kpoint if any (None by default).
         """
         self._lattice = lattice
-        self._fcoords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
+        self._frac_coords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
         self._label = label
 
         if to_unit_cell:
-            for i, fc in enumerate(self._fcoords):
-                self._fcoords[i] -= math.floor(fc)
+            for idx, fc in enumerate(self._frac_coords):
+                self._frac_coords[idx] -= math.floor(fc)
 
-        self._ccoords = lattice.get_cartesian_coords(self._fcoords)
+        self._cart_coords = lattice.get_cartesian_coords(self._frac_coords)
 
     @property
     def lattice(self):
@@ -78,27 +78,27 @@ class Kpoint(MSONable):
     @property
     def frac_coords(self):
         """The fractional coordinates of the kpoint as a numpy array."""
-        return np.copy(self._fcoords)
+        return np.copy(self._frac_coords)
 
     @property
     def cart_coords(self):
         """The Cartesian coordinates of the kpoint as a numpy array."""
-        return np.copy(self._ccoords)
+        return np.copy(self._cart_coords)
 
     @property
     def a(self):
         """Fractional a coordinate of the kpoint."""
-        return self._fcoords[0]
+        return self._frac_coords[0]
 
     @property
     def b(self):
         """Fractional b coordinate of the kpoint."""
-        return self._fcoords[1]
+        return self._frac_coords[1]
 
     @property
     def c(self):
         """Fractional c coordinate of the kpoint."""
-        return self._fcoords[2]
+        return self._frac_coords[2]
 
     def __str__(self):
         """Returns a string with fractional, Cartesian coordinates and label."""

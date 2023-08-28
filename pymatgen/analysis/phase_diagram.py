@@ -2617,10 +2617,10 @@ class PDPlotter:
                 }
         elif self._dim == 3 and self.ternary_style == "3d":
             layout = plotly_layouts["default_ternary_3d_layout"].copy()
-            layout["scene"].update({"annotations": annotations_list})
+            layout["scene"]["annotations"] = annotations_list
         elif self._dim == 4:
             layout = plotly_layouts["default_quaternary_layout"].copy()
-            layout["scene"].update({"annotations": annotations_list})
+            layout["scene"]["annotations"] = annotations_list
 
         return layout
 
@@ -2956,7 +2956,7 @@ class PDPlotter:
                         if entry.composition.is_element:
                             z = 0.9 * self._min_energy  # place label 10% above base
 
-                annotation.update({"z": z})
+                annotation["z"] = z
 
             annotations_list.append(annotation)
 

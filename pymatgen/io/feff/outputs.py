@@ -105,7 +105,7 @@ class LDos(MSONable):
             else:
                 ldos[i] = np.loadtxt(f"{ldos_file}{i}.dat")
 
-        for i in range(0, len(ldos[1])):
+        for i in range(len(ldos[1])):
             dos_energies.append(ldos[1][i][0])
 
         all_pdos = []

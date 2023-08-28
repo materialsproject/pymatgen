@@ -146,7 +146,7 @@ direct
         ]
         assert [site.specie.symbol for site in poscar.structure] == ordered_expected_elements
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         poscar_string = """Test3
 1.0
 3.840198 0.000000 0.000000
@@ -982,7 +982,7 @@ class TestPotcarSingle:
         assert config[-1] == (3, "p", 6)
 
     def test_attributes(self):
-        for k in [
+        for key in [
             "DEXC",
             "RPACOR",
             "ENMAX",
@@ -1001,7 +1001,7 @@ class TestPotcarSingle:
             "POMASS",
             "RWIGS",
         ]:
-            assert getattr(self.psingle, k) is not None
+            assert getattr(self.psingle, key) is not None
 
     def test_found_unknown_key(self):
         with pytest.raises(KeyError, match="BAD_KEY"):
@@ -1085,6 +1085,12 @@ class TestPotcarSingle:
     #     assert p.functional_class == "LDA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
+    def test_repr(self):
+        assert (
+            repr(self.psingle) == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000',"
+            " VRHFIN='Mn: 3p4s3d', n_valence_elec=13)"
+        )
+
 
 class TestPotcar:
     def setup(self):
@@ -1109,7 +1115,7 @@ class TestPotcar:
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
         assert potcar.symbols == ["Fe_pv"], "Wrong symbols read in for POTCAR"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.potcar.as_dict()
         potcar = Potcar.from_dict(d)
         assert potcar.symbols == ["Fe", "P", "O"]
@@ -1171,7 +1177,7 @@ class TestVaspInput:
         kpoints = Kpoints.from_file(filepath)
         self.vasp_input = VaspInput(incar, kpoints, poscar, potcar)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.vasp_input.as_dict()
         vasp_input = VaspInput.from_dict(d)
         comp = vasp_input["POSCAR"].structure.composition

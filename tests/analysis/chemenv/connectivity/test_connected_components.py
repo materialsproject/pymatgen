@@ -468,7 +468,7 @@ class TestConnectedComponent(PymatgenTest):
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "P"], maximum_distance_factor=1.2)
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
         # Make sure the initial structure and environments are correct
-        for isite in range(0, 4):
+        for isite in range(4):
             assert lse.structure[isite].specie.symbol == "Li"
             assert lse.coordination_environments[isite][0]["ce_symbol"] == "O:6"
         for isite in range(4, 8):
@@ -774,7 +774,7 @@ Node #11 P (T:4), connected to :
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2)
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
         # Make sure the initial structure and environments are correct
-        for isite in range(0, 4):
+        for isite in range(4):
             assert lse.structure[isite].specie.symbol == "Li"
             assert lse.coordination_environments[isite][0]["ce_symbol"] == "O:6"
         for isite in range(4, 5):

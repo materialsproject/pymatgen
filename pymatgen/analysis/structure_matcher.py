@@ -82,7 +82,7 @@ class AbstractComparator(MSONable, metaclass=abc.ABCMeta):
         """
         for trans_modules in ["structure_matcher"]:
             mod = __import__(
-                "pymatgen.analysis." + trans_modules,
+                f"pymatgen.analysis.{trans_modules}",
                 globals(),
                 locals(),
                 [d["@class"]],
@@ -921,7 +921,7 @@ class StructureMatcher(MSONable):
                 continue
 
             mapped_struct = struct1.copy()
-            mapped_struct.replace_species(sp_mapping)
+            mapped_struct.replace_species(sp_mapping)  # type: ignore[arg-type]
             if swapped:
                 m = self._strict_match(
                     struct2,

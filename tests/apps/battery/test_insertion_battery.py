@@ -79,7 +79,7 @@ class TestInsertionElectrode(unittest.TestCase):
     def test_get_all_entries(self):
         self.ie_LTO.get_all_entries()
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = self.ie_LTO.as_dict()
         ie = InsertionElectrode.from_dict(d)
         assert ie.max_voltage == approx(2.78583901)

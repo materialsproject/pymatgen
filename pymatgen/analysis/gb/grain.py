@@ -67,6 +67,7 @@ class GrainBoundary(Structure):
         oriented_unit_cell: Structure,
         validate_proximity: bool = False,
         coords_are_cartesian: bool = False,
+        properties: dict | None = None,
     ) -> None:
         """
         Makes a GB structure, a structure object with additional information
@@ -109,6 +110,8 @@ class GrainBoundary(Structure):
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
+            properties (dict): dictionary containing properties associated
+                with the whole GrainBoundary.
         """
         self.oriented_unit_cell = oriented_unit_cell
         self.rotation_axis = rotation_axis
@@ -125,6 +128,7 @@ class GrainBoundary(Structure):
             validate_proximity=validate_proximity,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
+            properties=properties,
         )
 
     def copy(self):
@@ -1329,7 +1333,7 @@ class GrainBoundaryGenerator:
         for n_loop in range(1, n_max + 1):
             n = n_loop
             m_max = int(np.sqrt(cutoff * a_max - n**2 * sum(np.array(r_axis) ** 2)))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     n = 1 if m == 0 else n_loop
                     # construct the quadruple [m, U,V,W], count the number of odds in
@@ -1427,7 +1431,7 @@ class GrainBoundaryGenerator:
                 m_max = 0
             else:
                 m_max = int(np.sqrt((cutoff * 12 * mu * mv - n**2 * d) / (3 * mu)))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1540,7 +1544,7 @@ class GrainBoundaryGenerator:
                 m_max = 0
             else:
                 m_max = int(np.sqrt((cutoff * abs(4 * mu * (mu - 3 * mv)) - n**2 * d) / (mu)))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1659,7 +1663,7 @@ class GrainBoundaryGenerator:
         # Enumerate all possible n, m to give possible sigmas within the cutoff.
         for n in range(1, n_max + 1):
             m_max = 0 if c2_a2_ratio is None and w == 0 else int(np.sqrt((cutoff * 4 * mu * mv - n**2 * d) / mu))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1795,7 +1799,7 @@ class GrainBoundaryGenerator:
                 m_max = 0
             else:
                 m_max = int(np.sqrt((cutoff * 4 * mu * mv * lam * mv - n**2 * d) / mu / lam))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [

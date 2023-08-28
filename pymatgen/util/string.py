@@ -33,7 +33,7 @@ class Stringify:
     STRING_MODE = "SUBSCRIPT"
 
     def to_pretty_string(self) -> str:
-        """:return: A pretty string representation. By default, the __str__ output is used, but this method can be
+        """A pretty string representation. By default, the __str__ output is used, but this method can be
         overridden if a different representation from default is desired.
         """
         return str(self)
@@ -67,7 +67,7 @@ class Stringify:
         return re.sub(r"\$\\overline\{([^}]+)\}\$", r'<span style="text-decoration:overline">\1</span>', str_)
 
     def to_unicode_string(self):
-        """:return: Unicode string with proper sub and superscripts. Note that this works only
+        """Unicode string with proper sub and superscripts. Note that this works only
         with systems where the sub and superscripts are pure integers.
         """
         str_ = self.to_latex_string()
@@ -169,7 +169,6 @@ def htmlify(formula):
     be used instead.
 
     :param formula:
-    :return:
     """
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", formula)
 
@@ -182,7 +181,6 @@ def unicodeify(formula):
     be used instead.
 
     :param formula:
-    :return:
     """
     if "." in formula:
         raise ValueError("No unicode character exists for subscript period.")

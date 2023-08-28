@@ -66,7 +66,7 @@ class TestTranslateSitesTransformation(PymatgenTest):
         assert s[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
         assert_allclose(s[1].frac_coords, [0.375, 0.375, 0.375])
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d1 = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
         d2 = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075]]).as_dict()
         t1 = TranslateSitesTransformation.from_dict(d1)
@@ -106,7 +106,7 @@ class TestReplaceSiteSpeciesTransformation(unittest.TestCase):
         s = trafo.apply_transformation(self.struct)
         assert s.formula == "Na1 Li3 O4"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = ReplaceSiteSpeciesTransformation({0: "Na"}).as_dict()
         trafo = ReplaceSiteSpeciesTransformation.from_dict(d)
         s = trafo.apply_transformation(self.struct)
@@ -139,7 +139,7 @@ class TestRemoveSitesTransformation(unittest.TestCase):
         s = trafo.apply_transformation(self.struct)
         assert s.formula == "Li2 O4"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = RemoveSitesTransformation(range(2)).as_dict()
         trafo = RemoveSitesTransformation.from_dict(d)
         s = trafo.apply_transformation(self.struct)
@@ -177,7 +177,7 @@ class TestInsertSitesTransformation(unittest.TestCase):
         with pytest.raises(ValueError, match="New site is too close to an existing site!"):
             trafo.apply_transformation(self.struct)
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = InsertSitesTransformation(["Fe", "Mn"], [[0.5, 0, 0], [0.1, 0.5, 0.2]]).as_dict()
         trafo = InsertSitesTransformation.from_dict(d)
         s = trafo.apply_transformation(self.struct)
@@ -249,7 +249,7 @@ class TestPartialRemoveSitesTransformation(unittest.TestCase):
         s = trafo.apply_transformation(self.struct)
         assert s.formula == "Li2 O2"
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
         trafo = PartialRemoveSitesTransformation.from_dict(d)
         s = trafo.apply_transformation(self.struct)

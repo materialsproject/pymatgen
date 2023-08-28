@@ -647,7 +647,7 @@ class Tensor(np.ndarray, MSONable):
             "input_array": input_array.tolist(),
         }
         if voigt:
-            d.update({"voigt": voigt})
+            d["voigt"] = voigt
         return d
 
     @classmethod
@@ -815,7 +815,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
             "tensor_list": [t.tolist() for t in tensor_list],
         }
         if voigt:
-            d.update({"voigt": voigt})
+            d["voigt"] = voigt
         return d
 
     @classmethod

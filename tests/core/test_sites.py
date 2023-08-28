@@ -36,7 +36,7 @@ class TestSite(PymatgenTest):
         assert self.propertied_site.properties["magmom"] == 5.1
         assert self.propertied_site.properties["charge"] == 4.2
 
-    def test_to_from_dict(self):
+    def test_as_from_dict(self):
         dct = self.disordered_site.as_dict()
         site = Site.from_dict(dct)
         assert site == self.disordered_site

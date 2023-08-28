@@ -266,7 +266,6 @@ class Critic2Caller:
         :param suffix: specific suffix to look for (e.g. '.relax1' for
             'CHGCAR.relax1.gz')
         :param zpsp: manually specify ZPSP if POTCAR not present
-        :return:
         """
         chgcar_path = get_filepath("CHGCAR", "Could not find CHGCAR!", path, suffix)
         chgcar = Chgcar.from_file(chgcar_path)
@@ -854,7 +853,6 @@ class Critic2Analysis(MSONable):
         :param unique_idx: index of unique CriticalPoint,
             used to look up more information of point (field etc.)
         :param frac_coord: fractional coordinates of point
-        :return:
         """
         self.nodes[idx] = {"unique_idx": unique_idx, "frac_coords": frac_coords}
 
@@ -878,7 +876,6 @@ class Critic2Analysis(MSONable):
         :param to_idx: to index of node
         :param to_lvec:  vector of lattice image the to node is in as
             tuple of ints
-        :return:
         """
         self.edges[idx] = {
             "from_idx": from_idx,

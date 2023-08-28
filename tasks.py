@@ -47,7 +47,7 @@ def make_doc(ctx):
             if fn == "pymatgen.md":
                 preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 6", "---", ""]
             else:
-                preamble = ["---", "layout: default", "title: " + fn, "nav_exclude: true", "---", "",
+                preamble = ["---", "layout: default", f"title: {fn}" , "nav_exclude: true", "---", "",
                             "1. TOC", "{:toc}", ""]
             with open(fn, "w") as f:
                 f.write("\n".join(preamble + lines))

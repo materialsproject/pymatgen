@@ -192,7 +192,7 @@ class StructureNL:
     ):
         """
         Args:
-            struct_or_mol: A pymatgen.core.structure Structure/Molecule object
+            struct_or_mol: A pymatgen Structure/Molecule object
             authors: *List* of {"name":'', "email":''} dicts,
                 *list* of Strings as 'John Doe <johndoe@gmail.com>',
                 or a single String with commas separating authors
