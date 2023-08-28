@@ -1215,15 +1215,16 @@ class MPStaticSet(MPRelaxSet):
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
-class MatPESStaticSet(MPStaticSet):
+class MatPESStaticSet(DictSet):
     """Creates input files for a MatPES static calculation."""
 
     CONFIG = _load_yaml_config("MatPESStaticSet")
 
     def __init__(
         self,
-        structure: str,
+        structure: Structure,
         functional: Literal["R2SCAN", "R2SCAN+U", "PBE", "PBE+U"] = "PBE",
+        prev_incar=None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1234,9 +1235,17 @@ class MatPESStaticSet(MPStaticSet):
             **kwargs: Passed to MPStaticSet.
         """
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
+        if isinstance(prev_incar, str):
+            prev_incar = Incar.from_file(prev_incar)
+            updates = {}
+            for k, v in prev_incar.items():
+                if k not in self._config_dict["INCAR"]:
+                    updates[k] = v
+            self._config_dict["INCAR"].update(updates)
         if functional.startswith("R2SCAN"):
             self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
             self.user_incar_settings.setdefault("ALGO", "ALL")
+            self.user_incar_settings.setdefault("GGA", None)
         if functional.startswith("PBE"):
             self.user_incar_settings.setdefault("GGA", "PE")
         if functional.endswith("+U"):
@@ -1244,12 +1253,7 @@ class MatPESStaticSet(MPStaticSet):
 
         self.kwargs = kwargs
         self.functional = functional
-
-    @property
-    def incar(self) -> Incar:
-        """Incar"""
-        parent_incar = super().incar
-        return Incar(self.prev_incar or parent_incar)
+        self.prev_incar = prev_incar
 
 
 class MPScanStaticSet(MPScanRelaxSet):
