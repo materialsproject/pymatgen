@@ -941,9 +941,9 @@ class PawAbinitHeader(AbinitHeader):
           5 13                                  : basis_size,lmn_size
          0 0 1 1 2                              : orbitals
          3                                      : number_of_meshes
-         1 3  350 1.18037783685 3.50000000002 : mesh 1, type,size,rad_step[,log_step]
-         2 1  921 2.5000000000003                : mesh 2, type,size,rad_step[,log_step]
-         3 3  391 1.18037783685 3.50000000002 : mesh 3, type,size,rad_step[,log_step]
+         1 3  350 1.1803778368E-05 3.5000000000E-02 : mesh 1, type,size,rad_step[,log_step]
+         2 1  921 2.500000000000E-03                : mesh 2, type,size,rad_step[,log_step]
+         3 3  391 1.1803778368E-05 3.5000000000E-02 : mesh 3, type,size,rad_step[,log_step]
           2.3000000000                          : r_cut(SPH)
          2 0.
 
@@ -956,11 +956,11 @@ class PawAbinitHeader(AbinitHeader):
           4  8                                  : basis_size,lmn_size
          0 0 1 1                                : orbitals
          5                                      : number_of_meshes
-         1 2  560 1.51980327594 1.66666666672 : mesh 1, type,size,rad_step[,log_step]
-         2 2  556 1.51980327594 1.66666666672 : mesh 2, type,size,rad_step[,log_step]
-         3 2  576 1.51980327594 1.66666666672 : mesh 3, type,size,rad_step[,log_step]
-         4 2  666 1.51980327594 1.66666666672 : mesh 4, type,size,rad_step[,log_step]
-         5 2  673 1.51980327594 1.66666666672 : mesh 5, type,size,rad_step[,log_step]
+         1 2  560 1.5198032759E-04 1.6666666667E-02 : mesh 1, type,size,rad_step[,log_step]
+         2 2  556 1.5198032759E-04 1.6666666667E-02 : mesh 2, type,size,rad_step[,log_step]
+         3 2  576 1.5198032759E-04 1.6666666667E-02 : mesh 3, type,size,rad_step[,log_step]
+         4 2  666 1.5198032759E-04 1.6666666667E-02 : mesh 4, type,size,rad_step[,log_step]
+         5 2  673 1.5198032759E-04 1.6666666667E-02 : mesh 5, type,size,rad_step[,log_step]
           1.5550009124                          : r_cut(PAW)
          3 0.                                   : shape_type,rshape
 
@@ -973,11 +973,11 @@ class PawAbinitHeader(AbinitHeader):
           4  8                                  : basis_size,lmn_size
          0 0 1 1                                : orbitals
          5                                      : number_of_meshes
-         1 2  663 8.21297185404046744 1.14981605956566552 : mesh 1, type,size,rad_step[,log_step]
-         2 2  658 8.21297185404046744 1.14981605956566552 : mesh 2, type,size,rad_step[,log_step]
-         3 2  740 8.21297185404046744 1.14981605956566552 : mesh 3, type,size,rad_step[,log_step]
-         4 2  819 8.21297185404046744 1.14981605956566552 : mesh 4, type,size,rad_step[,log_step]
-         5 2  870 8.21297185404046744 1.14981605956566552 : mesh 5, type,size,rad_step[,log_step]
+         1 2  663 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 1, type,size,rad_step[,log_step]
+         2 2  658 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 2, type,size,rad_step[,log_step]
+         3 2  740 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 3, type,size,rad_step[,log_step]
+         4 2  819 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 4, type,size,rad_step[,log_step]
+         5 2  870 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 5, type,size,rad_step[,log_step]
           1.5669671236                          : r_cut(PAW)
          2 0.                                   : shape_type,rshape
         """
