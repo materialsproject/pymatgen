@@ -1226,7 +1226,7 @@ class MatPESStaticSet(DictSet):
         functional: Literal["R2SCAN", "R2SCAN+U", "PBE", "PBE+U"] = "PBE",
         prev_incar=None,
         **kwargs: Any,
-    ) -> None:
+    ):
         """
         Args:
             structure (Structure): Structure from previous run.
@@ -1239,10 +1239,8 @@ class MatPESStaticSet(DictSet):
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
         if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
-            updates = {}
-            for k, v in prev_incar.items():
-                if k not in self._config_dict["INCAR"]:
-                    updates[k] = v
+        if prev_incar:
+            updates = {k: v for k, v in prev_incar.items() if k not in self._config_dict["INCAR"]}
             self._config_dict["INCAR"].update(updates)
         if functional.startswith("R2SCAN"):
             self.user_incar_settings.setdefault("METAGGA", "R2SCAN")

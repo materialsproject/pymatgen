@@ -59,7 +59,6 @@ MODULE_DIR = Path(pymatgen.io.vasp.__file__).parent
 
 dec = MontyDecoder()
 
-
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
 skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set.")
 
@@ -166,8 +165,8 @@ class TestMITMPRelaxSet(PymatgenTest):
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Cu"], [[0, 0, 0]])
 
         with pytest.warns(
-            BadInputSetWarning,
-            match="Relaxation of likely metal with ISMEAR < 1 detected. See VASP recommendations on ISMEAR for metals.",
+                BadInputSetWarning,
+                match="Relaxation of likely metal with ISMEAR < 1 detected. See VASP recommendations on ISMEAR for metals.",
         ) as warns:
             vis = self.set(structure)
             _ = vis.incar
@@ -214,9 +213,9 @@ class TestMITMPRelaxSet(PymatgenTest):
                     structure=struct, user_potcar_functional="PBE_54", user_potcar_settings=user_potcar_settings
                 )
                 expected = {  # noqa: SIM222
-                    **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
-                    **(user_potcar_settings or {}),
-                } or None
+                               **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
+                               **(user_potcar_settings or {}),
+                           } or None
                 assert relax_set.user_potcar_settings == expected
 
     @skip_if_no_psp_dir
@@ -740,67 +739,81 @@ class TestMatPESStaticSet(PymatgenTest):
 
     def test_init(self):
         # check if default INCAR settings are loaded
-        default = MPStaticSet(self.struct)
+        default = MatPESStaticSet(self.struct)
         incar = default.incar
-        assert incar["GGA"] == "Pe"
         assert incar["ALGO"] == "Normal"
         assert incar["EDIFF"] == 1.0e-05
-        assert incar["KSPACING"] == 0.22
-        assert incar["ISMEAR"] == 0
-        assert incar["SIGMA"] == 0.05
         assert incar["ENAUG"] == 1360
         assert incar["ENCUT"] == 680
-        assert incar["NELM"] == 200
-        assert incar["NSW"] == 0
-        assert incar["LORBIT"] == 11
+        assert incar["GGA"] == "Pe"
+        assert incar["ISMEAR"] == 0
+        assert incar["ISPIN"] == 2
+        assert incar["KSPACING"] == 0.22
+        assert incar["LAECHG"]
         assert incar["LASPH"]
         assert incar["LCHARG"]
-        assert incar["LAECHG"]
-        assert incar["LDAU"] is None
+        assert incar["LMIXTAU"]
+        assert incar.get("LDAU") is None
+        assert incar["LORBIT"] == 11
+        assert incar["LREAL"] == "Auto"
+        assert not incar["LWAVE"]
+        assert incar["NELM"] == 200
+        assert incar["NSW"] == 0
+        assert incar["PREC"] == "Accurate"
+        assert incar["SIGMA"] == 0.05
         assert default.kpoints is None
 
         # check from_dict method
-        default_from_dict = MPStaticSet.from_dict(default.structure)
-        incar_fd = default_from_dict.incar
-        assert incar_fd["GGA"] == "Pe"
-        assert incar_fd["ALGO"] == "Normal"
-        assert incar_fd["EDIFF"] == 1.0e-05
-        assert incar_fd["KSPACING"] == 0.22
-        assert incar_fd["ISMEAR"] == 0
-        assert incar_fd["SIGMA"] == 0.05
-        assert incar_fd["ENAUG"] == 1360
-        assert incar_fd["ENCUT"] == 680
-        assert incar_fd["NELM"] == 200
-        assert incar_fd["NSW"] == 0
-        assert incar_fd["LORBIT"] == 11
-        assert incar_fd["LASPH"]
-        assert incar_fd["LCHARG"]
-        assert incar_fd["LAECHG"]
-        assert incar_fd["LWAVE"] is None
-        assert incar_fd["LDAU"] is None
+        default_from_dict = MatPESStaticSet.from_dict(default.as_dict())
+        incar = default_from_dict.incar
+        assert incar["ALGO"] == "Normal"
+        assert incar["EDIFF"] == 1.0e-05
+        assert incar["ENAUG"] == 1360
+        assert incar["ENCUT"] == 680
+        assert incar["GGA"] == "Pe"
+        assert incar["ISMEAR"] == 0
+        assert incar["ISPIN"] == 2
+        assert incar["KSPACING"] == 0.22
+        assert incar["LAECHG"]
+        assert incar["LASPH"]
+        assert incar["LCHARG"]
+        assert incar["LMIXTAU"]
+        assert incar.get("LDAU") is None
+        assert incar["LORBIT"] == 11
+        assert incar["LREAL"] == "Auto"
+        assert not incar["LWAVE"]
+        assert incar["NELM"] == 200
+        assert incar["NSW"] == 0
+        assert incar["PREC"] == "Accurate"
+        assert incar["SIGMA"] == 0.05
         assert default.kpoints is None
 
         # check if prev_run settings will NOT override the default settings
-        prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/relaxation/INCAR")
-        prev_struc = Poscar.from_file(f"{TEST_FILES_DIR}/relaxation/POSCAR").structure
-        default_prev = MPStaticSet(structure=prev_struc, prev_incar=prev_incar)
-        incar_prev = default_prev.incar
-        assert incar_prev["GGA"] == "Pe"
-        assert incar_prev["ALGO"] == "Normal"
-        assert incar_prev["EDIFF"] == 1.0e-05
-        assert incar_prev["KSPACING"] == 0.22
-        assert incar_prev["ISMEAR"] == 0
-        assert incar_prev["SIGMA"] == 0.05
-        assert incar_prev["ENAUG"] == 1360
-        assert incar_prev["ENCUT"] == 680
-        assert incar_prev["NELM"] == 200
-        assert incar_prev["NSW"] == 0
-        assert incar_prev["LASPH"]
-        assert incar_prev["LCHARG"]
-        assert incar_prev["LAECHG"]
-        assert incar_prev["LWAVE"] is None
-        assert incar_prev["LDAU"] is None
-        assert default_prev.kpoints is None
+        prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
+        default_prev = MatPESStaticSet(structure=self.struct, prev_incar=prev_incar)
+        incar = default_prev.incar
+        assert incar["ALGO"] == "Normal"
+        assert incar["EDIFF"] == 1.0e-05
+        assert incar["ENAUG"] == 1360
+        assert incar["ENCUT"] == 680
+        assert incar["GGA"] == "Pe"
+        assert incar["ISMEAR"] == 0
+        assert incar["ISPIN"] == 2
+        assert incar["KSPACING"] == 0.22
+        assert incar["LAECHG"]
+        assert incar["LASPH"]
+        assert incar["LCHARG"]
+        assert incar["LMIXTAU"]
+        assert incar.get("LDAU") is None
+        assert incar["LORBIT"] == 11
+        assert incar["LREAL"] == "Auto"
+        assert not incar["LWAVE"]
+        assert incar["NPAR"] == 8 # test if prev_incar is loaded
+        assert incar["NELM"] == 200
+        assert incar["NSW"] == 0
+        assert incar["PREC"] == "Accurate"
+        assert incar["SIGMA"] == 0.05
+        assert default.kpoints is None
 
         # check if user_incar_settings will override the default settings
         default_non_prev = MatPESStaticSet(self.struct, user_incar_settings={"ENCUT": 800, "LORBIT": 12, "LWAVE": True})
@@ -811,28 +824,28 @@ class TestMatPESStaticSet(PymatgenTest):
         assert default_non_prev.kpoints is None
 
         # check if PBE+U functional can be applied
-        default_u = MPStaticSet(self.struct, functional="PBE+U")
+        default_u = MatPESStaticSet(self.struct, functional="PBE+U")
         incar_u = default_u.incar
         assert incar_u["GGA"] == "Pe"
-        assert incar["ALGO"] == "Normal"
-        assert incar["LDAU"]
+        assert incar_u["ALGO"] == "Normal"
+        assert incar_u["LDAU"]
         assert default.kpoints is None
 
         # check if R2SCAN functional can be applied
-        scan = MPStaticSet(self.struct, functional="R2SCAN")
+        scan = MatPESStaticSet(self.struct, functional="R2SCAN")
         incar_scan = scan.incar
-        assert incar_scan["METAGGA"] == "R2SCAN"
-        assert incar_scan["GGA"] is None
-        assert incar_scan["ALGO"] == "ALL"
-        assert incar["LDAU"] is None
+        assert incar_scan["METAGGA"] == "R2scan"
+        assert incar_scan.get("GGA") is None
+        assert incar_scan["ALGO"] == "All"
+        assert incar_scan.get("LDAU") is None
         assert scan.kpoints is None
 
         # check if R2SCAN+U functional can be applied
-        scan_u = MPStaticSet(self.struct, functional="R2SCAN+U")
+        scan_u = MatPESStaticSet(self.struct, functional="R2SCAN+U")
         incar_scan_u = scan_u.incar
-        assert incar_scan_u["METAGGA"] == "R2SCAN"
-        assert incar_scan_u["GGA"] is None
-        assert incar_scan_u["ALGO"] == "ALL"
+        assert incar_scan_u["METAGGA"] == "R2scan"
+        assert incar_scan_u.get("GGA") is None
+        assert incar_scan_u["ALGO"] == "All"
         assert incar_scan_u["LDAU"]
         assert scan_u.kpoints is None
 
@@ -1530,7 +1543,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert test_potcar_set_1.potcar.functional == "PBE_54"
 
         with pytest.raises(
-            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+                ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             MPScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
@@ -1703,7 +1716,7 @@ class TestMVLRelax52Set(PymatgenTest):
         assert test_potcar_set_1.potcar.functional == "PBE_52"
 
         with pytest.raises(
-            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+                ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             self.set(self.struct, user_potcar_functional="PBE")
 
