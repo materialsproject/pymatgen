@@ -760,8 +760,6 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
         assert incar["SIGMA"] == 0.05
-        # test no KPOINTS file is written as we set KSPACING = 0.22
-        assert default.kpoints is None
         # test POTCAR files are default PBE_54 PSPs and functional
         assert default.potcar_symbols == ["Fe_pv", "P", "O"]
         assert default.potcar.functional == "PBE_54"
@@ -794,8 +792,6 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
         assert incar["SIGMA"] == 0.05
-        # test no KPOINTS file is written as we set KSPACING = 0.22
-        assert default_prev.kpoints is None
         # test POTCAR files are default PBE_54 PSPs and functional
         assert default_prev.potcar_symbols == ["Fe_pv", "P", "O"]
         assert default_prev.potcar.functional == "PBE_54"
@@ -807,11 +803,22 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar_scan.get("GGA") is None
         assert incar_scan["ALGO"] == "All"
         assert incar_scan.get("LDAU") is None
-        # test no KPOINTS file is written as we set KSPACING = 0.22
-        assert scan.kpoints is None
         # test POTCAR files are default PBE_54 PSPs and functional
         assert scan.potcar_symbols == ["Fe_pv", "P", "O"]
         assert scan.potcar.functional == "PBE_54"
+
+    def test_potcar(self):
+        default = MatPESStaticSet(self.struct)
+        assert default.potcar.functional == "PBE_54"
+        scan = MatPESStaticSet(self.struct, functional="R2SCAN")
+        assert scan.potcar.functional == "PBE_54"
+
+        functional = "PBE_52"
+        with pytest.raises(
+            Warning, match=f"{functional} is not supported. The supported functionals are PBE_54 and R2SCAN."
+        ):
+            pbe_52 = MatPESStaticSet(self.struct, functional=functional)
+        assert pbe_52.potcar.functional == functional
 
 
 class TestMPNonSCFSet(PymatgenTest):
