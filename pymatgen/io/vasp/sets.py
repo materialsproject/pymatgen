@@ -1231,9 +1231,10 @@ class MatPESStaticSet(DictSet):
         Args:
             structure (Structure): Structure from previous run.
             functional ('R2SCAN'|'PBE'): Which functional to use. Defaults to 'PBE'.
-            prev_incar (Incar): Incar file from previous run. Only input parameter not included
+            prev_incar (Incar|str): Incar file from previous run. Only input parameter not included
                 in default settings of MatPESStaticSet are used.
-            **kwargs: Passed to MPStaticSet.
+            **kwargs: Passed to DictSet. For example, Hubbard U can be enabled with
+                user_incar_settings={"LDAU": True}
         """
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
         if isinstance(prev_incar, str):

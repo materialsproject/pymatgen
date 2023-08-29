@@ -733,12 +733,9 @@ class TestMPStaticSet(PymatgenTest):
 
 class TestMatPESStaticSet(PymatgenTest):
     def setUp(self):
-        file_path = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(file_path)
-        self.struct = poscar.structure
+        self.struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
 
     def test_init_default(self):
-        # check if default INCAR settings are loaded
         default = MatPESStaticSet(self.struct)
         incar = default.incar
         assert incar["ALGO"] == "Normal"
@@ -763,7 +760,6 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["SIGMA"] == 0.05
 
     def test_init_with_prev_incar(self):
-        # check if prev_run settings will NOT override the default settings
         prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=prev_incar)
         incar = default_prev.incar
