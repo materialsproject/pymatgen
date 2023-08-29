@@ -817,8 +817,7 @@ class TestMatPESStaticSet(PymatgenTest):
         with pytest.raises(
             Warning, match=f"{functional} is not supported. The supported functionals are PBE_54 and R2SCAN."
         ):
-            pbe_52 = MatPESStaticSet(self.struct, functional=functional)
-        assert pbe_52.potcar.functional == functional
+            MatPESStaticSet(self.struct, functional=functional)
 
 
 class TestMPNonSCFSet(PymatgenTest):
