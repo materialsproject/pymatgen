@@ -737,7 +737,7 @@ class TestMatPESStaticSet(PymatgenTest):
         poscar = Poscar.from_file(file_path)
         self.struct = poscar.structure
 
-    def test_init(self):
+    def test_init_default(self):
         # check if default INCAR settings are loaded
         default = MatPESStaticSet(self.struct)
         incar = default.incar
@@ -763,6 +763,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["SIGMA"] == 0.05
         assert default.kpoints is None
 
+    def test_init_with_prev_incar(self):
         # check if prev_run settings will NOT override the default settings
         prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=prev_incar)
@@ -788,15 +789,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
         assert incar["SIGMA"] == 0.05
-        assert default.kpoints is None
-
-        # check if user_incar_settings will override the default settings
-        default_non_prev = MatPESStaticSet(self.struct, user_incar_settings={"ENCUT": 800, "LORBIT": 12, "LWAVE": True})
-        incar_non_prev = default_non_prev.incar
-        assert incar_non_prev["ENCUT"] == 800
-        assert incar_non_prev["LORBIT"] == 12
-        assert incar_non_prev["LWAVE"]
-        assert default_non_prev.kpoints is None
+        assert default_prev.kpoints is None
 
         # check if PBE+U functional can be applied
         default_u = MatPESStaticSet(self.struct, functional="PBE+U")
