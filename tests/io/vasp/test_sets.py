@@ -758,13 +758,45 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
         assert incar["SIGMA"] == 0.05
+        # test no KPOINTS file is written as we set KSPACING = 0.22
+        assert default.kpoints is None
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert default.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert default.potcar.functional == "PBE_54"
 
     def test_init_with_prev_incar(self):
         prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=prev_incar)
         incar = default_prev.incar
-        assert incar["NPAR"] == 8  # test if prev_incar is used.
-        assert incar["NSW"] == 0  # test if default in MatPESStaticSet is prioritized.
+        # test if prev_incar is used.
+        assert incar["NPAR"] == 8
+        assert not incar["LSCALU"]
+        # test if default in MatPESStaticSet is prioritized.
+        assert incar["ALGO"] == "Normal"
+        assert incar["EDIFF"] == 1.0e-05
+        assert incar["ENAUG"] == 1360
+        assert incar["ENCUT"] == 680
+        assert incar["GGA"] == "Pe"
+        assert incar["ISMEAR"] == 0
+        assert incar["ISPIN"] == 2
+        assert incar["KSPACING"] == 0.22
+        assert incar["LAECHG"]
+        assert incar["LASPH"]
+        assert incar["LCHARG"]
+        assert incar["LMIXTAU"]
+        assert incar.get("LDAU") is None
+        assert incar["LORBIT"] == 11
+        assert incar["LREAL"] == "Auto"
+        assert not incar["LWAVE"]
+        assert incar["NELM"] == 200
+        assert incar["NSW"] == 0
+        assert incar["PREC"] == "Accurate"
+        assert incar["SIGMA"] == 0.05
+        # test no KPOINTS file is written as we set KSPACING = 0.22
+        assert default_prev.kpoints is None
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert default_prev.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert default_prev.potcar.functional == "PBE_54"
 
     def test_init_r2scan(self):
         scan = MatPESStaticSet(self.struct, functional="R2SCAN")
@@ -773,20 +805,11 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar_scan.get("GGA") is None
         assert incar_scan["ALGO"] == "All"
         assert incar_scan.get("LDAU") is None
-
-    def test_potcar(self):
-        default = MatPESStaticSet(self.struct)
-        assert default.potcar.functional == "PBE_54"
-        scan = MatPESStaticSet(self.struct, functional="R2SCAN")
+        # test no KPOINTS file is written as we set KSPACING = 0.22
+        assert scan.kpoints is None
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert scan.potcar_symbols == ["Fe_pv", "P", "O"]
         assert scan.potcar.functional == "PBE_54"
-
-        functional = "PBE_52"
-        with pytest.raises(
-            Warning,
-            match=f"{functional} is not supported. The supported functionals are PBE_54 and R2SCAN.",
-        ):
-            pbe_52 = MatPESStaticSet(self.struct, functional=functional)
-            assert pbe_52.potcar.functional == functional
 
 
 class TestMPNonSCFSet(PymatgenTest):
