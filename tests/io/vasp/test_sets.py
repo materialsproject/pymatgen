@@ -793,6 +793,14 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar_scan["ALGO"] == "All"
         assert incar_scan.get("LDAU") is None
 
+    def test_potcar(self):
+        default = MatPESStaticSet(self.struct)
+        assert default.potcar.functional == "PBE_54"
+        scan = MatPESStaticSet(self.struct, functional="R2SCAN")
+        assert scan.potcar.functional == "PBE_54"
+        pbe_52 = MatPESStaticSet(self.struct, user_potcar_functional="PBE_52")
+        assert pbe_52.potcar.functional == "PBE_52"
+
 
 class TestMPNonSCFSet(PymatgenTest):
     def setUp(self):
