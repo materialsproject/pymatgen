@@ -1223,17 +1223,16 @@ class MatPESStaticSet(DictSet):
     def __init__(
         self,
         structure: Structure,
-        functional: Literal["R2SCAN", "R2SCAN+U", "PBE", "PBE+U"] = "PBE",
+        functional: Literal["R2SCAN", "PBE"] = "PBE",
         prev_incar=None,
         **kwargs: Any,
     ):
         """
         Args:
             structure (Structure): Structure from previous run.
-            functional ('R2SCAN' | 'R2SCAN+U' | 'PBE' | 'PBE+U'): Which functional to use and whether to include
-                Hubbard U corrections. Defaults to 'PBE'.
-            prev_incar (Incar): Incar file from previous run. We do not want to update the current INCAR
-            settings except the new settings added by Custodian.
+            functional ('R2SCAN'|'PBE'): Which functional to use. Defaults to 'PBE'.
+            prev_incar (Incar): Incar file from previous run. Only input parameter not included
+                in default settings of MatPESStaticSet are used.
             **kwargs: Passed to MPStaticSet.
         """
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
@@ -1242,14 +1241,17 @@ class MatPESStaticSet(DictSet):
         if prev_incar:
             updates = {k: v for k, v in prev_incar.items() if k not in self._config_dict["INCAR"]}
             self._config_dict["INCAR"].update(updates)
-        if functional.startswith("R2SCAN"):
+
+        if functional.upper() == "R2SCAN":
             self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
             self.user_incar_settings.setdefault("ALGO", "ALL")
             self.user_incar_settings.setdefault("GGA", None)
-        if functional.startswith("PBE"):
+        elif functional.upper() == "PBE":
             self.user_incar_settings.setdefault("GGA", "PE")
-        if functional.endswith("+U"):
-            self.user_incar_settings.setdefault("LDAU", True)
+        else:
+            raise ValueError(
+                f"{functional} is not supported. The supported functionals are PBE and R2SCAN."
+            )
 
         self.kwargs = kwargs
         self.functional = functional

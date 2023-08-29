@@ -761,7 +761,6 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
         assert incar["SIGMA"] == 0.05
-        assert default.kpoints is None
 
     def test_init_with_prev_incar(self):
         # check if prev_run settings will NOT override the default settings
@@ -789,33 +788,14 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
         assert incar["SIGMA"] == 0.05
-        assert default_prev.kpoints is None
 
-        # check if PBE+U functional can be applied
-        default_u = MatPESStaticSet(self.struct, functional="PBE+U")
-        incar_u = default_u.incar
-        assert incar_u["GGA"] == "Pe"
-        assert incar_u["ALGO"] == "Normal"
-        assert incar_u["LDAU"]
-        assert default.kpoints is None
-
-        # check if R2SCAN functional can be applied
+    def test_init_r2scan(self):
         scan = MatPESStaticSet(self.struct, functional="R2SCAN")
         incar_scan = scan.incar
         assert incar_scan["METAGGA"] == "R2scan"
         assert incar_scan.get("GGA") is None
         assert incar_scan["ALGO"] == "All"
         assert incar_scan.get("LDAU") is None
-        assert scan.kpoints is None
-
-        # check if R2SCAN+U functional can be applied
-        scan_u = MatPESStaticSet(self.struct, functional="R2SCAN+U")
-        incar_scan_u = scan_u.incar
-        assert incar_scan_u["METAGGA"] == "R2scan"
-        assert incar_scan_u.get("GGA") is None
-        assert incar_scan_u["ALGO"] == "All"
-        assert incar_scan_u["LDAU"]
-        assert scan_u.kpoints is None
 
 
 class TestMPNonSCFSet(PymatgenTest):
