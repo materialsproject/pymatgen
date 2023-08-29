@@ -763,8 +763,8 @@ class TestMatPESStaticSet(PymatgenTest):
         prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=prev_incar)
         incar = default_prev.incar
-        assert incar["NPAR"] == 8 # test if prev_incar is loaded
-        assert incar["NSW"] == 0
+        assert incar["NPAR"] == 8 # test if prev_incar is used.
+        assert incar["NSW"] == 0 # test if default in MatPESStaticSet is prioritized.
 
     def test_init_r2scan(self):
         scan = MatPESStaticSet(self.struct, functional="R2SCAN")
@@ -779,8 +779,14 @@ class TestMatPESStaticSet(PymatgenTest):
         assert default.potcar.functional == "PBE_54"
         scan = MatPESStaticSet(self.struct, functional="R2SCAN")
         assert scan.potcar.functional == "PBE_54"
-        pbe_52 = MatPESStaticSet(self.struct, user_potcar_functional="PBE_52")
-        assert pbe_52.potcar.functional == "PBE_52"
+
+        functional = "PBE_52"
+        with pytest.raises(
+            Warning,
+            match=f"{functional} is not supported. The supported functionals are PBE_54 and R2SCAN.",
+        ):
+            pbe_52 = MatPESStaticSet(self.struct, functional=functional)
+            assert pbe_52.potcar.functional == functional
 
 
 class TestMPNonSCFSet(PymatgenTest):
