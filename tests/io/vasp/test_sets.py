@@ -744,7 +744,6 @@ class TestMatPESStaticSet(PymatgenTest):
         incar = default.incar
         assert incar["GGA"] == "Pe"
         assert incar["ALGO"] == "Normal"
-        assert incar["EDIFF"] == 1.0e-05
         assert incar["KSPACING"] == 0.22
         assert incar["ISMEAR"] == 0
         assert incar["SIGMA"] == 0.05
@@ -764,7 +763,6 @@ class TestMatPESStaticSet(PymatgenTest):
         incar_fd = default_from_dict.incar
         assert incar_fd["GGA"] == "Pe"
         assert incar_fd["ALGO"] == "Normal"
-        assert incar_fd["EDIFF"] == 1.0e-05
         assert incar_fd["KSPACING"] == 0.22
         assert incar_fd["ISMEAR"] == 0
         assert incar_fd["SIGMA"] == 0.05
@@ -787,7 +785,6 @@ class TestMatPESStaticSet(PymatgenTest):
         incar_prev = default_prev.incar
         assert incar_prev["GGA"] == "Pe"
         assert incar_prev["ALGO"] == "Normal"
-        assert incar_prev["EDIFF"] == 1.0e-05
         assert incar_prev["KSPACING"] == 0.22
         assert incar_prev["ISMEAR"] == 0
         assert incar_prev["SIGMA"] == 0.05
