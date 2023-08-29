@@ -1223,14 +1223,14 @@ class MatPESStaticSet(DictSet):
     def __init__(
         self,
         structure: Structure,
-        functional: Literal["R2SCAN", "PBE"] = "PBE",
+        functional: Literal["R2SCAN", "PBE_54"] = "PBE_54",
         prev_incar=None,
         **kwargs: Any,
     ):
         """
         Args:
             structure (Structure): Structure from previous run.
-            functional ('R2SCAN'|'PBE'): Which functional to use. Defaults to 'PBE'.
+            functional ('R2SCAN'|'PBE_54'): Which functional to use. Defaults to 'PBE_54'.
             prev_incar (Incar|str): Incar file from previous run. Only input parameter not included
                 in default settings of MatPESStaticSet are used.
             **kwargs: Passed to DictSet. For example, Hubbard U can be enabled with
@@ -1247,11 +1247,9 @@ class MatPESStaticSet(DictSet):
             self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
             self.user_incar_settings.setdefault("ALGO", "ALL")
             self.user_incar_settings.setdefault("GGA", None)
-        elif functional.upper() == "PBE":
-            self.user_incar_settings.setdefault("GGA", "PE")
-        else:
-            raise ValueError(
-                f"{functional} is not supported. The supported functionals are PBE and R2SCAN."
+        elif functional.upper() != "PBE_54":
+            raise Warning(
+                f"{functional} is not supported. The supported functionals are PBE_54 and R2SCAN."
             )
 
         self.kwargs = kwargs

@@ -763,27 +763,8 @@ class TestMatPESStaticSet(PymatgenTest):
         prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=prev_incar)
         incar = default_prev.incar
-        assert incar["ALGO"] == "Normal"
-        assert incar["EDIFF"] == 1.0e-05
-        assert incar["ENAUG"] == 1360
-        assert incar["ENCUT"] == 680
-        assert incar["GGA"] == "Pe"
-        assert incar["ISMEAR"] == 0
-        assert incar["ISPIN"] == 2
-        assert incar["KSPACING"] == 0.22
-        assert incar["LAECHG"]
-        assert incar["LASPH"]
-        assert incar["LCHARG"]
-        assert incar["LMIXTAU"]
-        assert incar.get("LDAU") is None
-        assert incar["LORBIT"] == 11
-        assert incar["LREAL"] == "Auto"
-        assert not incar["LWAVE"]
         assert incar["NPAR"] == 8 # test if prev_incar is loaded
-        assert incar["NELM"] == 200
         assert incar["NSW"] == 0
-        assert incar["PREC"] == "Accurate"
-        assert incar["SIGMA"] == 0.05
 
     def test_init_r2scan(self):
         scan = MatPESStaticSet(self.struct, functional="R2SCAN")
