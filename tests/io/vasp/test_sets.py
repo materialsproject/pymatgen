@@ -165,8 +165,8 @@ class TestMITMPRelaxSet(PymatgenTest):
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Cu"], [[0, 0, 0]])
 
         with pytest.warns(
-                BadInputSetWarning,
-                match="Relaxation of likely metal with ISMEAR < 1 detected. See VASP recommendations on ISMEAR for metals.",
+            BadInputSetWarning,
+            match="Relaxation of likely metal with ISMEAR < 1 detected. See VASP recommendations on ISMEAR for metals.",
         ) as warns:
             vis = self.set(structure)
             _ = vis.incar
@@ -213,9 +213,9 @@ class TestMITMPRelaxSet(PymatgenTest):
                     structure=struct, user_potcar_functional="PBE_54", user_potcar_settings=user_potcar_settings
                 )
                 expected = {  # noqa: SIM222
-                               **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
-                               **(user_potcar_settings or {}),
-                           } or None
+                    **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
+                    **(user_potcar_settings or {}),
+                } or None
                 assert relax_set.user_potcar_settings == expected
 
     @skip_if_no_psp_dir
@@ -763,8 +763,8 @@ class TestMatPESStaticSet(PymatgenTest):
         prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=prev_incar)
         incar = default_prev.incar
-        assert incar["NPAR"] == 8 # test if prev_incar is used.
-        assert incar["NSW"] == 0 # test if default in MatPESStaticSet is prioritized.
+        assert incar["NPAR"] == 8  # test if prev_incar is used.
+        assert incar["NSW"] == 0  # test if default in MatPESStaticSet is prioritized.
 
     def test_init_r2scan(self):
         scan = MatPESStaticSet(self.struct, functional="R2SCAN")
@@ -1482,7 +1482,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert test_potcar_set_1.potcar.functional == "PBE_54"
 
         with pytest.raises(
-                ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             MPScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
@@ -1655,7 +1655,7 @@ class TestMVLRelax52Set(PymatgenTest):
         assert test_potcar_set_1.potcar.functional == "PBE_52"
 
         with pytest.raises(
-                ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             self.set(self.struct, user_potcar_functional="PBE")
 

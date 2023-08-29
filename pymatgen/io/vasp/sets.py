@@ -1249,9 +1249,7 @@ class MatPESStaticSet(DictSet):
             self.user_incar_settings.setdefault("ALGO", "ALL")
             self.user_incar_settings.setdefault("GGA", None)
         elif functional.upper() != "PBE_54":
-            raise Warning(
-                f"{functional} is not supported. The supported functionals are PBE_54 and R2SCAN."
-            )
+            raise Warning(f"{functional} is not supported. The supported functionals are PBE_54 and R2SCAN.")
 
         self.kwargs = kwargs
         self.functional = functional
