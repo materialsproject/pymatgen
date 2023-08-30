@@ -64,7 +64,7 @@ If you'd like to use the latest unreleased changes on the main branch, you can i
 pip install -U git+https://github.com/materialsproject/pymatgen
 ```
 
-The minimum Python version is 3.8. Some extra functionality (e.g., generation of POTCARs) does require additional setup (see the [`pymatgen` docs]).
+The minimum Python version is 3.9. Some extra functionality (e.g., generation of POTCARs) does require additional setup (see the [`pymatgen` docs]).
 
 ## Change Log
 

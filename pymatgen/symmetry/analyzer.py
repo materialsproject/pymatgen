@@ -16,10 +16,11 @@ import logging
 import math
 import warnings
 from collections import defaultdict
+from collections.abc import Sequence
 from fractions import Fraction
 from functools import lru_cache
 from math import cos, sin
-from typing import TYPE_CHECKING, Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import spglib

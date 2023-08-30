@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from itertools import product
-from typing import TYPE_CHECKING, Iterator, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -15,6 +15,8 @@ from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
     from pymatgen.core import Structure
 
 
