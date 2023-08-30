@@ -122,8 +122,13 @@ jobs:
           python -m pip install numpy cython packaging
           python -m pip install -e '.[dev,optional]'
       - name: pytest split ${{ matrix.split }}
+        if: github.event_name != 'pull_request'
         run: |
-          pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
+          pytest --cov=pymatgen tests
+      - name: pytest split ${{ matrix.split }}
+        if: github.event_name == 'pull_request'
+        run: |
+          pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
       - name: Upload coverage
         # Only upload coverage for ubuntu py3.11 runs. Continue on error as coverage is not critical.
         if: github.event_name != 'pull_request' && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
