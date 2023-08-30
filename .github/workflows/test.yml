@@ -19,10 +19,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   test:
     # prevent this action from running on forks
@@ -62,7 +58,6 @@ jobs:
           cache-dependency-path: setup.py
       - name: Copy CLIs to bin
         if: runner.os == 'Linux'
-        # This is the way to update env variables in a way that persist for the entire job.
         run: |
           sudo cp cmd_line/gulp/Linux_64bit/* /usr/local/bin/
       - name: Install Bader
