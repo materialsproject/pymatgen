@@ -736,6 +736,8 @@ class TestMPStaticSet(PymatgenTest):
 class TestMatPESStaticSet(PymatgenTest):
     def setUp(self):
         self.struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        self.prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
+
 
     def test_init_default(self):
         default = MatPESStaticSet(self.struct)
@@ -763,10 +765,10 @@ class TestMatPESStaticSet(PymatgenTest):
         # test POTCAR files are default PBE_54 PSPs and functional
         assert default.potcar_symbols == ["Fe_pv", "P", "O"]
         assert default.potcar.functional == "PBE_54"
+        assert default.kpoints is None
 
     def test_init_with_prev_incar(self):
-        prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
-        default_prev = MatPESStaticSet(structure=self.struct, prev_incar=prev_incar)
+        default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
         incar = default_prev.incar
         # test if prev_incar is used.
         assert incar["NPAR"] == 8
@@ -795,6 +797,7 @@ class TestMatPESStaticSet(PymatgenTest):
         # test POTCAR files are default PBE_54 PSPs and functional
         assert default_prev.potcar_symbols == ["Fe_pv", "P", "O"]
         assert default_prev.potcar.functional == "PBE_54"
+        assert default_prev.kpoints is None
 
     def test_init_r2scan(self):
         scan = MatPESStaticSet(self.struct, functional="R2SCAN")
@@ -806,11 +809,14 @@ class TestMatPESStaticSet(PymatgenTest):
         # test POTCAR files are default PBE_54 PSPs and functional
         assert scan.potcar_symbols == ["Fe_pv", "P", "O"]
         assert scan.potcar.functional == "PBE_54"
+        assert scan.kpoints is None
 
     def test_potcar(self):
         default = MatPESStaticSet(self.struct)
-        assert default.potcar.functional == "PBE_54"
+        default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
         scan = MatPESStaticSet(self.struct, functional="R2SCAN")
+        assert default.potcar.functional == "PBE_54"
+        assert default_prev.potcar.functional == "PBE_54"
         assert scan.potcar.functional == "PBE_54"
 
         functional = "PBE_52"
