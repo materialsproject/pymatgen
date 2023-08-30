@@ -5,11 +5,8 @@ change until best practices are established.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Union
-
-import numpy as np
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element, Species
@@ -21,7 +18,6 @@ if TYPE_CHECKING:  # needed to avoid circular imports
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, GibbsComputedStructureEntry
     from pymatgen.entries.exp_entries import ExpEntry
 
-MatrixLike = Union[Sequence[Sequence[float]], Sequence[np.ndarray], np.ndarray]
 
 PathLike = Union[str, Path]
 
