@@ -1223,14 +1223,16 @@ class MatPESStaticSet(DictSet):
     def __init__(
         self,
         structure: Structure,
-        functional: Literal["R2SCAN", "PBE_54"] = "PBE_54",
+        xc_functional: Literal["R2SCAN", "PBE"] = "PBE",
+        potcar_functional="PBE_54",
         prev_incar=None,
         **kwargs: Any,
     ):
         """
         Args:
             structure (Structure): Structure for static calculation.
-            functional ('R2SCAN'|'PBE_54'): Which functional to use. Defaults to 'PBE_54'.
+            xc_functional ('R2SCAN'|'PBE'): Exchange-correlation functional to use. Defaults to 'PBE'.
+            potcar_functional: Choice of VASP POTCAR functional and version. Defaults to 'PBE_54'.
             prev_incar (Incar|str): Incar file from previous run. Default settings of MatPESStaticSet
                 are prioritized over inputs from previous runs.
             **kwargs: Passed to DictSet. For example, Hubbard U can be enabled with
@@ -1244,15 +1246,25 @@ class MatPESStaticSet(DictSet):
             updates = {k: v for k, v in prev_incar.items() if k not in self._config_dict["INCAR"]}
             self._config_dict["INCAR"].update(updates)
 
-        if functional.upper() == "R2SCAN":
+        if xc_functional.upper() == "R2SCAN":
             self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
             self.user_incar_settings.setdefault("ALGO", "ALL")
             self.user_incar_settings.setdefault("GGA", None)
-        elif functional.upper() != "PBE_54":
-            raise Warning(f"{functional} is not supported. The supported functionals are PBE_54 and R2SCAN.")
+        elif xc_functional.upper() != "PBE":
+            raise Warning(
+                (
+                    f"{xc_functional} is not supported."
+                    + "The supported exchange-correlation functionals are PBE and R2SCAN."
+                )
+            )
+        if potcar_functional.upper() != "PBE_54":
+            raise Warning(
+                f"POTCAR version of {potcar_functional} is inconsistent with the default version of PBE_54."
+            )
+            self.potcar.functional = potcar_functional.upper()
 
         self.kwargs = kwargs
-        self.functional = functional
+        self.xc_functional = xc_functional
         self.prev_incar = prev_incar
 
 

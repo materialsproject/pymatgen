@@ -800,7 +800,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert default_prev.kpoints is None
 
     def test_init_r2scan(self):
-        scan = MatPESStaticSet(self.struct, functional="R2SCAN")
+        scan = MatPESStaticSet(self.struct, xc_functional="R2SCAN")
         incar_scan = scan.incar
         assert incar_scan["METAGGA"] == "R2scan"
         assert incar_scan.get("GGA") is None
@@ -811,19 +811,20 @@ class TestMatPESStaticSet(PymatgenTest):
         assert scan.potcar.functional == "PBE_54"
         assert scan.kpoints is None
 
-    def test_potcar(self):
-        default = MatPESStaticSet(self.struct)
-        default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
-        scan = MatPESStaticSet(self.struct, functional="R2SCAN")
-        assert default.potcar.functional == "PBE_54"
-        assert default_prev.potcar.functional == "PBE_54"
-        assert scan.potcar.functional == "PBE_54"
-
+    def test_functionals(self):
         functional = "LDA"
         with pytest.raises(
-            Warning, match=f"{functional} is not supported. The supported functionals are PBE_54 and R2SCAN."
+            Warning,
+            match=f"{functional} is not supported."
+            + "The supported exchange-correlation functionals are PBE and R2SCAN.",
         ):
-            MatPESStaticSet(self.struct, functional=functional)
+            MatPESStaticSet(self.struct, xc_functional=functional)
+
+        with pytest.raises(
+            Warning,
+            match=f"POTCAR version of {functional} is inconsistent with the default version of PBE_54.",
+        ):
+            MatPESStaticSet(self.struct, potcar_functional=functional)
 
 
 class TestMPNonSCFSet(PymatgenTest):
