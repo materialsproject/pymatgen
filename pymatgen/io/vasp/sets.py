@@ -1253,7 +1253,7 @@ class MatPESStaticSet(DictSet):
         elif xc_functional.upper() != "PBE":
             raise Warning(
                 f"{xc_functional} is not supported."
-                "The supported exchange-correlation functionals are PBE and R2SCAN."
+                " The supported exchange-correlation functionals are PBE and R2SCAN."
             )
         if potcar_functional.upper() != "PBE_54":
             raise Warning(f"POTCAR version of {potcar_functional} is inconsistent with the default version of PBE_54.")
