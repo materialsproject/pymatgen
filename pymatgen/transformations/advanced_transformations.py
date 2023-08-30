@@ -9,7 +9,7 @@ from fractions import Fraction
 from itertools import groupby, product
 from math import gcd
 from string import ascii_lowercase
-from typing import Callable, Iterable
+from typing import TYPE_CHECKING, Callable
 
 import numpy as np
 from monty.dev import requires
@@ -38,6 +38,9 @@ from pymatgen.transformations.standard_transformations import (
     SupercellTransformation,
 )
 from pymatgen.transformations.transformation_abc import AbstractTransformation
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 try:
     import hiphive
@@ -81,11 +84,8 @@ class ChargeBalanceTransformation(AbstractTransformation):
         trans = SubstitutionTransformation({self.charge_balance_sp: {self.charge_balance_sp: 1 - removal_fraction}})
         return trans.apply_transformation(structure)
 
-    def __str__(self):
-        return f"Charge Balance Transformation : Species to remove = {self.charge_balance_sp}"
-
     def __repr__(self):
-        return str(self)
+        return f"Charge Balance Transformation : Species to remove = {self.charge_balance_sp}"
 
     @property
     def inverse(self):
@@ -142,11 +142,8 @@ class SuperTransformation(AbstractTransformation):
                 structures.append({"transformation": t, "structure": t.apply_transformation(structure)})
         return structures
 
-    def __str__(self):
-        return f"Super Transformation : Transformations = {' '.join(map(str, self._transformations))}"
-
     def __repr__(self):
-        return str(self)
+        return f"Super Transformation : Transformations = {' '.join(map(str, self._transformations))}"
 
     @property
     def inverse(self):
@@ -246,11 +243,8 @@ class MultipleSubstitutionTransformation:
                 outputs.append({"structure": new_structure})
         return outputs
 
-    def __str__(self):
-        return f"Multiple Substitution Transformation : Substitution on {self.sp_to_replace}"
-
     def __repr__(self):
-        return str(self)
+        return f"Multiple Substitution Transformation : Substitution on {self.sp_to_replace}"
 
     @property
     def inverse(self):
@@ -489,11 +483,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
             return self._all_structures[0:num_to_return]
         return self._all_structures[0]["structure"]
 
-    def __str__(self):
-        return "EnumerateStructureTransformation"
-
     def __repr__(self):
-        return str(self)
+        return "EnumerateStructureTransformation"
 
     @property
     def inverse(self):
@@ -557,11 +548,8 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
             outputs.append(output)
         return outputs
 
-    def __str__(self):
-        return "SubstitutionPredictorTransformation"
-
     def __repr__(self):
-        return str(self)
+        return "SubstitutionPredictorTransformation"
 
     @property
     def inverse(self):
@@ -2199,11 +2187,8 @@ class MonteCarloRattleTransformation(AbstractTransformation):
             coords_are_cartesian=True,
         )
 
-    def __str__(self):
-        return f"{__name__} : rattle_std = {self.rattle_std}"
-
     def __repr__(self):
-        return str(self)
+        return f"{__name__} : rattle_std = {self.rattle_std}"
 
     @property
     def inverse(self):

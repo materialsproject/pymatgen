@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
-from typing import Iterable
+from typing import TYPE_CHECKING
 
 from scipy.constants import N_A
 
@@ -16,6 +16,9 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import Charge, Time
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

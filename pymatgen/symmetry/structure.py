@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from tabulate import tabulate
@@ -10,6 +10,8 @@ from tabulate import tabulate
 from pymatgen.core.structure import PeriodicSite, Structure
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pymatgen.symmetry.analyzer import SpacegroupOperations
 
 

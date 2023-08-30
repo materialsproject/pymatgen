@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,6 +25,9 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 )
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"

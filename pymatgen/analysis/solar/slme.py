@@ -216,7 +216,7 @@ def slme(
     )
 
     material_interpolated_absorbance = np.zeros(len(solar_spectra_wavelength_meters))
-    for i in range(0, len(solar_spectra_wavelength_meters)):
+    for i in range(len(solar_spectra_wavelength_meters)):
         # Cutting off absorption data below the gap. This is done to deal
         # with VASPs broadening of the calculated absorption data
 

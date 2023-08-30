@@ -174,10 +174,10 @@ class SOCSpillage:
 
                         gamma_k.append(nelec_tot)
                         a = []
-                        for n1 in range(0, nelec_tot):  # noso occupied bands
+                        for n1 in range(nelec_tot):  # noso occupied bands
                             v1 = Qnoso[:, n1]
                             aa = 0.0
-                            for n2 in range(0, nelec_tot):  # so occupied bands
+                            for n2 in range(nelec_tot):  # so occupied bands
                                 v2 = Qso[:, n2]
 
                                 t = np.dot(np.conj(v1), v2)

@@ -11,7 +11,7 @@ import string
 import warnings
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from typing import Generator, Iterator, Union, cast
+from typing import TYPE_CHECKING, Union, cast
 
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
@@ -20,6 +20,9 @@ from monty.serialization import loadfn
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.units import Mass
 from pymatgen.util.string import Stringify, formula_double_format
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
 
 SpeciesLike = Union[str, Element, Species, DummySpecies]
 

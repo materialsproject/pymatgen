@@ -11,7 +11,7 @@ import os
 import re
 import warnings
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, Collection, Iterator, Literal, Sequence, no_type_check
+from typing import TYPE_CHECKING, Any, Literal, no_type_check
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -33,6 +33,7 @@ from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
 
 if TYPE_CHECKING:
+    from collections.abc import Collection, Iterator, Sequence
     from io import StringIO
 
     from numpy.typing import ArrayLike

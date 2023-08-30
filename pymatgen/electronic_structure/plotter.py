@@ -9,7 +9,7 @@ import math
 import typing
 import warnings
 from collections import Counter
-from typing import TYPE_CHECKING, List, Literal, Sequence, cast, no_type_check
+from typing import TYPE_CHECKING, Literal, cast, no_type_check
 
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
@@ -30,6 +30,8 @@ except ImportError:
     mlab = None
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from numpy.typing import ArrayLike
 
     from pymatgen.electronic_structure.dos import CompleteDos, Dos
@@ -1238,7 +1240,7 @@ class BSPlotterProjected(BSPlotter):
                     )
                 indices.append(index - 1)
         else:
-            indices = range(0, num_branches)
+            indices = range(num_branches)
 
         proj = self._bs.projections
         proj_br = []
@@ -1838,7 +1840,7 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError(f"The dictpa[{elt}] is empty. We cannot do anything")
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(0, len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):  # pylint: disable=C0200
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     for number in dictpa[elt]:
@@ -1885,7 +1887,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(f"The sum_atoms[{elt}] is empty. We cannot do anything")
                         _sites = self._bs.structure.sites
                         indices = []
-                        for i in range(0, len(_sites)):  # pylint: disable=C0200
+                        for i in range(len(_sites)):  # pylint: disable=C0200
                             if next(iter(_sites[i]._species)) == Element(elt):
                                 indices.append(i + 1)
                         for number in sum_atoms[elt]:
@@ -2009,7 +2011,7 @@ class BSPlotterProjected(BSPlotter):
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(0, len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):  # pylint: disable=C0200
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
@@ -2058,7 +2060,7 @@ class BSPlotterProjected(BSPlotter):
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(0, len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):  # pylint: disable=C0200
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
@@ -2359,7 +2361,7 @@ class BSDOSPlotter:
             if spin in bs.bands:
                 band_energies[spin] = []
                 for band in bs.bands[spin]:
-                    band = cast(List[float], band)
+                    band = cast(list[float], band)
                     band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore
 
         # renormalize the DOS energies to Fermi level
@@ -2599,9 +2601,9 @@ class BSDOSPlotter:
         x = []
         y = []
         color = []
-        for c in range(0, mesh):
-            for ye in range(0, mesh):
-                for m in range(0, mesh):
+        for c in range(mesh):
+            for ye in range(mesh):
+                for m in range(mesh):
                     if not (c == mesh - 1 and ye == mesh - 1 and m == mesh - 1) and not (c == 0 and ye == 0 and m == 0):
                         c1 = c / (c + ye + m)
                         ye1 = ye / (c + ye + m)
@@ -2650,9 +2652,9 @@ class BSDOSPlotter:
         x = []
         y = []
         color = []
-        for r in range(0, mesh):
-            for g in range(0, mesh):
-                for b in range(0, mesh):
+        for r in range(mesh):
+            for g in range(mesh):
+                for b in range(mesh):
                     if not (r == 0 and b == 0 and g == 0):
                         r1 = r / (r + g + b)
                         g1 = g / (r + g + b)
@@ -2716,7 +2718,7 @@ class BSDOSPlotter:
         x = []
         y = []
         color = []
-        for i in range(0, 1000):
+        for i in range(1000):
             x.append(i / 1800.0 + 0.55)
             y.append(0)
             color.append([math.sqrt(c) for c in [1 - (i / 1000) ** 2, 0, (i / 1000) ** 2]])

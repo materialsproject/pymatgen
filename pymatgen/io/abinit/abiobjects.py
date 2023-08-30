@@ -6,9 +6,10 @@ from __future__ import annotations
 
 import abc
 from collections import namedtuple
+from collections.abc import Iterable
 from enum import Enum
 from pprint import pformat
-from typing import Iterable, cast
+from typing import cast
 
 import numpy as np
 from monty.collections import AttrDict

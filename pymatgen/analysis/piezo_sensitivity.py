@@ -51,7 +51,7 @@ class BornEffectiveCharge:
         if np.sum(self.bec) >= tol:
             warnings.warn("Input born effective charge tensor does not satisfy charge neutrality")
 
-    def get_BEC_operations(self, eigtol=1e-05, opstol=1e-03):
+    def get_BEC_operations(self, eigtol=1e-5, opstol=1e-3):
         """
         Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
@@ -187,7 +187,7 @@ class InternalStrainTensor:
         if not (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all():
             warnings.warn("Input internal strain tensor does not satisfy standard symmetries")
 
-    def get_IST_operations(self, opstol=1e-03):
+    def get_IST_operations(self, opstol=1e-3):
         """
         Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
@@ -215,7 +215,7 @@ class InternalStrainTensor:
         IST_operations = []
         for atom in range(len(self.ist)):  # pylint: disable=C0200
             IST_operations.append([])
-            for j in range(0, atom):
+            for j in range(atom):
                 for op in uniq_point_ops:
                     new = op.transform_tensor(self.ist[j])
 
@@ -278,7 +278,7 @@ class ForceConstantMatrix:
         self.sharedops = sharedops
         self.FCM_operations = None
 
-    def get_FCM_operations(self, eigtol=1e-05, opstol=1e-05):
+    def get_FCM_operations(self, eigtol=1e-5, opstol=1e-5):
         """
         Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
@@ -497,7 +497,7 @@ class ForceConstantMatrix:
             maxeig = np.max(-1 * eigs)
             eigsort = np.argsort(np.abs(eigs))
             for i in range(3, len(eigs)):
-                if eigs[eigsort[i]] > 1e-06:
+                if eigs[eigsort[i]] > 1e-6:
                     eigs[eigsort[i]] = -1 * maxeig * np.random.rand()
             diag = np.real(np.eye(len(fcm)) * eigs)
 
@@ -508,7 +508,7 @@ class ForceConstantMatrix:
             unstable_modes = 0
             eigsort = np.argsort(np.abs(eigs))
             for i in range(3, len(eigs)):
-                if eigs[eigsort[i]] > 1e-06:
+                if eigs[eigsort[i]] > 1e-6:
                     unstable_modes = 1
             if unstable_modes == 1:
                 count = count + 1

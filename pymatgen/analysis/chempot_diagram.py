@@ -44,7 +44,7 @@ from pymatgen.util.string import htmlify
 if TYPE_CHECKING:
     from pymatgen.entries.computed_entries import ComputedEntry
 
-with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_chempot_layouts.json")) as file:
+with open(f"{os.path.dirname(__file__)}/../util/plotly_chempot_layouts.json") as file:
     plotly_layouts = json.load(file)
 
 
@@ -680,7 +680,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
     cy = 0
     a = 0
 
-    for idx in range(0, len(vertices) - 1):
+    for idx in range(len(vertices) - 1):
         xi = vertices[idx, 0]
         yi = vertices[idx, 1]
         xi_p = vertices[idx + 1, 0]

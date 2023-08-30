@@ -8,7 +8,6 @@ import re
 import sys
 from collections import namedtuple
 from io import StringIO
-from typing import Sequence
 
 from monty.json import MontyDecoder, MontyEncoder
 from monty.string import remove_non_ascii
@@ -19,7 +18,12 @@ try:
 except ImportError:
     pybtex = bibtex = None
 
+from typing import TYPE_CHECKING
+
 from pymatgen.core.structure import Molecule, Structure
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __credits__ = "Dan Gunter"
@@ -192,7 +196,7 @@ class StructureNL:
     ):
         """
         Args:
-            struct_or_mol: A pymatgen.core.structure Structure/Molecule object
+            struct_or_mol: A pymatgen Structure/Molecule object
             authors: *List* of {"name":'', "email":''} dicts,
                 *list* of Strings as 'John Doe <johndoe@gmail.com>',
                 or a single String with commas separating authors

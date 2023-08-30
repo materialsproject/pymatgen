@@ -47,7 +47,7 @@ from copy import deepcopy
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import Any, Literal, Sequence, Union
+from typing import TYPE_CHECKING, Any, Literal, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -64,6 +64,9 @@ from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 MODULE_DIR = Path(__file__).resolve().parent
 # TODO (janosh): replace with following line once PMG is py3.9+ only
@@ -870,7 +873,7 @@ class MPRelaxSet(DictSet):
     Implementation of VaspInputSet utilizing parameters in the public
     Materials Project. Typically, the pseudopotentials chosen contain more
     electrons than the MIT parameters, and the k-point grid is ~50% more dense.
-    The LDAUU parameters are also different due to the different psps used,
+    The LDAUU parameters are also different due to the different PSPs used,
     which result in different fitted values.
     """
 
@@ -1084,10 +1087,10 @@ class MPStaticSet(MPRelaxSet):
         self.small_gap_multiply = small_gap_multiply
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         parent_incar = super().incar
-        incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
+        incar = Incar(self.prev_incar or parent_incar)
 
         incar.update(
             {
@@ -1215,6 +1218,65 @@ class MPStaticSet(MPRelaxSet):
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
+class MatPESStaticSet(DictSet):
+    """Creates input files for a MatPES static calculation.
+
+    The goal of MatPES is to generate PES data. This is a distinctly different from the objectives of the MP static
+    calculations, which aims to obtain primarily accurate energies and also electronic structure (DOS). For PES data,
+    force accuracy (and to some extent, stress accuracy) is of paramount importance.
+
+    It should be noted that the default POTCAR versions have been updated to PBE_54, rather than the old PBE set used
+    in the MPStaticSet. However, **U values** are still based on PBE. The implicit assumption here is that the PBE_54
+    and PBE POTCARs are sufficiently similar that the U values fitted to the old PBE functional still applies.
+    """
+
+    CONFIG = _load_yaml_config("MatPESStaticSet")
+
+    def __init__(
+        self,
+        structure: Structure,
+        xc_functional: Literal["R2SCAN", "PBE", "PBE+U"] = "PBE",
+        potcar_functional="PBE_54",
+        prev_incar=None,
+        **kwargs: Any,
+    ):
+        """
+        Args:
+            structure (Structure): Structure for static calculation.
+            xc_functional ('R2SCAN'|'PBE'): Exchange-correlation functional to use. Defaults to 'PBE'.
+            potcar_functional: Choice of VASP POTCAR functional and version. Defaults to 'PBE_54'.
+            prev_incar (Incar|str): Incar file from previous run. Default settings of MatPESStaticSet
+                are prioritized over inputs from previous runs.
+            **kwargs: Passed to DictSet.
+        """
+        super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
+
+        if isinstance(prev_incar, str):
+            prev_incar = Incar.from_file(prev_incar)
+        if prev_incar:
+            updates = {k: v for k, v in prev_incar.items() if k not in self._config_dict["INCAR"]}
+            self._config_dict["INCAR"].update(updates)
+
+        if xc_functional.upper() == "R2SCAN":
+            self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
+            self.user_incar_settings.setdefault("ALGO", "ALL")
+            self.user_incar_settings.setdefault("GGA", None)
+        elif xc_functional.upper() == "PBE+U":
+            self._config_dict["INCAR"]["LDAU"] = True
+        elif xc_functional.upper() != "PBE":
+            raise ValueError(
+                f"{xc_functional} is not supported."
+                " The supported exchange-correlation functionals are PBE, PBE+U and R2SCAN."
+            )
+        if potcar_functional.upper() != "PBE_54":
+            raise UserWarning(f"POTCAR version ({potcar_functional}) is inconsistent with the default of PBE_54.")
+            self.potcar.functional = potcar_functional.upper()
+
+        self.kwargs = kwargs
+        self.xc_functional = xc_functional
+        self.prev_incar = prev_incar
+
+
 class MPScanStaticSet(MPScanRelaxSet):
     """
     Creates input files for a static calculation using the accurate and numerically
@@ -1227,8 +1289,7 @@ class MPScanStaticSet(MPScanRelaxSet):
         Args:
             structure (Structure): Structure from previous run.
             bandgap (float): Bandgap of the structure in eV. The bandgap is used to
-                    compute the appropriate k-point density and determine the
-                    smearing settings.
+                compute the appropriate k-point density and determine the smearing settings.
             prev_incar (Incar): Incar file from previous run.
             lepsilon (bool): Whether to add static dielectric calculation
             lcalcpol (bool): Whether to turn on evaluation of the Berry phase approximations
@@ -1245,10 +1306,10 @@ class MPScanStaticSet(MPScanRelaxSet):
         self.lcalcpol = lcalcpol
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         parent_incar = super().incar
-        incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
+        incar = Incar(self.prev_incar or parent_incar)
 
         incar.update({"LREAL": False, "NSW": 0, "LORBIT": 11, "LVHAR": True, "ISMEAR": -5})
 
@@ -1892,7 +1953,7 @@ class MPNMRSet(MPStaticSet):
         super().__init__(structure, prev_incar=prev_incar, reciprocal_density=reciprocal_density, **kwargs)
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         incar = super().incar
 
@@ -2037,7 +2098,7 @@ class MVLGWSet(DictSet):
         self.ncores = ncores
 
     @property
-    def kpoints(self):
+    def kpoints(self) -> Kpoints:
         """
         Generate gamma center k-points mesh grid for GW calc,
         which is requested by GW calculation.
@@ -2045,10 +2106,10 @@ class MVLGWSet(DictSet):
         return Kpoints.automatic_density_by_vol(self.structure, self.reciprocal_density, force_gamma=True)
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         parent_incar = super().incar
-        incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
+        incar = Incar(self.prev_incar or parent_incar)
 
         if self.mode == "DIAG":
             # Default parameters for diagonalization calculation.
@@ -2303,7 +2364,7 @@ class MVLGBSet(MPRelaxSet):
         return kpt
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         incar = super().incar
 
@@ -2531,7 +2592,7 @@ class MITMDSet(MITRelaxSet):
         self._config_dict["INCAR"].update(defaults)
 
     @property
-    def kpoints(self):
+    def kpoints(self) -> Kpoints:
         """Kpoints"""
         return Kpoints.gamma_automatic()
 
@@ -2613,7 +2674,7 @@ class MPMDSet(MPRelaxSet):
         self._config_dict["INCAR"].update(defaults)
 
     @property
-    def kpoints(self):
+    def kpoints(self) -> Kpoints:
         """Kpoints"""
         return Kpoints.gamma_automatic()
 
@@ -2705,7 +2766,7 @@ class MVLScanRelaxSet(MPRelaxSet):
 
         updates = {
             "ADDGRID": True,
-            "EDIFF": 1e-05,
+            "EDIFF": 1e-5,
             "EDIFFG": -0.05,
             "LASPH": True,
             "LDAU": False,
@@ -3106,7 +3167,7 @@ class MPAbsorptionSet(MPRelaxSet):
         self.kwargs = kwargs
 
     @property
-    def kpoints(self):
+    def kpoints(self) -> Kpoints:
         """
         Generate gamma center k-points mesh grid for optical calculation. It is not mandatory for 'ALGO = Exact',
         but is requested by 'ALGO = CHI' calculation.
@@ -3114,7 +3175,7 @@ class MPAbsorptionSet(MPRelaxSet):
         return Kpoints.automatic_density_by_vol(self.structure, self.reciprocal_density, force_gamma=True)
 
     @property
-    def incar(self):
+    def incar(self) -> Incar:
         """Incar"""
         parent_incar = super().incar
         absorption_incar = {
@@ -3147,7 +3208,7 @@ class MPAbsorptionSet(MPRelaxSet):
         elif self.mode == "RPA":
             # Default parameters for the response function calculation. NELM has to be set to 1.
             # NOMEGA is set to 1000 in order to get smooth spectrum
-            incar = Incar(self.prev_incar) if self.prev_incar is not None else Incar(parent_incar)
+            incar = Incar(self.prev_incar or parent_incar)
             incar.update({"ALGO": "CHI", "NELM": 1, "NOMEGA": 1000})
 
             if self.nkred is not None:

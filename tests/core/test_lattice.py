@@ -63,8 +63,8 @@ class LatticeTestCase(PymatgenTest):
         assert lattice is not None, "Initialization from new_cubic failed"
         assert_array_equal(lattice.pbc, (True, True, True))
         lattice2 = Lattice([[a, 0, 0], [0, a, 0], [0, 0, a]])
-        for ii in range(0, 3):
-            for jj in range(0, 3):
+        for ii in range(3):
+            for jj in range(3):
                 assert lattice.matrix[ii][jj] == lattice2.matrix[ii][jj], "Inconsistent matrix from two inits!"
         assert_array_equal(self.cubic_partial_pbc.pbc, (True, True, False))
 
