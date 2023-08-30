@@ -1260,7 +1260,7 @@ class MatPESStaticSet(DictSet):
             self.user_incar_settings.setdefault("GGA", None)
         elif xc_functional.upper() == "PBE+U":
             self._config_dict["INCAR"]["LDAU"] = True
-        elif xc_functional.upper().startswith("PBE"):
+        elif xc_functional.upper() != "PBE":
             raise ValueError(
                 f"{xc_functional} is not supported."
                 " The supported exchange-correlation functionals are PBE, PBE+U and R2SCAN."

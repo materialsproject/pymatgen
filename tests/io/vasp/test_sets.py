@@ -804,13 +804,12 @@ class TestMatPESStaticSet(PymatgenTest):
 
     def test_functionals(self):
         functional = "LDA"
-        msg_xc = f"{functional} is not supported. The supported exchange-correlation functionals are PBE and R2SCAN."
-        with pytest.raises(ValueError, match=msg_xc):
+        with pytest.raises(ValueError, match=f"{functional} is not supported"):
             MatPESStaticSet(self.struct, xc_functional=functional)
 
         with pytest.raises(
             UserWarning,
-            match=f"POTCAR version ({functional}) is inconsistent with the default of PBE_54.",
+            match="inconsistent with the default of PBE_54",
         ):
             MatPESStaticSet(self.struct, potcar_functional=functional)
 
