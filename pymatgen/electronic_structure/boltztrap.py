@@ -862,7 +862,7 @@ class BoltztrapAnalyzer:
             _idx_list: list[tuple[int, ArrayLike]] = []
             for idx, kp in enumerate(kpt_line):
                 w: list[bool] = []
-                prec = 1e-05
+                prec = 1e-5
                 while len(w) == 0:
                     w = np.where(np.all(np.abs(kp - self._bz_kpoints) < [prec] * 3, axis=1))[0]  # type: ignore
                     prec *= 10
