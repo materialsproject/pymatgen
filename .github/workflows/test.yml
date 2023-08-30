@@ -37,7 +37,7 @@ jobs:
           - os: windows-latest
             python-version: "3.11"
           - os: ubuntu-latest
-            python-version: "3.8"
+            python-version: "3.9"
 
     runs-on: ${{ matrix.os }}
 
