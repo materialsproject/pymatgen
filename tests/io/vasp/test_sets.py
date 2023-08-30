@@ -813,13 +813,11 @@ class TestMatPESStaticSet(PymatgenTest):
 
     def test_functionals(self):
         functional = "LDA"
-        with pytest.raises(
-            Warning,
-            match=(
-                f"{functional} is not supported."
-                "The supported exchange-correlation functionals are PBE and R2SCAN."
-            ),
-        ):
+        msg_xc = (
+            f"{functional} is not supported."
+            "The supported exchange-correlation functionals are PBE and R2SCAN."
+        )
+        with pytest.raises(Warning, match=msg_xc):
             MatPESStaticSet(self.struct, xc_functional=functional)
 
         with pytest.raises(
