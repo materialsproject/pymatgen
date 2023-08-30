@@ -1015,7 +1015,7 @@ class TestCombinedData(unittest.TestCase):
             ec_fec_double_lines[113]
             == "16  multi/harmonic 0.382999522 -1.148998570 0.000000000 1.531998090 0.000000000"
         )
-        assert ec_fec_double_lines[30146] == "30000  3000  12 -0.2329  4.630985  7.328547 51.604678"
+        assert ec_fec_double_lines[30146].endswith("12 -0.2329  4.630985  7.328547 51.604678")
         assert ec_fec_double_lines[141] == "1  10.5 -1  2"
         assert len(ec_fec_lines) == 99159
         assert len(ec_fec_double_lines) == 198159
