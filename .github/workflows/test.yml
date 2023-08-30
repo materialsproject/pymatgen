@@ -39,25 +39,12 @@ jobs:
         # versions while minimizing the total number of jobs. We run all pytest splits with the
         # oldest supported python version (currently 3.9) on windows (seems most likely to surface
         # errors) and with newest version (currently 3.11) on ubuntu (to get complete and speedy
-        # coverage on unix). Also sample some splits on macos for all python versions
+        # coverage on unix). We ignore mac-os, which is assumed to be similar to ubuntu.
         exclude:
           - os: windows-latest
             python-version: "3.11"
           - os: ubuntu-latest
             python-version: "3.9"
-        include:
-          - os: macos-latest
-            python-version: "3.9"
-            split: 1
-          - os: macos-latest
-            python-version: "3.9"
-            split: 2
-          - os: macos-latest
-            python-version: "3.10"
-            split: 3
-          - os: macos-latest
-            python-version: "3.11"
-            split: 4
 
     runs-on: ${{ matrix.os }}
 
@@ -76,20 +63,19 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: setup.py
-      - name: Copy CLIs to bin
-        if: runner.os == 'Linux'
-        # This is the way to update env variables in a way that persist for the entire job.
+      - name: Copy GULP to bin
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo cp cmd_line/gulp/Linux_64bit/* /usr/local/bin/
       - name: Install Bader
-        if: runner.os == 'Linux'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           wget http://theory.cm.utexas.edu/henkelman/code/bader/download/bader_lnx_64.tar.gz
           tar xvzf bader_lnx_64.tar.gz
           sudo mv bader /usr/local/bin/
-        continue-on-error: true
+        continue-on-error: true  # This is not critical to succeed.
       - name: Install Enumlib
-        if: runner.os == 'Linux'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           git clone --recursive https://github.com/msg-byu/enumlib.git
           cd enumlib/symlib/src
@@ -100,9 +86,9 @@ jobs:
           sudo mv enum.x /usr/local/bin/
           cd ..
           sudo cp aux_src/makeStr.py /usr/local/bin/
-        continue-on-error: true
+        continue-on-error: true  # This is not critical to succeed.
       - name: Install Packmol
-        if: runner.os == 'Linux'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           wget -O packmol.tar.gz https://github.com/m3g/packmol/archive/refs/tags/v20.14.2.tar.gz
           tar xvzf packmol.tar.gz
@@ -112,8 +98,7 @@ jobs:
           make
           sudo mv packmol /usr/local/bin/
           cd ..
-          rm -rf .coverage*
-        continue-on-error: true
+        continue-on-error: true  # This is not critical to succeed.
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
