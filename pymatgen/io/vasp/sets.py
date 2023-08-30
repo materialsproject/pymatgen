@@ -1252,10 +1252,10 @@ class MatPESStaticSet(DictSet):
             self.user_incar_settings.setdefault("GGA", None)
         elif xc_functional.upper() != "PBE":
             raise Warning(
-                (
+
                     f"{xc_functional} is not supported."
                     "The supported exchange-correlation functionals are PBE and R2SCAN."
-                )
+
             )
         if potcar_functional.upper() != "PBE_54":
             raise Warning(
