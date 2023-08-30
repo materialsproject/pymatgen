@@ -8,7 +8,7 @@ import math
 import warnings
 from fractions import Fraction
 from functools import reduce
-from typing import TYPE_CHECKING, Iterator, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import deprecated
@@ -21,6 +21,8 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.num import abs_cap
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
     from numpy.typing import ArrayLike
 
     from pymatgen.core.trajectory import Vector3D

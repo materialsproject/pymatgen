@@ -6,7 +6,7 @@ import json
 import os
 from collections import namedtuple
 from fractions import Fraction
-from typing import TYPE_CHECKING, List, Tuple, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import pandas as pd
@@ -121,7 +121,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]  # type: ignore
-        return cast(List[Tuple[int, int, int]], [tuple(x) for x in result.tolist()])
+        return cast(list[tuple[int, int, int]], [tuple(x) for x in result.tolist()])
 
     def get_interplanar_spacings(
         self, structure: Structure, points: list[tuple[int, int, int]] | np.ndarray

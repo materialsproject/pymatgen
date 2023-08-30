@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import abc
 import itertools
-from typing import Literal, Mapping, Sequence
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -16,6 +16,9 @@ from pymatgen.core.structure import Structure
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.util.coord_cython import is_coord_subset_pbc, pbc_shortest_vectors
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

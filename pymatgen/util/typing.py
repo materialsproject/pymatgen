@@ -5,8 +5,9 @@ change until best practices are established.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Sequence, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import numpy as np
 
@@ -32,7 +33,7 @@ CompositionLike = Union[str, Element, Species, DummySpecies, dict, Composition]
 
 # Entry or any of its subclasses or dicts that can be unpacked into any of them
 EntryLike = Union[
-    Dict[str, Any],
+    dict[str, Any],
     "Entry",
     "PDEntry",
     "ComputedEntry",
