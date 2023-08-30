@@ -30,9 +30,10 @@ import os
 import re
 import textwrap
 import typing
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from monty.io import zopen

@@ -4,10 +4,10 @@ name: Tests
 
 on:
   push:
-    branches: [ master ]
-    paths-ignore: [ "**/*.md", docs/** ]
+    branches: [master]
+    paths-ignore: ["**/*.md", docs/**]
   pull_request:
-    branches: [ master ]
+    branches: [master]
     paths-ignore: ["**/*.md", docs/**]
   workflow_dispatch:
     inputs:

@@ -13,7 +13,7 @@ from __future__ import annotations
 import itertools
 import os
 import warnings
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import spglib
@@ -28,6 +28,8 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pymatgen.core.composition import Composition
 
 

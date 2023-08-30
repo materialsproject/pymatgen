@@ -9,7 +9,7 @@ from fractions import Fraction
 from itertools import groupby, product
 from math import gcd
 from string import ascii_lowercase
-from typing import Callable, Iterable
+from typing import TYPE_CHECKING, Callable
 
 import numpy as np
 from monty.dev import requires
@@ -38,6 +38,9 @@ from pymatgen.transformations.standard_transformations import (
     SupercellTransformation,
 )
 from pymatgen.transformations.transformation_abc import AbstractTransformation
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 try:
     import hiphive

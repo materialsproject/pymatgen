@@ -12,10 +12,13 @@ from __future__ import annotations
 import os
 import re
 from multiprocessing import Pool
-from typing import Callable, Sequence
+from typing import TYPE_CHECKING, Callable
 
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.io.vasp.sets import MPRelaxSet, VaspInputSet
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"

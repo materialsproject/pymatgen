@@ -47,7 +47,7 @@ from copy import deepcopy
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import Any, Literal, Sequence, Union
+from typing import TYPE_CHECKING, Any, Literal, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -64,6 +64,9 @@ from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 MODULE_DIR = Path(__file__).resolve().parent
 # TODO (janosh): replace with following line once PMG is py3.9+ only

@@ -18,7 +18,7 @@ from collections import namedtuple
 from enum import Enum
 from glob import glob
 from hashlib import sha256
-from typing import TYPE_CHECKING, Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import scipy.constants as const
@@ -39,6 +39,8 @@ from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from numpy.typing import ArrayLike
 
     from pymatgen.core.trajectory import Vector3D
