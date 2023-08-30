@@ -1216,14 +1216,19 @@ class MPStaticSet(MPRelaxSet):
 
 
 class MatPESStaticSet(DictSet):
-    """Creates input files for a MatPES static calculation."""
+    """Creates input files for a MatPES static calculation.
+
+    The goal of MatPES is to generate PES data. This is a distinctly different from the objectives of the MP static
+    calculations, which aims to obtain primarily accurate energies and also electronic structure (DOS). For PES data,
+    force accuracy (and to some extent, stress accuracy) is of paramount importance.
+    """
 
     CONFIG = _load_yaml_config("MatPESStaticSet")
 
     def __init__(
         self,
         structure: Structure,
-        xc_functional: Literal["R2SCAN", "PBE"] = "PBE",
+        xc_functional: Literal["R2SCAN", "PBE", "PBE+U"] = "PBE",
         potcar_functional="PBE_54",
         prev_incar=None,
         **kwargs: Any,
@@ -1235,8 +1240,7 @@ class MatPESStaticSet(DictSet):
             potcar_functional: Choice of VASP POTCAR functional and version. Defaults to 'PBE_54'.
             prev_incar (Incar|str): Incar file from previous run. Default settings of MatPESStaticSet
                 are prioritized over inputs from previous runs.
-            **kwargs: Passed to DictSet. For example, Hubbard U can be enabled with
-                user_incar_settings={"LDAU": True}
+            **kwargs: Passed to DictSet.
         """
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
 
@@ -1250,13 +1254,15 @@ class MatPESStaticSet(DictSet):
             self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
             self.user_incar_settings.setdefault("ALGO", "ALL")
             self.user_incar_settings.setdefault("GGA", None)
-        elif xc_functional.upper() != "PBE":
-            raise Warning(
+        elif xc_functional.upper() == "PBE+U":
+            self._config_dict["INCAR"]["LDAU"] = True
+        elif xc_functional.upper().startswith("PBE"):
+            raise ValueError(
                 f"{xc_functional} is not supported."
-                " The supported exchange-correlation functionals are PBE and R2SCAN."
+                " The supported exchange-correlation functionals are PBE, PBE+U and R2SCAN."
             )
         if potcar_functional.upper() != "PBE_54":
-            raise Warning(f"POTCAR version of {potcar_functional} is inconsistent with the default version of PBE_54.")
+            raise UserWarning(f"POTCAR version ({potcar_functional}) is inconsistent with the default of PBE_54.")
             self.potcar.functional = potcar_functional.upper()
 
         self.kwargs = kwargs
