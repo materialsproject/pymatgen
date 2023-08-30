@@ -1,11 +1,10 @@
 # Runs the complete test suite incl. many external command line dependencies (like Openbabel)
 # as well as the pymatgen.ext package. Coverage is computed based on this workflow.
-name: Tests - PR
+name: Tests
 
 on:
-  pull_request:
-    branches: [master]
-    paths-ignore: ["**/*.md", docs/**]
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       task:
@@ -16,10 +15,6 @@ on:
 
 permissions:
   contents: read
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   test:
@@ -72,7 +67,6 @@ jobs:
           cache-dependency-path: setup.py
       - name: Copy CLIs to bin
         if: runner.os == 'Linux'
-        # This is the way to update env variables in a way that persist for the entire job.
         run: |
           sudo cp cmd_line/gulp/Linux_64bit/* /usr/local/bin/
       - name: Install Bader
@@ -113,6 +107,72 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install numpy cython packaging
           python -m pip install -e '.[dev,optional]'
-      - name: pytest split ${{ matrix.split }}
+      - name: pytest
         run: |
-          pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
+          pytest --cov=pymatgen tests
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+
+  build_sdist:
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        name: Install Python
+        with:
+          python-version: "3.10"
+      - run: |
+          python -m pip install build
+          pip install -e .
+      - name: Build sdist
+        run: python -m build --sdist
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.tar.gz
+
+  build_wheels:
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
+    needs: test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["38", "39", "310", "311"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.14.1
+        env:
+          CIBW_BUILD: cp${{ matrix.python-version }}-*
+      - name: Save artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+  release:
+    needs: [build_wheels, build_sdist]
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
+    runs-on: ubuntu-latest
+    permissions:
+      # For pypi trusted publishing
+      id-token: write
+    steps:
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+      - name: Publish to PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+          verbose: true

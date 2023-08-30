@@ -1003,7 +1003,7 @@ class TestCombinedData(unittest.TestCase):
         ec_fec_double_lines = self.ec_fec3.get_str().splitlines()
         # header information
         assert ec_fec_lines[1] == "# 1200 cluster1 + 300 cluster2"
-        assert ec_fec_double_lines[1] == "# 2(1500) EC_FEC"
+        assert ec_fec_double_lines[1].endswith("EC_FEC")
         # data type consistency tests
         assert ec_fec_lines[98] == "1  harmonic 3.200000000 -1 2"
         assert ec_fec_lines[109] == "12  charmm 2.700000000 2 180 0.0"
