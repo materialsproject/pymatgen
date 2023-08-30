@@ -819,7 +819,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert default_prev.potcar.functional == "PBE_54"
         assert scan.potcar.functional == "PBE_54"
 
-        functional = "PBE_52"
+        functional = "LDA"
         with pytest.raises(
             Warning, match=f"{functional} is not supported. The supported functionals are PBE_54 and R2SCAN."
         ):
