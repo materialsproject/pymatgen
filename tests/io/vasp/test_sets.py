@@ -738,7 +738,6 @@ class TestMatPESStaticSet(PymatgenTest):
         self.struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
         self.prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
 
-
     def test_init_default(self):
         default = MatPESStaticSet(self.struct)
         incar = default.incar
@@ -813,10 +812,7 @@ class TestMatPESStaticSet(PymatgenTest):
 
     def test_functionals(self):
         functional = "LDA"
-        msg_xc = (
-            f"{functional} is not supported."
-            "The supported exchange-correlation functionals are PBE and R2SCAN."
-        )
+        msg_xc = f"{functional} is not supported." "The supported exchange-correlation functionals are PBE and R2SCAN."
         with pytest.raises(Warning, match=msg_xc):
             MatPESStaticSet(self.struct, xc_functional=functional)
 

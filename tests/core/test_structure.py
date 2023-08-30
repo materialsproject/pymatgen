@@ -1570,7 +1570,7 @@ class TestStructure(PymatgenTest):
         # Check the errors of predicted energy, forces and stress to be within
         # 0.1 eV/atom, 0.2 eV/Å, and 2 GPa.
         # The reference values here are predicted by M3GNet-MP-2021.2.8-DIRECT-PES in matgl.
-        assert calculator.results["energy"]/self.get_structure("Si").num_sites == approx(-5.4146976, abs=0.1)
+        assert calculator.results["energy"] / self.get_structure("Si").num_sites == approx(-5.4146976, abs=0.1)
         assert np.linalg.norm(calculator.results["forces"]) == approx(7.8123485e-06, abs=0.2)
         assert np.linalg.norm(calculator.results["stress"]) == approx(1.7861567, abs=2)
 
@@ -1578,7 +1578,7 @@ class TestStructure(PymatgenTest):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax()
-        assert relaxed.lattice.a == approx(3.867626620642243, abs=0.039) # 1% error
+        assert relaxed.lattice.a == approx(3.867626620642243, abs=0.039)  # 1% error
         assert hasattr(relaxed, "calc")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
 
