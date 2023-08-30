@@ -1215,41 +1215,53 @@ class MPStaticSet(MPRelaxSet):
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
-class MatPESStaticSet(MPStaticSet):
+class MatPESStaticSet(DictSet):
     """Creates input files for a MatPES static calculation."""
 
     CONFIG = _load_yaml_config("MatPESStaticSet")
 
     def __init__(
         self,
-        structure: str,
-        functional: Literal["R2SCAN", "R2SCAN+U", "PBE", "PBE+U"] = "PBE",
+        structure: Structure,
+        xc_functional: Literal["R2SCAN", "PBE"] = "PBE",
+        potcar_functional="PBE_54",
+        prev_incar=None,
         **kwargs: Any,
-    ) -> None:
+    ):
         """
         Args:
-            structure (Structure): Structure from previous run.
-            functional ('R2SCAN' | 'R2SCAN+U' | 'PBE' | 'PBE+U'): Which functional to use and whether to include
-                Hubbard U corrections. Defaults to 'PBE'.
-            **kwargs: Passed to MPStaticSet.
+            structure (Structure): Structure for static calculation.
+            xc_functional ('R2SCAN'|'PBE'): Exchange-correlation functional to use. Defaults to 'PBE'.
+            potcar_functional: Choice of VASP POTCAR functional and version. Defaults to 'PBE_54'.
+            prev_incar (Incar|str): Incar file from previous run. Default settings of MatPESStaticSet
+                are prioritized over inputs from previous runs.
+            **kwargs: Passed to DictSet. For example, Hubbard U can be enabled with
+                user_incar_settings={"LDAU": True}
         """
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
-        if functional.startswith("R2SCAN"):
+
+        if isinstance(prev_incar, str):
+            prev_incar = Incar.from_file(prev_incar)
+        if prev_incar:
+            updates = {k: v for k, v in prev_incar.items() if k not in self._config_dict["INCAR"]}
+            self._config_dict["INCAR"].update(updates)
+
+        if xc_functional.upper() == "R2SCAN":
             self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
             self.user_incar_settings.setdefault("ALGO", "ALL")
-        if functional.startswith("PBE"):
-            self.user_incar_settings.setdefault("GGA", "PE")
-        if functional.endswith("+U"):
-            self.user_incar_settings.setdefault("LDAU", True)
+            self.user_incar_settings.setdefault("GGA", None)
+        elif xc_functional.upper() != "PBE":
+            raise Warning(
+                f"{xc_functional} is not supported."
+                " The supported exchange-correlation functionals are PBE and R2SCAN."
+            )
+        if potcar_functional.upper() != "PBE_54":
+            raise Warning(f"POTCAR version of {potcar_functional} is inconsistent with the default version of PBE_54.")
+            self.potcar.functional = potcar_functional.upper()
 
         self.kwargs = kwargs
-        self.functional = functional
-
-    @property
-    def incar(self) -> Incar:
-        """Incar"""
-        parent_incar = super().incar
-        return Incar(self.prev_incar or parent_incar)
+        self.xc_functional = xc_functional
+        self.prev_incar = prev_incar
 
 
 class MPScanStaticSet(MPScanRelaxSet):

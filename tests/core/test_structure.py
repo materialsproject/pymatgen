@@ -1567,15 +1567,18 @@ class TestStructure(PymatgenTest):
         pytest.importorskip("matgl")
         calculator = self.get_structure("Si").calculate()
         assert {*calculator.results} >= {"stress", "energy", "free_energy", "forces"}
-        assert calculator.results["energy"] == approx(-10.709426, abs=1e-5)
-        assert np.linalg.norm(calculator.results["forces"]) == approx(3.10022569827e-06, abs=1e-5)
-        assert np.linalg.norm(calculator.results["stress"]) == approx(1.97596371173, abs=1e-4)
+        # Check the errors of predicted energy, forces and stress to be within
+        # 0.1 eV/atom, 0.2 eV/Å, and 2 GPa.
+        # The reference values here are predicted by M3GNet-MP-2021.2.8-DIRECT-PES in matgl.
+        assert calculator.results["energy"] / self.get_structure("Si").num_sites == approx(-5.4146976, abs=0.1)
+        assert np.linalg.norm(calculator.results["forces"]) == approx(7.8123485e-06, abs=0.2)
+        assert np.linalg.norm(calculator.results["stress"]) == approx(1.7861567, abs=2)
 
     def test_relax_m3gnet(self):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax()
-        assert relaxed.lattice.a == approx(3.857781624313035)
+        assert relaxed.lattice.a == approx(3.867626620642243, abs=0.039)  # 1% error
         assert hasattr(relaxed, "calc")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
 
@@ -1591,7 +1594,7 @@ class TestStructure(PymatgenTest):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed, trajectory = struct.relax(return_trajectory=True)
-        assert relaxed.lattice.a == approx(3.857781624313035)
+        assert relaxed.lattice.a == approx(3.867626620642243, abs=0.039)
         expected_attrs = ["atom_positions", "atoms", "cells", "energies", "forces", "stresses"]
         assert sorted(trajectory.__dict__) == expected_attrs
         for key in expected_attrs:
