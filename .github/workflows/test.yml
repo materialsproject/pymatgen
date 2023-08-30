@@ -27,10 +27,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ["3.8", "3.11"]
+        python-version: ["3.9", "3.11"]
         # include/exclude is meant to maximize CI coverage of different platforms and python
         # versions while minimizing the total number of jobs. We run all tests with the
-        # oldest supported python version (currently 3.8) on windows (seems most likely to surface
+        # oldest supported python version (currently 3.9) on windows (seems most likely to surface
         # errors) and with newest version (currently 3.11) on ubuntu (to get complete and speedy
         # coverage on unix).
         exclude:
