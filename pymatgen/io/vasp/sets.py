@@ -1221,6 +1221,10 @@ class MatPESStaticSet(DictSet):
     The goal of MatPES is to generate PES data. This is a distinctly different from the objectives of the MP static
     calculations, which aims to obtain primarily accurate energies and also electronic structure (DOS). For PES data,
     force accuracy (and to some extent, stress accuracy) is of paramount importance.
+
+    It should be noted that the default POTCAR versions have been updated to PBE_54, rather than the old PBE set used
+    in the MPStaticSet. However, **U values** are still based on PBE. The implicit assumption here is that the PBE_54
+    and PBE POTCARs are sufficiently similar that the U values fitted to the old PBE functional still applies.
     """
 
     CONFIG = _load_yaml_config("MatPESStaticSet")
