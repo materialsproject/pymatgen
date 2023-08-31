@@ -2414,7 +2414,7 @@ class IStructure(SiteCollection, MSONable):
                         if all(np.isclose(getattr(p_latt, pp), getattr(s_latt, pp)) for pp in constrain_latt):
                             return p
                     elif type(constrain_latt).__name__ == "dict" and all(
-                            np.isclose(getattr(p_latt, pp), constrain_latt[pp]) for pp in constrain_latt
+                        np.isclose(getattr(p_latt, pp), constrain_latt[pp]) for pp in constrain_latt
                     ):
                         return p
 
