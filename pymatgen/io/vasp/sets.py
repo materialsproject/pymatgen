@@ -932,28 +932,30 @@ class MPScanRelaxSet(DictSet):
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
     _valid_potcars = ("PBE_52", "PBE_54")
 
-    def __init__(self, structure: Structure, bandgap=0, **kwargs):
+    def __init__(self, structure: Structure, bandgap: float = 0, bandgap_tol: float = 1e-4, **kwargs) -> None:
         """
         Args:
             structure (Structure): Input structure.
-            bandgap (int): Bandgap of the structure in eV. The bandgap is used to
-                    compute the appropriate k-point density and determine the
-                    smearing settings.
+            bandgap (float): Bandgap of the structure in eV. The bandgap is used to
+                compute the appropriate k-point density and determine the
+                smearing settings.
 
-                    Metallic systems (default, bandgap = 0) use a KSPACING value of 0.22
-                    and Methfessel-Paxton order 2 smearing (ISMEAR=2, SIGMA=0.2).
+                Metallic systems (default, bandgap = 0) use a KSPACING value of 0.22
+                and Methfessel-Paxton order 2 smearing (ISMEAR=2, SIGMA=0.2).
 
-                    Non-metallic systems (bandgap > 0) use the tetrahedron smearing
-                    method (ISMEAR=-5, SIGMA=0.05). The KSPACING value is
-                    calculated from the bandgap via Eqs. 25 and 29 of Wisesa, McGill,
-                    and Mueller [1] (see References). Note that if 'user_incar_settings'
-                    or 'user_kpoints_settings' override KSPACING, the calculation from
-                    bandgap is not performed.
-
+                Non-metallic systems (bandgap > 0) use the tetrahedron smearing
+                method (ISMEAR=-5, SIGMA=0.05). The KSPACING value is
+                calculated from the bandgap via Eqs. 25 and 29 of Wisesa, McGill,
+                and Mueller [1] (see References). Note that if 'user_incar_settings'
+                or 'user_kpoints_settings' override KSPACING, the calculation from
+                bandgap is not performed.
+            bandgap_tol (float): Tolerance for determining if a system is metallic.
+                If the bandgap is less than this value, the system is considered
+                metallic. Defaults to 1e-4 (eV).
             vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
-                    van der Waals density functional by combing the SCAN functional
-                    with the rVV10 non-local correlation functional. rvv10 is the only
-                    dispersion correction available for SCAN at this time.
+                van der Waals density functional by combing the SCAN functional
+                with the rVV10 non-local correlation functional. rvv10 is the only
+                dispersion correction available for SCAN at this time.
             **kwargs: Same as those supported by DictSet.
 
         References:
@@ -966,33 +968,21 @@ class MPScanRelaxSet(DictSet):
         super().__init__(structure, MPScanRelaxSet.CONFIG, **kwargs)
         self.bandgap = bandgap
         self.kwargs = kwargs
+        self.bandgap_tol = bandgap_tol
 
-        updates = {}
+        updates: dict[str, float] = {}
         # select the KSPACING and smearing parameters based on the bandgap
         if self.bandgap < 1e-4:
-            updates["KSPACING"] = 0.22
-            updates["SIGMA"] = 0.2
-            updates["ISMEAR"] = 2
+            updates.update(KSPACING=0.22, SIGMA=0.2, ISMEAR=2)
         else:
             rmin = 25.22 - 2.87 * bandgap  # Eq. 25
             kspacing = 2 * np.pi * 1.0265 / (rmin - 1.0183)  # Eq. 29
             # cap the KSPACING at a max of 0.44, per internal benchmarking
-            if 0.22 < kspacing < 0.44:
-                updates["KSPACING"] = kspacing
-            else:
-                updates["KSPACING"] = 0.44
-            updates["ISMEAR"] = -5
-            updates["SIGMA"] = 0.05
+            updates.update(KSPACING=kspacing if 0.22 < kspacing < 0.44 else 0.44, SIGMA=0.05, ISMEAR=-5)
 
         # Don't overwrite things the user has supplied
-        if self.user_incar_settings.get("KSPACING"):
-            del updates["KSPACING"]
-
-        if self.user_incar_settings.get("ISMEAR"):
-            del updates["ISMEAR"]
-
-        if self.user_incar_settings.get("SIGMA"):
-            del updates["SIGMA"]
+        for key in self.user_incar_settings:
+            updates.pop(key, None)
 
         if self.vdw and self.vdw != "rvv10":
             warnings.warn("Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. ")

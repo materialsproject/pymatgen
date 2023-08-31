@@ -1483,25 +1483,24 @@ class TestMPScanRelaxSet(PymatgenTest):
         incar = mp_scan_sub.incar
         assert incar["METAGGA"] == "Scan"
 
-    def test_nonmetal(self):
-        # Test that KSPACING and ISMEAR change with a nonmetal structure
-        file_path = f"{TEST_FILES_DIR}/POSCAR.O2"
-        struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
-        scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=1.1)
-        incar = scan_nonmetal_set.incar
-        assert incar["KSPACING"] == approx(0.3064757, abs=1e-5)
-        assert incar["ISMEAR"] == -5
-        assert incar["SIGMA"] == 0.05
+    def test_bandgap_tol(self):
+        # Test that the bandgap tolerance is applied correctly
+        bandgap = 0.01
+        for bandgap_tol, expected_kspacing in ((0.001, 0.2668137888), (0.02, 0.26681378884)):
+            incar = MPScanRelaxSet(self.struct, bandgap=0.01, bandgap_tol=bandgap_tol).incar
+            assert incar["KSPACING"] == approx(expected_kspacing, abs=1e-5), f"{bandgap_tol=}, {bandgap=}"
+            assert incar["ISMEAR"] == -5
+            assert incar["SIGMA"] == 0.05
 
-    def test_kspacing_cap(self):
+    def test_kspacing(self):
         # Test that KSPACING is capped at 0.44 for insulators
         file_path = f"{TEST_FILES_DIR}/POSCAR.O2"
         struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
-        scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=10)
-        incar = scan_nonmetal_set.incar
-        assert incar["KSPACING"] == approx(0.44, abs=1e-5)
-        assert incar["ISMEAR"] == -5
-        assert incar["SIGMA"] == 0.05
+        for bandgap, expected in ((10, 0.44), (3, 0.4136617), (1.1, 0.3064757)):
+            incar = MPScanRelaxSet(struct, bandgap=bandgap).incar
+            assert incar["KSPACING"] == approx(expected, abs=1e-5)
+            assert incar["ISMEAR"] == -5
+            assert incar["SIGMA"] == 0.05
 
     def test_incar_overrides(self):
         # use 'user_incar_settings' to override the KSPACING, ISMEAR, and SIGMA
