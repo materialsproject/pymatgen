@@ -233,7 +233,7 @@ class DosPlotter:
         # Remove duplicate labels with a dictionary
         handles, labels = ax.get_legend_handles_labels()
         label_dict = dict(zip(labels, handles))
-        ax.legend(label_dict.values(), label_dict.keys())
+        ax.legend(label_dict.values(), label_dict)
         legend_text = ax.get_legend().get_texts()  # all the text.Text instance in the legend
         plt.setp(legend_text, fontsize=30)
         plt.tight_layout()

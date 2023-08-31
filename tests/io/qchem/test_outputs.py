@@ -468,7 +468,7 @@ class TestQCOutput(PymatgenTest):
 
     def test_NBO_hyperbonds(self):
         data = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/hyper.qout").data
-        assert len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"].keys()) == 2
+        assert len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"]) == 2
         assert data["nbo_data"]["hyperbonds"][0]["BD(A-B)"][1] == 106
         assert data["nbo_data"]["hyperbonds"][0]["bond atom 2 symbol"][0] == "C"
         assert data["nbo_data"]["hyperbonds"][0]["occ"][1] == 3.0802
