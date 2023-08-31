@@ -219,7 +219,7 @@ class AseAtomsAdaptor:
 
         # Atoms.info <---> Structure.properties (excluding properties["calc"])
         # Atoms.calc <---> Structure.properties["calc"]
-        properties = info if (info := getattr(atoms, "info", None)) else {}
+        properties = getattr(atoms, "info", {})
 
         if calc := getattr(atoms, "calc", None):
             properties["calc"] = calc
