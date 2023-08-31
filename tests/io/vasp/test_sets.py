@@ -771,7 +771,19 @@ class TestMatPESStaticSet(PymatgenTest):
         incar = default_prev.incar
         # test if prev_incar is used.
         assert incar["NPAR"] == 8
-        assert not incar["LSCALU"]
+        assert incar["LMAXMIX"] == 4
+        # test some incar parameters from prev_incar are not inherited
+        assert incar.get("ISPIND") is None
+        assert incar.get("LSCALU") is None
+        assert incar.get("ISIF") is None
+        assert incar.get("SYSTEM") is None
+        assert incar.get("HFSCREEN") is None
+        assert incar.get("NSIM") is None
+        assert incar.get("ENCUTFOCK") is None
+        assert incar.get("NKRED") is None
+        assert incar.get("LPLANE") is None
+        assert incar.get("TIME") is None
+        assert incar.get("LHFCALC") is None
         # test if default in MatPESStaticSet is prioritized.
         assert incar["ALGO"] == "Normal"
         assert incar["EDIFF"] == 1.0e-05
@@ -809,6 +821,35 @@ class TestMatPESStaticSet(PymatgenTest):
         assert scan.potcar_symbols == ["Fe_pv", "P", "O"]
         assert scan.potcar.functional == "PBE_54"
         assert scan.kpoints is None
+
+    def test_init_default_u(self):
+        # test PBE+U functional
+        default_u = MatPESStaticSet(self.struct, user_incar_settings={"LDAU": True})
+        incar_u = default_u.incar
+        assert incar_u["LDAU"]
+        assert incar_u["ALGO"] == "Normal"
+        assert incar_u["EDIFF"] == 1.0e-05
+        assert incar_u["ENAUG"] == 1360
+        assert incar_u["ENCUT"] == 680
+        assert incar_u["GGA"] == "Pe"
+        assert incar_u["ISMEAR"] == 0
+        assert incar_u["ISPIN"] == 2
+        assert incar_u["KSPACING"] == 0.22
+        assert incar_u["LAECHG"]
+        assert incar_u["LASPH"]
+        assert incar_u["LCHARG"]
+        assert incar_u["LMIXTAU"]
+        assert incar_u["LORBIT"] == 11
+        assert incar_u["LREAL"] == "Auto"
+        assert not incar_u["LWAVE"]
+        assert incar_u["NELM"] == 200
+        assert incar_u["NSW"] == 0
+        assert incar_u["PREC"] == "Accurate"
+        assert incar_u["SIGMA"] == 0.05
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert default_u.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert default_u.potcar.functional == "PBE_54"
+        assert default_u.kpoints is None
 
     def test_functionals(self):
         functional = "LDA"
