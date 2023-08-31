@@ -1258,10 +1258,11 @@ class MatPESStaticSet(DictSet):
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
 
         if xc_functional.upper() == "R2SCAN":
-            self.user_incar_settings["METAGGA"] = "R2SCAN"
-            self.user_incar_settings["ALGO"] = "ALL"
+            self._config_dict["INCAR"]["METAGGA"] = "R2SCAN"
+            self._config_dict["INCAR"]["ALGO"] = "ALL"
+            del self._config_dict["INCAR"]["GGA"]
         elif xc_functional.upper() == "PBE+U":
-            self.user_incar_settings["LDAU"] = True
+            self._config_dict["INCAR"]["LDAU"] = True
         elif xc_functional.upper() != "PBE":
             raise ValueError(
                 f"{xc_functional} is not supported."
