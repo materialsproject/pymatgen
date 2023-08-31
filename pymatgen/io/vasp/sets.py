@@ -1242,7 +1242,6 @@ class MatPESStaticSet(DictSet):
         self,
         structure: Structure,
         xc_functional: Literal["R2SCAN", "PBE", "PBE+U"] = "PBE",
-        user_potcar_functional="PBE_54",
         prev_incar=None,
         **kwargs: Any,
     ):
@@ -1250,7 +1249,6 @@ class MatPESStaticSet(DictSet):
         Args:
             structure (Structure): Structure for static calculation.
             xc_functional ('R2SCAN'|'PBE'): Exchange-correlation functional to use. Defaults to 'PBE'.
-            user_potcar_functional: Choice of VASP POTCAR functional and version. Defaults to 'PBE_54'.
             prev_incar (Incar|str): Incar file from previous run. Default settings of MatPESStaticSet
                 are prioritized over inputs from previous runs.
             **kwargs: Passed to DictSet.
@@ -1260,21 +1258,15 @@ class MatPESStaticSet(DictSet):
         if xc_functional.upper() == "R2SCAN":
             self._config_dict["INCAR"]["METAGGA"] = "R2SCAN"
             self._config_dict["INCAR"]["ALGO"] = "ALL"
-            del self._config_dict["INCAR"]["GGA"]
+            self._config_dict["INCAR"].pop("GGA", None)
         elif xc_functional.upper() == "PBE+U":
             self._config_dict["INCAR"]["LDAU"] = True
         elif xc_functional.upper() != "PBE":
-            raise ValueError(
-                f"{xc_functional} is not supported."
-                " The supported exchange-correlation functionals are PBE, PBE+U and R2SCAN."
-            )
-        if user_potcar_functional.upper() != "PBE_54":
+            raise ValueError(f"{xc_functional} is not supported. Supported xc functionals are PBE, PBE+U and R2SCAN.")
+        if kwargs.get("user_potcar_functional", "PBE_54") != "PBE_54":
             warnings.warn(
-                f"POTCAR version ({user_potcar_functional}) is inconsistent with the recommended PBE_54.", UserWarning
+                f"POTCAR ({kwargs['user_potcar_functional']}) is inconsistent with the recommended PBE_54.", UserWarning
             )
-
-        self.user_potcar_functional = user_potcar_functional.upper()
-
         self.kwargs = kwargs
         self.xc_functional = xc_functional
         self.prev_incar = prev_incar or {}
