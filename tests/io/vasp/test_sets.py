@@ -19,7 +19,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, PotcarSingle
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.sets import (
     BadInputSetWarning,
@@ -766,6 +766,8 @@ class TestMatPESStaticSet(PymatgenTest):
         assert default.potcar.functional == "PBE_54"
         assert default.kpoints is None
 
+        assert str(default.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_54"))
+
     def test_with_prev_incar(self):
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
         incar = default_prev.incar
@@ -838,11 +840,12 @@ class TestMatPESStaticSet(PymatgenTest):
         functional = "LDA"
         with pytest.raises(ValueError, match=f"{functional} is not supported"):
             MatPESStaticSet(self.struct, xc_functional=functional)
-        with pytest.raises(
+        with pytest.warns(
             UserWarning,
-            match="inconsistent with the default of PBE_54",
+            match="inconsistent with the recommended PBE_54",
         ):
-            MatPESStaticSet(self.struct, potcar_functional=functional)
+            diff_potcar = MatPESStaticSet(self.struct, user_potcar_functional="PBE")
+            assert str(diff_potcar.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE"))
 
 
 class TestMPNonSCFSet(PymatgenTest):

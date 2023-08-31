@@ -1249,7 +1249,7 @@ class MatPESStaticSet(DictSet):
         self,
         structure: Structure,
         xc_functional: Literal["R2SCAN", "PBE", "PBE+U"] = "PBE",
-        potcar_functional="PBE_54",
+        user_potcar_functional="PBE_54",
         prev_incar=None,
         **kwargs: Any,
     ):
@@ -1257,7 +1257,7 @@ class MatPESStaticSet(DictSet):
         Args:
             structure (Structure): Structure for static calculation.
             xc_functional ('R2SCAN'|'PBE'): Exchange-correlation functional to use. Defaults to 'PBE'.
-            potcar_functional: Choice of VASP POTCAR functional and version. Defaults to 'PBE_54'.
+            user_potcar_functional: Choice of VASP POTCAR functional and version. Defaults to 'PBE_54'.
             prev_incar (Incar|str): Incar file from previous run. Default settings of MatPESStaticSet
                 are prioritized over inputs from previous runs.
             **kwargs: Passed to DictSet.
@@ -1275,9 +1275,10 @@ class MatPESStaticSet(DictSet):
                 f"{xc_functional} is not supported."
                 " The supported exchange-correlation functionals are PBE, PBE+U and R2SCAN."
             )
-        if potcar_functional.upper() != "PBE_54":
-            raise UserWarning(f"POTCAR version ({potcar_functional}) is inconsistent with the default of PBE_54.")
-            self.potcar.functional = potcar_functional.upper()
+        if user_potcar_functional.upper() != "PBE_54":
+            raise UserWarning(f"POTCAR version ({user_potcar_functional}) is inconsistent with the recommended PBE_54.")
+
+        self.user_potcar_functional = user_potcar_functional.upper()
 
         self.kwargs = kwargs
         self.xc_functional = xc_functional
