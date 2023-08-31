@@ -847,6 +847,15 @@ class TestMatPESStaticSet(PymatgenTest):
             diff_potcar = MatPESStaticSet(self.struct, user_potcar_functional="PBE")
             assert str(diff_potcar.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE"))
 
+    def test_from_prev_calc(self):
+        vis = MatPESStaticSet.from_prev_calc(f"{TEST_FILES_DIR}/relaxation")
+        incar = vis.incar
+        assert incar["GGA"] == "Pe"
+        assert incar["ALGO"] == "Normal"
+        assert vis.potcar_symbols == ["Li_sv"]
+        assert vis.potcar.functional == "PBE_54"
+        assert vis.kpoints is None
+
 
 class TestMPNonSCFSet(PymatgenTest):
     def setUp(self):

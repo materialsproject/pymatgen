@@ -1281,6 +1281,22 @@ class MatPESStaticSet(DictSet):
                 incar[p] = self.prev_incar[p]
         return incar
 
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, **kwargs):
+        """
+        Generate a set of VASP input files for static calculations from a directory of previous VASP run.
+
+        Args:
+            prev_calc_dir (str): Directory containing the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            **kwargs: All kwargs supported by MatPESStaticSet, other than prev_incar
+                and prev_structure and prev_kpoints which are determined from
+                the prev_calc_dir.
+        """
+        vrun = sorted(f for f in os.listdir(prev_calc_dir) if f.startswith("vasprun.xml"))[-1]
+        v = Vasprun(os.path.join(prev_calc_dir, vrun))
+        return cls(v.final_structure, prev_incar=v.incar, **kwargs)
+
 
 class MPScanStaticSet(MPScanRelaxSet):
     """
