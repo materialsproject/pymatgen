@@ -1232,6 +1232,31 @@ class MatPESStaticSet(DictSet):
 
     CONFIG = _load_yaml_config("MatPESStaticSet")
 
+    INHERITED_INCAR_PARAMS = [
+        "LPEAD",
+        "NGX",
+        "NGY",
+        "NGZ",
+        "SYMPREC",
+        "ISTART",
+        "IMIX",
+        "LMAXMIX",
+        "KGAMMA",
+        "ISYM",
+        "NCORE",
+        "NPAR",
+        "NELMIN",
+        "IOPT",
+        "NBANDS",
+        "IALGO",
+        "KPAR",
+        "AMIN",
+        "NELMDL",
+        "BMIX",
+        "AMIX_MAG",
+        "BMIX_MAG",
+    ]
+
     def __init__(
         self,
         structure: Structure,
@@ -1251,36 +1276,6 @@ class MatPESStaticSet(DictSet):
         """
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
 
-        if isinstance(prev_incar, str):
-            prev_incar = Incar.from_file(prev_incar)
-        custodian_incar = [
-            "LPEAD",
-            "NGX",
-            "NGY",
-            "NGZ",
-            "SYMPREC",
-            "ISTART",
-            "IMIX",
-            "LMAXMIX",
-            "KGAMMA",
-            "ISYM",
-            "NCORE",
-            "NPAR",
-            "NELMIN",
-            "IOPT",
-            "NBANDS",
-            "IALGO",
-            "KPAR",
-            "AMIN",
-            "NELMDL",
-            "BMIX",
-            "AMIX_MAG",
-            "BMIX_MAG",
-        ]
-        if prev_incar:
-            updates = {k: prev_incar[k] for k in list(prev_incar.keys()) if k in custodian_incar}
-            self._config_dict["INCAR"].update(updates)
-
         if xc_functional.upper() == "R2SCAN":
             self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
             self.user_incar_settings.setdefault("ALGO", "ALL")
@@ -1298,7 +1293,17 @@ class MatPESStaticSet(DictSet):
 
         self.kwargs = kwargs
         self.xc_functional = xc_functional
-        self.prev_incar = prev_incar
+        self.prev_incar = prev_incar or {}
+
+    @property
+    def incar(self) -> Incar:
+        """Incar"""
+        incar = super().incar
+
+        for p in MatPESStaticSet.INHERITED_INCAR_PARAMS:
+            if p in self.prev_incar:
+                incar[p] = self.prev_incar[p]
+        return incar
 
 
 class MPScanStaticSet(MPScanRelaxSet):
