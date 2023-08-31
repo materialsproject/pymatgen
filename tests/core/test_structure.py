@@ -472,6 +472,36 @@ class TestIStructure(PymatgenTest):
         assert len(fcc_ag_prim) == 1
         assert fcc_ag_prim.volume == approx(17.10448225)
 
+    def test_primitive_with_constrained_lattice(self):
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/fe310_ouc.json")
+        constraints = {
+            "a": 2.831331845647057,
+            "b": 4.695232694497869,
+            "gamma": 107.5484006137923,
+        }
+        prim_struct = struct.get_primitive_structure(constrain_latt=constraints)
+        assert prim_struct.lattice.a == approx(2.831331845647057)
+        assert prim_struct.lattice.b == approx(4.695232694497869)
+        assert prim_struct.lattice.gamma == approx(107.5484006137923)
+
+    def test_primitive_with_similar_constraints(self):
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/fe310_ouc.json")
+        constraints1 = {
+            "a": 2.831331845647057,
+            "b": 4.695232694497869,
+            "gamma": 107.5484006137923,
+        }
+
+        constraints2 = {
+            "a": 2.831331845647057,
+            "b": 4.695232694497870,
+            "gamma": 107.5484006137923,
+        }
+
+        prim_struct1 = struct.get_primitive_structure(constrain_latt=constraints1)
+        prim_struct2 = struct.get_primitive_structure(constrain_latt=constraints2)
+        assert prim_struct1 == prim_struct2
+
     def test_primitive_positions(self):
         coords = [[0, 0, 0], [0.3, 0.35, 0.45]]
         struct = Structure(Lattice.from_parameters(1, 2, 3, 50, 66, 88), ["Ag"] * 2, coords)
