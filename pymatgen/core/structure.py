@@ -1646,7 +1646,7 @@ class IStructure(SiteCollection, MSONable):
                     bool1 = i == j2
                     bool2 = j == i2
                     bool3 = (-R2 == R).all()
-                    bool4 = np.isclose(d, d2, atol=numerical_tol)
+                    bool4 = np.allclose(d, d2, atol=numerical_tol)
                     if bool1 and bool2 and bool3 and bool4:
                         redundant.append(jdx)
 
@@ -1674,7 +1674,7 @@ class IStructure(SiteCollection, MSONable):
                 symmetry_indices[idx] = symmetry_index
                 symmetry_ops[idx] = symmetry_identity
                 for jdx in np.arange(n_bonds)[np.isnan(symmetry_indices)]:
-                    equal_distance = np.isclose(bonds[3][idx], bonds[3][jdx], atol=numerical_tol)
+                    equal_distance = np.allclose(bonds[3][idx], bonds[3][jdx], atol=numerical_tol)
                     if equal_distance:
                         from_a = self[bonds[0][idx]].frac_coords
                         to_a = self[bonds[1][idx]].frac_coords
@@ -2405,21 +2405,19 @@ class IStructure(SiteCollection, MSONable):
 
                     # Default behavior
                     p = struct.get_primitive_structure(
-                        tolerance=tolerance,
-                        use_site_props=use_site_props,
-                        constrain_latt=constrain_latt,
+                        tolerance=tolerance, use_site_props=use_site_props, constrain_latt=constrain_latt
                     ).get_reduced_structure()
                     if not constrain_latt:
                         return p
 
                     # Only return primitive structures that
                     # satisfy the restriction condition
-                    p_latt, s_latt = p.lattice, self.lattice
-                    if type(constrain_latt).__name__ == "list":
-                        if all(np.isclose(getattr(p_latt, pp), getattr(s_latt, pp)) for pp in constrain_latt):
-                            return p
-                    elif type(constrain_latt).__name__ == "dict" and all(
-                        np.isclose(getattr(p_latt, pp), constrain_latt[pp]) for pp in constrain_latt
+                    prim_latt, self_latt = p.lattice, self.lattice
+                    keys = tuple(constrain_latt)
+                    is_dict = isinstance(constrain_latt, dict)
+                    if np.allclose(
+                        [getattr(prim_latt, key) for key in keys],
+                        [constrain_latt[key] if is_dict else getattr(self_latt, key) for key in keys],
                     ):
                         return p
 
