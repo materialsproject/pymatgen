@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from monty.json import MontyDecoder, jsanitize
 
 import pymatgen.io.ase as aio
 from pymatgen.core import Composition, Lattice, Molecule, Structure
@@ -274,6 +275,10 @@ class TestAseAtomsAdaptor:
         for k, v in atoms.todict().items():
             assert str(atoms_back.todict()[k]) == str(v)
 
+        # test document can be jsanitized and decoded
+        d = jsanitize(structure, strict=True, enum_values=True)
+        MontyDecoder().process_decoded(d)
+
         # Atoms --> Molecule --> Atoms --> Molecule
         atoms = read(TEST_FILES_DIR / "acetylene.xyz")
         atoms.info = {"test": "hi"}
@@ -299,3 +304,7 @@ class TestAseAtomsAdaptor:
         for k, v in atoms.todict().items():
             assert str(atoms_back.todict()[k]) == str(v)
         assert molecule_back == molecule
+
+        # test document can be jsanitized and decoded
+        d = jsanitize(molecule, strict=True, enum_values=True)
+        MontyDecoder().process_decoded(d)

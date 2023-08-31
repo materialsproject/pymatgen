@@ -158,13 +158,12 @@ class AseAtomsAdaptor:
         if any(oxi_states):
             atoms.set_array("oxi_states", np.array(oxi_states))
 
-        # Atoms.info <---> Structure.properties (excluding properties["calc"])
-        # Atoms.calc <---> Structure.properties["calc"]
-        if calc := structure.properties.get("calc", None):
-            atoms.calc = calc
-            del structure.properties["calc"]
+        # Atoms.info <---> Structure.properties
+        # Atoms.calc <---> Structure.calc
         if structure.properties:
             atoms.info = structure.properties
+        if calc := getattr(structure, "calc", None):
+            atoms.calc = calc
 
         return atoms
 
@@ -218,11 +217,11 @@ class AseAtomsAdaptor:
             sel_dyn = None
 
         # Atoms.info <---> Structure.properties (excluding properties["calc"])
-        # Atoms.calc <---> Structure.properties["calc"]
+        # Atoms.calc <---> Structure.calc
         properties = getattr(atoms, "info", {})
 
         if calc := getattr(atoms, "calc", None):
-            properties["calc"] = calc
+            structure.calc = calc
 
         # Return a Molecule object if that was specifically requested;
         # otherwise return a Structure object as expected
