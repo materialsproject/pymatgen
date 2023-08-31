@@ -1239,6 +1239,12 @@ class MatPESStaticSet(DictSet):
                 are prioritized over inputs from previous runs.
             **kwargs: Passed to DictSet.
         """
+        valid_xc_functionals = ("R2SCAN", "PBE", "PBE+U")
+        if xc_functional.upper() not in valid_xc_functionals:
+            raise ValueError(
+                f"Unrecognized {xc_functional=}. Supported exchange-correlation functionals are {valid_xc_functionals}"
+            )
+
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
 
         if xc_functional.upper() == "R2SCAN":
@@ -1246,11 +1252,6 @@ class MatPESStaticSet(DictSet):
             self.user_incar_settings["ALGO"] = "ALL"
         elif xc_functional.upper() == "PBE+U":
             self.user_incar_settings["LDAU"] = True
-        elif xc_functional.upper() != "PBE":
-            raise ValueError(
-                f"{xc_functional} is not supported."
-                " The supported exchange-correlation functionals are PBE, PBE+U and R2SCAN."
-            )
         if user_potcar_functional.upper() != "PBE_54":
             warnings.warn(
                 f"POTCAR version ({user_potcar_functional}) is inconsistent with the recommended PBE_54.", UserWarning
