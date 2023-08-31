@@ -829,9 +829,9 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar_u["GGA"] == "Pe"
         assert incar_u["ALGO"] == "Normal"
         # test POTCAR files are default PBE_54 PSPs and functional
-        assert incar_u.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert incar_u.potcar.functional == "PBE_54"
-        assert incar_u.kpoints is None
+        assert default_u.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert default_u.potcar.functional == "PBE_54"
+        assert default_u.kpoints is None
 
     def test_functionals(self):
         functional = "LDA"
