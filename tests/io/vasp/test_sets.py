@@ -816,7 +816,6 @@ class TestMatPESStaticSet(PymatgenTest):
         scan = MatPESStaticSet(self.struct, xc_functional="R2SCAN")
         incar_scan = scan.incar
         assert incar_scan["METAGGA"] == "R2scan"
-        assert incar_scan.get("GGA") is None
         assert incar_scan["ALGO"] == "All"
         assert incar_scan.get("LDAU") is None
         # test POTCAR files are default PBE_54 PSPs and functional

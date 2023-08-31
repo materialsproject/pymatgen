@@ -1,38 +1,28 @@
 """
-This module defines the VaspInputSet abstract base class and a concrete
-implementation for the parameters developed and tested by the core team
-of pymatgen, including the Materials Virtual Lab, Materials Project and the MIT
-high throughput project. The basic concept behind an input set is to specify
-a scheme to generate a consistent set of VASP inputs from a structure
-without further user intervention. This ensures comparability across
-runs.
+This module defines the VaspInputSet abstract base class and a concrete implementation for the parameters developed
+and tested by the core team of pymatgen, including the Materials Virtual Lab, Materials Project and the MIT high
+throughput project. The basic concept behind an input set is to specify a scheme to generate a consistent set of VASP
+inputs from a structure without further user intervention. This ensures comparability across runs.
 
 Read the following carefully before implementing new input sets:
 
-1. 99% of what needs to be done can be done by specifying user_incar_settings
-   to override some of the defaults of various input sets. Unless there is an
-   extremely good reason to add a new set, DO NOT add one. E.g., if you want
+1. 99% of what needs to be done can be done by specifying user_incar_settings to override some of the defaults of
+   various input sets. Unless there is an extremely good reason to add a new set, DO NOT add one. E.g., if you want
    to turn the Hubbard U off, just set "LDAU": False as a user_incar_setting.
-2. All derivative input sets should inherit from one of the usual MPRelaxSet or
-   MITRelaxSet, and proper superclass delegation should be used where possible.
-   In particular, you are not supposed to implement your own as_dict or
-   from_dict for derivative sets unless you know what you are doing.
-   Improper overriding the as_dict and from_dict protocols is the major
-   cause of implementation headaches. If you need an example, look at how the
-   MPStaticSet or MPNonSCFSets are constructed.
+2. All derivative input sets should inherit from one of the usual MPRelaxSet or MITRelaxSet, and proper superclass
+   delegation should be used where possible. In particular, you are not supposed to implement your own as_dict or
+   from_dict for derivative sets unless you know what you are doing. Improper overriding the as_dict and from_dict
+   protocols is the major cause of implementation headaches. If you need an example, look at how the MPStaticSet or
+   MPNonSCFSets are constructed.
 
 The above are recommendations. The following are UNBREAKABLE rules:
 
-1. All input sets must take in a structure or list of structures as the first
-   argument.
-2. user_incar_settings, user_kpoints_settings and user_<whatever>_settings are
-   ABSOLUTE. Any new sets you implement must obey this. If a user wants to
-   override your settings, you assume he knows what he is doing. Do not
-   magically override user supplied settings. You can issue a warning if you
-   think the user is wrong.
-3. All input sets must save all supplied args and kwargs as instance variables.
-   E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
-   ensures the as_dict and from_dict work correctly.
+1. All input sets must take in a structure or list of structures as the first argument.
+2. user_incar_settings, user_kpoints_settings and user_<whatever>_settings are ABSOLUTE. Any new sets you implement
+   must obey this. If a user wants to override your settings, you assume he knows what he is doing. Do not
+   magically override user supplied settings. You can issue a warning if you think the user is wrong.
+3. All input sets must save all supplied args and kwargs as instance variables. E.g., self.my_arg = my_arg and
+   self.kwargs = kwargs in the __init__. This ensures the as_dict and from_dict work correctly.
 """
 
 from __future__ import annotations
@@ -1212,7 +1202,7 @@ class MatPESStaticSet(DictSet):
     """Creates input files for a MatPES static calculation.
 
     The goal of MatPES is to generate PES data. This is a distinctly different from the objectives of the MP static
-    calculations, which aims to obtain primarily accurate energies and also electronic structure (DOS). For PES data,
+    calculations, which aims to obtain accurate energies and electronic structure (DOS) primarily. For PES data,
     force accuracy (and to some extent, stress accuracy) is of paramount importance.
 
     It should be noted that the default POTCAR versions have been updated to PBE_54, rather than the old PBE set used
@@ -1222,6 +1212,9 @@ class MatPESStaticSet(DictSet):
 
     CONFIG = _load_yaml_config("MatPESStaticSet")
 
+    # These are parameters that we will inherit from any previous INCAR supplied. They are mostly parameters related
+    # to symmetry and convergence set by Custodian when errors are encountered in a previous run. Given that our goal
+    # is to have a strictly homogeneous PES data, all other parameters (e.g., ISMEAR, ALGO, etc.) are not inherited.
     INHERITED_INCAR_PARAMS = (
         "LPEAD",
         "NGX",
@@ -1265,18 +1258,19 @@ class MatPESStaticSet(DictSet):
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
 
         if xc_functional.upper() == "R2SCAN":
-            self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
-            self.user_incar_settings.setdefault("ALGO", "ALL")
-            self.user_incar_settings.setdefault("GGA", None)
+            self.user_incar_settings["METAGGA"] = "R2SCAN"
+            self.user_incar_settings["ALGO"] = "ALL"
         elif xc_functional.upper() == "PBE+U":
-            self._config_dict["INCAR"]["LDAU"] = True
+            self.user_incar_settings["LDAU"] = True
         elif xc_functional.upper() != "PBE":
             raise ValueError(
                 f"{xc_functional} is not supported."
                 " The supported exchange-correlation functionals are PBE, PBE+U and R2SCAN."
             )
         if user_potcar_functional.upper() != "PBE_54":
-            raise UserWarning(f"POTCAR version ({user_potcar_functional}) is inconsistent with the recommended PBE_54.")
+            warnings.warn(
+                f"POTCAR version ({user_potcar_functional}) is inconsistent with the recommended PBE_54.", UserWarning
+            )
 
         self.user_potcar_functional = user_potcar_functional.upper()
 
