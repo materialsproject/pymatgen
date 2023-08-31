@@ -2411,10 +2411,10 @@ class IStructure(SiteCollection, MSONable):
                     # satisfy the restriction condition
                     p_latt, s_latt = p.lattice, self.lattice
                     if type(constrain_latt).__name__ == "list":
-                        if all(getattr(p_latt, pp) == getattr(s_latt, pp) for pp in constrain_latt):
+                        if all(np.isclose(getattr(p_latt, pp), getattr(s_latt, pp)) for pp in constrain_latt):
                             return p
                     elif type(constrain_latt).__name__ == "dict" and all(
-                        getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt
+                            np.isclose(getattr(p_latt, pp), constrain_latt[pp]) for pp in constrain_latt
                     ):
                         return p
 
