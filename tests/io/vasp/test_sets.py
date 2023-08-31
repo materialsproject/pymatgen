@@ -838,6 +838,7 @@ class TestMatPESStaticSet(PymatgenTest):
         with pytest.raises(ValueError, match=f"{functional} is not supported"):
             MatPESStaticSet(self.struct, xc_functional=functional)
 
+
 def test_functionals(self):
     functional = "LDA"
     with pytest.raises(ValueError, match=f"{functional} is not supported"):
