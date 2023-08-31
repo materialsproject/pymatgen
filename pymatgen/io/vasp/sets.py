@@ -1222,13 +1222,12 @@ class MatPESStaticSet(DictSet):
 
     CONFIG = _load_yaml_config("MatPESStaticSet")
 
-    INHERITED_INCAR_PARAMS = [
+    INHERITED_INCAR_PARAMS = (
         "LPEAD",
         "NGX",
         "NGY",
         "NGZ",
         "SYMPREC",
-        "ISTART",
         "IMIX",
         "LMAXMIX",
         "KGAMMA",
@@ -1238,14 +1237,13 @@ class MatPESStaticSet(DictSet):
         "NELMIN",
         "IOPT",
         "NBANDS",
-        "IALGO",
         "KPAR",
         "AMIN",
         "NELMDL",
         "BMIX",
         "AMIX_MAG",
         "BMIX_MAG",
-    ]
+    )
 
     def __init__(
         self,
