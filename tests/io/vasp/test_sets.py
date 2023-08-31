@@ -822,16 +822,17 @@ class TestMatPESStaticSet(PymatgenTest):
         assert scan.potcar.functional == "PBE_54"
         assert scan.kpoints is None
 
-def test_functionals(self):
-        functional = "LDA"
-        with pytest.raises(ValueError, match=f"{functional} is not supported"):
-            MatPESStaticSet(self.struct, xc_functional=functional)
 
-        with pytest.raises(
-            UserWarning,
-            match="inconsistent with the default of PBE_54",
-        ):
-            MatPESStaticSet(self.struct, potcar_functional=functional)
+def test_functionals(self):
+    functional = "LDA"
+    with pytest.raises(ValueError, match=f"{functional} is not supported"):
+        MatPESStaticSet(self.struct, xc_functional=functional)
+
+    with pytest.raises(
+        UserWarning,
+        match="inconsistent with the default of PBE_54",
+    ):
+        MatPESStaticSet(self.struct, potcar_functional=functional)
 
 
 class TestMPNonSCFSet(PymatgenTest):
