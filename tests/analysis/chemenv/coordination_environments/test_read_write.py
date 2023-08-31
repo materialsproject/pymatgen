@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
-import unittest
 
 from numpy.testing import assert_allclose, assert_array_almost_equal
 from pytest import approx
@@ -24,7 +22,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 )
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
@@ -32,12 +30,11 @@ json_dir = f"{TEST_FILES_DIR}/chemenv/json"
 struct_env_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments"
 
 
-class TestReadWriteChemenv(unittest.TestCase):
+class TestReadWriteChemenv(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         cls.lgf = LocalGeometryFinder()
         cls.lgf.setup_parameters(centering_type="standard")
-        os.makedirs("tmp_dir", exist_ok=True)
 
     def test_read_write_structure_environments(self):
         with open(f"{json_dir}/test_T--4_FePO4_icsd_4266.json") as file:
@@ -51,10 +48,10 @@ class TestReadWriteChemenv(unittest.TestCase):
             only_indices=atom_indices, maximum_distance_factor=2.25, get_from_hints=True
         )
 
-        with open("tmp_dir/se.json", "w") as file:
+        with open(f"{self.tmp_path}/se.json", "w") as file:
             json.dump(se.as_dict(), file)
 
-        with open("tmp_dir/se.json") as file:
+        with open(f"{self.tmp_path}/se.json") as file:
             dd = json.load(file)
 
         se2 = StructureEnvironments.from_dict(dd)
@@ -66,10 +63,10 @@ class TestReadWriteChemenv(unittest.TestCase):
             structure_environments=se, strategy=strategy, valences="undefined"
         )
 
-        with open("tmp_dir/lse.json", "w") as file:
+        with open(f"{self.tmp_path}/lse.json", "w") as file:
             json.dump(lse.as_dict(), file, default=lambda obj: getattr(obj, "tolist", lambda: obj)())
 
-        with open("tmp_dir/lse.json") as file:
+        with open(f"{self.tmp_path}/lse.json") as file:
             LightStructureEnvironments.from_dict(json.load(file))
 
         # assert lse == lse2
@@ -229,10 +226,10 @@ class TestReadWriteChemenv(unittest.TestCase):
 
         detailed_voronoi_container = DetailedVoronoiContainer(structure=struct, valences=valences)
 
-        with open("tmp_dir/se.json", "w") as file:
+        with open(f"{self.tmp_path}/se.json", "w") as file:
             json.dump(detailed_voronoi_container.as_dict(), file)
 
-        with open("tmp_dir/se.json") as file:
+        with open(f"{self.tmp_path}/se.json") as file:
             dd = json.load(file)
 
         detailed_voronoi_container2 = DetailedVoronoiContainer.from_dict(dd)
