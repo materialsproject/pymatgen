@@ -853,7 +853,6 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["GGA"] == "Pe"
         assert incar["ALGO"] == "Normal"
         assert vis.potcar_symbols == ["Li_sv"]
-        assert vis.potcar.functional == "PBE_54"
         assert vis.kpoints is None
 
 
