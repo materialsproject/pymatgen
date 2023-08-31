@@ -1639,17 +1639,16 @@ class IStructure(SiteCollection, MSONable):
             # compare all neighbors pairwise to find the pairs that connect the same
             # two sites, but with an inverted vector (R=-R) that connects the two and add
             # one of each pair to the redundant list.
-            for it, (i, j, R, d) in enumerate(zip(*bonds)):
-                if it in redundant:
-                    pass
-                else:
-                    for it2, (i2, j2, R2, d2) in enumerate(zip(*bonds)):
-                        bool1 = i == j2
-                        bool2 = j == i2
-                        bool3 = (-R2 == R).all()
-                        bool4 = np.isclose(d, d2, atol=numerical_tol)
-                        if bool1 and bool2 and bool3 and bool4:
-                            redundant.append(it2)
+            for idx, (i, j, R, d) in enumerate(zip(*bonds)):
+                if idx in redundant:
+                    continue
+                for jdx, (i2, j2, R2, d2) in enumerate(zip(*bonds)):
+                    bool1 = i == j2
+                    bool2 = j == i2
+                    bool3 = (-R2 == R).all()
+                    bool4 = np.isclose(d, d2, atol=numerical_tol)
+                    if bool1 and bool2 and bool3 and bool4:
+                        redundant.append(jdx)
 
             # delete the redundant neighbors
             m = ~np.in1d(np.arange(len(bonds[0])), redundant)
@@ -1657,8 +1656,8 @@ class IStructure(SiteCollection, MSONable):
             bonds = (bonds[0][m][idcs_dist], bonds[1][m][idcs_dist], bonds[2][m][idcs_dist], bonds[3][m][idcs_dist])
 
         # expand the output tuple by symmetry_indices and symmetry_ops.
-        nbonds = len(bonds[0])
-        symmetry_indices = np.empty(nbonds)
+        n_bonds = len(bonds[0])
+        symmetry_indices = np.empty(n_bonds)
         symmetry_indices[:] = np.NaN
         symmetry_ops = np.empty(len(symmetry_indices), dtype=object)
         symmetry_identity = SymmOp.from_rotation_and_translation(np.eye(3), np.zeros(3))
@@ -1670,31 +1669,31 @@ class IStructure(SiteCollection, MSONable):
         # neighbors 'SymmOp.are_symmetrically_related_vectors' is used. It is also checked whether applying the
         # connecting symmetry operation generates the neighbor-pair itself, or the equivalent version with the
         # sites exchanged and R reversed. The output is always reordered such that the former case is true.
-        for it in range(nbonds):
-            if np.isnan(symmetry_indices[it]):
-                symmetry_indices[it] = symmetry_index
-                symmetry_ops[it] = symmetry_identity
-                for it2 in np.arange(nbonds)[np.isnan(symmetry_indices)]:
-                    equal_distance = np.isclose(bonds[3][it], bonds[3][it2], atol=numerical_tol)
+        for idx in range(n_bonds):
+            if np.isnan(symmetry_indices[idx]):
+                symmetry_indices[idx] = symmetry_index
+                symmetry_ops[idx] = symmetry_identity
+                for jdx in np.arange(n_bonds)[np.isnan(symmetry_indices)]:
+                    equal_distance = np.isclose(bonds[3][idx], bonds[3][jdx], atol=numerical_tol)
                     if equal_distance:
-                        from_a = self[bonds[0][it]].frac_coords
-                        to_a = self[bonds[1][it]].frac_coords
-                        r_a = bonds[2][it]
-                        from_b = self[bonds[0][it2]].frac_coords
-                        to_b = self[bonds[1][it2]].frac_coords
-                        r_b = bonds[2][it2]
+                        from_a = self[bonds[0][idx]].frac_coords
+                        to_a = self[bonds[1][idx]].frac_coords
+                        r_a = bonds[2][idx]
+                        from_b = self[bonds[0][jdx]].frac_coords
+                        to_b = self[bonds[1][jdx]].frac_coords
+                        r_b = bonds[2][jdx]
                         for op in ops:
                             are_related, is_reversed = op.are_symmetrically_related_vectors(
                                 from_a, to_a, r_a, from_b, to_b, r_b
                             )
                             if are_related and not is_reversed:
-                                symmetry_indices[it2] = symmetry_index
-                                symmetry_ops[it2] = op
+                                symmetry_indices[jdx] = symmetry_index
+                                symmetry_ops[jdx] = op
                             elif are_related and is_reversed:
-                                symmetry_indices[it2] = symmetry_index
-                                symmetry_ops[it2] = op
-                                bonds[0][it2], bonds[1][it2] = bonds[1][it2], bonds[0][it2]
-                                bonds[2][it2] = -bonds[2][it2]
+                                symmetry_indices[jdx] = symmetry_index
+                                symmetry_ops[jdx] = op
+                                bonds[0][jdx], bonds[1][jdx] = bonds[1][jdx], bonds[0][jdx]
+                                bonds[2][jdx] = -bonds[2][jdx]
 
                 symmetry_index += 1
 
@@ -1707,7 +1706,7 @@ class IStructure(SiteCollection, MSONable):
         # the groups of neighbors with the same symmetry index are ordered such that neighbors
         # that are the first occurrence of a new symmetry index in the ordered output are the ones
         # that are assigned the Identity as a symmetry operation.
-        idcs_symop = np.arange(nbonds)
+        idcs_symop = np.arange(n_bonds)
         identity_idcs = np.where(symmetry_ops == symmetry_identity)[0]
         for symmetry_idx in np.unique(symmetry_indices):
             first_idx = np.argmax(symmetry_indices == symmetry_idx)
@@ -2417,10 +2416,10 @@ class IStructure(SiteCollection, MSONable):
                     # satisfy the restriction condition
                     p_latt, s_latt = p.lattice, self.lattice
                     if type(constrain_latt).__name__ == "list":
-                        if all(getattr(p_latt, pp) == getattr(s_latt, pp) for pp in constrain_latt):
+                        if all(np.isclose(getattr(p_latt, pp), getattr(s_latt, pp)) for pp in constrain_latt):
                             return p
                     elif type(constrain_latt).__name__ == "dict" and all(
-                        getattr(p_latt, pp) == constrain_latt[pp] for pp in constrain_latt
+                        np.isclose(getattr(p_latt, pp), constrain_latt[pp]) for pp in constrain_latt
                     ):
                         return p
 
