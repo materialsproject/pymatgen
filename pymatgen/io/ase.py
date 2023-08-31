@@ -217,11 +217,7 @@ class AseAtomsAdaptor:
             sel_dyn = None
 
         # Atoms.info <---> Structure.properties (excluding properties["calc"])
-        # Atoms.calc <---> Structure.calc
         properties = getattr(atoms, "info", {})
-
-        if calc := getattr(atoms, "calc", None):
-            structure.calc = calc
 
         # Return a Molecule object if that was specifically requested;
         # otherwise return a Structure object as expected
@@ -229,6 +225,10 @@ class AseAtomsAdaptor:
             structure = cls(symbols, positions, properties=properties, **cls_kwargs)
         else:
             structure = cls(lattice, symbols, positions, coords_are_cartesian=True, properties=properties, **cls_kwargs)
+
+        # Atoms.calc <---> Structure.calc
+        if calc := getattr(atoms, "calc", None):
+            structure.calc = calc
 
         # Set the site magmoms in the Pymatgen structure object
         # Note: ASE distinguishes between initial and converged
