@@ -1234,9 +1234,9 @@ class MatPESStaticSet(DictSet):
         Args:
             structure (Structure): Structure for static calculation.
             xc_functional ('R2SCAN'|'PBE'): Exchange-correlation functional to use. Defaults to 'PBE'.
-            user_potcar_functional: Choice of VASP POTCAR functional and version. Defaults to 'PBE_54'.
-            prev_incar (Incar|str): Incar file from previous run. Default settings of MatPESStaticSet
-                are prioritized over inputs from previous runs.
+            potcar_functional: Choice of VASP POTCAR functional and version. Defaults to 'PBE_54'.
+            prev_incar (Incar | dict): Incar file from previous run. Default settings of MatPESStaticSet
+                are prioritized over inputs from previous runs. Defaults to None.
             **kwargs: Passed to DictSet.
         """
         valid_xc_functionals = ("R2SCAN", "PBE", "PBE+U")
@@ -1268,9 +1268,8 @@ class MatPESStaticSet(DictSet):
         """Incar"""
         incar = super().incar
 
-        for p in MatPESStaticSet.INHERITED_INCAR_PARAMS:
-            if p in self.prev_incar:
-                incar[p] = self.prev_incar[p]
+        for key in set(self.INHERITED_INCAR_PARAMS) & set(self.prev_incar):
+            incar[key] = self.prev_incar[key]
         return incar
 
 
