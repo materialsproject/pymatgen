@@ -749,6 +749,10 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["ISMEAR"] == 0
         assert incar["ISPIN"] == 2
         assert incar["KSPACING"] == 0.22
+        assert incar["LAECHG"]
+        assert incar["LASPH"]
+        assert incar["LCHARG"]
+        assert incar["LMIXTAU"]
         assert incar.get("LDAU") is None
         assert incar["LORBIT"] == 11
         assert incar["LREAL"] == "Auto"
@@ -767,7 +771,19 @@ class TestMatPESStaticSet(PymatgenTest):
         incar = default_prev.incar
         # test if prev_incar is used.
         assert incar["NPAR"] == 8
-        assert not incar["LSCALU"]
+        assert incar["LMAXMIX"] == 4
+        # test some incar parameters from prev_incar are not inherited
+        assert incar.get("ISPIND") is None
+        assert incar.get("LSCALU") is None
+        assert incar.get("ISIF") is None
+        assert incar.get("SYSTEM") is None
+        assert incar.get("HFSCREEN") is None
+        assert incar.get("NSIM") is None
+        assert incar.get("ENCUTFOCK") is None
+        assert incar.get("NKRED") is None
+        assert incar.get("LPLANE") is None
+        assert incar.get("TIME") is None
+        assert incar.get("LHFCALC") is None
         # test if default in MatPESStaticSet is prioritized.
         assert incar["ALGO"] == "Normal"
         assert incar["EDIFF"] == 1.0e-05
@@ -777,6 +793,10 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["ISMEAR"] == 0
         assert incar["ISPIN"] == 2
         assert incar["KSPACING"] == 0.22
+        assert incar["LAECHG"]
+        assert incar["LASPH"]
+        assert incar["LCHARG"]
+        assert incar["LMIXTAU"]
         assert incar.get("LDAU") is None
         assert incar["LORBIT"] == 11
         assert incar["LREAL"] == "Auto"
@@ -802,11 +822,21 @@ class TestMatPESStaticSet(PymatgenTest):
         assert scan.potcar.functional == "PBE_54"
         assert scan.kpoints is None
 
+    def test_default_u(self):
+        default_u = MatPESStaticSet(self.struct, xc_functional="PBE+U")
+        incar_u = default_u.incar
+        assert incar_u["LDAU"] is True
+        assert incar_u["GGA"] == "Pe"
+        assert incar_u["ALGO"] == "Normal"
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert default_u.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert default_u.potcar.functional == "PBE_54"
+        assert default_u.kpoints is None
+
     def test_functionals(self):
         functional = "LDA"
         with pytest.raises(ValueError, match=f"{functional} is not supported"):
             MatPESStaticSet(self.struct, xc_functional=functional)
-
         with pytest.raises(
             UserWarning,
             match="inconsistent with the default of PBE_54",

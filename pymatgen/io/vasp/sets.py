@@ -1253,8 +1253,32 @@ class MatPESStaticSet(DictSet):
 
         if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
+        custodian_incar = [
+            "LPEAD",
+            "NGX",
+            "NGY",
+            "NGZ",
+            "SYMPREC",
+            "ISTART",
+            "IMIX",
+            "LMAXMIX",
+            "KGAMMA",
+            "ISYM",
+            "NCORE",
+            "NPAR",
+            "NELMIN",
+            "IOPT",
+            "NBANDS",
+            "IALGO",
+            "KPAR",
+            "AMIN",
+            "NELMDL",
+            "BMIX",
+            "AMIX_MAG",
+            "BMIX_MAG",
+        ]
         if prev_incar:
-            updates = {k: v for k, v in prev_incar.items() if k not in self._config_dict["INCAR"]}
+            updates = {k: prev_incar[k] for k in list(prev_incar.keys()) if k in custodian_incar}
             self._config_dict["INCAR"].update(updates)
 
         if xc_functional.upper() == "R2SCAN":
