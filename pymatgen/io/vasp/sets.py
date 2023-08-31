@@ -1215,27 +1215,9 @@ class MatPESStaticSet(DictSet):
     # These are parameters that we will inherit from any previous INCAR supplied. They are mostly parameters related
     # to symmetry and convergence set by Custodian when errors are encountered in a previous run. Given that our goal
     # is to have a strictly homogeneous PES data, all other parameters (e.g., ISMEAR, ALGO, etc.) are not inherited.
-    INHERITED_INCAR_PARAMS = (
-        "LPEAD",
-        "NGX",
-        "NGY",
-        "NGZ",
-        "SYMPREC",
-        "IMIX",
-        "LMAXMIX",
-        "KGAMMA",
-        "ISYM",
-        "NCORE",
-        "NPAR",
-        "NELMIN",
-        "IOPT",
-        "NBANDS",
-        "KPAR",
-        "AMIN",
-        "NELMDL",
-        "BMIX",
-        "AMIX_MAG",
-        "BMIX_MAG",
+    INHERITED_INCAR_PARAMS = tuple(
+        "LPEAD NGX NGY NGZ SYMPREC ISTART IMIX LMAXMIX KGAMMA ISYM NCORE NPAR NELMIN IOPT NBANDS "
+        "IALGO KPAR AMIN NELMDL BMIX AMIX_MAG BMIX_MAG".split()
     )
 
     def __init__(
