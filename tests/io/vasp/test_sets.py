@@ -822,6 +822,21 @@ class TestMatPESStaticSet(PymatgenTest):
         assert scan.potcar.functional == "PBE_54"
         assert scan.kpoints is None
 
+    def test_default_u(self):
+        default_u = MatPESStaticSet(self.struct, xc_functional="PBE+U")
+        incar_u = default_u.incar
+        assert incar_u["LDAU"] is True
+        assert incar_u["GGA"] == "Pe"
+        assert incar_u["ALGO"] == "Normal"
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert incar_u.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert incar_u.potcar.functional == "PBE_54"
+        assert incar_u.kpoints is None
+
+    def test_functionals(self):
+        functional = "LDA"
+        with pytest.raises(ValueError, match=f"{functional} is not supported"):
+            MatPESStaticSet(self.struct, xc_functional=functional)
 
 def test_functionals(self):
     functional = "LDA"
