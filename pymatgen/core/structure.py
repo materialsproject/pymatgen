@@ -197,6 +197,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     # Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.5
+    properties: dict
 
     @property
     def sites(self) -> list[Site]:
@@ -1264,16 +1265,21 @@ class IStructure(SiteCollection, MSONable):
         return matcher.fit(self, other)
 
     def __eq__(self, other: object) -> bool:
-        # check for valid operand following class Student example from official functools docs
-        # https://docs.python.org/3/library/functools.html#functools.total_ordering
-        if not isinstance(other, IStructure):
+        needed_attrs = ("lattice", "sites", "properties")
+
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            # return NotImplemented as in https://docs.python.org/3/library/functools.html#functools.total_ordering
             return NotImplemented
+
+        other = cast(Structure, other)  # to make mypy happy
 
         if other is self:
             return True
         if len(self) != len(other):
             return False
         if self.lattice != other.lattice:
+            return False
+        if self.properties != other.properties:
             return False
         return all(site in other for site in self)
 
@@ -3083,7 +3089,7 @@ class IMolecule(SiteCollection, MSONable):
         return bonds
 
     def __eq__(self, other: object) -> bool:
-        needed_attrs = ("charge", "spin_multiplicity", "sites")
+        needed_attrs = ("charge", "spin_multiplicity", "sites", "properties")
 
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
@@ -3095,6 +3101,8 @@ class IMolecule(SiteCollection, MSONable):
         if self.charge != other.charge:
             return False
         if self.spin_multiplicity != other.spin_multiplicity:
+            return False
+        if self.properties != other.properties:
             return False
         return all(site in other for site in self)
 
@@ -3172,20 +3180,19 @@ class IMolecule(SiteCollection, MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d) -> IMolecule | Molecule:
-        """Reconstitute a Molecule object from a dict representation created using
-        as_dict().
+    def from_dict(cls, dct) -> IMolecule | Molecule:
+        """Reconstitute a Molecule object from a dict representation created using as_dict().
 
         Args:
-            d (dict): dict representation of Molecule.
+            dct (dict): dict representation of Molecule.
 
         Returns:
-            Molecule object
+            Molecule
         """
-        sites = [Site.from_dict(sd) for sd in d["sites"]]
-        charge = d.get("charge", 0)
-        spin_multiplicity = d.get("spin_multiplicity")
-        properties = d.get("properties")
+        sites = [Site.from_dict(sd) for sd in dct["sites"]]
+        charge = dct.get("charge", 0)
+        spin_multiplicity = dct.get("spin_multiplicity")
+        properties = dct.get("properties")
         return cls.from_sites(sites, charge=charge, spin_multiplicity=spin_multiplicity, properties=properties)
 
     def get_distance(self, i: int, j: int) -> float:
@@ -3211,10 +3218,10 @@ class IMolecule(SiteCollection, MSONable):
             Neighbor
         """
         neighbors = []
-        for i, site in enumerate(self._sites):
+        for idx, site in enumerate(self._sites):
             dist = site.distance_from_point(pt)
             if dist <= r:
-                neighbors.append(Neighbor(site.species, site.coords, site.properties, dist, i, label=site.label))
+                neighbors.append(Neighbor(site.species, site.coords, site.properties, dist, idx, label=site.label))
         return neighbors
 
     def get_neighbors(self, site: Site, r: float) -> list[Neighbor]:

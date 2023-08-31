@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from monty.json import MontyDecoder, jsanitize
 
 import pymatgen.io.ase as aio
 from pymatgen.core import Composition, Lattice, Molecule, Structure
@@ -266,13 +267,17 @@ class TestAseAtomsAdaptor:
         structure.add_site_property("final_charge", [3.0] * len(structure))
         structure.add_site_property("charge", [4.0] * len(structure))
         structure.add_site_property("prop", [5.0] * len(structure))
-        structure.info = {"test": "hi"}
+        structure.properties = {"test": "hi"}
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         structure_back = aio.AseAtomsAdaptor.get_structure(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(structure_back)
         assert structure_back == structure
         for k, v in atoms.todict().items():
             assert str(atoms_back.todict()[k]) == str(v)
+
+        # test document can be jsanitized and decoded
+        d = jsanitize(structure, strict=True, enum_values=True)
+        MontyDecoder().process_decoded(d)
 
         # Atoms --> Molecule --> Atoms --> Molecule
         atoms = read(TEST_FILES_DIR / "acetylene.xyz")
@@ -292,10 +297,14 @@ class TestAseAtomsAdaptor:
         # Molecule --> Atoms --> Molecule --> Atoms
         molecule = Molecule.from_file(TEST_FILES_DIR / "acetylene.xyz")
         molecule.set_charge_and_spin(-2, spin_multiplicity=3)
-        molecule.info = {"test": "hi"}
+        molecule.properties = {"test": "hi"}
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         molecule_back = aio.AseAtomsAdaptor.get_molecule(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(molecule_back)
         for k, v in atoms.todict().items():
             assert str(atoms_back.todict()[k]) == str(v)
         assert molecule_back == molecule
+
+        # test document can be jsanitized and decoded
+        d = jsanitize(molecule, strict=True, enum_values=True)
+        MontyDecoder().process_decoded(d)
