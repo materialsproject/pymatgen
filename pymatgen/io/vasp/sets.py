@@ -1201,13 +1201,15 @@ class MPStaticSet(MPRelaxSet):
 class MatPESStaticSet(DictSet):
     """Creates input files for a MatPES static calculation.
 
-    The goal of MatPES is to generate PES data. This is a distinctly different from the objectives of the MP static
-    calculations, which aims to obtain accurate energies and electronic structure (DOS) primarily. For PES data,
-    force accuracy (and to some extent, stress accuracy) is of paramount importance.
+    The goal of MatPES is to generate potential energy surface data. This is a distinctly different
+    from the objectives of the MP static calculations, which aims to obtain primarily accurate
+    energies and also electronic structure (DOS). For PES data, force accuracy (and to some extent,
+    stress accuracy) is of paramount importance.
 
-    It should be noted that the default POTCAR versions have been updated to PBE_54, rather than the old PBE set used
-    in the MPStaticSet. However, **U values** are still based on PBE. The implicit assumption here is that the PBE_54
-    and PBE POTCARs are sufficiently similar that the U values fitted to the old PBE functional still applies.
+    The default POTCAR versions have been updated to PBE_54 from the old PBE set used in the
+    MPStaticSet. However, **U values** are still based on PBE. The implicit assumption here is that
+    the PBE_54 and PBE POTCARs are sufficiently similar that the U values fitted to the old PBE
+    functional still applies.
     """
 
     CONFIG = _load_yaml_config("MatPESStaticSet")
@@ -1224,10 +1226,10 @@ class MatPESStaticSet(DictSet):
         self,
         structure: Structure,
         xc_functional: Literal["R2SCAN", "PBE", "PBE+U"] = "PBE",
-        user_potcar_functional="PBE_54",
-        prev_incar=None,
+        user_potcar_functional: Literal["PBE_54", "PBE_52"] = "PBE_54",
+        prev_incar: Incar | dict | None = None,
         **kwargs: Any,
-    ):
+    ) -> None:
         """
         Args:
             structure (Structure): Structure for static calculation.
@@ -1254,7 +1256,7 @@ class MatPESStaticSet(DictSet):
                 f"POTCAR version ({user_potcar_functional}) is inconsistent with the recommended PBE_54.", UserWarning
             )
 
-        self.user_potcar_functional = user_potcar_functional.upper()
+        self.user_potcar_functional = user_potcar_functional
 
         self.kwargs = kwargs
         self.xc_functional = xc_functional
