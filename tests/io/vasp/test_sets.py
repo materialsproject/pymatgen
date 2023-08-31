@@ -836,13 +836,13 @@ class TestMatPESStaticSet(PymatgenTest):
         assert default_u.kpoints is None
 
     def test_functionals(self):
-        functional = "LDA"
-        with pytest.raises(ValueError, match=f"{functional} is not supported"):
-            MatPESStaticSet(self.struct, xc_functional=functional)
-        with pytest.warns(
-            UserWarning,
-            match="inconsistent with the recommended PBE_54",
+        xc_functional = "LDA"
+        with pytest.raises(
+            ValueError, match=f"Unrecognized {xc_functional=}. Supported exchange-correlation functionals are "
         ):
+            MatPESStaticSet(self.struct, xc_functional=xc_functional)
+
+        with pytest.warns(UserWarning, match="inconsistent with the recommended PBE_54"):
             diff_potcar = MatPESStaticSet(self.struct, user_potcar_functional="PBE")
             assert str(diff_potcar.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE"))
 
