@@ -1271,7 +1271,7 @@ class IStructure(SiteCollection, MSONable):
             # return NotImplemented as in https://docs.python.org/3/library/functools.html#functools.total_ordering
             return NotImplemented
 
-        other = cast(Structure, other)  # to make mypy happy
+        other = cast(Structure, other)  # make mypy happy
 
         if other is self:
             return True
