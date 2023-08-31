@@ -473,34 +473,20 @@ class TestIStructure(PymatgenTest):
         assert fcc_ag_prim.volume == approx(17.10448225)
 
     def test_primitive_with_constrained_lattice(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/fe310_ouc.json")
-        constraints = {
-            "a": 2.831331845647057,
-            "b": 4.695232694497869,
-            "gamma": 107.5484006137923,
-        }
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/Fe310.json.gz")
+        constraints = {"a": 2.83133, "b": 4.69523, "gamma": 107.54840}
         prim_struct = struct.get_primitive_structure(constrain_latt=constraints)
-        assert prim_struct.lattice.a == approx(2.831331845647057)
-        assert prim_struct.lattice.b == approx(4.695232694497869)
-        assert prim_struct.lattice.gamma == approx(107.5484006137923)
+        assert {key: getattr(prim_struct.lattice, key) for key in constraints} == pytest.approx(constraints)
 
     def test_primitive_with_similar_constraints(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/fe310_ouc.json")
-        constraints1 = {
-            "a": 2.831331845647057,
-            "b": 4.695232694497869,
-            "gamma": 107.5484006137923,
-        }
-
-        constraints2 = {
-            "a": 2.831331845647057,
-            "b": 4.695232694497870,
-            "gamma": 107.5484006137923,
-        }
-
-        prim_struct1 = struct.get_primitive_structure(constrain_latt=constraints1)
-        prim_struct2 = struct.get_primitive_structure(constrain_latt=constraints2)
-        assert prim_struct1 == prim_struct2
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/Fe310.json.gz")
+        constraints = {"a": 2.83133, "b": 4.69523, "gamma": 107.54840}
+        for perturb in (0, 1e-5, -1e-5):
+            copy = constraints.copy()
+            copy["a"] += perturb
+            prim_struct = struct.get_primitive_structure(constrain_latt=constraints)
+            copy_struct = struct.get_primitive_structure(constrain_latt=copy)
+            assert prim_struct == copy_struct
 
     def test_primitive_positions(self):
         coords = [[0, 0, 0], [0.3, 0.35, 0.45]]
