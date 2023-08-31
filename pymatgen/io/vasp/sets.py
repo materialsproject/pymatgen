@@ -1249,8 +1249,9 @@ class MatPESStaticSet(DictSet):
 
         if xc_functional.upper() == "R2SCAN":
             self.user_incar_settings["METAGGA"] = "R2SCAN"
-            self.user_incar_settings["ALGO"] = "ALL"
-        elif xc_functional.upper() == "PBE+U":
+            self.user_incar_settings.setdefault("ALGO", "ALL")  # leave user-defined ALGO if set
+            self.user_incar_settings.pop("GGA", None)
+        if xc_functional.upper().endswith("+U"):
             self.user_incar_settings["LDAU"] = True
         if user_potcar_functional.upper() != "PBE_54":
             warnings.warn(
