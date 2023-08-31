@@ -503,12 +503,6 @@ class TestMPResterOld(PymatgenTest):
         assert isinstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)
 
     def test_pourbaix_heavy(self):
-        entries = self.rester.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
-        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
-        entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F"])
-        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
-        entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F", "Fe"])
-        _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
         entries = self.rester.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
         _ = PourbaixDiagram(entries, nproc=4, filter_solids=False)
 

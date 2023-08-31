@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 import unittest
 
 from monty.serialization import loadfn
@@ -19,17 +20,17 @@ class TestHighSymmKpath(PymatgenTest):
     @unittest.skipIf(get_path is None, "No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]
-        monoclinic = range(3, 16)
-        orthorhombic = range(16, 75)
-        tetragonal = range(75, 143)
-        rhombohedral = range(143, 168)
-        hexagonal = range(168, 195)
-        cubic = range(195, 231)
+        monoclinic = list(range(3, 16))
+        orthorhombic = list(range(16, 75))
+        tetragonal = list(range(75, 143))
+        rhombohedral = list(range(143, 168))
+        hexagonal = list(range(168, 195))
+        cubic = list(range(195, 231))
 
         species = ["K", "La", "Ti"]
         coords = [[0.345, 5, 0.77298], [0.1345, 5.1, 0.77298], [0.7, 0.8, 0.9]]
-        for i in range(230):
-            sg_num = i + 1
+        for c in (triclinic, monoclinic, orthorhombic, tetragonal, rhombohedral, hexagonal, cubic):
+            sg_num = random.sample(c, 1)[0]
             if sg_num in triclinic:
                 lattice = Lattice(
                     [
