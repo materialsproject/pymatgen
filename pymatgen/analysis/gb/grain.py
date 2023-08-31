@@ -8,7 +8,7 @@ import warnings
 from fractions import Fraction
 from functools import reduce
 from math import cos, floor, gcd
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.fractions import lcm
@@ -19,6 +19,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from numpy.typing import ArrayLike
 
     from pymatgen.core.trajectory import Vector3D

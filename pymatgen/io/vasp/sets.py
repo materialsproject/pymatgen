@@ -47,7 +47,7 @@ from copy import deepcopy
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import Any, Literal, Sequence, Union
+from typing import TYPE_CHECKING, Any, Literal, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -64,6 +64,9 @@ from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 MODULE_DIR = Path(__file__).resolve().parent
 # TODO (janosh): replace with following line once PMG is py3.9+ only
@@ -1216,14 +1219,23 @@ class MPStaticSet(MPRelaxSet):
 
 
 class MatPESStaticSet(DictSet):
-    """Creates input files for a MatPES static calculation."""
+    """Creates input files for a MatPES static calculation.
+
+    The goal of MatPES is to generate PES data. This is a distinctly different from the objectives of the MP static
+    calculations, which aims to obtain primarily accurate energies and also electronic structure (DOS). For PES data,
+    force accuracy (and to some extent, stress accuracy) is of paramount importance.
+
+    It should be noted that the default POTCAR versions have been updated to PBE_54, rather than the old PBE set used
+    in the MPStaticSet. However, **U values** are still based on PBE. The implicit assumption here is that the PBE_54
+    and PBE POTCARs are sufficiently similar that the U values fitted to the old PBE functional still applies.
+    """
 
     CONFIG = _load_yaml_config("MatPESStaticSet")
 
     def __init__(
         self,
         structure: Structure,
-        xc_functional: Literal["R2SCAN", "PBE"] = "PBE",
+        xc_functional: Literal["R2SCAN", "PBE", "PBE+U"] = "PBE",
         potcar_functional="PBE_54",
         prev_incar=None,
         **kwargs: Any,
@@ -1235,8 +1247,7 @@ class MatPESStaticSet(DictSet):
             potcar_functional: Choice of VASP POTCAR functional and version. Defaults to 'PBE_54'.
             prev_incar (Incar|str): Incar file from previous run. Default settings of MatPESStaticSet
                 are prioritized over inputs from previous runs.
-            **kwargs: Passed to DictSet. For example, Hubbard U can be enabled with
-                user_incar_settings={"LDAU": True}
+            **kwargs: Passed to DictSet.
         """
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
 
@@ -1274,28 +1285,20 @@ class MatPESStaticSet(DictSet):
             self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
             self.user_incar_settings.setdefault("ALGO", "ALL")
             self.user_incar_settings.setdefault("GGA", None)
+        elif xc_functional.upper() == "PBE+U":
+            self._config_dict["INCAR"]["LDAU"] = True
         elif xc_functional.upper() != "PBE":
-            raise Warning(
+            raise ValueError(
                 f"{xc_functional} is not supported."
-                " The supported exchange-correlation functionals are PBE and R2SCAN."
+                " The supported exchange-correlation functionals are PBE, PBE+U and R2SCAN."
             )
         if potcar_functional.upper() != "PBE_54":
-            raise Warning(f"POTCAR version of {potcar_functional} is inconsistent with the default version of PBE_54.")
+            raise UserWarning(f"POTCAR version ({potcar_functional}) is inconsistent with the default of PBE_54.")
             self.potcar.functional = potcar_functional.upper()
 
         self.kwargs = kwargs
         self.xc_functional = xc_functional
         self.prev_incar = prev_incar
-
-    # def incar(self) -> Incar:
-    #     incar = super().incar
-    #     custodian_incar = ["LPEAD", "NGX", "NGY", "NGZ", "SYMPREC", "ISTART", "IMIX", "LMAXMIX", "KGAMMA", "ISYM",
-    #                        "NCORE", "NPAR", "NELMIN", "IOPT", "NBANDS", "IALGO", "KPAR", "AMIN", "NELMDL", "BMIX",
-    #                        "AMIX_MAG", "BMIX_MAG"]
-    #     if self.prev_incar:
-    #         updates = {k: self.prev_incar[k] for k in list(self.prev_incar.keys()) if k in custodian_incar}
-    #         incar.update(updates)
-    #     return incar
 
 
 class MPScanStaticSet(MPScanRelaxSet):

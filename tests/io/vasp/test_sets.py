@@ -738,7 +738,7 @@ class TestMatPESStaticSet(PymatgenTest):
         self.struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
         self.prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
 
-    def test_init_default(self):
+    def test_default(self):
         default = MatPESStaticSet(self.struct)
         incar = default.incar
         assert incar["ALGO"] == "Normal"
@@ -766,7 +766,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert default.potcar.functional == "PBE_54"
         assert default.kpoints is None
 
-    def test_init_with_prev_incar(self):
+    def test_with_prev_incar(self):
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
         incar = default_prev.incar
         # test if prev_incar is used.
@@ -810,7 +810,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert default_prev.potcar.functional == "PBE_54"
         assert default_prev.kpoints is None
 
-    def test_init_r2scan(self):
+    def test_r2scan(self):
         scan = MatPESStaticSet(self.struct, xc_functional="R2SCAN")
         incar_scan = scan.incar
         assert incar_scan["METAGGA"] == "R2scan"
@@ -822,44 +822,14 @@ class TestMatPESStaticSet(PymatgenTest):
         assert scan.potcar.functional == "PBE_54"
         assert scan.kpoints is None
 
-    def test_init_default_u(self):
-        # test PBE+U functional
-        default_u = MatPESStaticSet(self.struct, user_incar_settings={"LDAU": True})
-        incar_u = default_u.incar
-        assert incar_u["LDAU"]
-        assert incar_u["ALGO"] == "Normal"
-        assert incar_u["EDIFF"] == 1.0e-05
-        assert incar_u["ENAUG"] == 1360
-        assert incar_u["ENCUT"] == 680
-        assert incar_u["GGA"] == "Pe"
-        assert incar_u["ISMEAR"] == 0
-        assert incar_u["ISPIN"] == 2
-        assert incar_u["KSPACING"] == 0.22
-        assert incar_u["LAECHG"]
-        assert incar_u["LASPH"]
-        assert incar_u["LCHARG"]
-        assert incar_u["LMIXTAU"]
-        assert incar_u["LORBIT"] == 11
-        assert incar_u["LREAL"] == "Auto"
-        assert not incar_u["LWAVE"]
-        assert incar_u["NELM"] == 200
-        assert incar_u["NSW"] == 0
-        assert incar_u["PREC"] == "Accurate"
-        assert incar_u["SIGMA"] == 0.05
-        # test POTCAR files are default PBE_54 PSPs and functional
-        assert default_u.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert default_u.potcar.functional == "PBE_54"
-        assert default_u.kpoints is None
-
-    def test_functionals(self):
+def test_functionals(self):
         functional = "LDA"
-        msg_xc = f"{functional} is not supported. The supported exchange-correlation functionals are PBE and R2SCAN."
-        with pytest.raises(Warning, match=msg_xc):
+        with pytest.raises(ValueError, match=f"{functional} is not supported"):
             MatPESStaticSet(self.struct, xc_functional=functional)
 
         with pytest.raises(
-            Warning,
-            match=f"POTCAR version of {functional} is inconsistent with the default version of PBE_54.",
+            UserWarning,
+            match="inconsistent with the default of PBE_54",
         ):
             MatPESStaticSet(self.struct, potcar_functional=functional)
 

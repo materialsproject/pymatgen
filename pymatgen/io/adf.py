@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import re
-from typing import Generator
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import reverse_readline
@@ -13,6 +13,9 @@ from monty.json import MSONable
 from monty.serialization import zopen
 
 from pymatgen.core.structure import Molecule
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 

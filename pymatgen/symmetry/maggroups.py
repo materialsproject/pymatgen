@@ -7,7 +7,7 @@ import sqlite3
 import textwrap
 from array import array
 from fractions import Fraction
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -19,6 +19,8 @@ from pymatgen.symmetry.settings import JonesFaithfulTransformation
 from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pymatgen.core.lattice import Lattice
 
 __author__ = "Matthew Horton, Shyue Ping Ong"

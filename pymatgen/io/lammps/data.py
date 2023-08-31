@@ -1250,19 +1250,19 @@ class CombinedData(LammpsData):
         mol_count = 0
         type_count = 0
         self.mols_per_data = []
-        for i, mol in enumerate(self.mols):
+        for idx, mol in enumerate(self.mols):
             atoms_df = mol.atoms.copy()
             atoms_df["molecule-ID"] += mol_count
             atoms_df["type"] += type_count
             mols_in_data = len(atoms_df["molecule-ID"].unique())
             self.mols_per_data.append(mols_in_data)
-            for _ in range(self.nums[i]):
+            for _ in range(self.nums[idx]):
                 self.atoms = pd.concat([self.atoms, atoms_df], ignore_index=True)
                 atoms_df["molecule-ID"] += mols_in_data
             type_count += len(mol.masses)
-            mol_count += self.nums[i] * mols_in_data
+            mol_count += self.nums[idx] * mols_in_data
         self.atoms.index += 1
-        assert len(self.atoms) == len(self._coordinates), "Wrong number of coordinates."
+        assert len(self.atoms) == len(self._coordinates), "Wrong number of coordinates"
         self.atoms.update(self._coordinates)
 
         self.velocities = None
@@ -1271,7 +1271,7 @@ class CombinedData(LammpsData):
         self.topology = {}
         atom_count = 0
         count = {"Bonds": 0, "Angles": 0, "Dihedrals": 0, "Impropers": 0}
-        for i, mol in enumerate(self.mols):
+        for idx, mol in enumerate(self.mols):
             for kw in SECTION_KEYWORDS["topology"]:
                 if mol.topology and kw in mol.topology:
                     if kw not in self.topology:
@@ -1280,12 +1280,12 @@ class CombinedData(LammpsData):
                     topo_df["type"] += count[kw]
                     for col in topo_df.columns[1:]:
                         topo_df[col] += atom_count
-                    for _ in range(self.nums[i]):
+                    for _ in range(self.nums[idx]):
                         self.topology[kw] = pd.concat([self.topology[kw], topo_df], ignore_index=True)
                         for col in topo_df.columns[1:]:
                             topo_df[col] += len(mol.atoms)
                     count[kw] += len(mol.force_field[kw[:-1] + " Coeffs"])
-            atom_count += len(mol.atoms) * self.nums[i]
+            atom_count += len(mol.atoms) * self.nums[idx]
         for kw in SECTION_KEYWORDS["topology"]:
             if kw in self.topology:
                 self.topology[kw].index += 1
@@ -1386,11 +1386,11 @@ class CombinedData(LammpsData):
         mols = []
         styles = []
         coordinates = cls.parse_xyz(filename=coordinate_file)
-        for i in range(len(filenames)):
-            exec(f"cluster{i + 1} = LammpsData.from_file(filenames[i])")
-            names.append(f"cluster{i + 1}")
-            mols.append(eval(f"cluster{i + 1}"))
-            styles.append(eval(f"cluster{i + 1}").atom_style)
+        for idx in range(1, len(filenames) + 1):
+            exec(f"cluster{idx} = LammpsData.from_file(filenames[{idx - 1}])")
+            names.append(f"cluster{idx}")
+            mols.append(eval(f"cluster{idx}"))
+            styles.append(eval(f"cluster{idx}").atom_style)
         style = set(styles)
         assert len(style) == 1, "Files have different atom styles."
         return cls.from_lammpsdata(mols, names, list_of_numbers, coordinates, style.pop())

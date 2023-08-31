@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 from scipy.constants import N_A
 
@@ -15,6 +15,8 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import Charge, Time
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from pymatgen.entries.computed_entries import ComputedEntry
 
 

@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.io import FortranEOFError, FortranFile
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __author__ = "Mark Turiansky"
 __copyright__ = "Copyright 2011, The Materials Project"
