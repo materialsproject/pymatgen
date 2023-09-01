@@ -125,11 +125,13 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
         return potcar
 
-    def get_vasp_input(self) -> VaspInput:
+    def get_vasp_input(self, structure=None) -> VaspInput:
         """
         Returns:
             VaspInput.
         """
+        if structure is not None:
+            self.structure = structure
         return VaspInput(incar=self.incar, kpoints=self.kpoints, poscar=self.poscar, potcar=self.potcar)
 
     def write_input(
@@ -251,8 +253,8 @@ class DictSet(VaspInputSet):
 
     def __init__(
         self,
-        structure: Structure,
-        config_dict: dict[str, Any],
+        structure: Structure = None,
+        config_dict: dict[str, Any] | None = None,
         files_to_transfer=None,
         user_incar_settings=None,
         user_kpoints_settings=None,
@@ -338,31 +340,10 @@ class DictSet(VaspInputSet):
         if (valid_potcars := self._valid_potcars) and user_potcar_functional not in valid_potcars:
             raise ValueError(f"Invalid {user_potcar_functional=}, must be one of {valid_potcars}")
 
-        if reduce_structure:
-            structure = structure.get_reduced_structure(reduce_structure)
-        if sort_structure:
-            structure = structure.get_sorted_structure()
-        if validate_magmom:
-            get_valid_magmom_struct(structure, spin_mode="auto")
-
         if user_potcar_functional == "PBE_54" and "W" in structure.symbol_set:
             # when using 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
             user_potcar_settings = {"W": "W_sv", **(user_potcar_settings or {})}
 
-        struct_has_Yb = any(specie.symbol == "Yb" for site in structure for specie in site.species)
-        potcar_settings = config_dict.get("POTCAR", {})
-        if user_potcar_settings:
-            potcar_settings.update(user_potcar_settings)
-        uses_Yb_2_psp = potcar_settings.get("Yb", None) == "Yb_2"
-        if struct_has_Yb and uses_Yb_2_psp:
-            warnings.warn(
-                "The structure contains Ytterbium (Yb) and this InputSet uses the Yb_2 PSP.\n"
-                "Yb_2 is known to often give bad results since Yb has oxidation state 3+ in most compounds.\n"
-                "See https://github.com/materialsproject/pymatgen/issues/2968 for details.",
-                BadInputSetWarning,
-            )
-
-        self._structure = structure
         self._config_dict = deepcopy(config_dict)
         self.files_to_transfer = files_to_transfer or {}
         self.constrain_total_magmom = constrain_total_magmom
@@ -378,6 +359,7 @@ class DictSet(VaspInputSet):
         self.sym_prec = sym_prec
         self.international_monoclinic = international_monoclinic
         self.validate_magmom = validate_magmom
+        self.structure = structure
 
         if self.user_incar_settings.get("KSPACING") and user_kpoints_settings is not None:
             warnings.warn(
@@ -430,13 +412,39 @@ class DictSet(VaspInputSet):
     @property
     def structure(self) -> Structure:
         """Structure"""
-        if self.standardize and self.sym_prec:
-            return standardize_structure(
-                self._structure,
-                sym_prec=self.sym_prec,
-                international_monoclinic=self.international_monoclinic,
-            )
+        if self._structure is None:
+            raise RuntimeError("No structure is associated with the input set!")
         return self._structure
+
+    @structure.setter
+    def structure(self, structure):
+        if structure is not None:
+            if self.reduce_structure:
+                structure = structure.get_reduced_structure(self.reduce_structure)
+            if self.sort_structure:
+                structure = structure.get_sorted_structure()
+            if self.validate_magmom:
+                get_valid_magmom_struct(structure, spin_mode="auto")
+
+            struct_has_Yb = any(specie.symbol == "Yb" for site in structure for specie in site.species)
+            potcar_settings = self._config_dict.get("POTCAR", {})
+            if self.user_potcar_settings:
+                potcar_settings.update(self.user_potcar_settings)
+            uses_Yb_2_psp = potcar_settings.get("Yb", None) == "Yb_2"
+            if struct_has_Yb and uses_Yb_2_psp:
+                warnings.warn(
+                    "The structure contains Ytterbium (Yb) and this InputSet uses the Yb_2 PSP.\n"
+                    "Yb_2 is known to often give bad results since Yb has oxidation state 3+ in most compounds.\n"
+                    "See https://github.com/materialsproject/pymatgen/issues/2968 for details.",
+                    BadInputSetWarning,
+                )
+            if self.standardize and self.sym_prec:
+                structure = standardize_structure(
+                    structure,
+                    sym_prec=self.sym_prec,
+                    international_monoclinic=self.international_monoclinic,
+                )
+        self._structure = structure
 
     @property
     def incar(self) -> Incar:
@@ -849,7 +857,7 @@ class MITRelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MITRelaxSet")
 
-    def __init__(self, structure: Structure, **kwargs):
+    def __init__(self, structure: Structure | None = None, **kwargs):
         """
         :param structure: Structure
         :param kwargs: Same as those supported by DictSet.
@@ -869,7 +877,7 @@ class MPRelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MPRelaxSet")
 
-    def __init__(self, structure: Structure, **kwargs):
+    def __init__(self, structure: Structure | None = None, **kwargs):
         """
         :param structure: Structure
         :param kwargs: Same as those supported by DictSet.
@@ -922,7 +930,9 @@ class MPScanRelaxSet(DictSet):
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
     _valid_potcars = ("PBE_52", "PBE_54")
 
-    def __init__(self, structure: Structure, bandgap: float = 0, bandgap_tol: float = 1e-4, **kwargs) -> None:
+    def __init__(
+        self, structure: Structure | None = None, bandgap: float = 0, bandgap_tol: float = 1e-4, **kwargs
+    ) -> None:
         """
         Args:
             structure (Structure): Input structure.
@@ -996,7 +1006,7 @@ class MPMetalRelaxSet(MPRelaxSet):
 
     CONFIG = _load_yaml_config("MPRelaxSet")
 
-    def __init__(self, structure: Structure, **kwargs):
+    def __init__(self, structure: Structure | None = None, **kwargs):
         """
         :param structure: Structure
         :param kwargs: Same as those supported by DictSet.
@@ -1012,7 +1022,7 @@ class MPHSERelaxSet(DictSet):
 
     CONFIG = _load_yaml_config("MPHSERelaxSet")
 
-    def __init__(self, structure: Structure, **kwargs):
+    def __init__(self, structure: Structure | None = None, **kwargs):
         """
         :param structure: Structure
         :param kwargs: Same as those supported by DictSet.
@@ -1171,7 +1181,7 @@ class MPStaticSet(MPRelaxSet):
                 "structure."
             )
 
-        self._structure = get_structure_from_prev_run(vasprun, outcar)
+        self.structure = get_structure_from_prev_run(vasprun, outcar)
 
         # multiply the reciprocal density if needed
         if self.small_gap_multiply:
@@ -1242,7 +1252,7 @@ class MatPESStaticSet(DictSet):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | None = None,
         xc_functional: Literal["R2SCAN", "PBE", "PBE+U"] = "PBE",
         prev_incar: Incar | dict | None = None,
         **kwargs: Any,
@@ -1310,7 +1320,9 @@ class MPScanStaticSet(MPScanRelaxSet):
     (SCAN) metaGGA functional.
     """
 
-    def __init__(self, structure: Structure, bandgap=0, prev_incar=None, lepsilon=False, lcalcpol=False, **kwargs):
+    def __init__(
+        self, structure: Structure | None = None, bandgap=0, prev_incar=None, lepsilon=False, lcalcpol=False, **kwargs
+    ):
         """
         Args:
             structure (Structure): Structure from previous run.
@@ -1381,7 +1393,7 @@ class MPScanStaticSet(MPScanRelaxSet):
 
         self.prev_incar = vasprun.incar
 
-        self._structure = get_structure_from_prev_run(vasprun, outcar)
+        self.structure = get_structure_from_prev_run(vasprun, outcar)
 
         return self
 
@@ -1526,7 +1538,7 @@ class MPHSEBSSet(MPHSERelaxSet):
         """
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
 
-        self._structure = get_structure_from_prev_run(vasprun, outcar)
+        self.structure = get_structure_from_prev_run(vasprun, outcar)
 
         # note: recommend not standardizing the cell because we want to retain
         # k-points
@@ -1746,7 +1758,7 @@ class MPNonSCFSet(MPRelaxSet):
         self.prev_incar = vasprun.incar
 
         # Get a Magmom-decorated structure
-        self._structure = get_structure_from_prev_run(vasprun, outcar)
+        self.structure = get_structure_from_prev_run(vasprun, outcar)
 
         if self.standardize:
             warnings.warn(
@@ -1891,7 +1903,7 @@ class MPSOCSet(MPStaticSet):
             del self.prev_incar["magmom"]
 
         # Get a magmom-decorated structure
-        self._structure = get_structure_from_prev_run(vasprun, outcar)
+        structure = get_structure_from_prev_run(vasprun, outcar)
         if self.standardize:
             warnings.warn(
                 "Use of standardize=True with from_prev_run is not "
@@ -1903,17 +1915,15 @@ class MPSOCSet(MPStaticSet):
 
         # override magmom if provided
         if self.magmom:
-            self._structure = self._structure.copy(site_properties={"magmom": self.magmom})
+            structure = structure.copy(site_properties={"magmom": self.magmom})
 
         # magmom has to be 3D for SOC calculation.
-        if hasattr(self._structure[0], "magmom"):
-            if not isinstance(self._structure[0].magmom, list):
-                self._structure = self._structure.copy(
-                    site_properties={"magmom": [[0, 0, site.magmom] for site in self._structure]}
-                )
+        if hasattr(structure[0], "magmom"):
+            if not isinstance(structure[0].magmom, list):
+                structure = structure.copy(site_properties={"magmom": [[0, 0, site.magmom] for site in structure]})
         else:
             raise ValueError("Neither the previous structure has magmom property nor magmom provided")
-
+        self.structure = structure
         nbands = int(np.ceil(vasprun.parameters["NBANDS"] * self.nbands_factor))
         self.prev_incar["NBANDS"] = nbands
 
@@ -1956,7 +1966,7 @@ class MPNMRSet(MPStaticSet):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | None = None,
         mode: Literal["cs", "efg"] = "cs",
         isotopes: list | None = None,
         prev_incar: Incar = None,
@@ -2041,7 +2051,7 @@ class MVLElasticSet(MPRelaxSet):
     elastic constants.
     """
 
-    def __init__(self, structure: Structure, potim: float = 0.015, **kwargs):
+    def __init__(self, structure: Structure | None = None, potim: float = 0.015, **kwargs):
         """
         Args:
             structure (pymatgen.Structure): Input structure.
@@ -2171,7 +2181,7 @@ class MVLGWSet(DictSet):
         """
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
         self.prev_incar = vasprun.incar
-        self._structure = vasprun.final_structure
+        self.structure = vasprun.final_structure
 
         if self.standardize:
             warnings.warn(
@@ -2231,7 +2241,7 @@ class MVLSlabSet(MPRelaxSet):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | None = None,
         k_product=50,
         bulk=False,
         auto_dipole=False,
@@ -2338,7 +2348,7 @@ class MVLGBSet(MPRelaxSet):
     or bulk.
     """
 
-    def __init__(self, structure: Structure, k_product=40, slab_mode=False, is_metal=True, **kwargs):
+    def __init__(self, structure: Structure | None = None, k_product=40, slab_mode=False, is_metal=True, **kwargs):
         """
         Args:
             structure(Structure): provide the structure
@@ -2433,7 +2443,7 @@ class MVLRelax52Set(DictSet):
     CONFIG = _load_yaml_config("MVLRelax52Set")
     _valid_potcars = ("PBE_52", "PBE_54")
 
-    def __init__(self, structure: Structure, **kwargs) -> None:
+    def __init__(self, structure: Structure | None = None, **kwargs) -> None:
         """
         Args:
             structure (Structure): input structure.
@@ -2559,14 +2569,23 @@ class MITMDSet(MITRelaxSet):
     runs.
     """
 
-    def __init__(self, structure: Structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
+    def __init__(
+        self,
+        structure: Structure | None = None,
+        start_temp: float = 0.0,
+        end_temp: float = 300.0,
+        nsteps: int = 1000,
+        time_step: float = 2,
+        spin_polarized=False,
+        **kwargs,
+    ):
         """
         Args:
             structure (Structure): Input structure.
-            start_temp (int): Starting temperature.
-            end_temp (int): Final temperature.
+            start_temp (float): Starting temperature.
+            end_temp (float): Final temperature.
             nsteps (int): Number of time steps for simulations. NSW parameter.
-            time_step (int): The time step for the simulation. The POTIM
+            time_step (float): The time step for the simulation. The POTIM
                 parameter. Defaults to 2fs.
             spin_polarized (bool): Whether to do spin polarized calculations.
                 The ISPIN parameter. Defaults to False.
@@ -2637,7 +2656,16 @@ class MPMDSet(MPRelaxSet):
     Precision remains normal, to increase accuracy of stress tensor.
     """
 
-    def __init__(self, structure: Structure, start_temp, end_temp, nsteps, spin_polarized=False, **kwargs):
+    def __init__(
+        self,
+        structure: Structure | None = None,
+        start_temp: float = 0.0,
+        end_temp: float = 300.0,
+        nsteps: int = 1000,
+        time_step: float = 2,
+        spin_polarized=False,
+        **kwargs,
+    ):
         """
         Args:
             structure (Structure): Input structure.
@@ -2714,7 +2742,16 @@ class MVLNPTMDSet(MITMDSet):
         value of ENCUT, which is 1.5 * ENMAX.
     """
 
-    def __init__(self, structure: Structure, start_temp, end_temp, nsteps, time_step=2, spin_polarized=False, **kwargs):
+    def __init__(
+        self,
+        structure: Structure | None = None,
+        start_temp: float = 0.0,
+        end_temp: float = 300.0,
+        nsteps: int = 1000,
+        time_step: float = 2,
+        spin_polarized=False,
+        **kwargs,
+    ):
         """
         Args:
             structure (Structure): input structure.
@@ -2773,7 +2810,7 @@ class MVLScanRelaxSet(MPRelaxSet):
 
     _valid_potcars = ("PBE_52", "PBE_54")
 
-    def __init__(self, structure: Structure, **kwargs):
+    def __init__(self, structure: Structure | None = None, **kwargs):
         """
         Args:
             structure (Structure): input structure.
@@ -2814,7 +2851,7 @@ class LobsterSet(MPRelaxSet):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | None = None,
         isym: int = 0,
         ismear: int = -5,
         reciprocal_density: int | None = None,
@@ -3271,7 +3308,7 @@ class MPAbsorptionSet(MPRelaxSet):
         """
         vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
         self.prev_incar = vasprun.incar
-        self._structure = vasprun.final_structure
+        self.structure = vasprun.final_structure
 
         # The number of bands is multiplied by the factor
         prev_nbands = int(vasprun.parameters["NBANDS"])
