@@ -1217,9 +1217,27 @@ class MatPESStaticSet(DictSet):
     # These are parameters that we will inherit from any previous INCAR supplied. They are mostly parameters related
     # to symmetry and convergence set by Custodian when errors are encountered in a previous run. Given that our goal
     # is to have a strictly homogeneous PES data, all other parameters (e.g., ISMEAR, ALGO, etc.) are not inherited.
-    INHERITED_INCAR_PARAMS = tuple(
-        "LPEAD NGX NGY NGZ SYMPREC ISTART IMIX LMAXMIX KGAMMA ISYM NCORE NPAR NELMIN IOPT NBANDS "
-        "IALGO KPAR AMIN NELMDL BMIX AMIX_MAG BMIX_MAG".split()
+    INHERITED_INCAR_PARAMS = (
+        "LPEAD",
+        "NGX",
+        "NGY",
+        "NGZ",
+        "SYMPREC",
+        "IMIX",
+        "LMAXMIX",
+        "KGAMMA",
+        "ISYM",
+        "NCORE",
+        "NPAR",
+        "NELMIN",
+        "IOPT",
+        "NBANDS",
+        "KPAR",
+        "AMIN",
+        "NELMDL",
+        "BMIX",
+        "AMIX_MAG",
+        "BMIX_MAG",
     )
 
     def __init__(
@@ -1247,14 +1265,13 @@ class MatPESStaticSet(DictSet):
 
         if xc_functional.upper() == "R2SCAN":
             self._config_dict["INCAR"]["METAGGA"] = "R2SCAN"
-            self._config_dict["INCAR"].setdefault("ALGO", "ALL")  # leave user-defined ALGO if set
+            self._config_dict["INCAR"]["ALGO"] = "ALL"
             self._config_dict["INCAR"].pop("GGA", None)
         if xc_functional.upper().endswith("+U"):
             self._config_dict["INCAR"]["LDAU"] = True
-        if kwargs.get("user_potcar_functional", "PBE_54").upper() != "PBE_54":
-            warnings.warn(
-                f"POTCAR ({kwargs['user_potcar_functional']}) is inconsistent with the recommended PBE_54.", UserWarning
-            )
+        user_potcar_functional = kwargs.get("user_potcar_functional", "PBE_54")
+        if user_potcar_functional.upper() != "PBE_54":
+            warnings.warn(f"{user_potcar_functional=} is inconsistent with the recommended PBE_54.", UserWarning)
 
         self.kwargs = kwargs
         self.xc_functional = xc_functional
