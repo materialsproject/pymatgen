@@ -9,10 +9,12 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class Test_FStarDiagram(PymatgenTest):
     def setUp(self):
-        self.cif_gz = tarfile.open(f"{TEST_FILES_DIR}/fstar/fstar.tar.gz","r")
+        self.cif_gz = tarfile.open(f"{TEST_FILES_DIR}/fstar/fstar.tar.gz", "r")
         self.struct_list = [
-            CifParser.from_str(self.cif_gz.extractfile(file).read().decode('utf-8')).get_structures(
-                primitive=False, symmetrized=True, check_occu=False)[0] for file in self.cif_gz.getnames()
+            CifParser.from_str(self.cif_gz.extractfile(file).read().decode("utf-8")).get_structures(
+                primitive=False, symmetrized=True, check_occu=False
+            )[0]
+            for file in self.cif_gz.getnames()
         ]
         self.fstar = FStarDiagram(structures=self.struct_list)
 

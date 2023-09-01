@@ -6,14 +6,18 @@ atomic form factors. Rev. Sci. Instrum. 89, 093002 (2018). 10.1063/1.5044555
 Yin, L. et al.Thermodynamics of Antisite Defects in Layered NMC Cathodes: Systematic Insights from High-Precision Powder
 Diffraction Analyses Chem. Mater 2020 32 (3), 1002-1010. 10.1021/acs.chemmater.9b03646
 """
+from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pandas as pd
 import plotly.express as px
-from typing import Callable
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+
+if TYPE_CHECKING:
+    from pymatgen.core.periodic_table import Element
+    from pymatgen.core.structure import Structure
 
 # Load in the neutron form factors
 with open(os.path.join(os.path.dirname(__file__), "neutron_factors.csv")) as f:
@@ -25,7 +29,8 @@ class FStarDiagram:
     """
     Take a list of symmetrized structure objects and use them to generate an f* phase diagram.
     """
-    def __init__(self, structures: list[Structure], scattering_type: str='X-ray'):
+
+    def __init__(self, structures: list[Structure], scattering_type: str = "X-ray"):
         """
         Initialize the f* diagram generator with the list of structures and scattering type.
 
@@ -39,26 +44,22 @@ class FStarDiagram:
         # check if the input structures list is valid
         for ind, struct in enumerate(structures):
             try:
-                if struct.equivalent_indices == structures[ind-1].equivalent_indices:
+                if struct.equivalent_indices == structures[ind - 1].equivalent_indices:
                     continue
                 else:
-                    raise ValueError(
-                        "All structues must only vary in occupancy."
-                    )
+                    raise ValueError("All structues must only vary in occupancy.")
             except AttributeError:
-                raise AttributeError(
-                    "Must use symmeteized structure objects"
-                )        
+                raise AttributeError("Must use symmeteized structure objects")
         self._structures = structures
         self._scatter = scattering_type
-        self._scatter_dict = {'X-ray':self.xray_scatter,'Neutron':self.neutron_scatter}
+        self._scatter_dict = {"X-ray": self.xray_scatter, "Neutron": self.neutron_scatter}
         self.site_labels = self._get_site_labels()
         self.fstar_coords = self._get_fstar_coords()
         self.set_plot_list([self.site_labels[0], self.site_labels[1], self.site_labels[2]])
         self.make_plot()
         print("The labels for this structure's unique sites are")
         print(self.site_labels)
-        
+
     def combine_sites(self, site_lists: list[list[str]]) -> None:
         """
         Many structures have more than three sites. If this is the case you may want to
@@ -70,12 +71,11 @@ class FStarDiagram:
         for combo in site_lists:
             for site in combo:
                 if site not in self.site_labels:
-                    raise ValueError(
-                    "All sites must be in the site_labels list"
-                    )
+                    raise ValueError("All sites must be in the site_labels list")
             self.fstar_coords[str(combo)] = sum([self.fstar_coords[site] for site in combo])
             if str(combo) not in self.site_labels:
                 self.site_labels.append(str(combo))
+
     def set_plot_list(self, site_list: list[str]) -> None:
         """
         set the list of sites to plot and the order to plot them in.
@@ -85,10 +85,9 @@ class FStarDiagram:
         """
         for site in site_list:
             if site not in self.site_labels:
-                raise ValueError(
-                    "All sites must be in the site_labels list"
-                )
+                raise ValueError("All sites must be in the site_labels list")
         self.plot_list = site_list
+
     def make_plot(self, **kwargs):
         """
         Makes a plotly express scatter_ternary plot useing the fstar_coords dataframe and the
@@ -96,8 +95,10 @@ class FStarDiagram:
         Args:
             **kwargs: this can be any argument that the scatter_ternary fucntion can use.
         """
-        self.plot = px.scatter_ternary(data_frame=self.fstar_coords, a=self.plot_list[0], b=self.plot_list[1],
-                                       c=self.plot_list[2], **kwargs)
+        self.plot = px.scatter_ternary(
+            data_frame=self.fstar_coords, a=self.plot_list[0], b=self.plot_list[1], c=self.plot_list[2], **kwargs
+        )
+
     def _get_site_labels(self):
         """
         Generates unique site labels based on composition, order, and symetry equivalence in the structure object.
@@ -132,8 +133,10 @@ class FStarDiagram:
         """
         site_labels = []
         for site in self._structures[0].equivalent_indices:
-            site_labels.append(str(self._structures[0][site[0]].frac_coords) + \
-                    [str(sp) for sp, _ in self._structures[0][site[0]].species.items()][0])
+            site_labels.append(
+                str(self._structures[0][site[0]].frac_coords)
+                + next(str(sp) for sp, _ in self._structures[0][site[0]].species.items())
+            )
         return site_labels
 
     def _get_fstar_coords(self):
@@ -152,7 +155,7 @@ class FStarDiagram:
                 for sp, occ in elements_and_occupancies:
                     # ind1 and ind2 are added in case someone wants to make a custom scatter function
                     # that uses information in the structure object
-                    f_occ = self._scatter_dict[self._scatter](sp, occ, ind1, ind2) 
+                    f_occ = self._scatter_dict[self._scatter](sp, occ, ind1, ind2)
                     occ_f_list.append(f_occ)
                 fstar = np.absolute(mult * sum(occ_f_list))
                 fstar_df.loc[0][column[0]] = round(float(fstar), 4)
@@ -160,23 +163,24 @@ class FStarDiagram:
             fstar_df = pd.DataFrame(columns=self.site_labels, data=[fs / tot for fs in list(fstar_df.values)])
             fstar_df_full = pd.concat([fstar_df_full, fstar_df], ignore_index=True)
         return fstar_df_full
+
     def xray_scatter(self, el: Element, occ: float, i1: int, i2: int) -> float:
         """
         X-ray scattering function. i2 and i2 are unused.
         """
-        f_occ = el.Z * occ
-        return f_occ
+        return el.Z * occ
+
     def neutron_scatter(self, el: Element, occ: float, i1: int, i2: int) -> float:
         """
         Neutron scattering function. i2 and i2 are unused.
         """
-        for i, n in enumerate(NEUTRON_SCATTER_DF['Isotope'].values):
+        for i, n in enumerate(NEUTRON_SCATTER_DF["Isotope"].values):
             if hasattr(el, "element"):
                 if n == str(el.element):
-                    f_occ = float(NEUTRON_SCATTER_DF.loc[i]['Coh b']) * occ
+                    f_occ = float(NEUTRON_SCATTER_DF.loc[i]["Coh b"]) * occ
                     break
             else:
                 if n == str(el):
-                    f_occ = float(NEUTRON_SCATTER_DF.loc[i]['Coh b']) * occ
+                    f_occ = float(NEUTRON_SCATTER_DF.loc[i]["Coh b"]) * occ
                     break
         return f_occ
