@@ -10,6 +10,7 @@ import warnings
 from typing import TYPE_CHECKING
 
 import numpy as np
+from monty.json import jsanitize
 
 from pymatgen.core.structure import Molecule, Structure
 
@@ -158,10 +159,10 @@ class AseAtomsAdaptor:
         if any(oxi_states):
             atoms.set_array("oxi_states", np.array(oxi_states))
 
-        # Add any .info/calc.results flags to the ASE Atoms object so we don't lose them during
-        # interconversion.
-        if info := getattr(structure, "info", None):
-            atoms.info = info
+        # Atoms.info <---> Structure.properties
+        # Atoms.calc <---> Structure.calc
+        if structure.properties:
+            atoms.info = structure.properties
         if calc := getattr(structure, "calc", None):
             atoms.calc = calc
 
@@ -216,12 +217,19 @@ class AseAtomsAdaptor:
         else:
             sel_dyn = None
 
+        # Atoms.info <---> Structure.properties (excluding properties["calc"])
+        properties = jsanitize(getattr(atoms, "info", {}))
+
         # Return a Molecule object if that was specifically requested;
         # otherwise return a Structure object as expected
         if cls == Molecule:
-            structure = cls(symbols, positions, **cls_kwargs)
+            structure = cls(symbols, positions, properties=properties, **cls_kwargs)
         else:
-            structure = cls(lattice, symbols, positions, coords_are_cartesian=True, **cls_kwargs)
+            structure = cls(lattice, symbols, positions, coords_are_cartesian=True, properties=properties, **cls_kwargs)
+
+        # Atoms.calc <---> Structure.calc
+        if calc := getattr(atoms, "calc", None):
+            structure.calc = calc
 
         # Set the site magmoms in the Pymatgen structure object
         # Note: ASE distinguishes between initial and converged
@@ -274,13 +282,6 @@ class AseAtomsAdaptor:
                 "oxi_states",
             ]:
                 structure.add_site_property(prop, atoms.get_array(prop).tolist())
-
-        # Add any .info/calc.results flags to the Pymatgen structure object so we don't lose them
-        # during interconversion.
-        if info := getattr(atoms, "info", None):
-            structure.info = info
-        if calc := getattr(atoms, "calc", None):
-            structure.calc = calc
 
         return structure
 

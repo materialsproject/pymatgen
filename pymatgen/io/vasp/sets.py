@@ -1,38 +1,28 @@
 """
-This module defines the VaspInputSet abstract base class and a concrete
-implementation for the parameters developed and tested by the core team
-of pymatgen, including the Materials Virtual Lab, Materials Project and the MIT
-high throughput project. The basic concept behind an input set is to specify
-a scheme to generate a consistent set of VASP inputs from a structure
-without further user intervention. This ensures comparability across
-runs.
+This module defines the VaspInputSet abstract base class and a concrete implementation for the parameters developed
+and tested by the core team of pymatgen, including the Materials Virtual Lab, Materials Project and the MIT high
+throughput project. The basic concept behind an input set is to specify a scheme to generate a consistent set of VASP
+inputs from a structure without further user intervention. This ensures comparability across runs.
 
 Read the following carefully before implementing new input sets:
 
-1. 99% of what needs to be done can be done by specifying user_incar_settings
-   to override some of the defaults of various input sets. Unless there is an
-   extremely good reason to add a new set, DO NOT add one. E.g., if you want
+1. 99% of what needs to be done can be done by specifying user_incar_settings to override some of the defaults of
+   various input sets. Unless there is an extremely good reason to add a new set, DO NOT add one. E.g., if you want
    to turn the Hubbard U off, just set "LDAU": False as a user_incar_setting.
-2. All derivative input sets should inherit from one of the usual MPRelaxSet or
-   MITRelaxSet, and proper superclass delegation should be used where possible.
-   In particular, you are not supposed to implement your own as_dict or
-   from_dict for derivative sets unless you know what you are doing.
-   Improper overriding the as_dict and from_dict protocols is the major
-   cause of implementation headaches. If you need an example, look at how the
-   MPStaticSet or MPNonSCFSets are constructed.
+2. All derivative input sets should inherit from one of the usual MPRelaxSet or MITRelaxSet, and proper superclass
+   delegation should be used where possible. In particular, you are not supposed to implement your own as_dict or
+   from_dict for derivative sets unless you know what you are doing. Improper overriding the as_dict and from_dict
+   protocols is the major cause of implementation headaches. If you need an example, look at how the MPStaticSet or
+   MPNonSCFSets are constructed.
 
 The above are recommendations. The following are UNBREAKABLE rules:
 
-1. All input sets must take in a structure or list of structures as the first
-   argument.
-2. user_incar_settings, user_kpoints_settings and user_<whatever>_settings are
-   ABSOLUTE. Any new sets you implement must obey this. If a user wants to
-   override your settings, you assume he knows what he is doing. Do not
-   magically override user supplied settings. You can issue a warning if you
-   think the user is wrong.
-3. All input sets must save all supplied args and kwargs as instance variables.
-   E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
-   ensures the as_dict and from_dict work correctly.
+1. All input sets must take in a structure or list of structures as the first argument.
+2. user_incar_settings, user_kpoints_settings and user_<whatever>_settings are ABSOLUTE. Any new sets you implement
+   must obey this. If a user wants to override your settings, you assume he knows what he is doing. Do not
+   magically override user supplied settings. You can issue a warning if you think the user is wrong.
+3. All input sets must save all supplied args and kwargs as instance variables. E.g., self.my_arg = my_arg and
+   self.kwargs = kwargs in the __init__. This ensures the as_dict and from_dict work correctly.
 """
 
 from __future__ import annotations
@@ -47,7 +37,7 @@ from copy import deepcopy
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import Any, Literal, Sequence, Union
+from typing import TYPE_CHECKING, Any, Literal, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -64,6 +54,9 @@ from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 MODULE_DIR = Path(__file__).resolve().parent
 # TODO (janosh): replace with following line once PMG is py3.9+ only
@@ -929,28 +922,30 @@ class MPScanRelaxSet(DictSet):
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
     _valid_potcars = ("PBE_52", "PBE_54")
 
-    def __init__(self, structure: Structure, bandgap=0, **kwargs):
+    def __init__(self, structure: Structure, bandgap: float = 0, bandgap_tol: float = 1e-4, **kwargs) -> None:
         """
         Args:
             structure (Structure): Input structure.
-            bandgap (int): Bandgap of the structure in eV. The bandgap is used to
-                    compute the appropriate k-point density and determine the
-                    smearing settings.
+            bandgap (float): Bandgap of the structure in eV. The bandgap is used to
+                compute the appropriate k-point density and determine the
+                smearing settings.
 
-                    Metallic systems (default, bandgap = 0) use a KSPACING value of 0.22
-                    and Methfessel-Paxton order 2 smearing (ISMEAR=2, SIGMA=0.2).
+                Metallic systems (default, bandgap = 0) use a KSPACING value of 0.22
+                and Methfessel-Paxton order 2 smearing (ISMEAR=2, SIGMA=0.2).
 
-                    Non-metallic systems (bandgap > 0) use the tetrahedron smearing
-                    method (ISMEAR=-5, SIGMA=0.05). The KSPACING value is
-                    calculated from the bandgap via Eqs. 25 and 29 of Wisesa, McGill,
-                    and Mueller [1] (see References). Note that if 'user_incar_settings'
-                    or 'user_kpoints_settings' override KSPACING, the calculation from
-                    bandgap is not performed.
-
+                Non-metallic systems (bandgap > 0) use the tetrahedron smearing
+                method (ISMEAR=-5, SIGMA=0.05). The KSPACING value is
+                calculated from the bandgap via Eqs. 25 and 29 of Wisesa, McGill,
+                and Mueller [1] (see References). Note that if 'user_incar_settings'
+                or 'user_kpoints_settings' override KSPACING, the calculation from
+                bandgap is not performed.
+            bandgap_tol (float): Tolerance for determining if a system is metallic.
+                If the bandgap is less than this value, the system is considered
+                metallic. Defaults to 1e-4 (eV).
             vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
-                    van der Waals density functional by combing the SCAN functional
-                    with the rVV10 non-local correlation functional. rvv10 is the only
-                    dispersion correction available for SCAN at this time.
+                van der Waals density functional by combing the SCAN functional
+                with the rVV10 non-local correlation functional. rvv10 is the only
+                dispersion correction available for SCAN at this time.
             **kwargs: Same as those supported by DictSet.
 
         References:
@@ -963,33 +958,21 @@ class MPScanRelaxSet(DictSet):
         super().__init__(structure, MPScanRelaxSet.CONFIG, **kwargs)
         self.bandgap = bandgap
         self.kwargs = kwargs
+        self.bandgap_tol = bandgap_tol
 
-        updates = {}
+        updates: dict[str, float] = {}
         # select the KSPACING and smearing parameters based on the bandgap
         if self.bandgap < 1e-4:
-            updates["KSPACING"] = 0.22
-            updates["SIGMA"] = 0.2
-            updates["ISMEAR"] = 2
+            updates.update(KSPACING=0.22, SIGMA=0.2, ISMEAR=2)
         else:
             rmin = 25.22 - 2.87 * bandgap  # Eq. 25
             kspacing = 2 * np.pi * 1.0265 / (rmin - 1.0183)  # Eq. 29
             # cap the KSPACING at a max of 0.44, per internal benchmarking
-            if 0.22 < kspacing < 0.44:
-                updates["KSPACING"] = kspacing
-            else:
-                updates["KSPACING"] = 0.44
-            updates["ISMEAR"] = -5
-            updates["SIGMA"] = 0.05
+            updates.update(KSPACING=kspacing if 0.22 < kspacing < 0.44 else 0.44, SIGMA=0.05, ISMEAR=-5)
 
         # Don't overwrite things the user has supplied
-        if self.user_incar_settings.get("KSPACING"):
-            del updates["KSPACING"]
-
-        if self.user_incar_settings.get("ISMEAR"):
-            del updates["ISMEAR"]
-
-        if self.user_incar_settings.get("SIGMA"):
-            del updates["SIGMA"]
+        for key in self.user_incar_settings:
+            updates.pop(key, None)
 
         if self.vdw and self.vdw != "rvv10":
             warnings.warn("Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. ")
@@ -1215,41 +1198,109 @@ class MPStaticSet(MPRelaxSet):
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
-class MatPESStaticSet(MPStaticSet):
-    """Creates input files for a MatPES static calculation."""
+class MatPESStaticSet(DictSet):
+    """Creates input files for a MatPES static calculation.
+
+    The goal of MatPES is to generate potential energy surface data. This is a distinctly different
+    from the objectives of the MP static calculations, which aims to obtain primarily accurate
+    energies and also electronic structure (DOS). For PES data, force accuracy (and to some extent,
+    stress accuracy) is of paramount importance.
+
+    The default POTCAR versions have been updated to PBE_54 from the old PBE set used in the
+    MPStaticSet. However, **U values** are still based on PBE. The implicit assumption here is that
+    the PBE_54 and PBE POTCARs are sufficiently similar that the U values fitted to the old PBE
+    functional still applies.
+    """
 
     CONFIG = _load_yaml_config("MatPESStaticSet")
 
+    # These are parameters that we will inherit from any previous INCAR supplied. They are mostly parameters related
+    # to symmetry and convergence set by Custodian when errors are encountered in a previous run. Given that our goal
+    # is to have a strictly homogeneous PES data, all other parameters (e.g., ISMEAR, ALGO, etc.) are not inherited.
+    INHERITED_INCAR_PARAMS = (
+        "LPEAD",
+        "NGX",
+        "NGY",
+        "NGZ",
+        "SYMPREC",
+        "IMIX",
+        "LMAXMIX",
+        "KGAMMA",
+        "ISYM",
+        "NCORE",
+        "NPAR",
+        "NELMIN",
+        "IOPT",
+        "NBANDS",
+        "KPAR",
+        "AMIN",
+        "NELMDL",
+        "BMIX",
+        "AMIX_MAG",
+        "BMIX_MAG",
+    )
+
     def __init__(
         self,
-        structure: str,
-        functional: Literal["R2SCAN", "R2SCAN+U", "PBE", "PBE+U"] = "PBE",
+        structure: Structure,
+        xc_functional: Literal["R2SCAN", "PBE", "PBE+U"] = "PBE",
+        prev_incar: Incar | dict | None = None,
         **kwargs: Any,
     ) -> None:
         """
         Args:
-            structure (Structure): Structure from previous run.
-            functional ('R2SCAN' | 'R2SCAN+U' | 'PBE' | 'PBE+U'): Which functional to use and whether to include
-                Hubbard U corrections. Defaults to 'PBE'.
-            **kwargs: Passed to MPStaticSet.
+            structure (Structure): Structure for static calculation.
+            xc_functional ('R2SCAN'|'PBE'): Exchange-correlation functional to use. Defaults to 'PBE'.
+            prev_incar (Incar | dict): Incar file from previous run. Default settings of MatPESStaticSet
+                are prioritized over inputs from previous runs. Defaults to None.
+            **kwargs: Passed to DictSet.
         """
+        valid_xc_functionals = ("R2SCAN", "PBE", "PBE+U")
+        if xc_functional.upper() not in valid_xc_functionals:
+            raise ValueError(
+                f"Unrecognized {xc_functional=}. Supported exchange-correlation functionals are {valid_xc_functionals}"
+            )
+
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
-        if functional.startswith("R2SCAN"):
-            self.user_incar_settings.setdefault("METAGGA", "R2SCAN")
-            self.user_incar_settings.setdefault("ALGO", "ALL")
-        if functional.startswith("PBE"):
-            self.user_incar_settings.setdefault("GGA", "PE")
-        if functional.endswith("+U"):
-            self.user_incar_settings.setdefault("LDAU", True)
+
+        if xc_functional.upper() == "R2SCAN":
+            self._config_dict["INCAR"]["METAGGA"] = "R2SCAN"
+            self._config_dict["INCAR"]["ALGO"] = "ALL"
+            self._config_dict["INCAR"].pop("GGA", None)
+        if xc_functional.upper().endswith("+U"):
+            self._config_dict["INCAR"]["LDAU"] = True
+        user_potcar_functional = kwargs.get("user_potcar_functional", "PBE_54")
+        if user_potcar_functional.upper() != "PBE_54":
+            warnings.warn(f"{user_potcar_functional=} is inconsistent with the recommended PBE_54.", UserWarning)
 
         self.kwargs = kwargs
-        self.functional = functional
+        self.xc_functional = xc_functional
+        self.prev_incar = prev_incar or {}
 
     @property
     def incar(self) -> Incar:
         """Incar"""
-        parent_incar = super().incar
-        return Incar(self.prev_incar or parent_incar)
+        incar = super().incar
+
+        for key in set(self.INHERITED_INCAR_PARAMS) & set(self.prev_incar):
+            incar[key] = self.prev_incar[key]
+        return incar
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, **kwargs):
+        """
+        Generate a set of VASP input files for static calculations from a directory of previous VASP run.
+
+        Args:
+            prev_calc_dir (str): Directory containing the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            **kwargs: All kwargs supported by MatPESStaticSet, other than prev_incar
+                and prev_structure and prev_kpoints which are determined from
+                the prev_calc_dir.
+        """
+        vrun = sorted(f for f in os.listdir(prev_calc_dir) if f.startswith("vasprun.xml"))[-1]
+        v = Vasprun(os.path.join(prev_calc_dir, vrun))
+        return cls(v.final_structure, prev_incar=v.incar, **kwargs)
 
 
 class MPScanStaticSet(MPScanRelaxSet):

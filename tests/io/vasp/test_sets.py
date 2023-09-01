@@ -19,7 +19,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.io.vasp.inputs import Kpoints, Poscar
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, PotcarSingle
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.sets import (
     BadInputSetWarning,
@@ -48,7 +48,6 @@ from pymatgen.io.vasp.sets import (
     MVLScanRelaxSet,
     MVLSlabSet,
     VaspInputSet,
-    _load_yaml_config,
     batch_write_input,
     get_structure_from_prev_run,
     get_valid_magmom_struct,
@@ -59,7 +58,6 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 MODULE_DIR = Path(pymatgen.io.vasp.__file__).parent
 
 dec = MontyDecoder()
-
 
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
 skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set.")
@@ -119,6 +117,8 @@ class TestSetChangeCheck(PymatgenTest):
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
             "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
             "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
+            "MatPESStaticSet.yaml": "6c4e529649e39925cc316d90ff03bd30b4504684",
+            "PBE54Base.yaml": "ec317781a7f344beb54c17a228db790c0eb49282",
         }
 
         assert hashes == known_hashes, msg
@@ -734,68 +734,126 @@ class TestMPStaticSet(PymatgenTest):
 
 
 class TestMatPESStaticSet(PymatgenTest):
-    def test_init(self):
-        prev_run = f"{TEST_FILES_DIR}/relaxation"
+    def setUp(self):
+        self.struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        self.prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
 
-        vis = MatPESStaticSet.from_prev_calc(prev_calc_dir=prev_run)
-        # Check that INCAR settings were load from yaml, check the default functional is PBE.
-        CONFIG = _load_yaml_config("MatPESStaticSet")
-        assert vis.incar == CONFIG["INCAR"]
-        assert vis.kpoints.style == Kpoints.supported_modes.Monkhorst
+    def test_default(self):
+        default = MatPESStaticSet(self.struct)
+        incar = default.incar
+        assert incar["ALGO"] == "Normal"
+        assert incar["EDIFF"] == 1.0e-05
+        assert incar["ENAUG"] == 1360
+        assert incar["ENCUT"] == 680
+        assert incar["GGA"] == "Pe"
+        assert incar["ISMEAR"] == 0
+        assert incar["ISPIN"] == 2
+        assert incar["KSPACING"] == 0.22
+        assert incar["LAECHG"]
+        assert incar["LASPH"]
+        assert incar["LCHARG"]
+        assert incar["LMIXTAU"]
+        assert incar.get("LDAU") is None
+        assert incar["LORBIT"] == 11
+        assert incar["LREAL"] == "Auto"
+        assert not incar["LWAVE"]
+        assert incar["NELM"] == 200
+        assert incar["NSW"] == 0
+        assert incar["PREC"] == "Accurate"
+        assert incar["SIGMA"] == 0.05
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert default.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert default.potcar.functional == "PBE_54"
+        assert default.kpoints is None
 
-        # Check as from dict.
-        vis = MatPESStaticSet.from_dict(vis.as_dict())
-        # Check that INCAR settings were load from yaml.
-        assert vis.incar == CONFIG["INCAR"]
+        assert str(default.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_54"))
 
-        prev_run_scan = f"{TEST_FILES_DIR}/scan_relaxation"
+    def test_with_prev_incar(self):
+        default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
+        incar = default_prev.incar
+        # test if prev_incar is used.
+        assert incar["NPAR"] == 8
+        assert incar["LMAXMIX"] == 4
+        # test some incar parameters from prev_incar are not inherited
+        assert incar.get("ISPIND") is None
+        assert incar.get("LSCALU") is None
+        assert incar.get("ISIF") is None
+        assert incar.get("SYSTEM") is None
+        assert incar.get("HFSCREEN") is None
+        assert incar.get("NSIM") is None
+        assert incar.get("ENCUTFOCK") is None
+        assert incar.get("NKRED") is None
+        assert incar.get("LPLANE") is None
+        assert incar.get("TIME") is None
+        assert incar.get("LHFCALC") is None
+        # test if default in MatPESStaticSet is prioritized.
+        assert incar["ALGO"] == "Normal"
+        assert incar["EDIFF"] == 1.0e-05
+        assert incar["ENAUG"] == 1360
+        assert incar["ENCUT"] == 680
+        assert incar["GGA"] == "Pe"
+        assert incar["ISMEAR"] == 0
+        assert incar["ISPIN"] == 2
+        assert incar["KSPACING"] == 0.22
+        assert incar["LAECHG"]
+        assert incar["LASPH"]
+        assert incar["LCHARG"]
+        assert incar["LMIXTAU"]
+        assert incar.get("LDAU") is None
+        assert incar["LORBIT"] == 11
+        assert incar["LREAL"] == "Auto"
+        assert not incar["LWAVE"]
+        assert incar["NELM"] == 200
+        assert incar["NSW"] == 0
+        assert incar["PREC"] == "Accurate"
+        assert incar["SIGMA"] == 0.05
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert default_prev.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert default_prev.potcar.functional == "PBE_54"
+        assert default_prev.kpoints is None
 
-        vis_scan = MatPESStaticSet.from_prev_calc(prev_calc_dir=prev_run_scan, functional="R2SCAN")
-        # Check that INCAR settings were load from yaml, check the functional "R2SCAN".
-        assert vis_scan.incar["METAGGA"] == "R2SCAN"
-        assert vis_scan.incar["ALGO"] == "ALL"
+    def test_r2scan(self):
+        scan = MatPESStaticSet(self.struct, xc_functional="R2SCAN")
+        incar_scan = scan.incar
+        assert incar_scan["METAGGA"] == "R2scan"
+        assert incar_scan.get("GGA") is None
+        assert incar_scan["ALGO"] == "All"
+        assert incar_scan.get("LDAU") is None
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert scan.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert scan.potcar.functional == "PBE_54"
+        assert scan.kpoints is None
 
-        # Check as from dict.
-        vis_scan = MatPESStaticSet.from_dict(vis_scan.as_dict())
-        # Check that INCAR settings were load from yaml.
-        assert vis_scan.incar["METAGGA"] == "R2SCAN"
-        assert vis_scan.incar["ALGO"] == "ALL"
+    def test_default_u(self):
+        default_u = MatPESStaticSet(self.struct, xc_functional="PBE+U")
+        incar_u = default_u.incar
+        assert incar_u["LDAU"] is True
+        assert incar_u["GGA"] == "Pe"
+        assert incar_u["ALGO"] == "Normal"
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert incar_u["LDAUU"] == [5.3, 0, 0]
+        assert default_u.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert default_u.potcar.functional == "PBE_54"
+        assert default_u.kpoints is None
 
-        # test with changed user_incar_settings
-        non_prev_vis = MatPESStaticSet(vis.structure, user_incar_settings={"ENCUT": 800, "LORBIT": 12, "LWAVE": True})
-        # Check that the ENCUT and Kpoints style has NOT been inherited.
-        assert non_prev_vis.incar["ENCUT"] == 800
-        # Check that user incar settings are applied.
-        assert non_prev_vis.incar["LORBIT"] == 12
-        assert non_prev_vis.incar["LWAVE"]
+    def test_functionals(self):
+        xc_functional = "LDA"
+        with pytest.raises(
+            ValueError, match=f"Unrecognized {xc_functional=}. Supported exchange-correlation functionals are "
+        ):
+            MatPESStaticSet(self.struct, xc_functional=xc_functional)
 
-        non_prev_vis = MatPESStaticSet.from_dict(non_prev_vis.as_dict())
-        assert non_prev_vis.incar["ENCUT"] == 800
-        # Check that user incar settings are applied.
-        assert non_prev_vis.incar["LORBIT"] == 12
-        assert non_prev_vis.incar["LWAVE"]
+        with pytest.warns(UserWarning, match="inconsistent with the recommended PBE_54"):
+            diff_potcar = MatPESStaticSet(self.struct, user_potcar_functional="PBE")
+            assert str(diff_potcar.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE"))
 
-        # test R2SCAN with changed user_incar_settings
-        non_prev_vis_scan = MatPESStaticSet(
-            vis_scan.structure, functional="R2SCAN", user_incar_settings={"ENCUT": 800, "LORBIT": 12, "LWAVE": True}
-        )
-        # Check functional has been changed to R2SCAN
-        assert vis_scan.incar["METAGGA"] == "R2SCAN"
-        assert vis_scan.incar["ALGO"] == "ALL"
-        # Check that the ENCUT and Kpoints style has NOT been inherited.
-        assert non_prev_vis_scan.incar["ENCUT"] == 800
-        # Check that user incar settings are applied.
-        assert non_prev_vis_scan.incar["LORBIT"] == 12
-        assert non_prev_vis_scan.incar["LWAVE"]
-
-        non_prev_vis_scan = MatPESStaticSet.from_dict(non_prev_vis_scan.as_dict())
-        # Check functional has been changed to R2SCAN
-        assert vis_scan.incar["METAGGA"] == "R2SCAN"
-        assert vis_scan.incar["ALGO"] == "ALL"
-        assert non_prev_vis_scan.incar["ENCUT"] == 800
-        # Check that user incar settings are applied.
-        assert non_prev_vis_scan.incar["LORBIT"] == 12
-        assert non_prev_vis_scan.incar["LWAVE"]
+    def test_from_prev_calc(self):
+        vis = MatPESStaticSet.from_prev_calc(f"{TEST_FILES_DIR}/relaxation")
+        incar = vis.incar
+        assert incar["GGA"] == "Pe"
+        assert incar["ALGO"] == "Normal"
+        assert vis.potcar_symbols == ["Li_sv"]
+        assert vis.kpoints is None
 
 
 class TestMPNonSCFSet(PymatgenTest):
@@ -1436,25 +1494,24 @@ class TestMPScanRelaxSet(PymatgenTest):
         incar = mp_scan_sub.incar
         assert incar["METAGGA"] == "Scan"
 
-    def test_nonmetal(self):
-        # Test that KSPACING and ISMEAR change with a nonmetal structure
-        file_path = f"{TEST_FILES_DIR}/POSCAR.O2"
-        struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
-        scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=1.1)
-        incar = scan_nonmetal_set.incar
-        assert incar["KSPACING"] == approx(0.3064757, abs=1e-5)
-        assert incar["ISMEAR"] == -5
-        assert incar["SIGMA"] == 0.05
+    def test_bandgap_tol(self):
+        # Test that the bandgap tolerance is applied correctly
+        bandgap = 0.01
+        for bandgap_tol, expected_kspacing in ((0.001, 0.2668137888), (0.02, 0.26681378884)):
+            incar = MPScanRelaxSet(self.struct, bandgap=0.01, bandgap_tol=bandgap_tol).incar
+            assert incar["KSPACING"] == approx(expected_kspacing, abs=1e-5), f"{bandgap_tol=}, {bandgap=}"
+            assert incar["ISMEAR"] == -5
+            assert incar["SIGMA"] == 0.05
 
-    def test_kspacing_cap(self):
+    def test_kspacing(self):
         # Test that KSPACING is capped at 0.44 for insulators
         file_path = f"{TEST_FILES_DIR}/POSCAR.O2"
         struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
-        scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=10)
-        incar = scan_nonmetal_set.incar
-        assert incar["KSPACING"] == approx(0.44, abs=1e-5)
-        assert incar["ISMEAR"] == -5
-        assert incar["SIGMA"] == 0.05
+        for bandgap, expected in ((10, 0.44), (3, 0.4136617), (1.1, 0.3064757)):
+            incar = MPScanRelaxSet(struct, bandgap=bandgap).incar
+            assert incar["KSPACING"] == approx(expected, abs=1e-5)
+            assert incar["ISMEAR"] == -5
+            assert incar["SIGMA"] == 0.05
 
     def test_incar_overrides(self):
         # use 'user_incar_settings' to override the KSPACING, ISMEAR, and SIGMA

@@ -8,7 +8,6 @@ import re
 import sys
 from collections import namedtuple
 from io import StringIO
-from typing import Sequence
 
 from monty.json import MontyDecoder, MontyEncoder
 from monty.string import remove_non_ascii
@@ -19,7 +18,12 @@ try:
 except ImportError:
     pybtex = bibtex = None
 
+from typing import TYPE_CHECKING
+
 from pymatgen.core.structure import Molecule, Structure
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __credits__ = "Dan Gunter"

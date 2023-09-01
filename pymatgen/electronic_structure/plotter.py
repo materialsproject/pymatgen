@@ -9,7 +9,7 @@ import math
 import typing
 import warnings
 from collections import Counter
-from typing import TYPE_CHECKING, List, Literal, Sequence, cast, no_type_check
+from typing import TYPE_CHECKING, Literal, cast, no_type_check
 
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
@@ -30,6 +30,8 @@ except ImportError:
     mlab = None
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from numpy.typing import ArrayLike
 
     from pymatgen.electronic_structure.dos import CompleteDos, Dos
@@ -231,7 +233,7 @@ class DosPlotter:
         # Remove duplicate labels with a dictionary
         handles, labels = ax.get_legend_handles_labels()
         label_dict = dict(zip(labels, handles))
-        ax.legend(label_dict.values(), label_dict.keys())
+        ax.legend(label_dict.values(), label_dict)
         legend_text = ax.get_legend().get_texts()  # all the text.Text instance in the legend
         plt.setp(legend_text, fontsize=30)
         plt.tight_layout()
@@ -2359,7 +2361,7 @@ class BSDOSPlotter:
             if spin in bs.bands:
                 band_energies[spin] = []
                 for band in bs.bands[spin]:
-                    band = cast(List[float], band)
+                    band = cast(list[float], band)
                     band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore
 
         # renormalize the DOS energies to Fermi level

@@ -29,7 +29,7 @@ setup(
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
     version="2023.08.10",
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
         "monty>=3.0.2",
@@ -161,7 +161,6 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",

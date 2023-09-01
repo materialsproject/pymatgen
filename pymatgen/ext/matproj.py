@@ -20,7 +20,7 @@ import sys
 import warnings
 from enum import Enum, unique
 from time import sleep
-from typing import TYPE_CHECKING, Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
@@ -40,6 +40,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
     from pymatgen.phonon.dos import CompletePhononDos
 

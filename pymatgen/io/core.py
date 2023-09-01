@@ -27,9 +27,8 @@ from __future__ import annotations
 
 import abc
 import os
-from collections.abc import MutableMapping
+from collections.abc import Iterator, MutableMapping
 from pathlib import Path
-from typing import Iterator
 from zipfile import ZipFile
 
 import numpy as np
