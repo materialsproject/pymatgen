@@ -46,7 +46,7 @@ class FStarDiagram:
             try:
                 if struct.equivalent_indices == structures[ind - 1].equivalent_indices:
                     continue
-                raise ValueError("All structues must only vary in occupancy.")
+                raise ValueError("All structures must only vary in occupancy.")
             except AttributeError:
                 raise AttributeError("Must use symmeteized structure objects")
         self._structures = structures
@@ -64,7 +64,7 @@ class FStarDiagram:
         Many structures have more than three sites. If this is the case you may want to
             add some sites together to make a psudo-site.
         Args:
-            site_lists(list): A list of lists of site lable strings. This allows you to combine
+            site_lists(list): A list of lists of site label strings. This allows you to combine
                 more than one set of sites at once.
         """
         for combo in site_lists:
@@ -79,7 +79,7 @@ class FStarDiagram:
         """
         set the list of sites to plot and the order to plot them in.
         Args:
-            site_list(list): A list of site lable strings. Index 0 goes on the top of the
+            site_list(list): A list of site label strings. Index 0 goes on the top of the
                 plot, index 1 goes on the bottom left, and index 2 goes on the bottom right.
         """
         for site in site_list:
@@ -89,7 +89,7 @@ class FStarDiagram:
 
     def make_plot(self, **kwargs):
         """
-        Makes a plotly express scatter_ternary plot useing the fstar_coords dataframe and the
+        Makes a plotly express scatter_ternary plot using the fstar_coords dataframe and the
             sites in plot list.
         Args:
             **kwargs: this can be any argument that the scatter_ternary fucntion can use.
@@ -100,7 +100,7 @@ class FStarDiagram:
 
     def _get_site_labels(self):
         """
-        Generates unique site labels based on composition, order, and symetry equivalence in the structure object.
+        Generates unique site labels based on composition, order, and symmetry equivalence in the structure object.
         Ex:
         Structure Summary
         Lattice
