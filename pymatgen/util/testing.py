@@ -20,7 +20,7 @@ from monty.serialization import loadfn
 from pymatgen.core import SETTINGS, Structure
 
 if TYPE_CHECKING:
-    from typing import Sequence
+    from collections.abc import Sequence
 
 MODULE_DIR = Path(__file__).absolute().parent
 STRUCTURES_DIR = MODULE_DIR / "structures"

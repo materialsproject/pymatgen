@@ -14,7 +14,7 @@ from pymatgen.core import Molecule, Structure
 from pymatgen.core.structure import SiteCollection
 
 if TYPE_CHECKING:
-    from typing import Sequence
+    from collections.abc import Sequence
 
 
 class XYZ:

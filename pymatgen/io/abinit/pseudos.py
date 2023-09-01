@@ -11,7 +11,7 @@ import logging
 import os
 import sys
 from collections import defaultdict, namedtuple
-from typing import TYPE_CHECKING, Iterator, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.collections import AttrDict, Namespace
@@ -28,6 +28,8 @@ from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
     import matplotlib.pyplot as plt
 
     from pymatgen.core import Structure
