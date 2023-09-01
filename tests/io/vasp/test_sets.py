@@ -167,7 +167,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         # basic test of initialization with no structure.
         vis = MPRelaxSet()
         with pytest.raises(RuntimeError, match="No structure is associated with the input set!"):
-            vis.incar
+            _ = vis.incar
         vis.structure = self.structure
         assert vis.incar["LDAUU"] == [5.3, 0, 0]
 
@@ -587,7 +587,8 @@ class TestMITMPRelaxSet(PymatgenTest):
         struct.insert(0, "Li", [0, 0, 0])
 
         # vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=False)
-        # with pytest.raises(TypeError, match=r"float\(\) argument must be a string or a (real )?number, not 'NoneType'"):
+        # with pytest.raises(TypeError, match=r"float\(\) argument must be a string or a (real )?number,
+        #                    not 'NoneType'"):
         #     vis.get_vasp_input()
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=True)
@@ -1764,7 +1765,7 @@ class TestLobsterSet(PymatgenTest):
             user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s", "O": "2p 2s"},
         )
         with pytest.raises(ValueError, match="There are no basis functions for the atom type O"):
-            self.lobsterset6 = self.set(self.struct, user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s"})
+            self.lobsterset6 = self.set(self.struct, user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s"}).incar
         self.lobsterset7 = self.set(
             self.struct,
             address_basis_file=f"{MODULE_DIR}/../lobster/lobster_basis/BASIS_PBE_54_standard.yaml",

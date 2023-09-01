@@ -340,11 +340,7 @@ class DictSet(VaspInputSet):
         if (valid_potcars := self._valid_potcars) and user_potcar_functional not in valid_potcars:
             raise ValueError(f"Invalid {user_potcar_functional=}, must be one of {valid_potcars}")
 
-        if user_potcar_functional == "PBE_54" and "W" in structure.symbol_set:
-            # when using 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
-            user_potcar_settings = {"W": "W_sv", **(user_potcar_settings or {})}
-
-        self._config_dict = deepcopy(config_dict)
+        self._config_dict = deepcopy(config_dict) if config_dict is not None else {}
         self.files_to_transfer = files_to_transfer or {}
         self.constrain_total_magmom = constrain_total_magmom
         self.sort_structure = sort_structure
@@ -359,7 +355,6 @@ class DictSet(VaspInputSet):
         self.sym_prec = sym_prec
         self.international_monoclinic = international_monoclinic
         self.validate_magmom = validate_magmom
-        self.structure = structure
 
         if self.user_incar_settings.get("KSPACING") and user_kpoints_settings is not None:
             warnings.warn(
@@ -396,6 +391,8 @@ class DictSet(VaspInputSet):
                 BadInputSetWarning,
             )
 
+        self.structure = structure  # type: ignore
+
         if self.user_potcar_settings:
             warnings.warn(
                 "Overriding POTCARs is generally not recommended as it "
@@ -419,6 +416,9 @@ class DictSet(VaspInputSet):
     @structure.setter
     def structure(self, structure):
         if structure is not None:
+            if self.user_potcar_functional == "PBE_54" and "W" in structure.symbol_set:
+                # when using 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
+                self.user_potcar_settings = {"W": "W_sv", **(self.user_potcar_settings or {})}
             if self.reduce_structure:
                 structure = structure.get_reduced_structure(self.reduce_structure)
             if self.sort_structure:
@@ -2259,10 +2259,7 @@ class MVLSlabSet(MPRelaxSet):
         :param sort_structure:
         :param kwargs: Other kwargs supported by :class:`DictSet`.
         """
-        super().__init__(structure, **kwargs)
-
-        if sort_structure:
-            structure = structure.get_sorted_structure()
+        super().__init__(structure, sort_structure=sort_structure, **kwargs)
 
         self.k_product = k_product
         self.bulk = bulk
@@ -2270,6 +2267,10 @@ class MVLSlabSet(MPRelaxSet):
         self.kwargs = kwargs
         self.set_mix = set_mix
         self.kpt_calc = None
+
+    @property
+    def incar(self) -> Incar:
+        structure = self.structure
 
         slab_incar = {
             "EDIFF": 1e-4,
@@ -2294,8 +2295,8 @@ class MVLSlabSet(MPRelaxSet):
                 slab_incar["IDIPOL"] = 3
                 slab_incar["LDIPOL"] = True
                 slab_incar["DIPOL"] = center_of_mass
-
         self._config_dict["INCAR"].update(slab_incar)
+        return super().incar
 
     @property
     def kpoints(self):
@@ -2701,16 +2702,12 @@ class MPMDSet(MPRelaxSet):
             "NBLOCK": 1,
             "KBLOCK": 100,
             "SMASS": 0,
-            "POTIM": 2,
+            "POTIM": time_step,
             "PREC": "Normal",
             "ISPIN": 2 if spin_polarized else 1,
             "LDAU": False,
             "ADDGRID": True,
         }
-
-        if Element("H") in structure.species:
-            defaults["POTIM"] = 0.5
-            defaults["NSW"] = defaults["NSW"] * 4
 
         super().__init__(structure, **kwargs)
 
@@ -2726,6 +2723,14 @@ class MPMDSet(MPRelaxSet):
         if defaults["ISPIN"] == 1:
             self._config_dict["INCAR"].pop("MAGMOM", None)
         self._config_dict["INCAR"].update(defaults)
+
+    @property
+    def incar(self) -> Incar:
+        incar = super().incar
+        if Element("H") in self.structure.species:
+            incar["POTIM"] = 0.5
+            incar["NSW"] = incar["NSW"] * 4
+        return incar
 
     @property
     def kpoints(self) -> Kpoints:
@@ -2764,13 +2769,19 @@ class MVLNPTMDSet(MITMDSet):
                 The ISPIN parameter. Defaults to False.
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
-        user_incar_settings = kwargs.get("user_incar_settings", {})
+        super().__init__(structure, start_temp, end_temp, nsteps, time_step, spin_polarized, **kwargs)
+
+    @property
+    def incar(self) -> Incar:
+        """
+        Special processing of incar.
+        """
 
         # NPT-AIMD default settings
         defaults = {
             "ALGO": "Fast",
             "ISIF": 3,
-            "LANGEVIN_GAMMA": [10] * structure.ntypesp,
+            "LANGEVIN_GAMMA": [10] * self.structure.ntypesp,
             "LANGEVIN_GAMMA_L": 1,
             "MDALGO": 3,
             "PMASS": 10,
@@ -2778,15 +2789,15 @@ class MVLNPTMDSet(MITMDSet):
             "SMASS": 0,
         }
 
-        defaults.update(user_incar_settings)
-        kwargs["user_incar_settings"] = defaults
-
-        super().__init__(structure, start_temp, end_temp, nsteps, time_step, spin_polarized, **kwargs)
+        defaults.update(self.user_incar_settings)
+        self.user_incar_settings = defaults
 
         # Set NPT-AIMD ENCUT = 1.5 * VASP_default
-        enmax = [self.potcar[i].keywords["ENMAX"] for i in range(structure.ntypesp)]
+        enmax = [self.potcar[i].keywords["ENMAX"] for i in range(self.structure.ntypesp)]
         encut = max(enmax) * 1.5
         self._config_dict["INCAR"]["ENCUT"] = encut
+
+        return super().incar
 
 
 class MVLScanRelaxSet(MPRelaxSet):
@@ -2873,7 +2884,6 @@ class LobsterSet(MPRelaxSet):
                 e.g. {"Fe": "Fe_pv", "O": "O"}; if not supplied, a standard basis is used.
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
-        from pymatgen.io.lobster import Lobsterin
 
         warnings.warn("Make sure that all parameters are okay! This is a brand new implementation.")
 
@@ -2887,7 +2897,6 @@ class LobsterSet(MPRelaxSet):
         kwargs.setdefault("user_potcar_functional", "PBE_54")
 
         super().__init__(structure, **kwargs)
-
         # reciprocal density
         if self.user_kpoints_settings is not None:
             if not reciprocal_density or "reciprocal_density" not in self.user_kpoints_settings:
@@ -2900,46 +2909,51 @@ class LobsterSet(MPRelaxSet):
             self.reciprocal_density = 310
         else:
             self.reciprocal_density = reciprocal_density
-
         self._config_dict["POTCAR"]["W"] = "W_sv"
         self.isym = isym
         self.ismear = ismear
         self.user_supplied_basis = user_supplied_basis
         self.address_basis_file = address_basis_file
+        self._config_dict["KPOINTS"]["reciprocal_density"] = self.reciprocal_density
+
+    @property
+    def incar(self) -> Incar:
+        from pymatgen.io.lobster import Lobsterin
+
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
-        if user_supplied_basis is None and address_basis_file is None:
-            basis = Lobsterin.get_basis(structure=structure, potcar_symbols=self.potcar_symbols)
-        elif address_basis_file is not None:
+        if self.user_supplied_basis is None and self.address_basis_file is None:
+            basis = Lobsterin.get_basis(structure=self.structure, potcar_symbols=self.potcar_symbols)
+        elif self.address_basis_file is not None:
             basis = Lobsterin.get_basis(
-                structure=structure,
+                structure=self.structure,
                 potcar_symbols=self.potcar_symbols,
-                address_basis_file=address_basis_file,
+                address_basis_file=self.address_basis_file,
             )
-        elif user_supplied_basis is not None:
+        elif self.user_supplied_basis is not None:
             # test if all elements from structure are in user_supplied_basis
-            for atom_type in structure.symbol_set:
-                if atom_type not in user_supplied_basis:
+            for atom_type in self.structure.symbol_set:
+                if atom_type not in self.user_supplied_basis:
                     raise ValueError(f"There are no basis functions for the atom type {atom_type}")
-            basis = [f"{key} {value}" for key, value in user_supplied_basis.items()]
+            basis = [f"{key} {value}" for key, value in self.user_supplied_basis.items()]
 
         lobsterin = Lobsterin(settingsdict={"basisfunctions": basis})
-        nbands = lobsterin._get_nbands(structure=structure)
+        nbands = lobsterin._get_nbands(structure=self.structure)
 
         update_dict = {
             "EDIFF": 1e-6,
             "NSW": 0,
             "LWAVE": True,
-            "ISYM": isym,
+            "ISYM": self.isym,
             "NBANDS": nbands,
             "IBRION": -1,
-            "ISMEAR": ismear,
+            "ISMEAR": self.ismear,
             "LORBIT": 11,
             "ICHARG": 0,
             "ALGO": "Normal",
         }
 
         self._config_dict["INCAR"].update(update_dict)
-        self._config_dict["KPOINTS"]["reciprocal_density"] = self.reciprocal_density
+        return super().incar
 
 
 def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
