@@ -46,8 +46,7 @@ class FStarDiagram:
             try:
                 if struct.equivalent_indices == structures[ind - 1].equivalent_indices:
                     continue
-                else:
-                    raise ValueError("All structues must only vary in occupancy.")
+                raise ValueError("All structues must only vary in occupancy.")
             except AttributeError:
                 raise AttributeError("Must use symmeteized structure objects")
         self._structures = structures
