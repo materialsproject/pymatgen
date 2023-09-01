@@ -92,7 +92,7 @@ class FStarDiagram:
         Makes a plotly express scatter_ternary plot using the fstar_coords dataframe and the
             sites in plot list.
         Args:
-            **kwargs: this can be any argument that the scatter_ternary fucntion can use.
+            **kwargs: this can be any argument that the scatter_ternary function can use.
         """
         self.plot = px.scatter_ternary(
             data_frame=self.fstar_coords, a=self.plot_list[0], b=self.plot_list[1], c=self.plot_list[2], **kwargs
