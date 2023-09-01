@@ -166,10 +166,12 @@ class TestMITMPRelaxSet(PymatgenTest):
     def test_no_structure_init(self):
         # basic test of initialization with no structure.
         vis = MPRelaxSet()
+        assert vis.as_dict()["structure"] is None
         with pytest.raises(RuntimeError, match="No structure is associated with the input set!"):
             _ = vis.incar
         vis.structure = self.structure
         assert vis.incar["LDAUU"] == [5.3, 0, 0]
+        assert vis.as_dict()["structure"] is not None
 
     def test_metal_check(self):
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Cu"], [[0, 0, 0]])

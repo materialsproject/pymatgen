@@ -391,8 +391,6 @@ class DictSet(VaspInputSet):
     @property
     def structure(self) -> Structure:
         """Structure"""
-        if self._structure is None:
-            raise RuntimeError("No structure is associated with the input set!")
         return self._structure
 
     @structure.setter
@@ -431,6 +429,8 @@ class DictSet(VaspInputSet):
     @property
     def incar(self) -> Incar:
         """Incar"""
+        if self.structure is None:
+            raise RuntimeError("No structure is associated with the input set!")
         settings = dict(self._config_dict["INCAR"])
         for k, v in self.user_incar_settings.items():
             if v is None:
@@ -579,6 +579,8 @@ class DictSet(VaspInputSet):
 
     @property
     def poscar(self) -> Poscar:
+        if self.structure is None:
+            raise RuntimeError("No structure is associated with the input set!")
         """Poscar"""
         return Poscar(self.structure)
 
@@ -613,6 +615,8 @@ class DictSet(VaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         """
+        if self._structure is None:
+            raise RuntimeError("No structure is associated with the input set!")
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the kpoints automatically
         if (
