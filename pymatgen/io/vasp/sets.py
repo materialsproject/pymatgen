@@ -1226,7 +1226,6 @@ class MatPESStaticSet(DictSet):
         self,
         structure: Structure,
         xc_functional: Literal["R2SCAN", "PBE", "PBE+U"] = "PBE",
-        user_potcar_functional: Literal["PBE_54", "PBE_52"] = "PBE_54",
         prev_incar: Incar | dict | None = None,
         **kwargs: Any,
     ) -> None:
@@ -1234,7 +1233,6 @@ class MatPESStaticSet(DictSet):
         Args:
             structure (Structure): Structure for static calculation.
             xc_functional ('R2SCAN'|'PBE'): Exchange-correlation functional to use. Defaults to 'PBE'.
-            potcar_functional: Choice of VASP POTCAR functional and version. Defaults to 'PBE_54'.
             prev_incar (Incar | dict): Incar file from previous run. Default settings of MatPESStaticSet
                 are prioritized over inputs from previous runs. Defaults to None.
             **kwargs: Passed to DictSet.
@@ -1248,17 +1246,15 @@ class MatPESStaticSet(DictSet):
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
 
         if xc_functional.upper() == "R2SCAN":
-            self.user_incar_settings["METAGGA"] = "R2SCAN"
-            self.user_incar_settings.setdefault("ALGO", "ALL")  # leave user-defined ALGO if set
-            self.user_incar_settings.pop("GGA", None)
+            self._config_dict["INCAR"]["METAGGA"] = "R2SCAN"
+            self._config_dict["INCAR"].setdefault("ALGO", "ALL")  # leave user-defined ALGO if set
+            self._config_dict["INCAR"].pop("GGA", None)
         if xc_functional.upper().endswith("+U"):
-            self.user_incar_settings["LDAU"] = True
-        if user_potcar_functional.upper() != "PBE_54":
+            self._config_dict["INCAR"]["LDAU"] = True
+        if kwargs.get("user_potcar_functional", "PBE_54").upper() != "PBE_54":
             warnings.warn(
-                f"POTCAR version ({user_potcar_functional}) is inconsistent with the recommended PBE_54.", UserWarning
+                f"POTCAR ({kwargs['user_potcar_functional']}) is inconsistent with the recommended PBE_54.", UserWarning
             )
-
-        self.user_potcar_functional = user_potcar_functional
 
         self.kwargs = kwargs
         self.xc_functional = xc_functional
@@ -1272,6 +1268,22 @@ class MatPESStaticSet(DictSet):
         for key in set(self.INHERITED_INCAR_PARAMS) & set(self.prev_incar):
             incar[key] = self.prev_incar[key]
         return incar
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, **kwargs):
+        """
+        Generate a set of VASP input files for static calculations from a directory of previous VASP run.
+
+        Args:
+            prev_calc_dir (str): Directory containing the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            **kwargs: All kwargs supported by MatPESStaticSet, other than prev_incar
+                and prev_structure and prev_kpoints which are determined from
+                the prev_calc_dir.
+        """
+        vrun = sorted(f for f in os.listdir(prev_calc_dir) if f.startswith("vasprun.xml"))[-1]
+        v = Vasprun(os.path.join(prev_calc_dir, vrun))
+        return cls(v.final_structure, prev_incar=v.incar, **kwargs)
 
 
 class MPScanStaticSet(MPScanRelaxSet):
