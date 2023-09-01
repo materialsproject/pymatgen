@@ -1201,13 +1201,15 @@ class MPStaticSet(MPRelaxSet):
 class MatPESStaticSet(DictSet):
     """Creates input files for a MatPES static calculation.
 
-    The goal of MatPES is to generate PES data. This is a distinctly different from the objectives of the MP static
-    calculations, which aims to obtain accurate energies and electronic structure (DOS) primarily. For PES data,
-    force accuracy (and to some extent, stress accuracy) is of paramount importance.
+    The goal of MatPES is to generate potential energy surface data. This is a distinctly different
+    from the objectives of the MP static calculations, which aims to obtain primarily accurate
+    energies and also electronic structure (DOS). For PES data, force accuracy (and to some extent,
+    stress accuracy) is of paramount importance.
 
-    It should be noted that the default POTCAR versions have been updated to PBE_54, rather than the old PBE set used
-    in the MPStaticSet. However, **U values** are still based on PBE. The implicit assumption here is that the PBE_54
-    and PBE POTCARs are sufficiently similar that the U values fitted to the old PBE functional still applies.
+    The default POTCAR versions have been updated to PBE_54 from the old PBE set used in the
+    MPStaticSet. However, **U values** are still based on PBE. The implicit assumption here is that
+    the PBE_54 and PBE POTCARs are sufficiently similar that the U values fitted to the old PBE
+    functional still applies.
     """
 
     CONFIG = _load_yaml_config("MatPESStaticSet")
@@ -1242,31 +1244,35 @@ class MatPESStaticSet(DictSet):
         self,
         structure: Structure,
         xc_functional: Literal["R2SCAN", "PBE", "PBE+U"] = "PBE",
-        prev_incar=None,
+        prev_incar: Incar | dict | None = None,
         **kwargs: Any,
-    ):
+    ) -> None:
         """
         Args:
             structure (Structure): Structure for static calculation.
             xc_functional ('R2SCAN'|'PBE'): Exchange-correlation functional to use. Defaults to 'PBE'.
-            prev_incar (Incar|str): Incar file from previous run. Default settings of MatPESStaticSet
-                are prioritized over inputs from previous runs.
+            prev_incar (Incar | dict): Incar file from previous run. Default settings of MatPESStaticSet
+                are prioritized over inputs from previous runs. Defaults to None.
             **kwargs: Passed to DictSet.
         """
+        valid_xc_functionals = ("R2SCAN", "PBE", "PBE+U")
+        if xc_functional.upper() not in valid_xc_functionals:
+            raise ValueError(
+                f"Unrecognized {xc_functional=}. Supported exchange-correlation functionals are {valid_xc_functionals}"
+            )
+
         super().__init__(structure, MatPESStaticSet.CONFIG, **kwargs)
 
         if xc_functional.upper() == "R2SCAN":
             self._config_dict["INCAR"]["METAGGA"] = "R2SCAN"
             self._config_dict["INCAR"]["ALGO"] = "ALL"
             self._config_dict["INCAR"].pop("GGA", None)
-        elif xc_functional.upper() == "PBE+U":
+        if xc_functional.upper().endswith("+U"):
             self._config_dict["INCAR"]["LDAU"] = True
-        elif xc_functional.upper() != "PBE":
-            raise ValueError(f"{xc_functional} is not supported. Supported xc functionals are PBE, PBE+U and R2SCAN.")
-        if kwargs.get("user_potcar_functional", "PBE_54") != "PBE_54":
-            warnings.warn(
-                f"POTCAR ({kwargs['user_potcar_functional']}) is inconsistent with the recommended PBE_54.", UserWarning
-            )
+        user_potcar_functional = kwargs.get("user_potcar_functional", "PBE_54")
+        if user_potcar_functional.upper() != "PBE_54":
+            warnings.warn(f"{user_potcar_functional=} is inconsistent with the recommended PBE_54.", UserWarning)
+
         self.kwargs = kwargs
         self.xc_functional = xc_functional
         self.prev_incar = prev_incar or {}
@@ -1276,9 +1282,8 @@ class MatPESStaticSet(DictSet):
         """Incar"""
         incar = super().incar
 
-        for p in MatPESStaticSet.INHERITED_INCAR_PARAMS:
-            if p in self.prev_incar:
-                incar[p] = self.prev_incar[p]
+        for key in set(self.INHERITED_INCAR_PARAMS) & set(self.prev_incar):
+            incar[key] = self.prev_incar[key]
         return incar
 
     @classmethod
