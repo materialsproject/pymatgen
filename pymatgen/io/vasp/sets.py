@@ -273,69 +273,51 @@ class DictSet(VaspInputSet):
     ):
         """
         Args:
-            structure (Structure): The Structure to create inputs for.
+            structure (Structure): The Structure to create inputs for. If None, the input set is initialized without
+                a Structure but one must be set separately before the inputs are generated.
             config_dict (dict): The config dictionary to use.
-            files_to_transfer (dict): A dictionary of {filename: filepath}. This
-                allows the transfer of files from a previous calculation.
-            user_incar_settings (dict): User INCAR settings. This allows a user
-                to override INCAR settings, e.g., setting a different MAGMOM for
-                various elements or species. Note that in the new scheme,
-                ediff_per_atom and hubbard_u are no longer args. Instead, the
-                config_dict supports EDIFF_PER_ATOM and EDIFF keys. The former
-                scales with # of atoms, the latter does not. If both are
-                present, EDIFF is preferred. To force such settings, just supply
-                user_incar_settings={"EDIFF": 1e-5, "LDAU": False} for example.
-                The keys 'LDAUU', 'LDAUJ', 'LDAUL' are special cases since
-                pymatgen defines different values depending on what anions are
-                present in the structure, so these keys can be defined in one
-                of two ways, e.g. either {"LDAUU":{"O":{"Fe":5}}} to set LDAUU
-                for Fe to 5 in an oxide, or {"LDAUU":{"Fe":5}} to set LDAUU to
-                5 regardless of the input structure.
-
-                If a None value is given, that key is unset. For example,
-                {"ENCUT": None} will remove ENCUT from the incar settings.
-            user_kpoints_settings (dict or Kpoints): Allow user to override kpoints
-                setting by supplying a dict E.g., {"reciprocal_density": 1000}.
-                User can also supply Kpoints object. Default is None.
-            user_potcar_settings (dict: Allow user to override POTCARs. E.g.,
-                {"Gd": "Gd_3"}. This is generally not recommended. Default is None.
-            constrain_total_magmom (bool): Whether to constrain the total magmom
-                (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
-                species. Defaults to False.
-            sort_structure (bool): Whether to sort the structure (using the
-                default sort order of electronegativity) before generating input
-                files. Defaults to True, the behavior you would want most of the
-                time. This ensures that similar atomic species are grouped
-                together.
-            user_potcar_functional (str): Functional to use. Default (None) is to use
-                the functional in the config dictionary. Valid values:
-                "PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91",
+            files_to_transfer (dict): A dictionary of {filename: filepath}. This allows the transfer of files from a
+                previous calculation.
+            user_incar_settings (dict): User INCAR settings. This allows a user to override INCAR settings, e.g.,
+                setting a different MAGMOM for various elements or species. Note that in the new scheme,
+                ediff_per_atom and hubbard_u are no longer args. Instead, the config_dict supports EDIFF_PER_ATOM and
+                EDIFF keys. The former scales with # of atoms, the latter does not. If both are present,
+                EDIFF is preferred. To force such settings, just supply user_incar_settings={"EDIFF": 1e-5,
+                "LDAU": False} for example. The keys 'LDAUU', 'LDAUJ', 'LDAUL' are special cases since
+                pymatgen defines different values depending on what anions are present in the structure,
+                so these keys can be defined in one of two ways, e.g. either {"LDAUU":{"O":{"Fe":5}}} to set LDAUU
+                for Fe to 5 in an oxide, or {"LDAUU":{"Fe":5}} to set LDAUU to 5 regardless of the input structure.
+                If a None value is given, that key is unset. For example, {"ENCUT": None} will remove ENCUT from the
+                incar settings.
+            user_kpoints_settings (dict or Kpoints): Allow user to override kpoints setting by supplying a dict.
+                E.g., {"reciprocal_density": 1000}. User can also supply Kpoints object. Default is None.
+            user_potcar_settings (dict: Allow user to override POTCARs. E.g., {"Gd": "Gd_3"}. This is generally not
+                recommended. Default is None.
+            constrain_total_magmom (bool): Whether to constrain the total magmom (NUPDOWN in INCAR) to be the sum of
+                the expected MAGMOM for all species. Defaults to False.
+            sort_structure (bool): Whether to sort the structure (using the default sort order of electronegativity)
+                before generating input files. Defaults to True, the behavior you would want most of the time. This
+                ensures that similar atomic species are grouped together.
+            user_potcar_functional (str): Functional to use. Default (None) is to use the functional in the config
+                dictionary. Valid values: "PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91",
                 "LDA_US", "PW91_US".
-            force_gamma (bool): Force gamma centered kpoint generation. Default
-                (False) is to use the Automatic Density kpoint scheme, which
-                will use the Gamma centered generation scheme for hexagonal
+            force_gamma (bool): Force gamma centered kpoint generation. Default (False) is to use the Automatic
+                Density kpoint scheme, which will use the Gamma centered generation scheme for hexagonal
                 cells, and Monkhorst-Pack otherwise.
-            reduce_structure (None/str): Before generating the input files,
-                generate the reduced structure. Default (None), does not
-                alter the structure. Valid values: None, "niggli", "LLL".
-            vdw: Adds default parameters for van-der-Waals functionals supported
-                by VASP to INCAR. Supported functionals are: DFT-D2, undamped
-                DFT-D3, DFT-D3 with Becke-Jonson damping, Tkatchenko-Scheffler,
-                Tkatchenko-Scheffler with iterative Hirshfeld partitioning,
-                MBD@rSC, dDsC, Dion's vdW-DF, DF2, optPBE, optB88, optB86b and
-                rVV10.
-            use_structure_charge (bool): If set to True, then the public
-                variable used for setting the overall charge of the
-                structure (structure.charge) is used to set the NELECT
-                variable in the INCAR
-                Default is False (structure's overall charge is not used)
-            standardize (float): Whether to standardize to a primitive standard
-                cell. Defaults to False.
+            reduce_structure (None/str): Before generating the input files, generate the reduced structure. Default (
+                None), does not alter the structure. Valid values: None, "niggli", "LLL".
+            vdw: Adds default parameters for van-der-Waals functionals supported by VASP to INCAR. Supported
+                functionals are: DFT-D2, undamped DFT-D3, DFT-D3 with Becke-Jonson damping, Tkatchenko-Scheffler,
+                Tkatchenko-Scheffler with iterative Hirshfeld partitioning, MBD@rSC, dDsC, Dion's vdW-DF, DF2,
+                optPBE, optB88, optB86b and rVV10.
+            use_structure_charge (bool): If set to True, then the overall charge of the structure (structure.charge)
+                is used to set the NELECT variable in the INCAR. Default is False.
+            standardize (float): Whether to standardize to a primitive standard cell. Defaults to False.
             sym_prec (float): Tolerance for symmetry finding.
-            international_monoclinic (bool): Whether to use international convention
-                (vs Curtarolo) for monoclinic. Defaults True.
-            validate_magmom (bool): Ensure that the missing magmom values are filled
-                in with the VASP default value of 1.0
+            international_monoclinic (bool): Whether to use international convention (vs Curtarolo) for monoclinic.
+                Defaults True.
+            validate_magmom (bool): Ensure that the missing magmom values are filled in with the VASP default value
+                of 1.0.
         """
         if (valid_potcars := self._valid_potcars) and user_potcar_functional not in valid_potcars:
             raise ValueError(f"Invalid {user_potcar_functional=}, must be one of {valid_potcars}")
@@ -859,8 +841,10 @@ class MITRelaxSet(DictSet):
 
     def __init__(self, structure: Structure | None = None, **kwargs):
         """
-        :param structure: Structure
-        :param kwargs: Same as those supported by DictSet.
+        Args:
+            structure (Structure): The Structure to create inputs for. If None, the input set is initialized without
+                a Structure but one must be set separately before the inputs are generated.
+            **kwargs: Same as those supported by DictSet.
         """
         super().__init__(structure, MITRelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
@@ -879,8 +863,10 @@ class MPRelaxSet(DictSet):
 
     def __init__(self, structure: Structure | None = None, **kwargs):
         """
-        :param structure: Structure
-        :param kwargs: Same as those supported by DictSet.
+        Args:
+            structure (Structure): The Structure to create inputs for. If None, the input set is initialized without
+                a Structure but one must be set separately before the inputs are generated.
+            **kwargs: Same as those supported by DictSet.
         """
         super().__init__(structure, MPRelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
@@ -935,7 +921,8 @@ class MPScanRelaxSet(DictSet):
     ) -> None:
         """
         Args:
-            structure (Structure): Input structure.
+            structure (Structure): The Structure to create inputs for. If None, the input set is initialized without
+                a Structure but one must be set separately before the inputs are generated.
             bandgap (float): Bandgap of the structure in eV. The bandgap is used to
                 compute the appropriate k-point density and determine the
                 smearing settings.
@@ -1008,8 +995,10 @@ class MPMetalRelaxSet(MPRelaxSet):
 
     def __init__(self, structure: Structure | None = None, **kwargs):
         """
-        :param structure: Structure
-        :param kwargs: Same as those supported by DictSet.
+        Args:
+            structure (Structure): The Structure to create inputs for. If None, the input set is initialized without
+                a Structure but one must be set separately before the inputs are generated.
+            **kwargs: Same as those supported by DictSet.
         """
         super().__init__(structure, **kwargs)
         self._config_dict["INCAR"].update({"ISMEAR": 1, "SIGMA": 0.2})
@@ -1024,8 +1013,10 @@ class MPHSERelaxSet(DictSet):
 
     def __init__(self, structure: Structure | None = None, **kwargs):
         """
-        :param structure: Structure
-        :param kwargs: Same as those supported by DictSet.
+        Args:
+            structure (Structure): The Structure to create inputs for. If None, the input set is initialized without
+                a Structure but one must be set separately before the inputs are generated.
+            **kwargs: Same as those supported by DictSet.
         """
         super().__init__(structure, MPHSERelaxSet.CONFIG, **kwargs)
         self.kwargs = kwargs
@@ -1259,11 +1250,12 @@ class MatPESStaticSet(DictSet):
     ) -> None:
         """
         Args:
-            structure (Structure): Structure for static calculation.
+            structure (Structure): The Structure to create inputs for. If None, the input set is initialized without
+                a Structure but one must be set separately before the inputs are generated.
             xc_functional ('R2SCAN'|'PBE'): Exchange-correlation functional to use. Defaults to 'PBE'.
             prev_incar (Incar | dict): Incar file from previous run. Default settings of MatPESStaticSet
                 are prioritized over inputs from previous runs. Defaults to None.
-            **kwargs: Passed to DictSet.
+            **kwargs: Same as those supported by DictSet.
         """
         valid_xc_functionals = ("R2SCAN", "PBE", "PBE+U")
         if xc_functional.upper() not in valid_xc_functionals:
