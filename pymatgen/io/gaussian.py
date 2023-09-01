@@ -191,24 +191,24 @@ class GaussianInput:
             if (not zmode) and GaussianInput._xyz_patt.match(line):
                 m = GaussianInput._xyz_patt.match(line)
                 species.append(m.group(1))
-                toks = re.split(r"[,\s]+", line.strip())
-                if len(toks) > 4:
-                    coords.append([float(i) for i in toks[2:5]])
+                tokens = re.split(r"[,\s]+", line.strip())
+                if len(tokens) > 4:
+                    coords.append([float(i) for i in tokens[2:5]])
                 else:
-                    coords.append([float(i) for i in toks[1:4]])
+                    coords.append([float(i) for i in tokens[1:4]])
             elif GaussianInput._zmat_patt.match(line):
                 zmode = True
-                toks = re.split(r"[,\s]+", line.strip())
-                species.append(toks[0])
-                toks.pop(0)
-                if len(toks) == 0:
+                tokens = re.split(r"[,\s]+", line.strip())
+                species.append(tokens[0])
+                tokens.pop(0)
+                if len(tokens) == 0:
                     coords.append(np.array([0, 0, 0]))
                 else:
                     nn = []
                     parameters = []
-                    while len(toks) > 1:
-                        ind = toks.pop(0)
-                        data = toks.pop(0)
+                    while len(tokens) > 1:
+                        ind = tokens.pop(0)
+                        data = tokens.pop(0)
                         try:
                             nn.append(int(ind))
                         except ValueError:
@@ -321,9 +321,9 @@ class GaussianInput:
             ind += 1
         title = " ".join(title)
         ind += 1
-        toks = re.split(r"[,\s]+", lines[route_index + ind])
-        charge = int(float(toks[0]))
-        spin_mult = int(toks[1])
+        tokens = re.split(r"[,\s]+", lines[route_index + ind])
+        charge = int(float(tokens[0]))
+        spin_mult = int(tokens[1])
         coord_lines = []
         spaces = 0
         input_paras = {}
@@ -833,9 +833,9 @@ class GaussianOutput:
                         sp = []
                         coords = []
                         while set(line.strip()) != {"-"}:
-                            toks = line.split()
-                            sp.append(Element.from_Z(int(toks[1])))
-                            coords.append([float(x) for x in toks[3:6]])
+                            tokens = line.split()
+                            sp.append(Element.from_Z(int(tokens[1])))
+                            coords.append([float(x) for x in tokens[3:6]])
                             line = f.readline()
 
                         read_coord = False

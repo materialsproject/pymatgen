@@ -591,78 +591,78 @@ $geometry
         # number of atoms and species
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        nat = toks[0]
-        nsp = toks[1]
+        tokens = line.split()
+        nat = tokens[0]
+        nsp = tokens[1]
         # number of valence bands
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
+        tokens = line.split()
 
         # correlation_grid
         # number of points and spacing in eV for correlation grid
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        correlation_grid["n_grid"] = toks[0]
-        correlation_grid["dE_grid"] = toks[1]
+        tokens = line.split()
+        correlation_grid["n_grid"] = tokens[0]
+        correlation_grid["dE_grid"] = tokens[1]
 
         # Exc DFT
         # relire=1 ou recalculer=0 Exc DFT
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        Exc_DFT_option["rdVxcpsi"] = toks[0]
+        tokens = line.split()
+        Exc_DFT_option["rdVxcpsi"] = tokens[0]
 
         # COHSEX
         # number of COHSEX corrected occp and unoccp bands: C=COHSEX  H=HF
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        COHSEX_options["nv_cohsex"] = toks[0]
-        COHSEX_options["nc_cohsex"] = toks[1]
-        COHSEX_options["eigMethod"] = toks[2]
+        tokens = line.split()
+        COHSEX_options["nv_cohsex"] = tokens[0]
+        COHSEX_options["nc_cohsex"] = tokens[1]
+        COHSEX_options["eigMethod"] = tokens[2]
         # number of COHSEX iter, scf on wfns, mixing coeff; V=RI-V  I=RI-D
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        COHSEX_options["nit_cohsex"] = toks[0]
-        COHSEX_options["resMethod"] = toks[1]
-        COHSEX_options["scf_cohsex_wf"] = toks[2]
-        COHSEX_options["mix_cohsex"] = toks[3]
+        tokens = line.split()
+        COHSEX_options["nit_cohsex"] = tokens[0]
+        COHSEX_options["resMethod"] = tokens[1]
+        COHSEX_options["scf_cohsex_wf"] = tokens[2]
+        COHSEX_options["mix_cohsex"] = tokens[3]
 
         # GW
         # number of GW corrected occp and unoccp bands
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        GW_options["nv_corr"] = toks[0]
-        GW_options["nc_corr"] = toks[1]
+        tokens = line.split()
+        GW_options["nv_corr"] = tokens[0]
+        GW_options["nc_corr"] = tokens[1]
         # number of GW iterations
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        GW_options["nit_gw"] = toks[0]
+        tokens = line.split()
+        GW_options["nit_gw"] = tokens[0]
 
         # BSE
         # dumping for BSE and TDDFT
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        BSE_TDDFT_options["do_bse"] = toks[0]
-        BSE_TDDFT_options["do_tddft"] = toks[1]
+        tokens = line.split()
+        BSE_TDDFT_options["do_bse"] = tokens[0]
+        BSE_TDDFT_options["do_tddft"] = tokens[1]
         # number of occp. and virtual bands of BSE: nocore and up to 40 eVs
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        BSE_TDDFT_options["nv_bse"] = toks[0]
-        BSE_TDDFT_options["nc_bse"] = toks[1]
+        tokens = line.split()
+        BSE_TDDFT_options["nv_bse"] = tokens[0]
+        BSE_TDDFT_options["nc_bse"] = tokens[1]
         # number of excitations needed and number of iterations
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        BSE_TDDFT_options["npsi_bse"] = toks[0]
-        BSE_TDDFT_options["nit_bse"] = toks[1]
+        tokens = line.split()
+        BSE_TDDFT_options["npsi_bse"] = tokens[0]
+        BSE_TDDFT_options["nit_bse"] = tokens[1]
 
         # Molecule
         # list of symbols in order
@@ -671,14 +671,14 @@ $geometry
         i = int(nsp)
         while i != 0:
             line = lines.pop(0).strip()
-            toks = line.split()
-            atname.append(toks[0])
+            tokens = line.split()
+            atname.append(tokens[0])
             i -= 1
 
         # scaling factor
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
+        tokens = line.split()
         # atoms x,y,z cartesian .. will be multiplied by scale
         lines.pop(0)
         # Parse geometry
@@ -687,9 +687,9 @@ $geometry
         i = int(nat)
         while i != 0:
             line = lines.pop(0).strip()
-            toks = line.split()
-            coords.append([float(j) for j in toks[0:3]])
-            species.append(atname[int(toks[3]) - 1])
+            tokens = line.split()
+            coords.append([float(j) for j in tokens[0:3]])
+            species.append(atname[int(tokens[3]) - 1])
             i -= 1
 
         mol = Molecule(species, coords)
