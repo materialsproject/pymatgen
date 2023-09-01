@@ -24,9 +24,9 @@ class Test_FStarDiagram(PymatgenTest):
         assert self.fstar.plot == new.plot
         new.combine_sites(site_lists=[["[0.  0.  0.5]Co", "[0. 0. 0.]Li"]])
         assert new.site_labels == [
-            '[0.   0.   0.25]O',
-            '[0.  0.  0.5]Co',
-            '[0. 0. 0.]Li',
+            "[0.   0.   0.25]O",
+            "[0.  0.  0.5]Co",
+            "[0. 0. 0.]Li",
             "['[0.  0.  0.5]Co', '[0. 0. 0.]Li']",
         ]
         assert list(new.fstar_coords["['[0.  0.  0.5]Co', '[0. 0. 0.]Li']"].to_numpy()) == list(
