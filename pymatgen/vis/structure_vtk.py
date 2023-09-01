@@ -7,7 +7,7 @@ import math
 import os
 import subprocess
 import time
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -17,6 +17,9 @@ from pymatgen.core.periodic_table import Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import in_coord_list
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 try:
     import vtk

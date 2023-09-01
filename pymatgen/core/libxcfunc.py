@@ -409,11 +409,12 @@ class LibxcFunc(Enum):
             num: Number for the xc.
         """
         info = _all_xcfuncs[self.value]
-        self.kind = info["Kind"]
-        self.family = info["Family"]
+        self.kind = info["Kind"]  # type: ignore
+        self.family = info["Family"]  # type: ignore
 
-    def __str__(self):
-        return f"name={self.name}, kind={self.kind}, family={self.family}"
+    def __repr__(self):
+        name, kind, family = self.name, self.kind, self.family
+        return f"{type(self).__name__}({name=}, {kind=}, {family=})"
 
     @staticmethod
     def all_families():

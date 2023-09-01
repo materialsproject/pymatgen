@@ -321,7 +321,7 @@ class Reaction(BalancedReaction):
             ]
         )
         reactant_constraints = chain.from_iterable(
-            [combinations(range(0, first_product_idx), n_constr) for n_constr in range(max_num_constraints, 0, -1)]
+            [combinations(range(first_product_idx), n_constr) for n_constr in range(max_num_constraints, 0, -1)]
         )
         best_soln = None
         balanced = False

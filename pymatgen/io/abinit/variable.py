@@ -5,7 +5,7 @@ from __future__ import annotations
 import collections
 import collections.abc
 import string
-from typing import Iterable
+from collections.abc import Iterable
 
 import numpy as np
 

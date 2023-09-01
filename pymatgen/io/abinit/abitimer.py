@@ -650,11 +650,9 @@ class AbinitTimer:
         self.mpi_rank = info["mpi_rank"].strip()
         self.fname = info["fname"].strip()
 
-    def __str__(self):
-        return (
-            f"file={self.fname}, wall_time={self.wall_time:.1f}, "
-            f"mpi_nprocs={self.mpi_nprocs}, omp_nthreads={self.omp_nthreads}"
-        )
+    def __repr__(self):
+        file, wall_time, mpi_nprocs, omp_nthreads = self.fname, self.wall_time, self.mpi_nprocs, self.omp_nthreads
+        return f"{type(self).__name__}({file=}, {wall_time=:.3}, {mpi_nprocs=}, {omp_nthreads=})"
 
     @property
     def ncpus(self):

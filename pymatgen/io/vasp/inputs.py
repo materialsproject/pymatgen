@@ -18,7 +18,7 @@ from collections import namedtuple
 from enum import Enum
 from glob import glob
 from hashlib import sha256
-from typing import TYPE_CHECKING, Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import scipy.constants as const
@@ -39,6 +39,8 @@ from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from numpy.typing import ArrayLike
 
     from pymatgen.core.trajectory import Vector3D
@@ -1493,9 +1495,6 @@ class Kpoints(MSONable):
             f.write(str(self))
 
     def __repr__(self):
-        return str(self)
-
-    def __str__(self):
         lines = [self.comment, str(self.num_kpts), self.style.name]
         style = self.style.name.lower()[0]
         if style == "l":
@@ -2184,18 +2183,23 @@ class PotcarSingle:
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
 
-    def __getattr__(self, a):
-        """
-        Delegates attributes to keywords. For example, you can use
-        potcarsingle.enmax to get the ENMAX of the POTCAR.
+    def __getattr__(self, attr: str) -> Any:
+        """Delegates attributes to keywords. For example, you can use potcarsingle.enmax to get the ENMAX of the POTCAR.
 
         For float type properties, they are converted to the correct float. By
         default, all energies in eV and all length scales are in Angstroms.
         """
         try:
-            return self.keywords[a.upper()]
+            return self.keywords[attr.upper()]
         except Exception:
-            raise AttributeError(a)
+            raise AttributeError(attr)
+
+    def __repr__(self) -> str:
+        cls_name = type(self).__name__
+        symbol, functional = self.symbol, self.functional
+        TITEL, VRHFIN = self.keywords["TITEL"], self.keywords["VRHFIN"]
+        TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
+        return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
 
 class Potcar(list, MSONable):

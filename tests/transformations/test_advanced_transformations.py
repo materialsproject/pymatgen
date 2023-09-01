@@ -403,7 +403,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         # using this 'sorted' syntax because exact order of sites in first
         # returned structure varies between machines: we just want to ensure
         # that the order parameter is accurate
-        assert sorted(str(alls[idx].specie) for idx in range(0, 2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=5"])
+        assert sorted(str(alls[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=5"])
         assert sorted(str(alls[idx].specie) for idx in range(2, 6)) == sorted(
             ["Fe3+,spin=5", "Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5"]
         )
@@ -418,7 +418,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         ]
         trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi)
-        assert sorted(str(alls[idx].specie) for idx in range(0, 2)) == sorted(["Fe2+,spin=-5", "Fe2+,spin=-5"])
+        assert sorted(str(alls[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=-5", "Fe2+,spin=-5"])
         assert sorted(str(alls[idx].specie) for idx in range(2, 6)) == sorted(
             ["Fe3+,spin=5", "Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5"]
         )
@@ -431,7 +431,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         ]
         trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi)
-        assert sorted(str(alls[idx].specie) for idx in range(0, 2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
+        assert sorted(str(alls[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
         assert sorted(str(alls[idx].specie) for idx in range(2, 6)) == sorted(
             ["Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5", "Fe3+,spin=-5"]
         )
@@ -460,7 +460,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4)
         alls.sort(key=lambda x: x.properties["cn"], reverse=True)
-        assert sorted(str(alls[idx].specie) for idx in range(0, 4)) == sorted(
+        assert sorted(str(alls[idx].specie) for idx in range(4)) == sorted(
             ["Fe,spin=-5", "Fe,spin=-5", "Fe,spin=5", "Fe,spin=5"]
         )
         assert sorted(str(alls[idx].specie) for idx in range(4, 6)) == sorted(["Fe,spin=5", "Fe,spin=5"])
@@ -474,7 +474,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=10)
         struct = alls[0]["structure"]
-        assert sorted(str(struct[idx].specie) for idx in range(0, 2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
+        assert sorted(str(struct[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
         assert sorted(str(struct[idx].specie) for idx in range(2, 6)) == sorted(
             ["Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5", "Fe3+,spin=5"]
         )
@@ -489,7 +489,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=100)
         struct = alls[0]["structure"]
-        assert sorted(str(struct[idx].specie) for idx in range(0, 2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
+        assert sorted(str(struct[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
         assert sorted(str(struct[idx].specie) for idx in range(2, 6)) == sorted(
             ["Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5", "Fe3+,spin=-5"]
         )
@@ -501,7 +501,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=10)
         struct = alls[0]["structure"]
-        assert sorted(str(struct[idx].specie) for idx in range(0, 2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
+        assert sorted(str(struct[idx].specie) for idx in range(2)) == sorted(["Fe2+,spin=5", "Fe2+,spin=-5"])
         assert sorted(str(struct[idx].specie) for idx in range(2, 6)) == sorted(
             ["Fe3+,spin=5", "Fe3+,spin=-5", "Fe3+,spin=-5", "Fe3+,spin=5"]
         )

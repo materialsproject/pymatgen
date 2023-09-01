@@ -680,7 +680,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
     cy = 0
     a = 0
 
-    for idx in range(0, len(vertices) - 1):
+    for idx in range(len(vertices) - 1):
         xi = vertices[idx, 0]
         yi = vertices[idx, 1]
         xi_p = vertices[idx + 1, 0]

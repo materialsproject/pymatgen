@@ -5,7 +5,7 @@ from __future__ import annotations
 import functools
 import warnings
 from collections import namedtuple
-from typing import TYPE_CHECKING, Mapping, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.json import MSONable
@@ -19,6 +19,8 @@ from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from numpy.typing import ArrayLike
 
     from pymatgen.core.sites import PeriodicSite

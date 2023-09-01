@@ -321,8 +321,8 @@ class VoronoiConnectivity:
         """
         con = []
         max_conn = self.max_connectivity
-        for ii in range(0, max_conn.shape[0]):
-            for jj in range(0, max_conn.shape[1]):
+        for ii in range(max_conn.shape[0]):
+            for jj in range(max_conn.shape[1]):
                 if max_conn[ii][jj] != 0:
                     dist = self.s.get_distance(ii, jj)
                     con.append([ii, jj, dist])

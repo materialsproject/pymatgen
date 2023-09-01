@@ -11,7 +11,7 @@ import itertools
 import json
 import logging
 import re
-from typing import TYPE_CHECKING, Iterable, Literal
+from typing import TYPE_CHECKING, Literal
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.string import unicode2str
@@ -22,6 +22,8 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from pymatgen.entries import Entry
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 

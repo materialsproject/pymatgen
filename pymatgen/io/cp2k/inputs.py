@@ -30,9 +30,10 @@ import os
 import re
 import textwrap
 import typing
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from monty.io import zopen
@@ -1100,7 +1101,7 @@ class Mgrid(Section):
             cutoff: Cutoff energy (in Rydbergs for historical reasons) defining how find of
                 Gaussians will be used
             rel_cutoff: The relative cutoff energy, which defines how to map the Gaussians onto
-                the multigrid. If the the value is too low then, even if you have a high cutoff
+                the multigrid. If the value is too low then, even if you have a high cutoff
                 with sharp Gaussians, they will be mapped to the course part of the multigrid
             ngrids: number of grids to use
             progression_factor: divisor that decides how to map Gaussians the multigrid after

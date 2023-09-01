@@ -119,7 +119,7 @@ class KPathBase(metaclass=abc.ABCMeta):
                         + float(i)
                         / float(nb)
                         * (self._rec_lattice.get_cartesian_coords(end) - self._rec_lattice.get_cartesian_coords(start))
-                        for i in range(0, nb + 1)
+                        for i in range(nb + 1)
                     ]
                 )
         if coords_are_cartesian:

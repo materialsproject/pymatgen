@@ -19,12 +19,13 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.io.vasp.inputs import Kpoints, Poscar
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, PotcarSingle
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.sets import (
     BadInputSetWarning,
     DictSet,
     LobsterSet,
+    MatPESStaticSet,
     MITMDSet,
     MITNEBSet,
     MITRelaxSet,
@@ -57,7 +58,6 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 MODULE_DIR = Path(pymatgen.io.vasp.__file__).parent
 
 dec = MontyDecoder()
-
 
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
 skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set.")
@@ -117,6 +117,8 @@ class TestSetChangeCheck(PymatgenTest):
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
             "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
             "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
+            "MatPESStaticSet.yaml": "6c4e529649e39925cc316d90ff03bd30b4504684",
+            "PBE54Base.yaml": "ec317781a7f344beb54c17a228db790c0eb49282",
         }
 
         assert hashes == known_hashes, msg
@@ -155,13 +157,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         poscar = Poscar.from_file(filepath)
         cls.structure = poscar.structure
         cls.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        cls.lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        cls.lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
 
         cls.mit_set = cls.set(cls.structure)
         cls.mit_set_unsorted = cls.set(cls.structure, sort_structure=False)
@@ -192,9 +188,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         coords.append([0.75, 0.25, 0.75])
-        lattice = Lattice(
-            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
-        )
+        lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
         structure = Structure(lattice, ["P", "Fe", "O"], coords)
         mit_param_set = self.set(structure)
         syms = mit_param_set.potcar_symbols
@@ -252,7 +246,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
     @skip_if_no_psp_dir
     def test_estimate_nbands(self):
-        # estimate_nbands is a function of n_elect, n_ions, magmom, noncollinearity of magnetism, and n_par
+        # estimate_nbands is a function of n_elect, n_ions, magmom, non-collinearity of magnetism, and n_par
         coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
         lattice = Lattice.cubic(4)
 
@@ -365,19 +359,19 @@ class TestMITMPRelaxSet(PymatgenTest):
         incar = self.set(struct).incar
         assert incar["LDAUU"] == [1.9, 0]
 
-        # Make sure Matproject sulfides are ok.
+        # Make sure MP sulfides are ok.
         assert "LDAUU" not in MPRelaxSet(struct).incar
 
         struct = Structure(lattice, ["Fe", "S", "O"], coords)
         incar = self.set(struct).incar
         assert incar["LDAUU"] == [4.0, 0, 0]
 
-        # Make sure Matproject sulfates are ok.
+        # Make sure MP sulfates are ok.
         assert MPRelaxSet(struct).incar["LDAUU"] == [5.3, 0, 0]
 
         # test for default LDAUU value
-        userset_ldauu_fallback = MPRelaxSet(struct, user_incar_settings={"LDAUU": {"Fe": 5.0, "S": 0}})
-        assert userset_ldauu_fallback.incar["LDAUU"] == [5.0, 0, 0]
+        user_set_ldauu_fallback = MPRelaxSet(struct, user_incar_settings={"LDAUU": {"Fe": 5.0, "S": 0}})
+        assert user_set_ldauu_fallback.incar["LDAUU"] == [5.0, 0, 0]
 
         # Expected to be oxide (O is the most electronegative atom)
         struct = Structure(lattice, ["Fe", "O", "S"], coords)
@@ -430,12 +424,8 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert mpr.incar["MAGMOM"] == [1, 0.6]
 
         # test passing user_incar_settings and user_kpoint_settings of None
-        sets = [
-            MPRelaxSet(struct, user_incar_settings=None, user_kpoints_settings=None),
-            MPStaticSet(struct, user_incar_settings=None, user_kpoints_settings=None),
-            MPNonSCFSet(struct, user_incar_settings=None, user_kpoints_settings=None),
-        ]
-        for mp_set in sets:
+        for set_cls in [MPRelaxSet, MPStaticSet, MPNonSCFSet]:
+            mp_set = set_cls(struct, user_incar_settings=None, user_kpoints_settings=None)
             assert mp_set.kpoints is not None
             assert mp_set.incar is not None
 
@@ -589,7 +579,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         struct.insert(0, "Li", [0, 0, 0])
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=False)
-        with pytest.raises(TypeError, match="argument must be a string or a real number, not 'NoneType'"):
+        with pytest.raises(TypeError, match=r"float\(\) argument must be a string or a (real )?number, not 'NoneType'"):
             print(vis.get_vasp_input())
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=True)
@@ -741,6 +731,129 @@ class TestMPStaticSet(PymatgenTest):
             static_set = self.set(struct)
             matched = static_set.calculate_ng() == (ng, ngf)
             assert matched
+
+
+class TestMatPESStaticSet(PymatgenTest):
+    def setUp(self):
+        self.struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        self.prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
+
+    def test_default(self):
+        default = MatPESStaticSet(self.struct)
+        incar = default.incar
+        assert incar["ALGO"] == "Normal"
+        assert incar["EDIFF"] == 1.0e-05
+        assert incar["ENAUG"] == 1360
+        assert incar["ENCUT"] == 680
+        assert incar["GGA"] == "Pe"
+        assert incar["ISMEAR"] == 0
+        assert incar["ISPIN"] == 2
+        assert incar["KSPACING"] == 0.22
+        assert incar["LAECHG"]
+        assert incar["LASPH"]
+        assert incar["LCHARG"]
+        assert incar["LMIXTAU"]
+        assert incar.get("LDAU") is None
+        assert incar["LORBIT"] == 11
+        assert incar["LREAL"] == "Auto"
+        assert not incar["LWAVE"]
+        assert incar["NELM"] == 200
+        assert incar["NSW"] == 0
+        assert incar["PREC"] == "Accurate"
+        assert incar["SIGMA"] == 0.05
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert default.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert default.potcar.functional == "PBE_54"
+        assert default.kpoints is None
+
+        assert str(default.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_54"))
+
+    def test_with_prev_incar(self):
+        default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
+        incar = default_prev.incar
+        # test if prev_incar is used.
+        assert incar["NPAR"] == 8
+        assert incar["LMAXMIX"] == 4
+        # test some incar parameters from prev_incar are not inherited
+        assert incar.get("ISPIND") is None
+        assert incar.get("LSCALU") is None
+        assert incar.get("ISIF") is None
+        assert incar.get("SYSTEM") is None
+        assert incar.get("HFSCREEN") is None
+        assert incar.get("NSIM") is None
+        assert incar.get("ENCUTFOCK") is None
+        assert incar.get("NKRED") is None
+        assert incar.get("LPLANE") is None
+        assert incar.get("TIME") is None
+        assert incar.get("LHFCALC") is None
+        # test if default in MatPESStaticSet is prioritized.
+        assert incar["ALGO"] == "Normal"
+        assert incar["EDIFF"] == 1.0e-05
+        assert incar["ENAUG"] == 1360
+        assert incar["ENCUT"] == 680
+        assert incar["GGA"] == "Pe"
+        assert incar["ISMEAR"] == 0
+        assert incar["ISPIN"] == 2
+        assert incar["KSPACING"] == 0.22
+        assert incar["LAECHG"]
+        assert incar["LASPH"]
+        assert incar["LCHARG"]
+        assert incar["LMIXTAU"]
+        assert incar.get("LDAU") is None
+        assert incar["LORBIT"] == 11
+        assert incar["LREAL"] == "Auto"
+        assert not incar["LWAVE"]
+        assert incar["NELM"] == 200
+        assert incar["NSW"] == 0
+        assert incar["PREC"] == "Accurate"
+        assert incar["SIGMA"] == 0.05
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert default_prev.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert default_prev.potcar.functional == "PBE_54"
+        assert default_prev.kpoints is None
+
+    def test_r2scan(self):
+        scan = MatPESStaticSet(self.struct, xc_functional="R2SCAN")
+        incar_scan = scan.incar
+        assert incar_scan["METAGGA"] == "R2scan"
+        assert incar_scan.get("GGA") is None
+        assert incar_scan["ALGO"] == "All"
+        assert incar_scan.get("LDAU") is None
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert scan.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert scan.potcar.functional == "PBE_54"
+        assert scan.kpoints is None
+
+    def test_default_u(self):
+        default_u = MatPESStaticSet(self.struct, xc_functional="PBE+U")
+        incar_u = default_u.incar
+        assert incar_u["LDAU"] is True
+        assert incar_u["GGA"] == "Pe"
+        assert incar_u["ALGO"] == "Normal"
+        # test POTCAR files are default PBE_54 PSPs and functional
+        assert incar_u["LDAUU"] == [5.3, 0, 0]
+        assert default_u.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert default_u.potcar.functional == "PBE_54"
+        assert default_u.kpoints is None
+
+    def test_functionals(self):
+        xc_functional = "LDA"
+        with pytest.raises(
+            ValueError, match=f"Unrecognized {xc_functional=}. Supported exchange-correlation functionals are "
+        ):
+            MatPESStaticSet(self.struct, xc_functional=xc_functional)
+
+        with pytest.warns(UserWarning, match="inconsistent with the recommended PBE_54"):
+            diff_potcar = MatPESStaticSet(self.struct, user_potcar_functional="PBE")
+            assert str(diff_potcar.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE"))
+
+    def test_from_prev_calc(self):
+        vis = MatPESStaticSet.from_prev_calc(f"{TEST_FILES_DIR}/relaxation")
+        incar = vis.incar
+        assert incar["GGA"] == "Pe"
+        assert incar["ALGO"] == "Normal"
+        assert vis.potcar_symbols == ["Li_sv"]
+        assert vis.kpoints is None
 
 
 class TestMPNonSCFSet(PymatgenTest):
@@ -1155,10 +1268,10 @@ class TestMVLSlabSet(PymatgenTest):
         # The last kpoint in a slab should always be 1
         assert kpoints_slab[2] == 1
 
-    def test_as_dict(self):
+    def test_as_from_dict(self):
         vis_dict = self.vis.as_dict()
         vis = self.set.from_dict(vis_dict)
-        assert vis.as_dict() == vis_dict
+        assert {*vis.as_dict()} == {*vis_dict}
 
 
 class TestMVLElasticSet(PymatgenTest):
@@ -1381,25 +1494,24 @@ class TestMPScanRelaxSet(PymatgenTest):
         incar = mp_scan_sub.incar
         assert incar["METAGGA"] == "Scan"
 
-    def test_nonmetal(self):
-        # Test that KSPACING and ISMEAR change with a nonmetal structure
-        file_path = f"{TEST_FILES_DIR}/POSCAR.O2"
-        struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
-        scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=1.1)
-        incar = scan_nonmetal_set.incar
-        assert incar["KSPACING"] == approx(0.3064757, abs=1e-5)
-        assert incar["ISMEAR"] == -5
-        assert incar["SIGMA"] == 0.05
+    def test_bandgap_tol(self):
+        # Test that the bandgap tolerance is applied correctly
+        bandgap = 0.01
+        for bandgap_tol, expected_kspacing in ((0.001, 0.2668137888), (0.02, 0.26681378884)):
+            incar = MPScanRelaxSet(self.struct, bandgap=0.01, bandgap_tol=bandgap_tol).incar
+            assert incar["KSPACING"] == approx(expected_kspacing, abs=1e-5), f"{bandgap_tol=}, {bandgap=}"
+            assert incar["ISMEAR"] == -5
+            assert incar["SIGMA"] == 0.05
 
-    def test_kspacing_cap(self):
+    def test_kspacing(self):
         # Test that KSPACING is capped at 0.44 for insulators
         file_path = f"{TEST_FILES_DIR}/POSCAR.O2"
         struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
-        scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=10)
-        incar = scan_nonmetal_set.incar
-        assert incar["KSPACING"] == approx(0.44, abs=1e-5)
-        assert incar["ISMEAR"] == -5
-        assert incar["SIGMA"] == 0.05
+        for bandgap, expected in ((10, 0.44), (3, 0.4136617), (1.1, 0.3064757)):
+            incar = MPScanRelaxSet(struct, bandgap=bandgap).incar
+            assert incar["KSPACING"] == approx(expected, abs=1e-5)
+            assert incar["ISMEAR"] == -5
+            assert incar["SIGMA"] == 0.05
 
     def test_incar_overrides(self):
         # use 'user_incar_settings' to override the KSPACING, ISMEAR, and SIGMA

@@ -8,6 +8,7 @@ from shutil import which
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
+from matplotlib import rc
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -54,8 +55,6 @@ class TestDosPlotter(PymatgenTest):
     # it can actually execute.
     def test_get_plot(self):
         # Disabling latex is needed for this test to work.
-        from matplotlib import rc
-
         rc("text", usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         ax = self.plotter.get_plot()

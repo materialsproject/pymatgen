@@ -236,11 +236,11 @@ class BasisSetReader:
                     l_angular = match_orb.group(1)
                     zeta = match_orb.group(2)
                     ng = match_orb.group(3)
-                    basis_set[l_angular + "_" + zeta + "_" + ng] = []
+                    basis_set[f"{l_angular}_{zeta}_{ng}"] = []
                 elif match_alpha:
                     alpha = match_alpha.group(1)
                     coef = match_alpha.group(2)
-                    basis_set[l_angular + "_" + zeta + "_" + ng].append((alpha, coef))
+                    basis_set[f"{l_angular}_{zeta}_{ng}"].append((alpha, coef))
             elif parse_lmax_nnlo:
                 match_orb = lmax_nnlo_patt.search(line)
                 if match_orb:

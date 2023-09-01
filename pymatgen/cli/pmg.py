@@ -123,7 +123,7 @@ def main():
         "--add",
         dest="var_spec",
         nargs="+",
-        help="Variables to add in the form of space separated key value pairs. E.g., PMG_VASP_PSP_DIR ~/psps",
+        help="Variables to add in the form of space separated key value pairs. E.g., PMG_VASP_PSP_DIR ~/PSPs",
     )
 
     groups.add_argument(

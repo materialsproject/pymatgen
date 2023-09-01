@@ -16,10 +16,11 @@ import logging
 import math
 import warnings
 from collections import defaultdict
+from collections.abc import Sequence
 from fractions import Fraction
 from functools import lru_cache
 from math import cos, sin
-from typing import TYPE_CHECKING, Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import spglib
@@ -247,9 +248,10 @@ class SpacegroupAnalyzer:
         """
         d = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
         if d is None:
+            symprec = self._symprec
             raise ValueError(
                 f"Symmetry detection failed for structure with formula {self._structure.formula}. "
-                f"Try setting symprec={self._symprec} to a different value."
+                f"Try setting {symprec=} to a different value."
             )
         # Sometimes spglib returns small translation vectors, e.g.
         # [1e-4, 2e-4, 1e-4]
@@ -1686,8 +1688,5 @@ class PointGroupOperations(list):
         self.sch_symbol = sch_symbol
         super().__init__(generate_full_symmops(operations, tol))
 
-    def __str__(self):
-        return self.sch_symbol
-
     def __repr__(self):
-        return str(self)
+        return self.sch_symbol
