@@ -20,10 +20,10 @@ from monty.serialization import loadfn
 from pymatgen.core import SETTINGS, Structure
 
 if TYPE_CHECKING:
-    from git import Sequence
+    from collections.abc import Sequence
 
 MODULE_DIR = Path(__file__).absolute().parent
-
+STRUCTURES_DIR = MODULE_DIR / "structures"
 TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / ".." / "tests" / "files"))
 
 
@@ -31,7 +31,6 @@ class PymatgenTest(unittest.TestCase):
     """Extends unittest.TestCase with several assert methods for array and str comparison."""
 
     _multiprocess_shared_ = True
-    STRUCTURES_DIR = MODULE_DIR / "structures"
 
     # dict of lazily-loaded test structures (initialized to None)
     TEST_STRUCTURES: ClassVar[dict[str | Path, Structure | None]] = {key: None for key in STRUCTURES_DIR.glob("*")}
@@ -44,7 +43,8 @@ class PymatgenTest(unittest.TestCase):
 
     @classmethod
     def get_structure(cls, name: str) -> Structure:
-        """Get a structure from the template directories.
+        """
+        Lazily load a structure from pymatgen/util/testing/structures.
 
         Args:
             name (str): Name of structure file.
@@ -52,7 +52,7 @@ class PymatgenTest(unittest.TestCase):
         Returns:
             Structure
         """
-        struct = cls.TEST_STRUCTURES.get(name) or loadfn(f"{cls.STRUCTURES_DIR}/{name}.json")
+        struct = cls.TEST_STRUCTURES.get(name) or loadfn(f"{STRUCTURES_DIR}/{name}.json")
         cls.TEST_STRUCTURES[name] = struct
         return struct.copy()
 
@@ -62,7 +62,7 @@ class PymatgenTest(unittest.TestCase):
         strip_whitespace = {ord(c): None for c in string.whitespace}
         return actual.translate(strip_whitespace) == expected.translate(strip_whitespace)
 
-    def serialize_with_pickle(self, objects: Any, protocols: Sequence[int] = None, test_eq: bool = True):
+    def serialize_with_pickle(self, objects: Any, protocols: Sequence[int] | None = None, test_eq: bool = True):
         """Test whether the object(s) can be serialized and deserialized with
         pickle. This method tries to serialize the objects with pickle and the
         protocols specified in input. Then it deserializes the pickle format

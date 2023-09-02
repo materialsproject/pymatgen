@@ -205,7 +205,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return item in self.entries
 
     def __iter__(self):
-        return self.entries.__iter__()
+        return iter(self.entries)
 
     def __len__(self):
         return len(self.entries)

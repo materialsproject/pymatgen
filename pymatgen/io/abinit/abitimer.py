@@ -94,7 +94,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         self._timers = {}
 
     def __iter__(self):
-        return self._timers.__iter__()
+        return iter(self._timers)
 
     def __len__(self):
         return len(self._timers)

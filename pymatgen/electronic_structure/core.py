@@ -432,7 +432,7 @@ class Magmom(MSONable):
         return Magmom(-self.moment, saxis=self.saxis)
 
     def __hash__(self) -> int:
-        return (tuple(self.moment) + tuple(self.saxis)).__hash__()
+        return hash(tuple(self.moment) + tuple(self.saxis))
 
     def __float__(self):
         """Returns magnitude of magnetic moment with a sign with respect to

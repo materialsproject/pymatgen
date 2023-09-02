@@ -12,17 +12,11 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestPhononBandStructureSymmLine(PymatgenTest):
     def setUp(self):
-        with open(
-            f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json",
-            encoding="utf-8",
-        ) as file:
+        with open(f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json") as file:
             dct = json.load(file)
             self.bs = PhononBandStructureSymmLine.from_dict(dct)
 
-        with open(
-            f"{TEST_FILES_DIR}/Si_phonon_bandstructure.json",
-            encoding="utf-8",
-        ) as file:
+        with open(f"{TEST_FILES_DIR}/Si_phonon_bandstructure.json") as file:
             dct = json.load(file)
             self.bs2 = PhononBandStructureSymmLine.from_dict(dct)
 
@@ -37,7 +31,7 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
         )
         assert self.bs.has_eigendisplacements, True
 
-        assert_array_equal(self.bs.min_freq()[0].frac_coords, [0, 0, 0])
+        assert list(self.bs.min_freq()[0].frac_coords) == [0, 0, 0]
         assert self.bs.min_freq()[1] == approx(-0.03700895020)
         assert self.bs.has_imaginary_freq()
         assert not self.bs.has_imaginary_freq(tol=0.5)
@@ -69,15 +63,15 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
         assert len(self.bs.branches) == 4
 
     def test_dict_methods(self):
-        s = self.bs.as_dict()
-        assert s is not None
-        assert json.dumps(s) is not None
-        s = self.bs2.as_dict()
-        assert s is not None
-        assert json.dumps(s) is not None
-        s = self.bs2.as_phononwebsite()
-        assert s is not None
-        assert json.dumps(s) is not None
+        dct = self.bs.as_dict()
+        assert dct is not None
+        assert json.dumps(dct) is not None
+        dct = self.bs2.as_dict()
+        assert dct is not None
+        assert json.dumps(dct) is not None
+        dct = self.bs2.as_phononwebsite()
+        assert dct is not None
+        assert json.dumps(dct) is not None
         self.assert_msonable(self.bs)
         self.assert_msonable(self.bs2)
 

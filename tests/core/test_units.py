@@ -154,6 +154,10 @@ class TestFloatWithUnit(PymatgenTest):
         x = FloatWithUnit(5, "MPa")
         assert FloatWithUnit(5000000, "Pa") == x.as_base_units
 
+    def test_neg(self):
+        x = FloatWithUnit(5, "MPa")
+        assert FloatWithUnit(-5, "MPa") == -x
+
 
 class TestArrayWithFloatWithUnit(PymatgenTest):
     def test_energy(self):

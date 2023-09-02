@@ -675,7 +675,7 @@ class NwOutput:
         return info
 
     def __iter__(self):
-        return self.data.__iter__()
+        return iter(self.data)
 
     def __getitem__(self, ind):
         return self.data[ind]

@@ -142,7 +142,7 @@ class AbstractElectrode(Sequence, MSONable):
         return obj in self.voltage_pairs
 
     def __iter__(self):
-        return self.voltage_pairs.__iter__()
+        return iter(self.voltage_pairs)
 
     def __len__(self):
         return len(self.voltage_pairs)
