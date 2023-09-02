@@ -1323,7 +1323,7 @@ class IStructure(SiteCollection, MSONable):
         new_sites = []
         for site in self:
             for vec in c_lat:
-                site = PeriodicSite(
+                periodic_site = PeriodicSite(
                     site.species,
                     site.coords + vec,
                     new_lattice,
@@ -1333,7 +1333,7 @@ class IStructure(SiteCollection, MSONable):
                     skip_checks=True,
                     label=site.label,
                 )
-                new_sites.append(site)
+                new_sites.append(periodic_site)
 
         new_charge = self._charge * np.linalg.det(scale_matrix) if self._charge else None
         return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=True)
