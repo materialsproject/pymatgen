@@ -418,7 +418,6 @@ class SymmOp(MSONable):
             "tolerance": self.tol,
         }
 
-    @classmethod
     @np.deprecate(message="Use as_xyz_str instead")
     def as_xyz_string(cls, *args, **kwargs):  # noqa: D102
         return cls.as_xyz_str(*args, **kwargs)
