@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import tarfile
-
 from pymatgen.analysis.fstar.fstar import FStarDiagram
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
