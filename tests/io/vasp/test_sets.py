@@ -1463,6 +1463,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
         v = dec.process_decoded(d)
         assert isinstance(v, self.set)
         assert v._config_dict["INCAR"]["METAGGA"] == "SCAN"
+        print(d)
         assert v.user_incar_settings["NSW"] == 500
 
 

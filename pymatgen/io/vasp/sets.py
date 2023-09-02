@@ -872,7 +872,7 @@ class MPRelaxSet(DictSet):
                 a Structure but one must be set separately before the inputs are generated.
             **kwargs: Same as those supported by DictSet.
         """
-        super().__init__(structure, MPRelaxSet.CONFIG, **kwargs)
+        super().__init__(structure, self.CONFIG, **kwargs)
         self.kwargs = kwargs
 
 
@@ -988,7 +988,7 @@ class MPScanRelaxSet(DictSet):
         self._config_dict["INCAR"].update(updates)
 
 
-class MPMetalRelaxSet(MPRelaxSet):
+class MPMetalRelaxSet(DictSet):
     """
     Implementation of VaspInputSet utilizing parameters in the public
     Materials Project, but with tuning for metals. Key things are a denser
@@ -1004,7 +1004,7 @@ class MPMetalRelaxSet(MPRelaxSet):
                 a Structure but one must be set separately before the inputs are generated.
             **kwargs: Same as those supported by DictSet.
         """
-        super().__init__(structure, **kwargs)
+        super().__init__(structure, self.CONFIG, **kwargs)
         self._config_dict["INCAR"].update({"ISMEAR": 1, "SIGMA": 0.2})
         self._config_dict["KPOINTS"]["reciprocal_density"] = 200
         self.kwargs = kwargs
@@ -1026,8 +1026,10 @@ class MPHSERelaxSet(DictSet):
         self.kwargs = kwargs
 
 
-class MPStaticSet(MPRelaxSet):
+class MPStaticSet(DictSet):
     """Creates input files for a static calculation."""
+
+    CONFIG = _load_yaml_config("MPRelaxSet")
 
     def __init__(
         self,
@@ -1057,7 +1059,7 @@ class MPStaticSet(MPRelaxSet):
                 index.
             **kwargs: kwargs supported by MPRelaxSet.
         """
-        super().__init__(structure, **kwargs)
+        super().__init__(structure, self.CONFIG, **kwargs)
         if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
         if isinstance(prev_kpoints, str):
@@ -2339,11 +2341,13 @@ class MVLSlabSet(MPRelaxSet):
         return d
 
 
-class MVLGBSet(MPRelaxSet):
+class MVLGBSet(DictSet):
     """
     Class for writing a vasp input files for grain boundary calculations, slab
     or bulk.
     """
+
+    CONFIG = _load_yaml_config("MPRelaxSet")
 
     def __init__(self, structure: Structure | None = None, k_product=40, slab_mode=False, is_metal=True, **kwargs):
         """
@@ -2362,10 +2366,11 @@ class MVLGBSet(MPRelaxSet):
             **kwargs:
                 Other kwargs supported by :class:`MPRelaxSet`.
         """
-        super().__init__(structure, **kwargs)
+        super().__init__(structure, self.CONFIG, **kwargs)
         self.k_product = k_product
         self.slab_mode = slab_mode
         self.is_metal = is_metal
+        self.kwargs = kwargs
 
     @property
     def kpoints(self):
@@ -2639,7 +2644,7 @@ class MITMDSet(MITRelaxSet):
         return Kpoints.gamma_automatic()
 
 
-class MPMDSet(MPRelaxSet):
+class MPMDSet(DictSet):
     """
     This a modified version of the old MITMDSet pre 2018/03/12.
 
@@ -2652,6 +2657,8 @@ class MPMDSet(MPRelaxSet):
     Class for writing a vasp md run. This DOES NOT do multiple stage runs.
     Precision remains normal, to increase accuracy of stress tensor.
     """
+
+    CONFIG = _load_yaml_config("MPRelaxSet")
 
     def __init__(
         self,
@@ -2705,7 +2712,7 @@ class MPMDSet(MPRelaxSet):
             "ADDGRID": True,
         }
 
-        super().__init__(structure, **kwargs)
+        super().__init__(structure, self.CONFIG, **kwargs)
 
         self.start_temp = start_temp
         self.end_temp = end_temp
@@ -2796,7 +2803,7 @@ class MVLNPTMDSet(MITMDSet):
         return super().incar
 
 
-class MVLScanRelaxSet(MPRelaxSet):
+class MVLScanRelaxSet(DictSet):
     """
     Class for writing a relax input set using Strongly Constrained and
     Appropriately Normed (SCAN) semilocal density functional.
@@ -2815,6 +2822,7 @@ class MVLScanRelaxSet(MPRelaxSet):
             kinetic energy density (partial)
     """
 
+    CONFIG = _load_yaml_config("MPRelaxSet")
     _valid_potcars = ("PBE_52", "PBE_54")
 
     def __init__(self, structure: Structure | None = None, **kwargs):
@@ -2829,7 +2837,7 @@ class MVLScanRelaxSet(MPRelaxSet):
         # choose PBE_52 unless the user specifies something else
         kwargs.setdefault("user_potcar_functional", "PBE_52")
 
-        super().__init__(structure, **kwargs)
+        super().__init__(structure, self.CONFIG, **kwargs)
 
         if self.user_potcar_functional not in ("PBE_52", "PBE_54"):
             raise ValueError("SCAN calculations required PBE_52 or PBE_54!")
@@ -2848,9 +2856,10 @@ class MVLScanRelaxSet(MPRelaxSet):
             updates["BPARAM"] = 15.7  # This is the correct BPARAM for SCAN+rVV10
 
         self._config_dict["INCAR"].update(updates)
+        self.kwargs = kwargs
 
 
-class LobsterSet(MPRelaxSet):
+class LobsterSet(DictSet):
     """Input set to prepare VASP runs that can be digested by Lobster (See cohp.de)."""
 
     CONFIG = _load_yaml_config("MPRelaxSet")
@@ -2892,7 +2901,7 @@ class LobsterSet(MPRelaxSet):
         # Choose PBE_54 unless the user specifies a different potcar_functional
         kwargs.setdefault("user_potcar_functional", "PBE_54")
 
-        super().__init__(structure, **kwargs)
+        super().__init__(structure, self.CONFIG, **kwargs)
         # reciprocal density
         if self.user_kpoints_settings is not None:
             if not reciprocal_density or "reciprocal_density" not in self.user_kpoints_settings:
@@ -2911,6 +2920,7 @@ class LobsterSet(MPRelaxSet):
         self.user_supplied_basis = user_supplied_basis
         self.address_basis_file = address_basis_file
         self._config_dict["KPOINTS"]["reciprocal_density"] = self.reciprocal_density
+        self.kwargs = kwargs
 
     @property
     def incar(self) -> Incar:
