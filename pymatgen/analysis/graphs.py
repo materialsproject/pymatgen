@@ -1151,8 +1151,8 @@ class StructureGraph(MSONable):
         # this could probably be a lot smaller
         tol = 0.05
 
-        for u, v, k, d in new_g.edges(keys=True, data=True):
-            to_jimage = d["to_jimage"]  # for node v
+        for u, v, k, dct in new_g.edges(keys=True, data=True):
+            to_jimage = dct["to_jimage"]  # for node v
 
             # reduce unnecessary checking
             if to_jimage != (0, 0, 0):
@@ -1191,7 +1191,7 @@ class StructureGraph(MSONable):
                 if v_present is not None:
                     new_u = u
                     new_v = v_present
-                    new_d = d.copy()
+                    new_d = dct.copy()
 
                     # node now inside supercell
                     new_d["to_jimage"] = (0, 0, 0)
@@ -1229,13 +1229,13 @@ class StructureGraph(MSONable):
                     if v_present is not None:
                         new_u = u
                         new_v = v_present
-                        new_d = d.copy()
+                        new_d = dct.copy()
                         new_to_jimage = tuple(map(int, v_expec_image))
 
                         # normalize direction
                         if new_v < new_u:
                             new_u, new_v = new_v, new_u
-                            new_to_jimage = tuple(np.multiply(-1, d["to_jimage"]).astype(int))
+                            new_to_jimage = tuple(np.multiply(-1, dct["to_jimage"]).astype(int))
 
                         new_d["to_jimage"] = new_to_jimage
 
@@ -1250,18 +1250,18 @@ class StructureGraph(MSONable):
         # add/delete marked edges
         for edge in edges_to_remove:
             new_g.remove_edge(*edge)
-        for u, v, d in edges_to_add:
-            new_g.add_edge(u, v, **d)
+        for u, v, dct in edges_to_add:
+            new_g.add_edge(u, v, **dct)
 
         # return new instance of StructureGraph with supercell
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "structure": new_structure.as_dict(),
             "graphs": json_graph.adjacency_data(new_g),
         }
 
-        return StructureGraph.from_dict(d)
+        return StructureGraph.from_dict(dct)
 
     def __rmul__(self, other):
         return self.__mul__(other)
@@ -1307,7 +1307,7 @@ class StructureGraph(MSONable):
 
     def __repr__(self):
         s = "Structure Graph"
-        s += f"\nStructure: \n{self.structure.__repr__()}"
+        s += f"\nStructure: \n{self.structure!r}"
         s += f"\nGraph: {self.name}\n"
         s += self._edges_to_string(self.graph)
         return s
@@ -1363,8 +1363,7 @@ class StructureGraph(MSONable):
         if not isinstance(other, StructureGraph):
             return NotImplemented
         # sort for consistent node indices
-        # PeriodicSite should have a proper __hash__() value,
-        # using its frac_coords as a convenient key
+        # PeriodicSite should have a proper __hash__() value, using its frac_coords as a convenient key
         mapping = {tuple(site.frac_coords): self.structure.index(site) for site in other.structure}
         other_sorted = other.__copy__()
         other_sorted.sort(key=lambda site: mapping[tuple(site.frac_coords)])
@@ -1406,8 +1405,7 @@ class StructureGraph(MSONable):
 
         if strict:
             # sort for consistent node indices
-            # PeriodicSite should have a proper __hash__() value,
-            # using its frac_coords as a convenient key
+            # PeriodicSite should have a proper __hash__() value, using its frac_coords as a convenient key
             mapping = {tuple(site.frac_coords): self.structure.index(site) for site in other.structure}
             other_sorted = copy.copy(other)
             other_sorted.sort(key=lambda site: mapping[tuple(site.frac_coords)])
@@ -2668,7 +2666,7 @@ class MoleculeGraph(MSONable):
 
     def __repr__(self) -> str:
         out = "Molecule Graph"
-        out += f"\nMolecule: \n{self.molecule.__repr__()}"
+        out += f"\nMolecule: \n{self.molecule!r}"
         out += f"\nGraph: {self.name}\n"
         out += self._edges_to_string(self.graph)
         return out
@@ -2725,8 +2723,7 @@ class MoleculeGraph(MSONable):
             return NotImplemented
 
         # sort for consistent node indices
-        # PeriodicSite should have a proper __hash__() value,
-        # using its frac_coords as a convenient key
+        # PeriodicSite should have a proper __hash__() value, using its frac_coords as a convenient key
         try:
             mapping = {tuple(site.coords): self.molecule.index(site) for site in other.molecule}
         except ValueError:
@@ -2789,8 +2786,7 @@ class MoleculeGraph(MSONable):
 
         if strict:
             # sort for consistent node indices
-            # PeriodicSite should have a proper __hash__() value,
-            # using its frac_coords as a convenient key
+            # PeriodicSite should have a proper __hash__() value, using its frac_coords as a convenient key
             mapping = {tuple(site.frac_coords): self.molecule.index(site) for site in other.molecule}
             other_sorted = copy.copy(other)
             other_sorted.sort(key=lambda site: mapping[tuple(site.frac_coords)])

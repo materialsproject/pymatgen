@@ -146,7 +146,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return len(self._data)
 
     def __iter__(self) -> Iterator[Species | Element | DummySpecies]:
-        return self._data.__iter__()
+        return iter(self._data)
 
     def __contains__(self, key) -> bool:
         try:
@@ -437,8 +437,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return " ".join(f"{k}{formula_double_format(v, ignore_ones=False)}" for k, v in self.as_dict().items())
 
     def to_pretty_string(self) -> str:
-        """Returns:
-        str: Same as output __str__() but without spaces.
+        """
+        Returns:
+            str: Same output as __str__() but without spaces.
         """
         return re.sub(r"\s+", "", str(self))
 
@@ -1250,7 +1251,7 @@ class ChemicalPotential(dict, MSONable):
         return sum(self.get(k, 0) * v for k, v in composition.items())
 
     def __repr__(self):
-        return "ChemPots: " + super().__repr__()
+        return f"ChemPots: {super()!r}"
 
 
 class CompositionError(Exception):

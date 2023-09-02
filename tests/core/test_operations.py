@@ -189,44 +189,37 @@ class SymmOpTestCase(PymatgenTest):
 
     def test_xyz(self):
         op = SymmOp([[1, -1, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
-        s = op.as_xyz_string()
-        assert s == "x-y, -y, -z"
-        assert op == SymmOp.from_xyz_string(s)
+        xyz_str = op.as_xyz_str()
+        assert xyz_str == "x-y, -y, -z"
+        assert op == SymmOp.from_xyz_str(xyz_str)
 
         op2 = SymmOp([[0, -1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
-        s2 = op2.as_xyz_string()
+        s2 = op2.as_xyz_str()
         assert s2 == "-y+1/2, x+1/2, z+1/2"
-        assert op2 == SymmOp.from_xyz_string(s2)
+        assert op2 == SymmOp.from_xyz_str(s2)
 
-        op2 = SymmOp(
-            [
-                [3, -2, -1, 0.5],
-                [-1, 0, 0, 12.0 / 13],
-                [0, 0, 1, 0.5 + 1e-7],
-                [0, 0, 0, 1],
-            ]
-        )
-        s2 = op2.as_xyz_string()
+        op2 = SymmOp([[3, -2, -1, 0.5], [-1, 0, 0, 12.0 / 13], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
+        s2 = op2.as_xyz_str()
         assert s2 == "3x-2y-z+1/2, -x+12/13, z+1/2"
-        assert op2 == SymmOp.from_xyz_string(s2)
+        assert op2 == SymmOp.from_xyz_str(s2)
 
-        op3 = SymmOp.from_xyz_string("3x - 2y - z+1 /2 , -x+12/ 13, z+1/2")
+        op3 = SymmOp.from_xyz_str("3x - 2y - z+1 /2 , -x+12/ 13, z+1/2")
         assert op2 == op3
 
         # Ensure strings can be read in any order
-        op4 = SymmOp.from_xyz_string("1 /2 + 3X - 2y - z , 12/ 13-x, z+1/2")
-        op5 = SymmOp.from_xyz_string("+1 /2 + 3x - 2y - z , 12/ 13-x, +1/2+z")
+        op4 = SymmOp.from_xyz_str("1 /2 + 3X - 2y - z , 12/ 13-x, z+1/2")
+        op5 = SymmOp.from_xyz_str("+1 /2 + 3x - 2y - z , 12/ 13-x, +1/2+z")
         assert op4 == op3
         assert op4 == op5
         assert op3 == op5
 
         # TODO: assertWarns not in Python 2.x unittest
         # update PymatgenTest for unittest2?
-        # self.assertWarns(UserWarning, self.op.as_xyz_string)
+        # self.assertWarns(UserWarning, self.op.as_xyz_str)
 
-        o = SymmOp.from_xyz_string("0.5+x, 0.25+y, 0.75+z")
+        o = SymmOp.from_xyz_str("0.5+x, 0.25+y, 0.75+z")
         assert_allclose(o.translation_vector, [0.5, 0.25, 0.75])
-        o = SymmOp.from_xyz_string("x + 0.5, y + 0.25, z + 0.75")
+        o = SymmOp.from_xyz_str("x + 0.5, y + 0.25, z + 0.75")
         assert_allclose(o.translation_vector, [0.5, 0.25, 0.75])
 
 

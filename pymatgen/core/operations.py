@@ -418,9 +418,13 @@ class SymmOp(MSONable):
             "tolerance": self.tol,
         }
 
-    def as_xyz_string(self) -> str:
-        """Returns a string of the form 'x, y, z', '-x, -y, z',
-        '-y+1/2, x+1/2, z+1/2', etc. Only works for integer rotation matrices.
+    @np.deprecate(message="Use as_xyz_str instead")
+    def as_xyz_string(cls, *args, **kwargs):  # noqa: D102
+        return cls.as_xyz_str(*args, **kwargs)
+
+    def as_xyz_str(self) -> str:
+        """Returns a string of the form 'x, y, z', '-x, -y, z', '-y+1/2, x+1/2, z+1/2', etc.
+        Only works for integer rotation matrices.
         """
         # test for invalid rotation matrix
         if not np.all(np.isclose(self.rotation_matrix, np.round(self.rotation_matrix))):
@@ -428,22 +432,26 @@ class SymmOp(MSONable):
 
         return transformation_to_string(self.rotation_matrix, translation_vec=self.translation_vector, delim=", ")
 
-    @staticmethod
-    def from_xyz_string(xyz_string: str) -> SymmOp:
+    @classmethod
+    @np.deprecate(message="Use from_xyz_str instead")
+    def from_xyz_string(cls, *args, **kwargs):  # noqa: D102
+        return cls.from_xyz_str(*args, **kwargs)
+
+    @classmethod
+    def from_xyz_str(cls, xyz_str: str) -> SymmOp:
         """
         Args:
-            xyz_string: string of the form 'x, y, z', '-x, -y, z',
-                '-2y+1/2, 3x+1/2, z-y+1/2', etc.
+            xyz_str: string of the form 'x, y, z', '-x, -y, z', '-2y+1/2, 3x+1/2, z-y+1/2', etc.
 
         Returns:
             SymmOp
         """
         rot_matrix = np.zeros((3, 3))
         trans = np.zeros(3)
-        toks = xyz_string.strip().replace(" ", "").lower().split(",")
+        tokens = xyz_str.strip().replace(" ", "").lower().split(",")
         re_rot = re.compile(r"([+-]?)([\d\.]*)/?([\d\.]*)([x-z])")
         re_trans = re.compile(r"([+-]?)([\d\.]+)/?([\d\.]*)(?![x-z])")
-        for i, tok in enumerate(toks):
+        for i, tok in enumerate(tokens):
             # build the rotation matrix
             for m in re_rot.finditer(tok):
                 factor = -1.0 if m.group(1) == "-" else 1.0
@@ -456,7 +464,7 @@ class SymmOp(MSONable):
                 factor = -1 if m.group(1) == "-" else 1
                 num = float(m.group(2)) / float(m.group(3)) if m.group(3) != "" else float(m.group(2))
                 trans[i] = num * factor
-        return SymmOp.from_rotation_and_translation(rot_matrix, trans)
+        return cls.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
     def from_dict(cls, d) -> SymmOp:

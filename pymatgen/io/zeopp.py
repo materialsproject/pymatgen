@@ -108,10 +108,10 @@ class ZeoCssr(Cssr):
             ZeoCssr object.
         """
         lines = string.split("\n")
-        toks = lines[0].split()
-        lengths = [float(i) for i in toks]
-        toks = lines[1].split()
-        angles = [float(i) for i in toks[0:3]]
+        tokens = lines[0].split()
+        lengths = [float(i) for i in tokens]
+        tokens = lines[1].split()
+        angles = [float(i) for i in tokens[0:3]]
         # Zeo++ takes x-axis along a and pymatgen takes z-axis along c
         a = lengths.pop(-1)
         lengths.insert(0, a)

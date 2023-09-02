@@ -31,7 +31,7 @@ jobs:
       - name: ruff
         run: |
           ruff --version
-          ruff . --ignore D
+          ruff .
 
       - name: black
         run: |

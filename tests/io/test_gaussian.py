@@ -105,8 +105,8 @@ EPS=12
         filepath = f"{test_dir}/g305_hb.txt"
         with open(filepath) as f:
             txt = f.read()
-        toks = txt.split("--link1--")
-        for idx, tok in enumerate(toks):
+        tokens = txt.split("--link1--")
+        for idx, tok in enumerate(tokens):
             lines = [line.strip() for line in tok.strip().split("\n")]
             gau = GaussianInput.from_str("\n".join(lines))
             assert gau.molecule is not None
