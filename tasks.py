@@ -47,8 +47,17 @@ def make_doc(ctx):
             if fn == "pymatgen.md":
                 preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 6", "---", ""]
             else:
-                preamble = ["---", "layout: default", f"title: {fn}" , "nav_exclude: true", "---", "",
-                            "1. TOC", "{:toc}", ""]
+                preamble = [
+                    "---",
+                    "layout: default",
+                    f"title: {fn}",
+                    "nav_exclude: true",
+                    "---",
+                    "",
+                    "1. TOC",
+                    "{:toc}",
+                    "",
+                ]
             with open(fn, "w") as f:
                 f.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
@@ -193,10 +202,10 @@ def post_discourse(version):
     """
     with open("CHANGES.rst") as file:
         contents = file.read()
-    toks = re.split(r"\-+", contents)
-    desc = toks[1].strip()
-    toks = desc.split("\n")
-    desc = "\n".join(toks[:-1]).strip()
+    tokens = re.split(r"\-+", contents)
+    desc = tokens[1].strip()
+    tokens = desc.split("\n")
+    desc = "\n".join(tokens[:-1]).strip()
     raw = f"v{version}\n\n{desc}"
     payload = {
         "topic_id": 36,

@@ -67,10 +67,10 @@ class Cssr:
             Cssr object.
         """
         lines = string.split("\n")
-        toks = lines[0].split()
-        lengths = [float(tok) for tok in toks]
-        toks = lines[1].split()
-        angles = [float(tok) for tok in toks[0:3]]
+        tokens = lines[0].split()
+        lengths = [float(tok) for tok in tokens]
+        tokens = lines[1].split()
+        angles = [float(tok) for tok in tokens[0:3]]
         latt = Lattice.from_parameters(*lengths, *angles)
         sp = []
         coords = []

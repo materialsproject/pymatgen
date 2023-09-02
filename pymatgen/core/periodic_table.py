@@ -1143,8 +1143,8 @@ class Species(MSONable, Stringify):
             # parse properties (optional)
             properties = {}
             if match.group(4):  # has Spin properties
-                toks = match.group(4).replace(",", "").split("=")
-                properties = {toks[0]: ast.literal_eval(toks[1])}
+                tokens = match.group(4).replace(",", "").split("=")
+                properties = {tokens[0]: ast.literal_eval(tokens[1])}
 
             # but we need either an oxidation state or a property
             if oxi is None and properties == {}:
@@ -1422,8 +1422,8 @@ class DummySpecies(Species):
                 oxi = -oxi if m.group(3) == "-" else oxi
             properties = {}
             if m.group(4):  # has Spin property
-                toks = m.group(4).split("=")
-                properties = {toks[0]: float(toks[1])}
+                tokens = m.group(4).split("=")
+                properties = {tokens[0]: float(tokens[1])}
             return DummySpecies(sym, oxi, **properties)
         raise ValueError("Invalid DummySpecies String")
 

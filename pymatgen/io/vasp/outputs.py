@@ -1306,13 +1306,13 @@ class Vasprun(MSONable):
         k.style = Kpoints.supported_modes.from_str(e.attrib["param"] if "param" in e.attrib else "Reciprocal")
         for v in e.findall("v"):
             name = v.attrib.get("name")
-            toks = v.text.split()
+            tokens = v.text.split()
             if name == "divisions":
-                k.kpts = [[int(i) for i in toks]]
+                k.kpts = [[int(i) for i in tokens]]
             elif name == "usershift":
-                k.kpts_shift = [float(i) for i in toks]
+                k.kpts_shift = [float(i) for i in tokens]
             elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
-                setattr(k, name, [float(i) for i in toks])
+                setattr(k, name, [float(i) for i in tokens])
         for va in elem.findall("varray"):
             name = va.attrib["name"]
             if name == "kpointlist":
@@ -1896,16 +1896,16 @@ class Outcar:
                 else:
                     m = re.match(r"\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
                     if m:
-                        toks = [float(i) for i in re.findall(r"[\d\.\-]+", clean)]
-                        toks.pop(0)
+                        tokens = [float(i) for i in re.findall(r"[\d\.\-]+", clean)]
+                        tokens.pop(0)
                         if read_charge:
-                            charge.append(dict(zip(header, toks)))
+                            charge.append(dict(zip(header, tokens)))
                         elif read_mag_x:
-                            mag_x.append(dict(zip(header, toks)))
+                            mag_x.append(dict(zip(header, tokens)))
                         elif read_mag_y:
-                            mag_y.append(dict(zip(header, toks)))
+                            mag_y.append(dict(zip(header, tokens)))
                         elif read_mag_z:
-                            mag_z.append(dict(zip(header, toks)))
+                            mag_z.append(dict(zip(header, tokens)))
                     elif clean.startswith("tot"):
                         read_charge = False
                         read_mag_x = False
@@ -2288,18 +2288,18 @@ class Outcar:
                 elif read_plasma and Outcar._parse_sci_notation(line):
                     plasma_frequencies[read_plasma].append(Outcar._parse_sci_notation(line))
                 elif read_dielectric:
-                    toks = None
+                    tokens = None
                     if re.match(row_pattern, line.strip()):
-                        toks = line.strip().split()
+                        tokens = line.strip().split()
                     elif Outcar._parse_sci_notation(line.strip()):
-                        toks = Outcar._parse_sci_notation(line.strip())
+                        tokens = Outcar._parse_sci_notation(line.strip())
                     elif re.match(r"\s*-+\s*", line):
                         count += 1
 
-                    if toks:
+                    if tokens:
                         if component == "IMAGINARY":
-                            energies.append(float(toks[0]))
-                        xx, yy, zz, xy, yz, xz = (float(t) for t in toks[1:])
+                            energies.append(float(tokens[0]))
+                        xx, yy, zz, xy, yz, xz = (float(t) for t in tokens[1:])
                         matrix = [[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]]
                         data[component].append(matrix)
 
@@ -3814,14 +3814,14 @@ class Procar:
                         )
                     )
                 elif expr.match(line):
-                    toks = line.split()
-                    index = int(toks.pop(0)) - 1
-                    num_data = np.array([float(t) for t in toks[: len(headers)]])
+                    tokens = line.split()
+                    index = int(tokens.pop(0)) - 1
+                    num_data = np.array([float(t) for t in tokens[: len(headers)]])
                     if not done:
                         data[spin][current_kpoint, current_band, index, :] = num_data
-                    elif len(toks) > len(headers):
+                    elif len(tokens) > len(headers):
                         # new format of PROCAR (vasp 5.4.4)
-                        num_data = np.array([float(t) for t in toks[: 2 * len(headers)]])
+                        num_data = np.array([float(t) for t in tokens[: 2 * len(headers)]])
                         for orb in range(len(headers)):
                             phase_factors[spin][current_kpoint, current_band, index, orb] = complex(
                                 num_data[2 * orb], num_data[2 * orb + 1]
@@ -3944,9 +3944,9 @@ class Oszicar:
             for line in fid:
                 m = electronic_pattern.match(line.strip())
                 if m:
-                    toks = m.group(1).split()
-                    data = {header[i]: smart_convert(header[i], toks[i]) for i in range(len(toks))}
-                    if toks[0] == "1":
+                    tokens = m.group(1).split()
+                    data = {header[i]: smart_convert(header[i], tokens[i]) for i in range(len(tokens))}
+                    if tokens[0] == "1":
                         electronic_steps.append([data])
                     else:
                         electronic_steps[-1].append(data)

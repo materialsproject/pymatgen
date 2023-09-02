@@ -117,9 +117,9 @@ class StandardTransmuter:
             with Pool(self.ncores) as p:
                 # need to condense arguments into single tuple to use map
                 z = ((x, transformation, extend_collection, clear_redo) for x in self.transformed_structures)
-                new_tstructs = p.map(_apply_transformation, z, 1)
+                nrafo_ew_tstructs = p.map(_apply_transformation, z, 1)
                 self.transformed_structures = []
-                for ts in new_tstructs:
+                for ts in nrafo_ew_tstructs:
                     self.transformed_structures.extend(ts)
         else:
             new_structures = []
@@ -188,21 +188,21 @@ class StandardTransmuter:
             output.append(str(x.final_structure))
         return "\n".join(output)
 
-    def append_transformed_structures(self, tstructs_or_transmuter):
+    def append_transformed_structures(self, trafo_structs_or_transmuter):
         """Method is overloaded to accept either a list of transformed structures
         or transmuter, it which case it appends the second transmuter"s
         structures.
 
         Args:
-            tstructs_or_transmuter: A list of transformed structures or a
+            trafo_structs_or_transmuter: A list of transformed structures or a
                 transmuter.
         """
-        if isinstance(tstructs_or_transmuter, self.__class__):
-            self.transformed_structures.extend(tstructs_or_transmuter.transformed_structures)
+        if isinstance(trafo_structs_or_transmuter, self.__class__):
+            self.transformed_structures.extend(trafo_structs_or_transmuter.transformed_structures)
         else:
-            for ts in tstructs_or_transmuter:
+            for ts in trafo_structs_or_transmuter:
                 assert isinstance(ts, TransformedStructure)
-            self.transformed_structures.extend(tstructs_or_transmuter)
+            self.transformed_structures.extend(trafo_structs_or_transmuter)
 
     @staticmethod
     def from_structures(structures, transformations=None, extend_collection=0):
@@ -221,8 +221,8 @@ class StandardTransmuter:
         Returns:
             StandardTransmuter
         """
-        tstruct = [TransformedStructure(s, []) for s in structures]
-        return StandardTransmuter(tstruct, transformations, extend_collection)
+        trafo_struct = [TransformedStructure(s, []) for s in structures]
+        return StandardTransmuter(trafo_struct, transformations, extend_collection)
 
 
 class CifTransmuter(StandardTransmuter):
@@ -255,8 +255,8 @@ class CifTransmuter(StandardTransmuter):
             if read_data:
                 structure_data[-1].append(line)
         for data in structure_data:
-            tstruct = TransformedStructure.from_cif_string("\n".join(data), [], primitive)
-            transformed_structures.append(tstruct)
+            trafo_struct = TransformedStructure.from_cif_string("\n".join(data), [], primitive)
+            transformed_structures.append(trafo_struct)
         super().__init__(transformed_structures, transformations, extend_collection)
 
     @staticmethod
@@ -295,8 +295,8 @@ class PoscarTransmuter(StandardTransmuter):
             extend_collection: Whether to use more than one output structure
                 from one-to-many transformations.
         """
-        tstruct = TransformedStructure.from_poscar_string(poscar_string, [])
-        super().__init__([tstruct], transformations, extend_collection=extend_collection)
+        trafo_struct = TransformedStructure.from_poscar_string(poscar_string, [])
+        super().__init__([trafo_struct], transformations, extend_collection=extend_collection)
 
     @staticmethod
     def from_filenames(poscar_filenames, transformations=None, extend_collection=False):
@@ -310,11 +310,11 @@ class PoscarTransmuter(StandardTransmuter):
             extend_collection:
                 Same meaning as in __init__.
         """
-        tstructs = []
+        trafo_structs = []
         for filename in poscar_filenames:
             with open(filename) as f:
-                tstructs.append(TransformedStructure.from_poscar_string(f.read(), []))
-        return StandardTransmuter(tstructs, transformations, extend_collection=extend_collection)
+                trafo_structs.append(TransformedStructure.from_poscar_string(f.read(), []))
+        return StandardTransmuter(trafo_structs, transformations, extend_collection=extend_collection)
 
 
 def batch_write_vasp_input(

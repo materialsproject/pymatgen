@@ -11,6 +11,7 @@ import re
 from typing import TYPE_CHECKING, Any
 from warnings import warn
 
+import numpy as np
 from monty.json import MSONable, jsanitize
 
 from pymatgen.core.structure import Structure
@@ -244,8 +245,14 @@ class TransformedStructure(MSONable):
         h_structs = [Structure.from_dict(s["input_structure"]) for s in self.history if "input_structure" in s]
         return [*h_structs, self.final_structure]
 
-    @staticmethod
-    def from_cif_string(
+    @classmethod
+    @np.deprecate(message="Use from_cif_str instead")
+    def from_cif_string(cls, *args, **kwargs):  # noqa: D102
+        return cls.from_cif_str(*args, **kwargs)
+
+    @classmethod
+    def from_cif_str(
+        cls,
         cif_string: str,
         transformations: list[AbstractTransformation] | None = None,
         primitive: bool = True,
@@ -287,11 +294,16 @@ class TransformedStructure(MSONable):
             "original_file": raw_string,
             "cif_data": cif_dict[cif_keys[0]],
         }
-        return TransformedStructure(struct, transformations, history=[source_info])
+        return cls(struct, transformations, history=[source_info])
 
-    @staticmethod
-    def from_poscar_string(
-        poscar_string: str, transformations: list[AbstractTransformation] | None = None
+    @classmethod
+    @np.deprecate(message="Use from_poscar_str instead")
+    def from_poscar_string(cls, *args, **kwargs):  # noqa: D102
+        return cls.from_poscar_str(*args, **kwargs)
+
+    @classmethod
+    def from_poscar_str(
+        cls, poscar_string: str, transformations: list[AbstractTransformation] | None = None
     ) -> TransformedStructure:
         """Generates TransformedStructure from a poscar string.
 
@@ -300,29 +312,29 @@ class TransformedStructure(MSONable):
             transformations (list[Transformation]): Sequence of transformations
                 to be applied to the input structure.
         """
-        p = Poscar.from_str(poscar_string)
-        if not p.true_names:
+        poscar = Poscar.from_str(poscar_string)
+        if not poscar.true_names:
             raise ValueError(
                 "Transformation can be created only from POSCAR strings with proper VASP5 element symbols."
             )
         raw_string = re.sub(r"'", '"', poscar_string)
-        struct = p.structure
+        struct = poscar.structure
         source_info = {
             "source": "POSCAR",
             "datetime": str(datetime.datetime.now()),
             "original_file": raw_string,
         }
-        return TransformedStructure(struct, transformations, history=[source_info])
+        return cls(struct, transformations, history=[source_info])
 
     def as_dict(self) -> dict[str, Any]:
         """Dict representation of the TransformedStructure."""
-        d = self.final_structure.as_dict()
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["history"] = jsanitize(self.history)
-        d["last_modified"] = str(datetime.datetime.utcnow())
-        d["other_parameters"] = jsanitize(self.other_parameters)
-        return d
+        dct = self.final_structure.as_dict()
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["history"] = jsanitize(self.history)
+        dct["last_modified"] = str(datetime.datetime.utcnow())
+        dct["other_parameters"] = jsanitize(self.other_parameters)
+        return dct
 
     @classmethod
     def from_dict(cls, d) -> TransformedStructure:
