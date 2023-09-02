@@ -2028,7 +2028,7 @@ class MPNMRSet(MPStaticSet):
     Doi("10.1149/2.0061602jes"),
     description="Elastic Properties of Alkali Superionic Conductor Electrolytes from First Principles Calculations",
 )
-class MVLElasticSet(MPRelaxSet):
+class MVLElasticSet(DictSet):
     """
     MVL denotes VASP input sets that are implemented by the Materials Virtual
     Lab (http://materialsvirtuallab.org) for various research.
@@ -2054,7 +2054,7 @@ class MVLElasticSet(MPRelaxSet):
             kwargs:
                 Parameters supported by MPRelaxSet.
         """
-        super().__init__(structure, **kwargs)
+        super().__init__(structure, MPRelaxSet.CONFIG, **kwargs)
         self._config_dict["INCAR"].update({"IBRION": 6, "NFREE": 2, "POTIM": potim})
         self._config_dict["INCAR"].pop("NPAR", None)
 
@@ -2226,7 +2226,7 @@ class MVLGWSet(DictSet):
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
-class MVLSlabSet(MPRelaxSet):
+class MVLSlabSet(DictSet):
     """
     Class for writing a set of slab vasp runs,
     including both slabs (along the c direction) and orient unit cells (bulk),
@@ -2253,7 +2253,7 @@ class MVLSlabSet(MPRelaxSet):
         :param sort_structure:
         :param kwargs: Other kwargs supported by :class:`DictSet`.
         """
-        super().__init__(structure, sort_structure=sort_structure, **kwargs)
+        super().__init__(structure, MPRelaxSet.CONFIG, sort_structure=sort_structure, **kwargs)
 
         self.k_product = k_product
         self.bulk = bulk
@@ -2453,7 +2453,7 @@ class MVLRelax52Set(DictSet):
         self.kwargs = kwargs
 
 
-class MITNEBSet(MITRelaxSet):
+class MITNEBSet(DictSet):
     """
     Class for writing NEB inputs. Note that EDIFF is not on a per atom
     basis for this input set.
@@ -2469,7 +2469,7 @@ class MITNEBSet(MITRelaxSet):
         if len(structures) < 3:
             raise ValueError("You need at least 3 structures for an NEB.")
         kwargs["sort_structure"] = False
-        super().__init__(structures[0], **kwargs)
+        super().__init__(structures[0], MITRelaxSet.CONFIG, **kwargs)
         self.structures = self._process_structures(structures)
 
         self.unset_encut = False
@@ -2559,7 +2559,7 @@ class MITNEBSet(MITRelaxSet):
             nebpath.to(filename=str(output_dir / "path.cif"))
 
 
-class MITMDSet(MITRelaxSet):
+class MITMDSet(DictSet):
     """
     Class for writing a vasp md run. This DOES NOT do multiple stage
     runs.
@@ -2616,7 +2616,7 @@ class MITMDSet(MITRelaxSet):
             "LDAU": False,
         }
 
-        super().__init__(structure, **kwargs)
+        super().__init__(structure, MITRelaxSet.CONFIG, **kwargs)
 
         self.start_temp = start_temp
         self.end_temp = end_temp
