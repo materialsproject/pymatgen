@@ -10,7 +10,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 class Test_FStarDiagram(PymatgenTest):
     def setUp(self):
         self.struct_list = [
-            CifParser(f"{TEST_FILES_DIR}/rhomb_3478.cif").get_structures(primitive=False, symmeterized=True)[0]
+            CifParser(f"{TEST_FILES_DIR}/rhomb_3478.cif").get_structures(primitive=False, symmetrized=True)[0]
         ]
         self.fstar = FStarDiagram(structures=self.struct_list)
 
