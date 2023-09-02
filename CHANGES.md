@@ -6,6 +6,13 @@ nav_order: 4
 
 # Changelog
 
+## v2023.9.2
+
+- VaspInputSets now allow structure to be None for stateless initialization.
+- MatPESStaticSet designed for generating PES data. (@SophiaRuan, @JiQi535)
+- Breaking: Bump minimum Python version to 3.9, in line with numpy.
+- Add `properties` to Structure and Molecule, with ASE adaptor support (@gpetretto, @arosen93)
+
 ## v2023.8.10
 
 - fix `estimate_nbands` function by @matthewkuner in <https://github.com/materialsproject/pymatgen/pull/3149>
