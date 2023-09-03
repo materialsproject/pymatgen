@@ -879,7 +879,7 @@ direct
 
             assert kpoints.style == expected_style
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="The dimensions of length_densities must be 3, not 2"):
             Kpoints.automatic_density_by_lengths(structure, [50, 50])
 
     def test_automatic_monkhorst_vs_gamma_style_selection(self):
