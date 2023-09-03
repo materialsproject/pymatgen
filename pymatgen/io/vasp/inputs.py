@@ -1298,6 +1298,9 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
+        if len(length_densities) != 3:
+            msg = f"The dimensions of length_densities must be 3, not {len(length_densities)}"
+            raise ValueError(msg)
         comment = f"k-point density of {length_densities}/[a, b, c]"
         lattice = structure.lattice
         abc = lattice.abc
