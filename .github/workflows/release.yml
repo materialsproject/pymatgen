@@ -9,8 +9,8 @@ on:
     inputs:
       task:
         type: choice
-        options: [tests, release]
-        default: tests
+        options: [release, release_only]
+        default: release
         description: Only run tests or release a new version of pymatgen to PyPI after tests pass.
 
 permissions:
@@ -71,6 +71,7 @@ jobs:
           python -m pip install numpy cython packaging
           python -m pip install -e '.[dev,optional]'
       - name: pytest
+        if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release'))
         run: |
           rm -rf .coverage* coverage*
           pytest --cov=pymatgen tests
@@ -81,7 +82,6 @@ jobs:
           verbose: true
 
   build_sdist:
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -100,7 +100,6 @@ jobs:
           path: dist/*.tar.gz
 
   build_wheels:
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
     needs: test
     strategy:
       matrix:
@@ -120,7 +119,6 @@ jobs:
 
   release:
     needs: [build_wheels, build_sdist]
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
     runs-on: ubuntu-latest
     permissions:
       # For pypi trusted publishing
