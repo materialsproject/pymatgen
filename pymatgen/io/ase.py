@@ -217,7 +217,7 @@ class AseAtomsAdaptor:
         else:
             sel_dyn = None
 
-        # Atoms.info <---> Structure.properties (excluding properties["calc"])
+        # Atoms.info <---> Structure.properties
         properties = jsanitize(getattr(atoms, "info", {}))
 
         # Return a Molecule object if that was specifically requested;
