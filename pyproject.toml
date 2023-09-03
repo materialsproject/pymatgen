@@ -91,7 +91,7 @@ isort.split-on-trailing-comma = false
 addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mode=importlib"
 
 [tool.coverage.run]
-branch = true
+parallel = true
 omit = [
   "pymatgen/cli/feff_plot_cross_section.py",
   "pymatgen/cli/feff_plot_dos.py",
