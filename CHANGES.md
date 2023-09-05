@@ -163,7 +163,7 @@ nav_order: 4
 
 This release changes the Ytterbium (Yb) pseudo-potential (PSP) from Yb_2 to Yb_3 for all PBE_54 VASP input sets.
 
-Background: The `A-lab <https://newscenter.lbl.gov/2023/04/17/meet-the-autonomous-lab-of-the-future>`_ revealed that as a result of using Yb_2 the energy on Yb compounds is off by a lot, resulting in supposedly stable things being unsynthesizable. While an unfortunate mistake, it's also great to see how experiment can help surface simulation errors.
+Background: The `A-lab <https://newscenter.lbl.gov/2023/04/17/meet-the-autonomous-lab-of-the-future>` revealed that as a result of using Yb_2 the energy on Yb compounds is off by a lot, resulting in supposedly stable things being unsynthesizable. While an unfortunate mistake, it's also great to see how experiment can help surface simulation errors.
 
 On pre-PBE_54 input sets, we now issue a warning that Yb_2 will give bad results for most systems since Yb is most often in oxidation state Yb3+.
 
