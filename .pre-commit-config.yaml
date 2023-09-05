@@ -51,7 +51,7 @@ repos:
       - id: blacken-docs
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.35.0
+    rev: v0.36.0
     hooks:
       - id: markdownlint
         # MD013: line too long
