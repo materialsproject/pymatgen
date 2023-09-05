@@ -7,17 +7,18 @@ inputs from a structure without further user intervention. This ensures comparab
 Read the following carefully before implementing new input sets:
 
 1. 99% of what needs to be done can be done by specifying user_incar_settings to override some of the defaults of
-   various input sets. Unless there is an extremely good reason to add a new set, DO NOT add one. E.g., if you want
+   various input sets. Unless there is an extremely good reason to add a new set, **do not** add one. E.g., if you want
    to turn the Hubbard U off, just set "LDAU": False as a user_incar_setting.
-2. All derivative input sets should inherit from one of the usual MPRelaxSet or MITRelaxSet, and proper superclass
-   delegation should be used where possible. In particular, you are not supposed to implement your own as_dict or
-   from_dict for derivative sets unless you know what you are doing. Improper overriding the as_dict and from_dict
-   protocols is the major cause of implementation headaches. If you need an example, look at how the MPStaticSet or
-   MPNonSCFSets are constructed.
+2. All derivative input sets should inherit appropriate configurations (e.g., from MPRelaxSet), and more often than
+   not, DictSet should be the superclass. Proper superclass delegation should be used where possible. In particular,
+   you are not supposed to implement your own as_dict or from_dict for derivative sets unless you know what you are
+   doing. Improper overriding the as_dict and from_dict protocols is the major cause of implementation headaches. If
+   you need an example, look at how the MPStaticSet is initialized.
 
-The above are recommendations. The following are UNBREAKABLE rules:
+The above are recommendations. The following are **UNBREAKABLE** rules:
 
-1. All input sets must take in a structure or list of structures as the first argument.
+1. All input sets must take in a structure, list of structures or None as the first argument. If None, the input set
+   should perform a stateless initialization and before any output can be written, a structure must be set.
 2. user_incar_settings, user_kpoints_settings and user_<whatever>_settings are ABSOLUTE. Any new sets you implement
    must obey this. If a user wants to override your settings, you assume he knows what he is doing. Do not
    magically override user supplied settings. You can issue a warning if you think the user is wrong.
