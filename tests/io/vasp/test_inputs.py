@@ -27,7 +27,7 @@ from pymatgen.io.vasp.inputs import (
     UnknownPotcarWarning,
     VaspInput,
 )
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestPoscar:
@@ -1166,8 +1166,8 @@ class TestPotcar:
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
 
-class TestVaspInput:
-    def setup(self):
+class TestVaspInput(PymatgenTest):
+    def setUp(self):
         filepath = f"{TEST_FILES_DIR}/INCAR"
         incar = Incar.from_file(filepath)
         filepath = f"{TEST_FILES_DIR}/POSCAR"
@@ -1187,17 +1187,13 @@ class TestVaspInput:
         assert comp == Composition("Fe4P4O16")
 
     def test_write(self):
-        tmp_dir = Path("VaspInput.testing")
+        tmp_dir = f"{self.tmp_path}/VaspInput.testing"
         self.vasp_input.write_input(tmp_dir)
 
-        filepath = tmp_dir / "INCAR"
-        incar = Incar.from_file(filepath)
+        incar = Incar.from_file(f"{tmp_dir}/INCAR")
         assert incar["NSW"] == 99
 
-        for name in ("INCAR", "POSCAR", "POTCAR", "KPOINTS"):
-            (tmp_dir / name).unlink()
-
-        tmp_dir.rmdir()
+        assert {*os.listdir(tmp_dir)} == {"INCAR", "KPOINTS", "POSCAR", "POTCAR"}
 
     def test_run_vasp(self):
         self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
