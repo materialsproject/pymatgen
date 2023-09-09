@@ -108,6 +108,7 @@ setup(
         "pymatgen.analysis.solar": ["am1.5G.dat"],
         "pymatgen.entries": ["py.typed", "*.json.gz", "*.yaml", "data/*.json"],
         "pymatgen.core": ["py.typed", "*.json"],
+        "pymatgen.io": ["py.typed"],
         "pymatgen.io.vasp": ["*.yaml", "*.json"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.io.cp2k": ["*.yaml"],
