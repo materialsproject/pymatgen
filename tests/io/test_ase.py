@@ -11,16 +11,12 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import TEST_FILES_DIR
 
-
-@pytest.fixture()
-def poscar():
-    return Poscar.from_file(TEST_FILES_DIR / "POSCAR")
+poscar = Poscar.from_file(TEST_FILES_DIR / "POSCAR")
 
 
 class TestAseAtomsAdaptor:
-    def test_get_atoms_from_structure(self, poscar):
-        p = poscar
-        structure = p.structure
+    def test_get_atoms_from_structure(self):
+        structure = poscar.structure
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         ase_composition = Composition(atoms.get_chemical_formula())
         assert ase_composition == structure.composition
@@ -33,31 +29,27 @@ class TestAseAtomsAdaptor:
         assert not atoms.has("initial_charges")
         assert atoms.calc is None
 
-        p = poscar
-        structure = p.structure
+        structure = poscar.structure
         prop = [3.14] * len(structure)
         structure.add_site_property("prop", prop)
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         assert atoms.get_array("prop").tolist() == prop
 
-    def test_get_atoms_from_structure_mags(self, poscar):
-        p = poscar
-        structure = p.structure
+    def test_get_atoms_from_structure_mags(self):
+        structure = poscar.structure
         mags = [1.0] * len(structure)
         structure.add_site_property("final_magmom", mags)
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         assert not atoms.has("initial_magmoms")
         assert atoms.get_magnetic_moments().tolist() == mags
 
-        p = poscar
-        structure = p.structure
+        structure = poscar.structure
         initial_mags = [0.5] * len(structure)
         structure.add_site_property("magmom", initial_mags)
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         assert atoms.get_initial_magnetic_moments().tolist() == initial_mags
 
-        p = poscar
-        structure = p.structure
+        structure = poscar.structure
         mags = [1.0] * len(structure)
         structure.add_site_property("final_magmom", mags)
         initial_mags = [2.0] * len(structure)
@@ -66,24 +58,21 @@ class TestAseAtomsAdaptor:
         assert atoms.get_initial_magnetic_moments().tolist(), initial_mags
         assert atoms.get_magnetic_moments().tolist(), mags
 
-    def test_get_atoms_from_structure_charge(self, poscar):
-        p = poscar
-        structure = p.structure
+    def test_get_atoms_from_structure_charge(self):
+        structure = poscar.structure
         charges = [1.0] * len(structure)
         structure.add_site_property("final_charge", charges)
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         assert not atoms.has("initial_charges")
         assert atoms.get_charges().tolist() == charges
 
-        p = poscar
-        structure = p.structure
+        structure = poscar.structure
         charges = [0.5] * len(structure)
         structure.add_site_property("charge", charges)
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         assert atoms.get_initial_charges().tolist() == charges
 
-        p = poscar
-        structure = p.structure
+        structure = poscar.structure
         charges = [1.0] * len(structure)
         structure.add_site_property("final_charge", charges)
         initial_charges = [2.0] * len(structure)
@@ -92,17 +81,15 @@ class TestAseAtomsAdaptor:
         assert atoms.get_initial_charges().tolist(), initial_charges
         assert atoms.get_charges().tolist(), charges
 
-    def test_get_atoms_from_structure_oxi_states(self, poscar):
-        p = poscar
-        structure = p.structure
+    def test_get_atoms_from_structure_oxi_states(self):
+        structure = poscar.structure
         oxi_states = [1.0] * len(structure)
         structure.add_oxidation_state_by_site(oxi_states)
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         assert atoms.get_array("oxi_states").tolist() == oxi_states
 
-    def test_get_atoms_from_structure_dyn(self, poscar):
-        p = poscar
-        structure = p.structure
+    def test_get_atoms_from_structure_dyn(self):
+        structure = poscar.structure
         structure.add_site_property("selective_dynamics", [[False] * 3] * len(structure))
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]

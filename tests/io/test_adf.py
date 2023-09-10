@@ -1,22 +1,17 @@
 from __future__ import annotations
 
 import os
-import unittest
 
-import pytest
 from pytest import approx
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.adf import AdfInput, AdfKey, AdfOutput, AdfTask
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
-@pytest.fixture(autouse=True)
-def test_dir():
-    return TEST_FILES_DIR / "molecules"
-
+test_dir = TEST_FILES_DIR / "molecules"
 
 geometry_string = """GEOMETRY
 smooth conservepoints
@@ -254,22 +249,16 @@ rhb18 = {
 }
 
 
-class TestAdfInput(unittest.TestCase):
-    def setUp(self):
-        self.tempfile = "./adf.temp"
-
-    def test_main(self, test_dir):
-        o = Molecule.from_str(rhb18xyz, "xyz")
-        o.set_charge_and_spin(-1, 3)
+class TestAdfInput(PymatgenTest):
+    def test_main(self):
+        tmp_file = f"{self.tmp_path}/adf.temp"
+        mol = Molecule.from_str(rhb18xyz, "xyz")
+        mol.set_charge_and_spin(-1, 3)
         task = AdfTask("optimize", **rhb18)
         inp = AdfInput(task)
-        inp.write_file(o, self.tempfile)
+        inp.write_file(mol, tmp_file)
         s = readfile(test_dir / "adf" / "RhB18_adf.inp")
-        assert readfile(self.tempfile) == s
-
-    def tearDown(self):
-        if os.path.isfile(self.tempfile):
-            os.remove(self.tempfile)
+        assert readfile(tmp_file) == s
 
 
 class TestAdfOutput:
