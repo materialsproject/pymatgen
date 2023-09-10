@@ -262,7 +262,7 @@ class TestAdfInput(PymatgenTest):
 
 
 class TestAdfOutput:
-    def test_analytical_freq(self, test_dir):
+    def test_analytical_freq(self):
         filename = os.path.join(str(test_dir), "adf", "analytical_freq", "adf.out")
         o = AdfOutput(filename)
         assert o.final_energy == approx(-0.54340325)
@@ -275,7 +275,7 @@ class TestAdfOutput:
         assert o.normal_modes[0][7] == approx(-0.426)
         assert o.normal_modes[0][8] == approx(-0.562)
 
-    def test_numerical_freq(self, test_dir):
+    def test_numerical_freq(self):
         filename = os.path.join(str(test_dir), "adf", "numerical_freq", "adf.out")
         o = AdfOutput(filename)
         assert o.freq_type == "Numerical"
@@ -291,7 +291,7 @@ class TestAdfOutput:
         assert o.normal_modes[1][7] == approx(0.000)
         assert o.normal_modes[1][9] == approx(-0.536)
 
-    def test_single_point(self, test_dir):
+    def test_single_point(self):
         filename = os.path.join(str(test_dir), "adf", "sp", "adf.out")
         o = AdfOutput(filename)
         assert o.final_energy == approx(-0.74399276)
