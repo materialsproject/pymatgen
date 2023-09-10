@@ -16,11 +16,11 @@ test_dir = f"{TEST_FILES_DIR}/molecules"
 class TestGaussianInput(unittest.TestCase):
     def setUp(self):
         coords = [
-            [0.000000, 0.000000, 0.000000],
-            [0.000000, 0.000000, 1.089000],
-            [1.026719, 0.000000, -0.363000],
-            [-0.513360, -0.889165, -0.363000],
-            [-0.513360, 0.889165, -0.363000],
+            [0, 0, 0],
+            [0, 0, 1.089],
+            [1.026719, 0, -0.363],
+            [-0.513360, -0.889165, -0.363],
+            [-0.513360, 0.889165, -0.363],
         ]
         self.coords = coords
         mol = Molecule(["C", "H", "H", "H", "H"], coords)
@@ -197,7 +197,7 @@ H 0
         )
         assert gau.to_str(cart_coords=False) == gau_str
 
-    def test_multiple_paramaters(self):
+    def test_multiple_parameters(self):
         """
         This test makes sure that input files with multi-parameter keywords
         and route cards with multiple lines can be parsed accurately.
@@ -255,10 +255,10 @@ class TestGaussianOutput(unittest.TestCase):
     # TODO: Add unittest for PCM type output.
 
     def setUp(self):
-        self.gauout = GaussianOutput(f"{test_dir}/methane.log")
+        self.gau_out = GaussianOutput(f"{test_dir}/methane.log")
 
     def test_resume(self):
-        resume = self.gauout.resumes[0]
+        resume = self.gau_out.resumes[0]
         methane_resume = r"""1\1\GINC-SHYUE-LAPTOP\FOpt\RHF\3-21G\C1H4\SHYUE\27-Feb-2008\0\\#p hf/3
         -21G opt\\Title Card Required\\0,1\C,0.,0.,0.\H,0.,0.,1.0829014152\H,1
         .0209692454,0.,-0.3609671384\H,-0.5104846227,-0.884185303,-0.360967138
@@ -270,7 +270,7 @@ class TestGaussianOutput(unittest.TestCase):
         assert resume == methane_resume
 
     def test_props(self):
-        gau = self.gauout
+        gau = self.gau_out
         assert len(gau.energies) == 3
         assert gau.energies[-1] == approx(-39.9768775602)
         assert len(gau.structures) == 4
