@@ -18,5 +18,11 @@ changelog:
       labels: [refactor]
     - title: Tests 🧪
       labels: [tests]
+    - title: Breaking Changes 💥
+      labels: [breaking]
+    - title: Security Fixes 🔒
+      labels: [security]
+    - title: Package Health 🏥
+      labels: [pkg]
     - title: Other Changes
       labels: ["*"]
