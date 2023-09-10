@@ -993,22 +993,7 @@ class GaussianOutput:
                         # Hessian matrix is in the input  orientation framework
                         # WARNING : need #P in the route line
                         parse_hessian = False
-                        ndf = 3 * len(input_structures[0])
-                        self.hessian = np.zeros((ndf, ndf))
-                        j_indices = range(5)
-                        jndf = 0
-                        while jndf < ndf:
-                            for i in range(jndf, ndf):
-                                line = f.readline()
-                                vals = re.findall(r"\s*([+-]?\d+\.\d+[eEdD]?[+-]\d+)", line)
-                                vals = [float(val.replace("D", "E")) for val in vals]
-                                for jval, val in enumerate(vals):
-                                    j = j_indices[jval]
-                                    self.hessian[i, j] = val
-                                    self.hessian[j, i] = val
-                            jndf += len(vals)
-                            line = f.readline()
-                            j_indices = [j + 5 for j in j_indices]
+                        self._parse_hessian(f, (input_structures or std_structures)[0])
 
                     elif parse_bond_order:
                         # parse Wiberg bond order
@@ -1129,7 +1114,36 @@ class GaussianOutput:
         self.opt_structures = opt_structures
 
         if not terminated:
-            warnings.warn("\n" + self.filename + ": Termination error or bad Gaussian output file !")
+            warnings.warn(f"\n{self.filename}: Termination error or bad Gaussian output file !")
+
+    def _parse_hessian(self, file, structure):
+        """
+        Parse the hessian matrix in the output file.
+
+        Args:
+            file: file object
+            structure: structure in the output file
+        """
+        # read Hessian matrix under "Force constants in Cartesian coordinates"
+        # Hessian matrix is in the input  orientation framework
+        # WARNING : need #P in the route line
+
+        ndf = 3 * len(structure)
+        self.hessian = np.zeros((ndf, ndf))
+        j_indices = range(5)
+        jndf = 0
+        while jndf < ndf:
+            for i in range(jndf, ndf):
+                line = file.readline()
+                vals = re.findall(r"\s*([+-]?\d+\.\d+[eEdD]?[+-]\d+)", line)
+                vals = [float(val.replace("D", "E")) for val in vals]
+                for jval, val in enumerate(vals):
+                    j = j_indices[jval]
+                    self.hessian[i, j] = val
+                    self.hessian[j, i] = val
+            jndf += len(vals)
+            line = file.readline()
+            j_indices = [j + 5 for j in j_indices]
 
     def _check_pcm(self, line):
         energy_patt = re.compile(r"(Dispersion|Cavitation|Repulsion) energy\s+\S+\s+=\s+(\S*)")
