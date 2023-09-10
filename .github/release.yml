@@ -2,27 +2,27 @@ changelog:
   exclude:
     authors: [dependabot, github-actions, pre-commit-ci]
   categories:
-    - title: New Features 🎉
+    - title: 🎉 New Features
       labels: [feature]
-    - title: Bug Fixes 🐛
+    - title: 🐛 Bug Fixes
       labels: [fix]
-    - title: Enhancements 🛠
+    - title: 🛠 Enhancements
       labels: [enhancement, DX, UX]
-    - title: Documentation 📖
+    - title: 📖 Documentation
       labels: [docs]
-    - title: House-Keeping 🧹
+    - title: 🧹 House-Keeping
       labels: [housekeeping]
-    - title: Performance 🚀
+    - title: 🚀 Performance
       labels: [performance]
-    - title: Refactoring 💡
+    - title: 💡 Refactoring
       labels: [refactor]
-    - title: Tests 🧪
+    - title: 🧪 Tests
       labels: [tests]
-    - title: Breaking Changes 💥
+    - title: 💥 Breaking Changes
       labels: [breaking]
-    - title: Security Fixes 🔒
+    - title: 🔒 Security Fixes
       labels: [security]
-    - title: Package Health 🏥
+    - title: 🏥 Package Health
       labels: [pkg]
-    - title: Other Changes
+    - title: 🤷‍♂️ Other Changes
       labels: ["*"]

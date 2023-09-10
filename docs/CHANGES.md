@@ -6,6 +6,25 @@ nav_order: 4
 
 # Changelog
 
+## v2023.9.10
+
+### 🐛 Bug Fixes
+
+- Fix code comment in ASE adapter by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/3298>
+- Fix IndexError when parsing Hessian from Gaussian frequency job by @janosh in <https://github.com/materialsproject/pymatgen/pull/3308>
+
+### 🛠 Enhancements
+
+- Add an input arg check for `Kpoints.automatic_density_by_lengths` by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/3299>
+
+### 🏥 Package Health
+
+- Remove pydantic < 2 from `setup.py` and bump monty in `requirements.txt` by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/3303>
+- Move `py.typed` to package root by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/3307>
+- Consistent casing `setup->setUp` across test classes by @janosh in <https://github.com/materialsproject/pymatgen/pull/3305>
+
+**Full Changelog**: <https://github.com/materialsproject/pymatgen/compare/v2023.9.2...v2023.9.10>
+
 ## v2023.9.2
 
 - VaspInputSets now allow structure to be None for stateless initialization.
