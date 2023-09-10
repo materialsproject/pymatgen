@@ -12,5 +12,11 @@ changelog:
       labels: [docs]
     - title: House-Keeping 🧹
       labels: [housekeeping]
+    - title: Performance 🚀
+      labels: [performance]
+    - title: Refactoring 💡
+      labels: [refactor]
+    - title: Tests 🧪
+      labels: [tests]
     - title: Other Changes
       labels: ["*"]
