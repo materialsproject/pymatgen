@@ -1,50 +1,78 @@
-
 <!DOCTYPE html>
 
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pymatgen.analysis.substrate_analyzer &#8212; pymatgen 2020.7.3 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      pymatgen.analysis.substrate_analyzer &#8212; pymatgen 2020.7.3
+      documentation
+    </title>
     <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <link
+      rel="stylesheet"
+      href="../../../_static/pygments.css"
+      type="text/css"
+    />
+    <script
+      id="documentation_options"
+      data-url_root="../../../"
+      src="../../../_static/documentation_options.js"
+    ></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script
+      async="async"
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"
+    ></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
- 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-33990148-1']);
-  _gaq.push(['_trackPageview']);
-</script>
 
-  </head><body>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(["_setAccount", "UA-33990148-1"]);
+      _gaq.push(["_trackPageview"]);
+    </script>
+  </head>
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
+          <a href="../../../genindex.html" title="General Index" accesskey="I"
+            >index</a
+          >
+        </li>
+        <li class="right">
           <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.substrate_analyzer</a></li> 
+            >modules</a
+          >
+          |
+        </li>
+        <li class="nav-item nav-item-0">
+          <a href="../../../index.html">pymatgen 2020.7.3 documentation</a>
+          &#187;
+        </li>
+        <li class="nav-item nav-item-1">
+          <a href="../../index.html">Module code</a> &#187;
+        </li>
+        <li class="nav-item nav-item-2">
+          <a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;
+        </li>
+        <li class="nav-item nav-item-this">
+          <a href="">pymatgen.analysis.substrate_analyzer</a>
+        </li>
       </ul>
-    </div>  
+    </div>
 
     <div class="document">
       <div class="documentwrapper">
-          <div class="body" role="main">
-            
-  <h1>Source code for pymatgen.analysis.substrate_analyzer</h1><div class="highlight"><pre>
+        <div class="body" role="main">
+          <h1>Source code for pymatgen.analysis.substrate_analyzer</h1>
+          <div class="highlight">
+            <pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
@@ -138,9 +166,9 @@
 <span class="sd">            substrate_area(int): the unit cell area for the substrate</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            transformation_sets: a set of transformation_sets defined as:</span>
-<span class="sd">                1.) the transformation matricies for the film to create a</span>
+<span class="sd">                1.) the transformation matrices for the film to create a</span>
 <span class="sd">                super lattice of area i*film area</span>
-<span class="sd">                2.) the tranformation matricies for the substrate to create</span>
+<span class="sd">                2.) the tranformation matrices for the substrate to create</span>
 <span class="sd">                a super lattice of area j*film area</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">transformation_indicies</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
@@ -151,8 +179,8 @@
         <span class="c1"># Sort sets by the square of the matching area and yield in order</span>
         <span class="c1"># from smallest to largest</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">transformation_indicies</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="k">yield</span> <span class="p">(</span><span class="n">gen_sl_transform_matricies</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-                   <span class="n">gen_sl_transform_matricies</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span></div>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">gen_sl_transform_matrices</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                   <span class="n">gen_sl_transform_matrices</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span></div>
 
 <div class="viewcode-block" id="ZSLGenerator.get_equiv_transformations"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.ZSLGenerator.get_equiv_transformations">[docs]</a>    <span class="k">def</span> <span class="nf">get_equiv_transformations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transformation_sets</span><span class="p">,</span> <span class="n">film_vectors</span><span class="p">,</span>
                                   <span class="n">substrate_vectors</span><span class="p">):</span>
@@ -386,9 +414,9 @@
             <span class="k">return</span> <span class="n">film</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">energy_density</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">film</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="gen_sl_transform_matricies"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.gen_sl_transform_matricies">[docs]</a><span class="k">def</span> <span class="nf">gen_sl_transform_matricies</span><span class="p">(</span><span class="n">area_multiple</span><span class="p">):</span>
+<div class="viewcode-block" id="gen_sl_transform_matrices"><a class="viewcode-back" href="../../../pymatgen.analysis.substrate_analyzer.html#pymatgen.analysis.substrate_analyzer.gen_sl_transform_matrices">[docs]</a><span class="k">def</span> <span class="nf">gen_sl_transform_matrices</span><span class="p">(</span><span class="n">area_multiple</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generates the transformation matricies that convert a set of 2D</span>
+<span class="sd">    Generates the transformation matrices that convert a set of 2D</span>
 <span class="sd">    vectors into a super lattice of integer area multiple as proven</span>
 <span class="sd">    in Cassels:</span>
 
@@ -400,7 +428,7 @@
 <span class="sd">        lattice area</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        matrix_list: transformation matricies to covert unit vectors to</span>
+<span class="sd">        matrix_list: transformation matrices to covert unit vectors to</span>
 <span class="sd">        super lattice vectors</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">area_multiple</span> <span class="o">/</span> <span class="n">i</span><span class="p">)))</span>
@@ -477,10 +505,11 @@
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">x</span></div>
-</pre></div>
-
-            <div class="clearer"></div>
+</pre>
           </div>
+
+          <div class="clearer"></div>
+        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -488,35 +517,50 @@
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
+          <a href="../../../genindex.html" title="General Index">index</a>
+        </li>
+        <li class="right">
           <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.substrate_analyzer</a></li> 
+            >modules</a
+          >
+          |
+        </li>
+        <li class="nav-item nav-item-0">
+          <a href="../../../index.html">pymatgen 2020.7.3 documentation</a>
+          &#187;
+        </li>
+        <li class="nav-item nav-item-1">
+          <a href="../../index.html">Module code</a> &#187;
+        </li>
+        <li class="nav-item nav-item-2">
+          <a href="../../pymatgen.html">pymatgen</a> &#187;
+        </li>
+        <li class="nav-item nav-item-this">
+          <a href="">pymatgen.analysis.substrate_analyzer</a>
+        </li>
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+      &#169; Copyright 2011, Pymatgen Development Team. Created using
+      <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
-<div class="footer">This page uses <a href="http://analytics.google.com/">
-Google Analytics</a> to collect statistics. You can disable it by blocking
-the JavaScript coming from www.google-analytics.com.
-<script type="text/javascript">
-  (function() {
-    var ga = document.createElement('script');
-    ga.src = ('https:' == document.location.protocol ?
-              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    ga.setAttribute('async', 'true');
-    document.documentElement.firstChild.appendChild(ga);
-  })();
-</script>
-</div>
-
+    <div class="footer">
+      This page uses
+      <a href="http://analytics.google.com/"> Google Analytics</a> to collect
+      statistics. You can disable it by blocking the JavaScript coming from
+      www.google-analytics.com.
+      <script type="text/javascript">
+        (function () {
+          var ga = document.createElement("script");
+          ga.src =
+            ("https:" == document.location.protocol
+              ? "https://ssl"
+              : "http://www") + ".google-analytics.com/ga.js";
+          ga.setAttribute("async", "true");
+          document.documentElement.firstChild.appendChild(ga);
+        })();
+      </script>
+    </div>
   </body>
 </html>

@@ -211,7 +211,7 @@ What's Changed
 
 - Misc bug fixes.
 - Enable Structure relaxations with TrajectoryObserver (@janosh)
-- Breaking: Rename `gen_sl_transform_matricies->gen_sl_transform_matrices` (#2894)
+- Breaking: Rename `gen_sl_transform_matrices->gen_sl_transform_matrices` (#2894)
 
 ## v2023.3.10
 
