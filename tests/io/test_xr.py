@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import unittest
+
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.xr import Xr
@@ -13,8 +15,8 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __date__ = "June 23, 2016"
 
 
-class TestXr:
-    def setup(self):
+class TestXr(unittest.TestCase):
+    def setUp(self):
         p = Poscar.from_file(TEST_FILES_DIR / "POSCAR")
         self.xr = Xr(p.structure)
 

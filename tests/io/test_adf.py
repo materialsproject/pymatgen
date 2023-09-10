@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import unittest
 
 import pytest
 from pytest import approx
@@ -253,8 +254,8 @@ rhb18 = {
 }
 
 
-class TestAdfInput:
-    def setup(self):
+class TestAdfInput(unittest.TestCase):
+    def setUp(self):
         self.tempfile = "./adf.temp"
 
     def test_main(self, test_dir):
