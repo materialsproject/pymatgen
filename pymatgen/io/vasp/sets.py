@@ -49,7 +49,7 @@ from monty.serialization import loadfn
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import SiteCollection, Structure
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar, VaspInput
 from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -254,7 +254,7 @@ class DictSet(VaspInputSet):
 
     def __init__(
         self,
-        structure: Structure = None,
+        structure: Structure | None = None,
         config_dict: dict[str, Any] | None = None,
         files_to_transfer=None,
         user_incar_settings=None,
@@ -386,17 +386,17 @@ class DictSet(VaspInputSet):
                 "the subclass to be explicit on the differences.",
                 BadInputSetWarning,
             )
-            for k, v in self.user_potcar_settings.items():
-                self._config_dict["POTCAR"][k] = v
+            for key, val in self.user_potcar_settings.items():
+                self._config_dict["POTCAR"][key] = val
 
     @property
     def structure(self) -> Structure:
         """Structure"""
-        return self._structure
+        return self._structure  # type: ignore
 
     @structure.setter
-    def structure(self, structure):
-        if structure is not None:
+    def structure(self, structure: Structure | None) -> None:
+        if isinstance(structure, SiteCollection):  # could be Structure or Molecule
             if self.user_potcar_functional == "PBE_54" and "W" in structure.symbol_set:
                 # when using 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
                 self.user_potcar_settings = {"W": "W_sv", **(self.user_potcar_settings or {})}
@@ -524,10 +524,8 @@ class DictSet(VaspInputSet):
             or incar.get("LDAU", False)
             or incar.get("LUSE_VDW", False)
         ):
-            warnings.warn(
-                "LASPH = True should be set for +U, meta-GGAs, hybrids, and vdW-DFT",
-                BadInputSetWarning,
-            )
+            warn_msg = "LASPH = True should be set for +U, meta-GGAs, hybrids, and vdW-DFT"
+            warnings.warn(warn_msg, BadInputSetWarning)
 
         if self.constrain_total_magmom:
             n_up_down = sum(mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"])
@@ -1030,7 +1028,7 @@ class MPStaticSet(DictSet):
 
     def __init__(
         self,
-        structure,
+        structure: Structure | None = None,
         prev_incar=None,
         prev_kpoints=None,
         lepsilon=False,
@@ -1454,16 +1452,7 @@ class MPHSEBSSet(MPHSERelaxSet):
         """
         super().__init__(structure, **kwargs)
         self.user_incar_settings = user_incar_settings or {}
-        self._config_dict["INCAR"].update(
-            {
-                "NSW": 0,
-                "ISMEAR": 0,
-                "SIGMA": 0.05,
-                "ISYM": 3,
-                "LCHARG": False,
-                "NELMIN": 5,
-            }
-        )
+        self._config_dict["INCAR"].update(NSW=0, ISMEAR=0, SIGMA=0.05, ISYM=3, LCHARG=False, NELMIN=5)
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
 
@@ -1539,10 +1528,8 @@ class MPHSEBSSet(MPHSERelaxSet):
         # k-points
         if self.standardize:
             warnings.warn(
-                "Use of standardize=True with from_prev_calc is not "
-                "recommended as there is no guarantee the copied "
-                "files will be appropriate for the standardized "
-                "structure."
+                "Use of standardize=True with from_prev_calc is not recommended as there "
+                "is no guarantee the copied files will be appropriate for the standardized structure."
             )
 
         if self.mode.lower() == "gap":
@@ -1659,17 +1646,7 @@ class MPNonSCFSet(DictSet):
             incar.update(self.prev_incar.items())
 
         # Overwrite necessary INCAR parameters from previous runs
-        incar.update(
-            {
-                "IBRION": -1,
-                "LCHARG": False,
-                "LORBIT": 11,
-                "LWAVE": False,
-                "NSW": 0,
-                "ISYM": 0,
-                "ICHARG": 11,
-            }
-        )
+        incar.update(IBRION=-1, LCHARG=False, LORBIT=11, LWAVE=False, NSW=0, ISYM=0, ICHARG=11)
 
         if self.mode.lower() == "uniform":
             # use tetrahedron method for DOS and optics calculations
@@ -1824,8 +1801,8 @@ class MPSOCSet(MPStaticSet):
 
     def __init__(
         self,
-        structure,
-        saxis=(0, 0, 1),
+        structure: Structure | None = None,
+        saxis: tuple[int, int, int] = (0, 0, 1),
         copy_chgcar=True,
         nbands_factor=1.2,
         reciprocal_density=100,
@@ -1849,7 +1826,7 @@ class MPSOCSet(MPStaticSet):
             magmom (list[list[float]]): Override for the structure magmoms.
             **kwargs: kwargs supported by MPStaticSet.
         """
-        if not hasattr(structure[0], "magmom") and not isinstance(structure[0].magmom, list):
+        if structure and not hasattr(structure[0], "magmom") and not isinstance(structure[0].magmom, list):
             raise ValueError(
                 "The structure must have the 'magmom' site "
                 "property and each magnetic moment value must have 3 "
@@ -2403,9 +2380,7 @@ class MVLGBSet(DictSet):
 
         # The default incar setting is used for metallic system, for
         # insulator or semiconductor, ISMEAR need to be changed.
-        incar.update(
-            {"LCHARG": False, "NELM": 60, "PREC": "Normal", "EDIFFG": -0.02, "ICHARG": 0, "NSW": 200, "EDIFF": 0.0001}
-        )
+        incar.update(LCHARG=False, NELM=60, PREC="Normal", EDIFFG=-0.02, ICHARG=0, NSW=200, EDIFF=0.0001)
 
         if self.is_metal:
             incar["ISMEAR"] = 1
@@ -3042,15 +3017,15 @@ def standardize_structure(structure, sym_prec=0.1, international_monoclinic=True
     if abs(vpa_old - vpa_new) / vpa_old > 0.02:
         raise ValueError(f"Standardizing cell failed! VPA old: {vpa_old}, VPA new: {vpa_new}")
 
-    sm = StructureMatcher()
-    if not sm.fit(structure, new_structure):
+    matcher = StructureMatcher()
+    if not matcher.fit(structure, new_structure):
         raise ValueError("Standardizing cell failed! Old structure doesn't match new.")
 
     return new_structure
 
 
 class BadInputSetWarning(UserWarning):
-    """Warning class for bad but legal inputs."""
+    """Warning class for bad but legal VASP inputs."""
 
 
 def batch_write_input(
@@ -3274,8 +3249,7 @@ class MPAbsorptionSet(MPRelaxSet):
             if self.prev_incar is not None:
                 incar = Incar(self.prev_incar)
                 # Default parameters for diagonalization calculation.
-                incar.update({"ALGO": "Exact", "LOPTICS": True, "CSHIFT": 0.1, "LWAVE": "True"})
-                incar.update({"NEDOS": self.nedos or 2001})
+                incar.update(ALGO="Exact", LOPTICS=True, CSHIFT=0.1, LWAVE=True, NEDOS=self.nedos or 2001)
             else:
                 incar = Incar(parent_incar)
 
