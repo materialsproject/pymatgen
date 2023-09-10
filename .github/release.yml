@@ -1,0 +1,16 @@
+changelog:
+  exclude:
+    authors: [dependabot, github-actions, pre-commit-ci]
+  categories:
+    - title: New Features 🎉
+      labels: [feature]
+    - title: Bug Fixes 🐛
+      labels: [fix]
+    - title: Enhancements 🛠
+      labels: [enhancement, DX, UX]
+    - title: Documentation 📖
+      labels: [docs]
+    - title: House-Keeping 🧹
+      labels: [housekeeping]
+    - title: Other Changes
+      labels: ["*"]
