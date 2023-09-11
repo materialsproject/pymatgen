@@ -310,10 +310,9 @@ class MultiEntry(PourbaixEntry):
         return " + ".join(e.name for e in self.entry_list)
 
     def __repr__(self):
-        return (
-            f"Multiple Pourbaix Entry: energy = {self.energy:.4f}, npH = {self.npH}, nPhi = {self.nPhi}, "
-            f"nH2O = {self.nH2O}, entry_id = {self.entry_id}, species: {self.name}"
-        )
+        energy, npH, nPhi, nH2O, entry_id = self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id
+        cls_name, species = type(self).__name__, self.name
+        return f"Pourbaix{cls_name}({energy=:.4f}, {npH=}, {nPhi=}, {nH2O=}, {entry_id=}, {species=})"
 
     def as_dict(self):
         """Returns: MSONable dict."""
