@@ -228,7 +228,7 @@ class TestPourbaixDiagram(unittest.TestCase):
         # Test custom ions
         entries = self.test_data["C-Na-Sn"]
         ion = IonEntry(Ion.from_formula("NaO28H80Sn12C24+"), -161.676)
-        custom_ion_entry = PourbaixEntry(ion, entry_id="my_ion")
+        custom_ion_entry = PourbaixEntry(ion, entry_id="some_ion")
         pbx = PourbaixDiagram(
             [*entries, custom_ion_entry],
             filter_solids=True,

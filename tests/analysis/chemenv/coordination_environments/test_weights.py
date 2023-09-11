@@ -663,27 +663,27 @@ class StrategyWeights(PymatgenTest):
         cn_map6 = (6, 0)
         cn_map7 = (7, 0)
 
-        myweight1 = dnbset_weight.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
-        assert abs(myweight1 - 0) < 1e-8
-        myweight2 = dnbset_weight.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
-        assert abs(myweight2 - 0.103515625) < 1e-8
-        myweight3 = dnbset_weight.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
-        assert abs(myweight3 - 0.5) < 1e-8
-        myweight4 = dnbset_weight.weight(fake_nb_set4, dummy_se, cn_map=cn_map4, additional_info=None)
-        assert abs(myweight4 - 0.896484375) < 1e-8
-        myweight5 = dnbset_weight.weight(fake_nb_set5, dummy_se, cn_map=cn_map5, additional_info=None)
-        assert abs(myweight5 - 1) < 1e-8
-        myweight5_m2 = dnbset_weight.weight(fake_nb_set5_m2, dummy_se, cn_map=cn_map5_m2, additional_info=None)
-        assert abs(myweight5_m2 - 0.103515625) < 1e-8
-        myweight7 = dnbset_weight.weight(fake_nb_set7, dummy_se, cn_map=cn_map7, additional_info=None)
-        assert abs(myweight7 - 1) < 1e-8
+        weight1 = dnbset_weight.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
+        assert abs(weight1 - 0) < 1e-8
+        weight2 = dnbset_weight.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
+        assert abs(weight2 - 0.103515625) < 1e-8
+        weight3 = dnbset_weight.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
+        assert abs(weight3 - 0.5) < 1e-8
+        weight4 = dnbset_weight.weight(fake_nb_set4, dummy_se, cn_map=cn_map4, additional_info=None)
+        assert abs(weight4 - 0.896484375) < 1e-8
+        weight5 = dnbset_weight.weight(fake_nb_set5, dummy_se, cn_map=cn_map5, additional_info=None)
+        assert abs(weight5 - 1) < 1e-8
+        weight5_m2 = dnbset_weight.weight(fake_nb_set5_m2, dummy_se, cn_map=cn_map5_m2, additional_info=None)
+        assert abs(weight5_m2 - 0.103515625) < 1e-8
+        weight7 = dnbset_weight.weight(fake_nb_set7, dummy_se, cn_map=cn_map7, additional_info=None)
+        assert abs(weight7 - 1) < 1e-8
 
-        myweight_2_3 = dnbset_weight2.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
-        assert abs(myweight_2_3 - 0.5) < 1e-8
-        myweight_2_4 = dnbset_weight2.weight(fake_nb_set4, dummy_se, cn_map=cn_map4, additional_info=None)
-        assert abs(myweight_2_4 - 0.84375) < 1e-8
-        myweight_2_2 = dnbset_weight2.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
-        assert abs(myweight_2_2 - 0.15625) < 1e-8
+        weight_2_3 = dnbset_weight2.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
+        assert abs(weight_2_3 - 0.5) < 1e-8
+        weight_2_4 = dnbset_weight2.weight(fake_nb_set4, dummy_se, cn_map=cn_map4, additional_info=None)
+        assert abs(weight_2_4 - 0.84375) < 1e-8
+        weight_2_2 = dnbset_weight2.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
+        assert abs(weight_2_2 - 0.15625) < 1e-8
 
         dnbset_weight3 = DistanceNbSetWeight(
             weight_function={
@@ -700,52 +700,52 @@ class StrategyWeights(PymatgenTest):
             nbs_source="voronoi",
         )
 
-        myweight_3_6 = dnbset_weight3.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
-        assert abs(myweight_3_6 - 1) < 1e-8
-        myweight_4_6 = dnbset_weight4.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
-        assert abs(myweight_4_6 - 0.15625) < 1e-8
+        weight_3_6 = dnbset_weight3.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
+        assert abs(weight_3_6 - 1) < 1e-8
+        weight_4_6 = dnbset_weight4.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
+        assert abs(weight_4_6 - 0.15625) < 1e-8
 
-        deltadnbset_weight = DeltaDistanceNbSetWeight(
+        delta_dnb_set_weight = DeltaDistanceNbSetWeight(
             weight_function={
                 "function": "smootherstep",
                 "options": {"lower": 0.05, "upper": 0.15},
             }
         )
 
-        myweightdelta1 = deltadnbset_weight.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
-        assert abs(myweightdelta1 - 1) < 1e-8
-        myweightdelta2 = deltadnbset_weight.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
-        assert abs(myweightdelta2 - 0) < 1e-8
-        myweightdelta3 = deltadnbset_weight.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
-        assert abs(myweightdelta3 - 0) < 1e-8
+        weight_delta1 = delta_dnb_set_weight.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
+        assert abs(weight_delta1 - 1) < 1e-8
+        weight_delta2 = delta_dnb_set_weight.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
+        assert abs(weight_delta2 - 0) < 1e-8
+        weight_delta3 = delta_dnb_set_weight.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
+        assert abs(weight_delta3 - 0) < 1e-8
 
-        deltadnbset_weight2 = DeltaDistanceNbSetWeight(
+        delta_dnb_set_weight2 = DeltaDistanceNbSetWeight(
             weight_function={
                 "function": "smootherstep",
                 "options": {"lower": 0.1, "upper": 0.3},
             }
         )
 
-        myweightdelta1 = deltadnbset_weight2.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
-        assert abs(myweightdelta1 - 0.5) < 1e-8
-        myweightdelta2 = deltadnbset_weight2.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
-        assert abs(myweightdelta2 - 0) < 1e-8
-        myweightdelta3 = deltadnbset_weight2.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
-        assert abs(myweightdelta3 - 0) < 1e-8
+        weight_delta1 = delta_dnb_set_weight2.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
+        assert abs(weight_delta1 - 0.5) < 1e-8
+        weight_delta2 = delta_dnb_set_weight2.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
+        assert abs(weight_delta2 - 0) < 1e-8
+        weight_delta3 = delta_dnb_set_weight2.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
+        assert abs(weight_delta3 - 0) < 1e-8
 
-        deltadnbset_weight3 = DeltaDistanceNbSetWeight(
+        delta_dnb_set_weight3 = DeltaDistanceNbSetWeight(
             weight_function={
                 "function": "smoothstep",
                 "options": {"lower": 0.1, "upper": 0.5},
             }
         )
 
-        myweightdelta1 = deltadnbset_weight3.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
-        assert abs(myweightdelta1 - 0.15625) < 1e-8
-        myweightdelta6 = deltadnbset_weight3.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
-        assert abs(myweightdelta6 - 0.31640625) < 1e-8
+        weight_delta1 = delta_dnb_set_weight3.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
+        assert abs(weight_delta1 - 0.15625) < 1e-8
+        weight_delta6 = delta_dnb_set_weight3.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
+        assert abs(weight_delta6 - 0.31640625) < 1e-8
 
-        deltadnbset_weight4 = DeltaDistanceNbSetWeight(
+        delta_dnb_set_weight4 = DeltaDistanceNbSetWeight(
             weight_function={
                 "function": "smoothstep",
                 "options": {"lower": 0.1, "upper": 0.5},
@@ -753,7 +753,7 @@ class StrategyWeights(PymatgenTest):
             nbs_source="nb_sets",
         )
 
-        myweightdelta1 = deltadnbset_weight4.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
-        assert abs(myweightdelta1 - 0.15625) < 1e-8
-        myweightdelta6 = deltadnbset_weight4.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
-        assert abs(myweightdelta6 - 1) < 1e-8
+        weight_delta1 = delta_dnb_set_weight4.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
+        assert abs(weight_delta1 - 0.15625) < 1e-8
+        weight_delta6 = delta_dnb_set_weight4.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
+        assert abs(weight_delta6 - 1) < 1e-8

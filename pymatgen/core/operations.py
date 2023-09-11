@@ -90,7 +90,8 @@ class SymmOp(MSONable):
         return 7
 
     def __repr__(self) -> str:
-        return str(self)
+        affine_matrix = self.affine_matrix
+        return f"{type(self).__name__}({affine_matrix=})"
 
     def __str__(self) -> str:
         output = [

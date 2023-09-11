@@ -240,7 +240,7 @@ $end"""
    12 1.72
 $end"""
         assert vdw_test_sequential == vdw_actual_sequential
-        mode = "mymode"
+        mode = "invalid"
         with pytest.raises(ValueError, match=f"Invalid {mode=}, must be 'atomic' or 'sequential'"):
             QCInput.van_der_waals_template(vdw_params, mode=mode)
 

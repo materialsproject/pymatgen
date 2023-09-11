@@ -3566,13 +3566,8 @@ class PDPlotter:
             if energy_colormap == "default":
                 mid = -vmin / (vmax - vmin)
                 cmap = LinearSegmentedColormap.from_list(
-                    "my_colormap",
-                    [
-                        (0.0, "#005500"),
-                        (mid, "#55FF55"),
-                        (mid, "#FFAAAA"),
-                        (1.0, "#FF0000"),
-                    ],
+                    "custom_colormap",
+                    [(0.0, "#005500"), (mid, "#55FF55"), (mid, "#FFAAAA"), (1.0, "#FF0000")],
                 )
             else:
                 cmap = energy_colormap
@@ -3793,9 +3788,9 @@ def triangular_coord(coord):
     Returns:
         coordinates in a triangular-based coordinate system.
     """
-    unitvec = np.array([[1, 0], [0.5, math.sqrt(3) / 2]])
+    unit_vec = np.array([[1, 0], [0.5, math.sqrt(3) / 2]])
 
-    result = np.dot(np.array(coord), unitvec)
+    result = np.dot(np.array(coord), unit_vec)
     return result.transpose()
 
 

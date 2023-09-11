@@ -962,20 +962,20 @@ class LocalGeometryFinder:
         else:
             raise ValueError("Wrong mp_symbol to setup coordination geometry")
         neighb_coords = []
-        mypoints = points if points is not None else cg.points
+        _points = points if points is not None else cg.points
         if randomness:
             rv = np.random.random_sample(3)
             while norm(rv) > 1.0:
                 rv = np.random.random_sample(3)
             coords = [np.zeros(3, np.float_) + max_random_dist * rv]
-            for pp in mypoints:
+            for pp in _points:
                 rv = np.random.random_sample(3)
                 while norm(rv) > 1.0:
                     rv = np.random.random_sample(3)
                 neighb_coords.append(np.array(pp) + max_random_dist * rv)
         else:
             coords = [np.zeros(3, np.float_)]
-            for pp in mypoints:
+            for pp in _points:
                 neighb_coords.append(np.array(pp))
         if indices == "RANDOM":
             shuffle(neighb_coords)
@@ -1047,8 +1047,8 @@ class LocalGeometryFinder:
         neighb_coords = [cc + translation for cc in neighb_coords]
 
         coords.extend(neighb_coords)
-        myspecies = ["O"] * (len(coords))
-        myspecies[0] = "Cu"
+        species = ["O"] * (len(coords))
+        species[0] = "Cu"
 
         amin = np.min([cc[0] for cc in coords])
         amax = np.max([cc[0] for cc in coords])
@@ -1063,7 +1063,7 @@ class LocalGeometryFinder:
         lattice = Lattice.cubic(a=aa)
         structure = Structure(
             lattice=lattice,
-            species=myspecies,
+            species=species,
             coords=coords,
             to_unit_cell=False,
             coords_are_cartesian=True,
