@@ -743,6 +743,10 @@ class TestMPStaticSet(PymatgenTest):
             matched = static_set.calculate_ng() == (ng, ngf)
             assert matched
 
+        # test `custom_encut` kwarg for final structure in above test using
+        # an (obviously fictitious) custom encut.
+        assert static_set.calculate_ng(custom_encut=2000) == ([56, 96, 96], [112, 192, 192])
+
 
 class TestMatPESStaticSet(PymatgenTest):
     def setUp(self):
