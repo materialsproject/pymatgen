@@ -713,7 +713,7 @@ class LocalGeometryFinder:
                 all_cns = list(set(all_cns).intersection(cns_to_recompute))
             do_recompute = True
 
-        # Variables used for checking timelimit
+        # Variables used for checking time limit
         max_time_one_site = 0.0
         break_it = False
 

@@ -213,45 +213,43 @@ class TestPiezoSensitivity(PymatgenTest):
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_rand_FCM()
         structure = pymatgen.io.phonopy.get_phonopy_structure(self.piezo_struc)
-        pnstruc = Phonopy(structure, np.eye(3), np.eye(3))
+        pn_struct = Phonopy(structure, np.eye(3), np.eye(3))
 
-        pnstruc.set_force_constants(rand_FCM)
-        dyn = pnstruc.get_dynamical_matrix_at_q([0, 0, 0])
+        pn_struct.set_force_constants(rand_FCM)
+        dyn = pn_struct.get_dynamical_matrix_at_q([0, 0, 0])
         dyn = np.reshape(dyn, (10, 3, 10, 3)).swapaxes(1, 2)
         dyn = np.real(dyn)
         n_sites = len(self.piezo_struc)
-        masses = []
-        for j in range(n_sites):
-            masses.append(self.piezo_struc.sites[j].specie.atomic_mass)
-        dynmass = np.zeros([n_sites, n_sites, 3, 3])
+        masses = [site.specie.atomic_mass for site in self.piezo_struc.sites]
+        dyn_mass = np.zeros([n_sites, n_sites, 3, 3])
         for m in range(n_sites):
             for n in range(n_sites):
-                dynmass[m][n] = dyn[m][n] / np.sqrt(masses[m]) / np.sqrt(masses[n])
+                dyn_mass[m][n] = dyn[m][n] / np.sqrt(masses[m]) / np.sqrt(masses[n])
 
-        dynmass = np.reshape(np.swapaxes(dynmass, 1, 2), (10 * 3, 10 * 3))
-        eigs, vecs = np.linalg.eig(dynmass)
+        dyn_mass = np.reshape(np.swapaxes(dyn_mass, 1, 2), (10 * 3, 10 * 3))
+        eigs, vecs = np.linalg.eig(dyn_mass)
         eigsort = np.argsort(np.abs(eigs))
         for i in range(3, len(eigs)):
             assert eigs[eigsort[i]] < 1e-6
         # rand_FCM1 = np.reshape(rand_FCM1, (10,3,10,3)).swapaxes(1,2)
 
-        dynmass = np.reshape(dynmass, (10, 3, 10, 3)).swapaxes(1, 2)
+        dyn_mass = np.reshape(dyn_mass, (10, 3, 10, 3)).swapaxes(1, 2)
         for i in range(len(self.FCM_operations)):
             for j in range(len(self.FCM_operations[i][4])):
                 assert_allclose(
                     self.FCM_operations[i][4][j].transform_tensor(
-                        dynmass[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
+                        dyn_mass[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                     ),
-                    dynmass[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
+                    dyn_mass[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
                     atol=1e-4,
                 )
 
-        for i in range(len(dynmass)):
+        for i in range(len(dyn_mass)):
             asum1 = np.zeros([3, 3])
             asum2 = np.zeros([3, 3])
-            for j in range(len(dynmass[i])):
-                asum1 += dynmass[i][j]
-                asum2 += dynmass[j][i]
+            for j in range(len(dyn_mass[i])):
+                asum1 += dyn_mass[i][j]
+                asum2 += dyn_mass[j][i]
             assert_allclose(asum1, np.zeros([3, 3]), atol=1e-5)
             assert_allclose(asum2, np.zeros([3, 3]), atol=1e-5)
 
@@ -262,12 +260,7 @@ class TestPiezoSensitivity(PymatgenTest):
     def test_rand_piezo(self):
         pytest.importorskip("phonopy")
         rand_BEC, rand_IST, rand_FCM, piezo = rand_piezo(
-            self.piezo_struc,
-            self.pointops,
-            self.sharedops,
-            self.BEC,
-            self.IST,
-            self.FCM,
+            self.piezo_struc, self.pointops, self.sharedops, self.BEC, self.IST, self.FCM
         )
 
         for i in range(len(self.BEC_operations)):
@@ -287,44 +280,42 @@ class TestPiezoSensitivity(PymatgenTest):
                 )
 
         structure = pymatgen.io.phonopy.get_phonopy_structure(self.piezo_struc)
-        pnstruc = Phonopy(structure, np.eye(3), np.eye(3))
+        pn_struct = Phonopy(structure, np.eye(3), np.eye(3))
 
-        pnstruc.set_force_constants(rand_FCM)
-        dyn = pnstruc.get_dynamical_matrix_at_q([0, 0, 0])
+        pn_struct.set_force_constants(rand_FCM)
+        dyn = pn_struct.get_dynamical_matrix_at_q([0, 0, 0])
         dyn = np.reshape(dyn, (10, 3, 10, 3)).swapaxes(1, 2)
         dyn = np.real(dyn)
         n_sites = len(self.piezo_struc)
-        masses = []
-        for j in range(n_sites):
-            masses.append(self.piezo_struc.sites[j].specie.atomic_mass)
-        dynmass = np.zeros([n_sites, n_sites, 3, 3])
+        masses = [site.specie.atomic_mass for site in self.piezo_struc.sites]
+        dyn_mass = np.zeros([n_sites, n_sites, 3, 3])
         for m in range(n_sites):
             for n in range(n_sites):
-                dynmass[m][n] = dyn[m][n] / np.sqrt(masses[m]) / np.sqrt(masses[n])
+                dyn_mass[m][n] = dyn[m][n] / np.sqrt(masses[m]) / np.sqrt(masses[n])
 
-        dynmass = np.reshape(np.swapaxes(dynmass, 1, 2), (10 * 3, 10 * 3))
-        eigs, vecs = np.linalg.eig(dynmass)
+        dyn_mass = np.reshape(np.swapaxes(dyn_mass, 1, 2), (10 * 3, 10 * 3))
+        eigs, vecs = np.linalg.eig(dyn_mass)
         eigsort = np.argsort(np.abs(eigs))
         for i in range(3, len(eigs)):
             assert eigs[eigsort[i]] < 1e-6
         # rand_FCM1 = np.reshape(rand_FCM1, (10,3,10,3)).swapaxes(1,2)
 
-        dynmass = np.reshape(dynmass, (10, 3, 10, 3)).swapaxes(1, 2)
+        dyn_mass = np.reshape(dyn_mass, (10, 3, 10, 3)).swapaxes(1, 2)
         for i in range(len(self.FCM_operations)):
             for j in range(len(self.FCM_operations[i][4])):
                 assert_allclose(
                     self.FCM_operations[i][4][j].transform_tensor(
-                        dynmass[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
+                        dyn_mass[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                     ),
-                    dynmass[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
+                    dyn_mass[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
                     atol=1e-4,
                 )
 
-        for i in range(len(dynmass)):
+        for i in range(len(dyn_mass)):
             asum1 = np.zeros([3, 3])
             asum2 = np.zeros([3, 3])
-            for j in range(len(dynmass[i])):
-                asum1 += dynmass[i][j]
-                asum2 += dynmass[j][i]
+            for j in range(len(dyn_mass[i])):
+                asum1 += dyn_mass[i][j]
+                asum2 += dyn_mass[j][i]
             assert_allclose(asum1, np.zeros([3, 3]), atol=1e-5)
             assert_allclose(asum2, np.zeros([3, 3]), atol=1e-5)
