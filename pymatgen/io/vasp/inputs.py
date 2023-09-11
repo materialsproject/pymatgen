@@ -2105,10 +2105,7 @@ class PotcarSingle:
         if identity:
             # convert the potcar_functionals from the .json dict into the functional
             # keys that pymatgen uses
-            potcar_functionals = []
-            for i in identity["potcar_functionals"]:
-                potcar_functionals.append(mapping_dict[i]["pymatgen_key"])
-            potcar_functionals = list(set(potcar_functionals))
+            potcar_functionals = [*{mapping_dict[i]["pymatgen_key"] for i in identity["potcar_functionals"]}]
 
             return potcar_functionals, identity["potcar_symbols"]
         return [], []

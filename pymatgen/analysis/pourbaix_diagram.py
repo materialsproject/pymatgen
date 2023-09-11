@@ -451,7 +451,7 @@ class PourbaixDiagram(MSONable):
         )
         self.dim = len(self.pbx_elts) - 1
 
-        # Process multientry inputs
+        # Process multi-entry inputs
         if isinstance(entries[0], MultiEntry):
             self._processed_entries = entries
             # Extract individual entries
@@ -460,7 +460,7 @@ class PourbaixDiagram(MSONable):
             self._filtered_entries = single_entries
             self._conc_dict = None
             self._elt_comp = {k: v for k, v in entries[0].composition.items() if k not in ELEMENTS_HO}
-            self._multielement = True
+            self._multi_element = True
 
         # Process single entry inputs
         else:
@@ -500,11 +500,11 @@ class PourbaixDiagram(MSONable):
 
             self._filtered_entries = solid_entries + ion_entries
             if len(comp_dict) > 1:
-                self._multielement = True
+                self._multi_element = True
                 self._processed_entries = self._preprocess_pourbaix_entries(self._filtered_entries, nproc=nproc)
             else:
                 self._processed_entries = self._filtered_entries
-                self._multielement = False
+                self._multi_element = False
 
         self._stable_domains, self._stable_domain_vertices = self.get_pourbaix_domains(self._processed_entries)
 
