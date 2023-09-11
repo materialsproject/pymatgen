@@ -80,7 +80,7 @@ class Unk:
         Sets the value of data.
 
         Args:
-            value (np.ndarray): data to replace stored data, must haveshape
+            value (np.ndarray): data to replace stored data, must have shape
                 (nbnd, ngx, ngy, ngz) or (nbnd, 2, ngx, ngy, ngz) if
                 noncollinear calculation
         """

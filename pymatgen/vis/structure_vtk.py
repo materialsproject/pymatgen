@@ -474,9 +474,9 @@ class StructureVis:
         grid.SetPoints(points)
 
         dsm = vtk.vtkDataSetMapper()
-        polysites = [center]
-        polysites.extend(neighbors)
-        self.mapper_map[dsm] = polysites
+        poly_sites = [center]
+        poly_sites.extend(neighbors)
+        self.mapper_map[dsm] = poly_sites
         if vtk.VTK_MAJOR_VERSION <= 5:
             dsm.SetInputConnection(grid.GetProducerPort())
         else:
@@ -488,12 +488,12 @@ class StructureVis:
         if color == "element":
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
-            myoccu = 0.0
+            max_occu = 0.0
             for specie, occu in center.species.items():
-                if occu > myoccu:
-                    myspecie = specie
-                    myoccu = occu
-            color = [i / 255 for i in self.el_color_mapping[myspecie.symbol]]
+                if occu > max_occu:
+                    max_specie = specie
+                    max_occu = occu
+            color = [i / 255 for i in self.el_color_mapping[max_specie.symbol]]
             ac.GetProperty().SetColor(color)
         else:
             ac.GetProperty().SetColor(color)
@@ -533,7 +533,7 @@ class StructureVis:
         triangles = vtk.vtkCellArray()
         triangles.InsertNextCell(triangle)
 
-        # polydata object
+        # vtkPolyData object
         trianglePolyData = vtk.vtkPolyData()
         trianglePolyData.SetPoints(points)
         trianglePolyData.SetPolys(triangles)
@@ -552,12 +552,12 @@ class StructureVis:
                 )
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
-            myoccu = 0.0
+            max_occu = 0.0
             for specie, occu in center.species.items():
-                if occu > myoccu:
-                    myspecie = specie
-                    myoccu = occu
-            color = [i / 255 for i in self.el_color_mapping[myspecie.symbol]]
+                if occu > max_occu:
+                    max_specie = specie
+                    max_occu = occu
+            color = [i / 255 for i in self.el_color_mapping[max_specie.symbol]]
             ac.GetProperty().SetColor(color)
         else:
             ac.GetProperty().SetColor(color)

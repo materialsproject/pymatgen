@@ -123,10 +123,10 @@ def draw_cg(
                 edges = cg.edges(neighbors)
             symbol = next(iter(site.species)).symbol
             if faces_color_override:
-                mycolor = faces_color_override
+                color = faces_color_override
             else:
-                mycolor = [float(i) / 255 for i in vis.el_color_mapping[symbol]]
-            vis.add_faces(faces, mycolor, opacity=0.4)
+                color = [float(i) / 255 for i in vis.el_color_mapping[symbol]]
+            vis.add_faces(faces, color, opacity=0.4)
             vis.add_edges(edges)
         if show_perfect:
             perfect_geometry = AbstractGeometry.from_cg(cg)
@@ -150,26 +150,26 @@ def draw_cg(
                 )
 
 
-def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_color_override=None):
+def visualize(cg, zoom=None, vis=None, factor=1.0, view_index=True, faces_color_override=None):
     """
     Visualizing a coordination geometry
     :param cg:
     :param zoom:
     :param vis:
-    :param myfactor:
+    :param factor:
     :param view_index:
     :param faces_color_override:
     """
     if vis is None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
-    myspecies = ["O"] * (cg.coordination_number + 1)
-    myspecies[0] = "Cu"
+    species = ["O"] * (cg.coordination_number + 1)
+    species[0] = "Cu"
     coords = [np.zeros(3, np.float_) + cg.central_site]
 
     for pp in cg.points:
         coords.append(np.array(pp) + cg.central_site)
-    coords = [cc * myfactor for cc in coords]
-    structure = Molecule(species=myspecies, coords=coords)
+    coords = [cc * factor for cc in coords]
+    structure = Molecule(species=species, coords=coords)
     vis.set_structure(structure=structure, reset_camera=True)
     # neighbors_list = coords[1:]
     draw_cg(
@@ -207,7 +207,7 @@ def compute_environments(chemenv_configuration):
     default_strategy = strategy_class()
     default_strategy.setup_options(chemenv_configuration.package_options["default_strategy"]["strategy_options"])
     max_dist_factor = chemenv_configuration.package_options["default_max_distance_factor"]
-    firsttime = True
+    first_time = True
     while True:
         if len(questions) > 1:
             found = False
@@ -326,7 +326,7 @@ def compute_environments(chemenv_configuration):
             test = input('View structure with environments ? ("y" for the unit cell or "m" for a supercell or "n") : ')
             if test in ["y", "m"]:
                 if test == "m":
-                    mydeltas = []
+                    deltas = []
                     while True:
                         try:
                             test = input("Enter multiplicity (e.g. 3 2 2) : ")
@@ -334,17 +334,17 @@ def compute_environments(chemenv_configuration):
                             for i0 in range(int(nns[0])):
                                 for i1 in range(int(nns[1])):
                                     for i2 in range(int(nns[2])):
-                                        mydeltas.append(np.array([1.0 * i0, 1.0 * i1, 1.0 * i2], np.float_))
+                                        deltas.append(np.array([1.0 * i0, 1.0 * i1, 1.0 * i2], np.float_))
                             break
 
                         except (ValueError, IndexError):
                             print("Not a valid multiplicity")
                 else:
-                    mydeltas = [np.zeros(3, np.float_)]
-                if firsttime:
+                    deltas = [np.zeros(3, np.float_)]
+                if first_time:
                     vis = StructureVis(show_polyhedron=False, show_unit_cell=True)
                     vis.show_help = False
-                    firsttime = False
+                    first_time = False
                 vis.set_structure(se.structure)
                 strategy.set_structure_environments(se)
                 for site in se.structure:
@@ -356,10 +356,10 @@ def compute_environments(chemenv_configuration):
                         continue
                     ce = strategy.get_site_coordination_environment(site)
                     if ce is not None and ce[0] != UNCLEAR_ENVIRONMENT_SYMBOL:
-                        for mydelta in mydeltas:
+                        for delta in deltas:
                             psite = PeriodicSite(
                                 site.species,
-                                site.frac_coords + mydelta,
+                                site.frac_coords + delta,
                                 site.lattice,
                                 properties=site.properties,
                             )

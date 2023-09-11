@@ -42,9 +42,7 @@ from pymatgen.core.structure import Structure
 class COD:
     """An interface to the Crystallography Open Database."""
 
-    def __init__(self):
-        """Blank __init__. No args required."""
-        self.url = "www.crystallography.net"
+    url = "www.crystallography.net"
 
     def query(self, sql: str) -> str:
         """Perform a query.
@@ -70,15 +68,15 @@ class COD:
         """
         # TODO: Remove dependency on external mysql call. MySQL-python package does not support Py3!
 
-        # Standardize formula to the version used by COD.
-
-        sql = f'select file from data where formula="- {Composition(formula).hill_formula} -"'
+        # Standardize formula to the version used by COD
+        cod_formula = Composition(formula).hill_formula
+        sql = f'select file from data where formula="- {cod_formula} -"'
         text = self.query(sql).split("\n")
         cod_ids = []
         for line in text:
-            m = re.search(r"(\d+)", line)
-            if m:
-                cod_ids.append(int(m.group(1)))
+            match = re.search(r"(\d+)", line)
+            if match:
+                cod_ids.append(int(match.group(1)))
         return cod_ids
 
     def get_structure_by_id(self, cod_id, **kwargs):

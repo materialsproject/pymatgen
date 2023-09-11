@@ -1221,39 +1221,39 @@ class AllCoordinationGeometries(dict):
         Returns: String describing the list of coordination geometries.
         """
         if type == "all_geometries_latex_images":
-            mystring = ""
+            output = ""
             for cn in range(1, maxcn + 1):
-                mystring += f"\\section*{{Coordination {cn}}}\n\n"
+                output += f"\\section*{{Coordination {cn}}}\n\n"
                 for cg in self.get_implemented_geometries(coordination=cn, returned="cg"):
-                    mystring += f"\\subsubsection*{{{cg.mp_symbol} : {cg.get_name()}}}\n\n"
-                    mystring += f"IUPAC : {cg.IUPAC_symbol}\n\nIUCr : {cg.IUCr_symbol}\n\n"
-                    mystring += "\\begin{center}\n"
-                    mystring += f"\\includegraphics[scale=0.15]{{images/{cg.mp_symbol.split(':')[0]}_"
-                    mystring += f"{cg.mp_symbol.split(':')[1]}.png}}\n"
-                    mystring += "\\end{center}\n\n"
+                    output += f"\\subsubsection*{{{cg.mp_symbol} : {cg.get_name()}}}\n\n"
+                    output += f"IUPAC : {cg.IUPAC_symbol}\n\nIUCr : {cg.IUCr_symbol}\n\n"
+                    output += "\\begin{center}\n"
+                    output += f"\\includegraphics[scale=0.15]{{images/{cg.mp_symbol.split(':')[0]}_"
+                    output += f"{cg.mp_symbol.split(':')[1]}.png}}\n"
+                    output += "\\end{center}\n\n"
                 for cg in self.get_not_implemented_geometries(cn, returned="cg"):
-                    mystring += f"\\subsubsection*{{{cg.mp_symbol} : {cg.get_name()}}}\n\n"
-                    mystring += f"IUPAC : {cg.IUPAC_symbol}\n\nIUCr : {cg.IUCr_symbol}\n\n"
+                    output += f"\\subsubsection*{{{cg.mp_symbol} : {cg.get_name()}}}\n\n"
+                    output += f"IUPAC : {cg.IUPAC_symbol}\n\nIUCr : {cg.IUCr_symbol}\n\n"
         elif type == "all_geometries_latex":
-            mystring = ""
+            output = ""
             for cn in range(1, maxcn + 1):
-                mystring += f"\\subsection*{{Coordination {cn}}}\n\n"
-                mystring += "\\begin{itemize}\n"
+                output += f"\\subsection*{{Coordination {cn}}}\n\n"
+                output += "\\begin{itemize}\n"
                 for cg in self.get_implemented_geometries(coordination=cn, returned="cg"):
                     escaped_mp_symbol = cg.mp_symbol.replace("_", "\\_")
-                    mystring += f"\\item {escaped_mp_symbol} $\\rightarrow$ {cg.get_name()} "
-                    mystring += f"(IUPAC : {cg.IUPAC_symbol_str} - IUCr : "
-                    mystring += f"{cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$')})\n"
+                    output += f"\\item {escaped_mp_symbol} $\\rightarrow$ {cg.get_name()} "
+                    output += f"(IUPAC : {cg.IUPAC_symbol_str} - IUCr : "
+                    output += f"{cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$')})\n"
                 for cg in self.get_not_implemented_geometries(cn, returned="cg"):
                     escaped_mp_symbol = cg.mp_symbol.replace("_", "\\_")
-                    mystring += f"\\item {escaped_mp_symbol} $\\rightarrow$ {cg.get_name()} "
-                    mystring += f"(IUPAC : {cg.IUPAC_symbol_str} - IUCr : "
-                    mystring += f"{cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$')})\n"
-                mystring += "\\end{itemize}\n\n"
+                    output += f"\\item {escaped_mp_symbol} $\\rightarrow$ {cg.get_name()} "
+                    output += f"(IUPAC : {cg.IUPAC_symbol_str} - IUCr : "
+                    output += f"{cg.IUCr_symbol_str.replace('[', '$[$').replace(']', '$]$')})\n"
+                output += "\\end{itemize}\n\n"
         else:
-            mystring = "+-------------------------+\n| Coordination geometries |\n+-------------------------+\n\n"
+            output = "+-------------------------+\n| Coordination geometries |\n+-------------------------+\n\n"
             for cn in range(1, maxcn + 1):
-                mystring += f"==>> CN = {cn} <<==\n"
+                output += f"==>> CN = {cn} <<==\n"
                 if type == "implemented_geometries":
                     for cg in self.get_implemented_geometries(coordination=cn):
                         if additional_info is not None:
@@ -1263,9 +1263,9 @@ class AllCoordinationGeometries(dict):
                                 addinfo = ""
                         else:
                             addinfo = ""
-                        mystring += f" - {cg.mp_symbol} : {cg.get_name()}{addinfo}\n"
+                        output += f" - {cg.mp_symbol} : {cg.get_name()}{addinfo}\n"
                 elif type == "all_geometries":
                     for cg in self.get_geometries(coordination=cn):
-                        mystring += f" - {cg.mp_symbol} : {cg.get_name()}\n"
-                mystring += "\n"
-        return mystring
+                        output += f" - {cg.mp_symbol} : {cg.get_name()}\n"
+                output += "\n"
+        return output
