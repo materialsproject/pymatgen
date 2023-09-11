@@ -238,30 +238,30 @@ class StructureEnvironments(MSONable):
                 additional_condition: Additional condition for the neighbors.
                 other_origins: What to do with sources that do not come from the Voronoi grid (e.g. "from hints").
             """
-            src = []
+            src_list = []
             for src in self.sources:
                 if src["origin"] == "dist_ang_ac_voronoi":
                     if src["ac"] != additional_condition:
                         continue
-                    src.append(src)
+                    src_list.append(src)
                 else:
                     if other_origins == "DO_NOTHING":
                         continue
                     raise NotImplementedError("Nothing implemented for other sources ...")
-            if len(src) == 0:
+            if len(src_list) == 0:
                 return None
 
-            dists = [src["dp_dict"]["min"] for src in src]
-            angles = [src["ap_dict"]["max"] for src in src]
-            next_dists = [src["dp_dict"]["next"] for src in src]
-            next_angles = [src["ap_dict"]["next"] for src in src]
+            dists = [src["dp_dict"]["min"] for src in src_list]
+            angles = [src["ap_dict"]["max"] for src in src_list]
+            next_dists = [src["dp_dict"]["next"] for src in src_list]
+            next_angles = [src["ap_dict"]["next"] for src in src_list]
 
             points_dict = {}
 
             p_dists = []
             pangs = []
 
-            for idx in range(len(src)):
+            for idx in range(len(src_list)):
                 if not any(np.isclose(p_dists, dists[idx])):
                     p_dists.append(dists[idx])
                 if not any(np.isclose(p_dists, next_dists[idx])):
