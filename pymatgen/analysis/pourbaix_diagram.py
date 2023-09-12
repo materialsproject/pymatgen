@@ -938,9 +938,6 @@ class PourbaixPlotter:
         Args:
             *args: args to get_pourbaix_plot
             **kwargs: kwargs to get_pourbaix_plot
-
-        Returns:
-            None
         """
         plt = self.get_pourbaix_plot(*args, **kwargs)
         plt.show()

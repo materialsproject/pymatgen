@@ -386,10 +386,7 @@ class MultiGraphCycle(MSONable):
         first node. If raise_on_fail is set to True a RuntimeError will be
         raised if the ordering fails.
 
-        :param raise_on_fail: If set to True, will raise a RuntimeError if the
-                              ordering fails.
-        Returns:
-            None
+        :param raise_on_fail: If set to True, will raise a RuntimeError if the ordering fails.
         """
         # always validate the cycle if it needs to be ordered
         # also validates that the nodes can be strictly ordered

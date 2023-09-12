@@ -157,10 +157,8 @@ class HeisenbergMapper:
         return unique_site_ids, wyckoff_ids
 
     def _get_nn_dict(self):
-        """Get dict of unique nearest neighbor interactions.
-
-        Returns:
-            None: (sets self.nn_interactions and self.dists instance variables)
+        """Sets self.nn_interactions and self.dists instance variables describing unique
+        nearest neighbor interactions.
         """
         tol = self.tol  # tolerance on NN distances
         sgraph = self.sgraphs[0]
@@ -229,13 +227,9 @@ class HeisenbergMapper:
         """
         Loop over all sites in a graph and count the number and types of
         nearest neighbor interactions, computing +-|S_i . S_j| to construct
-        a Heisenberg Hamiltonian for each graph.
+        a Heisenberg Hamiltonian for each graph. Sets self.ex_mat instance variable.
 
-        Returns:
-            None: (sets self.ex_mat instance variable)
-
-        Todo:
-            * Deal with large variance in |S| across configs
+        TODO Deal with large variance in |S| across configs
         """
         sgraphs = self.sgraphs
         tol = self.tol
