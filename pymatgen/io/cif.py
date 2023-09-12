@@ -690,7 +690,7 @@ class CifParser:
                     self.warnings.append(msg)
                     xyz = [xyz]
                 try:
-                    symops = [SymmOp.from_xyz_string(s) for s in xyz]
+                    symops = [SymmOp.from_xyz_str(s) for s in xyz]
                     break
                 except ValueError:
                     continue
@@ -734,7 +734,7 @@ class CifParser:
                         for d in cod_data:
                             if sg == re.sub(r"\s+", "", d["hermann_mauguin"]):
                                 xyz = d["symops"]
-                                symops = [SymmOp.from_xyz_string(s) for s in xyz]
+                                symops = [SymmOp.from_xyz_str(s) for s in xyz]
                                 msg = msg_template.format(symmetry_label)
                                 warnings.warn(msg)
                                 self.warnings.append(msg)
@@ -764,7 +764,7 @@ class CifParser:
             msg = "No _symmetry_equiv_pos_as_xyz type key found. Defaulting to P1."
             warnings.warn(msg)
             self.warnings.append(msg)
-            symops = [SymmOp.from_xyz_string(s) for s in ["x", "y", "z"]]
+            symops = [SymmOp.from_xyz_str(s) for s in ["x", "y", "z"]]
 
         return symops
 
@@ -782,13 +782,13 @@ class CifParser:
         if xyzt := data.data.get("_space_group_symop_magn_operation.xyz"):
             if isinstance(xyzt, str):
                 xyzt = [xyzt]
-            mag_symm_ops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
+            mag_symm_ops = [MagSymmOp.from_xyzt_str(s) for s in xyzt]
 
             if data.data.get("_space_group_symop_magn_centering.xyz"):
                 xyzt = data.data.get("_space_group_symop_magn_centering.xyz")
                 if isinstance(xyzt, str):
                     xyzt = [xyzt]
-                centering_symops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
+                centering_symops = [MagSymmOp.from_xyzt_str(s) for s in xyzt]
 
                 all_ops = []
                 for op in mag_symm_ops:
@@ -825,7 +825,7 @@ class CifParser:
             msg = "No magnetic symmetry detected, using primitive symmetry."
             warnings.warn(msg)
             self.warnings.append(msg)
-            mag_symm_ops = [MagSymmOp.from_xyzt_string("x, y, z, 1")]
+            mag_symm_ops = [MagSymmOp.from_xyzt_str("x, y, z, 1")]
 
         return mag_symm_ops
 

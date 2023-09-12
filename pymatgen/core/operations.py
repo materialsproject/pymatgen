@@ -591,8 +591,13 @@ class MagSymmOp(SymmOp):
         )
         return MagSymmOp.from_symmop(symm_op, time_reversal)
 
+    @classmethod
+    @np.deprecate(message="Use from_xyzt_str instead")
+    def from_xyzt_string(cls, *args, **kwargs):  # noqa: D102
+        return cls.from_xyzt_str(*args, **kwargs)
+
     @staticmethod
-    def from_xyzt_string(xyzt_string: str) -> MagSymmOp:
+    def from_xyzt_str(xyzt_string: str) -> MagSymmOp:
         """
         Args:
             xyzt_string (str): of the form 'x, y, z, +1', '-x, -y, z, -1',
@@ -608,7 +613,12 @@ class MagSymmOp(SymmOp):
             raise Exception("Time reversal operator could not be parsed.")
         return MagSymmOp.from_symmop(symm_op, time_reversal)
 
-    def as_xyzt_string(self) -> str:
+    @classmethod
+    @np.deprecate(message="Use as_xyzt_str instead")
+    def as_xyzt_string(cls, *args, **kwargs):  # noqa: D102
+        return cls.as_xyzt_str(*args, **kwargs)
+
+    def as_xyzt_str(self) -> str:
         """Returns a string of the form 'x, y, z, +1', '-x, -y, z, -1',
         '-y+1/2, x+1/2, z+1/2, +1', etc. Only works for integer rotation matrices.
         """
@@ -616,7 +626,7 @@ class MagSymmOp(SymmOp):
         return f"{xyzt_string}, {self.time_reversal:+}"
 
     def as_dict(self) -> dict[str, Any]:
-        """MSONABle dict."""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

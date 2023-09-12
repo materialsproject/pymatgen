@@ -1687,10 +1687,10 @@ class LocalGeometryFinder:
                         continue
                     if sep not in nb_set.separations:
                         nb_set.separations[sep] = {}
-                    mysep = [np.array(ss, dtype=int) for ss in separation]
-                    nb_set.separations[sep][separation] = (plane, mysep)
+                    _sep = [np.array(ss, dtype=int) for ss in separation]
+                    nb_set.separations[sep][separation] = (plane, _sep)
                     if sep == separation_plane_algo.separation:
-                        new_seps.append(mysep)
+                        new_seps.append(_sep)
 
                 for separation_indices in new_seps:
                     cgsm = cgcsmoptim(
