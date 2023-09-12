@@ -785,7 +785,7 @@ class DictSet(VaspInputSet):
                 f'The PREC tag "{_PREC}" does not exist. If this is no longer correct, please update this code.'
             )
 
-        _CUTOF = [
+        CUTOFF = [
             np.sqrt(encut / _RYTOEV) / (2 * np.pi / (anorm / _AUTOA)) for anorm in self.poscar.structure.lattice.abc
         ]
 
@@ -796,7 +796,7 @@ class DictSet(VaspInputSet):
             g_size = int(_WFACT * cur_g_size + 0.5)
             return next_num_with_prime_factors(g_size, max_prime_factor, must_inc_2)
 
-        ng_vec = [*map(next_g_size, _CUTOF)]
+        ng_vec = [*map(next_g_size, CUTOFF)]
 
         # TODO This works for VASP 5.x and 6.x
         finer_g_scale = 2 if _PREC[0].lower() in {"a", "n"} else 1
