@@ -228,37 +228,23 @@ class MagSymmOpTestCase(PymatgenTest):
         xyzt_strings = ["x, y, z, +1", "x, y, z, -1", "-y+1/2, x+1/2, x+1/2, +1"]
 
         for xyzt_string in xyzt_strings:
-            op = MagSymmOp.from_xyzt_string(xyzt_string)
-            xyzt_string_out = op.as_xyzt_string()
+            op = MagSymmOp.from_xyzt_str(xyzt_string)
+            xyzt_string_out = op.as_xyzt_str()
             assert xyzt_string == xyzt_string_out
 
-        op = SymmOp(
-            [
-                [3, -2, -1, 0.5],
-                [-1, 0, 0, 12.0 / 13],
-                [0, 0, 1, 0.5 + 1e-7],
-                [0, 0, 0, 1],
-            ]
-        )
+        op = SymmOp([[3, -2, -1, 0.5], [-1, 0, 0, 12.0 / 13], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
 
         magop = MagSymmOp.from_symmop(op, -1)
-        magop_str = magop.as_xyzt_string()
+        magop_str = magop.as_xyzt_str()
         assert magop.time_reversal == -1
         assert magop_str == "3x-2y-z+1/2, -x+12/13, z+1/2, -1"
 
     def test_as_from_dict(self):
-        op = SymmOp(
-            [
-                [3, -2, -1, 0.5],
-                [-1, 0, 0, 12.0 / 13],
-                [0, 0, 1, 0.5 + 1e-7],
-                [0, 0, 0, 1],
-            ]
-        )
+        op = SymmOp([[3, -2, -1, 0.5], [-1, 0, 0, 12.0 / 13], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
         magop = MagSymmOp.from_symmop(op, -1)
         magop2 = MagSymmOp.from_dict(magop.as_dict())
         assert magop2.time_reversal == -1
-        assert magop2.as_xyzt_string() == "3x-2y-z+1/2, -x+12/13, z+1/2, -1"
+        assert magop2.as_xyzt_str() == "3x-2y-z+1/2, -x+12/13, z+1/2, -1"
 
     def test_operate_magmom(self):
         # all test magmoms are the same
@@ -274,5 +260,5 @@ class MagSymmOpTestCase(PymatgenTest):
 
         for xyzt_string, transformed_magmom in zip(xyzt_strings, transformed_magmoms):
             for magmom in magmoms:
-                op = MagSymmOp.from_xyzt_string(xyzt_string)
+                op = MagSymmOp.from_xyzt_str(xyzt_string)
                 assert_allclose(transformed_magmom, op.operate_magmom(magmom).global_moment)
