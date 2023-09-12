@@ -219,8 +219,6 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         """Set the structure environments to this strategy.
 
         :param structure_environments: StructureEnvironments object.
-        Returns:
-            None
         """
         self.structure_environments = structure_environments
         if not isinstance(self.structure_environments.voronoi, DetailedVoronoiContainer):
@@ -415,8 +413,6 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
 
         :param option_name: Name of the option.
         :param option_value: Value for this option.
-        Returns:
-            None
         """
         setattr(self, option_name, option_value)
 
@@ -424,8 +420,6 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         """Set up options for this strategy based on a dict.
 
         :param all_options_dict: Dict of option_name->option_value.
-        Returns:
-            None
         """
         for option_name, option_value in all_options_dict.items():
             self.set_option(option_name, option_value)
@@ -547,8 +541,6 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         """Set the distance cutoff for this strategy.
 
         :param distance_cutoff: Distance cutoff.
-        Returns:
-            None
         """
         self._distance_cutoff = DistanceCutoffFloat(distance_cutoff)
 
@@ -562,8 +554,6 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         """Set the angle cutoff for this strategy.
 
         :param angle_cutoff: Angle cutoff.
-        Returns:
-            None
         """
         self._angle_cutoff = AngleCutoffFloat(angle_cutoff)
 
@@ -577,8 +567,6 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         """Set the additional condition for this strategy.
 
         :param additional_condition: Additional condition.
-        Returns:
-            None
         """
         self._additional_condition = AdditionalConditionInt(additional_condition)
 
@@ -592,9 +580,6 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         """Set the CSM cutoff for this strategy.
 
         :param continuous_symmetry_measure_cutoff: CSM cutoff
-
-        Returns:
-            None
         """
         self._continuous_symmetry_measure_cutoff = CSMFloat(continuous_symmetry_measure_cutoff)
 
@@ -785,16 +770,10 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         Returns:
             List of coordination environment.
         """
-        return [
-            self.get_site_coordination_environment(
-                site=site,
-                isite=isite,
-                dequivsite=dequivsite,
-                dthissite=dthissite,
-                mysym=mysym,
-                return_map=return_maps,
-            )
-        ]
+        env = self.get_site_coordination_environment(
+            site=site, isite=isite, dequivsite=dequivsite, dthissite=dthissite, mysym=mysym, return_map=return_maps
+        )
+        return [env]
 
     def add_strategy_visualization_to_subplot(self, subplot, visualization_options=None, plot_type=None):
         """Add a visual of the strategy on a distance-angle plot.
@@ -802,16 +781,9 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         :param subplot: Axes object onto the visual should be added.
         :param visualization_options: Options for the visual.
         :param plot_type: Type of distance-angle plot.
-        Returns:
-            None
         """
         subplot.plot(
-            self._distance_cutoff,
-            self._angle_cutoff,
-            "o",
-            mec=None,
-            mfc="w",
-            markersize=12,
+            self._distance_cutoff, self._angle_cutoff, "o", markeredgecolor=None, markerfacecolor="w", markersize=12
         )
         subplot.plot(self._distance_cutoff, self._angle_cutoff, "x", linewidth=2, markersize=12)
 

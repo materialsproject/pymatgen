@@ -44,8 +44,6 @@ class AbstractRatioFunction:
         """Set up the parameters for this ratio function.
 
         :param options_dict: Dictionary containing the parameters for the ratio function.
-        Returns:
-            None.
         """
         function_options = self.ALLOWED_FUNCTIONS[self.function]
         if len(function_options) > 0:
