@@ -33,8 +33,8 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 
-allcg = AllCoordinationGeometries()
-symbol_cn_mapping = allcg.get_symbol_cn_mapping()
+all_cg = AllCoordinationGeometries()
+symbol_cn_mapping = all_cg.get_symbol_cn_mapping()
 
 
 class StructureEnvironments(MSONable):
@@ -62,10 +62,9 @@ class StructureEnvironments(MSONable):
             self.isite = isite
             self.detailed_voronoi = detailed_voronoi
             self.voronoi = detailed_voronoi.voronoi_list2[isite]
-            myset = set(site_voronoi_indices)
-            if len(myset) != len(site_voronoi_indices):
-                raise ValueError("Set of neighbors contains duplicates !")
-            self.site_voronoi_indices = sorted(myset)
+            if n_dupes := (len(set(site_voronoi_indices)) - len(site_voronoi_indices)):
+                raise ValueError(f"Set of neighbors contains {n_dupes} duplicates!")
+            self.site_voronoi_indices = sorted(site_voronoi_indices)
             if sources is None:
                 self.sources = [{"origin": "UNKNOWN"}]
             elif isinstance(sources, list):
@@ -2226,7 +2225,7 @@ class ChemicalEnvironments(MSONable):
         Raises:
             ChemenvError if the coordination geometry is already added and override is set to False
         """
-        if not allcg.is_a_valid_coordination_geometry(mp_symbol=mp_symbol):
+        if not all_cg.is_a_valid_coordination_geometry(mp_symbol=mp_symbol):
             raise ChemenvError(
                 self.__class__,
                 "add_coord_geom",
