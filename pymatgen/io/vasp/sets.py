@@ -762,35 +762,28 @@ class DictSet(VaspInputSet):
         if custom_encut is not None:
             encut = custom_encut
         else:
-            # get the ENCUT val
             if self.incar.get("ENCUT", 0) > 0:
-                encut = self.incar["ENCUT"]
+                encut = self.incar["ENCUT"]  # get the ENCUT val
             else:
                 encut = max(i_species.enmax for i_species in self.get_vasp_input()["POTCAR"])
 
-        if custom_prec is not None:
-            _PREC = custom_prec
-        else:
-            _PREC = "Normal"  # VASP default
-            if "PREC" in self.incar:
-                _PREC = self.incar["PREC"]
+        # PREC=Normal is VASP default
+        PREC = self.incar.get("PREC", "Normal") if custom_prec is None else custom_prec
 
         # Check for unsupported / invalid PREC tags
-        if _PREC[0].lower() in {"l", "m", "h"}:
+        if PREC[0].lower() in {"l", "m", "h"}:
             raise NotImplementedError(
                 "PREC = LOW/MEDIUM/HIGH from VASP 4.x and not supported, Please use NORMA/SINGLE/ACCURATE"
             )
-        if _PREC[0].lower() not in {"a", "s", "n", "l", "m", "h"}:
-            raise ValueError(
-                f'The PREC tag "{_PREC}" does not exist. If this is no longer correct, please update this code.'
-            )
+        if PREC[0].lower() not in {"a", "s", "n", "l", "m", "h"}:
+            raise ValueError(f"{PREC=} does not exist. If this is no longer correct, please update this code.")
 
         CUTOFF = [
             np.sqrt(encut / _RYTOEV) / (2 * np.pi / (anorm / _AUTOA)) for anorm in self.poscar.structure.lattice.abc
         ]
 
         # TODO This only works in VASP 6.x
-        _WFACT = 4 if _PREC[0].lower() in {"a", "s"} else 3
+        _WFACT = 4 if PREC[0].lower() in {"a", "s"} else 3
 
         def next_g_size(cur_g_size):
             g_size = int(_WFACT * cur_g_size + 0.5)
@@ -799,7 +792,7 @@ class DictSet(VaspInputSet):
         ng_vec = [*map(next_g_size, CUTOFF)]
 
         # TODO This works for VASP 5.x and 6.x
-        finer_g_scale = 2 if _PREC[0].lower() in {"a", "n"} else 1
+        finer_g_scale = 2 if PREC[0].lower() in {"a", "n"} else 1
 
         return ng_vec, [ng_ * finer_g_scale for ng_ in ng_vec]
 
