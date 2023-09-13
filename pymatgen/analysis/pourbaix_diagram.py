@@ -327,7 +327,7 @@ class MultiEntry(PourbaixEntry):
     def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             MultiEntry
@@ -343,11 +343,10 @@ class IonEntry(PDEntry):
     Object similar to PDEntry, but contains an Ion object instead of a
     Composition object.
 
-    .. attribute:: name
-
-        A name for the entry. This is the string shown in the phase diagrams.
-        By default, this is the reduced formula for the composition, but can be
-        set to some other string for display purposes.
+    Attributes:
+        name (str): A name for the entry. This is the string shown in the phase diagrams.
+            By default, this is the reduced formula for the composition, but can be
+            set to some other string for display purposes.
     """
 
     def __init__(self, ion: Ion, energy: float, name: str | None = None, attribute=None):

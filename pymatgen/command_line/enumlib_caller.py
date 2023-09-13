@@ -65,9 +65,8 @@ makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 class EnumlibAdaptor:
     """An adaptor for enumlib.
 
-    .. attribute:: structures
-
-        List of all enumerated structures.
+    Attributes:
+        structures (list): all enumerated structures.
     """
 
     amount_tol = 1e-5

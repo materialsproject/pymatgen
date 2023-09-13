@@ -1614,15 +1614,10 @@ class PotcarSingle:
     Object for a **single** POTCAR. The builder assumes the POTCAR contains
     the complete untouched data in "data" as a string and a dict of keywords.
 
-    .. attribute:: data
-
-        POTCAR data as a string.
-
-    .. attribute:: keywords
-
-        Keywords parsed from the POTCAR as a dict. All keywords are also
-        accessible as attributes in themselves. E.g., potcar.enmax,
-        potcar.encut, etc.
+    Attributes:
+        data (str): POTCAR data as a string.
+        keywords (dict): Keywords parsed from the POTCAR as a dict. All keywords are also
+            accessible as attributes in themselves. E.g., potcar.enmax, potcar.encut, etc.
 
     md5 hashes of the entire POTCAR file and the actual data are validated
     against a database of known good hashes. Appropriate warnings or errors

@@ -501,174 +501,70 @@ class GaussianOutput:
         Still in early beta.
 
     Attributes:
-    .. attribute:: structures
-
-        All structures from the calculation in the standard orientation. If the
-        symmetry is not considered, the standard orientation is not printed out
-        and the input orientation is used instead. Check the `standard_orientation`
-        attribute.
-
-    .. attribute:: structures_input_orientation
-
-        All structures from the calculation in the input orientation or the
-        Z-matrix orientation (if an opt=z-matrix was requested).
-
-    .. attribute:: opt_structures
-
-        All optimized structures from the calculation in the standard orientation,
-        if the attribute 'standard_orientation' is True, otherwise in the input
-        or the Z-matrix orientation.
-
-    .. attribute:: energies
-
-        All energies from the calculation.
-
-    .. attribute:: eigenvalues
-
-        List of eigenvalues for the last geometry
-
-    .. attribute:: MO_coefficients
-
-        Matrix of MO coefficients for the last geometry
-
-    .. attribute:: cart_forces
-
-        All Cartesian forces from the calculation.
-
-    .. attribute:: frequencies
-
-        A list for each freq calculation and for each mode of a dict with
-        {
-            "frequency": freq in cm-1,
-            "symmetry": symmetry tag
-            "r_mass": Reduce mass,
-            "f_constant": force constant,
-            "IR_intensity": IR Intensity,
-            "mode": normal mode
-         }
-
-        The normal mode is a 1D vector of dx, dy dz of each atom.
-
-    .. attribute:: hessian
-
-        Matrix of second derivatives of the energy with respect to cartesian
-        coordinates in the **input orientation** frame. Need #P in the
-        route section in order to be in the output.
-
-    .. attribute:: properly_terminated
-
-        True if run has properly terminated
-
-    .. attribute:: is_pcm
-
-        True if run is a PCM run.
-
-    .. attribute:: is_spin
-
-        True if it is an unrestricted run
-
-    .. attribute:: stationary_type
-
-        If it is a relaxation run, indicates whether it is a minimum (Minimum)
-        or a saddle point ("Saddle").
-
-    .. attribute:: corrections
-
-        Thermochemical corrections if this run is a Freq run as a dict. Keys
-        are "Zero-point", "Thermal", "Enthalpy" and "Gibbs Free Energy"
-
-    .. attribute:: functional
-
-        Functional used in the run.
-
-    .. attribute:: basis_set
-
-        Basis set used in the run
-
-    .. attribute:: route
-
-        Additional route parameters as a dict. For example,
-            {'SP':"", "SCF":"Tight"}
-
-    .. attribute:: dieze_tag
-
-        # preceding the route line, e.g. "#P"
-
-    .. attribute:: link0
-
-        Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
-
-    .. attribute:: charge
-
-        Charge for structure
-
-    .. attribute:: spin_multiplicity
-
-        Spin multiplicity for structure
-
-    .. attribute:: num_basis_func
-
-        Number of basis functions in the run.
-
-    .. attribute:: electrons
-
-        number of alpha and beta electrons as (N alpha, N beta)
-
-    .. attribute:: pcm
-
-        PCM parameters and output if available.
-
-    .. attribute:: errors
-
-        error if not properly terminated (list to be completed in error_defs)
-
-    .. attribute:: Mulliken_charges
-
-        Mulliken atomic charges
-
-    .. attribute:: eigenvectors
-
-        Matrix of shape (num_basis_func, num_basis_func). Each column is an
-        eigenvectors and contains AO coefficients of an MO.
-
-        eigenvectors[Spin] = mat(num_basis_func, num_basis_func)
-
-    .. attribute:: molecular_orbital
-
-        MO development coefficients on AO in a more convenient array dict
-        for each atom and basis set label.
-
-        mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff ... }
-
-    .. attribute:: atom_basis_labels
-
-        Labels of AO for each atoms. These labels are those used in the output
-        of molecular orbital coefficients (POP=Full) and in the
-        molecular_orbital array dict.
-
-        atom_basis_labels[iatom] = [AO_k, AO_k, ...]
-
-    .. attribute:: resumes
-
-        List of gaussian data resume given at the end of the output file before
-        the quotation. The resumes are given as string.
-
-    .. attribute:: title
-
-        Title of the gaussian run.
-
-    .. attribute:: standard_orientation
-
-        If True, the geometries stored in the structures are in the standard
-        orientation. Else, the geometries are in the input orientation.
-
-    .. attribute:: bond_orders
-
-        Dict of bond order values read in the output file such as:
-        {(0, 1): 0.8709, (1, 6): 1.234, ...}
-
-        The keys are the atom indexes and the values are the Wiberg bond indexes
-        that are printed using `pop=NBOREAD` and `$nbo bndidx $end`.
+        structures (list[Structure]): All structures from the calculation in the standard orientation. If the
+            symmetry is not considered, the standard orientation is not printed out
+            and the input orientation is used instead. Check the `standard_orientation`
+            attribute.
+        structures_input_orientation (list): All structures from the calculation in the input
+            orientation or the Z-matrix orientation (if an opt=z-matrix was requested).
+        opt_structures (list): All optimized structures from the calculation in the standard
+            orientation, if the attribute 'standard_orientation' is True, otherwise in the input
+            or the Z-matrix orientation.
+        energies (list): All energies from the calculation.
+        eigenvalues (list): List of eigenvalues for the last geometry.
+        MO_coefficients (list): Matrix of MO coefficients for the last geometry.
+        cart_forces (list): All Cartesian forces from the calculation.
+        frequencies (list): A list for each freq calculation and for each mode of a dict with
+            {
+                "frequency": freq in cm-1,
+                "symmetry": symmetry tag
+                "r_mass": Reduce mass,
+                "f_constant": force constant,
+                "IR_intensity": IR Intensity,
+                "mode": normal mode
+             }
+            The normal mode is a 1D vector of dx, dy dz of each atom.
+        hessian (ndarray): Matrix of second derivatives of the energy with respect to cartesian
+            coordinates in the input orientation frame. Need #P in the route section in order to
+            be in the output.
+        properly_terminated (bool): True if run has properly terminated.
+        is_pcm (bool): True if run is a PCM run.
+        is_spin (bool): True if it is an unrestricted run.
+        stationary_type (str): If it is a relaxation run, indicates whether it is a minimum
+            (Minimum) or a saddle point ("Saddle").
+        corrections (dict): Thermochemical corrections if this run is a Freq run as a dict. Keys
+            are "Zero-point", "Thermal", "Enthalpy" and "Gibbs Free Energy".
+        functional (str): Functional used in the run.
+        basis_set (str): Basis set used in the run.
+        route (dict): Additional route parameters as a dict. For example,
+            {'SP':"", "SCF":"Tight"}.
+        dieze_tag (str): # preceding the route line, e.g. "#P".
+        link0 (dict): Link0 parameters as a dict. E.g., {"%mem": "1000MW"}.
+        charge (int): Charge for structure.
+        spin_multiplicity (int): Spin multiplicity for structure.
+        num_basis_func (int): Number of basis functions in the run.
+        electrons (tuple): Number of alpha and beta electrons as (N alpha, N beta).
+        pcm (dict): PCM parameters and output if available.
+        errors (list): Error if not properly terminated (list to be completed in error_defs).
+        Mulliken_charges (list): Mulliken atomic charges.
+        eigenvectors (dict): Matrix of shape (num_basis_func, num_basis_func). Each column is an
+            eigenvectors and contains AO coefficients of an MO.
+            eigenvectors[Spin] = mat(num_basis_func, num_basis_func).
+        molecular_orbital (dict): MO development coefficients on AO in a more convenient array dict
+            for each atom and basis set label.
+            mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff ... }.
+        atom_basis_labels (list): Labels of AO for each atoms. These labels are those used in the
+            output of molecular orbital coefficients (POP=Full) and in the molecular_orbital array
+            dict. atom_basis_labels[iatom] = [AO_k, AO_k, ...].
+        resumes (list): List of gaussian data resume given at the end of the output file before
+            the quotation. The resumes are given as string.
+        title (str): Title of the gaussian run.
+        standard_orientation (bool): If True, the geometries stored in the structures are in the
+            standard orientation. Else, the geometries are in the input orientation.
+        bond_orders (dict): Dict of bond order values read in the output file such as:
+            {(0, 1): 0.8709, (1, 6): 1.234, ...}.
+            The keys are the atom indexes and the values are the Wiberg bond indexes that are
+            printed using `pop=NBOREAD` and `$nbo bndidx $end`.
 
     Methods:
     .. method:: to_input()

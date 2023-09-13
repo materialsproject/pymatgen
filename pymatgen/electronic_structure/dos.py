@@ -610,13 +610,9 @@ class CompleteDos(Dos):
     a vasprun.xml file. You are unlikely to try to generate this object
     manually.
 
-    .. attribute:: structure
-
-        Structure associated with the CompleteDos.
-
-    .. attribute:: pdos
-
-        Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}
+    Attributes:
+        structure (Structure): Structure associated with the CompleteDos.
+        pdos (dict): Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}.
     """
 
     def __init__(

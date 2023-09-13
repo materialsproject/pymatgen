@@ -29,18 +29,10 @@ class ExcitingInput(MSONable):
     Object for representing the data stored in the structure part of the
     exciting input.
 
-    .. attribute:: structure
-
-        Associated Structure.
-
-    .. attribute:: title
-
-        Optional title string.
-
-    .. attribute:: lockxyz
-
-        Lockxyz attribute for each site if available. A Nx3 array of
-        booleans.
+    Attributes:
+        structure (Structure): Associated Structure.
+        title (str): Optional title string.
+        lockxyz (numpy.ndarray): Lockxyz attribute for each site if available. A Nx3 array of booleans.
     """
 
     def __init__(self, structure: Structure, title=None, lockxyz=None):

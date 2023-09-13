@@ -798,21 +798,15 @@ class CompleteCohp(Cohp):
 class IcohpValue(MSONable):
     """Class to store information on an ICOHP or ICOOP value.
 
-    .. attribute:: num_bonds
-            number of bonds used for the average cohp (relevant for Lobster versions <3.0) (int)
-
-    .. attribute:: are_coops
-            Boolean to indicates ICOOPs
-
-    .. attribute:: are_cobis
-            Boolean to indicates ICOBIs
-
-    .. attribute:: icohp
-            dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
-
-    .. attribute:: summed_icohp:
-            sum of icohp/icoop of both spin channels
-
+    Attributes:
+        energies (ndarray): Energy values for the COHP/ICOHP/COOP/ICOOP.
+        densities (ndarray): Density of states values for the COHP/ICOHP/COOP/ICOOP.
+        energies_are_cartesian (bool): Whether the energies are cartesian or not.
+        are_coops (bool): Whether the object is a COOP/ICOOP or not.
+        are_cobis (bool): Whether the object is a COBIS/ICOBIS or not.
+        icohp (dict): A dictionary of the ICOHP/COHP values. The keys are Spin.up and Spin.down.
+        summed_icohp (float): The summed ICOHP/COHP values.
+        num_bonds (int): The number of bonds used for the average COHP (relevant for Lobster versions <3.0).
     """
 
     def __init__(
@@ -985,15 +979,10 @@ class IcohpValue(MSONable):
 class IcohpCollection(MSONable):
     """Class to store IcohpValues.
 
-    .. attribute:: are_coops
-        Boolean to indicate if these are ICOOPs
-
-    .. attribute:: are_cobis
-        Boolean to indicate if these are ICOOPs
-
-    .. attribute:: is_spin_polarized
-        Boolean to indicate if the Lobster calculation was done spin polarized or not
-
+    Attributes:
+        are_coops (bool): Boolean to indicate if these are ICOOPs.
+        are_cobis (bool): Boolean to indicate if these are ICOOPs.
+        is_spin_polarized (bool): Boolean to indicate if the Lobster calculation was done spin polarized or not.
     """
 
     def __init__(

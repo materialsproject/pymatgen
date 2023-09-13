@@ -91,7 +91,7 @@ class Tensor(np.ndarray, MSONable):
             return obj[()]
         return np.ndarray.__array_wrap__(self, obj)
 
-    def __hash__(self) -> int:  # type: ignore[override]
+    def __hash__(self) -> int:
         """Define a hash function, since numpy arrays have their own __eq__ method."""
         return hash(self.tostring())
 
