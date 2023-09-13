@@ -977,12 +977,15 @@ class Vasprun(MSONable):
         # it is actually a metal
         return self.efermi
 
-    def get_potcars(self, path):
+    def get_potcars(self, path: str | Path) -> Potcar | None:
         """
-        :param path: Path to search for POTCARs
+        Returns the POTCAR from the specified path.
+
+        Args:
+            path (str): The path to search for POTCARs.
 
         Returns:
-            Potcar from path.
+            Potcar | None: The POTCAR from the specified path.
         """
 
         def get_potcar_in_path(p):
@@ -1030,7 +1033,8 @@ class Vasprun(MSONable):
 
     def update_potcar_spec(self, path):
         """
-        :param path: Path to search for POTCARs
+        Args:
+            path: Path to search for POTCARs
 
         Returns:
             Potcar spec from path.
@@ -2359,8 +2363,9 @@ class Outcar:
         Reads the dipol qudropol corrections into the
         Outcar.data["dipol_quadrupol_correction"].
 
-        :param reverse: Whether to start from end of OUTCAR.
-        :param terminate_on_match: Whether to terminate once match is found.
+        Args:
+            reverse (bool): Whether to start from end of OUTCAR. Defaults to True.
+            terminate_on_match (bool): Whether to terminate once match is found. Defaults to True.
         """
         patterns = {"dipol_quadrupol_correction": r"dipol\+quadrupol energy correction\s+([\d\-\.]+)"}
         self.read_pattern(
@@ -3353,19 +3358,21 @@ class VolumetricData(BaseVolumetricData):
             vasp4_compatible (bool): True if the format is vasp4 compatible
         """
 
-        def _print_fortran_float(f):
+        def _print_fortran_float(flt):
             """
             Fortran codes print floats with a leading zero in scientific
             notation. When writing CHGCAR files, we adopt this convention
             to ensure written CHGCAR files are byte-to-byte identical to
             their input files as far as possible.
-            :param f: float
+
+            Args:
+                flt (float): Float to print.
 
             Returns:
-                str.
+                str: String representation of float in Fortran format.
             """
-            s = f"{f:.10E}"
-            if f >= 0:
+            s = f"{flt:.10E}"
+            if flt >= 0:
                 return f"0.{s[0]}{s[2:12]}E{int(s[13:]) + 1:+03}"
             return f"-.{s[1]}{s[3:13]}E{int(s[14:]) + 1:+03}"
 
@@ -3429,10 +3436,10 @@ class Locpot(VolumetricData):
 
     @classmethod
     def from_file(cls, filename, **kwargs):
-        """
-        Reads a LOCPOT file.
+        """Read a LOCPOT file.
 
-        :param filename: Filename
+        Args:
+            filename (str): Path to LOCPOT file.
 
         Returns:
             Locpot
@@ -3466,10 +3473,10 @@ class Chgcar(VolumetricData):
 
     @staticmethod
     def from_file(filename: str):
-        """
-        Read a CHGCAR file.
+        """Read a CHGCAR file.
 
-        :param filename: Filename
+        Args:
+            filename (str): Path to CHGCAR file.
 
         Returns:
             Chgcar
