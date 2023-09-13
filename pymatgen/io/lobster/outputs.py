@@ -433,41 +433,22 @@ class Doscar:
     Class to deal with Lobster's projected DOS and local projected DOS.
     The beforehand quantum-chemical calculation was performed with VASP.
 
-    .. attribute:: completedos
-
-        LobsterCompleteDos Object
-
-    .. attribute:: pdos
-        List of Dict including numpy arrays with pdos. Access as pdos[atomindex]['orbitalstring']['Spin.up/Spin.down']
-
-    .. attribute:: tdos
-        Dos Object of the total density of states
-
-    .. attribute:: energies
-        numpy array of the energies at which the DOS was calculated (in eV, relative to Efermi)
-
-    .. attribute:: tdensities
-        tdensities[Spin.up]: numpy array of the total density of states for the Spin.up contribution at each of the
-            energies
-        tdensities[Spin.down]: numpy array of the total density of states for the Spin.down contribution at each of the
-            energies
-
-        if is_spin_polarized=False:
-        tdensities[Spin.up]: numpy array of the total density of states
-
-
-    .. attribute:: itdensities:
-        itdensities[Spin.up]: numpy array of the total density of states for the Spin.up contribution at each of the
-            energies
-        itdensities[Spin.down]: numpy array of the total density of states for the Spin.down contribution at each of the
-            energies
-
-        if is_spin_polarized=False:
-        itdensities[Spin.up]: numpy array of the total density of states
-
-
-    .. attribute:: is_spin_polarized
-        Boolean. Tells if the system is spin polarized
+    Attributes:
+        completedos (LobsterCompleteDos): LobsterCompleteDos Object.
+        pdos (list): List of Dict including numpy arrays with pdos. Access as
+            pdos[atomindex]['orbitalstring']['Spin.up/Spin.down'].
+        tdos (Dos): Dos Object of the total density of states.
+        energies (numpy.ndarray): Numpy array of the energies at which the DOS was calculated
+            (in eV, relative to Efermi).
+        tdensities (dict): tdensities[Spin.up]: numpy array of the total density of states for
+            the Spin.up contribution at each of the energies. tdensities[Spin.down]: numpy array
+            of the total density of states for the Spin.down contribution at each of the energies.
+            If is_spin_polarized=False, tdensities[Spin.up]: numpy array of the total density of states.
+        itdensities (dict): itdensities[Spin.up]: numpy array of the total density of states for
+            the Spin.up contribution at each of the energies. itdensities[Spin.down]: numpy array
+            of the total density of states for the Spin.down contribution at each of the energies.
+            If is_spin_polarized=False, itdensities[Spin.up]: numpy array of the total density of states.
+        is_spin_polarized (bool): Boolean. Tells if the system is spin polarized.
     """
 
     def __init__(

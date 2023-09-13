@@ -137,42 +137,20 @@ class BandStructure:
     """This is the most generic band structure data possible
     it's defined by a list of kpoints + energies for each of them.
 
-    .. attribute:: kpoints:
-        the list of kpoints (as Kpoint objects) in the band structure
-
-    .. attribute:: lattice_rec
-
-        the reciprocal lattice of the band structure.
-
-    .. attribute:: efermi
-
-        the fermi energy
-
-    .. attribute::  is_spin_polarized
-
-        True if the band structure is spin-polarized, False otherwise
-
-    .. attribute:: bands
-
-        The energy eigenvalues as a {spin: ndarray}. Note that the use of an
-        ndarray is necessary for computational as well as memory efficiency
-        due to the large amount of numerical data. The indices of the ndarray
-        are [band_index, kpoint_index].
-
-    .. attribute:: nb_bands
-
-        returns the number of bands in the band structure
-
-    .. attribute:: structure
-
-        returns the structure
-
-    .. attribute:: projections
-
-        The projections as a {spin: ndarray}. Note that the use of an
-        ndarray is necessary for computational as well as memory efficiency
-        due to the large amount of numerical data. The indices of the ndarray
-        are [band_index, kpoint_index, orbital_index, ion_index].
+    Attributes:
+        kpoints (list): The list of kpoints (as Kpoint objects) in the band structure.
+        lattice_rec (Lattice): The reciprocal lattice of the band structure.
+        efermi (float): The Fermi energy.
+        is_spin_polarized (bool): True if the band structure is spin-polarized, False otherwise.
+        bands (dict): The energy eigenvalues as a {spin: ndarray}. Note that the use of an
+            ndarray is necessary for computational as well as memory efficiency due to the large
+            amount of numerical data. The indices of the ndarray are [band_index, kpoint_index].
+        nb_bands (int): Returns the number of bands in the band structure.
+        structure (Structure): Returns the structure.
+        projections (dict): The projections as a {spin: ndarray}. Note that the use of an
+            ndarray is necessary for computational as well as memory efficiency due to the large
+            amount of numerical data. The indices of the ndarray are [band_index, kpoint_index,
+            orbital_index, ion_index].
     """
 
     def __init__(

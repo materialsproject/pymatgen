@@ -27,9 +27,8 @@ class SymmOp(MSONable):
     translation. Implementation is as an affine transformation matrix of rank 4
     for efficiency. Read: http://en.wikipedia.org/wiki/Affine_transformation.
 
-    .. attribute:: affine_matrix
-
-        A 4x4 numpy.array representing the symmetry operation.
+    Attributes:
+        affine_matrix (np.ndarray): A 4x4 array representing the symmetry operation.
     """
 
     def __init__(self, affine_transformation_matrix: ArrayLike, tol: float = 0.01) -> None:
@@ -41,7 +40,7 @@ class SymmOp(MSONable):
         Args:
             affine_transformation_matrix (4x4 array): Representing an
                 affine transformation.
-            tol (float): Tolerance for determining if matrices are equal.
+            tol (float): Tolerance for determining if matrices are equal. Defaults to 0.01.
 
         Raises:
             ValueError: if matrix is not 4x4.

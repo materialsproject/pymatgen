@@ -64,19 +64,10 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
 
     A HistoryNode contains three fields:
 
-    .. attribute:: name
-
-        The name of a code or resource that this Structure encountered in
-        its history (String)
-
-    .. attribute:: url
-
-        The URL of that code/resource (String)
-
-    .. attribute:: description
-
-        A free-form description of how the code/resource is related to the
-        Structure (dict).
+    Attributes:
+        name (str): The name of a code or resource that this Structure encountered in its history.
+        url (str): The URL of that code/resource.
+        description (dict): A free-form description of how the code/resource is related to the Structure.
     """
 
     __slots__ = ()
