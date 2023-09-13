@@ -26,6 +26,12 @@ class ElementTestCase(PymatgenTest):
 
         assert id(Element("Fe")) == id(Element("Fe"))  # Test caching
 
+    def test_missing_data(self):
+        with pytest.warns(UserWarning, match="No data available "):
+            _ = Element.H.metallic_radius
+        with pytest.warns(UserWarning, match="No data available "):
+            _ = Element.Og.ionization_energy
+
     def test_is_metal(self):
         for metal in ["Fe", "Eu", "Li", "Ca", "In"]:
             assert Element(metal).is_metal

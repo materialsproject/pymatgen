@@ -277,10 +277,12 @@ class ElementBase(Enum):
             "valence",
             "ground_level",
             "ionization_energies",
+            "metallic_radius",
         ]:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr)
-            if str(val).startswith("no data"):
+            if val is None or str(val).startswith("no data"):
+                warnings.warn(f"No data available for {item} for {self.symbol}")
                 val = None
             elif isinstance(val, (list, dict)):
                 pass
@@ -322,9 +324,12 @@ class ElementBase(Enum):
         return self._data.copy()
 
     @property
-    def ionization_energy(self) -> float:
+    def ionization_energy(self) -> float | None:
         """First ionization energy of element."""
-        return self._data["Ionization energies"][0]
+        if not self.ionization_energies:
+            warnings.warn(f"No data available for ionization_energy for {self.symbol}")
+            return None
+        return self.ionization_energies[0]
 
     @property
     def electron_affinity(self) -> float:
@@ -418,11 +423,6 @@ class ElementBase(Enum):
         ICSD database AND at least 1% of entries for that element.
         """
         return tuple(self._data.get("ICSD oxidation states", []))
-
-    @property
-    def metallic_radius(self) -> float:
-        """Metallic radius of the element. Radius is given in ang."""
-        return FloatWithUnit(self._data["Metallic radius"], "ang")
 
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
