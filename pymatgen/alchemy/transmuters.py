@@ -204,8 +204,8 @@ class StandardTransmuter:
                 assert isinstance(ts, TransformedStructure)
             self.transformed_structures.extend(trafo_structs_or_transmuter)
 
-    @staticmethod
-    def from_structures(structures, transformations=None, extend_collection=0):
+    @classmethod
+    def from_structures(cls, structures, transformations=None, extend_collection=0):
         """Alternative constructor from structures rather than
         TransformedStructures.
 
@@ -222,7 +222,7 @@ class StandardTransmuter:
             StandardTransmuter
         """
         trafo_struct = [TransformedStructure(s, []) for s in structures]
-        return StandardTransmuter(trafo_struct, transformations, extend_collection)
+        return cls(trafo_struct, transformations, extend_collection)
 
 
 class CifTransmuter(StandardTransmuter):
@@ -235,7 +235,7 @@ class CifTransmuter(StandardTransmuter):
         containing multiple structures.
 
         Args:
-            cif_string: A string containing a cif or a series of cifs
+            cif_string: A string containing a cif or a series of CIFs
             transformations: New transformations to be applied to all
                 structures
             primitive: Whether to generate the primitive cell from the cif.
@@ -259,8 +259,8 @@ class CifTransmuter(StandardTransmuter):
             transformed_structures.append(trafo_struct)
         super().__init__(transformed_structures, transformations, extend_collection)
 
-    @staticmethod
-    def from_filenames(filenames, transformations=None, primitive=True, extend_collection=False):
+    @classmethod
+    def from_filenames(cls, filenames, transformations=None, primitive=True, extend_collection=False):
         """Generates a TransformedStructureCollection from a cif, possibly
         containing multiple structures.
 
@@ -271,12 +271,12 @@ class CifTransmuter(StandardTransmuter):
             primitive: Same meaning as in __init__.
             extend_collection: Same meaning as in __init__.
         """
-        allcifs = []
+        cif_files = []
         for fname in filenames:
-            with open(fname) as f:
-                allcifs.append(f.read())
-        return CifTransmuter(
-            "\n".join(allcifs),
+            with open(fname) as file:
+                cif_files.append(file.read())
+        return cls(
+            "\n".join(cif_files),
             transformations,
             primitive=primitive,
             extend_collection=extend_collection,
@@ -298,8 +298,8 @@ class PoscarTransmuter(StandardTransmuter):
         trafo_struct = TransformedStructure.from_poscar_string(poscar_string, [])
         super().__init__([trafo_struct], transformations, extend_collection=extend_collection)
 
-    @staticmethod
-    def from_filenames(poscar_filenames, transformations=None, extend_collection=False):
+    @classmethod
+    def from_filenames(cls, poscar_filenames, transformations=None, extend_collection=False):
         """Convenient constructor to generates a POSCAR transmuter from a list of
         POSCAR filenames.
 
@@ -314,7 +314,7 @@ class PoscarTransmuter(StandardTransmuter):
         for filename in poscar_filenames:
             with open(filename) as f:
                 trafo_structs.append(TransformedStructure.from_poscar_string(f.read(), []))
-        return StandardTransmuter(trafo_structs, transformations, extend_collection=extend_collection)
+        return cls(trafo_structs, transformations, extend_collection=extend_collection)
 
 
 def batch_write_vasp_input(

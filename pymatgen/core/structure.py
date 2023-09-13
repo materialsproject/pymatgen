@@ -2611,7 +2611,7 @@ class IStructure(SiteCollection, MSONable):
                 Non-case sensitive.
             **kwargs: Kwargs passthru to relevant methods. E.g., This allows
                 the passing of parameters like symprec to the
-                CifWriter.__init__ method for generation of symmetric cifs.
+                CifWriter.__init__ method for generation of symmetric CIFs.
 
         Returns:
             str: String representation of molecule in given format. If a filename
@@ -2786,7 +2786,7 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             filename (str): The filename to read from.
-            primitive (bool): Whether to convert to a primitive cell. Only available for cifs. Defaults to False.
+            primitive (bool): Whether to convert to a primitive cell. Only available for CIFs. Defaults to False.
             sort (bool): Whether to sort sites. Default to False.
             merge_tol (float): If this is some positive number, sites that are within merge_tol from each other will be
                 merged. Usually 0.01 should be enough to deal with common numerical issues.

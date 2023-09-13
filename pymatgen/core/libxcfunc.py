@@ -485,18 +485,14 @@ class LibxcFunc(Enum):
         """Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
-        return {
-            "name": self.name,
-            "@module": type(self).__module__,
-            "@class": type(self).__name__,
-        }
+        return {"name": self.name, "@module": type(self).__module__, "@class": type(self).__name__}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, dct):
         """Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
-        return LibxcFunc[d["name"]]
+        return cls[dct["name"]]
 
     def to_json(self):
         """Returns a json string representation of the MSONable object."""

@@ -504,8 +504,7 @@ class ElementBase(Enum):
         """Get an element from its long name.
 
         Args:
-            name: Long name of the element, e.g. 'Hydrogen' or
-                  'Iron'. Not case-sensitive.
+            name: Long name of the element, e.g. 'Hydrogen' or 'Iron'. Not case-sensitive.
 
         Returns:
             Element with the name 'name'

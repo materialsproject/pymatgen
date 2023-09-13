@@ -347,7 +347,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
-
         Returns:
             Depending on returned_ranked list, either a transformed structure
             or a list of dictionaries, where each dictionary is of the form
@@ -1014,7 +1013,6 @@ class DopingTransformation(AbstractTransformation):
             return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures.
 
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
-
 
         Returns:
             [{"structure": Structure, "energy": float}]

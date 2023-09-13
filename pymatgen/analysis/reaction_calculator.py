@@ -249,20 +249,19 @@ class BalancedReaction(MSONable):
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
 
-    @staticmethod
-    def from_str(rxn_string):
+    @classmethod
+    def from_str(cls, rxn_str):
         """
         Generates a balanced reaction from a string. The reaction must
         already be balanced.
 
         Args:
-            rxn_string:
-                The reaction string. For example, "4 Li + O2-> 2Li2O"
+            rxn_string (str): The reaction string. For example, "4 Li + O2 -> 2Li2O"
 
         Returns:
             BalancedReaction
         """
-        rct_str, prod_str = rxn_string.split("->")
+        rct_str, prod_str = rxn_str.split("->")
 
         def get_comp_amt(comp_str):
             return {
@@ -270,7 +269,7 @@ class BalancedReaction(MSONable):
                 for m in re.finditer(r"([\d\.]*(?:[eE]-?[\d\.]+)?)\s*([A-Z][\w\.\(\)]*)", comp_str)
             }
 
-        return BalancedReaction(get_comp_amt(rct_str), get_comp_amt(prod_str))
+        return cls(get_comp_amt(rct_str), get_comp_amt(prod_str))
 
 
 class Reaction(BalancedReaction):

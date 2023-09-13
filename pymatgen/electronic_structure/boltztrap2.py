@@ -884,19 +884,18 @@ class BztTransportProperties:
         ]
 
         if self.contain_props_doping:
-            lst_props.extend(
-                [
-                    self.Conductivity_doping,
-                    self.Seebeck_doping,
-                    self.Kappa_doping,
-                    self.Power_Factor_doping,
-                    self.Effective_mass_doping,
-                    self.Carriers_conc_doping,
-                    self.doping,
-                    self.mu_doping,
-                    self.mu_doping_eV,
-                ]
-            )
+            props = [
+                self.Conductivity_doping,
+                self.Seebeck_doping,
+                self.Kappa_doping,
+                self.Power_Factor_doping,
+                self.Effective_mass_doping,
+                self.Carriers_conc_doping,
+                self.doping,
+                self.mu_doping,
+                self.mu_doping_eV,
+            ]
+            lst_props.extend(props)
         dumpfn(lst_props, fname)
 
     def load(self, fname="bztTranspProps.json.gz"):

@@ -4195,8 +4195,8 @@ class CutOffDictNN(NearNeighbors):
         """
         return True
 
-    @staticmethod
-    def from_preset(preset):
+    @classmethod
+    def from_preset(cls, preset):
         """
         Initialize a CutOffDictNN according to a preset set of cut-offs.
 
@@ -4211,7 +4211,7 @@ class CutOffDictNN(NearNeighbors):
         """
         if preset == "vesta_2019":
             cut_offs = loadfn(f"{_directory}/vesta_cutoffs.yaml")
-            return CutOffDictNN(cut_off_dict=cut_offs)
+            return cls(cut_off_dict=cut_offs)
 
         raise ValueError(f"Unknown {preset=}")
 
