@@ -655,8 +655,6 @@ class Plane:
 
         :param non_zeros: Indices of plane coefficients ([a, b, c]) that are not zero.
         :param zeros: Indices of plane coefficients ([a, b, c]) that are equal to zero.
-        Returns:
-            None
         """
         if len(non_zeros) == 3:
             self.p1 = np.array([-self.d / self.a, 0.0, 0.0], np.float_)

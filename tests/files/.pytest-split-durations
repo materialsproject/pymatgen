@@ -1921,7 +1921,7 @@
     "tests/io/test_gaussian.py::TestGaussianInput::test_from_string": 0.0007665419252589345,
     "tests/io/test_gaussian.py::TestGaussianInput::test_gen_basis": 0.00042866700096055865,
     "tests/io/test_gaussian.py::TestGaussianInput::test_init": 0.00040841702139005065,
-    "tests/io/test_gaussian.py::TestGaussianInput::test_multiple_paramaters": 0.0015059159486554563,
+    "tests/io/test_gaussian.py::TestGaussianInput::test_multiple_parameters": 0.0015059159486554563,
     "tests/io/test_gaussian.py::TestGaussianInput::test_no_molecule": 0.00032249902142211795,
     "tests/io/test_gaussian.py::TestGaussianInput::test_no_molecule_func_bset_charge_mult": 0.00029816600726917386,
     "tests/io/test_gaussian.py::TestGaussianInput::test_str_and_from_string": 0.0006575410370714962,

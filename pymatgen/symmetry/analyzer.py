@@ -1670,9 +1670,8 @@ class SpacegroupOperations(list):
 class PointGroupOperations(list):
     """Defines a point group, which is essentially a sequence of symmetry operations.
 
-    .. attribute:: sch_symbol
-
-        Schoenflies symbol of the point group.
+    Attributes:
+        sch_symbol (str): Schoenflies symbol of the point group.
     """
 
     def __init__(self, sch_symbol, operations, tol: float = 0.1):

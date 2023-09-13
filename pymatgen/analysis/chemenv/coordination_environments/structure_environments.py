@@ -33,8 +33,8 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 
-allcg = AllCoordinationGeometries()
-symbol_cn_mapping = allcg.get_symbol_cn_mapping()
+all_cg = AllCoordinationGeometries()
+symbol_cn_mapping = all_cg.get_symbol_cn_mapping()
 
 
 class StructureEnvironments(MSONable):
@@ -62,10 +62,9 @@ class StructureEnvironments(MSONable):
             self.isite = isite
             self.detailed_voronoi = detailed_voronoi
             self.voronoi = detailed_voronoi.voronoi_list2[isite]
-            myset = set(site_voronoi_indices)
-            if len(myset) != len(site_voronoi_indices):
-                raise ValueError("Set of neighbors contains duplicates !")
-            self.site_voronoi_indices = sorted(myset)
+            if n_dupes := (len(set(site_voronoi_indices)) - len(site_voronoi_indices)):
+                raise ValueError(f"Set of neighbors contains {n_dupes} duplicates!")
+            self.site_voronoi_indices = sorted(site_voronoi_indices)
             if sources is None:
                 self.sources = [{"origin": "UNKNOWN"}]
             elif isinstance(sources, list):
@@ -238,48 +237,48 @@ class StructureEnvironments(MSONable):
                 additional_condition: Additional condition for the neighbors.
                 other_origins: What to do with sources that do not come from the Voronoi grid (e.g. "from hints").
             """
-            my_src = []
+            src_list = []
             for src in self.sources:
                 if src["origin"] == "dist_ang_ac_voronoi":
                     if src["ac"] != additional_condition:
                         continue
-                    my_src.append(src)
+                    src_list.append(src)
                 else:
                     if other_origins == "DO_NOTHING":
                         continue
                     raise NotImplementedError("Nothing implemented for other sources ...")
-            if len(my_src) == 0:
+            if len(src_list) == 0:
                 return None
 
-            dists = [src["dp_dict"]["min"] for src in my_src]
-            angs = [src["ap_dict"]["max"] for src in my_src]
-            next_dists = [src["dp_dict"]["next"] for src in my_src]
-            next_angs = [src["ap_dict"]["next"] for src in my_src]
+            dists = [src["dp_dict"]["min"] for src in src_list]
+            angles = [src["ap_dict"]["max"] for src in src_list]
+            next_dists = [src["dp_dict"]["next"] for src in src_list]
+            next_angles = [src["ap_dict"]["next"] for src in src_list]
 
             points_dict = {}
 
-            pdists = []
+            p_dists = []
             pangs = []
 
-            for isrc in range(len(my_src)):
-                if not any(np.isclose(pdists, dists[isrc])):
-                    pdists.append(dists[isrc])
-                if not any(np.isclose(pdists, next_dists[isrc])):
-                    pdists.append(next_dists[isrc])
-                if not any(np.isclose(pangs, angs[isrc])):
-                    pangs.append(angs[isrc])
-                if not any(np.isclose(pangs, next_angs[isrc])):
-                    pangs.append(next_angs[isrc])
-                d1_indices = np.argwhere(np.isclose(pdists, dists[isrc])).flatten()
+            for idx in range(len(src_list)):
+                if not any(np.isclose(p_dists, dists[idx])):
+                    p_dists.append(dists[idx])
+                if not any(np.isclose(p_dists, next_dists[idx])):
+                    p_dists.append(next_dists[idx])
+                if not any(np.isclose(pangs, angles[idx])):
+                    pangs.append(angles[idx])
+                if not any(np.isclose(pangs, next_angles[idx])):
+                    pangs.append(next_angles[idx])
+                d1_indices = np.argwhere(np.isclose(p_dists, dists[idx])).flatten()
                 if len(d1_indices) != 1:
                     raise ValueError("Distance parameter not found ...")
-                d2_indices = np.argwhere(np.isclose(pdists, next_dists[isrc])).flatten()
+                d2_indices = np.argwhere(np.isclose(p_dists, next_dists[idx])).flatten()
                 if len(d2_indices) != 1:
                     raise ValueError("Distance parameter not found ...")
-                a1_indices = np.argwhere(np.isclose(pangs, angs[isrc])).flatten()
+                a1_indices = np.argwhere(np.isclose(pangs, angles[idx])).flatten()
                 if len(a1_indices) != 1:
                     raise ValueError("Angle parameter not found ...")
-                a2_indices = np.argwhere(np.isclose(pangs, next_angs[isrc])).flatten()
+                a2_indices = np.argwhere(np.isclose(pangs, next_angles[idx])).flatten()
                 if len(a2_indices) != 1:
                     raise ValueError("Angle parameter not found ...")
                 id1 = d1_indices[0]
@@ -321,7 +320,7 @@ class StructureEnvironments(MSONable):
                 sorted_points.append((idp, iap))
                 move_ap_index = not move_ap_index
 
-            return [(pdists[idp], pangs[iap]) for (idp, iap) in sorted_points]
+            return [(p_dists[idp], pangs[iap]) for (idp, iap) in sorted_points]
 
         @property
         def source(self):
@@ -848,11 +847,11 @@ class StructureEnvironments(MSONable):
                 "angle_parameter": ("initial_normalized_inverted", None),
             }
 
-        mycm = cm.jet if colormap is None else colormap
-        mymin = 0.0
-        mymax = 10.0
-        norm = Normalize(vmin=mymin, vmax=mymax)
-        scalarmap = cm.ScalarMappable(norm=norm, cmap=mycm)
+        clr_map = cm.jet if colormap is None else colormap
+        clr_min = 0.0
+        clr_max = 10.0
+        norm = Normalize(vmin=clr_min, vmax=clr_max)
+        scalarmap = cm.ScalarMappable(norm=norm, cmap=clr_map)
         dist_limits = [1.0, max_dist]
         ang_limits = [0.0, 1.0]
         if plot_type["distance_parameter"][0] == "one_minus_inverse_alpha_power_n":
@@ -901,39 +900,39 @@ class StructureEnvironments(MSONable):
                     continue
                 ce = self.ce_list[isite][cn][inb_set]
                 if ce is None:
-                    mycolor = "w"
-                    myinvcolor = "k"
-                    mytext = f"{cn}"
+                    color = "w"
+                    inv_color = "k"
+                    text = f"{cn}"
                 else:
                     mingeom = ce.minimum_geometry()
                     if mingeom is not None:
                         mp_symbol = mingeom[0]
                         csm = mingeom[1]["symmetry_measure"]
-                        mycolor = scalarmap.to_rgba(csm)
-                        myinvcolor = [
-                            1.0 - mycolor[0],
-                            1.0 - mycolor[1],
-                            1.0 - mycolor[2],
+                        color = scalarmap.to_rgba(csm)
+                        inv_color = [
+                            1.0 - color[0],
+                            1.0 - color[1],
+                            1.0 - color[2],
                             1.0,
                         ]
-                        mytext = f"{mp_symbol}"
+                        text = f"{mp_symbol}"
                     else:
-                        mycolor = "w"
-                        myinvcolor = "k"
-                        mytext = f"{cn}"
+                        color = "w"
+                        inv_color = "k"
+                        text = f"{cn}"
                 nb_set_surface_pts = [(dp_func(pt[0]), ap_func(pt[1])) for pt in nb_set_surface_pts]
                 polygon = Polygon(
                     nb_set_surface_pts,
                     closed=True,
                     edgecolor="k",
-                    facecolor=mycolor,
+                    facecolor=color,
                     linewidth=1.2,
                 )
                 ax.add_patch(polygon)
-                myipt = len(nb_set_surface_pts) / 2
-                ipt = int(myipt)
-                if myipt != ipt:
-                    raise RuntimeError("Number of surface points not even")
+                ipt = len(nb_set_surface_pts) / 2
+                if ipt != int(ipt):
+                    raise RuntimeError("Uneven number of surface points")
+                ipt = int(ipt)
                 patch_center = (
                     (nb_set_surface_pts[0][0] + min(nb_set_surface_pts[ipt][0], dist_limits[1])) / 2,
                     (nb_set_surface_pts[0][1] + nb_set_surface_pts[ipt][1]) / 2,
@@ -948,11 +947,11 @@ class StructureEnvironments(MSONable):
                         (nb_set_surface_pts[-1][1] + nb_set_surface_pts[-2][1]) / 2,
                     )
                     ax.annotate(
-                        mytext,
+                        text,
                         xy=xytext,
                         ha="center",
                         va="center",
-                        color=myinvcolor,
+                        color=inv_color,
                         fontsize="x-small",
                     )
                 elif (
@@ -961,11 +960,11 @@ class StructureEnvironments(MSONable):
                 ):
                     xytext = patch_center
                     ax.annotate(
-                        mytext,
+                        text,
                         xy=xytext,
                         ha="center",
                         va="center",
-                        color=myinvcolor,
+                        color=inv_color,
                         fontsize="x-small",
                     )
 
@@ -985,7 +984,7 @@ class StructureEnvironments(MSONable):
         if plot_type["angle_parameter"][0] == "initial_normalized_inverted":
             ax.axes.invert_yaxis()
 
-        scalarmap.set_array([mymin, mymax])
+        scalarmap.set_array([clr_min, clr_max])
         cb = fig.colorbar(scalarmap, ax=ax, extend="max")
         cb.set_label("Continuous symmetry measure")
         return fig, ax
@@ -1397,10 +1396,10 @@ class LightStructureEnvironments(MSONable):
             self.structure = structure
             self.isite = isite
             self.all_nbs_sites = all_nbs_sites
-            myset = set(all_nbs_sites_indices)
-            if len(myset) != len(all_nbs_sites_indices):
+            indices = set(all_nbs_sites_indices)
+            if len(indices) != len(all_nbs_sites_indices):
                 raise ValueError("Set of neighbors contains duplicates !")
-            self.all_nbs_sites_indices = sorted(myset)
+            self.all_nbs_sites_indices = sorted(indices)
             self.all_nbs_sites_indices_unsorted = all_nbs_sites_indices
 
         @property
@@ -1538,7 +1537,7 @@ class LightStructureEnvironments(MSONable):
         coordination_environments = [None] * len(structure)
         neighbors_sets = [None] * len(structure)
         _all_nbs_sites = []
-        my_all_nbs_sites = []
+        all_nbs_sites = []
         if valences is None:
             valences = structure_environments.valences
             if valences_origin is None:
@@ -1573,7 +1572,7 @@ class LightStructureEnvironments(MSONable):
                 for nb_site_and_index in neighbors:
                     nb_site = nb_site_and_index["site"]
                     try:
-                        nb_allnbs_sites_index = my_all_nbs_sites.index(nb_site)
+                        nb_allnbs_sites_index = all_nbs_sites.index(nb_site)
                     except ValueError:
                         nb_index_unitcell = nb_site_and_index["index"]
                         diff = nb_site.frac_coords - structure[nb_index_unitcell].frac_coords
@@ -1585,13 +1584,9 @@ class LightStructureEnvironments(MSONable):
                         nb_image_cell = np.array(rounddiff, int)
                         nb_allnbs_sites_index = len(_all_nbs_sites)
                         _all_nbs_sites.append(
-                            {
-                                "site": nb_site,
-                                "index": nb_index_unitcell,
-                                "image_cell": nb_image_cell,
-                            }
+                            {"site": nb_site, "index": nb_index_unitcell, "image_cell": nb_image_cell}
                         )
-                        my_all_nbs_sites.append(nb_site)
+                        all_nbs_sites.append(nb_site)
                     _all_nbs_sites_indices.append(nb_allnbs_sites_index)
 
                 nb_set = cls.NeighborsSet(
@@ -2230,7 +2225,7 @@ class ChemicalEnvironments(MSONable):
         Raises:
             ChemenvError if the coordination geometry is already added and override is set to False
         """
-        if not allcg.is_a_valid_coordination_geometry(mp_symbol=mp_symbol):
+        if not all_cg.is_a_valid_coordination_geometry(mp_symbol=mp_symbol):
             raise ChemenvError(
                 self.__class__,
                 "add_coord_geom",

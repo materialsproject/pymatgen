@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 
 import numpy as np
 import pytest
@@ -325,21 +324,13 @@ class TestStructureMatcher(PymatgenTest):
         assert list(map(len, out)) == [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1]
 
     def test_mix(self):
-        structures = [
-            self.get_structure("Li2O"),
-            self.get_structure("Li2O2"),
-            self.get_structure("LiFePO4"),
-        ]
-        for fname in ["POSCAR.Li2O", "POSCAR.LiFePO4"]:
-            structures.append(Structure.from_file(os.path.join(TEST_FILES_DIR, fname)))
+        structures = list(map(self.get_structure, ["Li2O", "Li2O2", "LiFePO4"]))
+        structures += [Structure.from_file(f"{TEST_FILES_DIR}/{fname}") for fname in ["POSCAR.Li2O", "POSCAR.LiFePO4"]]
         sm = StructureMatcher(comparator=ElementComparator())
         groups = sm.group_structures(structures)
-        for g in groups:
-            formula = g[0].composition.reduced_formula
-            if formula in ["Li2O", "LiFePO4"]:
-                assert len(g) == 2
-            else:
-                assert len(g) == 1
+        for group in groups:
+            formula = group[0].composition.reduced_formula
+            assert len(group) == (2 if formula in ["Li2O", "LiFePO4"] else 1)
 
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted."""

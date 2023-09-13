@@ -1465,8 +1465,8 @@ class TestChgcar(PymatgenTest):
         assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(0)
 
         ans = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
-        myans = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
-        assert_allclose(myans[:, 1], ans)
+        actual = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
+        assert_allclose(actual[:, 1], ans)
 
     def test_write(self):
         self.chgcar_spin.write_file("CHGCAR_pmg")

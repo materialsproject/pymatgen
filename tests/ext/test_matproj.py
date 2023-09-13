@@ -332,31 +332,28 @@ class TestMPResterOld(PymatgenTest):
 
     def test_get_stability(self):
         entries = self.rester.get_entries_in_chemsys(["Fe", "O"])
-        modified_entries = []
-        for entry in entries:
-            # Create modified entries with energies that are 0.01eV higher
-            # than the corresponding entries.
-            if entry.composition.reduced_formula == "Fe2O3":
-                modified_entries.append(
-                    ComputedEntry(
-                        entry.composition,
-                        entry.uncorrected_energy + 0.01,
-                        parameters=entry.parameters,
-                        entry_id=f"mod_{entry.entry_id}",
-                    )
-                )
-        rest_ehulls = self.rester.get_stability(modified_entries)
+        modified_entries = [
+            ComputedEntry(
+                entry.composition,
+                entry.uncorrected_energy + 0.01,
+                parameters=entry.parameters,
+                entry_id=f"mod_{entry.entry_id}",
+            )
+            for entry in entries
+            if entry.composition.reduced_formula == "Fe2O3"
+        ]
+        rester_ehulls = self.rester.get_stability(modified_entries)
         all_entries = entries + modified_entries
         compat = MaterialsProject2020Compatibility()
         all_entries = compat.process_entries(all_entries)
         pd = PhaseDiagram(all_entries)
-        for e in all_entries:
-            if str(e.entry_id).startswith("mod"):
-                for d in rest_ehulls:
-                    if d["entry_id"] == e.entry_id:
-                        data = d
+        for entry in all_entries:
+            if str(entry.entry_id).startswith("mod"):
+                for dct in rester_ehulls:
+                    if dct["entry_id"] == entry.entry_id:
+                        data = dct
                         break
-                assert pd.get_e_above_hull(e) == approx(data["e_above_hull"])
+                assert pd.get_e_above_hull(entry) == approx(data["e_above_hull"])
 
     def test_get_reaction(self):
         rxn = self.rester.get_reaction(["Li", "O"], ["Li2O"])

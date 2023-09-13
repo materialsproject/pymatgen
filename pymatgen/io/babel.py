@@ -1,8 +1,7 @@
 """
 OpenBabel interface module, which opens up access to the hundreds of file
 formats supported by OpenBabel. Requires openbabel with python bindings to be
-installed. Please consult the
-`openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
+installed. Please consult the openbabel docs https://openbabel.org.
 """
 
 from __future__ import annotations

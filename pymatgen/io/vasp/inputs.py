@@ -1614,15 +1614,10 @@ class PotcarSingle:
     Object for a **single** POTCAR. The builder assumes the POTCAR contains
     the complete untouched data in "data" as a string and a dict of keywords.
 
-    .. attribute:: data
-
-        POTCAR data as a string.
-
-    .. attribute:: keywords
-
-        Keywords parsed from the POTCAR as a dict. All keywords are also
-        accessible as attributes in themselves. E.g., potcar.enmax,
-        potcar.encut, etc.
+    Attributes:
+        data (str): POTCAR data as a string.
+        keywords (dict): Keywords parsed from the POTCAR as a dict. All keywords are also
+            accessible as attributes in themselves. E.g., potcar.enmax, potcar.encut, etc.
 
     md5 hashes of the entire POTCAR file and the actual data are validated
     against a database of known good hashes. Appropriate warnings or errors
@@ -2105,10 +2100,7 @@ class PotcarSingle:
         if identity:
             # convert the potcar_functionals from the .json dict into the functional
             # keys that pymatgen uses
-            potcar_functionals = []
-            for i in identity["potcar_functionals"]:
-                potcar_functionals.append(mapping_dict[i]["pymatgen_key"])
-            potcar_functionals = list(set(potcar_functionals))
+            potcar_functionals = [*{mapping_dict[i]["pymatgen_key"] for i in identity["potcar_functionals"]}]
 
             return potcar_functionals, identity["potcar_symbols"]
         return [], []

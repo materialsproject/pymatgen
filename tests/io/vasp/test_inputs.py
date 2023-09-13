@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import pickle
+import unittest
 from pathlib import Path
 
 import numpy as np
@@ -27,7 +28,7 @@ from pymatgen.io.vasp.inputs import (
     UnknownPotcarWarning,
     VaspInput,
 )
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestPoscar:
@@ -400,8 +401,8 @@ direct
         ]
 
 
-class TestIncar:
-    def setup(self):
+class TestIncar(unittest.TestCase):
+    def setUp(self):
         file_name = f"{TEST_FILES_DIR}/INCAR"
         self.incar = Incar.from_file(file_name)
 
@@ -911,10 +912,10 @@ direct
                     assert kpoints.style == Kpoints.supported_modes.Gamma
 
 
-class TestPotcarSingle:
+class TestPotcarSingle(unittest.TestCase):
     _multiprocess_shared_ = True
 
-    def setup(self):
+    def setUp(self):
         self.psingle = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
 
     def test_keywords(self):
@@ -1095,8 +1096,8 @@ class TestPotcarSingle:
         )
 
 
-class TestPotcar:
-    def setup(self):
+class TestPotcar(unittest.TestCase):
+    def setUp(self):
         if "PMG_VASP_PSP_DIR" not in SETTINGS:
             SETTINGS["PMG_VASP_PSP_DIR"] = str(TEST_FILES_DIR)
         self.filepath = f"{TEST_FILES_DIR}/POTCAR"
@@ -1166,8 +1167,8 @@ class TestPotcar:
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
 
-class TestVaspInput:
-    def setup(self):
+class TestVaspInput(PymatgenTest):
+    def setUp(self):
         filepath = f"{TEST_FILES_DIR}/INCAR"
         incar = Incar.from_file(filepath)
         filepath = f"{TEST_FILES_DIR}/POSCAR"
@@ -1187,17 +1188,13 @@ class TestVaspInput:
         assert comp == Composition("Fe4P4O16")
 
     def test_write(self):
-        tmp_dir = Path("VaspInput.testing")
+        tmp_dir = f"{self.tmp_path}/VaspInput.testing"
         self.vasp_input.write_input(tmp_dir)
 
-        filepath = tmp_dir / "INCAR"
-        incar = Incar.from_file(filepath)
+        incar = Incar.from_file(f"{tmp_dir}/INCAR")
         assert incar["NSW"] == 99
 
-        for name in ("INCAR", "POSCAR", "POTCAR", "KPOINTS"):
-            (tmp_dir / name).unlink()
-
-        tmp_dir.rmdir()
+        assert {*os.listdir(tmp_dir)} == {"INCAR", "KPOINTS", "POSCAR", "POTCAR"}
 
     def test_run_vasp(self):
         self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])

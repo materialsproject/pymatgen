@@ -59,12 +59,12 @@ class DistanceCutoffFloat(float, StrategyOption):
 
     allowed_values = "Real number between 1 and +infinity"
 
-    def __new__(cls, myfloat):
+    def __new__(cls, cutoff):
         """Special float that should be between 1 and infinity.
 
-        :param myfloat: Distance cutoff.
+        :param cutoff: Distance cutoff.
         """
-        flt = float.__new__(cls, myfloat)
+        flt = float.__new__(cls, cutoff)
         if flt < 1:
             raise ValueError("Distance cutoff should be between 1 and +infinity")
         return flt
@@ -91,12 +91,12 @@ class AngleCutoffFloat(float, StrategyOption):
 
     allowed_values = "Real number between 0 and 1"
 
-    def __new__(cls, myfloat):
+    def __new__(cls, cutoff):
         """Special float that should be between 0 and 1.
 
-        :param myfloat: Angle cutoff.
+        :param cutoff: Angle cutoff.
         """
-        flt = float.__new__(cls, myfloat)
+        flt = float.__new__(cls, cutoff)
         if not 0 <= flt <= 1:
             raise ValueError(f"Angle cutoff should be between 0 and 1, got {flt}")
         return flt
@@ -123,12 +123,12 @@ class CSMFloat(float, StrategyOption):
 
     allowed_values = "Real number between 0 and 100"
 
-    def __new__(cls, myfloat):
+    def __new__(cls, cutoff):
         """Special float that should be between 0 and 100.
 
-        :param myfloat: CSM.
+        :param cutoff: CSM.
         """
-        flt = float.__new__(cls, myfloat)
+        flt = float.__new__(cls, cutoff)
         if not 0 <= flt <= 100:
             raise ValueError(f"Continuous symmetry measure limits should be between 0 and 100, got {flt}")
         return flt
@@ -219,8 +219,6 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         """Set the structure environments to this strategy.
 
         :param structure_environments: StructureEnvironments object.
-        Returns:
-            None
         """
         self.structure_environments = structure_environments
         if not isinstance(self.structure_environments.voronoi, DetailedVoronoiContainer):
@@ -278,8 +276,8 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
                     equiv_site._lattice,
                 )
                 if new_site.is_periodic_image(this_site, tolerance=tolerance):
-                    my_sym = sym_op
-                    dthissite2 = this_site.frac_coords - new_site.frac_coords
+                    sym_trafo = sym_op
+                    d_this_site2 = this_site.frac_coords - new_site.frac_coords
                     found = True
                     break
             if not found:
@@ -290,17 +288,17 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
                         sym_op.operate(equiv_site.frac_coords),
                         equiv_site._lattice,
                     )
-                    # if newsite.is_periodic_image(thissite):
+                    # if new_site.is_periodic_image(this_site):
                     if new_site.is_periodic_image(this_site, tolerance=tolerance):
-                        my_sym = sym_op
-                        dthissite2 = this_site.frac_coords - new_site.frac_coords
+                        sym_trafo = sym_op
+                        d_this_site2 = this_site.frac_coords - new_site.frac_coords
                         found = True
                         break
             if found:
                 break
         if not found:
             raise EquivalentSiteSearchError(psite)
-        return [self.structure_environments.sites_map[isite], dequivsite, dthis_site + dthissite2, my_sym]
+        return self.structure_environments.sites_map[isite], dequivsite, dthis_site + d_this_site2, sym_trafo
 
     @abc.abstractmethod
     def get_site_neighbors(self, site):
@@ -379,18 +377,13 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         """
         Applies the strategy to the structure_environments object in order to get coordination environments, their
         fraction, csm, geometry_info, and neighbors
-        :param site: Site for which the above information is seeked
+        :param site: Site for which the above information is sought
 
         Returns:
             The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
         can return a list of list of neighbors.
         """
-        [
-            isite,
-            dequivsite,
-            dthissite,
-            mysym,
-        ] = self.equivalent_site_index_and_transform(site)
+        isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
         geoms_and_maps_list = self.get_site_coordination_environments_fractions(
             site=site,
             isite=isite,
@@ -420,8 +413,6 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
 
         :param option_name: Name of the option.
         :param option_value: Value for this option.
-        Returns:
-            None
         """
         setattr(self, option_name, option_value)
 
@@ -429,8 +420,6 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         """Set up options for this strategy based on a dict.
 
         :param all_options_dict: Dict of option_name->option_value.
-        Returns:
-            None
         """
         for option_name, option_value in all_options_dict.items():
             self.set_option(option_name, option_value)
@@ -552,8 +541,6 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         """Set the distance cutoff for this strategy.
 
         :param distance_cutoff: Distance cutoff.
-        Returns:
-            None
         """
         self._distance_cutoff = DistanceCutoffFloat(distance_cutoff)
 
@@ -567,8 +554,6 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         """Set the angle cutoff for this strategy.
 
         :param angle_cutoff: Angle cutoff.
-        Returns:
-            None
         """
         self._angle_cutoff = AngleCutoffFloat(angle_cutoff)
 
@@ -582,8 +567,6 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         """Set the additional condition for this strategy.
 
         :param additional_condition: Additional condition.
-        Returns:
-            None
         """
         self._additional_condition = AdditionalConditionInt(additional_condition)
 
@@ -597,9 +580,6 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         """Set the CSM cutoff for this strategy.
 
         :param continuous_symmetry_measure_cutoff: CSM cutoff
-
-        Returns:
-            None
         """
         self._continuous_symmetry_measure_cutoff = CSMFloat(continuous_symmetry_measure_cutoff)
 
@@ -615,12 +595,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             List of coordinated neighbors of site.
         """
         if isite is None:
-            [
-                isite,
-                dequivsite,
-                dthissite,
-                mysym,
-            ] = self.equivalent_site_index_and_transform(site)
+            isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
 
         ce, cn_map = self.get_site_coordination_environment(
             site=site,
@@ -662,12 +637,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             Coordination environment of site.
         """
         if isite is None:
-            [
-                isite,
-                dequivsite,
-                dthissite,
-                mysym,
-            ] = self.equivalent_site_index_and_transform(site)
+            isite, *_ = self.equivalent_site_index_and_transform(site)
         neighbors_normalized_distances = self.structure_environments.voronoi.neighbors_normalized_distances[isite]
         neighbors_normalized_angles = self.structure_environments.voronoi.neighbors_normalized_angles[isite]
         i_dist = None
@@ -751,12 +721,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             List of Dict with coordination environment, fraction and additional info.
         """
         if isite is None or dequivsite is None or dthissite is None or mysym is None:
-            [
-                isite,
-                dequivsite,
-                dthissite,
-                mysym,
-            ] = self.equivalent_site_index_and_transform(site)
+            isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
         site_nb_sets = self.structure_environments.neighbors_sets[isite]
         if site_nb_sets is None:
             return None
@@ -805,16 +770,10 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         Returns:
             List of coordination environment.
         """
-        return [
-            self.get_site_coordination_environment(
-                site=site,
-                isite=isite,
-                dequivsite=dequivsite,
-                dthissite=dthissite,
-                mysym=mysym,
-                return_map=return_maps,
-            )
-        ]
+        env = self.get_site_coordination_environment(
+            site=site, isite=isite, dequivsite=dequivsite, dthissite=dthissite, mysym=mysym, return_map=return_maps
+        )
+        return [env]
 
     def add_strategy_visualization_to_subplot(self, subplot, visualization_options=None, plot_type=None):
         """Add a visual of the strategy on a distance-angle plot.
@@ -822,16 +781,9 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         :param subplot: Axes object onto the visual should be added.
         :param visualization_options: Options for the visual.
         :param plot_type: Type of distance-angle plot.
-        Returns:
-            None
         """
         subplot.plot(
-            self._distance_cutoff,
-            self._angle_cutoff,
-            "o",
-            mec=None,
-            mfc="w",
-            markersize=12,
+            self._distance_cutoff, self._angle_cutoff, "o", markeredgecolor=None, markerfacecolor="w", markersize=12
         )
         subplot.plot(self._distance_cutoff, self._angle_cutoff, "x", linewidth=2, markersize=12)
 
@@ -933,12 +885,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         Returns:
             List of neighbors of site.
         """
-        [
-            isite,
-            dequivsite,
-            dthissite,
-            mysym,
-        ] = self.equivalent_site_index_and_transform(site)
+        isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
         cn_map = self._get_map(isite)
         eqsite_ps = self.structure_environments.unique_coordinated_neighbors(isite, cn_map=cn_map)
         coordinated_neighbors = []
@@ -969,12 +916,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
             Coordination environment of site.
         """
         if isite is None:
-            [
-                isite,
-                dequivsite,
-                dthissite,
-                mysym,
-            ] = self.equivalent_site_index_and_transform(site)
+            isite, *_ = self.equivalent_site_index_and_transform(site)
         cn_map = self._get_map(isite)
         if cn_map is None:
             return None
@@ -1146,12 +1088,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
             Coordination environment of site.
         """
         if isite is None:
-            [
-                isite,
-                dequivsite,
-                dthissite,
-                mysym,
-            ] = self.equivalent_site_index_and_transform(site)
+            isite, *_ = self.equivalent_site_index_and_transform(site)
         cn_map = self._get_map(isite)
         if cn_map is None:
             return None
@@ -2639,12 +2576,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
             List of Dict with coordination environment, fraction and additional info.
         """
         if isite is None or dequivsite is None or dthissite is None or mysym is None:
-            [
-                isite,
-                dequivsite,
-                dthissite,
-                mysym,
-            ] = self.equivalent_site_index_and_transform(site)
+            isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
         site_nb_sets = self.structure_environments.neighbors_sets[isite]
         if site_nb_sets is None:
             return None
@@ -2811,12 +2743,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
             List of coordination environment.
         """
         if isite is None or dequivsite is None or dthissite is None or mysym is None:
-            [
-                isite,
-                dequivsite,
-                dthissite,
-                mysym,
-            ] = self.equivalent_site_index_and_transform(site)
+            isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
         return [
             self.get_site_coordination_environment(  # pylint: disable=E1123
                 site=site,

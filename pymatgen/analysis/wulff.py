@@ -102,61 +102,30 @@ class WulffShape:
     http://scipy.github.io/devdocs/generated/scipy.spatial.ConvexHull.html
 
     Process:
-        1. get wulff simplices
+        1. get Wulff simplices
         2. label with color
         3. get wulff_area and other properties
 
-    .. attribute:: debug (bool)
-
-    .. attribute:: alpha
-        transparency
-
-    .. attribute:: color_set
-
-    .. attribute:: grid_off (bool)
-
-    .. attribute:: axis_off (bool)
-
-    .. attribute:: show_area
-
-    .. attribute:: off_color
-        color of facets off wulff
-
-    .. attribute:: structure
-        Structure object, input conventional unit cell (with H ) from lattice
-
-    .. attribute:: miller_list
-        list of input miller index, for hcp in the form of hkil
-
-    .. attribute:: hkl_list
-        modify hkill to hkl, in the same order with input_miller
-
-    .. attribute:: e_surf_list
-        list of input surface energies, in the same order with input_miller
-
-    .. attribute:: lattice
-        Lattice object, the input lattice for the conventional unit cell
-
-    .. attribute:: facets
-        [WulffFacet] for all facets considering symm
-
-    .. attribute:: dual_cv_simp
-        simplices from the dual convex hull (dual_pt)
-
-    .. attribute:: wulff_pt_list
-
-    .. attribute:: wulff_cv_simp
-        simplices from the convex hull of wulff_pt_list
-
-    .. attribute:: on_wulff
-        list for all input_miller, True is on wulff.
-
-    .. attribute:: color_area
-        list for all input_miller, total area on wulff, off_wulff = 0.
-
-    .. attribute:: miller_area
-        ($hkl$): area for all input_miller
-
+    Attributes:
+        debug (bool): Whether to print debug information.
+        alpha (float): Transparency of the Wulff shape.
+        color_set (list): colors to use for facets.
+        grid_off (bool): Whether to turn off the grid.
+        axis_off (bool): Whether to turn off the axis.
+        show_area (bool): Whether to show the area of each facet.
+        off_color (str): Color of facets not on the Wulff shape.
+        structure (Structure): Input conventional unit cell (with H) from lattice.
+        miller_list (list): input Miller indices, for hcp in the form of hkil.
+        hkl_list (list): Modified Miller indices in the same order as input_miller.
+        e_surf_list (list): input surface energies in the same order as input_miller.
+        lattice (Lattice): Input lattice for the conventional unit cell.
+        facets (list): WulffFacet objects considering symmetry.
+        dual_cv_simp (list): Simplices from the dual convex hull (dual_pt).
+        wulff_pt_list (list): Wulff points.
+        wulff_cv_simp (list): Simplices from the convex hull of wulff_pt_list.
+        on_wulff (list): List for all input_miller, True if on the Wulff shape.
+        color_area (list): List for all input_miller, total area on the Wulff shape, off_wulff = 0.
+        miller_area (dict): Dictionary of Miller indices and their corresponding areas.
     """
 
     def __init__(self, lattice: Lattice, miller_list, e_surf_list, symprec=1e-5):
@@ -165,7 +134,7 @@ class WulffShape:
             lattice: Lattice object of the conventional unit cell
             miller_list ([(hkl), ...]: list of hkl or hkil for hcp
             e_surf_list ([float]): list of corresponding surface energies
-            symprec (float): for recp_operation, default is 1e-5.
+            symprec (float): for reciprocal lattice operation, default is 1e-5.
         """
         if any(se < 0 for se in e_surf_list):
             warnings.warn("Unphysical (negative) surface energy detected.")
@@ -190,8 +159,8 @@ class WulffShape:
         dual_pts = [x.dual_pt for x in self.facets]
         dual_convex = ConvexHull(dual_pts)
         dual_cv_simp = dual_convex.simplices
-        # simplices	(ndarray of ints, shape (nfacet, ndim))
-        # list of [i, j, k] , ndim = 3
+        # simplices	(ndarray of ints, shape (n_facet, n_dim))
+        # list of [i, j, k] , n_dim = 3
         # i, j, k: ind for normal_e_m
         # recalculate the dual of dual, get the Wulff shape.
         # corner <-> surface

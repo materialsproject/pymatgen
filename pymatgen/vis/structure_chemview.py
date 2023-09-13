@@ -33,7 +33,7 @@ def quick_view(
     Args:
         structure: pymatgen Structure
         bonds: (bool) visualize bonds. Bonds are found by comparing distances
-                        to added covalent radii of pairs. Defaults to True.
+            to added covalent radii of pairs. Defaults to True.
         conventional: (bool) use conventional cell. Defaults to False.
         transform: (list) can be used to make supercells with pymatgen.Structure.make_supercell method
         show_box: (bool) unit cell is shown. Defaults to True.
@@ -72,12 +72,7 @@ def quick_view(
         rad = CovalentRadius.radius[el]
         mv.add_representation(
             "spheres",
-            {
-                "coordinates": coord.astype("float32"),
-                "colors": [get_atom_color(el)],
-                "radii": [rad * 0.5],
-                "opacity": 1.0,
-            },
+            {"coordinates": coord.astype(float), "colors": [get_atom_color(el)], "radii": [rad * 0.5], "opacity": 1},
         )
     if show_box:
         o = np.array([0, 0, 0])

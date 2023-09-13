@@ -87,6 +87,13 @@ class TestPourbaixEntry(PymatgenTest):
         m_entry_new = MultiEntry.from_dict(m_entry_dict)
         assert m_entry_new.energy == m_entry.energy
 
+    def test_multi_entry_repr(self):
+        m_entry = MultiEntry([self.PxSol, self.PxIon])
+        assert (
+            repr(m_entry) == "PourbaixMultiEntry(energy=90.9717, npH=-14.0, nPhi=-13.0, nH2O=7.0, "
+            "entry_id=[None, None], species='Mn2O3(s) + MnO4[-1]')"
+        )
+
     def test_get_elt_fraction(self):
         entry = ComputedEntry("Mn2Fe3O3", 49)
         pb_entry = PourbaixEntry(entry)
@@ -221,7 +228,7 @@ class TestPourbaixDiagram(unittest.TestCase):
         # Test custom ions
         entries = self.test_data["C-Na-Sn"]
         ion = IonEntry(Ion.from_formula("NaO28H80Sn12C24+"), -161.676)
-        custom_ion_entry = PourbaixEntry(ion, entry_id="my_ion")
+        custom_ion_entry = PourbaixEntry(ion, entry_id="some_ion")
         pbx = PourbaixDiagram(
             [*entries, custom_ion_entry],
             filter_solids=True,
