@@ -372,9 +372,12 @@ class ElementBase(Enum):
 
     @property
     def term_symbols(self) -> list[list[str]]:
-        """All possible  Russell-Saunders term symbol of the Element.
+        """All possible Russell-Saunders term symbol of the Element.
         eg. L = 1, n_e = 2 (s2) returns [['1D2'], ['3P0', '3P1', '3P2'], ['1S0']].
         """
+        if self.is_noble_gas:
+            return [["1S0"]]
+
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
         L, v_e = self.valence

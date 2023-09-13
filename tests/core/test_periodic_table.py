@@ -207,6 +207,7 @@ class ElementTestCase(PymatgenTest):
                 ["2P0.5", "2P1.5"],
                 ["4S1.5"],
             ],  # f3
+            "Ne": [["1S0"]],
         }
         for k, v in cases.items():
             assert Element(k).term_symbols == v
