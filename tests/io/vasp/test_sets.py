@@ -775,7 +775,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["LMIXTAU"]
         assert incar.get("LDAU") is None
         assert incar["LORBIT"] == 11
-        assert incar["LREAL"] == "Auto"
+        assert not incar["LREAL"]
         assert not incar["LWAVE"]
         assert incar["NELM"] == 200
         assert incar["NSW"] == 0
@@ -821,7 +821,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["LMIXTAU"]
         assert incar.get("LDAU") is None
         assert incar["LORBIT"] == 11
-        assert incar["LREAL"] == "Auto"
+        assert not incar["LREAL"]
         assert not incar["LWAVE"]
         assert incar["NELM"] == 200
         assert incar["NSW"] == 0
