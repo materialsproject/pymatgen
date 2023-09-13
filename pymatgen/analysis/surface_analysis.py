@@ -137,15 +137,15 @@ class SlabEntry(ComputedStructureEntry):
 
     def as_dict(self):
         """Returns dict which contains Slab Entry data."""
-        d = {"@module": type(self).__module__, "@class": type(self).__name__}
-        d["structure"] = self.structure
-        d["energy"] = self.energy
-        d["miller_index"] = self.miller_index
-        d["label"] = self.label
-        d["adsorbates"] = self.adsorbates
-        d["clean_entry"] = self.clean_entry
+        dct = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct["structure"] = self.structure
+        dct["energy"] = self.energy
+        dct["miller_index"] = self.miller_index
+        dct["label"] = self.label
+        dct["adsorbates"] = self.adsorbates
+        dct["clean_entry"] = self.clean_entry
 
-        return d
+        return dct
 
     def gibbs_binding_energy(self, eads=False):
         """

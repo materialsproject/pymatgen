@@ -350,7 +350,7 @@ class CompletePhononDos(PhononDos):
 
     def as_dict(self):
         """JSON-serializable dict representation of CompletePhononDos."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
@@ -360,8 +360,8 @@ class CompletePhononDos(PhononDos):
         }
         if len(self.pdos) > 0:
             for at in self.structure:
-                d["pdos"].append(list(self.pdos[at]))
-        return d
+                dct["pdos"].append(list(self.pdos[at]))
+        return dct
 
     def __str__(self):
         return f"Complete phonon DOS for {self.structure}"

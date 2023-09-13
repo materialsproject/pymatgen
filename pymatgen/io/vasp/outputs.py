@@ -3088,7 +3088,7 @@ class Outcar:
 
     def as_dict(self):
         """MSONable dict."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "efermi": self.efermi,
@@ -3105,7 +3105,7 @@ class Outcar:
         }
 
         if self.lepsilon:
-            d.update(
+            dct.update(
                 {
                     "piezo_tensor": self.piezo_tensor,
                     "dielectric_tensor": self.dielectric_tensor,
@@ -3114,10 +3114,10 @@ class Outcar:
             )
 
         if self.dfpt:
-            d["internal_strain_tensor"] = self.internal_strain_tensor
+            dct["internal_strain_tensor"] = self.internal_strain_tensor
 
         if self.dfpt and self.lepsilon:
-            d.update(
+            dct.update(
                 {
                     "piezo_ionic_tensor": self.piezo_ionic_tensor,
                     "dielectric_ionic_tensor": self.dielectric_ionic_tensor,
@@ -3125,13 +3125,13 @@ class Outcar:
             )
 
         if self.lcalcpol:
-            d.update({"p_elec": self.p_elec, "p_ion": self.p_ion})
+            dct.update({"p_elec": self.p_elec, "p_ion": self.p_ion})
             if self.spin and not self.noncollinear:
-                d.update({"p_sp1": self.p_sp1, "p_sp2": self.p_sp2})
-            d["zval_dict"] = self.zval_dict
+                dct.update({"p_sp1": self.p_sp1, "p_sp2": self.p_sp2})
+            dct["zval_dict"] = self.zval_dict
 
         if self.nmr_cs:
-            d.update(
+            dct.update(
                 {
                     "nmr_cs": {
                         "valence and core": self.data["chemical_shielding"]["valence_and_core"],
@@ -3144,7 +3144,7 @@ class Outcar:
             )
 
         if self.nmr_efg:
-            d.update(
+            dct.update(
                 {
                     "nmr_efg": {
                         "raw": self.data["unsym_efg_tensor"],
@@ -3157,9 +3157,9 @@ class Outcar:
             # cast Spin to str for consistency with electronic_structure
             # TODO: improve handling of Enum (de)serialization in monty
             onsite_density_matrices = [{str(k): v for k, v in d.items()} for d in self.data["onsite_density_matrices"]]
-            d["onsite_density_matrices"] = onsite_density_matrices
+            dct["onsite_density_matrices"] = onsite_density_matrices
 
-        return d
+        return dct
 
     def read_fermi_contact_shift(self):
         """

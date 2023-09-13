@@ -377,9 +377,9 @@ class Xmu(MSONable):
 
     def as_dict(self):
         """Returns dict representations of Xmu object."""
-        d = MSONable.as_dict(self)
-        d["data"] = self.data.tolist()
-        return d
+        dct = MSONable.as_dict(self)
+        dct["data"] = self.data.tolist()
+        return dct
 
 
 class Eels(MSONable):
@@ -428,6 +428,6 @@ class Eels(MSONable):
 
     def as_dict(self):
         """Returns dict representations of Xmu object."""
-        d = MSONable.as_dict(self)
-        d["data"] = self.data.tolist()
-        return d
+        dct = MSONable.as_dict(self)
+        dct["data"] = self.data.tolist()
+        return dct

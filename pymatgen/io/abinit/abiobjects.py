@@ -248,7 +248,7 @@ or the Virtual Crystal Approximation."""
     xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
 
     # Info on atoms.
-    d = {
+    dct = {
         "natom": n_atoms,
         "ntypat": n_types_atom,
         "typat": typat,
@@ -269,20 +269,20 @@ or the Virtual Crystal Approximation."""
             # One should make sure that the orientation is preserved (see Curtarolo's settings)
 
     if geomode == "rprim":
-        d.update(
+        dct.update(
             acell=3 * [1.0],
             rprim=rprim,
         )
 
     elif geomode == "angdeg":
-        d.update(
+        dct.update(
             acell=ArrayWithUnit(structure.lattice.abc, "ang").to("bohr"),
             angdeg=angdeg,
         )
     else:
         raise ValueError(f"Wrong value for {geomode=}")
 
-    return d
+    return dct
 
 
 def contract(s):
@@ -1116,22 +1116,20 @@ class RelaxationMethod(AbivarAble, MSONable):
         # Cell relaxation.
         if self.move_cell:
             out_vars.update(
-                {
-                    "dilatmx": self.abivars.dilatmx,
-                    "ecutsm": self.abivars.ecutsm,
-                    "strfact": self.abivars.strfact,
-                    "strtarget": self.abivars.strtarget,
-                }
+                dilatmx=self.abivars.dilatmx,
+                ecutsm=self.abivars.ecutsm,
+                strfact=self.abivars.strfact,
+                strtarget=self.abivars.strtarget,
             )
 
         return out_vars
 
     def as_dict(self):
         """Convert object to dict."""
-        d = dict(self._default_vars)
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+        dct = dict(self._default_vars)
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d):

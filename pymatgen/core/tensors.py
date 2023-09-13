@@ -643,14 +643,14 @@ class Tensor(np.ndarray, MSONable):
             serialized format tensor object
         """
         input_array = self.voigt if voigt else self
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "input_array": input_array.tolist(),
         }
         if voigt:
-            d["voigt"] = voigt
-        return d
+            dct["voigt"] = voigt
+        return dct
 
     @classmethod
     def from_dict(cls, d) -> Tensor:
@@ -811,14 +811,14 @@ class TensorCollection(collections.abc.Sequence, MSONable):
             Dict representation of TensorCollection.
         """
         tensor_list = self.voigt if voigt else self
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "tensor_list": [t.tolist() for t in tensor_list],
         }
         if voigt:
-            d["voigt"] = voigt
-        return d
+            dct["voigt"] = voigt
+        return dct
 
     @classmethod
     def from_dict(cls, d):

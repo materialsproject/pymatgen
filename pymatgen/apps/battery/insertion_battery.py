@@ -313,12 +313,12 @@ class InsertionElectrode(AbstractElectrode):
         Returns:
             A summary of this electrode's properties in dict format.
         """
-        d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
+        dct = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
 
         chg_comp = self.fully_charged_entry.composition
         dischg_comp = self.fully_discharged_entry.composition
 
-        d.update(
+        dct.update(
             {
                 "id_charge": self.fully_charged_entry.entry_id,
                 "formula_charge": chg_comp.reduced_formula,
@@ -332,7 +332,7 @@ class InsertionElectrode(AbstractElectrode):
             }
         )
         if all("decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()):
-            d.update(
+            dct.update(
                 {
                     "stability_charge": self.fully_charged_entry.data["decomposition_energy"],
                     "stability_discharge": self.fully_discharged_entry.data["decomposition_energy"],
@@ -343,9 +343,9 @@ class InsertionElectrode(AbstractElectrode):
             )
 
         if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):
-            d.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
+            dct.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
 
-        return d
+        return dct
 
     def __repr__(self):
         output = []

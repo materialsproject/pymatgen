@@ -246,8 +246,8 @@ class SpacegroupAnalyzer:
             "translations" gives the numpy float64 array of the translation
             vectors in scaled positions.
         """
-        d = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
-        if d is None:
+        dct = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
+        if dct is None:
             symprec = self._symprec
             raise ValueError(
                 f"Symmetry detection failed for structure with formula {self._structure.formula}. "
@@ -258,13 +258,13 @@ class SpacegroupAnalyzer:
         # (these are in fractional coordinates, so should be small denominator
         # fractions)
         trans = []
-        for t in d["translations"]:
+        for t in dct["translations"]:
             trans.append([float(Fraction.from_float(c).limit_denominator(1000)) for c in t])
         trans = np.array(trans)
 
         # fractional translations of 1 are more simply 0
         trans[np.abs(trans) == 1] = 0
-        return d["rotations"], trans
+        return dct["rotations"], trans
 
     def get_symmetry_operations(self, cartesian=False):
         """Return symmetry operations as a list of SymmOp objects. By default returns

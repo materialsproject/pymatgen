@@ -1006,14 +1006,14 @@ class Species(MSONable, Stringify):
         if self._oxi_state in self.ionic_radii:
             return self.ionic_radii[self._oxi_state]
         if self._oxi_state:
-            d = self._el.data
+            dct = self._el.data
             oxi_str = str(int(self._oxi_state))
-            if oxi_str in d.get("Ionic radii hs", {}):
+            if oxi_str in dct.get("Ionic radii hs", {}):
                 warnings.warn(f"No default ionic radius for {self}. Using hs data.")
-                return d["Ionic radii hs"][oxi_str]
-            if oxi_str in d.get("Ionic radii ls", {}):
+                return dct["Ionic radii hs"][oxi_str]
+            if oxi_str in dct.get("Ionic radii ls", {}):
                 warnings.warn(f"No default ionic radius for {self}. Using ls data.")
-                return d["Ionic radii ls"][oxi_str]
+                return dct["Ionic radii ls"][oxi_str]
         warnings.warn(f"No ionic radius for {self}!")
         return None
 

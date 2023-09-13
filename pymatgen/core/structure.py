@@ -3161,7 +3161,7 @@ class IMolecule(SiteCollection, MSONable):
 
     def as_dict(self):
         """JSON-serializable dict representation of Molecule."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "charge": self.charge,
@@ -3173,8 +3173,8 @@ class IMolecule(SiteCollection, MSONable):
             site_dict = site.as_dict()
             del site_dict["@module"]
             del site_dict["@class"]
-            d["sites"].append(site_dict)
-        return d
+            dct["sites"].append(site_dict)
+        return dct
 
     @classmethod
     def from_dict(cls, dct) -> IMolecule | Molecule:

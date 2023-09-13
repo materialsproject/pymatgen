@@ -70,9 +70,9 @@ def get_derivatives(xs, ys, fd=False):
         from scipy.interpolate import UnivariateSpline
 
         spline = UnivariateSpline(xs, ys)
-        d = spline.derivative(1)(xs)
+        dct = spline.derivative(1)(xs)
     except (ImportError, SplineInputError):
-        d = []
+        dct = []
         m, left, right = 0, 0, 0
         for n in range(0, len(xs), 1):
             try:
@@ -85,8 +85,8 @@ def get_derivatives(xs, ys, fd=False):
                 m += 1
             except IndexError:
                 pass
-            d.append(left + right / m)
-    return d
+            dct.append(left + right / m)
+    return dct
 
 
 """

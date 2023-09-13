@@ -75,12 +75,12 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
 
     def all_input(self):
         """Returns all input files as a dict of {filename: feffio object}."""
-        d = {"HEADER": self.header(), "PARAMETERS": self.tags}
+        dct = {"HEADER": self.header(), "PARAMETERS": self.tags}
 
         if "RECIPROCAL" not in self.tags:
-            d.update({"POTENTIALS": self.potential, "ATOMS": self.atoms})
+            dct.update({"POTENTIALS": self.potential, "ATOMS": self.atoms})
 
-        return d
+        return dct
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
         """

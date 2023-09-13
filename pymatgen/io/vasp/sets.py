@@ -2325,10 +2325,10 @@ class MVLSlabSet(DictSet):
         Returns:
             MSONable dict
         """
-        d = MSONable.as_dict(self)
+        dct = MSONable.as_dict(self)
         if verbosity == 1:
-            d.pop("structure", None)
-        return d
+            dct.pop("structure", None)
+        return dct
 
 
 class MVLGBSet(DictSet):

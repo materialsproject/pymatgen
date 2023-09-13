@@ -88,7 +88,7 @@ class Cohp(MSONable):
 
     def as_dict(self):
         """JSON-serializable dict representation of COHP."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "are_coops": self.are_coops,
@@ -98,8 +98,8 @@ class Cohp(MSONable):
             "COHP": {str(spin): pops.tolist() for spin, pops in self.cohp.items()},
         }
         if self.icohp:
-            d["ICOHP"] = {str(spin): pops.tolist() for spin, pops in self.icohp.items()}
-        return d
+            dct["ICOHP"] = {str(spin): pops.tolist() for spin, pops in self.icohp.items()}
+        return dct
 
     def get_cohp(self, spin=None, integrated=False):
         """Returns the COHP or ICOHP for a particular spin.
@@ -289,7 +289,7 @@ class CompleteCohp(Cohp):
 
     def as_dict(self):
         """JSON-serializable dict representation of CompleteCohp."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "are_coops": self.are_coops,
@@ -301,21 +301,21 @@ class CompleteCohp(Cohp):
         }
 
         if self.icohp is not None:
-            d["ICOHP"] = {"average": {str(spin): pops.tolist() for spin, pops in self.icohp.items()}}
+            dct["ICOHP"] = {"average": {str(spin): pops.tolist() for spin, pops in self.icohp.items()}}
 
         for label in self.all_cohps:
-            d["COHP"].update({label: {str(spin): pops.tolist() for spin, pops in self.all_cohps[label].cohp.items()}})
+            dct["COHP"].update({label: {str(spin): pops.tolist() for spin, pops in self.all_cohps[label].cohp.items()}})
             if self.all_cohps[label].icohp is not None:
-                if "ICOHP" not in d:
-                    d["ICOHP"] = {
+                if "ICOHP" not in dct:
+                    dct["ICOHP"] = {
                         label: {str(spin): pops.tolist() for spin, pops in self.all_cohps[label].icohp.items()}
                     }
                 else:
-                    d["ICOHP"].update(
+                    dct["ICOHP"].update(
                         {label: {str(spin): pops.tolist() for spin, pops in self.all_cohps[label].icohp.items()}}
                     )
         if False in [bond_dict == {} for bond_dict in self.bonds.values()]:
-            d["bonds"] = {
+            dct["bonds"] = {
                 bond: {
                     "length": self.bonds[bond]["length"],
                     "sites": [site.as_dict() for site in self.bonds[bond]["sites"]],
@@ -333,9 +333,9 @@ class CompleteCohp(Cohp):
                     orb_dict[label][orbs]["ICOHP"] = icohp
                     orbitals = [[orb[0], orb[1].name] for orb in self.orb_res_cohp[label][orbs]["orbitals"]]
                     orb_dict[label][orbs]["orbitals"] = orbitals
-            d["orb_res_cohp"] = orb_dict
+            dct["orb_res_cohp"] = orb_dict
 
-        return d
+        return dct
 
     def get_cohp_by_label(self, label, summed_spin_channels=False):
         """Get specific COHP object.

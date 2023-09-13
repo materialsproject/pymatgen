@@ -1281,7 +1281,7 @@ class CompleteDos(Dos):
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation of CompleteDos."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "efermi": self.efermi,
@@ -1297,10 +1297,10 @@ class CompleteDos(Dos):
                     dd[str(orb)] = {
                         "densities": {str(int(spin)): list(dens) for spin, dens in pdos.items()}  # type: ignore
                     }
-                d["pdos"].append(dd)
-            d["atom_dos"] = {str(at): dos.as_dict() for at, dos in self.get_element_dos().items()}
-            d["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
-        return d
+                dct["pdos"].append(dd)
+            dct["atom_dos"] = {str(at): dos.as_dict() for at, dos in self.get_element_dos().items()}
+            dct["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
+        return dct
 
     def __str__(self):
         return f"Complete DOS for {self.structure}"
