@@ -219,6 +219,14 @@ class ElementBase(Enum):
                         except ValueError:
                             # Ignore error. val will just remain a string.
                             pass
+                    if item in ("refractive_index", "melting_point") and isinstance(val, str):
+                        # Final attempt to parse a float.
+                        m = re.findall(r"[\.\d]+", val)
+                        if m:
+                            warnings.warn(
+                                f"Ambiguous values ({val}) for {item} for {self.symbol}. Returning first value."
+                            )
+                            return float(m[0])
             return val
         raise AttributeError(f"Element has no attribute {item}!")
 
