@@ -1,7 +1,4 @@
-"""Module contains classes presenting Element, Species (Element + oxidation state) and PeriodicTable.
-
-It should be noted that Element and Species are meant to be immutable objects.
-"""
+"""Classes representing Element, Species (Element + oxidation state) and PeriodicTable."""
 
 from __future__ import annotations
 
@@ -224,7 +221,7 @@ class ElementBase(Enum):
                         m = re.findall(r"[\.\d]+", val)
                         if m:
                             warnings.warn(
-                                f"Ambiguous values ({val}) for {item} for {self.symbol}. Returning first value."
+                                f"Ambiguous values ({val}) for {item} of {self.symbol}. Returning first float value."
                             )
                             return float(m[0])
             return val
