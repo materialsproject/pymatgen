@@ -467,7 +467,7 @@ class LobsterNeighbors(NearNeighbors):
     ):
         """
         Return info about the cohps (coops or cobis) as a summed cohp object and a label
-         from all sites mentioned in isites with neighbors.
+        from all sites mentioned in isites with neighbors.
 
         Args:
             path_to_COHPCAR: str, path to COHPCAR or COOPCAR or COBICAR

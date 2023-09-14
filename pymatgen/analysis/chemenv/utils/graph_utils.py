@@ -287,10 +287,10 @@ class SimpleGraphCycle(MSONable):
 
     def as_dict(self):
         """MSONable dict"""
-        d = MSONable.as_dict(self)
+        dct = MSONable.as_dict(self)
         # Transforming tuple object to a list to allow BSON and MongoDB
-        d["nodes"] = list(d["nodes"])
-        return d
+        dct["nodes"] = list(dct["nodes"])
+        return dct
 
     @classmethod
     def from_dict(cls, d, validate=False):

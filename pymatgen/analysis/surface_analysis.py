@@ -137,15 +137,15 @@ class SlabEntry(ComputedStructureEntry):
 
     def as_dict(self):
         """Returns dict which contains Slab Entry data."""
-        d = {"@module": type(self).__module__, "@class": type(self).__name__}
-        d["structure"] = self.structure
-        d["energy"] = self.energy
-        d["miller_index"] = self.miller_index
-        d["label"] = self.label
-        d["adsorbates"] = self.adsorbates
-        d["clean_entry"] = self.clean_entry
+        dct = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct["structure"] = self.structure
+        dct["energy"] = self.energy
+        dct["miller_index"] = self.miller_index
+        dct["label"] = self.label
+        dct["adsorbates"] = self.adsorbates
+        dct["clean_entry"] = self.clean_entry
 
-        return d
+        return dct
 
     def gibbs_binding_energy(self, eads=False):
         """
@@ -325,10 +325,12 @@ class SlabEntry(ComputedStructureEntry):
             label += f", {self.get_monolayer:.3f} ML"
         return label
 
-    @staticmethod
-    def from_computed_structure_entry(entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs):
+    @classmethod
+    def from_computed_structure_entry(
+        cls, entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs
+    ):
         """Returns SlabEntry from a ComputedStructureEntry."""
-        return SlabEntry(
+        return cls(
             entry.structure,
             entry.energy,
             miller_index,
@@ -1560,23 +1562,26 @@ class WorkFunctionAnalyzer:
                     all_flat.append(True)
         return all(all_flat)
 
-    @staticmethod
-    def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
+    @classmethod
+    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
         """
-        :param poscar_filename: POSCAR file
-        :param locpot_filename: LOCPOT file
-        :param outcar_filename: OUTCAR file
-        :param shift: shift
-        :param blength: The longest bond length in the material.
-            Used to handle pbc for noncontiguous slab layers
+        Initializes a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
+
+        Args:
+            poscar_filename (str): The path to the POSCAR file.
+            locpot_filename (str): The path to the LOCPOT file.
+            outcar_filename (str): The path to the OUTCAR file.
+            shift (float): The shift value. Defaults to 0.
+            blength (float): The longest bond length in the material.
+                Used to handle pbc for noncontiguous slab layers. Defaults to 3.5.
 
         Returns:
-            WorkFunctionAnalyzer
+            WorkFunctionAnalyzer: A WorkFunctionAnalyzer instance.
         """
         poscar = Poscar.from_file(poscar_filename)
         locpot = Locpot.from_file(locpot_filename)
         outcar = Outcar(outcar_filename)
-        return WorkFunctionAnalyzer(
+        return cls(
             poscar.structure,
             locpot.get_average_along_axis(2),
             outcar.efermi,
@@ -1601,7 +1606,6 @@ class NanoscaleStability:
         stabilization of sodium oxides: Implications for Na-O2
         batteries. Nano Letters, 14(2), 1016-1020.
         https://doi.org/10.1021/nl404557w
-
 
     Attributes:
         se_analyzers (list[SurfaceEnergyPlotter]): Each item corresponds to a different polymorph.

@@ -279,12 +279,15 @@ def stream_has_colors(stream):
 
 
 def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x", "y", "z"), c="", delim=","):
-    """Convenience method. Given matrix returns string, e.g. x+2y+1/4
-    :param matrix
-    :param translation_vec
-    :param components: either ('x', 'y', 'z') or ('a', 'b', 'c')
-    :param c: optional additional character to print (used for magmoms)
-    :param delim: delimiter.
+    """Convenience method. Given matrix returns string, e.g. x+2y+1/4.
+
+    Args:
+        matrix: A 3x3 matrix.
+        translation_vec: A 3-element tuple representing the translation vector. Defaults to (0, 0, 0).
+        components: A tuple of 3 strings representing the components. Either ('x', 'y', 'z') or ('a', 'b', 'c').
+            Defaults to ('x', 'y', 'z').
+        c: An optional additional character to print (used for magmoms). Defaults to "".
+        delim: A delimiter. Defaults to ",".
 
     Returns:
         xyz string.

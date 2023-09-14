@@ -232,24 +232,24 @@ class ConversionElectrode(AbstractElectrode):
         Returns:
             A summary of this electrode's properties in dict format.
         """
-        d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
-        d["reactions"] = []
-        d["reactant_compositions"] = []
+        dct = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
+        dct["reactions"] = []
+        dct["reactant_compositions"] = []
         comps = []
         frac = []
         for pair in self.voltage_pairs:
             rxn = pair.rxn
             frac.append(pair.frac_charge)
             frac.append(pair.frac_discharge)
-            d["reactions"].append(str(rxn))
+            dct["reactions"].append(str(rxn))
             for i, v in enumerate(rxn.coeffs):
                 if abs(v) > 1e-5 and rxn.all_comp[i] not in comps:
                     comps.append(rxn.all_comp[i])
-                if abs(v) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
+                if abs(v) > 1e-5 and rxn.all_comp[i].reduced_formula != dct["working_ion"]:
                     reduced_comp = rxn.all_comp[i].reduced_composition
                     comp_dict = reduced_comp.as_dict()
-                    d["reactant_compositions"].append(comp_dict)
-        return d
+                    dct["reactant_compositions"].append(comp_dict)
+        return dct
 
 
 @dataclass

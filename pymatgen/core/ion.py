@@ -205,9 +205,9 @@ class Ion(Composition, MSONable, Stringify):
         Returns:
             dict with composition, as well as charge.
         """
-        d = super().as_dict()
-        d["charge"] = self.charge
-        return d
+        dct = super().as_dict()
+        dct["charge"] = self.charge
+        return dct
 
     @classmethod
     def from_dict(cls, d) -> Ion:
@@ -228,9 +228,9 @@ class Ion(Composition, MSONable, Stringify):
             dict with element symbol and reduced amount e.g.,
         {"Fe": 2.0, "O":3.0}.
         """
-        d = self.composition.to_reduced_dict
-        d["charge"] = self.charge
-        return d
+        dct = self.composition.to_reduced_dict
+        dct["charge"] = self.charge
+        return dct
 
     @property
     def composition(self) -> Composition:

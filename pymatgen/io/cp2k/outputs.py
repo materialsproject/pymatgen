@@ -1497,14 +1497,14 @@ class Cp2kOutput:
             return densities
 
         """Return a gaussian smeared DOS"""
-        d = np.zeros(npts)
+        dct = np.zeros(npts)
         e_s = np.linspace(min(energies), max(energies), npts)
 
         for e, _pd in zip(energies, densities):
             weight = np.exp(-(((e_s - e) / width) ** 2)) / (np.sqrt(np.pi) * width)
-            d += _pd * weight
+            dct += _pd * weight
 
-        return d
+        return dct
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
         r"""
@@ -1633,35 +1633,35 @@ class Cp2kOutput:
 
     def as_dict(self):
         """Return dictionary representation of the output."""
-        d = {"input": {}, "output": {}}
-        d["total_time"] = self.timing["CP2K"]["total_time"]["maximum"]
-        d["run_type"] = self.run_type
-        d["input"]["global"] = self.data.get("global")
-        d["input"]["dft"] = self.data.get("dft")
-        d["input"]["scf"] = self.data.get("scf")
-        d["input"]["qs"] = self.data.get("QS")
-        d["input"]["run_type"] = self.run_type
-        d["input"]["calculation_type"] = self.calculation_type
-        d["input"]["structure"] = self.initial_structure.as_dict()
-        d["input"]["atomic_kind_info"] = self.data.get("atomic_kind_info")
-        d["input"]["cp2k_input"] = self.input.as_dict()
-        d["ran_successfully"] = self.completed
-        d["cp2k_version"] = self.cp2k_version
-        d["output"]["structure"] = self.final_structure.as_dict()
-        d["output"]["forces"] = self.data.get("forces", [None])[-1]
-        d["output"]["stress"] = self.data.get("stress_tensor", [None])[-1]
-        d["output"]["ionic_steps"] = [
+        dct = {"input": {}, "output": {}}
+        dct["total_time"] = self.timing["CP2K"]["total_time"]["maximum"]
+        dct["run_type"] = self.run_type
+        dct["input"]["global"] = self.data.get("global")
+        dct["input"]["dft"] = self.data.get("dft")
+        dct["input"]["scf"] = self.data.get("scf")
+        dct["input"]["qs"] = self.data.get("QS")
+        dct["input"]["run_type"] = self.run_type
+        dct["input"]["calculation_type"] = self.calculation_type
+        dct["input"]["structure"] = self.initial_structure.as_dict()
+        dct["input"]["atomic_kind_info"] = self.data.get("atomic_kind_info")
+        dct["input"]["cp2k_input"] = self.input.as_dict()
+        dct["ran_successfully"] = self.completed
+        dct["cp2k_version"] = self.cp2k_version
+        dct["output"]["structure"] = self.final_structure.as_dict()
+        dct["output"]["forces"] = self.data.get("forces", [None])[-1]
+        dct["output"]["stress"] = self.data.get("stress_tensor", [None])[-1]
+        dct["output"]["ionic_steps"] = [
             {k: v.as_dict() if isinstance(v, MSONable) else v for k, v in step.items()} for step in self.ionic_steps
         ]
-        d["composition"] = self.composition.as_dict()
-        d["output"]["energy"] = self.final_energy
-        d["output"]["energy_per_atom"] = self.final_energy / self.composition.num_atoms
-        d["output"]["bandgap"] = self.cbm - self.vbm if self.cbm and self.vbm else None
-        d["output"]["cbm"] = self.cbm
-        d["output"]["vbm"] = self.vbm
-        d["output"]["efermi"] = self.efermi
-        d["output"]["is_metal"] = self.is_metal
-        return d
+        dct["composition"] = self.composition.as_dict()
+        dct["output"]["energy"] = self.final_energy
+        dct["output"]["energy_per_atom"] = self.final_energy / self.composition.num_atoms
+        dct["output"]["bandgap"] = self.cbm - self.vbm if self.cbm and self.vbm else None
+        dct["output"]["cbm"] = self.cbm
+        dct["output"]["vbm"] = self.vbm
+        dct["output"]["efermi"] = self.efermi
+        dct["output"]["is_metal"] = self.is_metal
+        return dct
 
 
 # TODO should store as pandas? Maybe it should be stored as a dict so it's python native

@@ -884,19 +884,18 @@ class BztTransportProperties:
         ]
 
         if self.contain_props_doping:
-            lst_props.extend(
-                [
-                    self.Conductivity_doping,
-                    self.Seebeck_doping,
-                    self.Kappa_doping,
-                    self.Power_Factor_doping,
-                    self.Effective_mass_doping,
-                    self.Carriers_conc_doping,
-                    self.doping,
-                    self.mu_doping,
-                    self.mu_doping_eV,
-                ]
-            )
+            props = [
+                self.Conductivity_doping,
+                self.Seebeck_doping,
+                self.Kappa_doping,
+                self.Power_Factor_doping,
+                self.Effective_mass_doping,
+                self.Carriers_conc_doping,
+                self.doping,
+                self.mu_doping,
+                self.mu_doping_eV,
+            ]
+            lst_props.extend(props)
         dumpfn(lst_props, fname)
 
     def load(self, fname="bztTranspProps.json.gz"):
@@ -985,9 +984,9 @@ class BztPlotter:
             ax: figure.axes where to plot. If None, a new figure is produced.
 
         Example:
-        bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
-        more example are provided in the notebook
-        "How to use Boltztra2 interface.ipynb".
+            bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
+            more example are provided in the notebook
+            "How to use Boltztra2 interface.ipynb".
         """
         props = (
             "Conductivity",

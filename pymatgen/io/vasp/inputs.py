@@ -672,10 +672,10 @@ class Incar(dict, MSONable):
 
     def as_dict(self) -> dict:
         """MSONable dict."""
-        d = dict(self)
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+        dct = dict(self)
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d) -> Incar:
@@ -1529,7 +1529,7 @@ class Kpoints(MSONable):
 
     def as_dict(self):
         """MSONable dict."""
-        d = {
+        dct = {
             "comment": self.comment,
             "nkpoints": self.num_kpts,
             "generation_style": self.style.name,
@@ -1546,10 +1546,10 @@ class Kpoints(MSONable):
         optional_paras = ["genvec1", "genvec2", "genvec3", "shift"]
         for para in optional_paras:
             if para in self.__dict__:
-                d[para] = self.__dict__[para]
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+                dct[para] = self.__dict__[para]
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d):
@@ -2356,10 +2356,10 @@ class VaspInput(dict, MSONable):
 
     def as_dict(self):
         """MSONable dict."""
-        d = {k: v.as_dict() for k, v in self.items()}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+        dct = {k: v.as_dict() for k, v in self.items()}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d):

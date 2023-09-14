@@ -88,7 +88,6 @@ class Control(MSONable, dict):
                 with the keys "min", "max", "step".
             **kwargs: Other ShengBTE parameters. Several parameters are required
                 for ShengBTE to run - we have listed these parameters below:
-
                 - nelements (int): number of different elements in the compound
                 - natoms (int): number of atoms in the unit cell
                 - lattvec (size 3x3 array): real-space lattice vectors, in units

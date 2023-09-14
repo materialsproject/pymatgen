@@ -1943,41 +1943,9 @@ class BoltztrapAnalyzer:
         if run_type == "BOLTZ":
             dos, pdos = BoltztrapAnalyzer.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
 
-            (
-                mu_steps,
-                cond,
-                seebeck,
-                kappa,
-                hall,
-                pn_doping_levels,
-                mu_doping,
-                seebeck_doping,
-                cond_doping,
-                kappa_doping,
-                hall_doping,
-                carrier_conc,
-            ) = BoltztrapAnalyzer.parse_cond_and_hall(path_dir, doping_levels)
+            *cond_and_hall, carrier_conc = BoltztrapAnalyzer.parse_cond_and_hall(path_dir, doping_levels)
 
-            return BoltztrapAnalyzer(
-                gap,
-                mu_steps,
-                cond,
-                seebeck,
-                kappa,
-                hall,
-                pn_doping_levels,
-                mu_doping,
-                seebeck_doping,
-                cond_doping,
-                kappa_doping,
-                hall_doping,
-                intrans,
-                dos,
-                pdos,
-                carrier_conc,
-                vol,
-                warning,
-            )
+            return BoltztrapAnalyzer(gap, *cond_and_hall, intrans, dos, pdos, carrier_conc, vol, warning)
 
         if run_type == "DOS":
             trim = intrans["dos_type"] == "HISTO"
@@ -1991,8 +1959,6 @@ class BoltztrapAnalyzer:
             return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints, warning=warning, vol=vol)
 
         if run_type == "FERMI":
-            """ """
-
             if os.path.exists(f"{path_dir}/boltztrap_BZ.cube"):
                 fs_data = read_cube_file(f"{path_dir}/boltztrap_BZ.cube")
             elif os.path.exists(f"{path_dir}/fort.30"):
@@ -2001,7 +1967,7 @@ class BoltztrapAnalyzer:
                 raise BoltztrapError("No data file found for fermi surface")
             return BoltztrapAnalyzer(fermi_surface_data=fs_data)
 
-        raise ValueError(f"Run type: {run_type} not recognized!")
+        raise ValueError(f"{run_type=} not recognized!")
 
     def as_dict(self):
         """MSONable dict."""

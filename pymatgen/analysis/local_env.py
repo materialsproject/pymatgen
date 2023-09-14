@@ -1171,7 +1171,7 @@ def _get_elements(site):
     Get the list of elements for a Site.
 
     Args:
-         site (Site): Site to assess
+        site (Site): Site to assess
 
     Returns:
         [Element]: List of elements
@@ -4195,14 +4195,13 @@ class CutOffDictNN(NearNeighbors):
         """
         return True
 
-    @staticmethod
-    def from_preset(preset):
+    @classmethod
+    def from_preset(cls, preset):
         """
         Initialize a CutOffDictNN according to a preset set of cut-offs.
 
         Args:
             preset (str): A preset name. The list of supported presets are:
-
                 - "vesta_2019": The distance cut-offs used by the VESTA
                   visualisation program.
 
@@ -4211,7 +4210,7 @@ class CutOffDictNN(NearNeighbors):
         """
         if preset == "vesta_2019":
             cut_offs = loadfn(f"{_directory}/vesta_cutoffs.yaml")
-            return CutOffDictNN(cut_off_dict=cut_offs)
+            return cls(cut_off_dict=cut_offs)
 
         raise ValueError(f"Unknown {preset=}")
 

@@ -2926,7 +2926,6 @@ class BoltztrapPlotter:
             output (str): "eig" or "average"
             xlim (tuple[float, float]): a 2-tuple of min and max fermi energy. Defaults to (0, band gap)
 
-
         Returns:
             a matplotlib object
         """
@@ -2965,7 +2964,6 @@ class BoltztrapPlotter:
                units of relaxation time
             xlim (tuple[float, float]): a 2-tuple of min and max fermi energy. Defaults to (0, band gap)
 
-
         Returns:
             a matplotlib object
         """
@@ -3003,7 +3001,6 @@ class BoltztrapPlotter:
             relaxation_time (float): A relaxation time in s. Defaults to 1e-14 and the plot is in
                units of relaxation time
             xlim (tuple[float, float]): a 2-tuple of min and max fermi energy. Defaults to (0, band gap)
-
 
         Returns:
             a matplotlib object

@@ -541,7 +541,7 @@ class BandStructure:
 
     def as_dict(self):
         """JSON-serializable dict representation of BandStructure."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
@@ -551,37 +551,37 @@ class BandStructure:
         # kpoints are not kpoint objects dicts but are frac coords (this makes
         # the dict smaller and avoids the repetition of the lattice
         for k in self.kpoints:
-            d["kpoints"].append(k.as_dict()["fcoords"])
+            dct["kpoints"].append(k.as_dict()["fcoords"])
 
-        d["bands"] = {str(int(spin)): self.bands[spin].tolist() for spin in self.bands}
-        d["is_metal"] = self.is_metal()
+        dct["bands"] = {str(int(spin)): self.bands[spin].tolist() for spin in self.bands}
+        dct["is_metal"] = self.is_metal()
         vbm = self.get_vbm()
-        d["vbm"] = {
+        dct["vbm"] = {
             "energy": vbm["energy"],
             "kpoint_index": vbm["kpoint_index"],
             "band_index": {str(int(spin)): vbm["band_index"][spin] for spin in vbm["band_index"]},
             "projections": {str(spin): v.tolist() for spin, v in vbm["projections"].items()},
         }
         cbm = self.get_cbm()
-        d["cbm"] = {
+        dct["cbm"] = {
             "energy": cbm["energy"],
             "kpoint_index": cbm["kpoint_index"],
             "band_index": {str(int(spin)): cbm["band_index"][spin] for spin in cbm["band_index"]},
             "projections": {str(spin): v.tolist() for spin, v in cbm["projections"].items()},
         }
-        d["band_gap"] = self.get_band_gap()
-        d["labels_dict"] = {}
-        d["is_spin_polarized"] = self.is_spin_polarized
+        dct["band_gap"] = self.get_band_gap()
+        dct["labels_dict"] = {}
+        dct["is_spin_polarized"] = self.is_spin_polarized
 
         # MongoDB does not accept keys starting with $. Add a blank space to fix the problem
         for c, label in self.labels_dict.items():
             mongo_key = c if not c.startswith("$") else f" {c}"
-            d["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
-        d["projections"] = {}
+            dct["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
+        dct["projections"] = {}
         if len(self.projections) != 0:
-            d["structure"] = self.structure.as_dict()
-            d["projections"] = {str(int(spin)): np.array(v).tolist() for spin, v in self.projections.items()}
-        return d
+            dct["structure"] = self.structure.as_dict()
+            dct["projections"] = {str(int(spin)): np.array(v).tolist() for spin, v in self.projections.items()}
+        return dct
 
     @classmethod
     def from_dict(cls, dct):
