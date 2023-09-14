@@ -336,7 +336,7 @@ class JahnTellerAnalyzer:
         Get number of d electrons of a species.
 
         Args:
-          species: Species object
+            species: Species object
 
         Returns: Number of d electrons.
         """
@@ -357,11 +357,12 @@ class JahnTellerAnalyzer:
         Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
 
         Args:
-          species: e.g. Fe2+
-          spin_state: "high" or "low"
-          motif: "oct" or "tet"
+            species: e.g. Fe2+
+            spin_state: "high" or "low"
+            motif: "oct" or "tet"
 
-        Returns: "none", "weak" or "strong
+        Returns:
+            str: "none", "weak" or "strong"
         """
         magnitude = "none"
 
@@ -391,11 +392,11 @@ class JahnTellerAnalyzer:
         * in tetrahedral environments always weaker.
 
         Args:
-          motif: "oct" or "tet"
-          spin_config: dict of 'e' (e_g) and 't' (t2_g)
-            with number of electrons in each state
+            motif: "oct" or "tet"
+            spin_config: dict of 'e' (e_g) and 't' (t2_g) with number of electrons in each state
 
-        Returns:  "none", "weak" or "strong"
+        Returns:
+            str: "none", "weak" or "strong"
         """
         magnitude = "none"
         if motif == "oct":

@@ -510,7 +510,7 @@ class Atoms(MSONable):
                 0,
             ]
         ]
-        for i, site in enumerate(self._cluster[1:]):
+        for idx, site in enumerate(self._cluster[1:]):
             site_symbol = site.specie.symbol
             ipot = self.pot_dict[site_symbol]
             lines.append(
@@ -520,8 +520,8 @@ class Atoms(MSONable):
                     f"{site.z:f}",
                     ipot,
                     site_symbol,
-                    f"{self._cluster.get_distance(0, i + 1):f}",
-                    i + 1,
+                    f"{self._cluster.get_distance(0, idx + 1):f}",
+                    idx + 1,
                 ]
             )
 
@@ -533,10 +533,7 @@ class Atoms(MSONable):
         lines_sorted = self.get_lines()
         # TODO: remove the formatting and update the unit tests
         lines_formatted = str(
-            tabulate(
-                lines_sorted,
-                headers=["*       x", "y", "z", "ipot", "Atom", "Distance", "Number"],
-            )
+            tabulate(lines_sorted, headers=["*       x", "y", "z", "ipot", "Atom", "Distance", "Number"])
         )
         atom_list = lines_formatted.replace("--", "**")
         return f"ATOMS\n{atom_list}\nEND\n"
@@ -546,7 +543,7 @@ class Atoms(MSONable):
         Write Atoms list to file.
 
         Args:
-           filename: path for file to be written
+            filename: path for file to be written
         """
         with zopen(filename, "wt") as f:
             f.write(f"{self}\n")

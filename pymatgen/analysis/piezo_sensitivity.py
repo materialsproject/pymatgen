@@ -58,7 +58,6 @@ class BornEffectiveCharge:
         [site index 1, site index 2, [Symmops mapping from site
         index 1 to site index 2]].
 
-
         Args:
             eigtol (float): tolerance for determining if two sites are
             related by symmetry
@@ -194,7 +193,6 @@ class InternalStrainTensor:
         [site index 1, site index 2, [Symmops mapping from site
         index 1 to site index 2]].
 
-
         Args:
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
@@ -284,7 +282,6 @@ class ForceConstantMatrix:
         belonging to equivalent sites onto each other in the form
         [site index 1a, site index 1b, site index 2a, site index 2b,
         [Symmops mapping from site index 1a, 1b to site index 2a, 2b]].
-
 
         Args:
             eigtol (float): tolerance for determining if two sites are

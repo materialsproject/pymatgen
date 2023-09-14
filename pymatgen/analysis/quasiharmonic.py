@@ -342,17 +342,17 @@ class QuasiharmonicDebyeApprox:
 
     def get_summary_dict(self):
         """Returns a dict with a summary of the computed properties."""
-        d = defaultdict(list)
-        d["pressure"] = self.pressure
-        d["poisson"] = self.poisson
-        d["mass"] = self.mass
-        d["natoms"] = int(self.natoms)
-        d["bulk_modulus"] = self.bulk_modulus
-        d["gibbs_free_energy"] = self.gibbs_free_energy
-        d["temperatures"] = self.temperatures
-        d["optimum_volumes"] = self.optimum_volumes
+        dct = defaultdict(list)
+        dct["pressure"] = self.pressure
+        dct["poisson"] = self.poisson
+        dct["mass"] = self.mass
+        dct["natoms"] = int(self.natoms)
+        dct["bulk_modulus"] = self.bulk_modulus
+        dct["gibbs_free_energy"] = self.gibbs_free_energy
+        dct["temperatures"] = self.temperatures
+        dct["optimum_volumes"] = self.optimum_volumes
         for v, t in zip(self.optimum_volumes, self.temperatures):
-            d["debye_temperature"].append(self.debye_temperature(v))
-            d["gruneisen_parameter"].append(self.gruneisen_parameter(t, v))
-            d["thermal_conductivity"].append(self.thermal_conductivity(t, v))
-        return d
+            dct["debye_temperature"].append(self.debye_temperature(v))
+            dct["gruneisen_parameter"].append(self.gruneisen_parameter(t, v))
+            dct["thermal_conductivity"].append(self.thermal_conductivity(t, v))
+        return dct

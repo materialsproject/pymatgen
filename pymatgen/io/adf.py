@@ -323,7 +323,7 @@ class AdfKey(MSONable):
 
     def as_dict(self):
         """A JSON-serializable dict representation of self."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "name": self.name,
@@ -333,8 +333,8 @@ class AdfKey(MSONable):
             subkeys = []
             for subkey in self.subkeys:
                 subkeys.append(subkey.as_dict())
-            d["subkeys"] = subkeys
-        return d
+            dct["subkeys"] = subkeys
+        return dct
 
     @classmethod
     def from_dict(cls, d):

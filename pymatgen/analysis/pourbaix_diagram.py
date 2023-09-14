@@ -220,15 +220,15 @@ class PourbaixEntry(MSONable, Stringify):
         Note that the pH, voltage, H2O factors are always calculated when
         constructing a PourbaixEntry object.
         """
-        d = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct = {"@module": type(self).__module__, "@class": type(self).__name__}
         if isinstance(self.entry, IonEntry):
-            d["entry_type"] = "Ion"
+            dct["entry_type"] = "Ion"
         else:
-            d["entry_type"] = "Solid"
-        d["entry"] = self.entry.as_dict()
-        d["concentration"] = self.concentration
-        d["entry_id"] = self.entry_id
-        return d
+            dct["entry_type"] = "Solid"
+        dct["entry"] = self.entry.as_dict()
+        dct["concentration"] = self.concentration
+        dct["entry_id"] = self.entry_id
+        return dct
 
     @classmethod
     def from_dict(cls, d):
@@ -1027,9 +1027,9 @@ class PourbaixPlotter:
 
         Args:
             entry (Any): The entry to plot stability for.
-            pH_range (Tuple[float, float], optional): pH range for the plot. Defaults to [-2, 16].
+            pH_range (tuple[float, float], optional): pH range for the plot. Defaults to [-2, 16].
             pH_resolution (int, optional): pH resolution. Defaults to 100.
-            V_range (Tuple[float, float], optional): Voltage range for the plot. Defaults to [-3, 3].
+            V_range (tuple[float, float], optional): Voltage range for the plot. Defaults to [-3, 3].
             V_resolution (int, optional): Voltage resolution. Defaults to 100.
             e_hull_max (float, optional): Maximum energy above the hull. Defaults to 1.
             cmap (str, optional): Colormap for the plot. Defaults to "RdYlBu_r".

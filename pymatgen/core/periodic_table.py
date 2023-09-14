@@ -93,7 +93,7 @@ class ElementBase(Enum):
             density_of_solid (float): Density of solid phase.
             coefficient_of_linear_thermal_expansion (float): Coefficient of linear thermal expansion.
             ground_level (float): Ground level for element.
-            ionization_energies (List[Optional[float]]): List of ionization energies. First value is the first
+            ionization_energies (list[Optional[float]]): List of ionization energies. First value is the first
                 ionization energy, second is the second ionization energy, etc. Note that this is zero-based indexing!
                 So Element.ionization_energies[0] refer to the 1st ionization energy. Values are from the NIST Atomic
                 Spectra Database. Missing values are None.
@@ -504,8 +504,7 @@ class ElementBase(Enum):
         """Get an element from its long name.
 
         Args:
-            name: Long name of the element, e.g. 'Hydrogen' or
-                  'Iron'. Not case-sensitive.
+            name: Long name of the element, e.g. 'Hydrogen' or 'Iron'. Not case-sensitive.
 
         Returns:
             Element with the name 'name'
@@ -1006,14 +1005,14 @@ class Species(MSONable, Stringify):
         if self._oxi_state in self.ionic_radii:
             return self.ionic_radii[self._oxi_state]
         if self._oxi_state:
-            d = self._el.data
+            dct = self._el.data
             oxi_str = str(int(self._oxi_state))
-            if oxi_str in d.get("Ionic radii hs", {}):
+            if oxi_str in dct.get("Ionic radii hs", {}):
                 warnings.warn(f"No default ionic radius for {self}. Using hs data.")
-                return d["Ionic radii hs"][oxi_str]
-            if oxi_str in d.get("Ionic radii ls", {}):
+                return dct["Ionic radii hs"][oxi_str]
+            if oxi_str in dct.get("Ionic radii ls", {}):
                 warnings.warn(f"No default ionic radius for {self}. Using ls data.")
-                return d["Ionic radii ls"][oxi_str]
+                return dct["Ionic radii ls"][oxi_str]
         warnings.warn(f"No ionic radius for {self}!")
         return None
 

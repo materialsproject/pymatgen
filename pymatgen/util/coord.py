@@ -344,13 +344,9 @@ def get_angle(v1, v2, units="degrees"):
 class Simplex(MSONable):
     """A generalized simplex object. See http://en.wikipedia.org/wiki/Simplex.
 
-    .. attribute: space_dim
-
-        Dimension of the space. Usually, this is 1 more than the simplex_dim.
-
-    .. attribute: simplex_dim
-
-        Dimension of the simplex coordinate space.
+    Attributes:
+        space_dim (int): Dimension of the space. Usually, this is 1 more than the simplex_dim.
+        simplex_dim (int): Dimension of the simplex coordinate space.
     """
 
     def __init__(self, coords):
@@ -364,7 +360,7 @@ class Simplex(MSONable):
         self.space_dim, self.simplex_dim = self._coords.shape
         self.origin = self._coords[-1]
         if self.space_dim == self.simplex_dim + 1:
-            # precompute augmented matrix for calculating bary_coords
+            # pre-compute augmented matrix for calculating bary_coords
             self._aug = np.concatenate([coords, np.ones((self.space_dim, 1))], axis=-1)
             self._aug_inv = np.linalg.inv(self._aug)
 

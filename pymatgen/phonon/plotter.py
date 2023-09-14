@@ -29,7 +29,7 @@ def freq_units(units):
         Returns conversion factor from THz to the required units and the label in the form of a namedtuple
 
     """
-    d = {
+    dct = {
         "thz": FreqUnits(1, "THz"),
         "ev": FreqUnits(const.value("hertz-electron volt relationship") * const.tera, "eV"),
         "mev": FreqUnits(
@@ -47,9 +47,9 @@ def freq_units(units):
         ),
     }
     try:
-        return d[units.lower().strip()]
+        return dct[units.lower().strip()]
     except KeyError:
-        raise KeyError(f"Value for units `{units}` unknown\nPossible values are:\n {list(d)}")
+        raise KeyError(f"Value for units `{units}` unknown\nPossible values are:\n {list(dct)}")
 
 
 class PhononDosPlotter:

@@ -533,7 +533,7 @@ class StructureMatcher(MSONable):
         aabbcc (rather than abcabc).
 
         Returns:
-        mask, struct1 translation indices, struct2 translation index
+            mask, struct1 translation indices, struct2 translation index
         """
         mask = np.zeros((len(struct2), len(struct1), fu), dtype=bool)
 

@@ -285,10 +285,10 @@ class Lobsterin(dict, MSONable):
 
     def as_dict(self):
         """MSONable dict"""
-        d = dict(self)
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+        dct = dict(self)
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d):

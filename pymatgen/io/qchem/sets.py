@@ -274,7 +274,6 @@ class QChemDictSet(QCInput):
                 Note that a type of None will default to a charge constraint (which can also be
                 accessed by requesting a type of "c" or "charge").
 
-
                 2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
@@ -761,7 +760,6 @@ class SinglePointSet(QChemDictSet):
                 Note that a type of None will default to a charge constraint (which can also be
                 accessed by requesting a type of "c" or "charge").
 
-
                 2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
@@ -993,7 +991,6 @@ class OptSet(QChemDictSet):
 
                 Note that a type of None will default to a charge constraint (which can also be
                 accessed by requesting a type of "c" or "charge").
-
 
                 2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
@@ -1326,7 +1323,6 @@ class ForceSet(QChemDictSet):
                 Note that a type of None will default to a charge constraint (which can also be
                 accessed by requesting a type of "c" or "charge").
 
-
                 2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
@@ -1515,7 +1511,6 @@ class FreqSet(QChemDictSet):
 
                 Note that a type of None will default to a charge constraint (which can also be
                 accessed by requesting a type of "c" or "charge").
-
 
                 2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[

@@ -109,7 +109,7 @@ class CollinearMagneticStructureAnalyzer:
           no magmoms are defined in input structure, otherwise it will respect
           existing magmoms.
         * "normalize" will normalize magmoms to unity, but will respect sign
-          (used for comparing orderings), magmoms < theshhold will be set to zero
+          (used for comparing orderings), magmoms < threshold will be set to zero
 
         Args:
             structure: input Structure object
@@ -344,8 +344,8 @@ class CollinearMagneticStructureAnalyzer:
         """Returns a Structure with only magnetic atoms present.
 
         Args:
-          make_primitive: Whether to make structure primitive after
-            removing non-magnetic atoms (Default value = True)
+            make_primitive: Whether to make structure primitive after
+                removing non-magnetic atoms (Default value = True)
 
         Returns: Structure
         """
@@ -362,11 +362,11 @@ class CollinearMagneticStructureAnalyzer:
         """Returns a Structure without magnetic moments defined.
 
         Args:
-          make_primitive: Whether to make structure primitive after
-            removing magnetic information (Default value = True)
+            make_primitive: Whether to make structure primitive after
+                removing magnetic information (Default value = True)
 
         Returns:
-          Structure
+            Structure
         """
         structure = self.structure.copy()
         structure.remove_site_property("magmom")
@@ -381,11 +381,11 @@ class CollinearMagneticStructureAnalyzer:
         or zero.
 
         Args:
-          make_primitive: Whether to make structure primitive after
-            making all magnetic moments positive (Default value = True)
+            make_primitive: Whether to make structure primitive after
+                making all magnetic moments positive (Default value = True)
 
         Returns:
-          Structure
+            Structure
         """
         structure = self.structure.copy()
 
@@ -459,11 +459,11 @@ class CollinearMagneticStructureAnalyzer:
     def number_of_unique_magnetic_sites(self, symprec: float = 1e-3, angle_tolerance: float = 5) -> int:
         """
         Args:
-          symprec: same as in SpacegroupAnalyzer (Default value = 1e-3)
-          angle_tolerance: same as in SpacegroupAnalyzer (Default value = 5).
+            symprec: same as in SpacegroupAnalyzer (Default value = 1e-3)
+            angle_tolerance: same as in SpacegroupAnalyzer (Default value = 5).
 
-        Returns: Number of symmetrically-distinct magnetic sites present
-        in structure.
+        Returns:
+            int: Number of symmetrically-distinct magnetic sites present in structure.
         """
         structure = self.get_nonmagnetic_structure()
 
@@ -524,11 +524,11 @@ class CollinearMagneticStructureAnalyzer:
         orderings within pymatgen.
 
         Args:
-          symprec: same as SpacegroupAnalyzer (Default value = 1e-2)
-          angle_tolerance: same as SpacegroupAnalyzer (Default value = 5)
+            symprec: same as SpacegroupAnalyzer (Default value = 1e-2)
+            angle_tolerance: same as SpacegroupAnalyzer (Default value = 5)
 
         Returns:
-          spacegroup_symbol, international_number
+            spacegroup_symbol, international_number
         """
         structure = self.get_structure_with_spin()
 
@@ -538,9 +538,10 @@ class CollinearMagneticStructureAnalyzer:
         """Compares the magnetic orderings of one structure with another.
 
         Args:
-          other: Structure to compare
+            other: Structure to compare
 
-        Returns: True or False
+        Returns:
+            bool: True if magnetic orderings match, False otherwise
         """
         a = CollinearMagneticStructureAnalyzer(
             self.structure, overwrite_magmom_mode="normalize"
@@ -705,30 +706,31 @@ class MagneticStructureEnumerator:
         self.ordered_structure_origins = ordered_structures_origins
 
     @staticmethod
-    def _sanitize_input_structure(input_structure: Structure) -> Structure:
+    def _sanitize_input_structure(struct: Structure) -> Structure:
         """Sanitize our input structure by removing magnetic information
         and making primitive.
 
         Args:
-          input_structure: Structure
+            struct: Structure
 
-        Returns: Structure
+        Returns:
+            Structure
         """
-        input_structure = input_structure.copy()
+        struct = struct.copy()
 
         # remove any annotated spin
-        input_structure.remove_spin()
+        struct.remove_spin()
 
         # sanitize input structure: first make primitive ...
-        input_structure = input_structure.get_primitive_structure(use_site_props=False)
+        struct = struct.get_primitive_structure(use_site_props=False)
 
         # ... and strip out existing magmoms, which can cause conflicts
         # with later transformations otherwise since sites would end up
         # with both magmom site properties and Species spins defined
-        if "magmom" in input_structure.site_properties:
-            input_structure.remove_site_property("magmom")
+        if "magmom" in struct.site_properties:
+            struct.remove_site_property("magmom")
 
-        return input_structure
+        return struct
 
     def _generate_transformations(self, structure: Structure) -> dict[str, MagOrderingTransformation]:
         """The central problem with trying to enumerate magnetic orderings is
@@ -742,11 +744,10 @@ class MagneticStructureEnumerator:
         relatively robust over a wide range of magnetic structures.
 
         Args:
-          structure: A sanitized input structure (_sanitize_input_structure)
-        Returns: A dict of a transformation class instance (values) and name of
-        enumeration strategy (keys)
+            structure: A sanitized input structure (_sanitize_input_structure)
 
-        Returns: dict of Transformations keyed by strategy
+        Returns:
+            dict: A dict of a transformation class instance (values) and name of enumeration strategy (keys)
         """
         formula = structure.composition.reduced_formula
         transformations: dict[str, MagOrderingTransformation] = {}

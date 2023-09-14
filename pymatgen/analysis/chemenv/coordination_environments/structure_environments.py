@@ -618,11 +618,11 @@ class StructureEnvironments(MSONable):
     def get_csms(self, isite, mp_symbol):
         """
         Returns the continuous symmetry measure(s) of site with index isite with respect to the
-         perfect coordination environment with mp_symbol. For some environments, a given mp_symbol might not
-         be available (if there is no voronoi parameters leading to a number of neighbors corresponding to
-         the coordination number of environment mp_symbol). For some environments, a given mp_symbol might
-         lead to more than one csm (when two or more different voronoi parameters lead to different neighbors
-         but with same number of neighbors).
+        perfect coordination environment with mp_symbol. For some environments, a given mp_symbol might not
+        be available (if there is no voronoi parameters leading to a number of neighbors corresponding to
+        the coordination number of environment mp_symbol). For some environments, a given mp_symbol might
+        lead to more than one csm (when two or more different voronoi parameters lead to different neighbors
+        but with same number of neighbors).
 
         Args:
             isite: Index of the site.

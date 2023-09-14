@@ -258,10 +258,10 @@ class StructureNL:
 
     def as_dict(self):
         """Returns: MSONable dict."""
-        d = self.structure.as_dict()
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["about"] = {
+        dct = self.structure.as_dict()
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["about"] = {
             "authors": [a.as_dict() for a in self.authors],
             "projects": self.projects,
             "references": self.references,
@@ -269,8 +269,8 @@ class StructureNL:
             "history": [h.as_dict() for h in self.history],
             "created_at": json.loads(json.dumps(self.created_at, cls=MontyEncoder)),
         }
-        d["about"].update(json.loads(json.dumps(self.data, cls=MontyEncoder)))
-        return d
+        dct["about"].update(json.loads(json.dumps(self.data, cls=MontyEncoder)))
+        return dct
 
     @classmethod
     def from_dict(cls, d):

@@ -218,7 +218,8 @@ class OptimadeRester:
             chemical_formula_anonymous: Anonymous chemical formula
             chemical_formula_hill: Chemical formula following Hill convention
 
-        Returns: Dict of (Dict Structures keyed by that database's id system) keyed by provider
+        Returns:
+            dict[str, Structure]: keyed by that database provider's id system
         """
         optimade_filter = self._build_filter(
             elements=elements,
@@ -257,7 +258,8 @@ class OptimadeRester:
             additional_response_fields: Any additional fields desired from the OPTIMADE API,
             these will be stored under the `'_optimade'` key in each `StructureNL.data` dictionary.
 
-        Returns: Dict of (Dict of StructureNLs keyed by that database's id system) keyed by provider
+        Returns:
+            dict[str, StructureNL]: keyed by that database provider's id system
         """
         optimade_filter = self._build_filter(
             elements=elements,
