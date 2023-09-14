@@ -32,9 +32,8 @@ class StandardTransmuter:
     """An example of a Transmuter object, which performs a sequence of
     transformations on many structures to generate TransformedStructures.
 
-    .. attribute: transformed_structures
-
-        List of all transformed structures.
+    Attributes:
+        transformed_structures (List[Structure]): List of all transformed structures.
     """
 
     def __init__(

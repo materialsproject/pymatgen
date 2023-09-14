@@ -198,39 +198,16 @@ class Cohp(MSONable):
 class CompleteCohp(Cohp):
     """A wrapper class that defines an average COHP, and individual COHPs.
 
-    .. attribute: are_coops
-
-         Indicates whether the object is consisting of COOPs.
-
-
-    .. attribute: are_cobis
-
-         Indicates whether the object is consisting of COBIs.
-
-
-    .. attribute: efermi
-
-         Fermi energy
-
-    .. attribute: energies
-
-         Sequence of energies
-
-    .. attribute: structure
-
-         Structure associated with the COHPs.
-
-    .. attribute: cohp, icohp
-
-         The average COHP/ICOHP.
-
-    .. attribute: all_cohps
-
-         A dict of COHPs for individual bonds of the form {label: COHP}
-
-    .. attribute: orb_res_cohp
-
-        Orbital-resolved COHPs.
+    Attributes:
+        are_coops (bool): Indicates whether the object is consisting of COOPs.
+        are_cobis (bool): Indicates whether the object is consisting of COBIs.
+        efermi (float): Fermi energy.
+        energies (Sequence[float]): Sequence of energies.
+        structure (pymatgen.Structure): Structure associated with the COHPs.
+        cohp (Sequence[float]): The average COHP.
+        icohp (Sequence[float]): The average ICOHP.
+        all_cohps (Dict[str, Sequence[float]]): A dict of COHPs for individual bonds of the form {label: COHP}.
+        orb_res_cohp (Dict[str, Dict[str, Sequence[float]]]): Orbital-resolved COHPs.
     """
 
     def __init__(

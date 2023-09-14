@@ -1607,7 +1607,6 @@ class NanoscaleStability:
         batteries. Nano Letters, 14(2), 1016-1020.
         https://doi.org/10.1021/nl404557w
 
-
     Attributes:
         se_analyzers (list[SurfaceEnergyPlotter]): Each item corresponds to a different polymorph.
         symprec (float): Tolerance for symmetry finding. See WulffShape.

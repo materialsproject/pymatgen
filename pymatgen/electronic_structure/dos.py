@@ -31,17 +31,10 @@ class DOS(Spectrum):
     """Replacement basic DOS object. All other DOS objects are extended versions
     of this object. Work in progress.
 
-    .. attribute: energies
-
-        The sequence of energies
-
-    .. attribute: densities
-
-        A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}
-
-    .. attribute: efermi
-
-        Fermi level
+    Attributes:
+        energies (Sequence[float]): The sequence of energies.
+        densities (Dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
+        efermi (float): Fermi level.
     """
 
     XLABEL = "Energy"
@@ -173,17 +166,10 @@ class Dos(MSONable):
     """Basic DOS object. All other DOS objects are extended versions of this
     object.
 
-    .. attribute: energies
-
-        The sequence of energies
-
-    .. attribute: densities
-
-        A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}
-
-    .. attribute: efermi
-
-        Fermi level
+    Attributes:
+        energies (Sequence[float]): The sequence of energies.
+        densities (Dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
+        efermi (float): Fermi level.
     """
 
     def __init__(
@@ -1124,7 +1110,6 @@ class CompleteDos(Dos):
         Source - https://gitlab.com/vibes-developers/vibes/-/tree/master/vibes/materials_fp
         Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
 
-
         Args:
             type (str): Specify fingerprint type needed can accept '{s/p/d/f/}summed_{pdos/tdos}'
             (default is summed_pdos)
@@ -1390,7 +1375,6 @@ class LobsterCompleteDos(CompleteDos):
 
     def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:  # type: ignore
         """Get element and spd projected Dos.
-
 
         Args:
             el: Element in Structure.composition associated with LobsterCompleteDos

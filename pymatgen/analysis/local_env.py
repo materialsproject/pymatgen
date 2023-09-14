@@ -4202,7 +4202,6 @@ class CutOffDictNN(NearNeighbors):
 
         Args:
             preset (str): A preset name. The list of supported presets are:
-
                 - "vesta_2019": The distance cut-offs used by the VESTA
                   visualisation program.
 
