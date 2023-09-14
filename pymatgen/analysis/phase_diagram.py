@@ -1476,7 +1476,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
             entries ([PDEntry]): Sequence of input entries. For example,
                if you want a Li2O-P2O5 phase diagram, you might have all
                Li-P-O entries as an input.
-            terminal_compositions ([Composition]): Terminal compositions of
+            terminal_compositions (list[Composition]): Terminal compositions of
                 phase space. In the Li2O-P2O5 example, these will be the
                 Li2O and P2O5 compositions.
             normalize_terminal_compositions (bool): Whether to normalize the
