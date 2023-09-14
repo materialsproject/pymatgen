@@ -93,7 +93,7 @@ class ElementBase(Enum):
             density_of_solid (float): Density of solid phase.
             coefficient_of_linear_thermal_expansion (float): Coefficient of linear thermal expansion.
             ground_level (float): Ground level for element.
-            ionization_energies (List[Optional[float]]): List of ionization energies. First value is the first
+            ionization_energies (list[Optional[float]]): List of ionization energies. First value is the first
                 ionization energy, second is the second ionization energy, etc. Note that this is zero-based indexing!
                 So Element.ionization_energies[0] refer to the 1st ionization energy. Values are from the NIST Atomic
                 Spectra Database. Missing values are None.

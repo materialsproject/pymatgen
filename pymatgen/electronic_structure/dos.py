@@ -33,7 +33,7 @@ class DOS(Spectrum):
 
     Attributes:
         energies (Sequence[float]): The sequence of energies.
-        densities (Dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
+        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
         efermi (float): Fermi level.
     """
 
@@ -168,7 +168,7 @@ class Dos(MSONable):
 
     Attributes:
         energies (Sequence[float]): The sequence of energies.
-        densities (Dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
+        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
         efermi (float): Fermi level.
     """
 

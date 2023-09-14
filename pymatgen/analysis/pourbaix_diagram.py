@@ -1027,9 +1027,9 @@ class PourbaixPlotter:
 
         Args:
             entry (Any): The entry to plot stability for.
-            pH_range (Tuple[float, float], optional): pH range for the plot. Defaults to [-2, 16].
+            pH_range (tuple[float, float], optional): pH range for the plot. Defaults to [-2, 16].
             pH_resolution (int, optional): pH resolution. Defaults to 100.
-            V_range (Tuple[float, float], optional): Voltage range for the plot. Defaults to [-3, 3].
+            V_range (tuple[float, float], optional): Voltage range for the plot. Defaults to [-3, 3].
             V_resolution (int, optional): Voltage resolution. Defaults to 100.
             e_hull_max (float, optional): Maximum energy above the hull. Defaults to 1.
             cmap (str, optional): Colormap for the plot. Defaults to "RdYlBu_r".

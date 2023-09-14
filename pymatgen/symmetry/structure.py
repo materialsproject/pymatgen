@@ -22,7 +22,7 @@ class SymmetrizedStructure(Structure):
     pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure.
 
     Attributes:
-        equivalent_indices (List[List[int]]): A list of lists of indices of the sites in the structure that are
+        equivalent_indices (list[List[int]]): A list of lists of indices of the sites in the structure that are
             considered equivalent based on the symmetry operations of the space group.
     """
 

@@ -33,7 +33,7 @@ class StandardTransmuter:
     transformations on many structures to generate TransformedStructures.
 
     Attributes:
-        transformed_structures (List[Structure]): List of all transformed structures.
+        transformed_structures (list[Structure]): List of all transformed structures.
     """
 
     def __init__(

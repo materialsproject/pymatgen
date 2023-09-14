@@ -1581,10 +1581,7 @@ class PDOS(Section):
         subsections = subsections if subsections else {}
         description = "Controls printing of the projected density of states"
 
-        _keywords = {
-            "NLUMO": Keyword("NLUMO", nlumo),
-            "COMPONENTS": Keyword("COMPONENTS"),
-        }
+        _keywords = {"NLUMO": Keyword("NLUMO", nlumo), "COMPONENTS": Keyword("COMPONENTS")}
         keywords.update(_keywords)
         super().__init__("PDOS", description=description, keywords=keywords, subsections=subsections, **kwargs)
 

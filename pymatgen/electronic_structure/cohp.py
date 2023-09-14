@@ -206,8 +206,8 @@ class CompleteCohp(Cohp):
         structure (pymatgen.Structure): Structure associated with the COHPs.
         cohp (Sequence[float]): The average COHP.
         icohp (Sequence[float]): The average ICOHP.
-        all_cohps (Dict[str, Sequence[float]]): A dict of COHPs for individual bonds of the form {label: COHP}.
-        orb_res_cohp (Dict[str, Dict[str, Sequence[float]]]): Orbital-resolved COHPs.
+        all_cohps (dict[str, Sequence[float]]): A dict of COHPs for individual bonds of the form {label: COHP}.
+        orb_res_cohp (dict[str, Dict[str, Sequence[float]]]): Orbital-resolved COHPs.
     """
 
     def __init__(

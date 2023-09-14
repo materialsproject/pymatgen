@@ -286,10 +286,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Args:
             structure (Structure): The input structure.
             scaled (bool): Required value for inheritance, does nothing in TEM pattern
-            two_theta_range (Tuple): Required value for inheritance, does nothing in TEM pattern
+            two_theta_range (tuple[float, float]): Required value for inheritance, does nothing in TEM pattern
 
         Returns:
-            PandasDataFrame
+            pd.DataFrame
         """
         if self.symprec:
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
