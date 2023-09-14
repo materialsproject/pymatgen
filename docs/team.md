@@ -13,7 +13,7 @@ If you've contributed but your name is missing from this list, please let us kno
 
 ## Lead Maintainers
 
-| Name             | Position                                                       | 💻 GitHub                                                                          | 🔬 ORCID                                                     | 🌐 Web                                                       |
+| Name             | Position                                                       | 💻 GitHub                                                                           | 🔬 ORCID                                                      | 🌐 Web                                                        |
 | ---------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Shyue Ping Ong   | Lead developer, Professor, Department of NanoEngineering, UCSD | [shyuep](https://github.com/shyuep)                                                | [0000-0001-7777-8871](https://orcid.org/0000-0001-5726-2587) | [materialsvirtuallab.org](https://materialsvirtuallab.org)   |
 | Matthew Horton   | Senior Software Engineer @ Microsoft Research                  | [mkhorton](https://github.com/mkhorton)                                            | [0000-0001-7777-8871](https://orcid.org/0000-0001-7777-8871) | [linkedin.com/in/mkhorton](https://linkedin.com/in/mkhorton) |
@@ -97,6 +97,7 @@ If you've contributed but your name is missing from this list, please let us kno
 | **Yu Kumagai**            | Tokyo Institute of Technology                                                                                   | yuuukuma [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:yuuukuma)                       | [0000-0003-0489-8148 ![orcid logo]](https://orcid.org/0000-0003-0489-8148) |
 | **Yuh-Chieh Lin**         | TSMC                                                                                                            | random-var-x [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:random-var-x)               |                                                                            |
 | **Zachary M Gibbs**       | California Institute of Technology                                                                              | zacharygibbs [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:zacharygibbs)               |                                                                            |
+| **Aakash Naik**           | Federal Institute for Materials Research and Testing (BAM), Berlin, Germany.                                    | naik-aakash [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:naik-aakash)                 | [0000-0002-6071-6786 ![orcid logo]](https://orcid.org/0000-0002-6071-6786) |
 
 ### < 1 year active
 

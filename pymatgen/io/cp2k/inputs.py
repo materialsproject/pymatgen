@@ -1155,7 +1155,7 @@ class Diagonalization(Section):
         subsections: dict | None = None,
         **kwargs,
     ):
-        """Initialize the diagronalization section."""
+        """Initialize the diagonalization section."""
         self.eps_adapt = eps_adapt
         self.eps_iter = eps_iter
         self.eps_jacobi = eps_jacobi
@@ -1204,7 +1204,7 @@ class Davidson(Section):
                     systems where make_preconditioner would dominate the total computational cost.
                 "FULL_KINETIC": Cholesky inversion of S and T, fast construction, robust, use for
                     very large systems.
-                "FULL_SINGLE": Based on H-eS diagonalisation, not as good as FULL_ALL, but
+                "FULL_SINGLE": Based on H-eS diagonalization, not as good as FULL_ALL, but
                     somewhat cheaper to apply.
                 "FULL_SINGLE_INVERSE": Based on H-eS cholesky inversion, similar to FULL_SINGLE
                     in preconditioning efficiency but cheaper to construct, might be somewhat
@@ -1272,7 +1272,7 @@ class OrbitalTransformation(Section):
                 time, FULL_KINETIC can be a good choice.
             algorithm: What algorithm to use for OT. 'Strict': Taylor or diagonalization
                 based algorithm. IRAC: Orbital Transformation based Iterative Refinement of the
-                Approximative Congruence transformation (OT/IR).
+                Approximate Congruence transformation (OT/IR).
             rotation: Introduce additional variables to allow subspace rotations (i.e fractional
                 occupations)
             occupation_preconditioner: include the fractional occupation in the preconditioning
@@ -1385,7 +1385,7 @@ class Kind(Section):
                 basis set file specified
             potential: Pseudopotential for this atom, accessible from the
                 potential file
-            ghost: Turn this into ghost atom (disaple the potential)
+            ghost: Turn this into ghost atom (disable the potential)
             aux_basis: Auxiliary basis to use with ADMM
             keywords: additional keywords
             subsections: additional subsections
