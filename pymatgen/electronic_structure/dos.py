@@ -1220,7 +1220,7 @@ class CompleteDos(Dos):
             ValueError: If both tanimoto and normalize are set to True.
 
         Returns:
-        Similarity index (float): The value of dot product
+            float: Similarity index given by the dot product
         """
         fp1_dict = CompleteDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
 
@@ -1470,7 +1470,7 @@ def _get_orb_lobster(orb):
         orb: string representation of orbital.
 
     Returns:
-         Orbital.
+        Orbital.
     """
     orb_labs = [
         "s",

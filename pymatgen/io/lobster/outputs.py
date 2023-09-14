@@ -1137,8 +1137,8 @@ class Bandoverlaps:
         """
         Will read in all contents of the file
         Args:
-         contents: list of strings
-         spin_numbers: list of spin numbers depending on `Lobster` version.
+            contents: list of strings
+            spin_numbers: list of spin numbers depending on `Lobster` version.
         """
         self.bandoverlapsdict: dict[Any, dict] = {}  # Any is spin number 1 or -1
         self.max_deviation = []

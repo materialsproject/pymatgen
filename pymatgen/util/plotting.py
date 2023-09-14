@@ -415,9 +415,9 @@ def van_arkel_triangle(list_of_materials, annotate=True):
                 to the Theory of the Chemical Bond, Elsevier, New York (1958).
 
     Args:
-         list_of_materials (list): A list of computed entries of binary
+        list_of_materials (list): A list of computed entries of binary
             materials or a list of lists containing two elements (str).
-         annotate (bool): Whether or not to label the points on the
+        annotate (bool): Whether or not to label the points on the
             triangle with reduced formula (if list of entries) or pair
             of elements (if list of list of str).
     """

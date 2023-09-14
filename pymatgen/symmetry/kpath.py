@@ -45,13 +45,13 @@ class KPathBase(metaclass=abc.ABCMeta):
     def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
         """
         Args:
-        structure (Structure): Structure object.
-        symprec (float): Tolerance for symmetry finding.
-        angle_tolerance (float): Angle tolerance for symmetry finding.
-        atol (float): Absolute tolerance used to compare structures
-            and determine symmetric equivalence of points and lines in the BZ.
-        *args: Other arguments supported by subclasses.
-        **kwargs: Other keyword arguments supported by subclasses.
+            structure (Structure): Structure object.
+            symprec (float): Tolerance for symmetry finding.
+            angle_tolerance (float): Angle tolerance for symmetry finding.
+            atol (float): Absolute tolerance used to compare structures
+                and determine symmetric equivalence of points and lines in the BZ.
+            *args: Other arguments supported by subclasses.
+            **kwargs: Other keyword arguments supported by subclasses.
         """
         self._structure = structure
         self._latt = self._structure.lattice

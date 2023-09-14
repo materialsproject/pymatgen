@@ -984,9 +984,9 @@ class BztPlotter:
             ax: figure.axes where to plot. If None, a new figure is produced.
 
         Example:
-        bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
-        more example are provided in the notebook
-        "How to use Boltztra2 interface.ipynb".
+            bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
+            more example are provided in the notebook
+            "How to use Boltztra2 interface.ipynb".
         """
         props = (
             "Conductivity",

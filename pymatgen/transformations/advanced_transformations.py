@@ -1433,7 +1433,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
                 find the smallest cell.
 
         Returns:
-           Grain boundary structure (gb (Structure) object).
+            Grain boundary structure (gb (Structure) object).
         """
         self.rotation_axis = rotation_axis
         self.rotation_angle = rotation_angle
@@ -1454,7 +1454,6 @@ class GrainBoundaryTransformation(AbstractTransformation):
         Args:
             structure: Input Structure
             return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
-
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:

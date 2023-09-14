@@ -2195,7 +2195,7 @@ class Outcar:
         Parse the core contribution of NMR chemical shielding.
 
         Returns:
-        G0 contribution matrix as list of list.
+            list[list]: G0 contribution matrix.
         """
         header_pattern = r"^\s+Core NMR properties\s*$\n\n^\s+typ\s+El\s+Core shift \(ppm\)\s*$\n^\s+-{20,}$\n"
         row_pattern = r"\d+\s+(?P<element>[A-Z][a-z]?\w?)\s+(?P<shift>[-]?\d+\.\d+)"

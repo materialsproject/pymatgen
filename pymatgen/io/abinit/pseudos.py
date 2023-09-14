@@ -742,9 +742,9 @@ class NcAbinitHeader(AbinitHeader):
         Parse the FHI abinit header. Example:
 
         Troullier-Martins psp for element  Sc        Thu Oct 27 17:33:22 EDT 1994
-         21.00000   3.00000    940714                zatom, zion, pspdat
-           1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
-        1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
+            21.00000   3.00000    940714                zatom, zion, pspdat
+            1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
+            1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
         """
         lines = _read_nlines(filename, 4)
 
@@ -764,8 +764,8 @@ class NcAbinitHeader(AbinitHeader):
         Parse the HGH abinit header. Example:
 
         Hartwigsen-Goedecker-Hutter psp for Ne,  from PRB58, 3641 (1998)
-           10   8  010605 zatom,zion,pspdat
-         3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well
+            10   8  010605 zatom,zion,pspdat
+            3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well
         """
         lines = _read_nlines(filename, 3)
 

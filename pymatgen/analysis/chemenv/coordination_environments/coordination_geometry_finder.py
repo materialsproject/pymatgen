@@ -1305,15 +1305,17 @@ class LocalGeometryFinder:
         points_perfect=None,
         optimization=None,
     ):
-        """
-        Returns the symmetry measures of a given coordination_geometry for a set of permutations depending on
-        the permutation setup. Depending on the parameters of the LocalGeometryFinder and on the coordination
-         geometry, different methods are called.
+        """Returns the symmetry measures of a given coordination_geometry for a set of
+        permutations depending on the permutation setup. Depending on the parameters of
+        the LocalGeometryFinder and on the coordination geometry, different methods are called.
+
         :param coordination_geometry: Coordination geometry for which the symmetry measures are looked for
+
+        Raises:
+            NotImplementedError: if the permutation_setup does not exist
 
         Returns:
             the symmetry measures of a given coordination_geometry for a set of permutations
-        :raise: NotImplementedError if the permutation_setup does not exists.
         """
         if tested_permutations:
             tested_permutations = set()
@@ -1351,15 +1353,17 @@ class LocalGeometryFinder:
     def coordination_geometry_symmetry_measures_sepplane_optim(
         self, coordination_geometry, points_perfect=None, nb_set=None, optimization=None
     ):
-        """
-        Returns the symmetry measures of a given coordination_geometry for a set of permutations depending on
-        the permutation setup. Depending on the parameters of the LocalGeometryFinder and on the coordination
-         geometry, different methods are called.
+        """Returns the symmetry measures of a given coordination_geometry for a set of
+        permutations depending on the permutation setup. Depending on the parameters of
+        the LocalGeometryFinder and on the coordination geometry, different methods are called.
+
         :param coordination_geometry: Coordination geometry for which the symmetry measures are looked for
+
+        Raises:
+            NotImplementedError: if the permutation_setup does not exist
 
         Returns:
             the symmetry measures of a given coordination_geometry for a set of permutations
-        :raise: NotImplementedError if the permutation_setup does not exists.
         """
         csms = []
         permutations = []

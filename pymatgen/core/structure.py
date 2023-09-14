@@ -1579,16 +1579,15 @@ class IStructure(SiteCollection, MSONable):
     ) -> tuple[np.ndarray, ...]:
         """Similar to 'get_neighbor_list' with sites=None, but the neighbors are
         grouped by symmetry. The returned values are a tuple of numpy arrays
-        (center_indices, points_indices, offset_vectors, distances,
-         symmetry_indices). Atom `center_indices[i]` has neighbor atom
-        `points_indices[i]` that is translated by `offset_vectors[i]` lattice
-        vectors, and the distance is `distances[i]`. Symmetry_idx groups the bonds
-        that are related by a symmetry of the provided space group and symmetry_op
-        is the operation that relates the first bond of the same symmetry_idx to
-        the respective atom. The first bond maps onto itself via the Identity. The
-        output is sorted w.r.t. to symmetry_indices. If unique is True only one of the
-        two bonds connecting two points is given. Out of the two, the bond that does not
-        reverse the sites is chosen.
+        (center_indices, points_indices, offset_vectors, distances, symmetry_indices).
+        Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is translated
+        by `offset_vectors[i]` lattice vectors, and the distance is `distances[i]`.
+        Symmetry_idx groups the bonds that are related by a symmetry of the provided space
+        group and symmetry_op is the operation that relates the first bond of the same
+        symmetry_idx to the respective atom. The first bond maps onto itself via the
+        Identity. The output is sorted w.r.t. to symmetry_indices. If unique is True only
+        one of the two bonds connecting two points is given. Out of the two, the bond that
+        does not reverse the sites is chosen.
 
         Args:
             r (float): Radius of sphere

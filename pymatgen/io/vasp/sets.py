@@ -927,9 +927,9 @@ class MPScanRelaxSet(DictSet):
             kinetic energy density (partial)
 
     References:
-         James W. Furness, Aaron D. Kaplan, Jinliang Ning, John P. Perdew, and Jianwei Sun.
-         Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation.
-         The Journal of Physical Chemistry Letters 0, 11 DOI: 10.1021/acs.jpclett.0c02405
+        James W. Furness, Aaron D. Kaplan, Jinliang Ning, John P. Perdew, and Jianwei Sun.
+        Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation.
+        The Journal of Physical Chemistry Letters 0, 11 DOI: 10.1021/acs.jpclett.0c02405
     """
 
     CONFIG = _load_yaml_config("MPSCANRelaxSet")

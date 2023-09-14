@@ -1171,7 +1171,7 @@ def _get_elements(site):
     Get the list of elements for a Site.
 
     Args:
-         site (Site): Site to assess
+        site (Site): Site to assess
 
     Returns:
         [Element]: List of elements

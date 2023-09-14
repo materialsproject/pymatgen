@@ -68,10 +68,10 @@ def function_comparison(f1, f2, x1, x2, numpoints_check=500):
         numpoints_check: Number of points used to compare the functions
 
     Returns:
-        Whether the function are equal ("="), f1 is always lower than f2 ("<"), f1 is always larger than f2 (">"),
-         f1 is always lower than or equal to f2 ("<"), f1 is always larger than or equal to f2 (">") on the
-         interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
-         functions that do not cross...)
+        str: '=' if the functions are equal, '<' if f1 is always lower than f2, '>' if f1 is always larger than f2,
+            f1 is always lower than or equal to f2 ("<"), f1 is always larger than or equal to f2 (">") on the
+            interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
+            functions that do not cross...)
     """
     xx = np.linspace(x1, x2, num=numpoints_check)
     y1 = f1(xx)

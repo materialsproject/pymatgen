@@ -729,8 +729,8 @@ class LammpsInputFile(InputFile):
         self, comment: str, inline: bool = False, stage_name: str | None = None, index_comment: bool = False
     ):
         """
-         Method to add a comment inside a stage (between actual commands)
-         or as a whole stage (which will do nothing when LAMMPS runs).
+        Method to add a comment inside a stage (between actual commands)
+        or as a whole stage (which will do nothing when LAMMPS runs).
 
         Args:
             comment (str): Comment string to be added. The comment will be

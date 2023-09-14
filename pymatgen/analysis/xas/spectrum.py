@@ -33,8 +33,8 @@ class XAS(Spectrum):
         edge (str): Absorption edge associated with the spectrum
         spectrum_type (str): 'XANES' or 'EXAFS'
         absorbing_index (None or int): If None, the spectrum is assumed to be a
-         site-weighted spectrum, which is comparable to experimental one.
-         Otherwise, it indicates that the absorbing_index for a site-wise spectrum.
+            site-weighted spectrum, which is comparable to experimental one.
+            Otherwise, it indicates that the absorbing_index for a site-wise spectrum.
 
     Attributes:
         x (Sequence[float]): The sequence of energies.
