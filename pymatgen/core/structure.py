@@ -856,7 +856,7 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             lattice (Lattice/3x3 array): The lattice, either as a
-                pymatgen.core.lattice.Lattice or
+                pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -1002,7 +1002,7 @@ class IStructure(SiteCollection, MSONable):
                 pymatgen.symmetry.groups.Spacegroup. E.g., "R-3c" or "Fm-3m".
                 If an int, it will be interpreted as an international number.
             lattice (Lattice/3x3 array): The lattice, either as a
-                pymatgen.core.lattice.Lattice or
+                pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -1098,7 +1098,7 @@ class IStructure(SiteCollection, MSONable):
                 If a list of two ints, it will be interpreted as the number of
                 the spacegroup in its Belov, Neronova and Smirnova (BNS) setting.
             lattice (Lattice/3x3 array): The lattice, either as a
-                pymatgen.core.lattice.Lattice or
+                pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -3538,7 +3538,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """Create a periodic structure.
 
         Args:
-            lattice: The lattice, either as a pymatgen.core.lattice.Lattice or
+            lattice: The lattice, either as a pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].

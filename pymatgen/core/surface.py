@@ -93,7 +93,7 @@ class Slab(Structure):
 
         Args:
             lattice (Lattice/3x3 array): The lattice, either as a
-                pymatgen.core.lattice.Lattice or
+                pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].

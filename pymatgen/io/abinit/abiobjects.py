@@ -26,23 +26,23 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
     If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr.
 
     Args:
-        cls: Lattice class to be instantiated. pymatgen.core.lattice.Lattice if `cls` is None
+        cls: Lattice class to be instantiated. Defaults to pymatgen.core.Lattice.
 
     Example:
         lattice_from_abivars(acell=3*[10], rprim=np.eye(3))
     """
-    cls = Lattice if cls is None else cls
+    cls = cls or Lattice
     kwargs.update(dict(*args))
 
-    rprim = kwargs.get("rprim")
+    r_prim = kwargs.get("rprim")
     ang_deg = kwargs.get("angdeg")
-    acell = kwargs["acell"]
+    a_cell = kwargs["acell"]
 
-    if rprim is not None:
+    if r_prim is not None:
         if ang_deg is not None:
             raise ValueError("angdeg and rprimd are mutually exclusive")
-        rprim = np.reshape(rprim, (3, 3))
-        rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
+        r_prim = np.reshape(r_prim, (3, 3))
+        rprimd = [float(a_cell[i]) * r_prim[i] for i in range(3)]
         # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
         return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
 
@@ -58,7 +58,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         # See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg
         tol12 = 1e-12
         pi, sin, cos, sqrt = np.pi, np.sin, np.cos, np.sqrt
-        rprim = np.zeros((3, 3))
+        r_prim = np.zeros((3, 3))
         if (
             abs(ang_deg[0] - ang_deg[1]) < tol12
             and abs(ang_deg[1] - ang_deg[2]) < tol12
@@ -70,26 +70,26 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
             a2 = 2.0 / 3.0 * (1.0 - cos_ang)
             aa = sqrt(a2)
             cc = sqrt(1.0 - a2)
-            rprim[0, 0] = aa
-            rprim[0, 1] = 0.0
-            rprim[0, 2] = cc
-            rprim[1, 0] = -0.5 * aa
-            rprim[1, 1] = sqrt(3.0) * 0.5 * aa
-            rprim[1, 2] = cc
-            rprim[2, 0] = -0.5 * aa
-            rprim[2, 1] = -sqrt(3.0) * 0.5 * aa
-            rprim[2, 2] = cc
+            r_prim[0, 0] = aa
+            r_prim[0, 1] = 0.0
+            r_prim[0, 2] = cc
+            r_prim[1, 0] = -0.5 * aa
+            r_prim[1, 1] = sqrt(3.0) * 0.5 * aa
+            r_prim[1, 2] = cc
+            r_prim[2, 0] = -0.5 * aa
+            r_prim[2, 1] = -sqrt(3.0) * 0.5 * aa
+            r_prim[2, 2] = cc
         else:
             # Treat all the other cases
-            rprim[0, 0] = 1.0
-            rprim[1, 0] = cos(pi * ang_deg[2] / 180.0)
-            rprim[1, 1] = sin(pi * ang_deg[2] / 180.0)
-            rprim[2, 0] = cos(pi * ang_deg[1] / 180.0)
-            rprim[2, 1] = (cos(pi * ang_deg[0] / 180.0) - rprim[1, 0] * rprim[2, 0]) / rprim[1, 1]
-            rprim[2, 2] = sqrt(1.0 - rprim[2, 0] ** 2 - rprim[2, 1] ** 2)
+            r_prim[0, 0] = 1.0
+            r_prim[1, 0] = cos(pi * ang_deg[2] / 180.0)
+            r_prim[1, 1] = sin(pi * ang_deg[2] / 180.0)
+            r_prim[2, 0] = cos(pi * ang_deg[1] / 180.0)
+            r_prim[2, 1] = (cos(pi * ang_deg[0] / 180.0) - r_prim[1, 0] * r_prim[2, 0]) / r_prim[1, 1]
+            r_prim[2, 2] = sqrt(1.0 - r_prim[2, 0] ** 2 - r_prim[2, 1] ** 2)
 
         # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
-        rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
+        rprimd = [float(a_cell[i]) * r_prim[i] for i in range(3)]
         return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
 
     raise ValueError(f"Don't know how to construct a Lattice from dict:\n{pformat(kwargs)}")
@@ -220,7 +220,7 @@ or the Virtual Crystal Approximation."""
 
         if len(enforce_typat) != len(structure):
             raise ValueError(
-                f"enforce_typat contains {len(enforce_typat)} entries while it should be natom: {len(structure)}"
+                f"enforce_typat contains {len(enforce_typat)} entries while it should be {len(structure)=}"
             )
 
         if len(enforce_znucl) != n_types_atom:

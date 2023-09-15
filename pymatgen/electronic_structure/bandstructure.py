@@ -44,7 +44,7 @@ class Kpoint(MSONable):
         """
         Args:
             coords: coordinate of the kpoint as a numpy array
-            lattice: A pymatgen.core.lattice.Lattice object representing
+            lattice: A pymatgen.core.Lattice object representing
                 the reciprocal lattice of the kpoint
             to_unit_cell: Translates fractional coordinate to the basic unit
                 cell, i.e., all fractional coordinates satisfy 0 <= a < 1.
@@ -66,7 +66,7 @@ class Kpoint(MSONable):
     @property
     def lattice(self):
         """The lattice associated with the kpoint. It's a
-        pymatgen.core.lattice.Lattice object.
+        pymatgen.core.Lattice object.
         """
         return self._lattice
 
