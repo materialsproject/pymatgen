@@ -1200,7 +1200,7 @@ class Bandoverlaps:
         Args:
             number_occ_bands_spin_up (int): number of occupied bands of spin up
             number_occ_bands_spin_down (int): number of occupied bands of spin down
-            spin_polarized (bool):  If True, then it was a spin polarized calculation
+            spin_polarized (bool): If True, then it was a spin polarized calculation
             limit_deviation (float): limit of the maxDeviation
 
         Returns:

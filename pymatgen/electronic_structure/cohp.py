@@ -1088,13 +1088,13 @@ class IcohpCollection(MSONable):
             maxbondlength: defines the maximum of the bond lengths of the bonds.
 
         Returns:
-             dict of IcohpValues, the keys correspond to the values from the initial list_labels.
+            dict of IcohpValues, the keys correspond to the values from the initial list_labels.
         """
-        newicohp_dict = {}
+        new_icohp_dict = {}
         for value in self._icohplist.values():
             if value._length >= minbondlength and value._length <= maxbondlength:
-                newicohp_dict[value._label] = value
-        return newicohp_dict
+                new_icohp_dict[value._label] = value
+        return new_icohp_dict
 
     def get_icohp_dict_of_site(
         self,
@@ -1120,7 +1120,7 @@ class IcohpCollection(MSONable):
         Returns:
             dict of IcohpValues, the keys correspond to the values from the initial list_labels
         """
-        newicohp_dict = {}
+        new_icohp_dict = {}
         for key, value in self._icohplist.items():
             atomnumber1 = int(re.split(r"(\d+)", value._atom1)[1]) - 1
             atomnumber2 = int(re.split(r"(\d+)", value._atom2)[1]) - 1
@@ -1137,16 +1137,16 @@ class IcohpCollection(MSONable):
                         if value.summed_icohp >= minsummedicohp:
                             if maxsummedicohp is not None:
                                 if value.summed_icohp <= maxsummedicohp:
-                                    newicohp_dict[key] = value
+                                    new_icohp_dict[key] = value
                             else:
-                                newicohp_dict[key] = value
+                                new_icohp_dict[key] = value
                     elif maxsummedicohp is not None:
                         if value.summed_icohp <= maxsummedicohp:
-                            newicohp_dict[key] = value
+                            new_icohp_dict[key] = value
                     else:
-                        newicohp_dict[key] = value
+                        new_icohp_dict[key] = value
 
-        return newicohp_dict
+        return new_icohp_dict
 
     def extremum_icohpvalue(self, summed_spin_channels=True, spin=Spin.up):
         """Get ICOHP/ICOOP of strongest bond.

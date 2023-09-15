@@ -318,7 +318,7 @@ class LammpsInputFile(InputFile):
         The others will appear in the same order as provided in the list. Other non-merged stages will follow.
 
         Args:
-             stage_names (list): list of strings giving the names of the stages to be merged.
+            stage_names (list): list of strings giving the names of the stages to be merged.
         """
         if not all(stage in self.stages_names for stage in stage_names):
             raise ValueError("At least one of the stages to be merged is not in the LammpsInputFile.")

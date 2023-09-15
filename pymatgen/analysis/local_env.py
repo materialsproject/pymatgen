@@ -606,7 +606,8 @@ class NearNeighbors:
                 will raise ValueError, while 'take_majority_drop' ignores this site altogether and
                 'take_max_species' will use Fe as the site specie.
 
-        Returns: a pymatgen.analysis.graphs.StructureGraph object
+        Returns:
+            StructureGraph: object from pymatgen.analysis.graphs
         """
         structure = _handle_disorder(structure, on_disorder)
 
@@ -1253,7 +1254,8 @@ class JmolNN(NearNeighbors):
             el1_sym: (str) symbol of atom 1
             el2_sym: (str) symbol of atom 2.
 
-        Returns: (float) max bond length
+        Returns:
+            float: max bond length
         """
         return sqrt((self.el_radius[el1_sym] + self.el_radius[el2_sym] + self.tol) ** 2)
 
@@ -1504,7 +1506,8 @@ class OpenBabelNN(NearNeighbors):
             with order parameters using neighbors determined by
             this NearNeighbor class
 
-        Returns: a pymatgen.analysis.graphs.MoleculeGraph object
+        Returns:
+            MoleculeGraph: object from pymatgen.analysis.graphs
         """
         if decorate:
             # Decorate all sites in the underlying structure
@@ -1638,8 +1641,7 @@ class CovalentBondNN(NearNeighbors):
 
     def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:  # type: ignore
         """
-        Obtain a MoleculeGraph object using this NearNeighbor
-        class.
+        Obtain a MoleculeGraph object using this NearNeighbor class.
 
         Args:
             structure: Molecule object.
@@ -1647,7 +1649,8 @@ class CovalentBondNN(NearNeighbors):
             with order parameters using neighbors determined by
             this NearNeighbor class
 
-        Returns: a pymatgen.analysis.graphs.MoleculeGraph object
+        Returns:
+            MoleculeGraph: object from pymatgen.analysis.graphs
         """
         # requires optional dependency which is why it's not a top-level import
         from pymatgen.analysis.graphs import MoleculeGraph
@@ -2026,7 +2029,8 @@ def get_neighbors_of_site_with_index(struct, n, approach="min_dist", delta=0.1, 
         delta (float): tolerance involved in neighbor finding.
         cutoff (float): (large) radius to find tentative neighbors.
 
-    Returns: neighbor sites.
+    Returns:
+        neighbor sites.
     """
     if approach == "min_dist":
         return MinimumDistanceNN(tol=delta, cutoff=cutoff).get_nn(struct, n)
@@ -2054,18 +2058,19 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10, 
     Args:
         struct (Structure): input structure.
         n (int): index of site in Structure object for which motif type
-                is to be determined.
+            is to be determined.
         approach (str): type of neighbor-finding approach, where
-              "min_dist" will use the MinimumDistanceNN class,
-              "voronoi" the VoronoiNN class, "min_OKeeffe" the
-              MinimumOKeeffe class, and "min_VIRE" the MinimumVIRENN class.
+            "min_dist" will use the MinimumDistanceNN class,
+            "voronoi" the VoronoiNN class, "min_OKeeffe" the
+            MinimumOKeeffe class, and "min_VIRE" the MinimumVIRENN class.
         delta (float): tolerance involved in neighbor finding.
         cutoff (float): (large) radius to find tentative neighbors.
         thresh (dict): thresholds for motif criteria (currently, required
-                keys and their default values are "qtet": 0.5,
-                "qoct": 0.5, "qbcc": 0.5, "q6": 0.4).
+            keys and their default values are "qtet": 0.5,
+            "qoct": 0.5, "qbcc": 0.5, "q6": 0.4).
 
-    Returns: motif type (str).
+    Returns:
+        str: motif type
     """
     if thresh is None:
         thresh = {"qtet": 0.5, "qoct": 0.5, "qbcc": 0.5, "q6": 0.4, "qtribipyr": 0.8, "qsqpyr": 0.8}
@@ -4201,11 +4206,11 @@ class CutOffDictNN(NearNeighbors):
     @classmethod
     def from_preset(cls, preset):
         """
-        Initialize a CutOffDictNN according to a preset set of cut-offs.
+        Initialize a CutOffDictNN according to a preset set of cutoffs.
 
         Args:
             preset (str): A preset name. The list of supported presets are:
-                - "vesta_2019": The distance cut-offs used by the VESTA
+                - "vesta_2019": The distance cutoffs used by the VESTA
                   visualisation program.
 
         Returns:

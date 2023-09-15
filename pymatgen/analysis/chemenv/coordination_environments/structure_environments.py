@@ -46,8 +46,7 @@ class StructureEnvironments(MSONable):
         """Class used to store a given set of neighbors of a given site (based on the detailed_voronoi)."""
 
         def __init__(self, structure: Structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
-            """
-            Constructor for NeighborsSet.
+            """Constructor for NeighborsSet.
 
             Args:
                 structure: Structure object.
@@ -73,8 +72,7 @@ class StructureEnvironments(MSONable):
                 self.sources = [sources]
 
         def get_neighb_voronoi_indices(self, permutation):
-            """
-            Return the indices in the detailed_voronoi corresponding to the current permutation.
+            """Get indices in the detailed_voronoi corresponding to the current permutation.
 
             Args:
                 permutation: Current permutation for which the indices in the detailed_voronoi are needed.
@@ -324,8 +322,8 @@ class StructureEnvironments(MSONable):
         @property
         def source(self):
             """
-            Returns the source of this NeighborsSet (how it was generated, e.g. from which Voronoi cut-offs, or from
-            hints).
+            Returns the source of this NeighborsSet (how it was generated, e.g. from which Voronoi
+            cutoffs, or from hints).
             """
             if len(self.sources) != 1:
                 raise RuntimeError("Number of sources different from 1 !")
@@ -1383,8 +1381,7 @@ class LightStructureEnvironments(MSONable):
         """
 
         def __init__(self, structure: Structure, isite, all_nbs_sites, all_nbs_sites_indices):
-            """
-            Constructor for NeighborsSet.
+            """Constructor for NeighborsSet.
 
             Args:
                 structure: Structure object.

@@ -122,7 +122,7 @@ class Spectrum(MSONable):
         """Returns an interpolated y value for a particular x value.
 
         Args:
-             x: x value to return the y value for
+            x: x value to return the y value for
 
         Returns:
             Value of y at x

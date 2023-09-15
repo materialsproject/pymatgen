@@ -75,7 +75,7 @@ def parse_dielectric_data(data):
             a list of ``[xx, yy, zz, xy , xz, yz ]`` dielectric tensor elements.
 
     Returns:
-        (np.array):  a Nx3 numpy array. Each row contains the eigenvalues
+        np.array: a Nx3 numpy array. Each row contains the eigenvalues
             for the corresponding row in `data`.
     """
     return np.array([np.linalg.eig(to_matrix(*e))[0] for e in data])

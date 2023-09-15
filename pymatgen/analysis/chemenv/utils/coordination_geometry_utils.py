@@ -392,8 +392,7 @@ def vectorsToMatrix(aa, bb):
     :param bb: Another vector of size 3
 
     Returns:
-        A 3x3 matrix M composed of the products of the elements of aa and bb :
-     M_ij = aa_i * bb_j.
+        A 3x3 matrix M composed of the products of the elements of aa and bb : M_ij = aa_i * bb_j.
     """
     MM = np.zeros([3, 3], np.float_)
     for ii in range(3):

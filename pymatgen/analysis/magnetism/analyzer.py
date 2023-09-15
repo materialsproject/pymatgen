@@ -1072,8 +1072,8 @@ def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> Magn
     doi: 10.1021/acs.chemmater.6b04729
 
     Args:
-      structure_A: Structure
-      structure_B: Structure
+        structure_A: Structure
+        structure_B: Structure
 
     Returns: Magnetic deformation
     """

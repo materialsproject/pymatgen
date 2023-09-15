@@ -3943,9 +3943,8 @@ class Xdatcar:
             filename (str): Filename of XDATCAR file to be concatenated.
             ionicstep_start (int): Starting number of ionic step.
             ionicstep_end (int): Ending number of ionic step.
-        TODO(rambalachandran):
-           Requires a check to ensure if the new concatenating file has the
-           same lattice structure and atoms as the Xdatcar class.
+        TODO (rambalachandran): Requires a check to ensure if the new concatenating file
+            has the same lattice structure and atoms as the Xdatcar class.
         """
         preamble = None
         coords_str = []
@@ -4499,15 +4498,13 @@ class Wavecar:
         preferred method of evaluation (see Wavecar.fft_mesh).
 
         Args:
-            kpoint (int): the index of the kpoint where the wavefunction
-                            will be evaluated
-            band (int): the index of the band where the wavefunction will be
-                            evaluated
+            kpoint (int): the index of the kpoint where the wavefunction will be evaluated
+            band (int): the index of the band where the wavefunction will be evaluated
             r (np.array): the position where the wavefunction will be evaluated
-            spin (int):  spin index for the desired wavefunction (only for
-                            ISPIN = 2, default = 0)
+            spin (int): spin index for the desired wavefunction (only for
+                ISPIN = 2, default = 0)
             spinor (int): component of the spinor that is evaluated (only used
-                            if vasp_type == 'ncl')
+                if vasp_type == 'ncl')
 
         Returns:
             a complex value corresponding to the evaluation of the wavefunction
@@ -4535,16 +4532,14 @@ class Wavecar:
             evals = np.fft.ifftn(mesh)
 
         Args:
-            kpoint (int): the index of the kpoint where the wavefunction
-                            will be evaluated
-            band (int): the index of the band where the wavefunction will be
-                            evaluated
-            spin (int):  the spin of the wavefunction for the desired
-                            wavefunction (only for ISPIN = 2, default = 0)
+            kpoint (int): the index of the kpoint where the wavefunction will be evaluated
+            band (int): the index of the band where the wavefunction will be evaluated
+            spin (int): the spin of the wavefunction for the desired
+                wavefunction (only for ISPIN = 2, default = 0)
             spinor (int): component of the spinor that is evaluated (only used
-                            if vasp_type == 'ncl')
+                if vasp_type == 'ncl')
             shift (bool): determines if the zero frequency coefficient is
-                            placed at index (0, 0, 0) or centered
+                placed at index (0, 0, 0) or centered
 
         Returns:
             a numpy ndarray representing the 3D mesh of coefficients
@@ -4891,10 +4886,7 @@ class Waveder(MSONable):
         with open(filename, "rb") as fp:
 
             def readData(dtype):
-                """
-                Read records from Fortran binary file
-                and convert to np.array of given dtype.
-                """
+                """Read records from Fortran binary file and convert to np.array of given dtype."""
                 data = b""
                 while True:
                     prefix = np.fromfile(fp, dtype=np.int32, count=1)[0]

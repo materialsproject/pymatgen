@@ -359,14 +359,13 @@ class LMTOCopl:
         a COPL header line. The site indices are zero-based, so they
         can be easily used with a Structure object.
 
-        Example header line: Fe-1/Fe-1-tr(-1,-1,-1) :  2.482 Ang.
+        Example header line: Fe-1/Fe-1-tr(-1,-1,-1) : 2.482 Ang.
 
         Args:
             line: line in the COHPCAR header describing the bond.
 
         Returns:
-            The bond label, the bond length and a tuple of the site
-            indices.
+            The bond label, the bond length and a tuple of the site indices.
         """
         line = line.split()
         length = float(line[2])

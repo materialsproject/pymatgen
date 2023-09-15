@@ -525,7 +525,7 @@ class PourbaixDiagram(MSONable):
         vecs *= norms
         return vecs
 
-    def _get_hull_in_nph_nphi_space(self, entries):
+    def _get_hull_in_nph_nphi_space(self, entries) -> tuple[list[PourbaixEntry], list[Simplex]]:
         """
         Generates convex hull of Pourbaix diagram entries in composition,
         npH, and nphi space. This enables filtering of multi-entries
@@ -536,8 +536,9 @@ class PourbaixDiagram(MSONable):
             entries ([PourbaixEntry]): list of PourbaixEntries to construct
                 the convex hull
 
-        Returns: list of entries and stable facets corresponding to that
-            list of entries
+        Returns:
+            tuple[list[PourbaixEntry], list[Simplex]]: PourbaixEntry list and stable
+                facets corresponding to that list
         """
         ion_entries = [entry for entry in entries if entry.phase_type == "Ion"]
         solid_entries = [entry for entry in entries if entry.phase_type == "Solid"]

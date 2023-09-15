@@ -1320,8 +1320,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
 
         def _sort_partitions(partitions_to_sort):
             """Sort partitions by those we want to check first
-            (typically, merging two sites into one is the
-            one to try first).
+            (typically, merging two sites into one is the one to try first).
             """
             partition_indices = [(idx, [len(p) for p in partition]) for idx, partition in enumerate(partitions_to_sort)]
 
@@ -1813,7 +1812,7 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
                 concurrent with the miller index, this enables use with
                 slabs that have been reoriented, but the miller vector
                 must be supplied manually
-            target_species:  List of specific species to substitute
+            target_species: List of specific species to substitute
             sub_both_sides (bool): If true, substitute an equivalent
                 site on the other surface
             range_tol (float): Find viable substitution sites at a specific

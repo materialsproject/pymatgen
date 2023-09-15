@@ -108,7 +108,7 @@ class EOSBase(metaclass=ABCMeta):
         to the ones obtained from fitting.
 
         Args:
-             volume (list/numpy.array)
+            volume (list/numpy.array)
 
         Returns:
             numpy.array
@@ -349,7 +349,7 @@ class PolynomialEOS(EOSBase):
         Do polynomial fitting and set the parameters. Uses numpy polyfit.
 
         Args:
-             order (int): order of the fit polynomial
+            order (int): order of the fit polynomial
         """
         self.eos_params = np.polyfit(self.volumes, self.energies, order)
         self._set_params()

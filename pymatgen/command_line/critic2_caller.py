@@ -875,7 +875,7 @@ class Critic2Analysis(MSONable):
         :param from_lvec: vector of lattice image the from node is in
             as tuple of ints
         :param to_idx: to index of node
-        :param to_lvec:  vector of lattice image the to node is in as
+        :param to_lvec: vector of lattice image the to node is in as
             tuple of ints
         """
         self.edges[idx] = {

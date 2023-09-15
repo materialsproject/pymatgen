@@ -58,7 +58,8 @@ class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
         """
         Return the type of algorithm.
 
-        Returns: Type of the algorithm
+        Returns:
+            str: Type of the algorithm
         """
         return self._algorithm_type
 
@@ -74,8 +75,7 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
     """
 
     def __init__(self, permutations):
-        """
-            Initializes a separation plane for a given perfect coordination geometry.
+        """Initializes a separation plane for a given perfect coordination geometry.
 
         Args:
             permutations: Permutations used for this algorithm.
@@ -91,7 +91,8 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
         """
         Return the permutations to be performed for this algorithm.
 
-        Returns: Permutations to be performed.
+        Returns:
+            list: Permutations to be performed.
         """
         return self._permutations
 
@@ -109,16 +110,17 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """
-        Reconstructs the ExplicitPermutationsAlgorithm algorithm from its JSON-serializable dict representation.
+        Reconstruct ExplicitPermutationsAlgorithm algorithm from its JSON-serializable dict representation.
 
         Args:
             dd: a JSON-serializable dict representation of an ExplicitPermutationsAlgorithm algorithm.
 
-        Returns: an ExplicitPermutationsAlgorithm algorithm.
+        Returns:
+            ExplicitPermutationsAlgorithm
         """
-        return cls(dd["permutations"])
+        return cls(dct["permutations"])
 
 
 class SeparationPlane(AbstractChemenvAlgorithm):
@@ -141,8 +143,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         multiplicity=None,
         other_plane_points=None,
     ):
-        """
-            Initializes a separation plane for a given perfect coordination geometry.
+        """Initializes a separation plane for a given perfect coordination geometry.
 
         Args:
             plane_points: Indices of the points that are in the plane in the perfect structure (and should be
@@ -212,11 +213,12 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         Ordered indices of the separation plane.
 
         Examples:
-             For a separation plane of type 2|4|3, with plane_points indices [0, 3, 5, 8] and
-             point_groups indices [1, 4] and [2, 7, 6], the list of ordered indices is :
-             [0, 3, 5, 8, 1, 4, 2, 7, 6].
+            For a separation plane of type 2|4|3, with plane_points indices [0, 3, 5, 8] and
+            point_groups indices [1, 4] and [2, 7, 6], the list of ordered indices is :
+            [0, 3, 5, 8, 1, 4, 2, 7, 6].
 
-        Returns: list of ordered indices of this separation plane.
+        Returns:
+            list[int]: of ordered indices of this separation plane.
         """
         return self._ref_separation_perm
 
@@ -373,8 +375,7 @@ class CoordinationGeometry:
         ALLOWED_HINTS_TYPES = ("single_cap", "double_cap", "triple_cap")
 
         def __init__(self, hints_type, options):
-            """
-            Constructor for this NeighborsSetsHints.
+            """Constructor for this NeighborsSetsHints.
 
             Args:
                 hints_type: type of hint (single, double or triple cap)
@@ -387,9 +388,8 @@ class CoordinationGeometry:
             self.options = options
 
         def hints(self, hints_info):
-            """
-            Return hints for an additional neighbors set, i.e. the voronoi indices that constitute this new
-            neighbors set.
+            """Return hints for an additional neighbors set, i.e. the voronoi indices that
+            constitute this new neighbors set.
 
             Args:
                 hints_info: Info needed to build new "hinted" neighbors set.
@@ -401,9 +401,8 @@ class CoordinationGeometry:
             return object.__getattribute__(self, f"{self.hints_type}_hints")(hints_info)
 
         def single_cap_hints(self, hints_info):
-            """
-            Return hints for an additional neighbors set, i.e. the voronoi indices that constitute this new
-            neighbors set, in case of a "Single cap" hint.
+            """Return hints for an additional neighbors set, i.e. the voronoi indices that
+            constitute this new neighbors set, in case of a "Single cap" hint.
 
             Args:
                 hints_info: Info needed to build new "hinted" neighbors set.
@@ -420,9 +419,8 @@ class CoordinationGeometry:
             return [new_site_voronoi_indices]
 
         def double_cap_hints(self, hints_info):
-            """
-            Return hints for an additional neighbors set, i.e. the voronoi indices that constitute this new
-            neighbors set, in case of a "Double cap" hint.
+            """Return hints for an additional neighbors set, i.e. the voronoi indices that
+            constitute this new neighbors set, in case of a "Double cap" hint.
 
             Args:
                 hints_info: Info needed to build new "hinted" neighbors set.
@@ -446,9 +444,8 @@ class CoordinationGeometry:
             return new_site_voronoi_indices1, new_site_voronoi_indices2, new_site_voronoi_indices3
 
         def triple_cap_hints(self, hints_info):
-            """
-            Return hints for an additional neighbors set, i.e. the voronoi indices that constitute this new
-            neighbors set, in case of a "Triple cap" hint.
+            """Return hints for an additional neighbors set, i.e. the voronoi indices that
+            constitute this new neighbors set, in case of a "Triple cap" hint.
 
             Args:
                 hints_info: Info needed to build new "hinted" neighbors set.
@@ -498,16 +495,15 @@ class CoordinationGeometry:
             return {"hints_type": self.hints_type, "options": self.options}
 
         @classmethod
-        def from_dict(cls, dd):
-            """
-            Reconstructs the NeighborsSetsHints from its JSON-serializable dict representation.
+        def from_dict(cls, dct):
+            """Reconstructs the NeighborsSetsHints from its JSON-serializable dict representation.
 
             Args:
-                dd: a JSON-serializable dict representation of a NeighborsSetsHints.
+                dct: JSON-serializable dict representation of a NeighborsSetsHints.
 
             Returns: a NeighborsSetsHints.
             """
-            return cls(hints_type=dd["hints_type"], options=dd["options"])
+            return cls(hints_type=dct["hints_type"], options=dct["options"])
 
     def __init__(
         self,

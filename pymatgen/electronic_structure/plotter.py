@@ -2813,7 +2813,7 @@ class BoltztrapPlotter:
                 using the average of the three diagonal components of the
                 seebeck tensor. 'tensor' returns the seebeck effective mass
                 respect to the three diagonal components of the seebeck tensor.
-            temps:  list of temperatures of calculated seebeck.
+            temps: list of temperatures of calculated seebeck.
             Lambda: fitting parameter used to model the scattering (0.5 means
                 constant relaxation time).
 
@@ -2870,12 +2870,12 @@ class BoltztrapPlotter:
 
         Args:
             output: 'average' returns the complexity factor calculated using the average
-                    of the three diagonal components of the seebeck and conductivity tensors.
-                    'tensor' returns the complexity factor respect to the three
-                    diagonal components of seebeck and conductivity tensors.
-            temps:  list of temperatures of calculated seebeck and conductivity.
+                of the three diagonal components of the seebeck and conductivity tensors.
+                'tensor' returns the complexity factor respect to the three
+                diagonal components of seebeck and conductivity tensors.
+            temps: list of temperatures of calculated seebeck and conductivity.
             Lambda: fitting parameter used to model the scattering (0.5 means constant
-                    relaxation time).
+                relaxation time).
 
         Returns:
             a matplotlib object
