@@ -484,10 +484,11 @@ class LammpsInputFile(InputFile):
         Args:
             ignore_comments (bool): True if only the commands should be kept from the InputFile.
             keep_stages (bool): If True, the string is formatted in a block structure with stage names
-                                and newlines that differentiate commands in the respective stages of the InputFile.
-                                If False, stage names are not printed and all commands appear in a single block.
+                and newlines that differentiate commands in the respective stages of the InputFile.
+                If False, stage names are not printed and all commands appear in a single block.
 
-        Returns: String representation of the LammpsInputFile.
+        Returns:
+            str: String representation of the LammpsInputFile.
         """
         lammps_input = f"# LAMMPS input generated from LammpsInputFile with pymatgen v{CURRENT_VER}\n"
         if not keep_stages:

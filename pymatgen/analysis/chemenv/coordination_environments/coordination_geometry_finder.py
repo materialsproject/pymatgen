@@ -154,7 +154,7 @@ class AbstractGeometry:
         String representation of the AbstractGeometry
 
         Returns:
-            String representation of the AbstractGeometry.
+            str: String representation of the AbstractGeometry.
         """
         outs = [f"\nAbstract Geometry with {len(self.coords)} points :"]
         for pp in self.coords:

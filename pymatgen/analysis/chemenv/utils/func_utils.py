@@ -96,15 +96,15 @@ class AbstractRatioFunction:
         return self.eval(value)
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """Construct ratio function from dict.
 
-        :param dd: Dict representation of the ratio function
+        :param dct: Dict representation of the ratio function
 
         Returns:
             Ratio function object.
         """
-        return cls(function=dd["function"], options_dict=dd["options"])
+        return cls(function=dct["function"], options_dict=dct["options"])
 
 
 class RatioFunction(AbstractRatioFunction):

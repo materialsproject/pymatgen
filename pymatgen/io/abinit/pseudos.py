@@ -1450,7 +1450,8 @@ class PawXmlSetup(Pseudo, PawPseudo):
             ax: matplotlib Axes or None if a new figure should be created.
             fontsize: fontsize for legends and titles
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
         # pylint: disable=E1101
         ax, fig = get_ax_fig(ax)
@@ -1480,7 +1481,8 @@ class PawXmlSetup(Pseudo, PawPseudo):
         Args:
             ax: matplotlib Axes or None if a new figure should be created.
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
         # pylint: disable=E1101
         ax, fig = get_ax_fig(ax)

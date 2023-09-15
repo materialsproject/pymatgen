@@ -338,7 +338,8 @@ class JahnTellerAnalyzer:
         Args:
             species: Species object
 
-        Returns: Number of d electrons.
+        Returns:
+            int: Number of d electrons.
         """
         # TODO: replace with more generic Hund's rule algorithm?
 
@@ -346,11 +347,11 @@ class JahnTellerAnalyzer:
         elec = species.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
             raise AttributeError(f"Invalid element {species.symbol} for crystal field calculation.")
-        nelectrons = int(elec[-1][2] + elec[-2][2] - species.oxi_state)
-        if nelectrons < 0 or nelectrons > 10:
+        n_electrons = int(elec[-1][2] + elec[-2][2] - species.oxi_state)
+        if n_electrons < 0 or n_electrons > 10:
             raise AttributeError(f"Invalid oxidation state {species.oxi_state} for element {species.symbol}")
 
-        return nelectrons
+        return n_electrons
 
     def get_magnitude_of_effect_from_species(self, species: str | Species, spin_state: str, motif: str) -> str:
         """

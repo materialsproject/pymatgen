@@ -1408,7 +1408,8 @@ class Wavefunction:
         """
         Will return a VolumetricData object including the real part of the wave function.
 
-        Returns: VolumetricData object
+        Returns:
+            VolumetricData
         """
         if not hasattr(self, "volumetricdata_real"):
             self.set_volumetric_data(self.grid, self.structure)
@@ -1418,7 +1419,8 @@ class Wavefunction:
         """
         Will return a VolumetricData object including the imaginary part of the wave function.
 
-        Returns: VolumetricData object
+        Returns:
+            VolumetricData
         """
         if not hasattr(self, "volumetricdata_imaginary"):
             self.set_volumetric_data(self.grid, self.structure)
@@ -1428,7 +1430,8 @@ class Wavefunction:
         """
         Will return a VolumetricData object including the imaginary part of the wave function.
 
-        Returns: VolumetricData object
+        Returns:
+            VolumetricData
         """
         if not hasattr(self, "volumetricdata_density"):
             self.set_volumetric_data(self.grid, self.structure)

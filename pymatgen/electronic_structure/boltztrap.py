@@ -2262,8 +2262,8 @@ def seebeck_spb(eta, Lambda=0.5):
 def eta_from_seebeck(seeb, Lambda):
     """It takes a value of seebeck and adjusts the analytic seebeck until it's equal.
 
-    Returns: eta where the two seebeck coefficients are equal
-    (reduced chemical potential).
+    Returns:
+        float: eta where the two seebeck coefficients are equal (reduced chemical potential).
     """
     from scipy.optimize import fsolve
 

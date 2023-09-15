@@ -796,7 +796,8 @@ class AbinitTimer:
         Args:
             ax: matplotlib Axes or None if a new figure should be created.
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
         ax, fig = get_ax_fig(ax=ax)
 
@@ -832,7 +833,8 @@ class AbinitTimer:
             minfract: Don't show sections whose relative weight is less that minfract.
             ax: matplotlib Axes or None if a new figure should be created.
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
         ax, fig = get_ax_fig(ax=ax)
         # Set aspect ratio to be equal so that pie is drawn as a circle.
@@ -850,7 +852,8 @@ class AbinitTimer:
         Args:
             ax: matplotlib Axes or None if a new figure should be created.
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
         from mpl_toolkits.axes_grid1 import make_axes_locatable
 

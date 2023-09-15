@@ -1018,7 +1018,8 @@ class Vasprun(MSONable):
         representation of self.structures into a single object. Forces are
         added to the Trajectory as site properties.
 
-        Returns: a Trajectory
+        Returns:
+            Trajectory: from pymatgen.core.trajectory
         """
         # required due to circular imports
         # TODO: fix pymatgen.core.trajectory so it does not load from io.vasp(!)

@@ -94,23 +94,20 @@ class Neighbor(Site):
         return (self, self.nn_distance, self.index)[idx]
 
     def as_dict(self) -> dict:  # type: ignore
-        """Note that method calls the super of Site, which is MSONable itself.
-
-        Returns: dict
-        """
+        """Note that method calls the super of Site, which is MSONable itself."""
         return super(Site, self).as_dict()  # pylint: disable=E1003
 
     @classmethod
-    def from_dict(cls, d: dict) -> Neighbor:  # type: ignore
+    def from_dict(cls, dct: dict) -> Neighbor:  # type: ignore
         """Returns a Neighbor from a dict.
 
         Args:
-            d: MSONable dict format.
+            dct: MSONable dict format.
 
         Returns:
             Neighbor
         """
-        return super(Site, cls).from_dict(d)  # pylint: disable=E1003
+        return super(Site, cls).from_dict(dct)  # pylint: disable=E1003
 
 
 class PeriodicNeighbor(PeriodicSite):
@@ -169,10 +166,7 @@ class PeriodicNeighbor(PeriodicSite):
         return (self, self.nn_distance, self.index, self.image)[idx]
 
     def as_dict(self) -> dict:  # type: ignore
-        """Note that method calls the super of Site, which is MSONable itself.
-
-        Returns: dict
-        """
+        """Note that method calls the super of Site, which is MSONable itself."""
         return super(Site, self).as_dict()  # pylint: disable=E1003
 
     @classmethod
@@ -1491,7 +1485,8 @@ class IStructure(SiteCollection, MSONable):
             exclude_self (bool): whether to exclude atom neighboring with itself within
                 numerical tolerance distance, default to True
 
-        Returns: (center_indices, points_indices, offset_vectors, distances)
+        Returns:
+            tuple: (center_indices, points_indices, offset_vectors, distances)
         """
         neighbors = self.get_all_neighbors_py(
             r=r, include_index=True, include_image=True, sites=sites, numerical_tol=1e-8
@@ -1542,7 +1537,8 @@ class IStructure(SiteCollection, MSONable):
             exclude_self (bool): whether to exclude atom neighboring with itself within
                 numerical tolerance distance, default to True
 
-        Returns: (center_indices, points_indices, offset_vectors, distances)
+        Returns:
+            tuple: (center_indices, points_indices, offset_vectors, distances)
         """
         try:
             from pymatgen.optimization.neighbors import find_points_in_spheres
@@ -1608,8 +1604,8 @@ class IStructure(SiteCollection, MSONable):
             exclude_self (bool): whether to exclude atom neighboring with itself within
                 numerical tolerance distance, default to True
 
-        Returns: (center_indices, points_indices, offset_vectors, distances,
-                  symmetry_indices, symmetry_ops)
+        Returns:
+            tuple: (center_indices, points_indices, offset_vectors, distances, symmetry_indices, symmetry_ops)
         """
         from pymatgen.symmetry.groups import SpaceGroup
 

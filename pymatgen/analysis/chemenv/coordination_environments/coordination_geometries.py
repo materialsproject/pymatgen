@@ -99,9 +99,8 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
     @property
     def as_dict(self):
         """
-        Return the JSON-serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
-
-        Returns: a JSON-serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
+        Returns:
+            dict: JSON-serializable representation of this ExplicitPermutationsAlgorithm
         """
         return {
             "@module": type(self).__module__,
@@ -112,13 +111,7 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
     @classmethod
     def from_dict(cls, dct):
         """
-        Reconstruct ExplicitPermutationsAlgorithm algorithm from its JSON-serializable dict representation.
-
-        Args:
-            dd: a JSON-serializable dict representation of an ExplicitPermutationsAlgorithm algorithm.
-
-        Returns:
-            ExplicitPermutationsAlgorithm
+        Reconstruct ExplicitPermutationsAlgorithm from its JSON-serializable dict representation.
         """
         return cls(dct["permutations"])
 
@@ -203,7 +196,8 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         """
         Permutations used for this separation plane algorithm.
 
-        Returns: List of permutations to be performed.
+        Returns:
+            list[Permutations]: to be performed.
         """
         return self._permutations
 
@@ -229,7 +223,8 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
         This is used in the identification of the final permutation to be used.
 
-        Returns: list of the "arg sorted" ordered indices of the separation plane.
+        Returns:
+            list[int]: "arg sorted" ordered indices of the separation plane.
         """
         return self._argsorted_ref_separation_perm
 
@@ -246,7 +241,8 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                 number of permutations.
             add_opposite: Whether to add the permutations from the second group before the first group as well.
 
-        Returns: List of safe permutations.
+        Returns
+            list[int]: safe permutations.
         """
         s0 = list(range(len(self.point_groups[0])))
         plane = list(
@@ -305,7 +301,8 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         """
         Return the JSON-serializable dict representation of this SeparationPlane algorithm.
 
-        Returns: a JSON-serializable dict representation of this SeparationPlane algorithm.
+        Returns:
+            dict: JSON-serializable representation of this SeparationPlane algorithm.
         """
         return {
             "@module": type(self).__module__,
@@ -332,9 +329,10 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         Reconstructs the SeparationPlane algorithm from its JSON-serializable dict representation.
 
         Args:
-            dd: a JSON-serializable dict representation of an SeparationPlane algorithm.
+            dct: a JSON-serializable dict representation of an SeparationPlane algorithm.
 
-        Returns: a SeparationPlane algorithm.
+        Returns:
+            SeparationPlane: algorithm object
         """
         eop = [np.array(eo_perm) for eo_perm in dct.get("explicit_optimized_permutations", [])] or None
         return cls(
@@ -394,7 +392,8 @@ class CoordinationGeometry:
             Args:
                 hints_info: Info needed to build new "hinted" neighbors set.
 
-            Returns: Voronoi indices of the new "hinted" neighbors set.
+            Returns:
+                list[int]: Voronoi indices of the new "hinted" neighbors set.
             """
             if hints_info["csm"] > self.options["csm_max"]:
                 return []
@@ -407,7 +406,8 @@ class CoordinationGeometry:
             Args:
                 hints_info: Info needed to build new "hinted" neighbors set.
 
-            Returns: Voronoi indices of the new "hinted" neighbors set.
+            Returns:
+                list[int]: Voronoi indices of the new "hinted" neighbors set.
             """
             cap_index_perfect = self.options["cap_index"]
             nb_set = hints_info["nb_set"]
@@ -425,7 +425,8 @@ class CoordinationGeometry:
             Args:
                 hints_info: Info needed to build new "hinted" neighbors set.
 
-            Returns: Voronoi indices of the new "hinted" neighbors set.
+            Returns:
+                list[int]: Voronoi indices of the new "hinted" neighbors set.
             """
             first_cap_index_perfect = self.options["first_cap_index"]
             second_cap_index_perfect = self.options["second_cap_index"]
@@ -450,7 +451,8 @@ class CoordinationGeometry:
             Args:
                 hints_info: Info needed to build new "hinted" neighbors set.
 
-            Returns: Voronoi indices of the new "hinted" neighbors set.
+            Returns:
+                list[int]: Voronoi indices of the new "hinted" neighbors set.
             """
             first_cap_index_perfect = self.options["first_cap_index"]
             second_cap_index_perfect = self.options["second_cap_index"]
@@ -496,13 +498,7 @@ class CoordinationGeometry:
 
         @classmethod
         def from_dict(cls, dct):
-            """Reconstructs the NeighborsSetsHints from its JSON-serializable dict representation.
-
-            Args:
-                dct: JSON-serializable dict representation of a NeighborsSetsHints.
-
-            Returns: a NeighborsSetsHints.
-            """
+            """Reconstructs the NeighborsSetsHints from its JSON-serializable dict representation."""
             return cls(hints_type=dct["hints_type"], options=dct["options"])
 
     def __init__(
@@ -603,7 +599,8 @@ class CoordinationGeometry:
         Args:
             dct: a JSON-serializable dict representation of a CoordinationGeometry.
 
-        Returns: a CoordinationGeometry.
+        Returns:
+            CoordinationGeometry
         """
         dec = MontyDecoder()
         return cls(
@@ -696,11 +693,7 @@ class CoordinationGeometry:
 
     @property
     def distfactor_max(self):
-        """
-        The maximum distfactor for the perfect CoordinationGeometry.
-
-        Returns: Maximum distfactor for the perfect CoordinationGeometry (usually 1.0 for symmetric polyhedrons).
-        """
+        """The maximum distfactor for the perfect CoordinationGeometry (usually 1.0 for symmetric polyhedrons)."""
         dists = [np.linalg.norm(pp - self.central_site) for pp in self.points]
         return np.max(dists) / np.min(dists)
 
@@ -716,16 +709,16 @@ class CoordinationGeometry:
             if self.ce_symbol in ["S:1", "L:2"]:
                 self._pauling_stability_ratio = 0.0
             else:
-                mindist_anions = 1000000.0
-                mindist_cation_anion = 1000000.0
+                min_dist_anions = 1000000.0
+                min_dist_cation_anion = 1000000.0
                 for ipt1 in range(len(self.points)):  # pylint: disable=C0200
                     pt1 = np.array(self.points[ipt1])
-                    mindist_cation_anion = min(mindist_cation_anion, np.linalg.norm(pt1 - self.central_site))
+                    min_dist_cation_anion = min(min_dist_cation_anion, np.linalg.norm(pt1 - self.central_site))
                     for ipt2 in range(ipt1 + 1, len(self.points)):
                         pt2 = np.array(self.points[ipt2])
-                        mindist_anions = min(mindist_anions, np.linalg.norm(pt1 - pt2))
-                anion_radius = mindist_anions / 2.0
-                cation_radius = mindist_cation_anion - anion_radius
+                        min_dist_anions = min(min_dist_anions, np.linalg.norm(pt1 - pt2))
+                anion_radius = min_dist_anions / 2.0
+                cation_radius = min_dist_cation_anion - anion_radius
                 self._pauling_stability_ratio = cation_radius / anion_radius
         return self._pauling_stability_ratio
 
@@ -789,7 +782,8 @@ class CoordinationGeometry:
         Args:
             permutation: Current permutation
 
-        Returns: Reference permutation of the perfect CoordinationGeometry.
+        Returns:
+            Permutation: Reference permutation of the perfect CoordinationGeometry.
         """
         perms = []
         for eqv_indices in self.equivalent_indices:
@@ -1015,7 +1009,8 @@ class AllCoordinationGeometries(dict):
         Args:
             coordination: Whether to restrict the dictionary to a given coordination.
 
-        Returns: Dictionary mapping the symbol of a CoordinationGeometry to its name.
+        Returns:
+            dict: map symbol of a CoordinationGeometry to its name.
         """
         geom = {}
         if coordination is None:
@@ -1034,7 +1029,8 @@ class AllCoordinationGeometries(dict):
         Args:
             coordination: Whether to restrict the dictionary to a given coordination.
 
-        Returns: Dictionary mapping the symbol of a CoordinationGeometry to its coordination.
+        Returns:
+            dict: map of symbol of a CoordinationGeometry to its coordination.
         """
         geom = {}
         if coordination is None:
@@ -1214,7 +1210,8 @@ class AllCoordinationGeometries(dict):
             maxcn: Maximum coordination.
             additional_info: Whether to add some additional info for each coordination geometry.
 
-        Returns: String describing the list of coordination geometries.
+        Returns:
+            str: description of the list of coordination geometries.
         """
         if type == "all_geometries_latex_images":
             output = ""

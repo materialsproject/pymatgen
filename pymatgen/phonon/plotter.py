@@ -838,7 +838,8 @@ class GruneisenPlotter:
             markersize: size of the marker
             units: unit for the plots, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
 
-        Returns: plot
+        Returns:
+            plt.Axes: matplotlib axes object
         """
         u = freq_units(units)
 
@@ -851,13 +852,10 @@ class GruneisenPlotter:
         ax.set_ylabel(r"$\mathrm{Grüneisen\ parameter}$")
 
         n = len(ys) - 1
-        for i, (x, y) in enumerate(zip(xs, ys)):
-            color = (1.0 / n * i, 0, 1.0 / n * (n - i))
+        for idx, (xi, yi) in enumerate(zip(xs, ys)):
+            color = (1.0 / n * idx, 0, 1.0 / n * (n - idx))
 
-            if markersize:
-                ax.plot(x, y, marker, color=color, markersize=markersize)
-            else:
-                ax.plot(x, y, marker, color=color)
+            ax.plot(xi, yi, marker, color=color, markersize=markersize)
 
         plt.tight_layout()
         return ax
@@ -867,8 +865,6 @@ class GruneisenPlotter:
 
         Args:
             units: units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
-
-        Returns: plot
         """
         self.get_plot(units=units)
         plt.show()

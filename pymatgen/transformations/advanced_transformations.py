@@ -1680,16 +1680,17 @@ class AddAdsorbateTransformation(AbstractTransformation):
 
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
-        Returns: Slab with adsorbate
+        Returns:
+            Slab: with adsorbate
         """
-        sitefinder = AdsorbateSiteFinder(
+        site_finder = AdsorbateSiteFinder(
             structure,
             selective_dynamics=self.selective_dynamics,
             height=self.height,
             mi_vec=self.mi_vec,
         )
 
-        structures = sitefinder.generate_adsorption_structures(
+        structures = site_finder.generate_adsorption_structures(
             self.adsorbate,
             repeat=self.repeat,
             min_lw=self.min_lw,
@@ -1837,16 +1838,17 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
 
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
-        Returns: Slab with sites substituted
+        Returns:
+            list[dict]: each dict has key 'structure' which is a Slab with sites substituted
         """
-        sitefinder = AdsorbateSiteFinder(
+        site_finder = AdsorbateSiteFinder(
             structure,
             selective_dynamics=self.selective_dynamics,
             height=self.height,
             mi_vec=self.mi_vec,
         )
 
-        structures = sitefinder.generate_substitution_structures(
+        structures = site_finder.generate_substitution_structures(
             self.atom,
             target_species=self.target_species,
             sub_both_sides=self.sub_both_sides,

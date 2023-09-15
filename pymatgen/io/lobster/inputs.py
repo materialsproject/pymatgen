@@ -393,8 +393,9 @@ class Lobsterin(dict, MSONable):
             address_basis_file_min: path to file with the minimum required basis by the POTCAR
             address_basis_file_max: path to file with the largest possible basis of the POTCAR.
 
-        Returns: List of dictionaries that can be used to create new Lobsterin objects in
-        standard_calculations_from_vasp_files as dict_for_basis
+        Returns:
+            list[dict]: Can be used to create new Lobsterin objects in
+                standard_calculations_from_vasp_files as dict_for_basis
         """
         max_basis = Lobsterin.get_basis(
             structure=structure,
@@ -830,7 +831,8 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
         min_basis: list of basis entries: e.g., ['Si 3p 3s ']
         max_basis: list of basis entries: e.g., ['Si 3p 3s '].
 
-    Returns: all possible combinations of basis functions, e.g. [['Si 3p 3s']]
+    Returns:
+        list[list[str]]: all possible combinations of basis functions, e.g. [['Si 3p 3s']]
     """
     max_basis_lists = [x.split() for x in max_basis]
     min_basis_lists = [x.split() for x in min_basis]

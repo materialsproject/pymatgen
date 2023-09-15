@@ -1293,12 +1293,9 @@ class AngleNbSetWeight(NbSetWeight):
         }
 
     @classmethod
-    def from_dict(cls, dd):
-        """
-        From dict
-        :param dd:
-        """
-        return cls(aa=dd["aa"])
+    def from_dict(cls, dct):
+        """Construct AngleNbSetWeight from dict representation."""
+        return cls(aa=dct["aa"])
 
 
 class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
@@ -1359,15 +1356,15 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """Initialize from dict.
 
-        :param dd: Dict representation of NormalizedAngleDistanceNbSetWeight.
+        :param dct: Dict representation of NormalizedAngleDistanceNbSetWeight.
 
         Returns:
             NormalizedAngleDistanceNbSetWeight.
         """
-        return cls(average_type=dd["average_type"], aa=dd["aa"], bb=dd["bb"])
+        return cls(average_type=dct["average_type"], aa=dct["aa"], bb=dct["bb"])
 
     @staticmethod
     def invdist(nb_set):
@@ -1649,18 +1646,18 @@ class SelfCSMNbSetWeight(NbSetWeight):
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """Initialize from dict.
 
-        :param dd: Dict representation of SelfCSMNbSetWeight.
+        :param dct: Dict representation of SelfCSMNbSetWeight.
 
         Returns:
             SelfCSMNbSetWeight.
         """
         return cls(
-            effective_csm_estimator=dd["effective_csm_estimator"],
-            weight_estimator=dd["weight_estimator"],
-            symmetry_measure_type=dd["symmetry_measure_type"],
+            effective_csm_estimator=dct["effective_csm_estimator"],
+            weight_estimator=dct["weight_estimator"],
+            symmetry_measure_type=dct["symmetry_measure_type"],
         )
 
 
@@ -1883,23 +1880,23 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """Initialize from dict.
 
-        :param dd: Dict representation of DeltaCSMNbSetWeight.
+        :param dct: Dict representation of DeltaCSMNbSetWeight.
 
         Returns:
             DeltaCSMNbSetWeight.
         """
         return cls(
-            effective_csm_estimator=dd["effective_csm_estimator"],
-            weight_estimator=dd["weight_estimator"],
+            effective_csm_estimator=dct["effective_csm_estimator"],
+            weight_estimator=dct["weight_estimator"],
             delta_cn_weight_estimators={
-                int(dcn): dcn_estimator for dcn, dcn_estimator in dd["delta_cn_weight_estimators"].items()
+                int(dcn): dcn_estimator for dcn, dcn_estimator in dct["delta_cn_weight_estimators"].items()
             }
-            if dd.get("delta_cn_weight_estimators") is not None
+            if dct.get("delta_cn_weight_estimators") is not None
             else None,
-            symmetry_measure_type=dd["symmetry_measure_type"],
+            symmetry_measure_type=dct["symmetry_measure_type"],
         )
 
 
@@ -1949,17 +1946,17 @@ class CNBiasNbSetWeight(NbSetWeight):
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """Initialize from dict.
 
-        :param dd: Dict representation of CNBiasNbSetWeight.
+        :param dct: Dict representation of CNBiasNbSetWeight.
 
         Returns:
             CNBiasNbSetWeight.
         """
         return cls(
-            cn_weights={int(cn): cnw for cn, cnw in dd["cn_weights"].items()},
-            initialization_options=dd["initialization_options"],
+            cn_weights={int(cn): cnw for cn, cnw in dct["cn_weights"].items()},
+            initialization_options=dct["initialization_options"],
         )
 
     @classmethod
@@ -2015,20 +2012,20 @@ class CNBiasNbSetWeight(NbSetWeight):
         return cls(cn_weights=cn_weights, initialization_options=initialization_options)
 
     @classmethod
-    def from_description(cls, dd):
+    def from_description(cls, dct):
         """Initializes weights from description.
 
-        :param dd: Dictionary description.
+        :param dct: Dictionary description.
 
         Returns:
             CNBiasNbSetWeight.
         """
-        if dd["type"] == "linearly_equidistant":
-            return cls.linearly_equidistant(weight_cn1=dd["weight_cn1"], weight_cn13=dd["weight_cn13"])
-        if dd["type"] == "geometrically_equidistant":
-            return cls.geometrically_equidistant(weight_cn1=dd["weight_cn1"], weight_cn13=dd["weight_cn13"])
-        if dd["type"] == "explicit":
-            return cls.explicit(cn_weights=dd["cn_weights"])
+        if dct["type"] == "linearly_equidistant":
+            return cls.linearly_equidistant(weight_cn1=dct["weight_cn1"], weight_cn13=dct["weight_cn13"])
+        if dct["type"] == "geometrically_equidistant":
+            return cls.geometrically_equidistant(weight_cn1=dct["weight_cn1"], weight_cn13=dct["weight_cn13"])
+        if dct["type"] == "explicit":
+            return cls.explicit(cn_weights=dct["cn_weights"])
         return None
 
 
@@ -2249,20 +2246,20 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """Initialize from dict.
 
-        :param dd: Dict representation of DistanceAngleAreaNbSetWeight.
+        :param dct: Dict representation of DistanceAngleAreaNbSetWeight.
 
         Returns:
             DistanceAngleAreaNbSetWeight.
         """
         return cls(
-            weight_type=dd["weight_type"],
-            surface_definition=dd["surface_definition"],
-            nb_sets_from_hints=dd["nb_sets_from_hints"],
-            other_nb_sets=dd["other_nb_sets"],
-            additional_condition=dd["additional_condition"],
+            weight_type=dct["weight_type"],
+            surface_definition=dct["surface_definition"],
+            nb_sets_from_hints=dct["nb_sets_from_hints"],
+            other_nb_sets=dct["other_nb_sets"],
+            additional_condition=dct["additional_condition"],
         )
 
 
@@ -2319,17 +2316,17 @@ class DistancePlateauNbSetWeight(NbSetWeight):
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """Initialize from dict.
 
-        :param dd: Dict representation of DistancePlateauNbSetWeight.
+        :param dct: Dict representation of DistancePlateauNbSetWeight.
 
         Returns:
             DistancePlateauNbSetWeight.
         """
         return cls(
-            distance_function=dd["distance_function"],
-            weight_function=dd["weight_function"],
+            distance_function=dct["distance_function"],
+            weight_function=dct["weight_function"],
         )
 
 
@@ -2386,15 +2383,15 @@ class AnglePlateauNbSetWeight(NbSetWeight):
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """Initialize from dict.
 
-        :param dd: Dict representation of AnglePlateauNbSetWeight.
+        :param dct: Dict representation of AnglePlateauNbSetWeight.
 
         Returns:
             AnglePlateauNbSetWeight.
         """
-        return cls(angle_function=dd["angle_function"], weight_function=dd["weight_function"])
+        return cls(angle_function=dct["angle_function"], weight_function=dct["weight_function"])
 
 
 class DistanceNbSetWeight(NbSetWeight):
@@ -2467,15 +2464,15 @@ class DistanceNbSetWeight(NbSetWeight):
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """Initialize from dict.
 
-        :param dd: Dict representation of DistanceNbSetWeight.
+        :param dct: Dict representation of DistanceNbSetWeight.
 
         Returns:
             DistanceNbSetWeight.
         """
-        return cls(weight_function=dd["weight_function"], nbs_source=dd["nbs_source"])
+        return cls(weight_function=dct["weight_function"], nbs_source=dct["nbs_source"])
 
 
 class DeltaDistanceNbSetWeight(NbSetWeight):
@@ -2551,15 +2548,15 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """Initialize from dict.
 
-        :param dd: Dict representation of DeltaDistanceNbSetWeight.
+        :param dct: Dict representation of DeltaDistanceNbSetWeight.
 
         Returns:
             DeltaDistanceNbSetWeight.
         """
-        return cls(weight_function=dd["weight_function"], nbs_source=dd["nbs_source"])
+        return cls(weight_function=dct["weight_function"], nbs_source=dct["nbs_source"])
 
 
 class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
