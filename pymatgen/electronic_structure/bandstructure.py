@@ -525,7 +525,8 @@ class BandStructure:
         return np.delete(points, rm_list, axis=0)
 
     def get_kpoint_degeneracy(self, kpoint, cartesian=False, tol: float = 1e-2):
-        """Returns degeneracy of a given k-point based on structure symmetry
+        """Returns degeneracy of a given k-point based on structure symmetry.
+
         Args:
             kpoint (1x3 array): coordinate of the k-point
             cartesian (bool): kpoint is in Cartesian or fractional coordinates

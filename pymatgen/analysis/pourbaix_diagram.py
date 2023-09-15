@@ -802,6 +802,7 @@ class PourbaixDiagram(MSONable):
     def find_stable_entry(self, pH, V):
         """
         Finds stable entry at a pH,V condition
+
         Args:
             pH (float): pH to find stable entry
             V (float): V to find stable entry.

@@ -730,6 +730,7 @@ class Plane:
         :param points: list of points
         :param dist_tolerance: tolerance to which a point is considered to lie on the plane
             or not (distance to the plane)
+
         Returns:
             The lists of indices of the points on one side of the plane, on the plane and
             on the other side of the plane.
@@ -888,6 +889,7 @@ class Plane:
 
         :param points: List of points.
         :param fit: Type of fit error.
+
         Returns:
             Error for a list of points with respect to this plane.
         """
@@ -901,6 +903,7 @@ class Plane:
         """Evaluate the sum of squared distances error for a list of points with respect to this plane.
 
         :param points: List of points.
+
         Returns:
             Sum of squared distances error for a list of points with respect to this plane.
         """
@@ -910,6 +913,7 @@ class Plane:
         """Evaluate the max distance error for a list of points with respect to this plane.
 
         :param points: List of points.
+
         Returns:
             Max distance error for a list of points with respect to this plane.
         """
@@ -974,6 +978,7 @@ class Plane:
 
         :param p1: First point.
         :param p2: Second point.
+
         Returns:
             Plane.
         """
@@ -986,6 +991,7 @@ class Plane:
         :param p1: First point.
         :param p2: Second point.
         :param p3: Third point.
+
         Returns:
             Plane.
         """
@@ -1006,6 +1012,7 @@ class Plane:
 
         :param points: List of points.
         :param best_fit: Type of fitting procedure for more than 3 points.
+
         Returns:
             Plane
         """
@@ -1024,6 +1031,7 @@ class Plane:
         """Initializes plane from a list of points using a least square fitting procedure.
 
         :param points: List of points.
+
         Returns:
             Plane.
         """
@@ -1052,6 +1060,7 @@ class Plane:
 
         :param p1: First point.
         :param p2: Second point.
+
         Returns:
             Plane.
         """
@@ -1065,6 +1074,7 @@ class Plane:
         """Initializes plane from a list of points using a max distance fitting procedure.
 
         :param points: List of points.
+
         Returns:
             Plane.
         """
@@ -1096,6 +1106,7 @@ class Plane:
         :param b: b coefficient of the plane.
         :param c: c coefficient of the plane.
         :param d: d coefficient of the plane.
+
         Returns:
             Plane.
         """

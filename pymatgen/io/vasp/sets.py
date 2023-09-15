@@ -2322,6 +2322,7 @@ class MVLSlabSet(DictSet):
     def as_dict(self, verbosity=2):
         """
         :param verbosity: Verbosity of dict. E.g., whether to include Structure.
+
         Returns:
             MSONable dict
         """
@@ -3340,6 +3341,7 @@ class MPAbsorptionSet(MPRelaxSet):
     def from_prev_calc(cls, prev_calc_dir, mode, **kwargs):
         """
         Generate a set of VASP input files for absorption calculation
+
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml of previous vasp run.

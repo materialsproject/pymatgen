@@ -2510,7 +2510,8 @@ class BSDOSPlotter:
     def _rgbline(ax, k, e, red, green, blue, alpha=1, linestyles="solid"):
         """An RGB colored line for plotting.
         creation of segments based on:
-        http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb
+        http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb.
+
         Args:
             ax: matplotlib axis
             k: x-axis data (k-points)

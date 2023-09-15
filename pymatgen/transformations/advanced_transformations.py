@@ -1939,7 +1939,8 @@ class SQSTransformation(AbstractTransformation):
 
     @staticmethod
     def _get_max_neighbor_distance(struct, shell):
-        """Calculate maximum nearest neighbor distance
+        """Calculate maximum nearest neighbor distance.
+
         Args:
             struct: pymatgen Structure object
             shell: nearest neighbor shell, such that shell=1 is the first nearest
@@ -1962,7 +1963,8 @@ class SQSTransformation(AbstractTransformation):
 
     @staticmethod
     def _get_disordered_substructure(struc_disordered):
-        """Converts disordered structure into a substructure consisting of only disordered sites
+        """Converts disordered structure into a substructure consisting of only disordered sites.
+
         Args:
             struc_disordered: pymatgen disordered Structure object.
 
@@ -1978,7 +1980,8 @@ class SQSTransformation(AbstractTransformation):
 
     @staticmethod
     def _sqs_cluster_estimate(struc_disordered, cluster_size_and_shell: dict[int, int] | None = None):
-        """Set up an ATAT cluster.out file for a given structure and set of constraints
+        """Set up an ATAT cluster.out file for a given structure and set of constraints.
+
         Args:
             struc_disordered: disordered pymatgen Structure object
             cluster_size_and_shell: dict of integers {cluster: shell}.
@@ -2048,7 +2051,8 @@ class SQSTransformation(AbstractTransformation):
     @staticmethod
     def _get_unique_bestsqs_strucs(sqs, best_only, return_ranked_list, remove_duplicate_structures, reduction_algo):
         """Gets unique sqs structures with lowest objective function. Requires an mcsqs output that has been run
-            in parallel, otherwise returns Sqs.bestsqs
+            in parallel, otherwise returns Sqs.bestsqs.
+
         Args:
             sqs (Sqs): Sqs class object.
             best_only (bool): only return structures with lowest objective function.

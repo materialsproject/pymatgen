@@ -560,6 +560,7 @@ class Poscar(MSONable):
     def from_dict(cls, d: dict) -> Poscar:
         """
         :param d: Dict representation.
+
         Returns:
             Poscar
         """
@@ -681,6 +682,7 @@ class Incar(dict, MSONable):
     def from_dict(cls, d) -> Incar:
         """
         :param d: Dict representation.
+
         Returns:
             Incar
         """
@@ -1555,6 +1557,7 @@ class Kpoints(MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation.
+
         Returns:
             Kpoints
         """
@@ -1856,6 +1859,7 @@ class PotcarSingle:
         Reads PotcarSingle from file.
 
         :param filename: Filename.
+
         Returns:
             PotcarSingle.
         """
@@ -2365,6 +2369,7 @@ class VaspInput(dict, MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation.
+
         Returns:
             VaspInput
         """

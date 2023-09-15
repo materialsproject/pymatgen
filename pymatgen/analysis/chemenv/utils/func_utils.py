@@ -89,6 +89,7 @@ class AbstractRatioFunction:
         """Evaluate the ratio function for the given value.
 
         :param value: Value for which ratio function has to be evaluated.
+
         Returns:
             Ratio function corresponding to the value.
         """
@@ -126,6 +127,7 @@ class RatioFunction(AbstractRatioFunction):
         correspond to the "alpha" parameter.
 
         :param vals: Values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the values.
         """
@@ -137,6 +139,7 @@ class RatioFunction(AbstractRatioFunction):
         The values (i.e. "x"), are scaled between the "lower" and "upper" parameters.
 
         :param vals: Values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the values.
         """
@@ -148,6 +151,7 @@ class RatioFunction(AbstractRatioFunction):
         The values (i.e. "x"), are scaled between the "lower" and "upper" parameters.
 
         :param vals: Values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the values.
         """
@@ -159,6 +163,7 @@ class RatioFunction(AbstractRatioFunction):
         The values (i.e. "x"), are scaled between the "lower" and "upper" parameters.
 
         :param vals: Values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the values.
         """
@@ -170,6 +175,7 @@ class RatioFunction(AbstractRatioFunction):
         The values (i.e. "x"), are scaled between the "lower" and "upper" parameters.
 
         :param vals: Values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the values.
         """
@@ -181,6 +187,7 @@ class RatioFunction(AbstractRatioFunction):
         The values (i.e. "x"), are scaled to the "max" parameter.
 
         :param vals: Values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the values.
         """
@@ -192,6 +199,7 @@ class RatioFunction(AbstractRatioFunction):
         The values (i.e. "x"), are scaled to the "max" parameter.
 
         :param vals: Values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the values.
         """
@@ -221,6 +229,7 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         correspond to the "alpha" parameter.
 
         :param vals: CSM values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the CSM values.
         """
@@ -232,6 +241,7 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         The CSM values (i.e. "x"), are scaled between the "lower_csm" and "upper_csm" parameters.
 
         :param vals: CSM values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the CSM values.
         """
@@ -247,6 +257,7 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         The CSM values (i.e. "x"), are scaled between the "lower_csm" and "upper_csm" parameters.
 
         :param vals: CSM values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the CSM values.
         """
@@ -260,6 +271,7 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         """Get the fractions from the CSM ratio function applied to the data.
 
         :param data: List of CSM values to estimate fractions.
+
         Returns:
             Corresponding fractions for each CSM.
         """
@@ -274,6 +286,7 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         """Get the weighted CSM using this CSM ratio function applied to the data.
 
         :param data: List of CSM values to estimate the weighted CSM.
+
         Returns:
             Weighted CSM from this ratio function.
         """
@@ -311,6 +324,7 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
         correspond to the "alpha" parameter.
 
         :param vals: CSM values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the CSM values.
         """
@@ -323,6 +337,7 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
         correspond to the "alpha" parameter.
 
         :param vals: CSM values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the CSM values.
         """
@@ -332,6 +347,7 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
         """Get the fractions from the CSM ratio function applied to the data.
 
         :param data: List of CSM values to estimate fractions.
+
         Returns:
             Corresponding fractions for each CSM.
         """
@@ -355,6 +371,7 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
         """Get the weighted CSM using this CSM ratio function applied to the data.
 
         :param data: List of CSM values to estimate the weighted CSM.
+
         Returns:
             Weighted CSM from this ratio function.
         """
@@ -390,6 +407,7 @@ class DeltaCSMRatioFunction(AbstractRatioFunction):
         The DeltaCSM values (i.e. "x"), are scaled between the "delta_csm_min" and "delta_csm_max" parameters.
 
         :param vals: DeltaCSM values for which the ratio function has to be evaluated.
+
         Returns:
             Result of the ratio function applied to the DeltaCSM values.
         """

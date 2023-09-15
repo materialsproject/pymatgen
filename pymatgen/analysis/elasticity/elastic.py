@@ -468,6 +468,7 @@ class ElasticTensor(NthOrderElasticTensor):
     def from_independent_strains(cls, strains, stresses, eq_stress=None, vasp=False, tol: float = 1e-10):
         """
         Constructs the elastic tensor least-squares fit of independent strains
+
         Args:
             strains (list of Strains): list of strain objects to fit
             stresses (list of Stresses): list of stress objects to use in fit

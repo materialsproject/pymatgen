@@ -198,6 +198,7 @@ class StructureGraph(MSONable):
             where props is a dictionary of properties, including weight.
             Props should be None if no additional properties are to be
             specified.
+
         Returns:
             sg, a StructureGraph
         """
@@ -1006,6 +1007,7 @@ class StructureGraph(MSONable):
 
         :param anonymous: if anonymous, will replace specie names
             with A, B, C, etc.
+
         Returns:
             a list of co-ordination environments,
             e.g. ['Mo-S(6)', 'S-Mo(3)']
@@ -1624,6 +1626,7 @@ class MoleculeGraph(MSONable):
             group (format: {(u, v): props}, where props is a dictionary of
             properties, including weight. Props should be None if no
             additional properties are to be specified.
+
         Returns:
             mg, a MoleculeGraph
         """
@@ -2038,6 +2041,7 @@ class MoleculeGraph(MSONable):
         :param allow_reverse: If allow_reverse is True, then break_edge will
             attempt to break both (from_index, to_index) and, failing that,
             will attempt to break (to_index, from_index).
+
         Returns:
             list of MoleculeGraphs.
         """
@@ -2744,6 +2748,7 @@ class MoleculeGraph(MSONable):
         graphs are converted into undirected nx.Graph objects.
 
         :param other: MoleculeGraph object to be compared.
+
         Returns:
             bool
         """

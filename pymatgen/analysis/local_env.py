@@ -1248,6 +1248,7 @@ class JmolNN(NearNeighbors):
     def get_max_bond_distance(self, el1_sym, el2_sym):
         """
         Use Jmol algorithm to determine bond length from atomic parameters
+
         Args:
             el1_sym: (str) symbol of atom 1
             el2_sym: (str) symbol of atom 2.
@@ -1607,6 +1608,7 @@ class CovalentBondNN(NearNeighbors):
 
         :param structure: input Molecule.
         :param n: index of site for which to determine near neighbors.
+
         Returns:
             [dict] representing a neighboring site and the type of
             bond present between site n and the neighboring site.
@@ -4062,6 +4064,7 @@ class CrystalNN(NearNeighbors):
     def transform_to_length(nn_data, length):
         """
         Given NNData, transforms data to the specified fingerprint length
+
         Args:
             nn_data: (NNData)
             length: (int) desired length of NNData.

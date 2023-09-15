@@ -468,6 +468,7 @@ class LocalGeometryFinder:
         """
         Returns the pymatgen Structure that has been setup for the identification of geometries (the initial one
         might have been refined/symmetrized using the SpaceGroupAnalyzer).
+
         Returns:
             The pymatgen Structure that has been setup for the identification of geometries (the initial one
         might have been refined/symmetrized using the SpaceGroupAnalyzer).
@@ -1120,6 +1121,7 @@ class LocalGeometryFinder:
     def get_coordination_symmetry_measures(self, only_minimum=True, all_csms=True, optimization=None):
         """
         Returns the continuous symmetry measures of the current local geometry in a dictionary.
+
         Returns:
             the continuous symmetry measures of the current local geometry in a dictionary.
         """
@@ -1249,6 +1251,7 @@ class LocalGeometryFinder:
     ):
         """
         Returns the continuous symmetry measures of the current local geometry in a dictionary.
+
         Returns:
             the continuous symmetry measures of the current local geometry in a dictionary.
         """

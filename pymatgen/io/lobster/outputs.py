@@ -598,6 +598,7 @@ class Charge:
     def get_structure_with_charges(self, structure_filename):
         """
         Get a Structure with Mulliken and Loewdin charges as site properties
+
         Args:
             structure_filename: filename of POSCAR
 
@@ -1136,6 +1137,7 @@ class Bandoverlaps:
     def _read(self, contents: list, spin_numbers: list):
         """
         Will read in all contents of the file
+
         Args:
             contents: list of strings
             spin_numbers: list of spin numbers depending on `Lobster` version.
@@ -1274,6 +1276,7 @@ class Grosspop:
     def get_structure_with_total_grosspop(self, structure_filename: str) -> Structure:
         """
         Get a Structure with Mulliken and Loewdin total grosspopulations as site properties
+
         Args:
             structure_filename (str): filename of POSCAR
 
@@ -1532,6 +1535,7 @@ class SitePotential:
     def get_structure_with_site_potentials(self, structure_filename):
         """
         Get a Structure with Mulliken and Loewdin charges as site properties
+
         Args:
             structure_filename: filename of POSCAR
 

@@ -823,14 +823,16 @@ class GruneisenPlotter:
     """Class to plot Gruneisenparameter Object."""
 
     def __init__(self, gruneisen):
-        """Class to plot information from Gruneisenparameter Object
+        """Class to plot information from Gruneisenparameter Object.
+
         Args:
             gruneisen: GruneisenParameter Object.
         """
         self._gruneisen = gruneisen
 
     def get_plot(self, marker="o", markersize=None, units="thz"):
-        """Will produce a plot
+        """Will produce a plot.
+
         Args:
             marker: marker for the depiction
             markersize: size of the marker
@@ -861,7 +863,8 @@ class GruneisenPlotter:
         return ax
 
     def show(self, units="thz"):
-        """Will show the plot
+        """Will show the plot.
+
         Args:
             units: units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
 
@@ -871,7 +874,8 @@ class GruneisenPlotter:
         plt.show()
 
     def save_plot(self, filename, img_format="pdf", units="thz"):
-        """Will save the plot to a file
+        """Will save the plot to a file.
+
         Args:
             filename: name of the filename
             img_format: format of the saved plot

@@ -1656,7 +1656,8 @@ class Lattice(MSONable):
 
     def get_recp_symmetry_operation(self, symprec: float = 0.01) -> list:
         """Find the symmetric operations of the reciprocal lattice,
-        to be used for hkl transformations
+        to be used for hkl transformations.
+
         Args:
             symprec: default is 0.001.
         """

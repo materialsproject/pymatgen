@@ -181,7 +181,8 @@ class Spectrum(MSONable):
     __rmul__ = __mul__
 
     def __truediv__(self, other):
-        """True division of y
+        """True division of y.
+
         Args:
             other: The divisor.
 
@@ -191,7 +192,8 @@ class Spectrum(MSONable):
         return self.__class__(self.x, self.y.__truediv__(other), *self._args, **self._kwargs)
 
     def __floordiv__(self, other):
-        """True division of y
+        """True division of y.
+
         Args:
             other: The divisor.
 

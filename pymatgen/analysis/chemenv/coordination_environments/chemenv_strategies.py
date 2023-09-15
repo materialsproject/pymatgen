@@ -237,6 +237,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         """Get the equivalent site and corresponding symmetry+translation transformations.
 
         :param psite: Periodic site.
+
         Returns:
             Equivalent site in the unit cell, translations and symmetry transformation.
         """
@@ -318,6 +319,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     def uniquely_determines_coordination_environments(self):
         """
         Returns True if the strategy leads to a unique coordination environment, False otherwise.
+
         Returns:
             True if the strategy leads to a unique coordination environment, False otherwise.
         """
@@ -447,6 +449,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     def as_dict(self):
         """
         Bson-serializable dict representation of the SimplestChemenvStrategy object.
+
         Returns:
             Bson-serializable dict representation of the SimplestChemenvStrategy object.
         """
@@ -591,6 +594,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         :param dequivsite: Translation of the equivalent site.
         :param dthissite: Translation of this site.
         :param mysym: Symmetry to be applied.
+
         Returns:
             List of coordinated neighbors of site.
         """
@@ -633,6 +637,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         :param dthissite: Translation of this site.
         :param mysym: Symmetry to be applied.
         :param return_map: Whether to return cn_map (identifies the NeighborsSet used).
+
         Returns:
             Coordination environment of site.
         """
@@ -717,6 +722,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         :param min_fraction: Minimum fraction to include in the list
         :param return_maps: Whether to return cn_maps (identifies all the NeighborsSet used).
         :param return_strategy_dict_info: Whether to add the info about the strategy used.
+
         Returns:
             List of Dict with coordination environment, fraction and additional info.
         """
@@ -767,6 +773,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         :param dthissite: Translation of this site.
         :param mysym: Symmetry to be applied.
         :param return_maps: Whether to return cn_maps (identifies all the NeighborsSet used).
+
         Returns:
             List of coordination environment.
         """
@@ -802,6 +809,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     def as_dict(self):
         """
         Bson-serializable dict representation of the SimplestChemenvStrategy object.
+
         Returns:
             Bson-serializable dict representation of the SimplestChemenvStrategy object.
         """
@@ -882,6 +890,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         """Get the neighbors of a given site with this strategy.
 
         :param site: Periodic site.
+
         Returns:
             List of neighbors of site.
         """
@@ -912,6 +921,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         :param dthissite: Translation of this site.
         :param mysym: Symmetry to be applied.
         :param return_map: Whether to return cn_map (identifies the NeighborsSet used).
+
         Returns:
             Coordination environment of site.
         """
@@ -952,6 +962,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         :param dthissite: Translation of this site.
         :param mysym: Symmetry to be applied.
         :param return_maps: Whether to return cn_maps (identifies all the NeighborsSet used).
+
         Returns:
             List of coordination environment.
         """
@@ -1000,6 +1011,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
     def as_dict(self):
         """
         Bson-serializable dict representation of the SimpleAbundanceChemenvStrategy object.
+
         Returns:
             Bson-serializable dict representation of the SimpleAbundanceChemenvStrategy object.
         """
@@ -1084,6 +1096,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
         :param dthissite: Translation of this site.
         :param mysym: Symmetry to be applied.
         :param return_map: Whether to return cn_map (identifies the NeighborsSet used).
+
         Returns:
             Coordination environment of site.
         """
@@ -1150,6 +1163,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
     def as_dict(self):
         """
         Bson-serializable dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object.
+
         Returns:
             Bson-serializable dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object.
         """
@@ -1209,6 +1223,7 @@ class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
         :param structure_environments: Structure environments used to estimate weight.
         :param cn_map: Mapping index for this neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Weight of the neighbors set.
         """
@@ -1237,6 +1252,7 @@ class AngleNbSetWeight(NbSetWeight):
         :param structure_environments: Structure environments used to estimate weight.
         :param cn_map: Mapping index for this neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Weight of the neighbors set.
         """
@@ -1247,6 +1263,7 @@ class AngleNbSetWeight(NbSetWeight):
         """Sum of all angles in a neighbors set.
 
         :param nb_set: Neighbors set.
+
         Returns:
             Sum of solid angles for the neighbors set.
         """
@@ -1256,6 +1273,7 @@ class AngleNbSetWeight(NbSetWeight):
         """Sum of all angles to a given power in a neighbors set.
 
         :param nb_set: Neighbors set.
+
         Returns:
             Sum of solid angles to the power aa for the neighbors set.
         """
@@ -1345,6 +1363,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         :param dd: Dict representation of NormalizedAngleDistanceNbSetWeight.
+
         Returns:
             NormalizedAngleDistanceNbSetWeight.
         """
@@ -1355,6 +1374,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         """Inverse distance weight.
 
         :param nb_set: Neighbors set.
+
         Returns:
             List of inverse distances.
         """
@@ -1364,6 +1384,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         """Inverse power distance weight.
 
         :param nb_set: Neighbors set.
+
         Returns:
             List of inverse power distances.
         """
@@ -1374,6 +1395,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         """Angle weight.
 
         :param nb_set: Neighbors set.
+
         Returns:
             List of angle weights.
         """
@@ -1383,6 +1405,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         """Power angle weight.
 
         :param nb_set: Neighbors set.
+
         Returns:
             List of power angle weights.
         """
@@ -1393,6 +1416,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         """Angle/distance weight.
 
         :param nb_set: Neighbors set.
+
         Returns:
             List of angle/distance weights.
         """
@@ -1403,6 +1427,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         """Angle/power distance weight.
 
         :param nb_set: Neighbors set.
+
         Returns:
             List of angle/power distance weights.
         """
@@ -1413,6 +1438,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         """Power angle/distance weight.
 
         :param nb_set: Neighbors set.
+
         Returns:
             List of power angle/distance weights.
         """
@@ -1423,6 +1449,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         """Power angle/power distance weight.
 
         :param nb_set: Neighbors set.
+
         Returns:
             List of power angle/power distance weights.
         """
@@ -1436,6 +1463,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :param structure_environments: Structure environments used to estimate weight.
         :param cn_map: Mapping index for this neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Weight of the neighbors set.
         """
@@ -1447,6 +1475,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         """Geometric mean of the weights.
 
         :param fda_list: List of estimator weights for each neighbor.
+
         Returns:
             Geometric mean of the weights.
         """
@@ -1457,6 +1486,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         """Standard mean of the weights.
 
         :param fda_list: List of estimator weights for each neighbor.
+
         Returns:
             Standard mean of the weights.
         """
@@ -1575,6 +1605,7 @@ class SelfCSMNbSetWeight(NbSetWeight):
         :param structure_environments: Structure environments used to estimate weight.
         :param cn_map: Mapping index for this neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Weight of the neighbors set.
         """
@@ -1622,6 +1653,7 @@ class SelfCSMNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         :param dd: Dict representation of SelfCSMNbSetWeight.
+
         Returns:
             SelfCSMNbSetWeight.
         """
@@ -1681,6 +1713,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         :param structure_environments: Structure environments used to estimate weight.
         :param cn_map: Mapping index for this neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Weight of the neighbors set.
         """
@@ -1797,6 +1830,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         :param function: Ratio function used.
         :param symmetry_measure_type: Type of symmetry measure to be used.
         :param effective_csm_estimator: Ratio function used for the effective CSM (comparison between neighbors sets).
+
         Returns:
             DeltaCSMNbSetWeight.
         """
@@ -1853,6 +1887,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         :param dd: Dict representation of DeltaCSMNbSetWeight.
+
         Returns:
             DeltaCSMNbSetWeight.
         """
@@ -1889,6 +1924,7 @@ class CNBiasNbSetWeight(NbSetWeight):
         :param structure_environments: Structure environments used to estimate weight.
         :param cn_map: Mapping index for this neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Weight of the neighbors set.
         """
@@ -1917,6 +1953,7 @@ class CNBiasNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         :param dd: Dict representation of CNBiasNbSetWeight.
+
         Returns:
             CNBiasNbSetWeight.
         """
@@ -1931,6 +1968,7 @@ class CNBiasNbSetWeight(NbSetWeight):
 
         :param weight_cn1: Weight of coordination 1.
         :param weight_cn13: Weight of coordination 13.
+
         Returns:
             CNBiasNbSetWeight.
         """
@@ -1949,6 +1987,7 @@ class CNBiasNbSetWeight(NbSetWeight):
 
         :param weight_cn1: Weight of coordination 1.
         :param weight_cn13: Weight of coordination 13.
+
         Returns:
             CNBiasNbSetWeight.
         """
@@ -1966,6 +2005,7 @@ class CNBiasNbSetWeight(NbSetWeight):
         """Initializes weights explicitly for each coordination.
 
         :param cn_weights: Weights for each coordination.
+
         Returns:
             CNBiasNbSetWeight.
         """
@@ -1979,6 +2019,7 @@ class CNBiasNbSetWeight(NbSetWeight):
         """Initializes weights from description.
 
         :param dd: Dictionary description.
+
         Returns:
             CNBiasNbSetWeight.
         """
@@ -2058,6 +2099,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         :param structure_environments: Structure environments used to estimate weight.
         :param cn_map: Mapping index for this neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Weight of the neighbors set.
         """
@@ -2075,6 +2117,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         :param structure_environments: Structure environments.
         :param cn_map: Mapping index of the neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Area intersection between neighbors set and surface.
         """
@@ -2092,6 +2135,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         :param structure_environments: Structure environments.
         :param cn_map: Mapping index of the neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Area intersection between neighbors set and surface.
         """
@@ -2209,6 +2253,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         :param dd: Dict representation of DistanceAngleAreaNbSetWeight.
+
         Returns:
             DistanceAngleAreaNbSetWeight.
         """
@@ -2252,6 +2297,7 @@ class DistancePlateauNbSetWeight(NbSetWeight):
         :param structure_environments: Structure environments used to estimate weight.
         :param cn_map: Mapping index for this neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Weight of the neighbors set.
         """
@@ -2277,6 +2323,7 @@ class DistancePlateauNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         :param dd: Dict representation of DistancePlateauNbSetWeight.
+
         Returns:
             DistancePlateauNbSetWeight.
         """
@@ -2317,6 +2364,7 @@ class AnglePlateauNbSetWeight(NbSetWeight):
         :param structure_environments: Structure environments used to estimate weight.
         :param cn_map: Mapping index for this neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Weight of the neighbors set.
         """
@@ -2342,6 +2390,7 @@ class AnglePlateauNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         :param dd: Dict representation of AnglePlateauNbSetWeight.
+
         Returns:
             AnglePlateauNbSetWeight.
         """
@@ -2378,6 +2427,7 @@ class DistanceNbSetWeight(NbSetWeight):
         :param structure_environments: Structure environments used to estimate weight.
         :param cn_map: Mapping index for this neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Weight of the neighbors set.
         """
@@ -2421,6 +2471,7 @@ class DistanceNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         :param dd: Dict representation of DistanceNbSetWeight.
+
         Returns:
             DistanceNbSetWeight.
         """
@@ -2457,6 +2508,7 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
         :param structure_environments: Structure environments used to estimate weight.
         :param cn_map: Mapping index for this neighbors set.
         :param additional_info: Additional information.
+
         Returns:
             Weight of the neighbors set.
         """
@@ -2503,6 +2555,7 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
         """Initialize from dict.
 
         :param dd: Dict representation of DeltaDistanceNbSetWeight.
+
         Returns:
             DeltaDistanceNbSetWeight.
         """
@@ -2572,6 +2625,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         :param min_fraction: Minimum fraction to include in the list
         :param return_maps: Whether to return cn_maps (identifies all the NeighborsSet used).
         :param return_strategy_dict_info: Whether to add the info about the strategy used.
+
         Returns:
             List of Dict with coordination environment, fraction and additional info.
         """
@@ -2739,6 +2793,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         :param dthissite: Translation of this site.
         :param mysym: Symmetry to be applied.
         :param return_maps: Whether to return cn_maps (identifies all the NeighborsSet used).
+
         Returns:
             List of coordination environment.
         """
@@ -2772,6 +2827,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
     def as_dict(self):
         """
         Bson-serializable dict representation of the WeightedNbSetChemenvStrategy object.
+
         Returns:
             Bson-serializable dict representation of the WeightedNbSetChemenvStrategy object.
         """

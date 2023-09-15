@@ -149,8 +149,8 @@ class SlabEntry(ComputedStructureEntry):
 
     def gibbs_binding_energy(self, eads=False):
         """
-        Returns the adsorption energy or Gibbs binding energy
-            of an adsorbate on a surface
+        Returns the adsorption energy or Gibbs binding energy of an adsorbate on a surface.
+
         Args:
             eads (bool): Whether to calculate the adsorption energy
                 (True) or the binding energy (False) which is just
@@ -1463,6 +1463,7 @@ class WorkFunctionAnalyzer:
     def get_labels(self, plt, label_fontsize=10):
         """
         Handles the optional labelling of the plot with relevant quantities
+
         Args:
             plt (plt): Plot of the locpot vs c axis
             label_fontsize (float): Fontsize of labels

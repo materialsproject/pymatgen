@@ -1348,6 +1348,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
     def as_dict(self):
         """
         Bson-serializable dict representation of the LightStructureEnvironments object.
+
         Returns:
             Bson-serializable dict representation of the LightStructureEnvironments object.
         """

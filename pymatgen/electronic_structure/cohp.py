@@ -1036,6 +1036,7 @@ class IcohpCollection(MSONable):
             summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed
             spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
             orbitals: List of Orbital or "str(Orbital1)-str(Orbital2)"
+
         Returns:
             float describing ICOHP/ICOOP value
         """
@@ -1080,7 +1081,8 @@ class IcohpCollection(MSONable):
         return sum_icohp / divisor
 
     def get_icohp_dict_by_bondlengths(self, minbondlength=0.0, maxbondlength=8.0):
-        """Get a dict of IcohpValues corresponding to certain bond lengths
+        """Get a dict of IcohpValues corresponding to certain bond lengths.
+
         Args:
             minbondlength: defines the minimum of the bond lengths of the bonds
             maxbondlength: defines the maximum of the bond lengths of the bonds.
@@ -1147,7 +1149,8 @@ class IcohpCollection(MSONable):
         return newicohp_dict
 
     def extremum_icohpvalue(self, summed_spin_channels=True, spin=Spin.up):
-        """Get ICOHP/ICOOP of strongest bond
+        """Get ICOHP/ICOOP of strongest bond.
+
         Args:
             summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed.
 

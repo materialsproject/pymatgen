@@ -93,6 +93,7 @@ class SubstrateAnalyzer(ZSLGenerator):
     def __init__(self, film_max_miller=1, substrate_max_miller=1, **kwargs):
         """
         Initializes the substrate analyzer
+
         Args:
             zslgen(ZSLGenerator): Defaults to a ZSLGenerator with standard
                 tolerances, but can be fed one with custom tolerances

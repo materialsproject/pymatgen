@@ -1682,7 +1682,8 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_transdos(path_dir, efermi, dos_spin=1, trim_dos=False):
-        """Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files
+        """Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files.
+
         Args:
             path_dir: (str) dir containing DOS files
             efermi: (float) Fermi energy
@@ -1793,7 +1794,8 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_cond_and_hall(path_dir, doping_levels=None):
-        """Parses the conductivity and Hall tensors
+        """Parses the conductivity and Hall tensors.
+
         Args:
             path_dir: Path containing .condtens / .halltens files
             doping_levels: ([float]) - doping lvls, parse outtrans to get this.

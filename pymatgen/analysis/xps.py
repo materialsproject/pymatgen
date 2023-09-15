@@ -80,6 +80,7 @@ class XPS(Spectrum):
         """
         :param dos: CompleteDos object with project element-orbital DOS. Can be obtained from Vasprun.get_complete_dos.
         :param sigma: Smearing for Gaussian.
+
         Returns:
             XPS
         """

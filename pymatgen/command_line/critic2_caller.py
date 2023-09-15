@@ -398,6 +398,7 @@ class CriticalPoint(MSONable):
         can be physically interpreted as e.g. degree
         of pi-bonding in organic molecules. Consult
         literature for more information.
+
         Returns: The ellpiticity of the field at the critical point.
         """
         eig, _ = np.linalg.eig(self.field_hessian)

@@ -122,6 +122,7 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def Ustar(self):
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+
         Returns: Ustar as a numpy array, first dimension are the atoms in the structure.
         """
         A = self.structure.lattice.matrix.T
@@ -135,6 +136,7 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def Ucif(self):
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+
         Returns: Ucif as a numpy array, first dimension are the atoms in the structure.
         """
         if self.thermal_displacement_matrix_cif is None:
@@ -155,6 +157,7 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def B(self):
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+
         Returns: B as a numpy array, first dimension are the atoms in the structure.
         """
         B = []
@@ -166,6 +169,7 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def beta(self):
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+
         Returns: beta as a numpy array, first dimension are the atoms in the structure.
         """
         # will compute beta based on Ustar
@@ -178,6 +182,7 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def U1U2U3(self):
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+
         Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure.
         """
         U1U2U3 = []
@@ -483,7 +488,8 @@ class ThermalDisplacementMatrices(MSONable):
     @staticmethod
     def from_cif_P1(filename: str):
         """Reads a cif with P1 symmetry including positions and ADPs.
-        Currently, no check of symmetry is performed as CifParser methods cannot be easily reused
+        Currently, no check of symmetry is performed as CifParser methods cannot be easily reused.
+
         Args:
             filename: Filename of the cif.
 

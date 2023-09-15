@@ -400,12 +400,11 @@ class Section(MSONable):
     def get(self, d, default=None):
         """
         Similar to get for dictionaries. This will attempt to retrieve the
-        section or keyword matching d. Will not raise an error if d does not
-        exist.
+        section or keyword matching d. Will not raise an error if d does not exist.
 
         Args:
-             d: the key to retrieve, if present
-             default: what to return if d is not found
+            d: the key to retrieve, if present
+            default: what to return if d is not found
         """
         kw = self.get_keyword(d)
         if kw:
