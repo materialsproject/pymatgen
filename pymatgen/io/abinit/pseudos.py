@@ -25,7 +25,7 @@ from tabulate import tabulate
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.io.core import ParseError
-from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -1426,7 +1426,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         Returns:
             `matplotlib` figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax)
+        ax, fig = get_ax_fig(ax)
 
         ax.grid(True)
         ax.set_xlabel("r [Bohr]")
@@ -1453,7 +1453,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         Returns: `matplotlib` figure
         """
         # pylint: disable=E1101
-        ax, fig, plt = get_ax_fig_plt(ax)
+        ax, fig = get_ax_fig(ax)
 
         ax.grid(True)
         ax.set_xlabel("r [Bohr]")
@@ -1483,7 +1483,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         Returns: `matplotlib` figure
         """
         # pylint: disable=E1101
-        ax, fig, plt = get_ax_fig_plt(ax)
+        ax, fig = get_ax_fig(ax)
         ax.grid(True)
         ax.set_xlabel("r [Bohr]")
         ax.set_ylabel(r"$r\tilde p\, [Bohr]^{-\frac{1}{2}}$")

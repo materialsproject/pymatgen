@@ -537,7 +537,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     return plt
 
 
-def get_ax_fig_plt(ax: plt.Axes = None, **kwargs):
+def get_ax_fig(ax: plt.Axes = None, **kwargs) -> tuple[plt.Axes, plt.Figure]:
     """Helper function used in plot functions supporting an optional Axes argument.
     If ax is None, we build the `matplotlib` figure and create the Axes else
     we return the current active figure.
@@ -547,19 +547,15 @@ def get_ax_fig_plt(ax: plt.Axes = None, **kwargs):
         kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
-        ax: :class:`Axes` object
-        figure: matplotlib figure
-        plt: matplotlib pyplot module.
+        tuple[plt.Axes, plt.Figure]: matplotlib Axes object and Figure objects
     """
-    import matplotlib.pyplot as plt
-
     if ax is None:
         fig = plt.figure(**kwargs)
         ax = fig.gca()
     else:
         fig = plt.gcf()
 
-    return ax, fig, plt
+    return ax, fig
 
 
 def get_ax3d_fig(ax: plt.Axes = None, **kwargs) -> tuple[Axes3D, plt.Figure]:

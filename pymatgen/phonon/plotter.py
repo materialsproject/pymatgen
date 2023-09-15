@@ -13,7 +13,7 @@ from monty.json import jsanitize
 from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.gruneisen import GruneisenPhononBandStructureSymmLine
-from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt, pretty_plot
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 logger = logging.getLogger(__name__)
 
@@ -659,7 +659,7 @@ class ThermoPlotter:
         Returns:
             plt.figure: matplotlib figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax)
+        ax, fig = get_ax_fig(ax)
 
         values = []
 

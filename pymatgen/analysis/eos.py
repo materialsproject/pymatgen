@@ -17,7 +17,7 @@ import numpy as np
 from scipy.optimize import leastsq, minimize
 
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt, pretty_plot
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
     from matplotlib import pyplot as plt
@@ -233,7 +233,7 @@ class EOSBase(metaclass=ABCMeta):
             plt.Figure: matplotlib figure.
         """
         # pylint: disable=E1307
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
 
         color = kwargs.get("color", "r")
         label = kwargs.get("label", f"{type(self).__name__} fit")

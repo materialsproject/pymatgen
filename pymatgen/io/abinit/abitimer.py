@@ -9,17 +9,14 @@ import collections
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING
 
+import matplotlib.pyplot as plt
 import numpy as np
 from monty.string import is_string, list_strings
 
 from pymatgen.io.core import ParseError
 from pymatgen.util.num import minloc
-from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
-
-if TYPE_CHECKING:
-    import matplotlib.pyplot as plt
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
 
 logger = logging.getLogger(__name__)
 
@@ -340,7 +337,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         Returns:
             `matplotlib` figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
         lw = kwargs.pop("linewidth", 2.0)
         msize = kwargs.pop("markersize", 10)
         what = what.split("+")
@@ -429,14 +426,14 @@ class AbinitTimerParser(collections.abc.Iterable):
         Args:
             key: Keyword used to extract data from the timers. Only the first `nmax`
                 sections with largest value are show.
-            mmax: Maximum number of sections to show. Other entries are grouped together
+            nmax: Maximum number of sections to show. Other entries are grouped together
                 in the `others` section.
             ax: matplotlib :class:`Axes` or None if a new figure should be created.
 
         Returns:
             `matplotlib` figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
 
         mpi_rank = "0"
         timers = self.timers(mpi_rank=mpi_rank)
@@ -445,14 +442,14 @@ class AbinitTimerParser(collections.abc.Iterable):
         names, values = [], []
         rest = np.zeros(n)
 
-        for idx, sname in enumerate(self.section_names(ordkey=key)):
-            sections = self.get_sections(sname)
-            svals = np.asarray([s.__dict__[key] for s in sections])
+        for idx, sec_name in enumerate(self.section_names(ordkey=key)):
+            sections = self.get_sections(sec_name)
+            sec_vals = np.asarray([s.__dict__[key] for s in sections])
             if idx < nmax:
-                names.append(sname)
-                values.append(svals)
+                names.append(sec_name)
+                values.append(sec_vals)
             else:
-                rest += svals
+                rest += sec_vals
 
         names.append(f"others ({nmax=})")
         values.append(rest)
@@ -801,7 +798,7 @@ class AbinitTimer:
 
         Returns: `matplotlib` figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
 
         nk = len(self.sections)
         ind = np.arange(nk)  # the x locations for the groups
@@ -837,7 +834,7 @@ class AbinitTimer:
 
         Returns: `matplotlib` figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
         # Set aspect ratio to be equal so that pie is drawn as a circle.
         ax.axis("equal")
         # Don't show section whose value is less that minfract
@@ -857,7 +854,7 @@ class AbinitTimer:
         """
         from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
 
         x = np.asarray(self.get_values("cpu_time"))
         y = np.asarray(self.get_values("wall_time"))
