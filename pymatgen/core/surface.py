@@ -21,7 +21,7 @@ import os
 import warnings
 from functools import reduce
 from math import gcd
-from typing import Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.fractions import lcm
@@ -36,6 +36,9 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from pymatgen.symmetry.groups import CrystalSystem
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 
@@ -1520,8 +1523,7 @@ def get_symmetrically_equivalent_miller_indices(
     structure,
     miller_index,
     return_hkil=True,
-    system: Literal["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"]
-    | None = None,
+    system: CrystalSystem | None = None,
 ):
     """Returns all symmetrically equivalent indices for a given structure. Analysis
     is based on the symmetry of the reciprocal lattice of the structure.
@@ -1538,8 +1540,8 @@ def get_symmetrically_equivalent_miller_indices(
     # Change to hkl if hkil because in_coord_list only handles tuples of 3
     miller_index = (miller_index[0], miller_index[1], miller_index[3]) if len(miller_index) == 4 else miller_index
     mmi = max(np.abs(miller_index))
-    r = list(range(-mmi, mmi + 1))
-    r.reverse()
+    rng = list(range(-mmi, mmi + 1))
+    rng.reverse()
 
     sg = None
     if not system:
@@ -1556,7 +1558,7 @@ def get_symmetrically_equivalent_miller_indices(
         symm_ops = structure.lattice.get_recp_symmetry_operation()
 
     equivalent_millers = [miller_index]
-    for miller in itertools.product(r, r, r):
+    for miller in itertools.product(rng, rng, rng):
         if miller == miller_index:
             continue
         if any(i != 0 for i in miller):
