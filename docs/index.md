@@ -426,6 +426,11 @@ Science, 2013, 68, 314–319. https://doi.org/10.1016/j.commatsci.2012.10.028
 In addition, some of pymatgen's functionality is based on scientific advances / principles developed by various
 scientists. Please refer to the [references page](/references) for citation info.
 
+### Soliciting contributions to an updated pymatgen paper
+
+If you are a long-standing `pymatgen` contributor and would like to be involved in working on an updated `pymatgen` publication, 
+please contact the maintainers [@shyuep, @mkhorton and @janosh](mailto:ongsp@ucsd.edu,m.k.horton@gmail.com,janosh@lbl.gov?subject=Contributing%20to%20updated%20pymatgen%20paper).
+
 ## License
 
 Pymatgen is released under the MIT License.
