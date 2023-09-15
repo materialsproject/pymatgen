@@ -326,7 +326,7 @@ class BSPlotter:
             # bands
             self._nb_bands.extend([b.nb_bands for b in bs])
 
-    def _maketicks(self, ax: plt.Axes) -> plt.Axes:
+    def _make_ticks(self, ax: plt.Axes) -> plt.Axes:
         """Utility private method to add ticks to a band structure."""
         ticks = self.get_ticks()
         # Sanitize only plot the uniq values
@@ -689,7 +689,7 @@ class BSPlotter:
         else:
             ax.set_ylim(ylim)
 
-        self._maketicks(ax)
+        self._make_ticks(ax)
 
         # Main X and Y Labels
         ax.set_xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
@@ -708,8 +708,8 @@ class BSPlotter:
         # auto tight_layout when resizing or pressing t
         def fix_layout(event):
             if (event.name == "key_press_event" and event.key == "t") or event.name == "resize_event":
-                ax.gcf().tight_layout()
-                ax.gcf().canvas.draw()
+                plt.tight_layout()
+                plt.gcf().canvas.draw()
 
         ax.figure.canvas.mpl_connect("key_press_event", fix_layout)
         ax.figure.canvas.mpl_connect("resize_event", fix_layout)
@@ -984,7 +984,7 @@ class BSPlotterProjected(BSPlotter):
         for el in dictio:
             for o in dictio[el]:
                 ax = plt.subplot(fig_rows + fig_cols + count)
-                self._maketicks(ax)
+                self._make_ticks(ax)
                 for b in range(len(data["distances"])):
                     for i in range(self._nb_bands):
                         ax.plot(
@@ -1056,7 +1056,7 @@ class BSPlotterProjected(BSPlotter):
         count = 1
         for el in self._bs.structure.elements:
             plt.subplot(220 + count)
-            self._maketicks(ax)
+            self._make_ticks(ax)
             for b in range(len(data["distances"])):
                 for i in range(self._nb_bands):
                     ax.plot(
@@ -1156,7 +1156,7 @@ class BSPlotterProjected(BSPlotter):
         spins = [Spin.up]
         if self._bs.is_spin_polarized:
             spins = [Spin.up, Spin.down]
-        self._maketicks(ax)
+        self._make_ticks(ax)
         for s in spins:
             for b in range(len(data["distances"])):
                 for i in range(self._nb_bands):
@@ -1614,7 +1614,7 @@ class BSPlotterProjected(BSPlotter):
                     else:
                         raise ValueError("The invalid 'num_column' is assigned. It should be an integer.")
 
-                    ax, shift = self._maketicks_selected(ax, branches)
+                    ax, shift = self._make_ticks_selected(ax, branches)
                     br = -1
                     for b in branches:
                         br += 1
@@ -2079,7 +2079,7 @@ class BSPlotterProjected(BSPlotter):
 
         return dictio_d, dictpa_d
 
-    def _maketicks_selected(self, ax: plt.Axes, branches: list[int]) -> tuple[plt.Axes, list[float]]:
+    def _make_ticks_selected(self, ax: plt.Axes, branches: list[int]) -> tuple[plt.Axes, list[float]]:
         """Utility private method to add ticks to a band structure with selected branches."""
         if not ax.figure:
             fig = plt.figure()  # Create a figure object

@@ -233,7 +233,7 @@ class PhononBSPlotter:
         self._bs = bs
         self._nb_bands = self._bs.nb_bands
 
-    def _maketicks(self, ax: plt.Axes) -> plt.Axes:
+    def _make_ticks(self, ax: plt.Axes) -> plt.Axes:
         """Utility private method to add ticks to a band structure."""
         ticks = self.get_ticks()
         # Sanitize only plot the uniq values
@@ -325,7 +325,7 @@ class PhononBSPlotter:
                     linewidth=band_linewidth,
                 )
 
-        self._maketicks(ax)
+        self._make_ticks(ax)
 
         # plot y=0 line
         ax.axhline(0, linewidth=1, color="k")
@@ -434,7 +434,7 @@ class PhononBSPlotter:
 
         u = freq_units(units)
         fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
-        self._maketicks(ax)
+        self._make_ticks(ax)
 
         data = self.bs_plot_data()
         k_dist = np.array(data["distances"]).flatten()
@@ -956,7 +956,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
                     linewidth=2,
                 )
 
-        self._maketicks(ax)
+        self._make_ticks(ax)
 
         # plot y=0 line
         ax.axhline(0, linewidth=1, color="k")
