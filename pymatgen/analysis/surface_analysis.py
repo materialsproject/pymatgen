@@ -1199,21 +1199,20 @@ class SurfaceEnergyPlotter:
             )
 
             # Save the chempot range for dmu1 and dmu2
-            for entry, v in range_dict.items():
-                if not v:
+            for entry, vertex in range_dict.items():
+                if not vertex:
                     continue
-                if entry not in vertices_dict:
-                    vertices_dict[entry] = []
+                vertices_dict.setdefault(entry, [])
 
                 selist = se_dict[entry]
-                vertices_dict[entry].append({delu1: dmu1, delu2: [v, selist]})
+                vertices_dict[entry].append({delu1: dmu1, delu2: [vertex, selist]})
 
         # Plot the edges of the phases
-        for entry, v in vertices_dict.items():
+        for entry, vertex in vertices_dict.items():
             xvals, yvals = [], []
 
             # Plot each edge of a phase within the borders
-            for ii, pt1 in enumerate(v):
+            for ii, pt1 in enumerate(vertex):
                 # Determine if the surface energy at this lower range
                 # of dmu2 is negative. If so, shade this region.
                 if len(pt1[delu2][1]) == 3:
@@ -1228,9 +1227,9 @@ class SurfaceEnergyPlotter:
                     # in se<0, shade the entire y range
                     ax.plot([pt1[delu1], pt1[delu1]], range2, "k--")
 
-                if ii == len(v) - 1:
+                if ii == len(vertex) - 1:
                     break
-                pt2 = v[ii + 1]
+                pt2 = vertex[ii + 1]
                 if not show_unphyiscal_only:
                     ax.plot(
                         [pt1[delu1], pt2[delu1]],
@@ -1243,7 +1242,7 @@ class SurfaceEnergyPlotter:
                 yvals.extend([pt1[delu2][0][0], pt2[delu2][0][0]])
 
             # Plot the edge along the max x value
-            pt = v[-1]
+            pt = vertex[-1]
             delu1, delu2 = pt
             xvals.extend([pt[delu1], pt[delu1]])
             yvals.extend(pt[delu2][0])

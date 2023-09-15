@@ -286,8 +286,7 @@ class StructureEnvironments(MSONable):
                 ia1 = a1_indices[0]
                 ia2 = a2_indices[0]
                 for id_ia in [(id1, ia1), (id1, ia2), (id2, ia1), (id2, ia2)]:
-                    if id_ia not in points_dict:
-                        points_dict[id_ia] = 0
+                    points_dict.setdefault(id_ia, 0)
                     points_dict[id_ia] += 1
 
             new_pts = []
@@ -1650,18 +1649,18 @@ class LightStructureEnvironments(MSONable):
                     valence = self.valences[isite]
                     strspecie = str(Species(sp.symbol, valence))
                     if valence < 0:
-                        specielist = self.statistics_dict["anion_list"]
+                        specie_list = self.statistics_dict["anion_list"]
                         atomlist = self.statistics_dict["anion_atom_list"]
                     elif valence > 0:
-                        specielist = self.statistics_dict["cation_list"]
+                        specie_list = self.statistics_dict["cation_list"]
                         atomlist = self.statistics_dict["cation_atom_list"]
                     else:
-                        specielist = self.statistics_dict["neutral_list"]
+                        specie_list = self.statistics_dict["neutral_list"]
                         atomlist = self.statistics_dict["neutral_atom_list"]
-                    if strspecie not in specielist:
-                        specielist[strspecie] = occ
+                    if strspecie not in specie_list:
+                        specie_list[strspecie] = occ
                     else:
-                        specielist[strspecie] += occ
+                        specie_list[strspecie] += occ
                     if sp.symbol not in atomlist:
                         atomlist[sp.symbol] = occ
                     else:
@@ -1676,8 +1675,7 @@ class LightStructureEnvironments(MSONable):
                 for ce_symbol, fraction in site_envs:
                     if fraction is None:
                         continue
-                    if ce_symbol not in count_ce:
-                        count_ce[ce_symbol] = 0.0
+                    count_ce.setdefault(ce_symbol, 0.0)
                     count_ce[ce_symbol] += fraction
                 for sp, occ in site.species.items():
                     elmt = sp.symbol

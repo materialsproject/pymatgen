@@ -70,7 +70,7 @@ class BondDissociationEnergies(MSONable):
                 raise RuntimeError(key + " must be present in molecule entry! Exiting...")
             for entry in self.filtered_entries:
                 if key not in entry:
-                    raise RuntimeError(key + " must be present in all fragment entries! Exiting...")
+                    raise RuntimeError(f"{key=} must be present in all fragment entries! Exiting...")
 
         # Define expected charges
         final_charge = int(molecule_entry["final_molecule"]["charge"])  # type: ignore[index]
