@@ -950,7 +950,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         Return dictionary with the variables that have been removed.
 
         Args:
-            spin_mode: :class:`SpinMode` object or string. Possible values for string are:
+            spin_mode: SpinMode object or string. Possible values for string are:
 
             - polarized
             - unpolarized

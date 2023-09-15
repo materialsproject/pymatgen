@@ -4042,7 +4042,7 @@ def plot_wigner_seitz(lattice, ax: plt.Axes = None, **kwargs):
 
     Args:
         lattice: Lattice object
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to black
             and linewidth to 1.
 
@@ -4073,7 +4073,7 @@ def plot_lattice_vectors(lattice, ax: plt.Axes = None, **kwargs):
 
     Args:
         lattice: Lattice object
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to green
             and linewidth to 3.
 
@@ -4107,7 +4107,7 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax: plt.Axes = Non
         coords_are_cartesian: Set to True if you are providing
             coordinates in Cartesian coordinates. Defaults to False.
             Requires lattice if False.
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to red
             and linewidth to 3.
 
@@ -4143,7 +4143,7 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes =
         coords_are_cartesian: Set to True if you are providing.
             coordinates in Cartesian coordinates. Defaults to False.
             Requires lattice if False.
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'text'. Color defaults to blue
             and size to 25.
 
@@ -4218,7 +4218,7 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
             Requires lattice if False.
         fold: whether the points should be folded inside the first Brillouin Zone.
             Defaults to False. Requires lattice if True.
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'scatter'. Color defaults to blue
 
     Returns:
@@ -4251,7 +4251,7 @@ def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs):
 
     Args:
         kpath (HighSymmKpath): a HighSymmKPath object
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         **kwargs: provided by add_fig_kwargs decorator
 
     Returns:
@@ -4291,7 +4291,7 @@ def plot_brillouin_zone(
             Defaults to False. Requires lattice if True.
         coords_are_cartesian: Set to True if you are providing
             coordinates in Cartesian coordinates. Defaults to False.
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: provided by add_fig_kwargs decorator
 
     Returns:
@@ -4351,7 +4351,7 @@ def plot_ellipsoid(
         center: the center of the ellipsoid in reciprocal coords (Default)
         lattice: Lattice object of the Brillouin zone
         rescale: factor for size scaling of the ellipsoid
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         coords_are_cartesian: Set to True if you are providing a center in
             Cartesian coordinates. Defaults to False.
         arrows: whether to plot arrows for the principal axes of the ellipsoid. Defaults to False.

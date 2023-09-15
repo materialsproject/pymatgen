@@ -97,7 +97,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
 
 def structure_from_abivars(cls=None, *args, **kwargs):
     """
-    Build a :class:`Structure` object from a dictionary with ABINIT variables.
+    Build a Structure object from a dictionary with ABINIT variables.
 
     Args:
         cls: Structure class to be instantiated. pymatgen.core.structure.Structure if cls is None
@@ -804,7 +804,7 @@ class KSampling(AbivarAble, MSONable):
                 to reduce the number of independent k-points.
 
         Returns:
-            :class:`KSampling` object.
+            KSampling object.
         """
         return cls(
             kpts=[kpts],
@@ -834,7 +834,7 @@ class KSampling(AbivarAble, MSONable):
             use_time_reversal: Use time-reversal symmetry to reduce the number of k-points.
 
         Returns:
-            :class:`KSampling` object.
+            KSampling object.
         """
         return cls(
             kpts=[ngkpt],
@@ -859,13 +859,13 @@ class KSampling(AbivarAble, MSONable):
         Convenient static constructor for an automatic Monkhorst-Pack mesh.
 
         Args:
-            structure: :class:`Structure` object.
+            structure: Structure object.
             ngkpt: Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             use_symmetries: Use spatial symmetries to reduce the number of k-points.
             use_time_reversal: Use time-reversal symmetry to reduce the number of k-points.
 
         Returns:
-            :class:`KSampling` object.
+            KSampling object.
         """
         # TODO
         shiftk = 3 * (0.5,)
@@ -889,13 +889,13 @@ class KSampling(AbivarAble, MSONable):
         Static constructor for path in k-space.
 
         Args:
-            structure: :class:`Structure` object.
+            structure: Structure object.
             kpath_bounds: List with the reduced coordinates of the k-points defining the path.
             ndivsm: Number of division for the smallest segment.
             comment: Comment string.
 
         Returns:
-            :class:`KSampling` object.
+            KSampling object.
         """
         if kpath_bounds is None:
             # Compute the boundaries from the input structure.
@@ -1341,7 +1341,7 @@ class Screening(AbivarAble):
             nband Number of bands for the Green's function
             w_type: Screening type
             sc_mode: Self-consistency mode.
-            hilbert: Instance of :class:`HilbertTransform` defining the parameters for the Hilber transform method.
+            hilbert: Instance of HilbertTransform defining the parameters for the Hilber transform method.
             ecutwfn: Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
             inclvkb: Option for the treatment of the dipole matrix elements (NC pseudos).
         """
@@ -1441,11 +1441,11 @@ class SelfEnergy(AbivarAble):
             sc_mode: Self-consistency mode.
             nband: Number of bands for the Green's function
             ecutsigx: Cutoff energy for the exchange part of the self-energy (Ha units).
-            screening: :class:`Screening` instance.
+            screening: Screening instance.
             gw_qprange: Option for the automatic selection of k-points and bands for GW corrections.
                 See Abinit docs for more detail. The default value makes the code computie the
                 QP energies for all the point in the IBZ and one band above and one band below the Fermi level.
-            ppmodel: :class:`PPModel` instance with the parameters used for the plasmon-pole technique.
+            ppmodel: PPModel instance with the parameters used for the plasmon-pole technique.
             ecuteps: Cutoff energy for the screening (Ha units).
             ecutwfn: Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
         """

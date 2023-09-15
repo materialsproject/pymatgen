@@ -223,7 +223,7 @@ class EOSBase(metaclass=ABCMeta):
         Plot the equation of state on axis `ax`.
 
         Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
             fontsize: Legend fontsize.
             color (str): plot color.
             label (str): Plot label

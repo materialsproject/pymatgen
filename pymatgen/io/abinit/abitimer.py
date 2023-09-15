@@ -250,7 +250,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         """
         Analyze the parallel efficiency.
 
-        Return: :class:`ParallelEfficiency` object.
+        Return: ParallelEfficiency object.
         """
         timers = self.timers()
 
@@ -325,7 +325,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             what: Specifies what to plot: `good` for sections with good parallel efficiency.
                 `bad` for sections with bad efficiency. Options can be concatenated with `+`.
             nmax: Maximum number of entries in plot
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
         ================  ====================================================
         kwargs            Meaning
@@ -428,7 +428,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                 sections with largest value are show.
             nmax: Maximum number of sections to show. Other entries are grouped together
                 in the `others` section.
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
         Returns:
             `matplotlib` figure
@@ -794,7 +794,7 @@ class AbinitTimer:
         Plot histogram with cpu- and wall-time on axis `ax`.
 
         Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
         Returns: `matplotlib` figure
         """
@@ -830,7 +830,7 @@ class AbinitTimer:
         Args:
             key: Keyword used to extract data from the timer.
             minfract: Don't show sections whose relative weight is less that minfract.
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
         Returns: `matplotlib` figure
         """
@@ -848,7 +848,7 @@ class AbinitTimer:
         Scatter plot + histogram.
 
         Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
         Returns: `matplotlib` figure
         """

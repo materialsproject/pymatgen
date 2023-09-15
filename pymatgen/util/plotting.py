@@ -590,7 +590,7 @@ def get_axarray_fig_plt(
     current active figure.
 
     Returns:
-        ax: Array of :class:`Axes` objects
+        ax: Array of Axes objects
         figure: matplotlib figure
         plt: matplotlib pyplot module.
     """

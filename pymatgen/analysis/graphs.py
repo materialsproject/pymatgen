@@ -242,11 +242,11 @@ class StructureGraph(MSONable):
     def with_local_env_strategy(structure, strategy, weights=False, edge_properties=False):
         """
         Constructor for StructureGraph, using a strategy
-        from :class:`pymatgen.analysis.local_env`.
+        from pymatgen.analysis.local_env.
 
         :param structure: Structure object
         :param strategy: an instance of a
-            :class:`pymatgen.analysis.local_env.NearNeighbors` object
+            pymatgen.analysis.local_env.NearNeighbors object
         :param weights: if True, use weights from local_env class
             (consult relevant class for their meaning)
         :param edge_properties: if True, edge_properties from neighbors will be used
@@ -1042,7 +1042,7 @@ class StructureGraph(MSONable):
 
     def as_dict(self):
         """
-        As in :class:`pymatgen.core.Structure` except
+        As in pymatgen.core.Structure except
         with using `to_dict_of_dicts` from NetworkX
         to store graph information.
         """
@@ -1056,7 +1056,7 @@ class StructureGraph(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        As in :class:`pymatgen.core.Structure` except
+        As in pymatgen.core.Structure except
         restoring graphs using `from_dict_of_dicts`
         from NetworkX to restore graph information.
         """
@@ -1658,11 +1658,11 @@ class MoleculeGraph(MSONable):
     def with_local_env_strategy(molecule, strategy):
         """
         Constructor for MoleculeGraph, using a strategy
-        from :class:`pymatgen.analysis.local_env`.
+        from pymatgen.analysis.local_env.
 
         :param molecule: Molecule object
         :param strategy: an instance of a
-            :class:`pymatgen.analysis.local_env.NearNeighbors` object
+            pymatgen.analysis.local_env.NearNeighbors object
 
         Returns:
             mg, a MoleculeGraph
@@ -2606,7 +2606,7 @@ class MoleculeGraph(MSONable):
 
     def as_dict(self):
         """
-        As in :class:`pymatgen.core.Molecule` except
+        As in pymatgen.core.Molecule except
         with using `to_dict_of_dicts` from NetworkX
         to store graph information.
         """
@@ -2618,7 +2618,7 @@ class MoleculeGraph(MSONable):
     @classmethod
     def from_dict(cls, dct):
         """
-        As in :class:`pymatgen.core.Molecule` except
+        As in pymatgen.core.Molecule except
         restoring graphs using `from_dict_of_dicts`
         from NetworkX to restore graph information.
         """

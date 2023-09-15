@@ -856,7 +856,7 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             lattice (Lattice/3x3 array): The lattice, either as a
-                :class:`pymatgen.core.lattice.Lattice` or
+                pymatgen.core.lattice.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -1002,7 +1002,7 @@ class IStructure(SiteCollection, MSONable):
                 pymatgen.symmetry.groups.Spacegroup. E.g., "R-3c" or "Fm-3m".
                 If an int, it will be interpreted as an international number.
             lattice (Lattice/3x3 array): The lattice, either as a
-                :class:`pymatgen.core.lattice.Lattice` or
+                pymatgen.core.lattice.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -1091,14 +1091,14 @@ class IStructure(SiteCollection, MSONable):
         All equivalent sites are generated from the spacegroup operations.
 
         Args:
-            msg (str/list/:class:`pymatgen.symmetry.maggroups.MagneticSpaceGroup`):
+            msg (str/list/pymatgen.symmetry.maggroups.MagneticSpaceGroup):
                 The magnetic spacegroup.
                 If a string, it will be interpreted as one of the notations
                 supported by MagneticSymmetryGroup, e.g., "R-3'c" or "Fm'-3'm".
                 If a list of two ints, it will be interpreted as the number of
                 the spacegroup in its Belov, Neronova and Smirnova (BNS) setting.
             lattice (Lattice/3x3 array): The lattice, either as a
-                :class:`pymatgen.core.lattice.Lattice` or
+                pymatgen.core.lattice.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -1252,7 +1252,7 @@ class IStructure(SiteCollection, MSONable):
             anonymous (bool): Whether to use anonymous structure matching which allows distinct
                 species in one structure to map to another.
             **kwargs: Same **kwargs as in
-                :class:`pymatgen.analysis.structure_matcher.StructureMatcher`.
+                pymatgen.analysis.structure_matcher.StructureMatcher.
 
         Returns:
             bool: True if the structures are similar under some affine transformation.
@@ -1764,7 +1764,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
 
         Returns:
-            [[:class:`pymatgen.core.structure.PeriodicNeighbor`], ..]
+            [[pymatgen.core.structure.PeriodicNeighbor], ..]
         """
         if sites is None:
             sites = self.sites
@@ -2857,8 +2857,7 @@ class IStructure(SiteCollection, MSONable):
 class IMolecule(SiteCollection, MSONable):
     """Basic immutable Molecule object without periodicity. Essentially a
     sequence of sites. IMolecule is made to be immutable so that they can
-    function as keys in a dict. For a mutable molecule,
-    use the :class:Molecule.
+    function as keys in a dict. For a mutable object, use the Molecule class.
 
     Molecule extends Sequence and Hashable, which means that in many cases,
     it can be used like any Python sequence. Iterating through a molecule is

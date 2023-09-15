@@ -637,7 +637,7 @@ class MagOrderingTransformation(AbstractTransformation):
             global order parameter and can take values from 0.0 to 1.0
             (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
             list has to be a list of
-            :class:`pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
+            pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint
             to specify more complicated orderings, see documentation for
             MagOrderParameterConstraint more details on usage
         :param energy_model: Energy model to rank the returned structures,
@@ -646,7 +646,7 @@ class MagOrderingTransformation(AbstractTransformation):
             structures use SymmetryModel() which ranks structures from most
             symmetric to least.
         :param kwargs: Additional kwargs that are passed to
-        :class:`EnumerateStructureTransformation` such as min_cell_size etc.
+        EnumerateStructureTransformation such as min_cell_size etc.
         """
         # checking for sensible order_parameter values
         if isinstance(order_parameter, float):
@@ -994,7 +994,7 @@ class DopingTransformation(AbstractTransformation):
                 doping sites. This is an inclusionary list. If specified,
                 any sites which are not
             **kwargs:
-                Same keyword args as :class:`EnumerateStructureTransformation`,
+                Same keyword args as EnumerateStructureTransformation,
                 i.e., min_cell_size, etc.
         """
         self.dopant = get_el_sp(dopant)

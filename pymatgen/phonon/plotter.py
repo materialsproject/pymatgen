@@ -650,7 +650,7 @@ class ThermoPlotter:
             temperatures: a list of temperatures
             factor: a multiplicative factor applied to the thermodynamic property calculated. Used to change
                 the units.
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
             ylabel: label for the y axis
             label: label of the plot
             ylim: tuple specifying the y-axis limits.

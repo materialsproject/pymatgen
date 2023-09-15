@@ -375,7 +375,7 @@ class ResProvider(MSONable):
 
 class AirssProvider(ResProvider):
     """
-    Provides access to the res file as does :class:`ResProvider`. This class additionally provides
+    Provides access to the res file as does ResProvider. This class additionally provides
     access to fields in the TITL entry and various other fields found in the REM entries
     that AIRSS puts in the file. Values in the TITL entry that AIRSS could not get end up as 0.
     If the TITL entry is malformed, empty, or missing then attempting to construct this class
@@ -388,7 +388,7 @@ class AirssProvider(ResProvider):
 
     The :attr:`parse_rems` attribute controls whether functions that fail to retrieve information
     from the REM entries should return ``None``. If this is set to ``"strict"``,
-    then a :class:`ParseError` may be raised, but the return value will not be ``None``.
+    then a ParseError may be raised, but the return value will not be ``None``.
     If it is set to ``"gentle"``, then ``None`` will be returned instead of raising an
     exception. This setting applies to all methods of this class that are typed to return
     an Optional type. Default is ``"gentle"``.

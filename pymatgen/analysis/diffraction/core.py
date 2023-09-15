@@ -92,7 +92,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 with hkl indices. Default is 'compact', i.e. show short
                 version (oriented vertically), e.g. 100. If 'full', show
                 long version, e.g. (1, 0, 0). If None, do not show anything.
-            ax: matplotlib :class:`Axes` or None if a new figure should be
+            ax: matplotlib Axes or None if a new figure should be
                 created.
             with_labels: True to add xlabels and ylabels to the plot.
             fontsize: (int) fontsize for peak labels.
