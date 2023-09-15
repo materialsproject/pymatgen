@@ -21,6 +21,8 @@ import logging
 import warnings
 from typing import TYPE_CHECKING
 
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objs as go
 from scipy.spatial import ConvexHull
@@ -267,8 +269,6 @@ class WulffShape:
             tuple: color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
             e_surf_on_wulff_list
         """
-        import matplotlib as mpl
-        import matplotlib.pyplot as plt
 
         color_list = [off_color] * len(self.hkl_list)
         color_proxy_on_wulff = []
@@ -380,8 +380,6 @@ class WulffShape:
         Return:
             (matplotlib.pyplot)
         """
-        import matplotlib as mpl
-        import matplotlib.pyplot as plt
         from mpl_toolkits.mplot3d import Axes3D, art3d
 
         colors = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors or {})

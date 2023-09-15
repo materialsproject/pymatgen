@@ -22,7 +22,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
-from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig_plt, pretty_plot
+from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig, pretty_plot
 
 try:
     from mayavi import mlab
@@ -873,23 +873,24 @@ class BSPlotter:
         return ax
 
     def plot_brillouin(self):
-        """Plot the Brillouin zone."""
-        # get labels and lines
+        """Plot the Brillouin zone.
+
+        Returns:
+            plt.Figure: A matplotlib figure object with the Brillouin zone.
+        """
+        # make labels and lines
         labels = {}
         for k in self._bs[0].kpoints:
             if k.label:
                 labels[k.label] = k.frac_coords
 
         lines = []
-        for b in self._bs[0].branches:
-            lines.append(
-                [
-                    self._bs[0].kpoints[b["start_index"]].frac_coords,
-                    self._bs[0].kpoints[b["end_index"]].frac_coords,
-                ]
-            )
+        for branch in self._bs[0].branches:
+            kpts = self._bs[0].kpoints
+            start_idx, end_idx = branch["start_index"], branch["end_index"]
+            lines.append([kpts[start_idx].frac_coords, kpts[end_idx].frac_coords])
 
-        plot_brillouin_zone(self._bs[0].lattice_rec, lines=lines, labels=labels)
+        return plot_brillouin_zone(self._bs[0].lattice_rec, lines=lines, labels=labels)
 
 
 class BSPlotterProjected(BSPlotter):
@@ -4048,15 +4049,12 @@ def plot_wigner_seitz(lattice, ax: plt.Axes = None, **kwargs):
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
-    if "color" not in kwargs:
-        kwargs["color"] = "k"
-    if "linewidth" not in kwargs:
-        kwargs["linewidth"] = 1
+    kwargs.setdefault("color", "k")
+    kwargs.setdefault("linewidth", 1)
 
     bz = lattice.get_wigner_seitz_cell()
-    ax, fig, plt = get_ax3d_fig_plt(ax)
     for iface in range(len(bz)):  # pylint: disable=C0200
         for line in itertools.combinations(bz[iface], 2):
             for jface in range(len(bz)):
@@ -4082,7 +4080,7 @@ def plot_lattice_vectors(lattice, ax: plt.Axes = None, **kwargs):
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
     if "color" not in kwargs:
         kwargs["color"] = "g"
@@ -4116,7 +4114,7 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax: plt.Axes = Non
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
     if "color" not in kwargs:
         kwargs["color"] = "r"
@@ -4152,7 +4150,7 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes =
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
     if "color" not in kwargs:
         kwargs["color"] = "b"
@@ -4226,7 +4224,7 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
     if "color" not in kwargs:
         kwargs["color"] = "b"
@@ -4277,7 +4275,7 @@ def plot_brillouin_zone(
     labels=None,
     kpoints=None,
     fold=False,
-    coords_are_cartesian=False,
+    coords_are_cartesian: bool = False,
     ax: plt.Axes = None,
     **kwargs,
 ):
@@ -4399,7 +4397,7 @@ def plot_ellipsoid(
             [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation) * rescale + center
 
     # add the ellipsoid to the current axes
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
     ax.plot_wireframe(x, y, z, **kwargs)
 
     if arrows:
