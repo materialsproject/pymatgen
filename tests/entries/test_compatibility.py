@@ -665,7 +665,7 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
 
         assert self.compat.process_entry(self.entry_sulfide).correction == approx(-0.503)
 
-    def test_oxdiation_by_electronegativity(self):
+    def test_oxidation_by_electronegativity(self):
         # make sure anion corrections are only applied when the element has
         # a negative oxidation state (e.g., correct CaSi but not SiO2 for Si)
         # as determined by electronegativity (i.e., the data.oxidation_states key is absent)
@@ -726,7 +726,7 @@ class TestMaterialsProjectCompatibility2020(unittest.TestCase):
         # SiO2; only corrections should be oxide
         assert self.compat.process_entry(entry2).correction == approx(-0.687 * 4)
 
-    def test_oxdiation(self):
+    def test_oxidation(self):
         # make sure anion corrections are only applied when the element has
         # a negative oxidation state (e.g., correct CaSi but not SiO2 for Si)
         # as determined by the data.oxidation_states key
