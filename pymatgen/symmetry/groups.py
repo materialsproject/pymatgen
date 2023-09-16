@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 
 
 SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
+CrystalSystem = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "tetragonal", "triclinic", "trigonal"]
 
 
 class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
@@ -414,9 +415,7 @@ class SpaceGroup(SymmetryGroup):
         return True
 
     @property
-    def crystal_system(
-        self,
-    ) -> Literal["cubic", "hexagonal", "trigonal", "tetragonal", "orthorhombic", "monoclinic", "triclinic"]:
+    def crystal_system(self) -> CrystalSystem:
         """
         Returns:
             str: Crystal system of the space group, e.g., cubic, hexagonal, etc.

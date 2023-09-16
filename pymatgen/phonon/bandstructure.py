@@ -582,7 +582,8 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         Args:
             dct: Dict representation.
 
-        Returns: PhononBandStructureSymmLine
+        Returns:
+            PhononBandStructureSymmLine
         """
         lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
         eigendisplacements = (

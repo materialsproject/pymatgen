@@ -1656,7 +1656,8 @@ class Lattice(MSONable):
 
     def get_recp_symmetry_operation(self, symprec: float = 0.01) -> list:
         """Find the symmetric operations of the reciprocal lattice,
-        to be used for hkl transformations
+        to be used for hkl transformations.
+
         Args:
             symprec: default is 0.001.
         """
@@ -1865,8 +1866,8 @@ def _compute_cube_index(coords: np.ndarray, global_min: float, radius: float) ->
         global_min: (float) lower boundary of coordinates
         radius: (float) cutoff radius.
 
-    Returns: (nx3 array) int indices
-
+    Returns:
+        np.ndarray: nx3 array int indices
     """
     return np.array(np.floor((coords - global_min) / radius), dtype=int)
 
@@ -1879,8 +1880,8 @@ def _one_to_three(label1d: np.ndarray, ny: int, nz: int) -> np.ndarray:
         ny: (int) number of cells in y direction
         nz: (int) number of cells in z direction
 
-    Returns: (nx3) int array of index
-
+    Returns:
+        np.ndarray: nx3 array int indices
     """
     last = np.mod(label1d, nz)
     second = np.mod((label1d - last) / nz, ny)

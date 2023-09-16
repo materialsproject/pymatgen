@@ -598,6 +598,7 @@ class Charge:
     def get_structure_with_charges(self, structure_filename):
         """
         Get a Structure with Mulliken and Loewdin charges as site properties
+
         Args:
             structure_filename: filename of POSCAR
 
@@ -1136,6 +1137,7 @@ class Bandoverlaps:
     def _read(self, contents: list, spin_numbers: list):
         """
         Will read in all contents of the file
+
         Args:
             contents: list of strings
             spin_numbers: list of spin numbers depending on `Lobster` version.
@@ -1198,7 +1200,7 @@ class Bandoverlaps:
         Args:
             number_occ_bands_spin_up (int): number of occupied bands of spin up
             number_occ_bands_spin_down (int): number of occupied bands of spin down
-            spin_polarized (bool):  If True, then it was a spin polarized calculation
+            spin_polarized (bool): If True, then it was a spin polarized calculation
             limit_deviation (float): limit of the maxDeviation
 
         Returns:
@@ -1274,6 +1276,7 @@ class Grosspop:
     def get_structure_with_total_grosspop(self, structure_filename: str) -> Structure:
         """
         Get a Structure with Mulliken and Loewdin total grosspopulations as site properties
+
         Args:
             structure_filename (str): filename of POSCAR
 
@@ -1405,7 +1408,8 @@ class Wavefunction:
         """
         Will return a VolumetricData object including the real part of the wave function.
 
-        Returns: VolumetricData object
+        Returns:
+            VolumetricData
         """
         if not hasattr(self, "volumetricdata_real"):
             self.set_volumetric_data(self.grid, self.structure)
@@ -1415,7 +1419,8 @@ class Wavefunction:
         """
         Will return a VolumetricData object including the imaginary part of the wave function.
 
-        Returns: VolumetricData object
+        Returns:
+            VolumetricData
         """
         if not hasattr(self, "volumetricdata_imaginary"):
             self.set_volumetric_data(self.grid, self.structure)
@@ -1425,7 +1430,8 @@ class Wavefunction:
         """
         Will return a VolumetricData object including the imaginary part of the wave function.
 
-        Returns: VolumetricData object
+        Returns:
+            VolumetricData
         """
         if not hasattr(self, "volumetricdata_density"):
             self.set_volumetric_data(self.grid, self.structure)
@@ -1532,6 +1538,7 @@ class SitePotential:
     def get_structure_with_site_potentials(self, structure_filename):
         """
         Get a Structure with Mulliken and Loewdin charges as site properties
+
         Args:
             structure_filename: filename of POSCAR
 

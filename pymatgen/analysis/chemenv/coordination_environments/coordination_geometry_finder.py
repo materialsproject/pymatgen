@@ -154,7 +154,7 @@ class AbstractGeometry:
         String representation of the AbstractGeometry
 
         Returns:
-            String representation of the AbstractGeometry.
+            str: String representation of the AbstractGeometry.
         """
         outs = [f"\nAbstract Geometry with {len(self.coords)} points :"]
         for pp in self.coords:
@@ -468,6 +468,7 @@ class LocalGeometryFinder:
         """
         Returns the pymatgen Structure that has been setup for the identification of geometries (the initial one
         might have been refined/symmetrized using the SpaceGroupAnalyzer).
+
         Returns:
             The pymatgen Structure that has been setup for the identification of geometries (the initial one
         might have been refined/symmetrized using the SpaceGroupAnalyzer).
@@ -761,8 +762,7 @@ class LocalGeometryFinder:
                         optimization=optimization,
                     )
                     t_nbset2 = time.process_time()
-                    if cn not in nb_sets_info:
-                        nb_sets_info[cn] = {}
+                    nb_sets_info.setdefault(cn, {})
                     nb_sets_info[cn][inb_set] = {"time": t_nbset2 - t_nbset1}
                     if get_from_hints:
                         for cg_symbol, cg_dict in ce:
@@ -1120,6 +1120,7 @@ class LocalGeometryFinder:
     def get_coordination_symmetry_measures(self, only_minimum=True, all_csms=True, optimization=None):
         """
         Returns the continuous symmetry measures of the current local geometry in a dictionary.
+
         Returns:
             the continuous symmetry measures of the current local geometry in a dictionary.
         """
@@ -1249,6 +1250,7 @@ class LocalGeometryFinder:
     ):
         """
         Returns the continuous symmetry measures of the current local geometry in a dictionary.
+
         Returns:
             the continuous symmetry measures of the current local geometry in a dictionary.
         """

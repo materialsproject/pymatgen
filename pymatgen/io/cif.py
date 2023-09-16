@@ -180,6 +180,7 @@ class CifBlock:
         Reads CifBlock from string.
 
         :param string: String representation.
+
         Returns:
             CifBlock
         """
@@ -250,6 +251,7 @@ class CifFile:
         Reads CifFile from a string.
 
         :param string: String representation.
+
         Returns:
             CifFile
         """
@@ -1202,6 +1204,7 @@ class CifParser:
         """
         Get BibTeX reference from CIF file.
         :param data:
+
         Returns:
             BibTeX string.
         """

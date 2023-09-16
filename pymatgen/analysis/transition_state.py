@@ -84,7 +84,7 @@ class NEBAnalysis(MSONable):
     def from_outcars(cls, outcars, structures, **kwargs):
         """
         Initializes an NEBAnalysis from Outcar and Structure objects. Use
-        the static constructors, e.g., :class:`from_dir` instead if you
+        the static constructors, e.g., from_dir instead if you
         prefer to have these automatically generated from a directory of NEB
         calculations.
 

@@ -625,7 +625,7 @@ class GulpIO:
 
 
 class GulpCaller:
-    """Class to run gulp from commandline."""
+    """Class to run gulp from command line."""
 
     def __init__(self, cmd="gulp"):
         """Initialize with the executable if not in the standard path.

@@ -22,7 +22,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
-from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig_plt, pretty_plot
+from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig, pretty_plot
 
 try:
     from mayavi import mlab
@@ -873,23 +873,24 @@ class BSPlotter:
         return ax
 
     def plot_brillouin(self):
-        """Plot the Brillouin zone."""
-        # get labels and lines
+        """Plot the Brillouin zone.
+
+        Returns:
+            plt.Figure: A matplotlib figure object with the Brillouin zone.
+        """
+        # make labels and lines
         labels = {}
         for k in self._bs[0].kpoints:
             if k.label:
                 labels[k.label] = k.frac_coords
 
         lines = []
-        for b in self._bs[0].branches:
-            lines.append(
-                [
-                    self._bs[0].kpoints[b["start_index"]].frac_coords,
-                    self._bs[0].kpoints[b["end_index"]].frac_coords,
-                ]
-            )
+        for branch in self._bs[0].branches:
+            kpts = self._bs[0].kpoints
+            start_idx, end_idx = branch["start_index"], branch["end_index"]
+            lines.append([kpts[start_idx].frac_coords, kpts[end_idx].frac_coords])
 
-        plot_brillouin_zone(self._bs[0].lattice_rec, lines=lines, labels=labels)
+        return plot_brillouin_zone(self._bs[0].lattice_rec, lines=lines, labels=labels)
 
 
 class BSPlotterProjected(BSPlotter):
@@ -2509,7 +2510,8 @@ class BSDOSPlotter:
     def _rgbline(ax, k, e, red, green, blue, alpha=1, linestyles="solid"):
         """An RGB colored line for plotting.
         creation of segments based on:
-        http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb
+        http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb.
+
         Args:
             ax: matplotlib axis
             k: x-axis data (k-points)
@@ -2811,7 +2813,7 @@ class BoltztrapPlotter:
                 using the average of the three diagonal components of the
                 seebeck tensor. 'tensor' returns the seebeck effective mass
                 respect to the three diagonal components of the seebeck tensor.
-            temps:  list of temperatures of calculated seebeck.
+            temps: list of temperatures of calculated seebeck.
             Lambda: fitting parameter used to model the scattering (0.5 means
                 constant relaxation time).
 
@@ -2868,12 +2870,12 @@ class BoltztrapPlotter:
 
         Args:
             output: 'average' returns the complexity factor calculated using the average
-                    of the three diagonal components of the seebeck and conductivity tensors.
-                    'tensor' returns the complexity factor respect to the three
-                    diagonal components of seebeck and conductivity tensors.
-            temps:  list of temperatures of calculated seebeck and conductivity.
+                of the three diagonal components of the seebeck and conductivity tensors.
+                'tensor' returns the complexity factor respect to the three
+                diagonal components of seebeck and conductivity tensors.
+            temps: list of temperatures of calculated seebeck and conductivity.
             Lambda: fitting parameter used to model the scattering (0.5 means constant
-                    relaxation time).
+                relaxation time).
 
         Returns:
             a matplotlib object
@@ -4041,22 +4043,19 @@ def plot_wigner_seitz(lattice, ax: plt.Axes = None, **kwargs):
 
     Args:
         lattice: Lattice object
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to black
             and linewidth to 1.
 
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
-    if "color" not in kwargs:
-        kwargs["color"] = "k"
-    if "linewidth" not in kwargs:
-        kwargs["linewidth"] = 1
+    kwargs.setdefault("color", "k")
+    kwargs.setdefault("linewidth", 1)
 
     bz = lattice.get_wigner_seitz_cell()
-    ax, fig, plt = get_ax3d_fig_plt(ax)
     for iface in range(len(bz)):  # pylint: disable=C0200
         for line in itertools.combinations(bz[iface], 2):
             for jface in range(len(bz)):
@@ -4075,14 +4074,14 @@ def plot_lattice_vectors(lattice, ax: plt.Axes = None, **kwargs):
 
     Args:
         lattice: Lattice object
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to green
             and linewidth to 3.
 
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
     if "color" not in kwargs:
         kwargs["color"] = "g"
@@ -4109,14 +4108,14 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax: plt.Axes = Non
         coords_are_cartesian: Set to True if you are providing
             coordinates in Cartesian coordinates. Defaults to False.
             Requires lattice if False.
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'plot'. Color defaults to red
             and linewidth to 3.
 
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
     if "color" not in kwargs:
         kwargs["color"] = "r"
@@ -4145,14 +4144,14 @@ def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes =
         coords_are_cartesian: Set to True if you are providing.
             coordinates in Cartesian coordinates. Defaults to False.
             Requires lattice if False.
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'text'. Color defaults to blue
             and size to 25.
 
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
     if "color" not in kwargs:
         kwargs["color"] = "b"
@@ -4220,13 +4219,13 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
             Requires lattice if False.
         fold: whether the points should be folded inside the first Brillouin Zone.
             Defaults to False. Requires lattice if True.
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: kwargs passed to the matplotlib function 'scatter'. Color defaults to blue
 
     Returns:
         matplotlib figure and matplotlib ax
     """
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
 
     if "color" not in kwargs:
         kwargs["color"] = "b"
@@ -4253,7 +4252,7 @@ def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs):
 
     Args:
         kpath (HighSymmKpath): a HighSymmKPath object
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         **kwargs: provided by add_fig_kwargs decorator
 
     Returns:
@@ -4277,7 +4276,7 @@ def plot_brillouin_zone(
     labels=None,
     kpoints=None,
     fold=False,
-    coords_are_cartesian=False,
+    coords_are_cartesian: bool = False,
     ax: plt.Axes = None,
     **kwargs,
 ):
@@ -4293,7 +4292,7 @@ def plot_brillouin_zone(
             Defaults to False. Requires lattice if True.
         coords_are_cartesian: Set to True if you are providing
             coordinates in Cartesian coordinates. Defaults to False.
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         kwargs: provided by add_fig_kwargs decorator
 
     Returns:
@@ -4353,7 +4352,7 @@ def plot_ellipsoid(
         center: the center of the ellipsoid in reciprocal coords (Default)
         lattice: Lattice object of the Brillouin zone
         rescale: factor for size scaling of the ellipsoid
-        ax: matplotlib :class:`Axes` or None if a new figure should be created.
+        ax: matplotlib Axes or None if a new figure should be created.
         coords_are_cartesian: Set to True if you are providing a center in
             Cartesian coordinates. Defaults to False.
         arrows: whether to plot arrows for the principal axes of the ellipsoid. Defaults to False.
@@ -4399,7 +4398,7 @@ def plot_ellipsoid(
             [x[i, j], y[i, j], z[i, j]] = np.dot([x[i, j], y[i, j], z[i, j]], rotation) * rescale + center
 
     # add the ellipsoid to the current axes
-    ax, fig, plt = get_ax3d_fig_plt(ax)
+    ax, fig = get_ax3d_fig(ax)
     ax.plot_wireframe(x, y, z, **kwargs)
 
     if arrows:

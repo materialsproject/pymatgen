@@ -270,7 +270,7 @@ class VolumetricData(MSONable):
         VolumetricData.structure ->
             f["Z"]: Sequence of atomic numbers
             f["fcoords"]: Fractional coords
-            f["lattice"]: Lattice in the pymatgen.core.lattice.Lattice matrix
+            f["lattice"]: Lattice in the pymatgen.core.Lattice matrix
                 format
             f.attrs["structure_json"]: String of json representation
 

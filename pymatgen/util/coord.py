@@ -413,9 +413,12 @@ class Simplex(MSONable):
         return (self.bary_coords(point) >= -tolerance).all()
 
     def line_intersection(self, point1, point2, tolerance=1e-8):
-        """Computes the intersection points of a line with a simplex
+        """Computes the intersection points of a line with a simplex.
+
         Args:
-            point1, point2 ([float]): Points that determine the line.
+            point1 (Sequence[float]): 1st point to determine the line.
+            point2 (Sequence[float]): 2nd point to determine the line.
+            tolerance (float): Tolerance for checking if an intersection is in the simplex. Defaults to 1e-8.
 
         Returns:
             points where the line intersects the simplex (0, 1, or 2).

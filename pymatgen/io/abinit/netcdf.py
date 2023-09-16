@@ -260,7 +260,7 @@ class ETSF_Reader(NetcdfReader):
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):
-        """Read ixc from an Abinit file. Return :class:`XcFunc` object."""
+        """Read ixc from an Abinit file. Return XcFunc object."""
         ixc = int(self.read_value("ixc"))
         return XcFunc.from_abinit_ixc(ixc)
 
@@ -268,7 +268,7 @@ class ETSF_Reader(NetcdfReader):
         """
         Read the variables associated to the Abinit header.
 
-        Return :class:`AbinitHeader`
+        Return AbinitHeader
         """
         dct = {}
         for hvar in _HDR_VARIABLES.values():

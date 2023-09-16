@@ -13,7 +13,7 @@ from monty.json import jsanitize
 from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.gruneisen import GruneisenPhononBandStructureSymmLine
-from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt, pretty_plot
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 logger = logging.getLogger(__name__)
 
@@ -650,7 +650,7 @@ class ThermoPlotter:
             temperatures: a list of temperatures
             factor: a multiplicative factor applied to the thermodynamic property calculated. Used to change
                 the units.
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
             ylabel: label for the y axis
             label: label of the plot
             ylim: tuple specifying the y-axis limits.
@@ -659,7 +659,7 @@ class ThermoPlotter:
         Returns:
             plt.figure: matplotlib figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax)
+        ax, fig = get_ax_fig(ax)
 
         values = []
 
@@ -823,20 +823,23 @@ class GruneisenPlotter:
     """Class to plot Gruneisenparameter Object."""
 
     def __init__(self, gruneisen):
-        """Class to plot information from Gruneisenparameter Object
+        """Class to plot information from Gruneisenparameter Object.
+
         Args:
             gruneisen: GruneisenParameter Object.
         """
         self._gruneisen = gruneisen
 
     def get_plot(self, marker="o", markersize=None, units="thz"):
-        """Will produce a plot
+        """Will produce a plot.
+
         Args:
             marker: marker for the depiction
             markersize: size of the marker
             units: unit for the plots, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
 
-        Returns: plot
+        Returns:
+            plt.Axes: matplotlib axes object
         """
         u = freq_units(units)
 
@@ -849,29 +852,26 @@ class GruneisenPlotter:
         ax.set_ylabel(r"$\mathrm{Grüneisen\ parameter}$")
 
         n = len(ys) - 1
-        for i, (x, y) in enumerate(zip(xs, ys)):
-            color = (1.0 / n * i, 0, 1.0 / n * (n - i))
+        for idx, (xi, yi) in enumerate(zip(xs, ys)):
+            color = (1.0 / n * idx, 0, 1.0 / n * (n - idx))
 
-            if markersize:
-                ax.plot(x, y, marker, color=color, markersize=markersize)
-            else:
-                ax.plot(x, y, marker, color=color)
+            ax.plot(xi, yi, marker, color=color, markersize=markersize)
 
         plt.tight_layout()
         return ax
 
     def show(self, units="thz"):
-        """Will show the plot
+        """Will show the plot.
+
         Args:
             units: units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
-
-        Returns: plot
         """
         self.get_plot(units=units)
         plt.show()
 
     def save_plot(self, filename, img_format="pdf", units="thz"):
-        """Will save the plot to a file
+        """Will save the plot to a file.
+
         Args:
             filename: name of the filename
             img_format: format of the saved plot

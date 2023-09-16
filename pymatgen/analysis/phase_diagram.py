@@ -51,7 +51,7 @@ class PDEntry(Entry):
     Attributes:
         composition (Composition): The composition associated with the PDEntry.
         energy (float): The energy associated with the entry.
-        name (str):  A name for the entry. This is the string shown in the phase diagrams.
+        name (str): A name for the entry. This is the string shown in the phase diagrams.
             By default, this is the reduced formula for the composition, but can be
             set to some other string for display purposes.
         attribute (MSONable): A arbitrary attribute. Can be used to specify that the
@@ -2978,8 +2978,7 @@ class PDPlotter:
         """
 
         def get_marker_props(coords, entries):
-            """
-            Method for getting marker locations, hovertext, and error bars
+            """Method for getting marker locations, hovertext, and error bars
             from pd_plot_data.
             """
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []

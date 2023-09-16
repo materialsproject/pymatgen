@@ -83,7 +83,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 ComputedEntries.
             parameters (list): Input parameters to include. It has to be one of
                 the properties supported by the Vasprun object. See
-                :class:`pymatgen.io.vasp.Vasprun`. If parameters is None,
+                pymatgen.io.vasp.Vasprun. If parameters is None,
                 a default set of parameters that are necessary for typical
                 post-processing will be set.
             data (list): Output data to include. Has to be one of the properties
@@ -312,7 +312,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
                 ComputedEntries.
             parameters (list): Input parameters to include. It has to be one of
                 the properties supported by the GaussianOutput object. See
-                :class:`pymatgen.io.gaussianio GaussianOutput`. The parameters
+                pymatgen.io.gaussianio GaussianOutput. The parameters
                 have to be one of python's primitive types, i.e., list, dict of
                 strings and integers. If parameters is None, a default set of
                 parameters will be set.

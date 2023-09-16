@@ -2245,7 +2245,7 @@ class MVLSlabSet(DictSet):
         :param auto_dipole:
         :param set_mix:
         :param sort_structure:
-        :param kwargs: Other kwargs supported by :class:`DictSet`.
+        :param kwargs: Other kwargs supported by DictSet.
         """
         super().__init__(structure, MPRelaxSet.CONFIG, sort_structure=sort_structure, **kwargs)
 
@@ -2322,6 +2322,7 @@ class MVLSlabSet(DictSet):
     def as_dict(self, verbosity=2):
         """
         :param verbosity: Verbosity of dict. E.g., whether to include Structure.
+
         Returns:
             MSONable dict
         """
@@ -2352,7 +2353,7 @@ class MVLGBSet(DictSet):
                 by default. Note that it does *not* override user_incar_settings,
                 which can be set by the user to be anything desired.
             **kwargs:
-                Other kwargs supported by :class:`MPRelaxSet`.
+                Other kwargs supported by MPRelaxSet.
         """
         super().__init__(structure, MPRelaxSet.CONFIG, **kwargs)
         self.k_product = k_product
@@ -2436,7 +2437,7 @@ class MVLRelax52Set(DictSet):
         Args:
             structure (Structure): input structure.
             user_potcar_functional (str): choose from "PBE_52" and "PBE_54".
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
         kwargs.setdefault("user_potcar_functional", "PBE_52")
 
@@ -2456,7 +2457,7 @@ class MITNEBSet(DictSet):
         Args:
             structures: List of Structure objects.
             unset_encut (bool): Whether to unset ENCUT.
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
         if len(structures) < 3:
             raise ValueError("You need at least 3 structures for an NEB.")
@@ -2577,7 +2578,7 @@ class MITMDSet(DictSet):
                 parameter. Defaults to 2fs.
             spin_polarized (bool): Whether to do spin polarized calculations.
                 The ISPIN parameter. Defaults to False.
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
         # MD default settings
         defaults = {
@@ -2664,7 +2665,7 @@ class MPMDSet(DictSet):
                 parameter. Defaults to 2fs.
             spin_polarized (bool): Whether to do spin polarized calculations.
                 The ISPIN parameter. Defaults to False.
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
         # MD default settings
         defaults = {
@@ -2754,7 +2755,7 @@ class MVLNPTMDSet(MITMDSet):
                 parameter. Defaults to 2fs.
             spin_polarized (bool): Whether to do spin polarized calculations.
                 The ISPIN parameter. Defaults to False.
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
         super().__init__(structure, start_temp, end_temp, nsteps, time_step, spin_polarized, **kwargs)
 
@@ -2815,7 +2816,7 @@ class MVLScanRelaxSet(DictSet):
             vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
                 van der Waals density functional by combing the SCAN functional
                 with the rVV10 non-local correlation functional.
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
         # choose PBE_52 unless the user specifies something else
         kwargs.setdefault("user_potcar_functional", "PBE_52")
@@ -2869,7 +2870,7 @@ class LobsterSet(DictSet):
                 in pymatgen.io.lobster.lobster_basis
             user_potcar_settings (dict): dict including potcar settings for all elements in structure,
                 e.g. {"Fe": "Fe_pv", "O": "O"}; if not supplied, a standard basis is used.
-            **kwargs: Other kwargs supported by :class:`DictSet`.
+            **kwargs: Other kwargs supported by DictSet.
         """
 
         warnings.warn("Make sure that all parameters are okay! This is a brand new implementation.")
@@ -3340,6 +3341,7 @@ class MPAbsorptionSet(MPRelaxSet):
     def from_prev_calc(cls, prev_calc_dir, mode, **kwargs):
         """
         Generate a set of VASP input files for absorption calculation
+
         Args:
             prev_calc_dir (str): The directory contains the outputs(
                 vasprun.xml of previous vasp run.

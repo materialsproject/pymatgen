@@ -49,7 +49,8 @@ class CovalentBond:
         return self.site1.distance(self.site2)
 
     def get_bond_order(self, tol: float = 0.2, default_bl: float | None = None) -> float:
-        """The bond order according the distance between the two sites
+        """The bond order according the distance between the two sites.
+
         Args:
             tol (float): Relative tolerance to test.
                 (1 + tol) * the longest bond distance is considered

@@ -270,6 +270,7 @@ class OccupancyComparator(AbstractComparator):
     def get_hash(self, composition):
         """
         :param composition: Composition.
+
         Returns:
             1. Difficult to define sensible hash
         """

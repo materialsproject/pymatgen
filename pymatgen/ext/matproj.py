@@ -302,7 +302,8 @@ class _MPResterLegacy:
         where "-DD" may be optional. An additional numerical suffix
         might be added if multiple releases happen on the same day.
 
-        Returns: database version as a string
+        Returns:
+            str: database version
         """
         dct = self._make_request("/api_check")
         return dct["version"]["db"]

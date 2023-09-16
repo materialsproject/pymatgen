@@ -51,7 +51,7 @@ class EwaldElectrostaticModel(EnergyModel):
     def __init__(self, real_space_cut=None, recip_space_cut=None, eta=None, acc_factor=8.0):
         """
         Initializes the model. Args have the same definitions as in
-        :class:`pymatgen.analysis.ewald.EwaldSummation`.
+        pymatgen.analysis.ewald.EwaldSummation.
 
         Args:
             real_space_cut (float): Real space cutoff radius dictating how
@@ -104,11 +104,10 @@ class EwaldElectrostaticModel(EnergyModel):
 
 class SymmetryModel(EnergyModel):
     """
-    Sets the energy to the -ve of the spacegroup number. Higher symmetry =>
+    Sets the energy to the negative of the spacegroup number. Higher symmetry =>
     lower "energy".
 
-    Args have same meaning as in
-    :class:`pymatgen.symmetry.finder.SpacegroupAnalyzer`.
+    Args have same meaning as in pymatgen.symmetry.SpacegroupAnalyzer.
     """
 
     def __init__(self, symprec: float = 0.1, angle_tolerance=5):

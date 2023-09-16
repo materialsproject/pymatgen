@@ -68,8 +68,7 @@ def make_doc(ctx):
 
 @task
 def make_dash(ctx):
-    """
-    Make customized doc version for Dash.
+    """Make customized doc version for Dash.
 
     :param ctx:
     """

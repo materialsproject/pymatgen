@@ -38,7 +38,7 @@ class ExcitingInput(MSONable):
     def __init__(self, structure: Structure, title=None, lockxyz=None):
         """
         Args:
-            structure (Structure):  Structure object.
+            structure (Structure): Structure object.
             title (str): Optional title for exciting input. Defaults to unit
                 cell formula of structure. Defaults to None.
             lockxyz (Nx3 array): bool values for selective dynamics,

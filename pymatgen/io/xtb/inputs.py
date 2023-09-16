@@ -73,9 +73,8 @@ class CRESTInput(MSONable):
         :param reference_fnm:
             Name of file containing reference structure in same directory
         :param constraints:
-           Dictionary of common editable parameters for .constrains file.
-            {"atoms": [List of 1-indexed atoms to fix], "force_constant":
-            float]
+            Dictionary of common editable parameters for .constrains file.
+            {"atoms": [List of 1-indexed atoms to fix], "force_constant": float]
 
         Returns:
             str: for .constrains file

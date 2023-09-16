@@ -378,8 +378,8 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
         structure: (structure)
         el_radius_updates: (dict) symbol->float to update atom_ic radii
 
-    Returns: (dict) - (Element1, Element2) -> float. The two elements are
-        ordered by Z.
+    Returns:
+        dict[(Element1, Element2)], float]: The two elements are ordered by Z.
     """
     # jmc = JMolCoordFinder(el_radius_updates)
     jmnn = JmolNN(el_radius_updates=el_radius_updates)
