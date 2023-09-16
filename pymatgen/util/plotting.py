@@ -570,11 +570,9 @@ def get_ax3d_fig(ax: plt.Axes = None, **kwargs) -> tuple[Axes3D, plt.Figure]:
     Returns:
         tuple[Axes3D, Figure]: matplotlib Axes3D and corresponding figure objects
     """
-    from mpl_toolkits.mplot3d.axes3d import Axes3D
-
     if ax is None:
         fig = plt.figure(**kwargs)
-        ax = Axes3D(fig)
+        ax = fig.add_subplot(projection="3d")
     else:
         fig = plt.gcf()
 
