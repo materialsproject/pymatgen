@@ -566,8 +566,10 @@ class TestComposition(PymatgenTest):
             "O": -2,
         }
 
-        for elem in ("O", "N", "H", "F", "Cl", "Br", "I"):
-            assert Composition(f"{elem}2").oxi_state_guesses() == ({elem: 0},)
+        # https://github.com/materialsproject/pymatgen/issues/3324
+        for anion in "O H N F Cl Br I Se Si Sb Te".split():
+            # always expect 0 for oxi_state_guesses of diatomic molecules #3332
+            assert Composition(f"{anion}2").oxi_state_guesses() == ({anion: 0},)
 
         # target charge of 1
         assert Composition("V2O6").oxi_state_guesses(oxi_states_override={"V": [2, 3, 4, 5]}, target_charge=-2) == (
