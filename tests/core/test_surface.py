@@ -149,11 +149,11 @@ class TestSlab(PymatgenTest):
         # test if surfaces are equivalent by using
         # Laue symmetry and surface site equivalence
 
-        for bool in [True, False]:
+        for boolean in [True, False]:
             # We will also set the slab to be centered and
             # off centered in order to test the center of mass
-            slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, center_slab=bool)
-            slab = slabgen.get_slabs()[0]
+            slab_gen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, center_slab=boolean)
+            slab = slab_gen.get_slabs()[0]
             surf_sites_dict = slab.get_surface_sites()
             assert len(surf_sites_dict["top"]) == len(surf_sites_dict["bottom"])
             total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict)
@@ -163,8 +163,8 @@ class TestSlab(PymatgenTest):
             # Test if the ratio of surface sites per area is
             # constant, ie are the surface energies the same
             r1 = total_surf_sites / (2 * slab.surface_area)
-            slabgen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, primitive=False)
-            slab = slabgen.get_slabs()[0]
+            slab_gen = SlabGenerator(self.agfcc, (3, 1, 0), 10, 10, primitive=False)
+            slab = slab_gen.get_slabs()[0]
             surf_sites_dict = slab.get_surface_sites()
             total_surf_sites = sum(len(surf_sites_dict[key]) for key in surf_sites_dict)
             r2 = total_surf_sites / (2 * slab.surface_area)
@@ -474,13 +474,13 @@ class TestSlabGenerator(PymatgenTest):
 
         # Test whether using units of hkl planes instead of Angstroms for
         # min_slab_size and min_vac_size will give us the same number of atoms
-        natoms = []
+        n_atoms = []
         for a in [1, 1.4, 2.5, 3.6]:
             struct = Structure.from_spacegroup("Im-3m", Lattice.cubic(a), ["Fe"], [[0, 0, 0]])
-            slabgen = SlabGenerator(struct, (1, 1, 1), 10, 10, in_unit_planes=True, max_normal_search=2)
-            natoms.append(len(slabgen.get_slab()))
-        n = natoms[0]
-        for i in natoms:
+            slab_gen = SlabGenerator(struct, (1, 1, 1), 10, 10, in_unit_planes=True, max_normal_search=2)
+            n_atoms.append(len(slab_gen.get_slab()))
+        n = n_atoms[0]
+        for i in n_atoms:
             assert n == i
 
     def test_triclinic_TeI(self):
@@ -492,14 +492,14 @@ class TestSlabGenerator(PymatgenTest):
         numb_slabs = {(0, 0, 1): 5, (0, 1, 0): 3, (1, 0, 0): 7}
         TeI = Structure.from_file(f"{TEST_FILES_DIR}/surface_tests/icsd_TeI.cif", primitive=False)
         for k, v in numb_slabs.items():
-            trclnc_TeI = SlabGenerator(TeI, k, 10, 10)
-            TeI_slabs = trclnc_TeI.get_slabs()
+            triclinic_TeI = SlabGenerator(TeI, k, 10, 10)
+            TeI_slabs = triclinic_TeI.get_slabs()
             assert v == len(TeI_slabs)
 
     def test_get_orthogonal_c_slab(self):
         TeI = Structure.from_file(f"{TEST_FILES_DIR}/surface_tests/icsd_TeI.cif", primitive=False)
-        trclnc_TeI = SlabGenerator(TeI, (0, 0, 1), 10, 10)
-        TeI_slabs = trclnc_TeI.get_slabs()
+        triclinic_TeI = SlabGenerator(TeI, (0, 0, 1), 10, 10)
+        TeI_slabs = triclinic_TeI.get_slabs()
         slab = TeI_slabs[0]
         norm_slab = slab.get_orthogonal_c_slab()
         assert norm_slab.lattice.angles[0] == approx(90)
@@ -507,8 +507,8 @@ class TestSlabGenerator(PymatgenTest):
 
     def test_get_orthogonal_c_slab_site_props(self):
         TeI = Structure.from_file(f"{TEST_FILES_DIR}/surface_tests/icsd_TeI.cif", primitive=False)
-        trclnc_TeI = SlabGenerator(TeI, (0, 0, 1), 10, 10)
-        TeI_slabs = trclnc_TeI.get_slabs()
+        triclinic_TeI = SlabGenerator(TeI, (0, 0, 1), 10, 10)
+        TeI_slabs = triclinic_TeI.get_slabs()
         slab = TeI_slabs[0]
         # Add site property to slab
         sd_list = [[True, True, True] for site in slab.sites]
@@ -526,9 +526,9 @@ class TestSlabGenerator(PymatgenTest):
         # The uneven distribution of ions on the (111) facets of Halite type
         # slabs are typical examples of Tasker 3 structures. We will test
         # this algo to generate a Tasker 2 structure instead
-        slabgen = SlabGenerator(self.MgO, (1, 1, 1), 10, 10, max_normal_search=1)
+        slab_gen = SlabGenerator(self.MgO, (1, 1, 1), 10, 10, max_normal_search=1)
         # We generate the Tasker 3 structure first
-        slab = slabgen.get_slabs()[0]
+        slab = slab_gen.get_slabs()[0]
         assert not slab.is_symmetric()
         assert slab.is_polar()
         # Now to generate the Tasker 2 structure, we must
@@ -543,8 +543,8 @@ class TestSlabGenerator(PymatgenTest):
     def test_nonstoichiometric_symmetrized_slab(self):
         # For the (111) halite slab, sometimes a non-stoichiometric
         # system is preferred over the stoichiometric Tasker 2.
-        slabgen = SlabGenerator(self.MgO, (1, 1, 1), 10, 10, max_normal_search=1)
-        slabs = slabgen.get_slabs(symmetrize=True)
+        slab_gen = SlabGenerator(self.MgO, (1, 1, 1), 10, 10, max_normal_search=1)
+        slabs = slab_gen.get_slabs(symmetrize=True)
 
         # We should end up with two terminations, one with
         # an Mg rich surface and another O rich surface
@@ -563,19 +563,19 @@ class TestSlabGenerator(PymatgenTest):
     def test_move_to_other_side(self):
         # Tests to see if sites are added to opposite side
         struct = self.get_structure("LiFePO4")
-        slabgen = SlabGenerator(struct, (0, 0, 1), 10, 10, center_slab=True)
-        slab = slabgen.get_slab()
+        slab_gen = SlabGenerator(struct, (0, 0, 1), 10, 10, center_slab=True)
+        slab = slab_gen.get_slab()
         surface_sites = slab.get_surface_sites()
 
         # check if top sites are moved to the bottom
         top_index = [ss[1] for ss in surface_sites["top"]]
-        slab = slabgen.move_to_other_side(slab, top_index)
+        slab = slab_gen.move_to_other_side(slab, top_index)
         all_bottom = [slab[i].frac_coords[2] < slab.center_of_mass[2] for i in top_index]
         assert all(all_bottom)
 
         # check if bottom sites are moved to the top
         bottom_index = [ss[1] for ss in surface_sites["bottom"]]
-        slab = slabgen.move_to_other_side(slab, bottom_index)
+        slab = slab_gen.move_to_other_side(slab, bottom_index)
         all_top = [slab[i].frac_coords[2] > slab.center_of_mass[2] for i in bottom_index]
         assert all(all_top)
 
@@ -585,12 +585,12 @@ class TestSlabGenerator(PymatgenTest):
         # Conventional unit cell is supplied to ensure miller indices
         # correspond to usual crystallographic definitions
         conv_bulk = SpacegroupAnalyzer(struct).get_conventional_standard_structure()
-        slabgen = SlabGenerator(conv_bulk, [1, 1, 1], 10, 10, center_slab=True)
+        slab_gen = SlabGenerator(conv_bulk, [1, 1, 1], 10, 10, center_slab=True)
         # Setting a generous estimate for max_broken_bonds
         # so that all terminations are generated. These slabs
         # are ordered by ascending number of bonds broken
         # which is assigned to Slab.energy
-        slabs = slabgen.get_slabs(bonds={("Si", "Si"): 2.40}, max_broken_bonds=30)
+        slabs = slab_gen.get_slabs(bonds={("Si", "Si"): 2.40}, max_broken_bonds=30)
         # Looking at the two slabs generated in VESTA, we
         # expect 2 and 6 bonds broken so we check for this.
         # Number of broken bonds are floats due to primitive

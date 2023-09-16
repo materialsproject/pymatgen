@@ -368,14 +368,14 @@ class Lobsterin(dict, MSONable):
 
         basis_functions = []
         list_forin = []
-        for idx, type in enumerate(Potcar_names):
-            if type not in BASIS:
+        for idx, basis in enumerate(Potcar_names):
+            if basis not in BASIS:
                 raise ValueError(
-                    f"You have to provide the basis for {type} manually. We don't have any information on this POTCAR."
+                    f"You have to provide the basis for {basis} manually. We don't have any information on this POTCAR."
                 )
-            basis_functions.append(BASIS[type].split())
+            basis_functions.append(BASIS[basis].split())
             to_join = str(AtomTypes_Potcar[idx]) + " "
-            to_join2 = "".join(str(str(e) + " ") for e in BASIS[type].split())
+            to_join2 = "".join(str(str(e) + " ") for e in BASIS[basis].split())
             list_forin.append(str(to_join + to_join2))
         return list_forin
 

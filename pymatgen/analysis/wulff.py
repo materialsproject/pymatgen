@@ -369,7 +369,7 @@ class WulffShape:
             bar_on (bool): default is False
             legend_on (bool): default is True
             aspect_ratio: default is (8, 8)
-            custom_colors ({(h,k,l}: [r,g,b,alpha}): Customize color of each
+            custom_colors ({(h,k,l}: [r,g,b,alpha]}): Customize color of each
                 facet with a dictionary. The key is the corresponding Miller
                 index and value is the color. Undefined facets will use default
                 color site. Note: If you decide to set your own colors, it

@@ -43,7 +43,7 @@ def test_min_max_indexes():
 
 def test_round():
     vals = [424.2425, 2.3425356, 0.000042535636653, 0.23, 2.468e6, 0, -1.392156]
-    sigfigs = range(1, 6)
+    sig_figs = range(1, 6)
     rounded_vals = [
         [400.0, 420.0, 424.0, 424.2, 424.24],
         [2.0, 2.3, 2.34, 2.343, 2.3425],
@@ -55,7 +55,7 @@ def test_round():
     ]
 
     for v, val in enumerate(vals):
-        for s, sig in enumerate(sigfigs):
+        for s, sig in enumerate(sig_figs):
             assert round_to_sigfigs(val, sig) == rounded_vals[v][s]
     with pytest.raises(ValueError, match="Number of significant figures must be positive"):
         round_to_sigfigs(3.5, -2)

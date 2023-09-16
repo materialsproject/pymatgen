@@ -451,9 +451,11 @@ class TestDiffFit(PymatgenTest):
 
     def test_generate_pseudo(self):
         strain_states = np.eye(6).tolist()
-        m2, abs = generate_pseudo(strain_states, order=2)
-        m3, abs = generate_pseudo(strain_states, order=3)
-        m4, abs = generate_pseudo(strain_states, order=4)
+        for order in (2, 3, 4):
+            pseudo_inverses, absent_symbols = generate_pseudo(strain_states, order=order)
+            assert len(pseudo_inverses) == order - 1
+            assert pseudo_inverses[0].shape == (21, 36)
+            assert len(absent_symbols) == len(pseudo_inverses)
 
     def test_fit(self):
         diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"])

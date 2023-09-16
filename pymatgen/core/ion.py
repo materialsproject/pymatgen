@@ -211,15 +211,15 @@ class Ion(Composition, MSONable, Stringify):
         return dct
 
     @classmethod
-    def from_dict(cls, d) -> Ion:
+    def from_dict(cls, dct) -> Ion:
         """Generates an ion object from a dict created by as_dict().
 
         Args:
-            d: {symbol: amount} dict.
+            dct: {symbol: amount} dict.
         """
-        input = deepcopy(d)
-        charge = input.pop("charge")
-        composition = Composition(input)
+        dct_copy = deepcopy(dct)
+        charge = dct_copy.pop("charge")
+        composition = Composition(dct_copy)
         return Ion(composition, charge)
 
     @property

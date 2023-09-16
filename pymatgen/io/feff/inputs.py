@@ -925,7 +925,7 @@ class Potential(MSONable):
 
                 The lines are arranged as follows:
 
-          ipot   Z   element   lmax1   lmax2   stoichiometry   spinph
+            ipot   Z   element   lmax1   lmax2   stoichiometry   spinph
 
         Returns:
             String representation of Atomic Coordinate Shells.

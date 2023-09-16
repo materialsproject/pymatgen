@@ -123,7 +123,7 @@ class SpeciesComparator(AbstractComparator):
         """
         return sp1 == sp2
 
-    def get_hash(self, composition):
+    def get_hash(self, composition: Composition):
         """Returns: Fractional composition."""
         return composition.fractional_composition
 
