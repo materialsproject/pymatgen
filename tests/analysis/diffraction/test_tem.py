@@ -23,7 +23,7 @@ __date__ = "2/20/20"
 
 class TestTEMCalculator(PymatgenTest):
     def test_wavelength_rel(self):
-        # Test that the relativistic wavelength formula (for 200kv electron beam) is correct
+        # Test that the relativistic wavelength formula (for 200 kV electron beam) is correct
         tem_calc = TEMCalculator()
         assert tem_calc.wavelength_rel() == approx(0.025079, rel=1e-4)
 
