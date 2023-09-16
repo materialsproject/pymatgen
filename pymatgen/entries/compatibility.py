@@ -1037,7 +1037,7 @@ class MaterialsProject2020Compatibility(Compatibility):
             except ValueError:
                 oxi_states = ({},)
 
-            entry.data["oxidation_states"] = (oxi_states or ({}))[0]
+            entry.data["oxidation_states"] = (oxi_states or ({},))[0]
 
         if entry.data["oxidation_states"] == {}:
             warnings.warn(
