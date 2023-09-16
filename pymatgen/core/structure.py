@@ -1605,7 +1605,8 @@ class IStructure(SiteCollection, MSONable):
                 numerical tolerance distance, default to True
 
         Returns:
-            tuple: (center_indices, points_indices, offset_vectors, distances, symmetry_indices, symmetry_ops)
+            tuple: (center_indices, points_indices, offset_vectors, distances,
+                symmetry_indices, symmetry_ops)
         """
         from pymatgen.symmetry.groups import SpaceGroup
 
