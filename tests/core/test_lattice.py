@@ -279,9 +279,9 @@ class LatticeTestCase(PymatgenTest):
         assert latt.find_mapping(l2, ltol=0.1) == l2.find_mapping(latt, ltol=0.1)
         assert l2.find_mapping(latt, ltol=0.1) is None
         l2 = Lattice.orthorhombic(1.0999, 1, 1)
-        map = l2.find_mapping(latt, ltol=0.1)
-        assert isinstance(map, tuple)
-        assert len(map) == 3
+        mapping = l2.find_mapping(latt, ltol=0.1)
+        assert isinstance(mapping, tuple)
+        assert len(mapping) == 3
         assert latt.find_mapping(l2, ltol=0.1) is not None
 
     def test_as_from_dict(self):

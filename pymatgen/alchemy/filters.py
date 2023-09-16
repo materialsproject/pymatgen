@@ -199,7 +199,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         else:
             self.structure_matcher = structure_matcher or StructureMatcher(comparator=ElementComparator())
 
-    def test(self, structure: Structure):
+    def test(self, structure: Structure) -> bool:
         """
         Args:
             structure (Structure): Input structure to test.
@@ -207,22 +207,22 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         Returns:
             bool: True if structure is not in list.
         """
-        hash = self.structure_matcher._comparator.get_hash(structure.composition)
-        if not self.structure_list[hash]:
-            self.structure_list[hash].append(structure)
+        hash_comp = self.structure_matcher._comparator.get_hash(structure.composition)
+        if not self.structure_list[hash_comp]:
+            self.structure_list[hash_comp].append(structure)
             return True
 
         def get_spg_num(struct: Structure) -> int:
             finder = SpacegroupAnalyzer(struct, symprec=self.symprec)
             return finder.get_space_group_number()
 
-        for s in self.structure_list[hash]:
-            if (self.symprec is None or get_spg_num(s) == get_spg_num(structure)) and self.structure_matcher.fit(
-                s, structure
+        for struct in self.structure_list[hash_comp]:
+            if (self.symprec is None or get_spg_num(struct) == get_spg_num(structure)) and self.structure_matcher.fit(
+                struct, structure
             ):
                 return False
 
-        self.structure_list[hash].append(structure)
+        self.structure_list[hash_comp].append(structure)
         return True
 
 

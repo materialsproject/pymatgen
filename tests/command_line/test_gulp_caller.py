@@ -92,9 +92,9 @@ class TestGulpCaller(unittest.TestCase):
 
         _ = BuckinghamPotential(bush_lewis_flag="bush")
         gio = GulpIO()
-        input = gio.buckingham_input(struct, ["relax conp"])
+        buckingham_input = gio.buckingham_input(struct, ["relax conp"])
         caller = GulpCaller()
-        caller.run(input)
+        caller.run(buckingham_input)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")

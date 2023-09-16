@@ -125,8 +125,8 @@ class TestBasisAndPotential(PymatgenTest):
 
     def test_potentials(self):
         # Ensure cp2k formatted string can be read for data correctly
-        all = GthPotential.from_str(all_H)
-        assert all.potential == "All Electron"
+        h_all_elec = GthPotential.from_str(all_H)
+        assert h_all_elec.potential == "All Electron"
         pot = GthPotential.from_str(pot_H)
         assert pot.potential == "Pseudopotential"
         assert pot.r_loc == approx(0.2)
@@ -140,7 +140,7 @@ class TestBasisAndPotential(PymatgenTest):
         # Ensure keyword can be properly generated
         kw = pot.get_keyword()
         assert kw.values[0] == "GTH-PBE-q1"  # noqa: PD011
-        kw = all.get_keyword()
+        kw = h_all_elec.get_keyword()
         assert kw.values[0] == "ALL"  # noqa: PD011
 
 

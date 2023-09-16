@@ -723,10 +723,10 @@ class TestMPStaticSet(PymatgenTest):
         vis.write_input(output_dir=self.tmp_path, potcar_spec=True, zip_output=True)
 
         assert os.path.isfile(f"{self.tmp_path}/MPStaticSet.zip")
-        with ZipFile(f"{self.tmp_path}/MPStaticSet.zip", "r") as zip:
-            contents = zip.namelist()
+        with ZipFile(f"{self.tmp_path}/MPStaticSet.zip", "r") as zip_file:
+            contents = zip_file.namelist()
             assert set(contents).issuperset({"INCAR", "POSCAR", "POTCAR.spec", "KPOINTS"})
-            spec = zip.open("POTCAR.spec", "r").read().decode()
+            spec = zip_file.open("POTCAR.spec", "r").read().decode()
             assert spec == "Si"
 
     def test_grid_size_from_struct(self):

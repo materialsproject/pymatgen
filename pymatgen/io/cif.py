@@ -475,8 +475,8 @@ class CifParser:
             # would result in an error).
             for original_key in data.data:
                 if isinstance(data.data[original_key], list):
-                    for id in sorted(idxs_to_remove, reverse=True):
-                        del data.data[original_key][id]
+                    for idx in sorted(idxs_to_remove, reverse=True):
+                        del data.data[original_key][idx]
 
             if len(idxs_to_remove) > 0:
                 self.warnings.append("Pauling file corrections applied.")
@@ -638,7 +638,7 @@ class CifParser:
                     try:
                         required_args = getargspec(getattr(Lattice, lattice_type)).args
 
-                        lengths = (len for len in length_strings if len in required_args)
+                        lengths = (length for length in length_strings if length in required_args)
                         angles = (a for a in angle_strings if a in required_args)
                         return self.get_lattice(data, lengths, angles, lattice_type=lattice_type)
                     except AttributeError as exc:

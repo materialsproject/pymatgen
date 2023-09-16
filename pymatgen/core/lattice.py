@@ -108,10 +108,10 @@ class Lattice(MSONable):
            "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
         2. "p" for lattice parameters ".1fp" prints something like
            "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}"
-        3. Default will simply print a 3x3 matrix form. E.g.,
-           10.000 0.000 0.000
-           0.000 10.000 0.000
-           0.000 0.000 10.000
+        3. Default will simply print a 3x3 matrix form. E.g.
+           10 0 0
+           0 10 0
+           0 0 10
         """
         matrix = self._matrix.tolist()
         if fmt_spec.endswith("l"):
@@ -864,8 +864,7 @@ class Lattice(MSONable):
         """Finds all mappings between current lattice and another lattice.
 
         Args:
-            other_lattice (Lattice): Another lattice that is equivalent to
-                this one.
+            other_lattice (Lattice): Another lattice that is equivalent to this one.
             ltol (float): Tolerance for matching lengths. Defaults to 1e-5.
             atol (float): Tolerance for matching angles. Defaults to 1.
             skip_rotation_matrix (bool): Whether to skip calculation of the
@@ -895,7 +894,7 @@ class Lattice(MSONable):
         )
         cart = self.get_cartesian_coords(frac)  # type: ignore
         # this can't be broadcast because they're different lengths
-        inds = [np.logical_and(dist / len < 1 + ltol, dist / len > 1 / (1 + ltol)) for len in lengths]  # type: ignore
+        inds = [np.logical_and(dist / ln < 1 + ltol, dist / ln > 1 / (1 + ltol)) for ln in lengths]  # type: ignore
         c_a, c_b, c_c = (cart[i] for i in inds)
         f_a, f_b, f_c = (frac[i] for i in inds)  # type: ignore
         l_a, l_b, l_c = (np.sum(c**2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
@@ -1314,7 +1313,7 @@ class Lattice(MSONable):
         Algorithm:
 
         1. place sphere of radius r in crystal and determine minimum supercell
-           (parallelpiped) which would contain a sphere of radius r. for this
+           (parallepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
            determine how many a_1"s it will take to contain the sphere.

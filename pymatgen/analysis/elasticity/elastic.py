@@ -970,8 +970,7 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10,
 
 
 def generate_pseudo(strain_states, order=3):
-    """
-    Generates the pseudo-inverse for a given set of strains.
+    """Generates the pseudo-inverse for a given set of strains.
 
     Args:
         strain_states (6xN array like): a list of voigt-notation
