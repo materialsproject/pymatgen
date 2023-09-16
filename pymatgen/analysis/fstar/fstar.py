@@ -20,8 +20,8 @@ if TYPE_CHECKING:
     from pymatgen.core.structure import Structure
 
 # Load in the neutron form factors
-with open(os.path.join(os.path.dirname(__file__), "neutron_factors.csv")) as f:
-    NEUTRON_SCATTER_DF = pd.read_csv(f)
+with open(f"{os.path.dirname(__file__)}/neutron_factors.csv.gz") as csv_file:
+    NEUTRON_SCATTER_DF = pd.read_csv(csv_file)
     # from http://www.ccp14.ac.uk/ccp/web-mirrors/neutrons/n-scatter/n-lengths/LIST~1.HTM
 
 
