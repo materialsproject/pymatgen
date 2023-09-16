@@ -551,7 +551,7 @@ class TestComposition(PymatgenTest):
         assert len(Composition("MnO").oxi_state_guesses(all_oxi_states=True)) == 4
 
         # can't balance b/c missing V4+
-        assert Composition("VO2").oxi_state_guesses(oxi_states_override={"V": [2, 3, 5]}) == []
+        assert Composition("VO2").oxi_state_guesses(oxi_states_override={"V": [2, 3, 5]}) == ()
 
         # missing V4+, but can balance due to additional sites
         assert Composition("V2O4").oxi_state_guesses(oxi_states_override={"V": [2, 3, 5]}) == ({"V": 4, "O": -2},)
@@ -565,6 +565,9 @@ class TestComposition(PymatgenTest):
             "Fe": 3,
             "O": -2,
         }
+
+        for elem in ("O", "N", "H", "F", "Cl", "Br", "I"):
+            assert Composition(f"{elem}2").oxi_state_guesses() == ({elem: 0},)
 
         # target charge of 1
         assert Composition("V2O6").oxi_state_guesses(oxi_states_override={"V": [2, 3, 4, 5]}, target_charge=-2) == (
