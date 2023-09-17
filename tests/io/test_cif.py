@@ -163,7 +163,7 @@ loop_
 
 
 class TestCifIO(PymatgenTest):
-    def test_CifParser(self):
+    def test_cif_parser(self):
         parser = CifParser(f"{TEST_FILES_DIR}/LiFePO4.cif")
         for struct in parser.get_structures():
             assert struct.formula == "Li4 Fe4 P4 O16", "Incorrectly parsed cif."
@@ -418,7 +418,7 @@ loop_
         for struct in parser.get_structures():
             assert struct.formula == "Zn1.29 Fe0.69 As2 Pb1.02 O8"
 
-    def test_CifParserCod(self):
+    def test_cif_parser_cod(self):
         """Parsing problematic cif files from the COD database."""
         # Symbol in capital letters
         parser = CifParser(f"{TEST_FILES_DIR}/Cod_2100513.cif")
@@ -488,7 +488,7 @@ loop_
         for sym, expected_symbol in test_cases.items():
             assert parser._parse_symbol(sym) == expected_symbol
 
-    def test_CifWriter(self):
+    def test_cif_writer(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.structure, symprec=0.01)

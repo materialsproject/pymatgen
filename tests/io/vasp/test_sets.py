@@ -74,7 +74,7 @@ dummy_structure = Structure(
     "input_set",
     [MPRelaxSet, MPHSERelaxSet, MVLRelax52Set, MPAbsorptionSet],
 )
-def test_Yb_2_warning(input_set: VaspInputSet) -> None:
+def test_yb_2_warning(input_set: VaspInputSet) -> None:
     # https://github.com/materialsproject/pymatgen/pull/2972
 
     structure = Structure(
@@ -472,7 +472,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         d = paramset.get_vasp_input()
         assert d["INCAR"]["ISMEAR"] == 0
 
-    def test_MPMetalRelaxSet(self):
+    def test_mp_metal_relax_set(self):
         mp_metal_set = MPMetalRelaxSet(self.get_structure("Sn"))
         incar = mp_metal_set.incar
         assert incar["ISMEAR"] == 1

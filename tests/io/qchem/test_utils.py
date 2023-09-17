@@ -34,7 +34,7 @@ class TestUtil(PymatgenTest):
         with pytest.raises(ValueError, match="Multiple instances of key"):
             lower_and_check_unique(d4)
 
-    def test_process_parsed_HESS(self):
+    def test_process_parsed_hess(self):
         with zopen(f"{test_dir}/parse_hess/132.0", mode="rb") as f:
             binary = f.read()
             data_132 = [struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(int(len(binary) / 8))]
