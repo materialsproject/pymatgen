@@ -18,7 +18,6 @@ from numpy.linalg import inv
 
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.due import Doi, due
-from pymatgen.util.num import abs_cap
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -90,7 +89,7 @@ class Lattice(MSONable):
         for dim in range(3):
             j = (dim + 1) % 3
             k = (dim + 2) % 3
-            angles[dim] = abs_cap(np.dot(mat[j], mat[k]) / (lengths[j] * lengths[k]))
+            angles[dim] = np.clip(np.dot(mat[j], mat[k]) / (lengths[j] * lengths[k]), -1, 1)
         angles = np.arccos(angles) * 180.0 / pi
         return tuple(angles.tolist())  # type: ignore
 
@@ -349,8 +348,7 @@ class Lattice(MSONable):
 
         else:
             val = (cos_alpha * cos_beta - cos_gamma) / (sin_alpha * sin_beta)
-            # Sometimes rounding errors result in values slightly > 1.
-            val = abs_cap(val)
+            val = np.clip(val, -1, 1)  # rounding errors may cause values slightly > 1
             gamma_star = np.arccos(val)
 
             vector_a = [a * sin_beta, 0.0, a * cos_beta]

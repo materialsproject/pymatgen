@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-import random
-
 import pytest
 
 from pymatgen.util.num import (
-    abs_cap,
     maxloc,
     min_max_indexes,
     minloc,
@@ -21,17 +18,6 @@ def test_minloc():
 
 def test_maxloc():
     assert maxloc([1, 3, 2, 3]) == 1
-
-
-def test_abs_cap():
-    assert abs_cap(1.000000001) == 1.0
-    assert abs_cap(-1.000000001) == -1.0
-
-    v = random.uniform(-1, 1)
-    assert abs_cap(v) == v
-
-    assert abs_cap(1.000000001, 2) == 1.000000001
-    assert abs_cap(-2.000000001, 2) == -2.0
 
 
 def test_min_max_indexes():
