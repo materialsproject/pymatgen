@@ -1066,11 +1066,9 @@ class _MPResterLegacy:
         except that a list of structures with the same metadata is used as an
         input.
 
-        .. note::
-
+        Note:
             As of now, this MP REST feature is open only to a select group of
-            users. Opening up submissions to all users is being planned for
-            the future.
+            users. Opening up submissions to all users is being planned for the future.
 
         Args:
             structures: A list of Structure objects
@@ -1111,11 +1109,9 @@ class _MPResterLegacy:
     def submit_snl(self, snl):
         """Submits a list of StructureNL to the Materials Project site.
 
-        .. note::
-
+        Note:
             As of now, this MP REST feature is open only to a select group of
-            users. Opening up submissions to all users is being planned for
-            the future.
+            users. Opening up submissions to all users is being planned for the future.
 
         Args:
             snl (StructureNL/[StructureNL]): A single StructureNL, or a list
@@ -1144,11 +1140,9 @@ class _MPResterLegacy:
     def delete_snl(self, snl_ids):
         """Delete earlier submitted SNLs.
 
-        .. note::
-
+        Note:
             As of now, this MP REST feature is open only to a select group of
-            users. Opening up submissions to all users is being planned for
-            the future.
+            users. Opening up submissions to all users is being planned for the future.
 
         Args:
             snl_ids: List of SNL ids.
@@ -1172,11 +1166,9 @@ class _MPResterLegacy:
     def query_snl(self, criteria):
         """Query for submitted SNLs.
 
-        .. note::
-
+        Note:
             As of now, this MP REST feature is open only to a select group of
-            users. Opening up submissions to all users is being planned for
-            the future.
+            users. Opening up submissions to all users is being planned for the future.
 
         Args:
             criteria (dict): Query criteria.
@@ -1216,11 +1208,9 @@ class _MPResterLegacy:
         to the Materials Project as SNL files. VASP related meta data like
         initial structure and final energies are automatically incorporated.
 
-        .. note::
-
+        Note:
             As of now, this MP REST feature is open only to a select group of
-            users. Opening up submissions to all users is being planned for
-            the future.
+            users. Opening up submissions to all users is being planned for the future.
 
         Args:
             rootdir (str): Rootdir to start assimilating VASP runs from.

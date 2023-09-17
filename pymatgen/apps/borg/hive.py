@@ -299,8 +299,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
     ComputedEntry/ComputedStructureEntry objects. By default, it is assumed
     that Gaussian output files have a ".log" extension.
 
-    .. note::
-
+    Note:
         Like the GaussianOutput class, this is still in early beta.
     """
 
@@ -312,7 +311,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
                 ComputedEntries.
             parameters (list): Input parameters to include. It has to be one of
                 the properties supported by the GaussianOutput object. See
-                pymatgen.io.gaussianio GaussianOutput. The parameters
+                pymatgen.io.gaussian.GaussianOutput. The parameters
                 have to be one of python's primitive types, i.e., list, dict of
                 strings and integers. If parameters is None, a default set of
                 parameters will be set.

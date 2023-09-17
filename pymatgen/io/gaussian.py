@@ -496,9 +496,7 @@ class GaussianOutput:
     """
     Parser for Gaussian output files.
 
-    .. note::
-
-        Still in early beta.
+    Note: Still in early beta.
 
     Attributes:
         structures (list[Structure]): All structures from the calculation in the standard orientation. If the
