@@ -191,7 +191,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     # Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.5
-    properties: dict
+    _properties: dict
 
     @property
     def sites(self) -> list[Site]:
