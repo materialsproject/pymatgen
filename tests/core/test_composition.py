@@ -32,8 +32,8 @@ class TestComposition(PymatgenTest):
         ]
 
         self.indeterminate_comp = [
-            Composition.ranked_compositions_from_indeterminate_formula("Co1", True),
-            Composition.ranked_compositions_from_indeterminate_formula("Co1", False),
+            Composition.ranked_compositions_from_indeterminate_formula("Co1", lock_if_strict=True),
+            Composition.ranked_compositions_from_indeterminate_formula("Co1", lock_if_strict=False),
             Composition.ranked_compositions_from_indeterminate_formula("co2o3"),
             Composition.ranked_compositions_from_indeterminate_formula("ncalu"),
             Composition.ranked_compositions_from_indeterminate_formula("calun"),
@@ -716,7 +716,7 @@ class TestChemicalPotential(unittest.TestCase):
 
         # test get_energy()
         assert pots.get_energy(fe_o2) == approx(5.2)
-        assert fe_pot.get_energy(fe_o2, False) == approx(1)
+        assert fe_pot.get_energy(fe_o2, strict=False) == approx(1)
         with pytest.raises(ValueError, match="Potentials not specified for {Element O}"):
             fe_pot.get_energy(fe_o2)
 

@@ -380,7 +380,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         # ax.set_title(title)
         ax.set_xlabel("Total_NCPUs")
         ax.set_ylabel("Efficiency")
-        ax.grid(True)
+        ax.grid(visible=True)
 
         # Set xticks and labels.
         labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
@@ -889,13 +889,13 @@ class AbinitTimer:
         # thus there is no need to manually adjust the xlim and ylim of these axis.
 
         # axHistx.axis["bottom"].major_ticklabels.set_visible(False)
+        axHistx.set_yticks([0, 50, 100])
         for tl in axHistx.get_xticklabels():
-            tl.set_visible(False)
-            axHistx.set_yticks([0, 50, 100])
+            tl.set_visible(False)  # noqa: FBT003
 
             # axHisty.axis["left"].major_ticklabels.set_visible(False)
             for tl in axHisty.get_yticklabels():
-                tl.set_visible(False)
+                tl.set_visible(False)  # noqa: FBT003
                 axHisty.set_xticks([0, 50, 100])
 
         # plt.draw()

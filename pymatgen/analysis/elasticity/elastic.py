@@ -946,7 +946,7 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10,
     for ind in independent:
         # match strains with templates
         template = np.zeros(6, dtype=bool)
-        np.put(template, ind, True)
+        np.put(template, ind, v=True)
         template = np.tile(template, [vstresses.shape[0], 1])
         mode = (template == (np.abs(vstrains) > 1e-10)).all(axis=1)
         mstresses = vstresses[mode]

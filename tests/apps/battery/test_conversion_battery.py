@@ -70,15 +70,34 @@ class TestConversionElectrode(unittest.TestCase):
         for f in self.formulas:
             c = self.conversion_electrodes[f]["CE"]
 
-            assert len(c.get_sub_electrodes(True)) == c.num_steps
-            assert len(c.get_sub_electrodes(False)) == sum(range(1, c.num_steps + 1))
+            assert len(c.get_sub_electrodes(adjacent_only=True)) == c.num_steps
+            assert len(c.get_sub_electrodes(adjacent_only=False)) == sum(range(1, c.num_steps + 1))
             assert str(c) is not None
             p = self.expected_properties[f]
 
             for k, v in p.items():
                 assert getattr(c, "get_" + k)() == approx(v, abs=1e-2)
 
-            assert c.get_summary_dict(True) is not None
+            assert {*c.get_summary_dict(print_subelectrodes=True)} == {
+                "adj_pairs",
+                "reactions",
+                "energy_vol",
+                "max_voltage_step",
+                "fracA_discharge",
+                "energy_grav",
+                "nsteps",
+                "average_voltage",
+                "fracA_charge",
+                "working_ion",
+                "reactant_compositions",
+                "max_delta_volume",
+                "framework_formula",
+                "all_pairs",
+                "min_voltage",
+                "max_voltage",
+                "capacity_grav",
+                "capacity_vol",
+            }
 
             # try to export/import a voltage pair via a dict
             pair = c.voltage_pairs[0]

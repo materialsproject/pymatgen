@@ -159,8 +159,8 @@ class LatticeTestCase(PymatgenTest):
         """If alpha == 90 and beta == 90, two matrices are identical."""
 
         def _identical(a, b, c, alpha, beta, gamma):
-            mat1 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, False).matrix
-            mat2 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, True).matrix
+            mat1 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, vesta=False).matrix
+            mat2 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, vesta=True).matrix
             # self.assertArrayAlmostEqual(mat1, mat2)
             return ((mat1 - mat2) ** 2).sum() < 1e-6
 

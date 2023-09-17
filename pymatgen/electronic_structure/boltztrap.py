@@ -1378,7 +1378,7 @@ class BoltztrapAnalyzer:
         if doping_levels:
             cmplx_fact = {}
             for dt in ("n", "p"):
-                sbk_mass = self.get_seebeck_eff_mass(output, temp, True, Lambda)[dt]
+                sbk_mass = self.get_seebeck_eff_mass(output, temp, doping_levels=True, Lambda=Lambda)[dt]
                 cond_mass = self.get_average_eff_mass(output=output, doping_levels=True)[dt][temp]
 
                 if output == "average":
@@ -1391,7 +1391,7 @@ class BoltztrapAnalyzer:
                             cmplx_fact[dt][-1].append((sm[j] / abs(cond_mass[i][j][j])) ** 1.5)
 
         else:
-            sbk_mass = self.get_seebeck_eff_mass(output, temp, False, Lambda)
+            sbk_mass = self.get_seebeck_eff_mass(output, temp, doping_levels=False, Lambda=Lambda)
             cond_mass = self.get_average_eff_mass(output=output, doping_levels=False)[temp]
 
             if output == "average":

@@ -48,7 +48,7 @@ def is_valid_bibtex(reference: str) -> bool:
     # filter expression removes all non-ASCII characters.
     sio = StringIO(remove_non_ascii(reference))
     parser = bibtex.Parser()
-    errors.set_strict_mode(False)
+    errors.set_strict_mode(enable=False)
     bib_data = parser.parse_stream(sio)
     return len(bib_data.entries) > 0
 

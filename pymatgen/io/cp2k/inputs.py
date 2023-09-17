@@ -597,25 +597,25 @@ class Section(MSONable):
 
         return string
 
-    def verbosity(self, verbosity):
+    def verbosity(self, verbosity: bool) -> None:
         """
         Change the section verbosity recursively by turning on/off the printing of descriptions.
         Turning off descriptions may reduce the appealing documentation of input files, but also
         helps de-clutter them.
         """
         self.verbose = verbosity
-        for v in self.keywords.values():
-            v.verbosity(verbosity)
-        for v in self.subsections.values():
-            v.verbosity(verbosity)
+        for val in self.keywords.values():
+            val.verbosity(verbosity)
+        for val in self.subsections.values():
+            val.verbosity(verbosity)
 
     def silence(self):
         """Recursively delete all print sections so that only defaults are printed out."""
         if self.subsections:
             if self.subsections.get("PRINT"):
                 del self.subsections["PRINT"]
-            for v in self.subsections.values():
-                v.silence()
+            for val in self.subsections.values():
+                val.silence()
 
 
 class SectionList(MSONable):
@@ -855,7 +855,7 @@ class Global(Section):
         _keywords = {
             "PROJECT_NAME": Keyword("PROJECT_NAME", project_name),
             "RUN_TYPE": Keyword("RUN_TYPE", run_type),
-            "EXTENDED_FFT_LENGTHS": Keyword("EXTENDED_FFT_LENGTHS", True),
+            "EXTENDED_FFT_LENGTHS": Keyword("EXTENDED_FFT_LENGTHS", True),  # noqa: FBT003
         }
         keywords.update(_keywords)
         super().__init__(
@@ -2665,7 +2665,7 @@ class GthPotential(AtomicMetadata):
     def from_section(cls, section: Section) -> GthPotential:
         """Extract GTH-formatted string from a section and convert it to model."""
         sec = copy.deepcopy(section)
-        sec.verbosity(False)
+        sec.verbosity(verbosity=False)
         lst = sec.get_str().split("\n")
         string = "\n".join(line for line in lst if not line.startswith("&"))
         return cls.from_str(string)

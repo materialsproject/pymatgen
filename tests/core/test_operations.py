@@ -10,7 +10,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class SymmOpTestCase(PymatgenTest):
     def setUp(self):
-        self.op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False, [0, 0, 1])
+        self.op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
 
     def test_properties(self):
         rot = self.op.rotation_matrix

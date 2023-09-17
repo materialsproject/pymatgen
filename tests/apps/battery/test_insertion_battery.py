@@ -55,8 +55,8 @@ class TestInsertionElectrode(unittest.TestCase):
         assert self.ie_LTO.get_capacity_grav(1, 3) == approx(154.374325225)
 
         # test alternate normalization option
-        assert self.ie_LTO.get_capacity_grav(1, 3, False) == approx(160.803169506)
-        assert self.ie_LTO.get_summary_dict(True) is not None
+        assert self.ie_LTO.get_capacity_grav(1, 3, use_overall_normalization=False) == approx(160.803169506)
+        assert self.ie_LTO.get_summary_dict() is not None
 
         assert self.ie_MVO.get_capacity_grav() == approx(281.845548242)
         assert self.ie_MVO.get_capacity_vol() == approx(1145.80087994)
@@ -73,8 +73,8 @@ class TestInsertionElectrode(unittest.TestCase):
 
     def test_entries(self):
         # test that the proper number of sub-electrodes are returned
-        assert len(self.ie_LTO.get_sub_electrodes(False, True)) == 3
-        assert len(self.ie_LTO.get_sub_electrodes(True, True)) == 2
+        assert len(self.ie_LTO.get_sub_electrodes(adjacent_only=False, include_myself=True)) == 3
+        assert len(self.ie_LTO.get_sub_electrodes(adjacent_only=True, include_myself=True)) == 2
 
     def test_get_all_entries(self):
         self.ie_LTO.get_all_entries()

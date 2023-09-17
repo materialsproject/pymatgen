@@ -44,13 +44,13 @@ class TestVoronoiContainer(PymatgenTest):
             isites=[0],
         )
         assert len(detailed_voronoi_container.voronoi_list2[0]) == 6
-        neighbors = detailed_voronoi_container.neighbors(0, 1, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1, 0.5)
         assert len(neighbors) == 6
-        neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5)
         assert len(neighbors) == 6
-        neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5)
         assert len(neighbors) == 6
-        neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5)
         assert len(neighbors) == 6
 
         # First fake structure with a given normalized_distance_tolerance of 0.001
@@ -61,22 +61,22 @@ class TestVoronoiContainer(PymatgenTest):
             isites=[0],
         )
         assert len(detailed_voronoi_container.voronoi_list2[0]) == 6
-        neighbors = detailed_voronoi_container.neighbors(0, 1, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1, 0.5)
         assert len(neighbors) == 1
         assert neighbors[0]["site"] == fake_structure[sorted[0]]
-        neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5)
         nbs = [nb["site"] for nb in neighbors]
         assert len(neighbors) == 3
         assert fake_structure[sorted[0]] in nbs
         assert fake_structure[sorted[1]] in nbs
         assert fake_structure[sorted[2]] in nbs
-        neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5)
         nbs = [nb["site"] for nb in neighbors]
         assert len(neighbors) == 3
         assert fake_structure[sorted[0]] in nbs
         assert fake_structure[sorted[1]] in nbs
         assert fake_structure[sorted[2]] in nbs
-        neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5)
         assert len(neighbors) == 6
 
         # Second fake structure
@@ -102,25 +102,25 @@ class TestVoronoiContainer(PymatgenTest):
             isites=[0],
         )
         assert len(detailed_voronoi_container.voronoi_list2[0]) == 6
-        neighbors = detailed_voronoi_container.neighbors(0, 1, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1, 0.5)
         nbs = [nb["site"] for nb in neighbors]
         assert len(neighbors) == 3
         assert fake_structure2[sorted[0]] in nbs
         assert fake_structure2[sorted[1]] in nbs
         assert fake_structure2[sorted[2]] in nbs
-        neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.02, 0.5)
         nbs = [nb["site"] for nb in neighbors]
         assert len(neighbors) == 3
         assert fake_structure2[sorted[0]] in nbs
         assert fake_structure2[sorted[1]] in nbs
         assert fake_structure2[sorted[2]] in nbs
-        neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.026, 0.5)
         nbs = [nb["site"] for nb in neighbors]
         assert len(neighbors) == 3
         assert fake_structure2[sorted[0]] in nbs
         assert fake_structure2[sorted[1]] in nbs
         assert fake_structure2[sorted[2]] in nbs
-        neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.5, 0.5)
         assert len(neighbors) == 6
 
         species = ["Cu", "Cu", "O", "O", "O", "Cu", "O"]
@@ -145,7 +145,7 @@ class TestVoronoiContainer(PymatgenTest):
             additional_conditions=[DetailedVoronoiContainer.AC.ONLY_ACB],
         )
         assert len(detailed_voronoi_container.voronoi_list2[0]) == 6
-        neighbors = detailed_voronoi_container.neighbors(0, 1.01, 0.5, True)
+        neighbors = detailed_voronoi_container.neighbors(0, 1.01, 0.5)
         nbs = [nb["site"] for nb in neighbors]
         assert len(neighbors) == 6
         assert fake_structure3[1] in nbs

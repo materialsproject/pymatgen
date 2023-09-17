@@ -342,6 +342,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         trans = MagOrderingTransformation({"Li+": 1}, max_cell_size=3)
         alls = trans.apply_transformation(struct, 100)
         # TODO: check this is correct, unclear what len(alls) should be
+        # this assert just ensures it doesn't change unexpectedly
         assert len(alls) == 12
 
         trans = MagOrderingTransformation({"Ni": 5})

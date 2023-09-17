@@ -2349,7 +2349,7 @@ class BSDOSPlotter:
         bs_ax.hlines(y=0, xmin=0, xmax=x_distances_list[-1][-1], color="k", lw=2)
         bs_ax.set_yticks(np.arange(emin, emax + 1e-5, self.egrid_interval))
         bs_ax.set_yticklabels(np.arange(emin, emax + 1e-5, self.egrid_interval), size=self.tick_fontsize)
-        bs_ax.set_axisbelow(True)
+        bs_ax.set_axisbelow(b=True)
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle="dotted", linewidth=1)
         if dos:
             dos_ax.set_yticks(np.arange(emin, emax + 1e-5, self.egrid_interval))
@@ -2638,8 +2638,7 @@ class BSDOSPlotter:
             0.325, 0.22, k_label, fontsize=13, family="Times New Roman", color=(1, 1, 1), horizontalalignment="center"
         )
 
-        inset_ax.get_xaxis().set_visible(False)
-        inset_ax.get_yaxis().set_visible(False)
+        inset_ax.axis("off")
 
     @staticmethod
     def _rgb_triangle(ax, r_label, g_label, b_label, loc):
@@ -2704,8 +2703,7 @@ class BSDOSPlotter:
             horizontalalignment="right",
         )
 
-        inset_ax.get_xaxis().set_visible(False)  # pylint: disable=E1101
-        inset_ax.get_yaxis().set_visible(False)  # pylint: disable=E1101
+        inset_ax.axis("off")
 
     @staticmethod
     def _rb_line(ax, r_label, b_label, loc):
@@ -2750,8 +2748,7 @@ class BSDOSPlotter:
             verticalalignment="center",
         )
 
-        inset_ax.get_xaxis().set_visible(False)
-        inset_ax.get_yaxis().set_visible(False)
+        inset_ax.axis("off")
 
 
 class BoltztrapPlotter:

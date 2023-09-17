@@ -196,8 +196,8 @@ class TestElectrons(PymatgenTest):
 
 class TestKSampling(PymatgenTest):
     def test_base(self):
-        monkhorst = KSampling.monkhorst((3, 3, 3), (0.5, 0.5, 0.5), 0, False, False)
-        gamma_centered = KSampling.gamma_centered((3, 3, 3), False, False)
+        monkhorst = KSampling.monkhorst((3, 3, 3), (0.5, 0.5, 0.5), 0, use_symmetries=False, use_time_reversal=False)
+        gamma_centered = KSampling.gamma_centered((3, 3, 3), use_symmetries=False, use_time_reversal=False)
 
         monkhorst.to_abivars()
 
