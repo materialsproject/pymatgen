@@ -380,7 +380,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         # ax.set_title(title)
         ax.set_xlabel("Total_NCPUs")
         ax.set_ylabel("Efficiency")
-        ax.grid(True)
+        ax.grid(visible=True)
 
         # Set xticks and labels.
         labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]

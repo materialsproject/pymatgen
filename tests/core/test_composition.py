@@ -32,8 +32,8 @@ class TestComposition(PymatgenTest):
         ]
 
         self.indeterminate_comp = [
-            Composition.ranked_compositions_from_indeterminate_formula("Co1", True),
-            Composition.ranked_compositions_from_indeterminate_formula("Co1", False),
+            Composition.ranked_compositions_from_indeterminate_formula("Co1", lock_if_strict=True),
+            Composition.ranked_compositions_from_indeterminate_formula("Co1", lock_if_strict=False),
             Composition.ranked_compositions_from_indeterminate_formula("co2o3"),
             Composition.ranked_compositions_from_indeterminate_formula("ncalu"),
             Composition.ranked_compositions_from_indeterminate_formula("calun"),

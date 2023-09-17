@@ -63,7 +63,7 @@ class TestSimpleVaspToComputedEntryDrone(unittest.TestCase):
 class TestGaussianToComputedEntryDrone(unittest.TestCase):
     def setUp(self):
         self.drone = GaussianToComputedEntryDrone(data=["corrections"])
-        self.structure_drone = GaussianToComputedEntryDrone(True)
+        self.structure_drone = GaussianToComputedEntryDrone(inc_structure=True)
 
     def test_get_valid_paths(self):
         for path in os.walk(f"{TEST_FILES_DIR}/molecules"):

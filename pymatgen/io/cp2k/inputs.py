@@ -597,7 +597,7 @@ class Section(MSONable):
 
         return string
 
-    def verbosity(self, verbosity):
+    def verbosity(self, verbosity: bool) -> None:
         """
         Change the section verbosity recursively by turning on/off the printing of descriptions.
         Turning off descriptions may reduce the appealing documentation of input files, but also

@@ -73,8 +73,8 @@ class TestInsertionElectrode(unittest.TestCase):
 
     def test_entries(self):
         # test that the proper number of sub-electrodes are returned
-        assert len(self.ie_LTO.get_sub_electrodes(False, True)) == 3
-        assert len(self.ie_LTO.get_sub_electrodes(True, True)) == 2
+        assert len(self.ie_LTO.get_sub_electrodes(adjacent_only=False, include_myself=True)) == 3
+        assert len(self.ie_LTO.get_sub_electrodes(adjacent_only=True, include_myself=True)) == 2
 
     def test_get_all_entries(self):
         self.ie_LTO.get_all_entries()

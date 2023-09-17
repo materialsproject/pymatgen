@@ -334,7 +334,7 @@ class Header(MSONable):
                 tokens = lines[i + 9].split()
                 coords.append([float(s) for s in tokens[3:]])
 
-            struct = Structure(lattice, atomic_symbols, coords, False, False, False)
+            struct = Structure(lattice, atomic_symbols, coords)
 
             return Header(struct, source, comment2)
 

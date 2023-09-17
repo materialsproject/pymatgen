@@ -1428,7 +1428,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """
         ax, fig = get_ax_fig(ax)
 
-        ax.grid(True)
+        ax.grid(visible=True)
         ax.set_xlabel("r [Bohr]")
         # ax.set_ylabel('density')
 
@@ -1456,7 +1456,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # pylint: disable=E1101
         ax, fig = get_ax_fig(ax)
 
-        ax.grid(True)
+        ax.grid(visible=True)
         ax.set_xlabel("r [Bohr]")
         ax.set_ylabel(r"$r\phi,\, r\tilde\phi\, [Bohr]^{-\frac{1}{2}}$")
 
@@ -1486,7 +1486,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """
         # pylint: disable=E1101
         ax, fig = get_ax_fig(ax)
-        ax.grid(True)
+        ax.grid(visible=True)
         ax.set_xlabel("r [Bohr]")
         ax.set_ylabel(r"$r\tilde p\, [Bohr]^{-\frac{1}{2}}$")
 
@@ -1523,7 +1523,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    fig = plt.figure()
 
     #    ax = fig.add_subplot(1,1,1)
-    #    ax.grid(True)
+    #    ax.grid(visible=True)
     #    ax.set_xlabel('r [Bohr]')
     #    ax.set_ylabel('density')
     #    ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")

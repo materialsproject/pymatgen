@@ -796,12 +796,12 @@ Cartesian
         kpoints = Kpoints.automatic_density(poscar.structure, 500)
         assert kpoints.kpts == [[1, 3, 3]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
-        kpoints = Kpoints.automatic_density(poscar.structure, 500, True)
+        kpoints = Kpoints.automatic_density(poscar.structure, 500, force_gamma=True)
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.automatic_density_by_vol(poscar.structure, 1000)
         assert kpoints.kpts == [[6, 10, 13]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
-        kpoints = Kpoints.automatic_density_by_lengths(poscar.structure, [50, 50, 1], True)
+        kpoints = Kpoints.automatic_density_by_lengths(poscar.structure, [50, 50, 1], force_gamma=True)
         assert kpoints.kpts == [[5, 9, 1]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
 

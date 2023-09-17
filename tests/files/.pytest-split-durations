@@ -1878,7 +1878,7 @@
     "tests/io/test_cif.py::TestCifIO::test_bad_cif": 0.20352345798164606,
     "tests/io/test_cif.py::TestCifIO::test_cif_parser_springer_pauling": 0.12847712403163314,
     "tests/io/test_cif.py::TestCifIO::test_cif_writer_labeled": 0.03572562395129353,
-    "tests/io/test_cif.py::TestCifIO::test_cifwrite_without_refinement": 0.02346849994501099,
+    "tests/io/test_cif.py::TestCifIO::test_cif_writer_without_refinement": 0.02346849994501099,
     "tests/io/test_cif.py::TestCifIO::test_disordered": 0.0019992499728687108,
     "tests/io/test_cif.py::TestCifIO::test_dot_positions": 0.005828208988532424,
     "tests/io/test_cif.py::TestCifIO::test_empty": 0.0018112090765498579,

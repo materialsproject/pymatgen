@@ -166,7 +166,7 @@ class VoronoiAnalyzer:
         ax.set_yticks(pos)
         ax.set_yticklabels(labels)
         ax.set(title="Voronoi Spectra", xlabel="Count")
-        ax.grid(True)
+        ax.grid(visible=True)
         return ax
 
 

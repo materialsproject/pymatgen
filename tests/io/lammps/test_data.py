@@ -329,10 +329,10 @@ class TestLammpsData(unittest.TestCase):
             ff_coeffs = c_ff.topo_coeffs[ff_kw]
             topo_kw = kw + "s"
             topos_df = c.topology[topo_kw]
-            topo_df = topos_df[topos_df["atom1"] >= shift]
+            topo_df: pd.DataFrame = topos_df[topos_df["atom1"] >= shift]
             topo_arr = topo_df.drop("type", axis=1)
             np.testing.assert_array_equal(topo.topologies[topo_kw], topo_arr - shift, topo_kw)
-            sample_topo = random.sample(list(topo_df.itertuples(False, None)), 1)[0]
+            sample_topo = random.sample(list(topo_df.itertuples(index=False, name=None)), 1)[0]
             topo_type_idx = sample_topo[0] - 1
             topo_type = tuple(atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"])
 
