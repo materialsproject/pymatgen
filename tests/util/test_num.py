@@ -2,14 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from pymatgen.util.num import min_max_indexes, round_to_sigfigs
-
-
-def test_min_max_indexes():
-    val = ["b", "a", "m", "z", "y"]
-    min_ind, max_ind = min_max_indexes(val)
-    assert min_ind == 1
-    assert max_ind == 3
+from pymatgen.util.num import round_to_sigfigs
 
 
 def test_round():

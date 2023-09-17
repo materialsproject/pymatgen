@@ -5,17 +5,6 @@ from __future__ import annotations
 import numpy as np
 
 
-def min_max_indexes(seq):
-    """Uses enumerate, max, and min to return the indices of the values
-    in a list with the maximum and minimum value.
-
-    Args:
-        seq: A sequence of numbers.
-    """
-    lst = sorted(enumerate(seq), key=lambda tup: tup[1])
-    return lst[0][0], lst[-1][0]
-
-
 def round_to_sigfigs(num, sig_figs):
     """Rounds a number rounded to a specific number of significant
     figures instead of to a specific precision.
