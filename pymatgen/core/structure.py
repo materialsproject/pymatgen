@@ -1179,6 +1179,21 @@ class IStructure(SiteCollection, MSONable):
         self._charge = None
 
     @property
+    def properties(self) -> dict:
+        """Properties associated with the whole structure. Note that this information is only
+        guaranteed to be saved if serializing to native pymatgen output formats (JSON/YAML)."""
+        # getattr() check for backwards compatibility:
+        # IStructure.properties is a recent addition and so any pickled Structure objects from an
+        # older pymatgen version may have issues when de-serialized. Note that pickle is *not*
+        # recommended as an archival format. Nevertheless, since this is a core pymatgen class,
+        # additional effort has been made to retain compatibility.
+        if properties := getattr(self, "properties"):
+            return properties
+        else:
+            self.properties = {}
+            return self.properties
+
+    @property
     def charge(self) -> float:
         """Overall charge of the structure."""
         formal_charge = super().charge
