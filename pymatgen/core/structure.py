@@ -1181,13 +1181,14 @@ class IStructure(SiteCollection, MSONable):
     @property
     def properties(self) -> dict:
         """Properties associated with the whole structure. Note that this information is only
-        guaranteed to be saved if serializing to native pymatgen output formats (JSON/YAML)."""
+        guaranteed to be saved if serializing to native pymatgen output formats (JSON/YAML).
+        """
         # getattr() check for backwards compatibility:
         # IStructure.properties is a recent addition and so any pickled Structure objects from an
         # older pymatgen version may have issues when de-serialized. Note that pickle is *not*
         # recommended as an archival format. Nevertheless, since this is a core pymatgen class,
         # additional effort has been made to retain compatibility.
-        if properties := getattr(self, "properties"):
+        if properties := self.properties:
             return properties
         else:
             self.properties = {}
