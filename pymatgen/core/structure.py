@@ -191,7 +191,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     # Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.5
-    properties: dict
+    _properties: dict
 
     @property
     def sites(self) -> list[Site]:
@@ -914,7 +914,7 @@ class IStructure(SiteCollection, MSONable):
         if validate_proximity and not self.is_valid():
             raise StructureError("Structure contains sites that are less than 0.01 Angstrom apart!")
         self._charge = charge
-        self.properties = properties or {}
+        self._properties = properties or {}
 
     @classmethod
     def from_sites(
@@ -1177,6 +1177,26 @@ class IStructure(SiteCollection, MSONable):
     def unset_charge(self):
         """Reset the charge to None, i.e., computed dynamically based on oxidation states."""
         self._charge = None
+
+    @property
+    def properties(self) -> dict:
+        """Properties associated with the whole Structure. Note that this information is
+        only guaranteed to be saved if serializing to native pymatgen output formats (JSON/YAML).
+        """
+        # getattr() check for backwards compatibility:
+        # IStructure.properties is a recent addition and so any pickled Structure objects from an
+        # older pymatgen version may have issues when de-serialized. Note that pickle is *not*
+        # recommended as an archival format. Nevertheless, since this is a core pymatgen class,
+        # additional effort has been made to retain compatibility.
+        if properties := getattr(self, "_properties"):  # noqa: B009
+            return properties
+        self._properties = {}
+        return self._properties
+
+    @properties.setter
+    def properties(self, properties: dict) -> None:
+        """Sets properties associated with the whole Structure."""
+        self._properties = properties
 
     @property
     def charge(self) -> float:
