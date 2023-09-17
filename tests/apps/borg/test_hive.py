@@ -17,7 +17,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 class TestVaspToComputedEntryDrone(unittest.TestCase):
     def setUp(self):
         self.drone = VaspToComputedEntryDrone(data=["efermi"])
-        self.structure_drone = VaspToComputedEntryDrone(True)
+        self.structure_drone = VaspToComputedEntryDrone(inc_structure=True)
 
     def test_get_valid_paths(self):
         for path in os.walk(TEST_FILES_DIR):
@@ -47,7 +47,7 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
 class TestSimpleVaspToComputedEntryDrone(unittest.TestCase):
     def setUp(self):
         self.drone = SimpleVaspToComputedEntryDrone()
-        self.structure_drone = SimpleVaspToComputedEntryDrone(True)
+        self.structure_drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
 
     def test_get_valid_paths(self):
         for path in os.walk(TEST_FILES_DIR):

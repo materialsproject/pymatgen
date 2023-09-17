@@ -677,16 +677,6 @@ class CoordinationGeometry:
     def __len__(self):
         return self.coordination
 
-    def set_permutations_safe_override(self, permutations_safe_override):
-        """
-        Setup ChemEnv so that a safe set of permutations are used.
-
-        Args:
-            permutations_safe_override: Whether to use safe permutations.
-        """
-        self.permutations_safe_override = permutations_safe_override
-        # self.setup_permutations()
-
     # @property
     # def csm_skip_algo(self):
     #     return self.CSM_SKIP_SEPARATION_PLANE_ALGO
@@ -913,7 +903,7 @@ class AllCoordinationGeometries(dict):
         self.cg_list.append(CoordinationGeometry(UNCLEAR_ENVIRONMENT_SYMBOL, "Unclear environment", deactivate=True))
         if permutations_safe_override:
             for cg in self.cg_list:
-                cg.set_permutations_safe_override(True)
+                cg.permutations_safe_override = True
 
         self.minpoints = {}
         self.maxpoints = {}

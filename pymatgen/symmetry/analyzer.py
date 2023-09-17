@@ -1650,11 +1650,11 @@ class SpacegroupOperations(list):
         """
 
         def in_sites(site):
-            return any(test_site.is_periodic_image(site, symm_prec, False) for test_site in sites1)
+            return any(test_site.is_periodic_image(site, symm_prec, check_lattice=False) for test_site in sites1)
 
         for op in self:
-            newsites2 = [PeriodicSite(site.species, op.operate(site.frac_coords), site.lattice) for site in sites2]
-            for site in newsites2:
+            new_sites2 = [PeriodicSite(site.species, op.operate(site.frac_coords), site.lattice) for site in sites2]
+            for site in new_sites2:
                 if not in_sites(site):
                     break
             else:

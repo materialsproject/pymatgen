@@ -604,18 +604,18 @@ class Section(MSONable):
         helps de-clutter them.
         """
         self.verbose = verbosity
-        for v in self.keywords.values():
-            v.verbosity(verbosity)
-        for v in self.subsections.values():
-            v.verbosity(verbosity)
+        for val in self.keywords.values():
+            val.verbosity(verbosity)
+        for val in self.subsections.values():
+            val.verbosity(verbosity)
 
     def silence(self):
         """Recursively delete all print sections so that only defaults are printed out."""
         if self.subsections:
             if self.subsections.get("PRINT"):
                 del self.subsections["PRINT"]
-            for v in self.subsections.values():
-                v.silence()
+            for val in self.subsections.values():
+                val.silence()
 
 
 class SectionList(MSONable):
