@@ -32,16 +32,6 @@ def min_max_indexes(seq):
     return lst[0][0], lst[-1][0]
 
 
-def strictly_increasing(values):
-    """True if values are strictly increasing."""
-    return all(x < y for x, y in zip(values, values[1:]))
-
-
-def strictly_decreasing(values):
-    """True if values are strictly decreasing."""
-    return all(x > y for x, y in zip(values, values[1:]))
-
-
 def round_to_sigfigs(num, sig_figs):
     """Rounds a number rounded to a specific number of significant
     figures instead of to a specific precision.

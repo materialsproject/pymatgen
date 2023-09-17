@@ -2,14 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from pymatgen.util.num import (
-    maxloc,
-    min_max_indexes,
-    minloc,
-    round_to_sigfigs,
-    strictly_decreasing,
-    strictly_increasing,
-)
+from pymatgen.util.num import maxloc, min_max_indexes, minloc, round_to_sigfigs
 
 
 def test_minloc():
@@ -47,13 +40,3 @@ def test_round():
         round_to_sigfigs(3.5, -2)
     with pytest.raises(TypeError, match="Number of significant figures must be integer"):
         round_to_sigfigs(3.5, 3.5)
-
-
-def test_strictly_increasing():
-    assert strictly_increasing([1, 2, 3])
-    assert not strictly_increasing([3, 1, 2])
-
-
-def test_strictly_decreasing():
-    assert not strictly_decreasing([1, 2, 3])
-    assert strictly_decreasing([3, 2, 1])
