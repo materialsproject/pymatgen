@@ -1180,8 +1180,8 @@ class IStructure(SiteCollection, MSONable):
 
     @property
     def properties(self) -> dict:
-        """Properties associated with the whole structure. Note that this information is only
-        guaranteed to be saved if serializing to native pymatgen output formats (JSON/YAML).
+        """Properties associated with the whole Structure. Note that this information is
+        only guaranteed to be saved if serializing to native pymatgen output formats (JSON/YAML).
         """
         # getattr() check for backwards compatibility:
         # IStructure.properties is a recent addition and so any pickled Structure objects from an
@@ -1192,6 +1192,11 @@ class IStructure(SiteCollection, MSONable):
             return properties
         self._properties = {}
         return self._properties
+
+    @properties.setter
+    def properties(self, properties: dict) -> None:
+        """Sets properties associated with the whole Structure."""
+        self._properties = properties
 
     @property
     def charge(self) -> float:
