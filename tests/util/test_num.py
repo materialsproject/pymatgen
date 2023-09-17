@@ -2,15 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from pymatgen.util.num import maxloc, min_max_indexes, minloc, round_to_sigfigs
-
-
-def test_minloc():
-    assert minloc(range(3)) == 0
-
-
-def test_maxloc():
-    assert maxloc([1, 3, 2, 3]) == 1
+from pymatgen.util.num import min_max_indexes, round_to_sigfigs
 
 
 def test_min_max_indexes():
