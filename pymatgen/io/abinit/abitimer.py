@@ -15,7 +15,6 @@ import numpy as np
 from monty.string import is_string, list_strings
 
 from pymatgen.io.core import ParseError
-from pymatgen.util.num import minloc
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
 
 logger = logging.getLogger(__name__)
@@ -258,7 +257,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ncpus = [timer.ncpus for timer in timers]
 
         # Find the minimum number of cpus used and its index in timers.
-        min_idx = minloc(ncpus)
+        min_idx = np.argmin(ncpus)
         min_ncpus = ncpus[min_idx]
 
         # Reference timer

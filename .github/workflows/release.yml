@@ -34,7 +34,7 @@ jobs:
       PMG_VASP_PSP_DIR: ${{ github.workspace }}/tests/files
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -51,7 +51,7 @@ jobs:
           wget http://theory.cm.utexas.edu/henkelman/code/bader/download/bader_lnx_64.tar.gz
           tar xvzf bader_lnx_64.tar.gz
           sudo mv bader /usr/local/bin/
-        continue-on-error: true  # This is not critical to succeed.
+        continue-on-error: true # This is not critical to succeed.
       - name: Install Enumlib
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -64,7 +64,7 @@ jobs:
           sudo mv enum.x /usr/local/bin/
           cd ..
           sudo cp aux_src/makeStr.py /usr/local/bin/
-        continue-on-error: true  # This is not critical to succeed.
+        continue-on-error: true # This is not critical to succeed.
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
@@ -86,7 +86,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         name: Install Python
         with:
@@ -108,7 +108,7 @@ jobs:
         python-version: ["39", "310", "311"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.15.0
         env:
