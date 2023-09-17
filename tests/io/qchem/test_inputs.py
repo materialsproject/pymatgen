@@ -476,7 +476,7 @@ $end"""
         }
         assert opt_actual == opt_test
 
-    def test_str__(self):
+    def test_str(self):
         species = ["C", "O"]
         coords = [
             [-9.5782000000, 0.6241500000, 0.0000000000],

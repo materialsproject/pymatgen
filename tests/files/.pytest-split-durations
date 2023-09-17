@@ -1738,7 +1738,7 @@
     "tests/io/lobster/test_inputsenv.py::TestLobsterNeighbors::test_set_limits": 0.2663767909980379,
     "tests/io/lobster/test_inputsenv.py::TestLobsterNeighbors::test_structure_graph": 0.2327015830669552,
     "tests/io/lobster/test_inputsenv.py::TestLobsterNeighbors::test_wrong_additional_correction": 0.23369149904465303,
-    "tests/io/qchem/test_inputs.py::TestQCInput::test_str__": 0.003099416964687407,
+    "tests/io/qchem/test_inputs.py::TestQCInput::test_str": 0.003099416964687407,
     "tests/io/qchem/test_inputs.py::TestQCInput::test_almo_template": 0.002007041999604553,
     "tests/io/qchem/test_inputs.py::TestQCInput::test_cdft_template": 0.0019558750209398568,
     "tests/io/qchem/test_inputs.py::TestQCInput::test_find_sections": 0.002032040967606008,
