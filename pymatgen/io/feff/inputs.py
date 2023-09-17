@@ -298,7 +298,7 @@ class Header(MSONable):
         Returns:
             Structure object.
         """
-        lines = tuple(clean_lines(header_str.split("\n"), False))
+        lines = tuple(clean_lines(header_str.split("\n"), remove_empty_lines=False))
         comment1 = lines[0]
         feff_pmg = comment1.find("pymatgen")
         if feff_pmg == -1:

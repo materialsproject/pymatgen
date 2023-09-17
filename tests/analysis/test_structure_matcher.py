@@ -212,14 +212,14 @@ class TestStructureMatcher(PymatgenTest):
         l2 = Lattice.cubic(0.5)
         s1 = Structure(latt, ["Mg", "Cu", "Ag", "Cu"], [[0] * 3] * 4)
         s2 = Structure(l2, ["Cu", "Cu", "Ag"], [[0] * 3] * 3)
-        scs = list(sm._get_supercells(s1, s2, 8, False))
+        scs = list(sm._get_supercells(s1, s2, fu=8, s1_supercell=False))
         for x in scs:
             assert abs(np.linalg.det(x[3])) == approx(8)
             assert len(x[0]) == 4
             assert len(x[1]) == 24
         assert len(scs) == 48
 
-        scs = list(sm._get_supercells(s2, s1, 8, True))
+        scs = list(sm._get_supercells(s2, s1, fu=8, s1_supercell=True))
         for x in scs:
             assert abs(np.linalg.det(x[3])) == approx(8)
             assert len(x[0]) == 24

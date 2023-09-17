@@ -2323,7 +2323,7 @@ class IStructure(SiteCollection, MSONable):
             np.abs(fdist, fdist)
             non_nbrs = np.any(fdist > 2 * super_ftol[None, None, :], axis=-1)
             # since we want sites to match to themselves
-            np.fill_diagonal(non_nbrs, True)
+            np.fill_diagonal(non_nbrs, val=True)
             grouped_non_nbrs.append(non_nbrs)
 
         num_fu = functools.reduce(math.gcd, map(len, grouped_sites))
@@ -2730,7 +2730,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt_low == "poscar":
             from pymatgen.io.vasp import Poscar
 
-            struct = Poscar.from_str(input_string, False, read_velocities=False, **kwargs).structure
+            struct = Poscar.from_str(input_string, default_names=False, read_velocities=False, **kwargs).structure
         elif fmt_low == "cssr":
             from pymatgen.io.cssr import Cssr
 

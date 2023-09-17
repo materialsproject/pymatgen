@@ -1430,7 +1430,7 @@ class TestStructure(PymatgenTest):
         silica_zeolite = Molecule.from_file(f"{TEST_FILES_DIR}/CON_vesta.xyz")
 
         s_vesta = Structure(
-            lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, True),
+            lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, vesta=True),
             species=silica_zeolite.species,
             coords=silica_zeolite.cart_coords,
             coords_are_cartesian=True,

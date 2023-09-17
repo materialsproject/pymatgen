@@ -2349,7 +2349,7 @@ class BSDOSPlotter:
         bs_ax.hlines(y=0, xmin=0, xmax=x_distances_list[-1][-1], color="k", lw=2)
         bs_ax.set_yticks(np.arange(emin, emax + 1e-5, self.egrid_interval))
         bs_ax.set_yticklabels(np.arange(emin, emax + 1e-5, self.egrid_interval), size=self.tick_fontsize)
-        bs_ax.set_axisbelow(True)
+        bs_ax.set_axisbelow(b=True)
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle="dotted", linewidth=1)
         if dos:
             dos_ax.set_yticks(np.arange(emin, emax + 1e-5, self.egrid_interval))

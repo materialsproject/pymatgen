@@ -889,9 +889,9 @@ class AbinitTimer:
         # thus there is no need to manually adjust the xlim and ylim of these axis.
 
         # axHistx.axis["bottom"].major_ticklabels.set_visible(False)
+        axHistx.set_yticks([0, 50, 100])
         for tl in axHistx.get_xticklabels():
             tl.set_visible(False)
-            axHistx.set_yticks([0, 50, 100])
 
             # axHisty.axis["left"].major_ticklabels.set_visible(False)
             for tl in axHisty.get_yticklabels():

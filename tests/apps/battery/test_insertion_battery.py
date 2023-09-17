@@ -55,8 +55,8 @@ class TestInsertionElectrode(unittest.TestCase):
         assert self.ie_LTO.get_capacity_grav(1, 3) == approx(154.374325225)
 
         # test alternate normalization option
-        assert self.ie_LTO.get_capacity_grav(1, 3, False) == approx(160.803169506)
-        assert self.ie_LTO.get_summary_dict(True) is not None
+        assert self.ie_LTO.get_capacity_grav(1, 3, use_overall_normalization=False) == approx(160.803169506)
+        assert self.ie_LTO.get_summary_dict() is not None
 
         assert self.ie_MVO.get_capacity_grav() == approx(281.845548242)
         assert self.ie_MVO.get_capacity_vol() == approx(1145.80087994)

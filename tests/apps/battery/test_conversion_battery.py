@@ -70,8 +70,8 @@ class TestConversionElectrode(unittest.TestCase):
         for f in self.formulas:
             c = self.conversion_electrodes[f]["CE"]
 
-            assert len(c.get_sub_electrodes(True)) == c.num_steps
-            assert len(c.get_sub_electrodes(False)) == sum(range(1, c.num_steps + 1))
+            assert len(c.get_sub_electrodes(adjacent_only=True)) == c.num_steps
+            assert len(c.get_sub_electrodes(adjacent_only=False)) == sum(range(1, c.num_steps + 1))
             assert str(c) is not None
             p = self.expected_properties[f]
 

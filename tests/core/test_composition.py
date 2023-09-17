@@ -716,7 +716,7 @@ class TestChemicalPotential(unittest.TestCase):
 
         # test get_energy()
         assert pots.get_energy(fe_o2) == approx(5.2)
-        assert fe_pot.get_energy(fe_o2, False) == approx(1)
+        assert fe_pot.get_energy(fe_o2, strict=False) == approx(1)
         with pytest.raises(ValueError, match="Potentials not specified for {Element O}"):
             fe_pot.get_energy(fe_o2)
 

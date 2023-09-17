@@ -2665,7 +2665,7 @@ class GthPotential(AtomicMetadata):
     def from_section(cls, section: Section) -> GthPotential:
         """Extract GTH-formatted string from a section and convert it to model."""
         sec = copy.deepcopy(section)
-        sec.verbosity(False)
+        sec.verbosity(verbosity=False)
         lst = sec.get_str().split("\n")
         string = "\n".join(line for line in lst if not line.startswith("&"))
         return cls.from_str(string)
