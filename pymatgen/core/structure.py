@@ -914,7 +914,7 @@ class IStructure(SiteCollection, MSONable):
         if validate_proximity and not self.is_valid():
             raise StructureError("Structure contains sites that are less than 0.01 Angstrom apart!")
         self._charge = charge
-        self.properties = properties or {}
+        self._properties = properties or {}
 
     @classmethod
     def from_sites(
@@ -1188,10 +1188,10 @@ class IStructure(SiteCollection, MSONable):
         # older pymatgen version may have issues when de-serialized. Note that pickle is *not*
         # recommended as an archival format. Nevertheless, since this is a core pymatgen class,
         # additional effort has been made to retain compatibility.
-        if properties := getattr(self, "properties"):  # noqa: B009
+        if properties := getattr(self, "_properties"):  # noqa: B009
             return properties
-        self.properties = {}
-        return self.properties
+        self._properties = {}
+        return self._properties
 
     @property
     def charge(self) -> float:
