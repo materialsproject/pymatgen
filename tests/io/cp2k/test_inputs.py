@@ -223,7 +223,7 @@ class TestInput(PymatgenTest):
         # should be case insensitive and ignore
         # excessive white space or tabs
         ci = Cp2kInput.from_str(scramble)
-        assert ci["FORCE_EVAL"]["DFT"]["UKS"] == Keyword("UKS", True)
+        assert ci["FORCE_EVAL"]["DFT"]["UKS"] == Keyword("UKS", True)  # noqa: FBT003
         assert [k.name.upper() for k in ci["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"]] == [
             "BASIS_SET_FILE_NAME",
             "BASIS_SET_FILE_NAME",

@@ -832,7 +832,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
             parent.show_help = not parent.show_help
             parent.redraw()
         elif sym == "r":
-            parent.redraw(True)
+            parent.redraw(True)  # noqa: FBT003
         elif sym == "s":
             parent.write_image("image.png")
         elif sym == "Up":
