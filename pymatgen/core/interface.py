@@ -123,7 +123,7 @@ class Interface(Structure):
         delta = new_gap - self.gap
         self._gap = new_gap
 
-        self.__update_c(self.lattice.c + delta)
+        self._update_c(self.lattice.c + delta)
         self.translate_sites(self.film_indices, [0, 0, delta], frac_coords=False, to_unit_cell=True)
 
     @property
@@ -139,7 +139,7 @@ class Interface(Structure):
         delta = new_vacuum - self.vacuum_over_film
         self._vacuum_over_film = new_vacuum
 
-        self.__update_c(self.lattice.c + delta)
+        self._update_c(self.lattice.c + delta)
 
     @property
     def substrate_indices(self) -> list[int]:
@@ -257,7 +257,7 @@ class Interface(Structure):
         )
         return count_layers(self.substrate, sorted_element_list[0][0])
 
-    def __update_c(self, new_c: float) -> None:
+    def _update_c(self, new_c: float) -> None:
         """Modifies the c-direction of the lattice without changing the site Cartesian coordinates
         Be careful you can mess up the interface by setting a c-length that can't accommodate all the sites.
         """
@@ -265,11 +265,11 @@ class Interface(Structure):
             raise ValueError("New c-length must be greater than 0")
 
         new_latt_matrix = [*self.lattice.matrix[:2].tolist(), [0, 0, new_c]]
-        new_latice = Lattice(new_latt_matrix)
-        self._lattice = new_latice
+        new_lattice = Lattice(new_latt_matrix)
+        self._lattice = new_lattice
 
         for site, c_coords in zip(self, self.cart_coords):
-            site._lattice = new_latice  # Update the lattice
+            site._lattice = new_lattice  # Update the lattice
             site.coords = c_coords  # Put back into original Cartesian space
 
     def as_dict(self):

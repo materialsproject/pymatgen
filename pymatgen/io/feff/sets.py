@@ -324,7 +324,7 @@ class FEFFDictSet(AbstractFeffInputSet):
             for site_index, site in enumerate(sub_d["header"].struct):
                 if site.specie == input_atoms[0].specie:
                     site_atoms = Atoms(sub_d["header"].struct, absorbing_atom=site_index, radius=radius)
-                    site_distance = np.array(site_atoms.get_lines())[:, 5].astype(np.float64)
+                    site_distance = np.array(site_atoms.get_lines())[:, 5].astype(float)
                     site_shell_species = np.array(site_atoms.get_lines())[:, 4]
                     shell_overlap = min(shell_species.shape[0], site_shell_species.shape[0])
 

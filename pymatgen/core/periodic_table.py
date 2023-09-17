@@ -528,8 +528,8 @@ class ElementBase(Enum):
                 standard group number except for the lanthanoids
                 and actinoids for which it is 3 (La, Ac) to 17 (Lu, Lr).
 
-        .. note::
-            The 18 group number system is used, i.e., Noble gases are group 18.
+        Note:
+            The 18 group number system is used, i.e. noble gases are group 18.
         """
         for sym in _pt_data:
             el = Element(sym)

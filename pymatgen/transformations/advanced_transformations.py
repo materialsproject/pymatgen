@@ -163,10 +163,9 @@ class MultipleSubstitutionTransformation:
     only one ordering must be done per substitution oxidation state. Charge
     balancing of the structure is optionally performed.
 
-    .. note::
-        There are no checks to make sure that removal fractions are possible
-        and rounding may occur. Currently charge balancing only works for
-        removal of species.
+    Note:
+        There are no checks to make sure that removal fractions are possible and rounding
+        may occur. Currently charge balancing only works for removal of species.
     """
 
     def __init__(

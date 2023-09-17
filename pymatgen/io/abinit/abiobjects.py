@@ -700,7 +700,7 @@ class KSampling(AbivarAble, MSONable):
             chksymbreak: Abinit input variable: check whether the BZ sampling preserves the symmetry of the crystal.
             comment: String comment for Kpoints
 
-        .. note::
+        Note:
             The default behavior of the constructor is monkhorst.
         """
         if isinstance(mode, str):
