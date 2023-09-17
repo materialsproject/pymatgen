@@ -900,7 +900,7 @@ class MPRelaxSet(DictSet):
     description="Strongly Constrained and Appropriately Normed Semilocal Density Functional",
 )
 @due.dcite(
-    Doi("doi:10.1103/PhysRevB.93.155109"),
+    Doi("10.1103/PhysRevB.93.155109"),
     description="Efficient generation of generalized Monkhorst-Pack grids through the use of informatics",
 )
 class MPScanRelaxSet(DictSet):
