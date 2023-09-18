@@ -609,15 +609,8 @@ class Poscar(MSONable):
         velocities *= scale * 1e-5  # these are in A/fs
 
         self.temperature = temperature
-        try:
-            del self.structure.site_properties["selective_dynamics"]
-        except KeyError:
-            pass
-
-        try:
-            del self.structure.site_properties["predictor_corrector"]
-        except KeyError:
-            pass
+        self.structure.site_properties.pop("selective_dynamics", None)
+        self.structure.site_properties.pop("predictor_corrector", None)
         # returns as a list of lists to be consistent with the other
         # initializations
 

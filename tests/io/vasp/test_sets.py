@@ -1046,19 +1046,19 @@ class TestMagmomLdau(PymatgenTest):
         assert magmom == magmom_ans
 
     def test_ln_magmom(self):
-        YAML_PATH = MODULE_DIR / "VASPIncarBase.yaml"
-        MAGMOM_SETTING = loadfn(YAML_PATH)["INCAR"]["MAGMOM"]
+        yaml_path = MODULE_DIR / "VASPIncarBase.yaml"
+        magmom_setting = loadfn(yaml_path)["INCAR"]["MAGMOM"]
         structure = Structure.from_file(f"{TEST_FILES_DIR}/La4Fe4O12.cif")
         structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
-        for ion in MAGMOM_SETTING:
+        for ion in magmom_setting:
             struct = structure.copy()
             struct.replace_species({"La3+": ion})
             vis = MPRelaxSet(struct)
             fe_pos = vis.poscar.comment.index("Fe")
             if fe_pos == 0:
-                magmom_ans = [5] * 4 + [MAGMOM_SETTING[ion]] * 4 + [0.6] * 12
+                magmom_ans = [5] * 4 + [magmom_setting[ion]] * 4 + [0.6] * 12
             else:
-                magmom_ans = [MAGMOM_SETTING[ion]] * 4 + [5] * 4 + [0.6] * 12
+                magmom_ans = [magmom_setting[ion]] * 4 + [5] * 4 + [0.6] * 12
 
             assert vis.incar["MAGMOM"] == magmom_ans
 

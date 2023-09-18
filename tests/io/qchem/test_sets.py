@@ -138,7 +138,7 @@ class TestQChemDictSet(PymatgenTest):
                 "xc_grid": "000150000302",
             }
         }
-        test_OptSet = OptSet(molecule=test_molecule, overwrite_inputs=overwrite_inputs)
+        test_opt_set = OptSet(molecule=test_molecule, overwrite_inputs=overwrite_inputs)
         act_rem = {
             "job_type": "opt",
             "gen_scfman": "true",
@@ -154,7 +154,7 @@ class TestQChemDictSet(PymatgenTest):
             "sym_ignore": "true",
             "resp_charges": "true",
         }
-        assert act_rem == test_OptSet.rem
+        assert act_rem == test_opt_set.rem
 
     def test_double_solvation(self):
         test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
@@ -644,7 +644,7 @@ class TestSinglePointSet(PymatgenTest):
 class TestOptSet(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
-        test_OptSet = OptSet(molecule=test_molecule)
+        test_opt_set = OptSet(molecule=test_molecule)
         ref_dict = {
             "job_type": "opt",
             "gen_scfman": "true",
@@ -660,15 +660,15 @@ class TestOptSet(PymatgenTest):
             "sym_ignore": "true",
             "resp_charges": "true",
         }
-        assert test_OptSet.rem == ref_dict
-        assert test_OptSet.pcm == {}
-        assert test_OptSet.solvent == {}
-        assert test_OptSet.smx == {}
-        assert test_OptSet.molecule == test_molecule
+        assert test_opt_set.rem == ref_dict
+        assert test_opt_set.pcm == {}
+        assert test_opt_set.solvent == {}
+        assert test_opt_set.smx == {}
+        assert test_opt_set.molecule == test_molecule
 
     def test_pcm_init(self):
         test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
-        test_OptSet = OptSet(molecule=test_molecule, pcm_dielectric=10.0)
+        test_opt_set = OptSet(molecule=test_molecule, pcm_dielectric=10.0)
         ref_dict = {
             "job_type": "opt",
             "gen_scfman": "true",
@@ -685,7 +685,7 @@ class TestOptSet(PymatgenTest):
             "sym_ignore": "true",
             "resp_charges": "true",
         }
-        assert test_OptSet.rem == ref_dict
+        assert test_opt_set.rem == ref_dict
         ref_dict = {
             "heavypoints": "194",
             "hpoints": "194",
@@ -693,13 +693,13 @@ class TestOptSet(PymatgenTest):
             "theory": "cpcm",
             "vdwscale": "1.1",
         }
-        assert test_OptSet.pcm == ref_dict
-        assert test_OptSet.solvent == {"dielectric": "10.0"}
-        assert test_OptSet.molecule == test_molecule
+        assert test_opt_set.pcm == ref_dict
+        assert test_opt_set.solvent == {"dielectric": "10.0"}
+        assert test_opt_set.molecule == test_molecule
 
     def test_smd_init(self):
         test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
-        test_OptSet = OptSet(molecule=test_molecule, smd_solvent="water")
+        test_opt_set = OptSet(molecule=test_molecule, smd_solvent="water")
         ref_dict = {
             "job_type": "opt",
             "gen_scfman": "true",
@@ -717,20 +717,20 @@ class TestOptSet(PymatgenTest):
             "sym_ignore": "true",
             "resp_charges": "true",
         }
-        assert test_OptSet.rem == ref_dict
-        assert test_OptSet.smx == {"solvent": "water"}
-        assert test_OptSet.molecule == test_molecule
+        assert test_opt_set.rem == ref_dict
+        assert test_opt_set.smx == {"solvent": "water"}
+        assert test_opt_set.molecule == test_molecule
 
     def test_overwrite_opt_input(self):
         test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
         overwrite_inputs = {"opt": {"FIXED": ["1 XYZ", "2 XY"]}}
-        test_OptSet = OptSet(molecule=test_molecule, overwrite_inputs=overwrite_inputs)
+        test_opt_set = OptSet(molecule=test_molecule, overwrite_inputs=overwrite_inputs)
         act_opt = {"fixed": ["1 XYZ", "2 XY"]}
-        assert act_opt == test_OptSet.opt
+        assert act_opt == test_opt_set.opt
 
     def test_nbo_init(self):
         test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
-        test_OptSet = OptSet(molecule=test_molecule, nbo_params={})
+        test_opt_set = OptSet(molecule=test_molecule, nbo_params={})
         ref_dict = {
             "job_type": "opt",
             "gen_scfman": "true",
@@ -747,13 +747,13 @@ class TestOptSet(PymatgenTest):
             "resp_charges": "true",
             "nbo": "true",
         }
-        assert test_OptSet.rem == ref_dict
-        assert test_OptSet.nbo == {}
-        assert test_OptSet.molecule == test_molecule
+        assert test_opt_set.rem == ref_dict
+        assert test_opt_set.nbo == {}
+        assert test_opt_set.molecule == test_molecule
 
     def test_v5_vs_v6(self):
         test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
-        v5_OptSet = OptSet(molecule=test_molecule, qchem_version=5, basis_set="def2-tzvpd", geom_opt={})
+        v5_opt_set = OptSet(molecule=test_molecule, qchem_version=5, basis_set="def2-tzvpd", geom_opt={})
         ref_dict = {
             "job_type": "opt",
             "gen_scfman": "true",
@@ -770,11 +770,11 @@ class TestOptSet(PymatgenTest):
             "resp_charges": "true",
             "geom_opt2": "3",
         }
-        assert v5_OptSet.rem == ref_dict
-        assert v5_OptSet.geom_opt == {"maxiter": "200"}
-        assert v5_OptSet.molecule == test_molecule
+        assert v5_opt_set.rem == ref_dict
+        assert v5_opt_set.geom_opt == {"maxiter": "200"}
+        assert v5_opt_set.molecule == test_molecule
 
-        v6_OptSet = OptSet(molecule=test_molecule, qchem_version=6, basis_set="def2-tzvpd", geom_opt={})
+        v6_opt_set = OptSet(molecule=test_molecule, qchem_version=6, basis_set="def2-tzvpd", geom_opt={})
         ref_dict = {
             "job_type": "opt",
             "gen_scfman": "true",
@@ -790,17 +790,17 @@ class TestOptSet(PymatgenTest):
             "sym_ignore": "true",
             "resp_charges": "true",
         }
-        assert v6_OptSet.rem == ref_dict
+        assert v6_opt_set.rem == ref_dict
         ref_dict = {
             "maxiter": "200",
             "coordinates": "redundant",
             "max_displacement": "0.1",
             "optimization_restart": "false",
         }
-        assert v6_OptSet.geom_opt == ref_dict
-        assert v6_OptSet.molecule == test_molecule
+        assert v6_opt_set.geom_opt == ref_dict
+        assert v6_opt_set.molecule == test_molecule
 
-        v6_OptSet_modified = OptSet(
+        v6_opt_set_modified = OptSet(
             molecule=test_molecule,
             qchem_version=6,
             basis_set="def2-tzvpd",
@@ -813,13 +813,13 @@ class TestOptSet(PymatgenTest):
             "initial_hessian": "read",
             "optimization_restart": "false",
         }
-        assert v6_OptSet_modified.geom_opt == ref_dict
+        assert v6_opt_set_modified.geom_opt == ref_dict
 
 
 class TestTransitionStateSet(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
-        test_TSSet = TransitionStateSet(molecule=test_molecule)
+        test_ts_set = TransitionStateSet(molecule=test_molecule)
         ref_dict = {
             "job_type": "ts",
             "gen_scfman": "true",
@@ -835,15 +835,15 @@ class TestTransitionStateSet(PymatgenTest):
             "sym_ignore": "true",
             "symmetry": "false",
         }
-        assert test_TSSet.rem == ref_dict
-        assert test_TSSet.pcm == {}
-        assert test_TSSet.solvent == {}
-        assert test_TSSet.smx == {}
-        assert test_TSSet.molecule == test_molecule
+        assert test_ts_set.rem == ref_dict
+        assert test_ts_set.pcm == {}
+        assert test_ts_set.solvent == {}
+        assert test_ts_set.smx == {}
+        assert test_ts_set.molecule == test_molecule
 
     def test_pcm_init(self):
         test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
-        test_TSSet = TransitionStateSet(molecule=test_molecule, pcm_dielectric=10.0)
+        test_ts_set = TransitionStateSet(molecule=test_molecule, pcm_dielectric=10.0)
         ref_dict = {
             "job_type": "ts",
             "gen_scfman": "true",
@@ -860,15 +860,15 @@ class TestTransitionStateSet(PymatgenTest):
             "sym_ignore": "true",
             "symmetry": "false",
         }
-        assert test_TSSet.rem == ref_dict
+        assert test_ts_set.rem == ref_dict
         ref_dict = {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"}
-        assert test_TSSet.pcm == ref_dict
-        assert test_TSSet.solvent == {"dielectric": "10.0"}
-        assert test_TSSet.molecule == test_molecule
+        assert test_ts_set.pcm == ref_dict
+        assert test_ts_set.solvent == {"dielectric": "10.0"}
+        assert test_ts_set.molecule == test_molecule
 
     def test_smd_init(self):
         test_molecule = QCInput.from_file(f"{test_dir}/new_qchem_files/pcm.qin").molecule
-        test_TSSet = TransitionStateSet(molecule=test_molecule, smd_solvent="water")
+        test_ts_set = TransitionStateSet(molecule=test_molecule, smd_solvent="water")
         ref_dict = {
             "job_type": "ts",
             "gen_scfman": "true",
@@ -886,9 +886,9 @@ class TestTransitionStateSet(PymatgenTest):
             "sym_ignore": "true",
             "symmetry": "false",
         }
-        assert test_TSSet.rem == ref_dict
-        assert test_TSSet.smx == {"solvent": "water"}
-        assert test_TSSet.molecule == test_molecule
+        assert test_ts_set.rem == ref_dict
+        assert test_ts_set.smx == {"solvent": "water"}
+        assert test_ts_set.molecule == test_molecule
 
 
 class TestForceSet(PymatgenTest):
