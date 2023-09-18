@@ -8,20 +8,20 @@ Diffraction Analyses Chem. Mater 2020 32 (3), 1002-1010. 10.1021/acs.chemmater.9
 """
 from __future__ import annotations
 
+import gzip
 import os
 from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import gzip
 
 if TYPE_CHECKING:
     from pymatgen.core.periodic_table import Element
     from pymatgen.core.structure import Structure
 
 # Load in the neutron form factors
-with gzip.open(f"{os.path.dirname(__file__)}/neutron_factors.csv.gz",mode="rt") as csv_file:
+with gzip.open(f"{os.path.dirname(__file__)}/neutron_factors.csv.gz", mode="rt") as csv_file:
     NEUTRON_SCATTER_DF = pd.read_csv(csv_file)
     # from http://www.ccp14.ac.uk/ccp/web-mirrors/neutrons/n-scatter/n-lengths/LIST~1.HTM
 
@@ -177,7 +177,9 @@ class FStarDiagram:
         Neutron scattering function. i2 and i2 are unused.
         """
         if el.Z > 96:
-            raise ValueError("Neutron sactter data only goes out to atomic number 96. To go farther you will need to make a custom scattering function with values you provide.")
+            raise ValueError(
+                "Neutron sactter data only goes out to atomic number 96. To go farther you will need to make a custom scattering function with values you provide."
+            )
         for i, n in enumerate(NEUTRON_SCATTER_DF["Isotope"].values):
             if hasattr(el, "element"):
                 if n == str(el.element):
