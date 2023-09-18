@@ -68,8 +68,7 @@ def make_doc(ctx):
 
 @task
 def make_dash(ctx):
-    """
-    Make customized doc version for Dash.
+    """Make customized doc version for Dash.
 
     :param ctx:
     """
@@ -320,7 +319,7 @@ def check_egg_sources_txt_for_completeness():
             raise ValueError(f"{src_file} does not exist!")
 
     for ext in ("py", "json", "json.gz", "yaml", "csv"):
-        for filepath in glob(f"pymatgen/**/*.{ext}", recursive=True):
+        for filepath in glob.glob(f"pymatgen/**/*.{ext}", recursive=True):
             if "/tests/" in filepath or "dao" in filepath:
                 continue
             if filepath not in sources:

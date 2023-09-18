@@ -57,12 +57,12 @@ class TestRotationTransformations(unittest.TestCase):
         self.struct = Structure(lattice, ["Si"] * 2, coords)
 
     def test_as_from_dict(self):
-        trafo = RotationTransformation([0, 1, 0], 30, False)
-        d = trafo.as_dict()
-        assert isinstance(RotationTransformation.from_dict(d), RotationTransformation)
+        trafo = RotationTransformation([0, 1, 0], 30)
+        dct = trafo.as_dict()
+        assert isinstance(RotationTransformation.from_dict(dct), RotationTransformation)
 
     def test_rotation_transformation(self):
-        trafo = RotationTransformation([0, 1, 0], 30, False)
+        trafo = RotationTransformation([0, 1, 0], 30)
         s2 = trafo.apply_transformation(self.struct)
         s1 = trafo.inverse.apply_transformation(s2)
         assert (abs(s1.lattice.matrix - self.struct.lattice.matrix) < 1e-8).all()

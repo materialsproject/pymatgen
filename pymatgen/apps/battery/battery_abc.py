@@ -369,7 +369,7 @@ class AbstractElectrode(Sequence, MSONable):
         Returns:
             A summary of this electrode's properties in dict format.
         """
-        d = {
+        dct = {
             "average_voltage": self.get_average_voltage(),
             "max_voltage": self.max_voltage,
             "min_voltage": self.min_voltage,
@@ -391,6 +391,6 @@ class AbstractElectrode(Sequence, MSONable):
             def f_dict(c):
                 return c.get_summary_dict(print_subelectrodes=False)
 
-            d["adj_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=True)))
-            d["all_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=False)))
-        return d
+            dct["adj_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=True)))
+            dct["all_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=False)))
+        return dct

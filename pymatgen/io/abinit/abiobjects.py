@@ -26,23 +26,23 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
     If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr.
 
     Args:
-        cls: Lattice class to be instantiated. pymatgen.core.lattice.Lattice if `cls` is None
+        cls: Lattice class to be instantiated. Defaults to pymatgen.core.Lattice.
 
     Example:
         lattice_from_abivars(acell=3*[10], rprim=np.eye(3))
     """
-    cls = Lattice if cls is None else cls
+    cls = cls or Lattice
     kwargs.update(dict(*args))
 
-    rprim = kwargs.get("rprim")
+    r_prim = kwargs.get("rprim")
     ang_deg = kwargs.get("angdeg")
-    acell = kwargs["acell"]
+    a_cell = kwargs["acell"]
 
-    if rprim is not None:
+    if r_prim is not None:
         if ang_deg is not None:
             raise ValueError("angdeg and rprimd are mutually exclusive")
-        rprim = np.reshape(rprim, (3, 3))
-        rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
+        r_prim = np.reshape(r_prim, (3, 3))
+        rprimd = [float(a_cell[i]) * r_prim[i] for i in range(3)]
         # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
         return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
 
@@ -58,7 +58,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         # See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg
         tol12 = 1e-12
         pi, sin, cos, sqrt = np.pi, np.sin, np.cos, np.sqrt
-        rprim = np.zeros((3, 3))
+        r_prim = np.zeros((3, 3))
         if (
             abs(ang_deg[0] - ang_deg[1]) < tol12
             and abs(ang_deg[1] - ang_deg[2]) < tol12
@@ -70,26 +70,26 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
             a2 = 2.0 / 3.0 * (1.0 - cos_ang)
             aa = sqrt(a2)
             cc = sqrt(1.0 - a2)
-            rprim[0, 0] = aa
-            rprim[0, 1] = 0.0
-            rprim[0, 2] = cc
-            rprim[1, 0] = -0.5 * aa
-            rprim[1, 1] = sqrt(3.0) * 0.5 * aa
-            rprim[1, 2] = cc
-            rprim[2, 0] = -0.5 * aa
-            rprim[2, 1] = -sqrt(3.0) * 0.5 * aa
-            rprim[2, 2] = cc
+            r_prim[0, 0] = aa
+            r_prim[0, 1] = 0.0
+            r_prim[0, 2] = cc
+            r_prim[1, 0] = -0.5 * aa
+            r_prim[1, 1] = sqrt(3.0) * 0.5 * aa
+            r_prim[1, 2] = cc
+            r_prim[2, 0] = -0.5 * aa
+            r_prim[2, 1] = -sqrt(3.0) * 0.5 * aa
+            r_prim[2, 2] = cc
         else:
             # Treat all the other cases
-            rprim[0, 0] = 1.0
-            rprim[1, 0] = cos(pi * ang_deg[2] / 180.0)
-            rprim[1, 1] = sin(pi * ang_deg[2] / 180.0)
-            rprim[2, 0] = cos(pi * ang_deg[1] / 180.0)
-            rprim[2, 1] = (cos(pi * ang_deg[0] / 180.0) - rprim[1, 0] * rprim[2, 0]) / rprim[1, 1]
-            rprim[2, 2] = sqrt(1.0 - rprim[2, 0] ** 2 - rprim[2, 1] ** 2)
+            r_prim[0, 0] = 1.0
+            r_prim[1, 0] = cos(pi * ang_deg[2] / 180.0)
+            r_prim[1, 1] = sin(pi * ang_deg[2] / 180.0)
+            r_prim[2, 0] = cos(pi * ang_deg[1] / 180.0)
+            r_prim[2, 1] = (cos(pi * ang_deg[0] / 180.0) - r_prim[1, 0] * r_prim[2, 0]) / r_prim[1, 1]
+            r_prim[2, 2] = sqrt(1.0 - r_prim[2, 0] ** 2 - r_prim[2, 1] ** 2)
 
         # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
-        rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
+        rprimd = [float(a_cell[i]) * r_prim[i] for i in range(3)]
         return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
 
     raise ValueError(f"Don't know how to construct a Lattice from dict:\n{pformat(kwargs)}")
@@ -97,7 +97,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
 
 def structure_from_abivars(cls=None, *args, **kwargs):
     """
-    Build a :class:`Structure` object from a dictionary with ABINIT variables.
+    Build a Structure object from a dictionary with ABINIT variables.
 
     Args:
         cls: Structure class to be instantiated. pymatgen.core.structure.Structure if cls is None
@@ -220,7 +220,7 @@ or the Virtual Crystal Approximation."""
 
         if len(enforce_typat) != len(structure):
             raise ValueError(
-                f"enforce_typat contains {len(enforce_typat)} entries while it should be natom: {len(structure)}"
+                f"enforce_typat contains {len(enforce_typat)} entries while it should be {len(structure)=}"
             )
 
         if len(enforce_znucl) != n_types_atom:
@@ -248,7 +248,7 @@ or the Virtual Crystal Approximation."""
     xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
 
     # Info on atoms.
-    d = {
+    dct = {
         "natom": n_atoms,
         "ntypat": n_types_atom,
         "typat": typat,
@@ -269,20 +269,20 @@ or the Virtual Crystal Approximation."""
             # One should make sure that the orientation is preserved (see Curtarolo's settings)
 
     if geomode == "rprim":
-        d.update(
+        dct.update(
             acell=3 * [1.0],
             rprim=rprim,
         )
 
     elif geomode == "angdeg":
-        d.update(
+        dct.update(
             acell=ArrayWithUnit(structure.lattice.abc, "ang").to("bohr"),
             angdeg=angdeg,
         )
     else:
         raise ValueError(f"Wrong value for {geomode=}")
 
-    return d
+    return dct
 
 
 def contract(s):
@@ -700,7 +700,7 @@ class KSampling(AbivarAble, MSONable):
             chksymbreak: Abinit input variable: check whether the BZ sampling preserves the symmetry of the crystal.
             comment: String comment for Kpoints
 
-        .. note::
+        Note:
             The default behavior of the constructor is monkhorst.
         """
         if isinstance(mode, str):
@@ -804,7 +804,7 @@ class KSampling(AbivarAble, MSONable):
                 to reduce the number of independent k-points.
 
         Returns:
-            :class:`KSampling` object.
+            KSampling object.
         """
         return cls(
             kpts=[kpts],
@@ -834,7 +834,7 @@ class KSampling(AbivarAble, MSONable):
             use_time_reversal: Use time-reversal symmetry to reduce the number of k-points.
 
         Returns:
-            :class:`KSampling` object.
+            KSampling object.
         """
         return cls(
             kpts=[ngkpt],
@@ -859,13 +859,13 @@ class KSampling(AbivarAble, MSONable):
         Convenient static constructor for an automatic Monkhorst-Pack mesh.
 
         Args:
-            structure: :class:`Structure` object.
+            structure: Structure object.
             ngkpt: Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             use_symmetries: Use spatial symmetries to reduce the number of k-points.
             use_time_reversal: Use time-reversal symmetry to reduce the number of k-points.
 
         Returns:
-            :class:`KSampling` object.
+            KSampling object.
         """
         # TODO
         shiftk = 3 * (0.5,)
@@ -889,13 +889,13 @@ class KSampling(AbivarAble, MSONable):
         Static constructor for path in k-space.
 
         Args:
-            structure: :class:`Structure` object.
+            structure: Structure object.
             kpath_bounds: List with the reduced coordinates of the k-points defining the path.
             ndivsm: Number of division for the smallest segment.
             comment: Comment string.
 
         Returns:
-            :class:`KSampling` object.
+            KSampling object.
         """
         if kpath_bounds is None:
             # Compute the boundaries from the input structure.
@@ -1116,22 +1116,20 @@ class RelaxationMethod(AbivarAble, MSONable):
         # Cell relaxation.
         if self.move_cell:
             out_vars.update(
-                {
-                    "dilatmx": self.abivars.dilatmx,
-                    "ecutsm": self.abivars.ecutsm,
-                    "strfact": self.abivars.strfact,
-                    "strtarget": self.abivars.strtarget,
-                }
+                dilatmx=self.abivars.dilatmx,
+                ecutsm=self.abivars.ecutsm,
+                strfact=self.abivars.strfact,
+                strtarget=self.abivars.strtarget,
             )
 
         return out_vars
 
     def as_dict(self):
         """Convert object to dict."""
-        d = dict(self._default_vars)
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+        dct = dict(self._default_vars)
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d):
@@ -1343,7 +1341,7 @@ class Screening(AbivarAble):
             nband Number of bands for the Green's function
             w_type: Screening type
             sc_mode: Self-consistency mode.
-            hilbert: Instance of :class:`HilbertTransform` defining the parameters for the Hilber transform method.
+            hilbert: Instance of HilbertTransform defining the parameters for the Hilber transform method.
             ecutwfn: Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
             inclvkb: Option for the treatment of the dipole matrix elements (NC pseudos).
         """
@@ -1443,11 +1441,11 @@ class SelfEnergy(AbivarAble):
             sc_mode: Self-consistency mode.
             nband: Number of bands for the Green's function
             ecutsigx: Cutoff energy for the exchange part of the self-energy (Ha units).
-            screening: :class:`Screening` instance.
+            screening: Screening instance.
             gw_qprange: Option for the automatic selection of k-points and bands for GW corrections.
                 See Abinit docs for more detail. The default value makes the code computie the
                 QP energies for all the point in the IBZ and one band above and one band below the Fermi level.
-            ppmodel: :class:`PPModel` instance with the parameters used for the plasmon-pole technique.
+            ppmodel: PPModel instance with the parameters used for the plasmon-pole technique.
             ecuteps: Cutoff energy for the screening (Ha units).
             ecutwfn: Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
         """

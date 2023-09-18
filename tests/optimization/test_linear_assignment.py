@@ -249,9 +249,9 @@ class TestLinearAssignment(unittest.TestCase):
         assert LinearAssignment(x).min_cost == approx(48)
 
     def test_boolean_inputs(self):
-        w = np.ones((135, 135), dtype=bool)
-        np.fill_diagonal(w, False)
-        la = LinearAssignment(w)
+        ones = np.ones((135, 135), dtype=bool)
+        np.fill_diagonal(ones, val=False)
+        la = LinearAssignment(ones)
         # if the input doesn't get converted to a float, the masking
         # doesn't work properly
         assert la.orig_c.dtype == np.float64

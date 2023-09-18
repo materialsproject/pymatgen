@@ -294,20 +294,21 @@ class PhononDos(MSONable):
 class CompletePhononDos(PhononDos):
     """This wrapper class defines a total dos, and also provides a list of PDos.
 
-    .. attribute:: pdos
-
-        Dict of partial densities of the form {Site:Densities}
+    Attributes:
+        pdos (dict): Dict of partial densities of the form {Site:Densities}.
+            Densities are a dict of {Orbital:Values} where Values are a list of floats.
+            Site is a pymatgen.core.sites.Site object.
     """
 
-    def __init__(self, structure: Structure, total_dos, pdoss):
+    def __init__(self, structure: Structure, total_dos, pdoses):
         """
         Args:
             structure: Structure associated with this particular DOS.
             total_dos: total Dos for structure
-            pdoss: The pdoss are supplied as an {Site: Densities}.
+            pdoses: The pdoses are supplied as a dict of {Site: Densities}.
         """
         super().__init__(frequencies=total_dos.frequencies, densities=total_dos.densities)
-        self.pdos = {site: np.array(dens) for site, dens in pdoss.items()}
+        self.pdos = {site: np.array(dens) for site, dens in pdoses.items()}
         self.structure = structure
 
     def get_site_dos(self, site):
@@ -349,7 +350,7 @@ class CompletePhononDos(PhononDos):
 
     def as_dict(self):
         """JSON-serializable dict representation of CompletePhononDos."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
@@ -359,8 +360,8 @@ class CompletePhononDos(PhononDos):
         }
         if len(self.pdos) > 0:
             for at in self.structure:
-                d["pdos"].append(list(self.pdos[at]))
-        return d
+                dct["pdos"].append(list(self.pdos[at]))
+        return dct
 
     def __str__(self):
         return f"Complete phonon DOS for {self.structure}"

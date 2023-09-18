@@ -429,8 +429,8 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
         structure: pymatgen Structure object
         structure_path: path to structure in a file (e.g., POSCAR)
 
-    Returns: GruneisenParameter object
-
+    Returns:
+        GruneisenParameter
     """
     gruneisen_dict = loadfn(gruneisen_path)
 

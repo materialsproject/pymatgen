@@ -23,29 +23,15 @@ class Unk:
     """
     Object representing the data in a UNK file.
 
-    .. attribute:: ik
-
-        int index of kpoint for this file
-
-    .. attribute:: data
-
-        numpy.ndarray that contains the wavefunction data for in the UNK file.
-        The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and
-        (nbnd, 2, ngx, ngy, ngz) for noncollinear calculations.
-
-    .. attribute:: is_noncollinear
-
-        bool that specifies if data is from a noncollinear calculation
-
-    .. attribute:: nbnd
-
-        int number of bands in data
-
-    .. attribute:: ng
-
-        sequence of three integers that correspond to the grid size of the
-        given data. The definition is ng = (ngx, ngy, ngz).
-
+    Attributes:
+        ik (int): Index of kpoint for this file.
+        data (numpy.ndarray): Numpy array that contains the wavefunction data for in the UNK file.
+            The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and (nbnd, 2, ngx, ngy, ngz)
+            for noncollinear calculations.
+        is_noncollinear (bool): Boolean that specifies if data is from a noncollinear calculation.
+        nbnd (int): Number of bands in data.
+        ng (tuple): Sequence of three integers that correspond to the grid size of the given data.
+            The definition is ng = (ngx, ngy, ngz).
     """
 
     ik: int
@@ -80,7 +66,7 @@ class Unk:
         Sets the value of data.
 
         Args:
-            value (np.ndarray): data to replace stored data, must haveshape
+            value (np.ndarray): data to replace stored data, must have shape
                 (nbnd, ngx, ngy, ngz) or (nbnd, 2, ngx, ngy, ngz) if
                 noncollinear calculation
         """

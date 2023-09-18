@@ -8,7 +8,7 @@ nav_order: 2
 
 All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
-be available on `PyPI <http://pypi.python.org>`_.
+be available on [PyPI](http://pypi.python.org).
 
 ## Optional dependencies
 
@@ -41,9 +41,9 @@ Optional libraries that are required if you need certain features.
 Optional non-python libraries (because no good python alternative exists at
 the moment) required only for certain features:
 
-1. ffmpeg: For generation of movies in structure_vtk.py. The executable ffmpeg
+1. `ffmpeg`: For generation of movies in structure_vtk.py. The executable ffmpeg
    must be in the path. Get it at <http://www.ffmpeg.org>.
-2. enum: For the use of
+2. `enum`: For the use of
    `pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation`
    and `pymatgen.command_line.enumlib_caller` module. This library by Gus
    Hart provides a robust way to enumerate derivative structures. It can be
@@ -53,22 +53,22 @@ the moment) required only for certain features:
    EnumerateStructureTransformation. The enum.x and makestr.x
    executables must be in the path. Get it at <http://github.com/msg-byu/enumlib> and
    follow the instructions to compile enum.x and makestr.x.
-3. bader: For use with :class:`pymatgen.command_line.bader_caller.BaderAnalysis`.
+3. `bader`: For use with :class:`pymatgen.command_line.bader_caller.BaderAnalysis`.
    This library by Henkelmann et al. provides a robust way to calculate the
    Bader analysis from a CHGCAR. The bader executable must be in the path.
    Get it at <http://theory.cm.utexas.edu/bader>.
-4. gulp: For use with :mod:`pymatgen.command_line.gulp_caller`,
+4. `gulp`: For use with :mod:`pymatgen.command_line.gulp_caller`,
    which is in turn used extensively by :mod:`pymatgen.analysis.defects` to
    compute empirical defect energies.
-5. aconvasp: For use with the :mod:`pymatgen.command_line.aconvasp_caller`.
-6. Zeo++ (<http://zeoplusplus.org>): For defect structure
+5. `aconvasp`: For use with the :mod:`pymatgen.command_line.aconvasp_caller`.
+6. [Zeo++](https://zeoplusplus.org): For defect structure
    generation. This is required in addition to installing the zeo Python
    package.
-7. critic2 (<https://github.com/aoterodelaroza/critic2>): For topological
+7. [`critic2`](https://github.com/aoterodelaroza/critic2): For topological
    analysis of critical points from electronic charge density. Provides
    more detailed information compared to bader. For use with
    :class:`pymatgen.command_line.critic2_caller.Critic2Caller`.
-8. graphviz (<http://graphviz.org>): For visualization of graphs generated
+8. [`graphviz`](https://graphviz.org): For visualization of graphs generated
    using critic2.
 
 ## Conda-based install
@@ -239,7 +239,7 @@ but it comes with some important caveats:
   however matplotlib is difficult to install. If trying PyPy, the current advice
   is to remove the matplotlib dependency, however this means any modules using matplotlib
   will not be importable. The easiest way to install dependencies is using the
-  `PyPy builds on conda-forge <https://conda-forge.org/blog/2020/03/10/pypy>`_. For spglib,
+  [PyPy builds on conda-forge](https://conda-forge.org/blog/2020/03/10/pypy). For spglib,
   cloning the repository and running ``python setup.py install`` manually is advised.
 * Performance improvements are unpredictable. Since pymatgen makes heavy use of numpy
   and custom extensions where appropriate, many code hot spots have already been optimized.
@@ -274,7 +274,7 @@ We welcome any developers interested in expanding our PyPy support.
 
 ### Step 2: Install pymatgen in developmental mode
 
-1. Make sure you have git and `git-lfs <https://git-lfs.github.com/>`_ installed.
+1. Make sure you have git and [git-lfs](https://git-lfs.github.com) installed.
    Clone the repo at <https://github.com/materialsproject/pymatgen>.
 
 2. Run `git lfs install` in the cloned repo first.

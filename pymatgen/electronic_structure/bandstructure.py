@@ -44,7 +44,7 @@ class Kpoint(MSONable):
         """
         Args:
             coords: coordinate of the kpoint as a numpy array
-            lattice: A pymatgen.core.lattice.Lattice object representing
+            lattice: A pymatgen.core.Lattice object representing
                 the reciprocal lattice of the kpoint
             to_unit_cell: Translates fractional coordinate to the basic unit
                 cell, i.e., all fractional coordinates satisfy 0 <= a < 1.
@@ -66,7 +66,7 @@ class Kpoint(MSONable):
     @property
     def lattice(self):
         """The lattice associated with the kpoint. It's a
-        pymatgen.core.lattice.Lattice object.
+        pymatgen.core.Lattice object.
         """
         return self._lattice
 
@@ -137,42 +137,20 @@ class BandStructure:
     """This is the most generic band structure data possible
     it's defined by a list of kpoints + energies for each of them.
 
-    .. attribute:: kpoints:
-        the list of kpoints (as Kpoint objects) in the band structure
-
-    .. attribute:: lattice_rec
-
-        the reciprocal lattice of the band structure.
-
-    .. attribute:: efermi
-
-        the fermi energy
-
-    .. attribute::  is_spin_polarized
-
-        True if the band structure is spin-polarized, False otherwise
-
-    .. attribute:: bands
-
-        The energy eigenvalues as a {spin: ndarray}. Note that the use of an
-        ndarray is necessary for computational as well as memory efficiency
-        due to the large amount of numerical data. The indices of the ndarray
-        are [band_index, kpoint_index].
-
-    .. attribute:: nb_bands
-
-        returns the number of bands in the band structure
-
-    .. attribute:: structure
-
-        returns the structure
-
-    .. attribute:: projections
-
-        The projections as a {spin: ndarray}. Note that the use of an
-        ndarray is necessary for computational as well as memory efficiency
-        due to the large amount of numerical data. The indices of the ndarray
-        are [band_index, kpoint_index, orbital_index, ion_index].
+    Attributes:
+        kpoints (list): The list of kpoints (as Kpoint objects) in the band structure.
+        lattice_rec (Lattice): The reciprocal lattice of the band structure.
+        efermi (float): The Fermi energy.
+        is_spin_polarized (bool): True if the band structure is spin-polarized, False otherwise.
+        bands (dict): The energy eigenvalues as a {spin: ndarray}. Note that the use of an
+            ndarray is necessary for computational as well as memory efficiency due to the large
+            amount of numerical data. The indices of the ndarray are [band_index, kpoint_index].
+        nb_bands (int): Returns the number of bands in the band structure.
+        structure (Structure): Returns the structure.
+        projections (dict): The projections as a {spin: ndarray}. Note that the use of an
+            ndarray is necessary for computational as well as memory efficiency due to the large
+            amount of numerical data. The indices of the ndarray are [band_index, kpoint_index,
+            orbital_index, ion_index].
     """
 
     def __init__(
@@ -547,7 +525,8 @@ class BandStructure:
         return np.delete(points, rm_list, axis=0)
 
     def get_kpoint_degeneracy(self, kpoint, cartesian=False, tol: float = 1e-2):
-        """Returns degeneracy of a given k-point based on structure symmetry
+        """Returns degeneracy of a given k-point based on structure symmetry.
+
         Args:
             kpoint (1x3 array): coordinate of the k-point
             cartesian (bool): kpoint is in Cartesian or fractional coordinates
@@ -563,7 +542,7 @@ class BandStructure:
 
     def as_dict(self):
         """JSON-serializable dict representation of BandStructure."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
@@ -573,37 +552,37 @@ class BandStructure:
         # kpoints are not kpoint objects dicts but are frac coords (this makes
         # the dict smaller and avoids the repetition of the lattice
         for k in self.kpoints:
-            d["kpoints"].append(k.as_dict()["fcoords"])
+            dct["kpoints"].append(k.as_dict()["fcoords"])
 
-        d["bands"] = {str(int(spin)): self.bands[spin].tolist() for spin in self.bands}
-        d["is_metal"] = self.is_metal()
+        dct["bands"] = {str(int(spin)): self.bands[spin].tolist() for spin in self.bands}
+        dct["is_metal"] = self.is_metal()
         vbm = self.get_vbm()
-        d["vbm"] = {
+        dct["vbm"] = {
             "energy": vbm["energy"],
             "kpoint_index": vbm["kpoint_index"],
             "band_index": {str(int(spin)): vbm["band_index"][spin] for spin in vbm["band_index"]},
             "projections": {str(spin): v.tolist() for spin, v in vbm["projections"].items()},
         }
         cbm = self.get_cbm()
-        d["cbm"] = {
+        dct["cbm"] = {
             "energy": cbm["energy"],
             "kpoint_index": cbm["kpoint_index"],
             "band_index": {str(int(spin)): cbm["band_index"][spin] for spin in cbm["band_index"]},
             "projections": {str(spin): v.tolist() for spin, v in cbm["projections"].items()},
         }
-        d["band_gap"] = self.get_band_gap()
-        d["labels_dict"] = {}
-        d["is_spin_polarized"] = self.is_spin_polarized
+        dct["band_gap"] = self.get_band_gap()
+        dct["labels_dict"] = {}
+        dct["is_spin_polarized"] = self.is_spin_polarized
 
         # MongoDB does not accept keys starting with $. Add a blank space to fix the problem
         for c, label in self.labels_dict.items():
             mongo_key = c if not c.startswith("$") else f" {c}"
-            d["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
-        d["projections"] = {}
+            dct["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
+        dct["projections"] = {}
         if len(self.projections) != 0:
-            d["structure"] = self.structure.as_dict()
-            d["projections"] = {str(int(spin)): np.array(v).tolist() for spin, v in self.projections.items()}
-        return d
+            dct["structure"] = self.structure.as_dict()
+            dct["projections"] = {str(int(spin)): np.array(v).tolist() for spin, v in self.projections.items()}
+        return dct
 
     @classmethod
     def from_dict(cls, dct):

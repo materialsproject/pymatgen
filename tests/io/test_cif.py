@@ -163,14 +163,14 @@ loop_
 
 
 class TestCifIO(PymatgenTest):
-    def test_CifParser(self):
+    def test_cif_parser(self):
         parser = CifParser(f"{TEST_FILES_DIR}/LiFePO4.cif")
-        for s in parser.get_structures(True):
-            assert s.formula == "Li4 Fe4 P4 O16", "Incorrectly parsed cif."
+        for struct in parser.get_structures():
+            assert struct.formula == "Li4 Fe4 P4 O16", "Incorrectly parsed cif."
 
         parser = CifParser(f"{TEST_FILES_DIR}/V2O3.cif")
-        for s in parser.get_structures(True):
-            assert s.formula == "V4 O6"
+        for struct in parser.get_structures():
+            assert struct.formula == "V4 O6"
 
         bibtex_str = """
 @article{cifref0,
@@ -185,15 +185,15 @@ class TestCifIO(PymatgenTest):
         assert parser.get_bibtex_string().strip() == bibtex_str.strip()
 
         parser = CifParser(f"{TEST_FILES_DIR}/Li2O.cif")
-        prim = parser.get_structures(True)[0]
+        prim = parser.get_structures()[0]
         assert prim.formula == "Li2 O1"
-        conv = parser.get_structures(False)[0]
+        conv = parser.get_structures(primitive=False)[0]
         assert conv.formula == "Li8 O4"
 
         # test for disordered structures
         parser = CifParser(f"{TEST_FILES_DIR}/Li10GeP2S12.cif")
-        for s in parser.get_structures(True):
-            assert s.formula == "Li20.2 Ge2.06 P3.94 S24", "Incorrectly parsed cif."
+        for struct in parser.get_structures():
+            assert struct.formula == "Li20.2 Ge2.06 P3.94 S24", "Incorrectly parsed cif."
         cif_str = r"""#\#CIF1.1
 ##########################################################################
 #               Crystallographic Information Format file
@@ -356,38 +356,38 @@ loop_
 
         # Partial occupancy on sites, incorrect label, previously unparsable
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1928405.cif")
-        for s in parser.get_structures(True):
-            assert s.formula == "Er1 Mn3.888 Fe2.112 Sn6"
+        for struct in parser.get_structures():
+            assert struct.formula == "Er1 Mn3.888 Fe2.112 Sn6"
         assert parser.has_errors
 
         # Partial occupancy on sites, previously parsed as an ordered structure
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1011081.cif")
-        for s in parser.get_structures(True):
-            assert s.formula == "Zr0.2 Nb0.8"
+        for struct in parser.get_structures():
+            assert struct.formula == "Zr0.2 Nb0.8"
         assert parser.has_errors
 
         # Partial occupancy on sites, incorrect label, previously unparsable
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1615854.cif")
-        for s in parser.get_structures(True):
-            assert s.formula == "Na2 Al2 Si6 O16"
+        for struct in parser.get_structures():
+            assert struct.formula == "Na2 Al2 Si6 O16"
         assert parser.has_errors
 
         # Partial occupancy on sites, incorrect label, previously unparsable
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1622133.cif")
-        for s in parser.get_structures(True):
-            assert s.formula == "Ca0.184 Mg13.016 Fe2.8 Si16 O48"
+        for struct in parser.get_structures():
+            assert struct.formula == "Ca0.184 Mg13.016 Fe2.8 Si16 O48"
         assert parser.has_errors
 
         # Partial occupancy on sites, previously parsed as an ordered structure
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1908491.cif")
-        for s in parser.get_structures(True):
-            assert s.formula == "Mn0.48 Zn0.52 Ga2 Se4"
+        for struct in parser.get_structures():
+            assert struct.formula == "Mn0.48 Zn0.52 Ga2 Se4"
         assert parser.has_errors
 
         # Partial occupancy on sites, incorrect label, previously unparsable
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1811457.cif")
-        for s in parser.get_structures(True):
-            assert s.formula == "Ba2 Mg0.6 Zr0.2 Ta1.2 O6"
+        for struct in parser.get_structures():
+            assert struct.formula == "Ba2 Mg0.6 Zr0.2 Ta1.2 O6"
         assert parser.has_errors
 
         # Incomplete powder diffraction data, previously unparsable
@@ -397,38 +397,38 @@ loop_
         # in CIFs from Springer Materials/Pauling file DBs, CifParser parses the
         # element as "Nh" (Nihonium).
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1002871.cif")
-        assert parser.get_structures(True)[0].formula == "Cu1 Br2 Nh6"
-        assert parser.get_structures(True)[1].formula == "Cu1 Br4 Nh6"
+        assert parser.get_structures()[0].formula == "Cu1 Br2 Nh6"
+        assert parser.get_structures()[1].formula == "Cu1 Br4 Nh6"
         assert parser.has_errors
 
         # Incomplete powder diffraction data, previously unparsable
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1704003.cif")
-        for s in parser.get_structures():
-            assert s.formula == "Rb4 Mn2 F12"
+        for struct in parser.get_structures():
+            assert struct.formula == "Rb4 Mn2 F12"
         assert parser.has_errors
 
         # Unparsable species 'OH/OH2', previously parsed as "O"
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1500382.cif")
-        for s in parser.get_structures():
-            assert s.formula == "Mg6 B2 O6 F1.764"
+        for struct in parser.get_structures():
+            assert struct.formula == "Mg6 B2 O6 F1.764"
         assert parser.has_errors
 
         # Unparsable species 'OH/OH2', previously parsed as "O"
         parser = CifParser(f"{TEST_FILES_DIR}/PF_sd_1601634.cif")
-        for s in parser.get_structures():
-            assert s.formula == "Zn1.29 Fe0.69 As2 Pb1.02 O8"
+        for struct in parser.get_structures():
+            assert struct.formula == "Zn1.29 Fe0.69 As2 Pb1.02 O8"
 
-    def test_CifParserCod(self):
+    def test_cif_parser_cod(self):
         """Parsing problematic cif files from the COD database."""
         # Symbol in capital letters
         parser = CifParser(f"{TEST_FILES_DIR}/Cod_2100513.cif")
-        for s in parser.get_structures(True):
-            assert s.formula == "Ca4 Nb2.0 Al2 O12"
+        for struct in parser.get_structures():
+            assert struct.formula == "Ca4 Nb2.0 Al2 O12"
 
         # Label in capital letters
         parser = CifParser(f"{TEST_FILES_DIR}/Cod_4115344.cif")
-        for s in parser.get_structures(True):
-            assert s.formula == "Mo4 P2 H60 C60 I4 O4"
+        for struct in parser.get_structures():
+            assert struct.formula == "Mo4 P2 H60 C60 I4 O4"
 
     def test_parse_symbol(self):
         """
@@ -488,7 +488,7 @@ loop_
         for sym, expected_symbol in test_cases.items():
             assert parser._parse_symbol(sym) == expected_symbol
 
-    def test_CifWriter(self):
+    def test_cif_writer(self):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.structure, symprec=0.01)
@@ -615,13 +615,13 @@ loop_
         for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
             assert l1.strip() == l2.strip()
 
-    def test_cifwrite_without_refinement(self):
+    def test_cif_writer_without_refinement(self):
         si2 = Structure.from_file(f"{TEST_FILES_DIR}/abinit/si.cif")
 
         writer = CifWriter(si2, symprec=1e-3, significant_figures=10, refine_struct=False)
-        s = str(writer)
-        assert "Fd-3m" in s
-        same_si2 = CifParser.from_str(s).get_structures()[0]
+        cif_str = str(writer)
+        assert "Fd-3m" in cif_str
+        same_si2 = CifParser.from_str(cif_str).get_structures()[0]
         assert len(si2) == len(same_si2)
 
     def test_specie_cifwriter(self):
@@ -687,14 +687,14 @@ loop_
 
     def test_primes(self):
         parser = CifParser(f"{TEST_FILES_DIR}/C26H16BeN2O2S2.cif")
-        for s in parser.get_structures(False):
-            assert s.composition == 8 * Composition("C26H16BeN2O2S2")
+        for struct in parser.get_structures(primitive=False):
+            assert struct.composition == 8 * Composition("C26H16BeN2O2S2")
 
     def test_missing_atom_site_type_with_oxi_states(self):
         parser = CifParser(f"{TEST_FILES_DIR}/P24Ru4H252C296S24N16.cif")
         c = Composition({"S0+": 24, "Ru0+": 4, "H0+": 252, "C0+": 296, "N0+": 16, "P0+": 24})
-        for s in parser.get_structures(False):
-            assert s.composition == c
+        for struct in parser.get_structures(primitive=False):
+            assert struct.composition == c
 
     def test_no_coords_or_species(self):
         string = """#generated using pymatgen
@@ -786,7 +786,7 @@ loop_
 
 """
         parser = CifParser.from_str(cif_structure)
-        s_test = parser.get_structures(False)[0]
+        s_test = parser.get_structures(primitive=False)[0]
         filepath = f"{TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath)
         s_ref = poscar.structure
@@ -988,9 +988,9 @@ _atom_site_moment_crystalaxis_y
 _atom_site_moment_crystalaxis_z
 Gd1 5.05 5.05 0.0"""
 
-        s = self.mcif.get_structures(primitive=False)[0]
-        assert s.formula == "Ni32 O32"
-        assert Magmom.are_collinear(s.site_properties["magmom"])
+        struct = self.mcif.get_structures(primitive=False)[0]
+        assert struct.formula == "Ni32 O32"
+        assert Magmom.are_collinear(struct.site_properties["magmom"])
 
         # example with non-collinear spin
         s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]

@@ -31,10 +31,10 @@ class VaspDoc:
         Args:
             tag (str): Tag used in VASP.
         """
-        help = self.get_help(tag, "html")
+        html_str = self.get_help(tag, "html")
         from IPython.core.display import HTML, display
 
-        display(HTML(help))
+        display(HTML(html_str))
 
     @classmethod
     def get_help(cls, tag, fmt="text"):

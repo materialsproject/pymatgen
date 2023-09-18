@@ -299,7 +299,7 @@ class Poscar(MSONable):
             raise ValueError("Empty POSCAR")
 
         # Parse positions
-        lines = tuple(clean_lines(chunks[0].split("\n"), False))
+        lines = tuple(clean_lines(chunks[0].split("\n"), remove_empty_lines=False))
         comment = lines[0]
         scale = float(lines[1])
         lattice = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
@@ -560,6 +560,7 @@ class Poscar(MSONable):
     def from_dict(cls, d: dict) -> Poscar:
         """
         :param d: Dict representation.
+
         Returns:
             Poscar
         """
@@ -672,15 +673,16 @@ class Incar(dict, MSONable):
 
     def as_dict(self) -> dict:
         """MSONable dict."""
-        d = dict(self)
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+        dct = dict(self)
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d) -> Incar:
         """
         :param d: Dict representation.
+
         Returns:
             Incar
         """
@@ -1298,6 +1300,9 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
+        if len(length_densities) != 3:
+            msg = f"The dimensions of length_densities must be 3, not {len(length_densities)}"
+            raise ValueError(msg)
         comment = f"k-point density of {length_densities}/[a, b, c]"
         lattice = structure.lattice
         abc = lattice.abc
@@ -1526,7 +1531,7 @@ class Kpoints(MSONable):
 
     def as_dict(self):
         """MSONable dict."""
-        d = {
+        dct = {
             "comment": self.comment,
             "nkpoints": self.num_kpts,
             "generation_style": self.style.name,
@@ -1543,15 +1548,16 @@ class Kpoints(MSONable):
         optional_paras = ["genvec1", "genvec2", "genvec3", "shift"]
         for para in optional_paras:
             if para in self.__dict__:
-                d[para] = self.__dict__[para]
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+                dct[para] = self.__dict__[para]
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d):
         """
         :param d: Dict representation.
+
         Returns:
             Kpoints
         """
@@ -1611,15 +1617,10 @@ class PotcarSingle:
     Object for a **single** POTCAR. The builder assumes the POTCAR contains
     the complete untouched data in "data" as a string and a dict of keywords.
 
-    .. attribute:: data
-
-        POTCAR data as a string.
-
-    .. attribute:: keywords
-
-        Keywords parsed from the POTCAR as a dict. All keywords are also
-        accessible as attributes in themselves. E.g., potcar.enmax,
-        potcar.encut, etc.
+    Attributes:
+        data (str): POTCAR data as a string.
+        keywords (dict): Keywords parsed from the POTCAR as a dict. All keywords are also
+            accessible as attributes in themselves. E.g., potcar.enmax, potcar.encut, etc.
 
     md5 hashes of the entire POTCAR file and the actual data are validated
     against a database of known good hashes. Appropriate warnings or errors
@@ -1858,6 +1859,7 @@ class PotcarSingle:
         Reads PotcarSingle from file.
 
         :param filename: Filename.
+
         Returns:
             PotcarSingle.
         """
@@ -2102,10 +2104,7 @@ class PotcarSingle:
         if identity:
             # convert the potcar_functionals from the .json dict into the functional
             # keys that pymatgen uses
-            potcar_functionals = []
-            for i in identity["potcar_functionals"]:
-                potcar_functionals.append(mapping_dict[i]["pymatgen_key"])
-            potcar_functionals = list(set(potcar_functionals))
+            potcar_functionals = [*{mapping_dict[i]["pymatgen_key"] for i in identity["potcar_functionals"]}]
 
             return potcar_functionals, identity["potcar_symbols"]
         return [], []
@@ -2361,15 +2360,16 @@ class VaspInput(dict, MSONable):
 
     def as_dict(self):
         """MSONable dict."""
-        d = {k: v.as_dict() for k, v in self.items()}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+        dct = {k: v.as_dict() for k, v in self.items()}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d):
         """
         :param d: Dict representation.
+
         Returns:
             VaspInput
         """

@@ -36,7 +36,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
 
-# NOTE: If making notable changes to this class, please ping @arosen93 on GitHub.
+# NOTE: If making notable changes to this class, please ping @Andrew-S-Rosen on GitHub.
 # There are some subtleties in here, particularly related to spins/charges.
 class AseAtomsAdaptor:
     """Adaptor serves as a bridge between ASE Atoms and pymatgen objects."""
@@ -161,8 +161,8 @@ class AseAtomsAdaptor:
 
         # Atoms.info <---> Structure.properties
         # Atoms.calc <---> Structure.calc
-        if structure.properties:
-            atoms.info = structure.properties
+        if properties := getattr(structure, "properties"):  # noqa: B009
+            atoms.info = properties
         if calc := getattr(structure, "calc", None):
             atoms.calc = calc
 
@@ -217,7 +217,7 @@ class AseAtomsAdaptor:
         else:
             sel_dyn = None
 
-        # Atoms.info <---> Structure.properties (excluding properties["calc"])
+        # Atoms.info <---> Structure.properties
         properties = jsanitize(getattr(atoms, "info", {}))
 
         # Return a Molecule object if that was specifically requested;

@@ -23,8 +23,8 @@ class TestReaction(unittest.TestCase):
 
         d = rxn.as_dict()
         rxn = Reaction.from_dict(d)
-        repr, factor = rxn.normalized_repr_and_factor()
-        assert repr == "4 Fe + 3 O2 -> 2 Fe2O3"
+        repr_str, factor = rxn.normalized_repr_and_factor()
+        assert repr_str == "4 Fe + 3 O2 -> 2 Fe2O3"
         assert factor == approx(2)
 
         reactants = [Composition("FePO4"), Composition("Mn")]
@@ -335,7 +335,7 @@ class TestBalancedReaction(unittest.TestCase):
 
 class TestComputedReaction(unittest.TestCase):
     def setUp(self):
-        d = [
+        dct = [
             {
                 "correction": 0,
                 "data": {},
@@ -365,9 +365,7 @@ class TestComputedReaction(unittest.TestCase):
                 "composition": {"O": 72, "Li": 72},
             },
         ]
-        entries = []
-        for e in d:
-            entries.append(ComputedEntry.from_dict(e))
+        entries = [ComputedEntry.from_dict(entry) for entry in dct]
         reactants = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
         prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
 
@@ -433,9 +431,7 @@ class TestComputedReaction(unittest.TestCase):
                 "correction": -1.864,
             },
         ]
-        entries = []
-        for e in d:
-            entries.append(ComputedEntry.from_dict(e))
+        entries = [ComputedEntry.from_dict(e) for e in d]
         reactants = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
         prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
 

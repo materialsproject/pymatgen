@@ -74,7 +74,7 @@ dummy_structure = Structure(
     "input_set",
     [MPRelaxSet, MPHSERelaxSet, MVLRelax52Set, MPAbsorptionSet],
 )
-def test_Yb_2_warning(input_set: VaspInputSet) -> None:
+def test_yb_2_warning(input_set: VaspInputSet) -> None:
     # https://github.com/materialsproject/pymatgen/pull/2972
 
     structure = Structure(
@@ -117,7 +117,7 @@ class TestSetChangeCheck(PymatgenTest):
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
             "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
             "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
-            "MatPESStaticSet.yaml": "6c4e529649e39925cc316d90ff03bd30b4504684",
+            "MatPESStaticSet.yaml": "3a7cfef8143dbe32d3856c6945eb9ac9bd8b85c6",
             "PBE54Base.yaml": "ec317781a7f344beb54c17a228db790c0eb49282",
         }
 
@@ -472,7 +472,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         d = paramset.get_vasp_input()
         assert d["INCAR"]["ISMEAR"] == 0
 
-    def test_MPMetalRelaxSet(self):
+    def test_mp_metal_relax_set(self):
         mp_metal_set = MPMetalRelaxSet(self.get_structure("Sn"))
         incar = mp_metal_set.incar
         assert incar["ISMEAR"] == 1
@@ -723,10 +723,10 @@ class TestMPStaticSet(PymatgenTest):
         vis.write_input(output_dir=self.tmp_path, potcar_spec=True, zip_output=True)
 
         assert os.path.isfile(f"{self.tmp_path}/MPStaticSet.zip")
-        with ZipFile(f"{self.tmp_path}/MPStaticSet.zip", "r") as zip:
-            contents = zip.namelist()
+        with ZipFile(f"{self.tmp_path}/MPStaticSet.zip", "r") as zip_file:
+            contents = zip_file.namelist()
             assert set(contents).issuperset({"INCAR", "POSCAR", "POTCAR.spec", "KPOINTS"})
-            spec = zip.open("POTCAR.spec", "r").read().decode()
+            spec = zip_file.open("POTCAR.spec", "r").read().decode()
             assert spec == "Si"
 
     def test_grid_size_from_struct(self):
@@ -742,6 +742,15 @@ class TestMPStaticSet(PymatgenTest):
             static_set = self.set(struct)
             matched = static_set.calculate_ng() == (ng, ngf)
             assert matched
+
+        assert static_set.calculate_ng() == ([30, 48, 50], [60, 96, 100])
+        # test `custom_encut` kwarg for final structure in above test using
+        # an (obviously fictitious) custom encut.
+        assert static_set.calculate_ng(custom_encut=2000) == ([56, 96, 96], [112, 192, 192])
+
+        assert static_set.calculate_ng() == ([30, 48, 50], [60, 96, 100])
+        # test `custom_prec` kwarg for final structure in above test using "NORMAL".
+        assert static_set.calculate_ng(custom_prec="NORMAL") == ([24, 36, 40], [48, 72, 80])
 
 
 class TestMatPESStaticSet(PymatgenTest):
@@ -766,7 +775,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["LMIXTAU"]
         assert incar.get("LDAU") is None
         assert incar["LORBIT"] == 11
-        assert incar["LREAL"] == "Auto"
+        assert not incar["LREAL"]
         assert not incar["LWAVE"]
         assert incar["NELM"] == 200
         assert incar["NSW"] == 0
@@ -812,7 +821,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["LMIXTAU"]
         assert incar.get("LDAU") is None
         assert incar["LORBIT"] == 11
-        assert incar["LREAL"] == "Auto"
+        assert not incar["LREAL"]
         assert not incar["LWAVE"]
         assert incar["NELM"] == 200
         assert incar["NSW"] == 0

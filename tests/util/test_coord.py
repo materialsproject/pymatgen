@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+import unittest
 
 import numpy as np
 import pytest
@@ -235,8 +236,8 @@ class TestCoordUtils:
         assert coord.get_angle(v1, v2, units="radians") == approx(0.9553166181245092)
 
 
-class TestSimplex:
-    def setup(self):
+class TestSimplex(unittest.TestCase):
+    def setUp(self):
         coords = []
         coords.append([0, 0, 0])
         coords.append([0, 1, 0])

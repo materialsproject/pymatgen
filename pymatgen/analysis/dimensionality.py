@@ -525,9 +525,9 @@ def get_dimensionality_gorai(
                 and the max bonding distance. For example, PO4 groups may be
                 defined as {("P", "O"): 3}.
 
-    Returns: (int) the dimensionality of the structure - 1 (molecules/chains),
-        2 (layered), or 3 (3D)
-
+    Returns:
+        int: the dimensionality of the structure - 1 (molecules/chains),
+            2 (layered), or 3 (3D)
     """
     if standardize:
         structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()

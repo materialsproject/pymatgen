@@ -22,28 +22,15 @@ class VolumetricData(MSONable):
     Simple volumetric object. Used to read LOCPOT/CHGCAR files produced by
     vasp as well as cube files produced by other codes.
 
-    .. attribute:: structure
-
-        Structure associated with the Volumetric Data object
-
-    ..attribute:: is_spin_polarized
-
-        True if run is spin polarized
-
-    ..attribute:: dim
-
-        Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).
-
-    ..attribute:: data
-
-        Actual data as a dict of {string: np.array}. The string are "total"
-        and "diff", in accordance to the output format of Vasp LOCPOT and
-        CHGCAR files where the total spin density is written first, followed
-        by the difference spin density.
-
-    .. attribute:: ngridpts
-
-        Total number of grid points in volumetric data.
+    Attributes:
+        structure (Structure): Structure associated with the Volumetric Data object.
+        is_spin_polarized (bool): True if run is spin polarized.
+        dim (tuple): Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).
+        data (dict): Actual data as a dict of {string: np.array}. The string are "total"
+            and "diff", in accordance to the output format of Vasp LOCPOT and
+            CHGCAR files where the total spin density is written first, followed
+            by the difference spin density.
+        ngridpts (int): Total number of grid points in volumetric data.
     """
 
     def __init__(self, structure: Structure, data, distance_matrix=None, data_aug=None):
@@ -283,7 +270,7 @@ class VolumetricData(MSONable):
         VolumetricData.structure ->
             f["Z"]: Sequence of atomic numbers
             f["fcoords"]: Fractional coords
-            f["lattice"]: Lattice in the pymatgen.core.lattice.Lattice matrix
+            f["lattice"]: Lattice in the pymatgen.core.Lattice matrix
                 format
             f.attrs["structure_json"]: String of json representation
 

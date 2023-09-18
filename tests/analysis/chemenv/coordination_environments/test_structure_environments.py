@@ -166,15 +166,17 @@ class TestStructureEnvironments(PymatgenTest):
         assert_allclose(neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298]))
         assert_allclose(neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298]))
 
-        equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
-        assert equiv_site_index_and_transform[0] == 0
-        assert_allclose(equiv_site_index_and_transform[1], [0, 0, 0])
-        assert_allclose(equiv_site_index_and_transform[2], [0, 0, -1])
+        site_idx, d_equiv_site, d_this_site, sym = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
+        assert site_idx == 0
+        assert_allclose(d_equiv_site, [0, 0, 0])
+        assert_allclose(d_this_site, [0, 0, -1])
+        assert_allclose(sym.affine_matrix, np.eye(4))
 
-        equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[1])
-        assert equiv_site_index_and_transform[0] == 3
-        assert_allclose(equiv_site_index_and_transform[1], [0, 0, 0])
-        assert_allclose(equiv_site_index_and_transform[2], [0, 0, 0], atol=1e-9)
+        site_idx, d_equiv_site, d_this_site, sym = lse.strategy.equivalent_site_index_and_transform(neighbors[1])
+        assert site_idx == 3
+        assert_allclose(d_equiv_site, [0, 0, 0])
+        assert_allclose(d_this_site, [0, 0, 0], atol=1e-9)
+        # assert_allclose(sym.affine_matrix, np.eye(4))
 
         assert stats["atom_coordination_environments_present"] == {"Si": {"T:4": 3}}
         assert stats["coordination_environments_atom_present"] == {"T:4": {"Si": 3}}

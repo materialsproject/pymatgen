@@ -9,12 +9,9 @@ class ExcitationSpectrum(Spectrum):
     """
     Basic excitation spectrum object.
 
-    .. attribute: x
-        The sequence of energies
-
-    .. attribute: y
-        The sequence of mu(E)
-
+    Attributes:
+        x (Sequence[float]): The sequence of energies.
+        y (Sequence[float]): The sequence of mu(E).
     """
 
     XLABEL = "Energy (eV)"

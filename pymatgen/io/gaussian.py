@@ -133,16 +133,16 @@ class GaussianInput:
         # Determine multiplicity and charge settings
         if isinstance(mol, Molecule):
             self.charge = charge if charge is not None else mol.charge
-            nelectrons = mol.charge + mol.nelectrons - self.charge
+            n_electrons = mol.charge + mol.nelectrons - self.charge
             if spin_multiplicity is not None:
                 self.spin_multiplicity = spin_multiplicity
-                if (nelectrons + spin_multiplicity) % 2 != 1:
+                if (n_electrons + spin_multiplicity) % 2 != 1:
                     raise ValueError(
                         f"Charge of {self.charge} and spin multiplicity of {spin_multiplicity} is"
                         " not possible for this molecule"
                     )
             else:
-                self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+                self.spin_multiplicity = 1 if n_electrons % 2 == 0 else 2
 
             # Get a title from the molecule name
             self.title = title or self._mol.composition.formula
@@ -229,7 +229,7 @@ class GaussianInput:
                         bl = parameters[0]
                         angle = parameters[1]
                         axis = [0, 1, 0]
-                        op = SymmOp.from_origin_axis_angle(coords1, axis, angle, False)
+                        op = SymmOp.from_origin_axis_angle(coords1, axis, angle)
                         coord = op.operate(coords2)
                         vec = coord - coords1
                         coord = vec * bl / np.linalg.norm(vec) + coords1
@@ -244,14 +244,14 @@ class GaussianInput:
                         v1 = coords3 - coords2
                         v2 = coords1 - coords2
                         axis = np.cross(v1, v2)
-                        op = SymmOp.from_origin_axis_angle(coords1, axis, angle, False)
+                        op = SymmOp.from_origin_axis_angle(coords1, axis, angle)
                         coord = op.operate(coords2)
                         v1 = coord - coords1
                         v2 = coords1 - coords2
                         v3 = np.cross(v1, v2)
                         adj = get_angle(v3, axis)
                         axis = coords1 - coords2
-                        op = SymmOp.from_origin_axis_angle(coords1, axis, dih - adj, False)
+                        op = SymmOp.from_origin_axis_angle(coords1, axis, dih - adj)
                         coord = op.operate(coord)
                         vec = coord - coords1
                         coord = vec * bl / np.linalg.norm(vec) + coords1
@@ -496,179 +496,73 @@ class GaussianOutput:
     """
     Parser for Gaussian output files.
 
-    .. note::
-
-        Still in early beta.
+    Note: Still in early beta.
 
     Attributes:
-    .. attribute:: structures
-
-        All structures from the calculation in the standard orientation. If the
-        symmetry is not considered, the standard orientation is not printed out
-        and the input orientation is used instead. Check the `standard_orientation`
-        attribute.
-
-    .. attribute:: structures_input_orientation
-
-        All structures from the calculation in the input orientation or the
-        Z-matrix orientation (if an opt=z-matrix was requested).
-
-    .. attribute:: opt_structures
-
-        All optimized structures from the calculation in the standard orientation,
-        if the attribute 'standard_orientation' is True, otherwise in the input
-        or the Z-matrix orientation.
-
-    .. attribute:: energies
-
-        All energies from the calculation.
-
-    .. attribute:: eigenvalues
-
-        List of eigenvalues for the last geometry
-
-    .. attribute:: MO_coefficients
-
-        Matrix of MO coefficients for the last geometry
-
-    .. attribute:: cart_forces
-
-        All Cartesian forces from the calculation.
-
-    .. attribute:: frequencies
-
-        A list for each freq calculation and for each mode of a dict with
-        {
-            "frequency": freq in cm-1,
-            "symmetry": symmetry tag
-            "r_mass": Reduce mass,
-            "f_constant": force constant,
-            "IR_intensity": IR Intensity,
-            "mode": normal mode
-         }
-
-        The normal mode is a 1D vector of dx, dy dz of each atom.
-
-    .. attribute:: hessian
-
-        Matrix of second derivatives of the energy with respect to cartesian
-        coordinates in the **input orientation** frame. Need #P in the
-        route section in order to be in the output.
-
-    .. attribute:: properly_terminated
-
-        True if run has properly terminated
-
-    .. attribute:: is_pcm
-
-        True if run is a PCM run.
-
-    .. attribute:: is_spin
-
-        True if it is an unrestricted run
-
-    .. attribute:: stationary_type
-
-        If it is a relaxation run, indicates whether it is a minimum (Minimum)
-        or a saddle point ("Saddle").
-
-    .. attribute:: corrections
-
-        Thermochemical corrections if this run is a Freq run as a dict. Keys
-        are "Zero-point", "Thermal", "Enthalpy" and "Gibbs Free Energy"
-
-    .. attribute:: functional
-
-        Functional used in the run.
-
-    .. attribute:: basis_set
-
-        Basis set used in the run
-
-    .. attribute:: route
-
-        Additional route parameters as a dict. For example,
-            {'SP':"", "SCF":"Tight"}
-
-    .. attribute:: dieze_tag
-
-        # preceding the route line, e.g. "#P"
-
-    .. attribute:: link0
-
-        Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
-
-    .. attribute:: charge
-
-        Charge for structure
-
-    .. attribute:: spin_multiplicity
-
-        Spin multiplicity for structure
-
-    .. attribute:: num_basis_func
-
-        Number of basis functions in the run.
-
-    .. attribute:: electrons
-
-        number of alpha and beta electrons as (N alpha, N beta)
-
-    .. attribute:: pcm
-
-        PCM parameters and output if available.
-
-    .. attribute:: errors
-
-        error if not properly terminated (list to be completed in error_defs)
-
-    .. attribute:: Mulliken_charges
-
-        Mulliken atomic charges
-
-    .. attribute:: eigenvectors
-
-        Matrix of shape (num_basis_func, num_basis_func). Each column is an
-        eigenvectors and contains AO coefficients of an MO.
-
-        eigenvectors[Spin] = mat(num_basis_func, num_basis_func)
-
-    .. attribute:: molecular_orbital
-
-        MO development coefficients on AO in a more convenient array dict
-        for each atom and basis set label.
-
-        mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff ... }
-
-    .. attribute:: atom_basis_labels
-
-        Labels of AO for each atoms. These labels are those used in the output
-        of molecular orbital coefficients (POP=Full) and in the
-        molecular_orbital array dict.
-
-        atom_basis_labels[iatom] = [AO_k, AO_k, ...]
-
-    .. attribute:: resumes
-
-        List of gaussian data resume given at the end of the output file before
-        the quotation. The resumes are given as string.
-
-    .. attribute:: title
-
-        Title of the gaussian run.
-
-    .. attribute:: standard_orientation
-
-        If True, the geometries stored in the structures are in the standard
-        orientation. Else, the geometries are in the input orientation.
-
-    .. attribute:: bond_orders
-
-        Dict of bond order values read in the output file such as:
-        {(0, 1): 0.8709, (1, 6): 1.234, ...}
-
-        The keys are the atom indexes and the values are the Wiberg bond indexes
-        that are printed using `pop=NBOREAD` and `$nbo bndidx $end`.
+        structures (list[Structure]): All structures from the calculation in the standard orientation. If the
+            symmetry is not considered, the standard orientation is not printed out
+            and the input orientation is used instead. Check the `standard_orientation`
+            attribute.
+        structures_input_orientation (list): All structures from the calculation in the input
+            orientation or the Z-matrix orientation (if an opt=z-matrix was requested).
+        opt_structures (list): All optimized structures from the calculation in the standard
+            orientation, if the attribute 'standard_orientation' is True, otherwise in the input
+            or the Z-matrix orientation.
+        energies (list): All energies from the calculation.
+        eigenvalues (list): List of eigenvalues for the last geometry.
+        MO_coefficients (list): Matrix of MO coefficients for the last geometry.
+        cart_forces (list): All Cartesian forces from the calculation.
+        frequencies (list): A list for each freq calculation and for each mode of a dict with
+            {
+                "frequency": freq in cm-1,
+                "symmetry": symmetry tag
+                "r_mass": Reduce mass,
+                "f_constant": force constant,
+                "IR_intensity": IR Intensity,
+                "mode": normal mode
+             }
+            The normal mode is a 1D vector of dx, dy dz of each atom.
+        hessian (ndarray): Matrix of second derivatives of the energy with respect to cartesian
+            coordinates in the input orientation frame. Need #P in the route section in order to
+            be in the output.
+        properly_terminated (bool): True if run has properly terminated.
+        is_pcm (bool): True if run is a PCM run.
+        is_spin (bool): True if it is an unrestricted run.
+        stationary_type (str): If it is a relaxation run, indicates whether it is a minimum
+            (Minimum) or a saddle point ("Saddle").
+        corrections (dict): Thermochemical corrections if this run is a Freq run as a dict. Keys
+            are "Zero-point", "Thermal", "Enthalpy" and "Gibbs Free Energy".
+        functional (str): Functional used in the run.
+        basis_set (str): Basis set used in the run.
+        route (dict): Additional route parameters as a dict. For example,
+            {'SP':"", "SCF":"Tight"}.
+        dieze_tag (str): # preceding the route line, e.g. "#P".
+        link0 (dict): Link0 parameters as a dict. E.g., {"%mem": "1000MW"}.
+        charge (int): Charge for structure.
+        spin_multiplicity (int): Spin multiplicity for structure.
+        num_basis_func (int): Number of basis functions in the run.
+        electrons (tuple): Number of alpha and beta electrons as (N alpha, N beta).
+        pcm (dict): PCM parameters and output if available.
+        errors (list): Error if not properly terminated (list to be completed in error_defs).
+        Mulliken_charges (list): Mulliken atomic charges.
+        eigenvectors (dict): Matrix of shape (num_basis_func, num_basis_func). Each column is an
+            eigenvectors and contains AO coefficients of an MO.
+            eigenvectors[Spin] = mat(num_basis_func, num_basis_func).
+        molecular_orbital (dict): MO development coefficients on AO in a more convenient array dict
+            for each atom and basis set label.
+            mo[Spin][OM j][atom i] = {AO_k: coeff, AO_k: coeff ... }.
+        atom_basis_labels (list): Labels of AO for each atoms. These labels are those used in the
+            output of molecular orbital coefficients (POP=Full) and in the molecular_orbital array
+            dict. atom_basis_labels[iatom] = [AO_k, AO_k, ...].
+        resumes (list): List of gaussian data resume given at the end of the output file before
+            the quotation. The resumes are given as string.
+        title (str): Title of the gaussian run.
+        standard_orientation (bool): If True, the geometries stored in the structures are in the
+            standard orientation. Else, the geometries are in the input orientation.
+        bond_orders (dict): Dict of bond order values read in the output file such as:
+            {(0, 1): 0.8709, (1, 6): 1.234, ...}.
+            The keys are the atom indexes and the values are the Wiberg bond indexes that are
+            printed using `pop=NBOREAD` and `$nbo bndidx $end`.
 
     Methods:
     .. method:: to_input()
@@ -777,7 +671,7 @@ class GaussianOutput:
         frequencies = []
         read_mo = False
         parse_hessian = False
-        routeline = ""
+        route_line = ""
         standard_orientation = False
         parse_bond_order = False
         input_structures = []
@@ -785,17 +679,17 @@ class GaussianOutput:
         geom_orientation = None
         opt_structures = []
 
-        with zopen(filename, mode="rt") as f:
-            for line in f:
+        with zopen(filename, mode="rt") as file:
+            for line in file:
                 if parse_stage == 0:
                     if start_patt.search(line):
                         parse_stage = 1
                     elif link0_patt.match(line):
                         m = link0_patt.match(line)
                         self.link0[m.group(1)] = m.group(2)
-                    elif route_patt.search(line) or routeline != "":
+                    elif route_patt.search(line) or route_line != "":
                         if set(line.strip()) == {"-"}:
-                            params = read_route_line(routeline)
+                            params = read_route_line(route_line)
                             self.functional = params[0]
                             self.basis_set = params[1]
                             self.route_parameters = params[2]
@@ -804,7 +698,7 @@ class GaussianOutput:
                             parse_stage = 1
                         else:
                             line = line.replace(" ", "", 1).rstrip("\n")
-                            routeline += line
+                            route_line += line
                 elif parse_stage == 1:
                     if set(line.strip()) == {"-"} and self.title is None:
                         self.title = ""
@@ -828,15 +722,15 @@ class GaussianOutput:
                             self.corrections[key] = float(m.group(3))
 
                     if read_coord:
-                        [f.readline() for i in range(3)]
-                        line = f.readline()
+                        [file.readline() for i in range(3)]
+                        line = file.readline()
                         sp = []
                         coords = []
                         while set(line.strip()) != {"-"}:
                             tokens = line.split()
                             sp.append(Element.from_Z(int(tokens[1])))
                             coords.append([float(x) for x in tokens[3:6]])
-                            line = f.readline()
+                            line = file.readline()
 
                         read_coord = False
                         if geom_orientation == "input":
@@ -861,13 +755,13 @@ class GaussianOutput:
                         else:
                             read_eigen = False
                             self.eigenvalues = {Spin.up: []}
-                            for eigenline in eigen_txt:
-                                if "Alpha" in eigenline:
-                                    self.eigenvalues[Spin.up] += [float(e) for e in float_patt.findall(eigenline)]
-                                elif "Beta" in eigenline:
+                            for eigen_line in eigen_txt:
+                                if "Alpha" in eigen_line:
+                                    self.eigenvalues[Spin.up] += [float(e) for e in float_patt.findall(eigen_line)]
+                                elif "Beta" in eigen_line:
                                     if Spin.down not in self.eigenvalues:
                                         self.eigenvalues[Spin.down] = []
-                                    self.eigenvalues[Spin.down] += [float(e) for e in float_patt.findall(eigenline)]
+                                    self.eigenvalues[Spin.down] += [float(e) for e in float_patt.findall(eigen_line)]
                             eigen_txt = []
 
                     # read molecular orbital coefficients
@@ -887,35 +781,35 @@ class GaussianOutput:
                             nMO = 0
                             end_mo = False
                             while nMO < self.num_basis_func and not end_mo:
-                                f.readline()
-                                f.readline()
+                                file.readline()
+                                file.readline()
                                 self.atom_basis_labels = []
-                                for i in range(self.num_basis_func):
-                                    line = f.readline()
+                                for idx in range(self.num_basis_func):
+                                    line = file.readline()
 
                                     # identify atom and OA labels
                                     m = mo_coeff_name_patt.search(line)
                                     if m.group(1).strip() != "":
-                                        iat = int(m.group(2)) - 1
+                                        atom_idx = int(m.group(2)) - 1
                                         # atname = m.group(3)
                                         self.atom_basis_labels.append([m.group(4)])
                                     else:
-                                        self.atom_basis_labels[iat].append(m.group(4))
+                                        self.atom_basis_labels[atom_idx].append(m.group(4))
 
                                     # MO coefficients
                                     coeffs = [float(c) for c in float_patt.findall(line)]
                                     for j, c in enumerate(coeffs):
-                                        mat_mo[spin][i, nMO + j] = c
+                                        mat_mo[spin][idx, nMO + j] = c
 
                                 nMO += len(coeffs)
-                                line = f.readline()
+                                line = file.readline()
                                 # manage pop=regular case (not all MO)
                                 if nMO < self.num_basis_func and (
                                     "Density Matrix:" in line or mo_coeff_patt.search(line)
                                 ):
                                     end_mo = True
                                     warnings.warn("POP=regular case, matrix coefficients not complete")
-                            f.readline()
+                            file.readline()
 
                         self.eigenvectors = mat_mo
                         read_mo = False
@@ -930,11 +824,11 @@ class GaussianOutput:
                                 [{} for iat in range(len(self.atom_basis_labels))] for j in range(self.num_basis_func)
                             ]
                             for j in range(self.num_basis_func):
-                                i = 0
-                                for iat, labels in enumerate(self.atom_basis_labels):
+                                idx = 0
+                                for atom_idx, labels in enumerate(self.atom_basis_labels):
                                     for label in labels:
-                                        mo[spin][j][iat][label] = self.eigenvectors[spin][i, j]
-                                        i += 1
+                                        mo[spin][j][atom_idx][label] = self.eigenvectors[spin][idx, j]
+                                        idx += 1
 
                         self.molecular_orbital = mo
 
@@ -974,56 +868,40 @@ class GaussianOutput:
                                     syms = line.split()[:3]
                                     for ifreq, sym in zip(ifreqs, syms):
                                         frequencies[ifreq]["symmetry"] = sym
-                                line = f.readline()
+                                line = file.readline()
 
                             # read normal modes
-                            line = f.readline()
+                            line = file.readline()
                             while normal_mode_patt.search(line):
                                 values = list(map(float, float_patt.findall(line)))
-                                for i, ifreq in zip(range(0, len(values), 3), ifreqs):
-                                    frequencies[ifreq]["mode"].extend(values[i : i + 3])
-                                line = f.readline()
+                                for idx, ifreq in zip(range(0, len(values), 3), ifreqs):
+                                    frequencies[ifreq]["mode"].extend(values[idx : idx + 3])
+                                line = file.readline()
 
                         parse_freq = False
                         self.frequencies.append(frequencies)
                         frequencies = []
 
                     elif parse_hessian:
-                        # read Hessian matrix under "Force constants in Cartesian coordinates"
-                        # Hessian matrix is in the input  orientation framework
-                        # WARNING : need #P in the route line
+                        if not (input_structures or std_structures):
+                            raise ValueError("Both input_structures and std_structures are empty.")
                         parse_hessian = False
-                        ndf = 3 * len(input_structures[0])
-                        self.hessian = np.zeros((ndf, ndf))
-                        j_indices = range(5)
-                        jndf = 0
-                        while jndf < ndf:
-                            for i in range(jndf, ndf):
-                                line = f.readline()
-                                vals = re.findall(r"\s*([+-]?\d+\.\d+[eEdD]?[+-]\d+)", line)
-                                vals = [float(val.replace("D", "E")) for val in vals]
-                                for jval, val in enumerate(vals):
-                                    j = j_indices[jval]
-                                    self.hessian[i, j] = val
-                                    self.hessian[j, i] = val
-                            jndf += len(vals)
-                            line = f.readline()
-                            j_indices = [j + 5 for j in j_indices]
+                        self._parse_hessian(file, (input_structures or std_structures)[0])
 
                     elif parse_bond_order:
                         # parse Wiberg bond order
-                        line = f.readline()
-                        line = f.readline()
-                        nat = len(input_structures[0])
+                        line = file.readline()
+                        line = file.readline()
+                        n_atoms = len(input_structures[0])
                         matrix = []
-                        for _ in range(nat):
-                            line = f.readline()
+                        for _ in range(n_atoms):
+                            line = file.readline()
                             matrix.append([float(v) for v in line.split()[2:]])
 
                         self.bond_orders = {}
-                        for iat in range(nat):
-                            for jat in range(iat + 1, nat):
-                                self.bond_orders[(iat, jat)] = matrix[iat][jat]
+                        for atom_idx in range(n_atoms):
+                            for atom_jdx in range(atom_idx + 1, n_atoms):
+                                self.bond_orders[(atom_idx, atom_jdx)] = matrix[atom_idx][atom_jdx]
                         parse_bond_order = False
 
                     elif termination_patt.search(line):
@@ -1063,7 +941,7 @@ class GaussianOutput:
                         geom_orientation = "input"
                         read_coord = True
                     elif "Optimization completed." in line:
-                        line = f.readline()
+                        line = file.readline()
                         if " -- Stationary point found." not in line:
                             warnings.warn(
                                 f"\n{self.filename}: Optimization complete but this is not a stationary point"
@@ -1082,7 +960,7 @@ class GaussianOutput:
                         parse_forces = True
                     elif freq_on_patt.search(line):
                         parse_freq = True
-                        [f.readline() for i in range(3)]
+                        [file.readline() for i in range(3)]
                     elif mo_coeff_patt.search(line):
                         if "Alpha" in line:
                             self.is_spin = True
@@ -1093,7 +971,7 @@ class GaussianOutput:
                         resume = []
                         while not resume_end_patt.search(line):
                             resume.append(line)
-                            line = f.readline()
+                            line = file.readline()
                             # security if \\@ not in one line !
                             if line == "\n":
                                 break
@@ -1129,7 +1007,36 @@ class GaussianOutput:
         self.opt_structures = opt_structures
 
         if not terminated:
-            warnings.warn("\n" + self.filename + ": Termination error or bad Gaussian output file !")
+            warnings.warn(f"\n{self.filename}: Termination error or bad Gaussian output file !")
+
+    def _parse_hessian(self, file, structure):
+        """
+        Parse the hessian matrix in the output file.
+
+        Args:
+            file: file object
+            structure: structure in the output file
+        """
+        # read Hessian matrix under "Force constants in Cartesian coordinates"
+        # Hessian matrix is in the input  orientation framework
+        # WARNING : need #P in the route line
+
+        ndf = 3 * len(structure)
+        self.hessian = np.zeros((ndf, ndf))
+        j_indices = range(5)
+        ndf_idx = 0
+        while ndf_idx < ndf:
+            for i in range(ndf_idx, ndf):
+                line = file.readline()
+                vals = re.findall(r"\s*([+-]?\d+\.\d+[eEdD]?[+-]\d+)", line)
+                vals = [float(val.replace("D", "E")) for val in vals]
+                for val_idx, val in enumerate(vals):
+                    j = j_indices[val_idx]
+                    self.hessian[i, j] = val
+                    self.hessian[j, i] = val
+            ndf_idx += len(vals)
+            line = file.readline()
+            j_indices = [j + 5 for j in j_indices]
 
     def _check_pcm(self, line):
         energy_patt = re.compile(r"(Dispersion|Cavitation|Repulsion) energy\s+\S+\s+=\s+(\S*)")

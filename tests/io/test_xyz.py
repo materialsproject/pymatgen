@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import unittest
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -11,8 +13,8 @@ from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestXYZ:
-    def setup(self):
+class TestXYZ(unittest.TestCase):
+    def setUp(self):
         coords = [
             [0, 0, 0],
             [0, 0, 1.089000],

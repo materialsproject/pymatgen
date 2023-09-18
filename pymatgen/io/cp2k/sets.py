@@ -949,7 +949,7 @@ class DftSet(Cp2kInput):
         # Unlikely for users to override
         load_balance = Section(
             "LOAD_BALANCE",
-            keywords={"RANDOMIZE": Keyword("RANDOMIZE", True)},
+            keywords={"RANDOMIZE": Keyword("RANDOMIZE", True)},  # noqa: FBT003
             subsections={},
         )
 

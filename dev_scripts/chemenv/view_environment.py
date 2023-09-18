@@ -64,13 +64,10 @@ if __name__ == "__main__":
                         "Unable to determine the algorithm/separation_plane you want "
                         "to visualize for this geometry. Continues without ..."
                     )
-        my_factor = 3
-        if vis is None:
-            vis = visualize(cg=cg, zoom=1, myfactor=my_factor)
-        else:
-            vis = visualize(cg=cg, vis=vis, myfactor=my_factor)
-        cg_points = [my_factor * np.array(pp) for pp in cg.points]
-        cg_central_site = my_factor * np.array(cg.central_site)
+        factor = 3.0
+        vis = visualize(cg=cg, zoom=1, factor=factor) if vis is None else visualize(cg=cg, vis=vis, factor=factor)
+        cg_points = [factor * np.array(pp) for pp in cg.points]
+        cg_central_site = factor * np.array(cg.central_site)
         if sep_plane:
             pts = [cg_points[ii] for ii in algo.plane_points]
             if algo.minimum_number_of_points == 2:

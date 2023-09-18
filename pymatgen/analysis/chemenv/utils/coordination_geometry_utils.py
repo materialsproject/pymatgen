@@ -68,10 +68,10 @@ def function_comparison(f1, f2, x1, x2, numpoints_check=500):
         numpoints_check: Number of points used to compare the functions
 
     Returns:
-        Whether the function are equal ("="), f1 is always lower than f2 ("<"), f1 is always larger than f2 (">"),
-         f1 is always lower than or equal to f2 ("<"), f1 is always larger than or equal to f2 (">") on the
-         interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
-         functions that do not cross...)
+        str: '=' if the functions are equal, '<' if f1 is always lower than f2, '>' if f1 is always larger than f2,
+            f1 is always lower than or equal to f2 ("<"), f1 is always larger than or equal to f2 (">") on the
+            interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
+            functions that do not cross...)
     """
     xx = np.linspace(x1, x2, num=numpoints_check)
     y1 = f1(xx)
@@ -392,8 +392,7 @@ def vectorsToMatrix(aa, bb):
     :param bb: Another vector of size 3
 
     Returns:
-        A 3x3 matrix M composed of the products of the elements of aa and bb :
-     M_ij = aa_i * bb_j.
+        A 3x3 matrix M composed of the products of the elements of aa and bb : M_ij = aa_i * bb_j.
     """
     MM = np.zeros([3, 3], np.float_)
     for ii in range(3):
@@ -655,8 +654,6 @@ class Plane:
 
         :param non_zeros: Indices of plane coefficients ([a, b, c]) that are not zero.
         :param zeros: Indices of plane coefficients ([a, b, c]) that are equal to zero.
-        Returns:
-            None
         """
         if len(non_zeros) == 3:
             self.p1 = np.array([-self.d / self.a, 0.0, 0.0], np.float_)
@@ -732,6 +729,7 @@ class Plane:
         :param points: list of points
         :param dist_tolerance: tolerance to which a point is considered to lie on the plane
             or not (distance to the plane)
+
         Returns:
             The lists of indices of the points on one side of the plane, on the plane and
             on the other side of the plane.
@@ -890,6 +888,7 @@ class Plane:
 
         :param points: List of points.
         :param fit: Type of fit error.
+
         Returns:
             Error for a list of points with respect to this plane.
         """
@@ -903,6 +902,7 @@ class Plane:
         """Evaluate the sum of squared distances error for a list of points with respect to this plane.
 
         :param points: List of points.
+
         Returns:
             Sum of squared distances error for a list of points with respect to this plane.
         """
@@ -912,6 +912,7 @@ class Plane:
         """Evaluate the max distance error for a list of points with respect to this plane.
 
         :param points: List of points.
+
         Returns:
             Max distance error for a list of points with respect to this plane.
         """
@@ -976,6 +977,7 @@ class Plane:
 
         :param p1: First point.
         :param p2: Second point.
+
         Returns:
             Plane.
         """
@@ -988,6 +990,7 @@ class Plane:
         :param p1: First point.
         :param p2: Second point.
         :param p3: Third point.
+
         Returns:
             Plane.
         """
@@ -1008,6 +1011,7 @@ class Plane:
 
         :param points: List of points.
         :param best_fit: Type of fitting procedure for more than 3 points.
+
         Returns:
             Plane
         """
@@ -1026,6 +1030,7 @@ class Plane:
         """Initializes plane from a list of points using a least square fitting procedure.
 
         :param points: List of points.
+
         Returns:
             Plane.
         """
@@ -1054,6 +1059,7 @@ class Plane:
 
         :param p1: First point.
         :param p2: Second point.
+
         Returns:
             Plane.
         """
@@ -1067,6 +1073,7 @@ class Plane:
         """Initializes plane from a list of points using a max distance fitting procedure.
 
         :param points: List of points.
+
         Returns:
             Plane.
         """
@@ -1098,6 +1105,7 @@ class Plane:
         :param b: b coefficient of the plane.
         :param c: c coefficient of the plane.
         :param d: d coefficient of the plane.
+
         Returns:
             Plane.
         """

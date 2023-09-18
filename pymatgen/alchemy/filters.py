@@ -59,7 +59,8 @@ class ContainsSpecieFilter(AbstractStructureFilter):
     def test(self, structure: Structure):
         """Method to execute the test.
 
-        Returns: True if structure do not contain specified species.
+        Returns:
+            bool: True if structure does not contain specified species.
         """
         # set up lists to compare
         if not self._strict:
@@ -139,8 +140,8 @@ class SpecieProximityFilter(AbstractStructureFilter):
         Args:
             structure (Structure): Input structure to test
 
-        Returns: True if structure does not contain species within specified
-            distances.
+        Returns:
+            bool: True if structure does not contain species within specified distances.
         """
         all_species = set(self.specie_and_min_dist)
         for site in structure:
@@ -198,29 +199,30 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         else:
             self.structure_matcher = structure_matcher or StructureMatcher(comparator=ElementComparator())
 
-    def test(self, structure: Structure):
+    def test(self, structure: Structure) -> bool:
         """
         Args:
             structure (Structure): Input structure to test.
 
-        Returns: True if structure is not in list.
+        Returns:
+            bool: True if structure is not in list.
         """
-        hash = self.structure_matcher._comparator.get_hash(structure.composition)
-        if not self.structure_list[hash]:
-            self.structure_list[hash].append(structure)
+        hash_comp = self.structure_matcher._comparator.get_hash(structure.composition)
+        if not self.structure_list[hash_comp]:
+            self.structure_list[hash_comp].append(structure)
             return True
 
         def get_spg_num(struct: Structure) -> int:
             finder = SpacegroupAnalyzer(struct, symprec=self.symprec)
             return finder.get_space_group_number()
 
-        for s in self.structure_list[hash]:
-            if (self.symprec is None or get_spg_num(s) == get_spg_num(structure)) and self.structure_matcher.fit(
-                s, structure
+        for struct in self.structure_list[hash_comp]:
+            if (self.symprec is None or get_spg_num(struct) == get_spg_num(structure)) and self.structure_matcher.fit(
+                struct, structure
             ):
                 return False
 
-        self.structure_list[hash].append(structure)
+        self.structure_list[hash_comp].append(structure)
         return True
 
 
@@ -253,7 +255,8 @@ class RemoveExistingFilter(AbstractStructureFilter):
         Args:
             structure (Structure): Input structure to test
 
-        Returns: True if structure is not in existing list.
+        Returns:
+            bool: True if structure is not in existing list.
         """
 
         def get_sg(s):
@@ -297,7 +300,8 @@ class ChargeBalanceFilter(AbstractStructureFilter):
         Args:
             structure (Structure): Input structure to test
 
-        Returns: True if structure is neutral.
+        Returns:
+            bool: True if structure is neutral.
         """
         return structure.charge == 0.0
 
@@ -329,8 +333,9 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
         Args:
             structure (Structure): Input structure to test
 
-        Returns: True if structure does not contain the two species are distances
-            greater than max_dist.
+        Returns:
+            bool: True if structure does not contain the two species are distances
+                greater than max_dist.
         """
         sp1_indices = [idx for idx, site in enumerate(structure) if site.specie == self.sp1]
         sp2_indices = [idx for idx, site in enumerate(structure) if site.specie == self.sp2]

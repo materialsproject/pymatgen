@@ -151,7 +151,7 @@ class BalancedReaction(MSONable):
         Normalized representation for a reaction
         For example, ``4 Li + 2 O -> 2Li2O`` becomes ``2 Li + O -> Li2O``.
         """
-        return self._str_from_comp(self._coeffs, self._all_comp, True)
+        return self._str_from_comp(self._coeffs, self._all_comp, reduce=True)
 
     @property
     def normalized_repr(self):
@@ -250,19 +250,18 @@ class BalancedReaction(MSONable):
         return cls.from_str(*args, **kwargs)
 
     @staticmethod
-    def from_str(rxn_string):
+    def from_str(rxn_str):
         """
         Generates a balanced reaction from a string. The reaction must
         already be balanced.
 
         Args:
-            rxn_string:
-                The reaction string. For example, "4 Li + O2-> 2Li2O"
+            rxn_string (str): The reaction string. For example, "4 Li + O2 -> 2Li2O"
 
         Returns:
             BalancedReaction
         """
-        rct_str, prod_str = rxn_string.split("->")
+        rct_str, prod_str = rxn_str.split("->")
 
         def get_comp_amt(comp_str):
             return {

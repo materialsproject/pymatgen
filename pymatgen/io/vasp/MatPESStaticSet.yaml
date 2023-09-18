@@ -16,7 +16,7 @@ INCAR:
   LCHARG: True
   LMIXTAU: True
   LORBIT: 11
-  LREAL: Auto
+  LREAL: False
   LWAVE: False
   NELM: 200
   NSW: 0 # static calculation

@@ -11,22 +11,18 @@ permissions:
 
 jobs:
   lint:
-    # prevent this action from running on forks
-    if: github.repository == 'materialsproject/pymatgen'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-          cache: pip
-          cache-dependency-path: setup.py
 
       - name: Install dependencies
         run: |
-          pip install -e '.[dev]'
+          pip install --upgrade ruff black mypy
 
       - name: ruff
         run: |
@@ -36,10 +32,10 @@ jobs:
       - name: black
         run: |
           black --version
-          black --check --diff --color pymatgen
+          black --check --diff --color ${{ github.event.repository.name }}
 
       - name: mypy
         run: |
           mypy --version
           rm -rf .mypy_cache
-          mypy pymatgen
+          mypy ${{ github.event.repository.name }}

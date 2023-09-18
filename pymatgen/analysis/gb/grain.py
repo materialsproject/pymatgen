@@ -274,18 +274,18 @@ class GrainBoundary(Structure):
         Returns:
             Dictionary representation of GrainBoundary object.
         """
-        d = super().as_dict()
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["init_cell"] = self.init_cell.as_dict()
-        d["rotation_axis"] = self.rotation_axis
-        d["rotation_angle"] = self.rotation_angle
-        d["gb_plane"] = self.gb_plane
-        d["join_plane"] = self.join_plane
-        d["vacuum_thickness"] = self.vacuum_thickness
-        d["ab_shift"] = self.ab_shift
-        d["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
-        return d
+        dct = super().as_dict()
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["init_cell"] = self.init_cell.as_dict()
+        dct["rotation_axis"] = self.rotation_axis
+        dct["rotation_angle"] = self.rotation_angle
+        dct["gb_plane"] = self.gb_plane
+        dct["join_plane"] = self.join_plane
+        dct["vacuum_thickness"] = self.vacuum_thickness
+        dct["ab_shift"] = self.ab_shift
+        dct["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
+        return dct
 
     @classmethod
     def from_dict(cls, d):
@@ -458,7 +458,7 @@ class GrainBoundaryGenerator:
                 find the smallest cell.
 
         Returns:
-           Grain boundary structure (GB object).
+            Grain boundary structure (GB object).
         """
         lat_type = self.lat_type
         # if the initial structure is primitive cell in cubic system,

@@ -32,20 +32,19 @@ class StandardTransmuter:
     """An example of a Transmuter object, which performs a sequence of
     transformations on many structures to generate TransformedStructures.
 
-    .. attribute: transformed_structures
-
-        List of all transformed structures.
+    Attributes:
+        transformed_structures (list[Structure]): List of all transformed structures.
     """
 
     def __init__(
         self,
         transformed_structures,
         transformations=None,
-        extend_collection=0,
-        ncores=None,
+        extend_collection: int = 0,
+        ncores: int | None = None,
     ):
         """Initializes a transmuter from an initial list of
-        :class:`pymatgen.alchemy.materials.TransformedStructure`.
+        pymatgen.alchemy.materials.TransformedStructure.
 
         Args:
             transformed_structures ([TransformedStructure]): Input transformed
@@ -204,8 +203,8 @@ class StandardTransmuter:
                 assert isinstance(ts, TransformedStructure)
             self.transformed_structures.extend(trafo_structs_or_transmuter)
 
-    @staticmethod
-    def from_structures(structures, transformations=None, extend_collection=0):
+    @classmethod
+    def from_structures(cls, structures, transformations=None, extend_collection=0):
         """Alternative constructor from structures rather than
         TransformedStructures.
 
@@ -222,7 +221,7 @@ class StandardTransmuter:
             StandardTransmuter
         """
         trafo_struct = [TransformedStructure(s, []) for s in structures]
-        return StandardTransmuter(trafo_struct, transformations, extend_collection)
+        return cls(trafo_struct, transformations, extend_collection)
 
 
 class CifTransmuter(StandardTransmuter):
@@ -235,7 +234,7 @@ class CifTransmuter(StandardTransmuter):
         containing multiple structures.
 
         Args:
-            cif_string: A string containing a cif or a series of cifs
+            cif_string: A string containing a cif or a series of CIFs
             transformations: New transformations to be applied to all
                 structures
             primitive: Whether to generate the primitive cell from the cif.
@@ -259,8 +258,8 @@ class CifTransmuter(StandardTransmuter):
             transformed_structures.append(trafo_struct)
         super().__init__(transformed_structures, transformations, extend_collection)
 
-    @staticmethod
-    def from_filenames(filenames, transformations=None, primitive=True, extend_collection=False):
+    @classmethod
+    def from_filenames(cls, filenames, transformations=None, primitive=True, extend_collection=False):
         """Generates a TransformedStructureCollection from a cif, possibly
         containing multiple structures.
 
@@ -271,12 +270,12 @@ class CifTransmuter(StandardTransmuter):
             primitive: Same meaning as in __init__.
             extend_collection: Same meaning as in __init__.
         """
-        allcifs = []
+        cif_files = []
         for fname in filenames:
-            with open(fname) as f:
-                allcifs.append(f.read())
-        return CifTransmuter(
-            "\n".join(allcifs),
+            with open(fname) as file:
+                cif_files.append(file.read())
+        return cls(
+            "\n".join(cif_files),
             transformations,
             primitive=primitive,
             extend_collection=extend_collection,

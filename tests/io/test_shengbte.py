@@ -97,7 +97,7 @@ class TestShengBTE(PymatgenTest):
         os.remove(f"{test_dir}/test_control")
 
     @unittest.skipIf(f90nml is None, "No f90nml")
-    def test_MSONable_implementation(self):
+    def test_msonable_implementation(self):
         # tests as dict and from dict methods
         ctrl_from_file = Control.from_file(self.filename)
         control_from_dict = Control.from_dict(ctrl_from_file.as_dict())

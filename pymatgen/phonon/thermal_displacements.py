@@ -122,7 +122,9 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def Ustar(self):
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-        Returns: Ustar as a numpy array, first dimension are the atoms in the structure.
+
+        Returns:
+            np.array: Ustar as array. First dimension are the atoms in the structure.
         """
         A = self.structure.lattice.matrix.T
         Ainv = np.linalg.inv(A)
@@ -135,7 +137,9 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def Ucif(self):
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-        Returns: Ucif as a numpy array, first dimension are the atoms in the structure.
+
+        Returns:
+            np.array: Ucif as array. First dimension are the atoms in the structure.
         """
         if self.thermal_displacement_matrix_cif is None:
             # computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
@@ -155,7 +159,9 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def B(self):
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-        Returns: B as a numpy array, first dimension are the atoms in the structure.
+
+        Returns:
+            np.array: First dimension are the atoms in the structure.
         """
         B = []
         for mat in self.Ucif:
@@ -166,7 +172,9 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def beta(self):
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-        Returns: beta as a numpy array, first dimension are the atoms in the structure.
+
+        Returns:
+            np.array: First dimension are the atoms in the structure.
         """
         # will compute beta based on Ustar
         beta = []
@@ -178,7 +186,9 @@ class ThermalDisplacementMatrices(MSONable):
     @property
     def U1U2U3(self):
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-        Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure.
+
+        Returns:
+            np.array: eigenvalues of Ucart. First dimension are the atoms in the structure.
         """
         U1U2U3 = []
         for mat in self.thermal_displacement_matrix_cart_matrixform:
@@ -434,7 +444,8 @@ class ThermalDisplacementMatrices(MSONable):
             return [site.specie.X, site.frac_coords[0], site.frac_coords[1], site.frac_coords[2]]
         new_structure0 = Structure.from_sites(sorted(structure0, key=sort_order)).
 
-        Returns: Structure object.
+        Returns:
+            Structure
         """
         site_properties = {"U11_cif": [], "U22_cif": [], "U33_cif": [], "U23_cif": [], "U13_cif": [], "U12_cif": []}
         if self.thermal_displacement_matrix_cif is None:
@@ -461,8 +472,8 @@ class ThermalDisplacementMatrices(MSONable):
             properties
             temperature: temperature for Ucif data
 
-        Returns: ThermalDisplacementMatrices Object.
-
+        Returns:
+            ThermalDisplacementMatrices
         """
         Ucif_matrix = []
         # U11, U22, U33, U23, U13, U12
@@ -483,12 +494,13 @@ class ThermalDisplacementMatrices(MSONable):
     @staticmethod
     def from_cif_P1(filename: str):
         """Reads a cif with P1 symmetry including positions and ADPs.
-        Currently, no check of symmetry is performed as CifParser methods cannot be easily reused
+        Currently, no check of symmetry is performed as CifParser methods cannot be easily reused.
+
         Args:
-            filename: Filename of the cif.
+            filename: Filename of the CIF.
 
-        Returns: ThermalDisplacementMatrices Object.
-
+        Returns:
+            ThermalDisplacementMatrices
         """
         # This code is adapted from the CifParser
         # to reuse more code from there, the CifParser would need a major refactoring
@@ -502,7 +514,7 @@ class ThermalDisplacementMatrices(MSONable):
             lattice = CifParser.get_lattice_no_exception(data)
 
             all_coords = []
-            allspecies = []
+            all_species = []
             for idx in range(len(data["_atom_site_label"])):
                 try:
                     # If site type symbol exists, use it. Otherwise, we use the
@@ -513,7 +525,7 @@ class ThermalDisplacementMatrices(MSONable):
                 if not symbol:
                     continue
 
-                allspecies.append(symbol)
+                all_species.append(symbol)
                 x = str2float(data["_atom_site_fract_x"][idx])
                 y = str2float(data["_atom_site_fract_y"][idx])
                 z = str2float(data["_atom_site_fract_z"][idx])
@@ -531,7 +543,7 @@ class ThermalDisplacementMatrices(MSONable):
                 ]
                 for idx in range(len(data["_atom_site_aniso_label"]))
             ]
-            struct = Structure(lattice, allspecies, all_coords)
+            struct = Structure(lattice, all_species, all_coords)
 
             thermal = ThermalDisplacementMatrices.from_Ucif(
                 thermal_displacement_matrix_cif=thermals_Ucif, structure=struct, temperature=None

@@ -91,7 +91,7 @@ class Tensor(np.ndarray, MSONable):
             return obj[()]
         return np.ndarray.__array_wrap__(self, obj)
 
-    def __hash__(self) -> int:  # type: ignore[override]
+    def __hash__(self) -> int:
         """Define a hash function, since numpy arrays have their own __eq__ method."""
         return hash(self.tostring())
 
@@ -643,14 +643,14 @@ class Tensor(np.ndarray, MSONable):
             serialized format tensor object
         """
         input_array = self.voigt if voigt else self
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "input_array": input_array.tolist(),
         }
         if voigt:
-            d["voigt"] = voigt
-        return d
+            dct["voigt"] = voigt
+        return dct
 
     @classmethod
     def from_dict(cls, d) -> Tensor:
@@ -811,14 +811,14 @@ class TensorCollection(collections.abc.Sequence, MSONable):
             Dict representation of TensorCollection.
         """
         tensor_list = self.voigt if voigt else self
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "tensor_list": [t.tolist() for t in tensor_list],
         }
         if voigt:
-            d["voigt"] = voigt
-        return d
+            dct["voigt"] = voigt
+        return dct
 
     @classmethod
     def from_dict(cls, d):

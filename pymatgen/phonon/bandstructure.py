@@ -222,7 +222,7 @@ class PhononBandStructure(MSONable):
 
     def as_dict(self):
         """MSONable dict."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
@@ -231,27 +231,27 @@ class PhononBandStructure(MSONable):
         # qpoints are not Kpoint objects dicts but are frac coords.Tthis makes
         # the dict smaller and avoids the repetition of the lattice
         for q in self.qpoints:
-            d["qpoints"].append(q.as_dict()["fcoords"])
-        d["bands"] = self.bands.tolist()
-        d["labels_dict"] = {}
+            dct["qpoints"].append(q.as_dict()["fcoords"])
+        dct["bands"] = self.bands.tolist()
+        dct["labels_dict"] = {}
         for kpoint_letter, kpoint_object in self.labels_dict.items():
-            d["labels_dict"][kpoint_letter] = kpoint_object.as_dict()["fcoords"]
+            dct["labels_dict"][kpoint_letter] = kpoint_object.as_dict()["fcoords"]
 
         # split the eigendisplacements to real and imaginary part for serialization
-        d["eigendisplacements"] = {
+        dct["eigendisplacements"] = {
             "real": np.real(self.eigendisplacements).tolist(),
             "imag": np.imag(self.eigendisplacements).tolist(),
         }
-        d["nac_eigendisplacements"] = [
+        dct["nac_eigendisplacements"] = [
             (direction, {"real": np.real(e).tolist(), "imag": np.imag(e).tolist()})
             for direction, e in self.nac_eigendisplacements
         ]
-        d["nac_frequencies"] = [(direction, f.tolist()) for direction, f in self.nac_frequencies]
+        dct["nac_frequencies"] = [(direction, f.tolist()) for direction, f in self.nac_frequencies]
 
         if self.structure:
-            d["structure"] = self.structure.as_dict()
+            dct["structure"] = self.structure.as_dict()
 
-        return d
+        return dct
 
     @classmethod
     def from_dict(cls, dct):
@@ -568,13 +568,13 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     def as_dict(self):
         """Returns: MSONable dict."""
-        d = super().as_dict()
+        dct = super().as_dict()
         # remove nac_frequencies and nac_eigendisplacements as they are reconstructed
         # in the __init__ when the dict is deserialized
-        nac_frequencies = d.pop("nac_frequencies")
-        d.pop("nac_eigendisplacements")
-        d["has_nac"] = len(nac_frequencies) > 0
-        return d
+        nac_frequencies = dct.pop("nac_frequencies")
+        dct.pop("nac_eigendisplacements")
+        dct["has_nac"] = len(nac_frequencies) > 0
+        return dct
 
     @classmethod
     def from_dict(cls, dct):
@@ -582,7 +582,8 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         Args:
             dct: Dict representation.
 
-        Returns: PhononBandStructureSymmLine
+        Returns:
+            PhononBandStructureSymmLine
         """
         lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
         eigendisplacements = (

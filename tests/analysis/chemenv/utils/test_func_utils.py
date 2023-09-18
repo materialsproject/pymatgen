@@ -16,7 +16,7 @@ __author__ = "waroquiers"
 
 
 class TestFuncUtils(unittest.TestCase):
-    def test_CSMFiniteRatioFunction(self):
+    def test_csm_finite_ratio_function(self):
         max_csm = 8
         alpha = 1
         csm_finite_ratio = CSMFiniteRatioFunction(
@@ -61,7 +61,7 @@ class TestFuncUtils(unittest.TestCase):
                 options_dict={"max_csm": max_csm, "nn": 2},
             )
 
-    def test_CSMInfiniteRatioFunction(self):
+    def test_csm_infinite_ratio_function(self):
         max_csm = 8
         with pytest.raises(ValueError, match="Option 'nn' not allowed for function 'power2_inverse_decreasing' in "):
             CSMInfiniteRatioFunction(
@@ -109,7 +109,7 @@ class TestFuncUtils(unittest.TestCase):
         assert csm_infinite_ratio.evaluate(12) == 0
         assert csm_infinite_ratio.evaluate(20) == 0
 
-    def test_DeltaCSMRatioFunction(self):
+    def test_delta_csm_ratio_function(self):
         with pytest.raises(ValueError, match="function='smoothstep' is not allowed in RatioFunction of typ"):
             DeltaCSMRatioFunction(function="smoothstep", options_dict={})
         with pytest.raises(

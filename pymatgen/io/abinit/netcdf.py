@@ -91,7 +91,7 @@ class NetcdfReader:
         # Slicing a ncvar returns a MaskedArrray and this is really annoying
         # because it can lead to unexpected behavior in e.g. calls to np.matmul!
         # See also https://github.com/Unidata/netcdf4-python/issues/785
-        self.rootgrp.set_auto_mask(False)
+        self.rootgrp.set_auto_mask(False)  # noqa: FBT003
 
     def __enter__(self):
         """Activated when used in the with statement."""
@@ -260,7 +260,7 @@ class ETSF_Reader(NetcdfReader):
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):
-        """Read ixc from an Abinit file. Return :class:`XcFunc` object."""
+        """Read ixc from an Abinit file. Return XcFunc object."""
         ixc = int(self.read_value("ixc"))
         return XcFunc.from_abinit_ixc(ixc)
 
@@ -268,7 +268,7 @@ class ETSF_Reader(NetcdfReader):
         """
         Read the variables associated to the Abinit header.
 
-        Return :class:`AbinitHeader`
+        Return AbinitHeader
         """
         dct = {}
         for hvar in _HDR_VARIABLES.values():

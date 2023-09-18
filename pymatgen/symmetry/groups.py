@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 
 
 SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
+CrystalSystem = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "tetragonal", "triclinic", "trigonal"]
 
 
 class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
@@ -102,18 +103,10 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
 class PointGroup(SymmetryGroup):
     """Class representing a Point Group, with generators and symmetry operations.
 
-    .. attribute:: symbol
-
-        Full International or Hermann-Mauguin Symbol.
-
-    .. attribute:: generators
-
-        List of generator matrices. Note that 3x3 matrices are used for Point
-        Groups.
-
-    .. attribute:: symmetry_ops
-
-        Full set of symmetry operations as matrices.
+    Attributes:
+        symbol (str): Full International or Hermann-Mauguin Symbol.
+        generators (list): List of generator matrices. Note that 3x3 matrices are used for Point Groups.
+        symmetry_ops (list): Full set of symmetry operations as matrices.
     """
 
     def __init__(self, int_symbol: str) -> None:
@@ -176,22 +169,11 @@ class PointGroup(SymmetryGroup):
 class SpaceGroup(SymmetryGroup):
     """Class representing a SpaceGroup.
 
-    .. attribute:: symbol
-
-        Full International or Hermann-Mauguin Symbol.
-
-    .. attribute:: int_number
-
-        International number
-
-    .. attribute:: generators
-
-        List of generator matrices. Note that 4x4 matrices are used for Space
-        Groups.
-
-    .. attribute:: order
-
-        Order of Space Group
+    Attributes:
+        symbol (str): Full International or Hermann-Mauguin Symbol.
+        int_number (int): International number.
+        generators (list): List of generator matrices. Note that 4x4 matrices are used for Space Groups.
+        order (int): Order of Space Group.
     """
 
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))
@@ -433,9 +415,7 @@ class SpaceGroup(SymmetryGroup):
         return True
 
     @property
-    def crystal_system(
-        self,
-    ) -> Literal["cubic", "hexagonal", "trigonal", "tetragonal", "orthorhombic", "monoclinic", "triclinic"]:
+    def crystal_system(self) -> CrystalSystem:
         """
         Returns:
             str: Crystal system of the space group, e.g., cubic, hexagonal, etc.

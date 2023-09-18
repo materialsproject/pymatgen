@@ -58,7 +58,6 @@ class BornEffectiveCharge:
         [site index 1, site index 2, [Symmops mapping from site
         index 1 to site index 2]].
 
-
         Args:
             eigtol (float): tolerance for determining if two sites are
             related by symmetry
@@ -194,7 +193,6 @@ class InternalStrainTensor:
         [site index 1, site index 2, [Symmops mapping from site
         index 1 to site index 2]].
 
-
         Args:
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
@@ -284,7 +282,6 @@ class ForceConstantMatrix:
         belonging to equivalent sites onto each other in the form
         [site index 1a, site index 1b, site index 2a, site index 2b,
         [Symmops mapping from site index 1a, 1b to site index 2a, 2b]].
-
 
         Args:
             eigtol (float): tolerance for determining if two sites are
@@ -627,28 +624,28 @@ class ForceConstantMatrix:
 
         n_sites = len(self.structure)
         structure = get_phonopy_structure(self.structure)
-        pnstruc = Phonopy(structure, np.eye(3), np.eye(3))
+        pn_struct = Phonopy(structure, np.eye(3), np.eye(3))
 
         dyn = self.get_unstable_FCM(force)
         dyn = self.get_stable_FCM(dyn)
 
         dyn = np.reshape(dyn, (n_sites, 3, n_sites, 3)).swapaxes(1, 2)
 
-        dynmass = np.zeros([len(self.structure), len(self.structure), 3, 3])
+        dyn_mass = np.zeros([len(self.structure), len(self.structure), 3, 3])
         masses = []
         for idx in range(n_sites):
             masses.append(self.structure[idx].specie.atomic_mass)
-        dynmass = np.zeros([n_sites, n_sites, 3, 3])
+        dyn_mass = np.zeros([n_sites, n_sites, 3, 3])
         for m in range(n_sites):
             for n in range(n_sites):
-                dynmass[m][n] = dyn[m][n] * np.sqrt(masses[m]) * np.sqrt(masses[n])
+                dyn_mass[m][n] = dyn[m][n] * np.sqrt(masses[m]) * np.sqrt(masses[n])
 
-        supercell = pnstruc.get_supercell()
-        primitive = pnstruc.get_primitive()
+        supercell = pn_struct.get_supercell()
+        primitive = pn_struct.get_primitive()
 
         converter = dyntofc.DynmatToForceConstants(primitive, supercell)
 
-        dyn = np.reshape(np.swapaxes(dynmass, 1, 2), (n_sites * 3, n_sites * 3))
+        dyn = np.reshape(np.swapaxes(dyn_mass, 1, 2), (n_sites * 3, n_sites * 3))
 
         converter.set_dynamical_matrices(dynmat=[dyn])
 

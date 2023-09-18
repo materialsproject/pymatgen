@@ -403,7 +403,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     Given that the solution to selecting the right removals is NP-hard, there
     are several algorithms provided with varying degrees of accuracy and speed.
     Please see
-    :class:`pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation`.
+    pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.
     """
 
     ALGO_FAST = 0
