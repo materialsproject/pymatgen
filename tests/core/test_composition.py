@@ -565,9 +565,11 @@ class TestComposition(PymatgenTest):
         assert MnFeO3_guesses[0] == {"Mn": 3, "Fe": 3, "O": -2}
 
         # https://github.com/materialsproject/pymatgen/issues/3324
-        for anion in "O H N F Cl Br I Se Si Sb Te".split():
-            # always expect 0 for oxi_state_guesses of diatomic molecules #3332
-            assert Composition(f"{anion}2").oxi_state_guesses() == ({anion: 0},)
+        # always expect 0 for oxi_state_guesses of elemental systems
+        for atomic_num in random.sample(range(1, 92), 10):  # try 10 random elements
+            elem = Element.from_Z(atomic_num).symbol
+            assert Composition(f"{elem}2").oxi_state_guesses() == ({elem: 0},)
+            assert Composition(f"{elem}3").oxi_state_guesses() == ({elem: 0},)
 
         # target charge of 1
         assert Composition("V2O6").oxi_state_guesses(oxi_states_override={"V": [2, 3, 4, 5]}, target_charge=-2) == (
