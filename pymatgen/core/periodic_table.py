@@ -96,19 +96,19 @@ class ElementBase(Enum):
                 Spectra Database. Missing values are None.
         """
         self.symbol = str(symbol)
-        d = _pt_data[symbol]
+        data = _pt_data[symbol]
 
         # Store key variables for quick access
-        self.Z = d["Atomic no"]
+        self.Z = data["Atomic no"]
 
-        at_r = d.get("Atomic radius", "no data")
+        at_r = data.get("Atomic radius", "no data")
         if str(at_r).startswith("no data"):
             self._atomic_radius = None
         else:
             self._atomic_radius = Length(at_r, "ang")
-        self._atomic_mass = Mass(d["Atomic mass"], "amu")
-        self.long_name = d["Name"]
-        self._data = d
+        self._atomic_mass = Mass(data["Atomic mass"], "amu")
+        self.long_name = data["Name"]
+        self._data = data
 
     @property
     def X(self) -> float:

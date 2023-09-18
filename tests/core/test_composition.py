@@ -551,20 +551,25 @@ class TestComposition(PymatgenTest):
         assert len(Composition("MnO").oxi_state_guesses(all_oxi_states=True)) == 4
 
         # can't balance b/c missing V4+
-        assert Composition("VO2").oxi_state_guesses(oxi_states_override={"V": [2, 3, 5]}) == []
+        assert Composition("VO2").oxi_state_guesses(oxi_states_override={"V": [2, 3, 5]}) == ()
 
         # missing V4+, but can balance due to additional sites
         assert Composition("V2O4").oxi_state_guesses(oxi_states_override={"V": [2, 3, 5]}) == ({"V": 4, "O": -2},)
 
         # multiple solutions - Mn/Fe = 2+/4+ or 3+/3+ or 4+/2+
-        assert len(Composition("MnFeO3").oxi_state_guesses(oxi_states_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]})) == 3
+        MnFeO3 = Composition("MnFeO3")
+        MnFeO3_guesses = MnFeO3.oxi_state_guesses(oxi_states_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]})
+        assert len(MnFeO3_guesses) == 3
 
         # multiple solutions prefers 3/3 over 2/4 or 4/2
-        assert Composition("MnFeO3").oxi_state_guesses(oxi_states_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]})[0] == {
-            "Mn": 3,
-            "Fe": 3,
-            "O": -2,
-        }
+        assert MnFeO3_guesses[0] == {"Mn": 3, "Fe": 3, "O": -2}
+
+        # https://github.com/materialsproject/pymatgen/issues/3324
+        # always expect 0 for oxi_state_guesses of elemental systems
+        for atomic_num in random.sample(range(1, 92), 10):  # try 10 random elements
+            elem = Element.from_Z(atomic_num).symbol
+            assert Composition(f"{elem}2").oxi_state_guesses() == ({elem: 0},)
+            assert Composition(f"{elem}3").oxi_state_guesses() == ({elem: 0},)
 
         # target charge of 1
         assert Composition("V2O6").oxi_state_guesses(oxi_states_override={"V": [2, 3, 4, 5]}, target_charge=-2) == (

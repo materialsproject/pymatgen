@@ -692,7 +692,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         target_charge: float = 0,
         all_oxi_states: bool = False,
         max_sites: int | None = None,
-    ) -> list[dict[str, float]]:
+    ) -> tuple[dict[str, float]]:
         """Checks if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
@@ -720,10 +720,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 formula is greater than abs(max_sites).
 
         Returns:
-            A list of dicts - each dict reports an element symbol and average
+            list[dict]: each dict reports an element symbol and average
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
+        if len(self.elements) == 1:
+            return ({self.elements[0].symbol: 0.0},)
         return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
     def replace(self, elem_map: dict[str, str | dict[str, float]]) -> Composition:
@@ -954,19 +956,17 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 # collect the combination of oxidation states for each site
                 all_oxid_combo.append({e: el_best_oxid_combo[idx][v] for idx, (e, v) in enumerate(zip(elements, x))})
 
-        # sort the solutions by highest to lowest score
+        # sort the solutions from highest to lowest score
         if all_scores:
             all_sols, all_oxid_combo = zip(
                 *(
                     (y, x)
                     for (z, y, x) in sorted(
-                        zip(all_scores, all_sols, all_oxid_combo),
-                        key=lambda pair: pair[0],
-                        reverse=True,
+                        zip(all_scores, all_sols, all_oxid_combo), key=lambda pair: pair[0], reverse=True
                     )
                 )
             )
-        return all_sols, all_oxid_combo
+        return tuple(all_sols), tuple(all_oxid_combo)
 
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(
