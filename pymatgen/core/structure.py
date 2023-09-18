@@ -1188,7 +1188,7 @@ class IStructure(SiteCollection, MSONable):
         # older pymatgen version may have issues when de-serialized. Note that pickle is *not*
         # recommended as an archival format. Nevertheless, since this is a core pymatgen class,
         # additional effort has been made to retain compatibility.
-        if properties := getattr(self, "_properties", None):  # noqa: B009
+        if properties := getattr(self, "_properties", None):
             return properties
         self._properties = {}
         return self._properties
