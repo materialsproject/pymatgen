@@ -86,16 +86,21 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repo
+        uses: actions/checkout@v4
+
       - uses: actions/setup-python@v4
         name: Install Python
         with:
-          python-version: "3.10"
+          python-version: "3.11"
+
       - run: |
           python -m pip install build
           pip install -e .
+
       - name: Build sdist
         run: python -m build --sdist
+
       - uses: actions/upload-artifact@v3
         with:
           path: dist/*.tar.gz
@@ -108,11 +113,14 @@ jobs:
         python-version: ["39", "310", "311"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repo
+        uses: actions/checkout@v4
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.15.0
         env:
           CIBW_BUILD: cp${{ matrix.python-version }}-*
+
       - name: Save artifact
         uses: actions/upload-artifact@v3
         with:
@@ -129,11 +137,13 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
+
       - name: Get build artifacts
         uses: actions/download-artifact@v3
         with:
           name: artifact
           path: dist
+
       - name: Publish to PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
