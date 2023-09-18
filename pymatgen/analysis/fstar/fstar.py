@@ -179,7 +179,7 @@ class FStarDiagram:
         if el.Z > 96:
             raise ValueError(
                 "Neutron sactter data only goes out to atomic number 96."
-                  "To go farther you will need to make a custom scattering function with values you provide."
+                "To go farther you will need to make a custom scattering function with values you provide."
             )
         for i, n in enumerate(NEUTRON_SCATTER_DF["Isotope"].values):
             if hasattr(el, "element"):
