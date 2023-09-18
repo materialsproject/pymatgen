@@ -14,13 +14,14 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 import plotly.express as px
+import gzip
 
 if TYPE_CHECKING:
     from pymatgen.core.periodic_table import Element
     from pymatgen.core.structure import Structure
 
 # Load in the neutron form factors
-with open(f"{os.path.dirname(__file__)}/neutron_factors.csv.gz") as csv_file:
+with gzip.open(f"{os.path.dirname(__file__)}/neutron_factors.csv.gz",mode="rt") as csv_file:
     NEUTRON_SCATTER_DF = pd.read_csv(csv_file)
     # from http://www.ccp14.ac.uk/ccp/web-mirrors/neutrons/n-scatter/n-lengths/LIST~1.HTM
 
