@@ -45,7 +45,9 @@ class FStarDiagram:
         for ind, struct in enumerate(structures):
             try:
                 if struct.equivalent_indices == structures[ind - 1].equivalent_indices:
-                    continue
+                    if len(struct.equivalent_indices) > 2:
+                        continue
+                    raise ValueError("Structures must have at least 3 unique sites")
                 raise ValueError("All structures must only vary in occupancy.")
             except AttributeError:
                 raise AttributeError("Must use symmeteized structure objects")
