@@ -724,7 +724,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
-        if len(self.elements) == 1 and self.element_composition[self.elements[0]] == 2:
+        if len(self.elements) == 1:
             return ({self.elements[0].symbol: 0.0},)
         return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
