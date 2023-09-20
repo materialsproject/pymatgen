@@ -4,7 +4,7 @@ import gzip
 import json
 import os
 import unittest
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 from shutil import copyfile, copyfileobj
 
@@ -90,7 +90,7 @@ class TestVasprun(PymatgenTest):
             Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.dielectric_bad")
 
     def test_bad_vasprun(self):
-        with pytest.raises(ET.ParseError):
+        with pytest.raises(ElementTree.ParseError):
             Vasprun(f"{TEST_FILES_DIR}/bad_vasprun.xml")
 
         with pytest.warns(

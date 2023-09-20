@@ -435,10 +435,7 @@ class DictSet(VaspInputSet):
         settings = dict(self._config_dict["INCAR"])
         for k, v in self.user_incar_settings.items():
             if v is None:
-                try:
-                    del settings[k]
-                except KeyError:
-                    settings[k] = v
+                settings.pop(k, None)
             elif k == "KSPACING" and self.user_kpoints_settings != {}:
                 pass  # Ignore KSPACING if user_kpoints_settings are given
             else:
@@ -593,8 +590,7 @@ class DictSet(VaspInputSet):
         """Gets the default number of electrons for a given structure."""
         n_electrons_by_element = {p.element: p.nelectrons for p in self.potcar}
         n_elect = sum(
-            num_atoms * n_electrons_by_element[str(el)]
-            for el, num_atoms in self.structure.composition.element_composition.items()
+            num_atoms * n_electrons_by_element[el.symbol] for el, num_atoms in self.structure.composition.items()
         )
 
         if self.use_structure_charge:
@@ -995,10 +991,7 @@ class MPScanRelaxSet(DictSet):
             # delete any vdw parameters that may have been added to the INCAR
             vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
             for k in vdw_par[self.vdw]:
-                try:
-                    del self._config_dict["INCAR"][k]
-                except KeyError:
-                    pass
+                self._config_dict["INCAR"].pop(k, None)
 
         self._config_dict["INCAR"].update(updates)
 
