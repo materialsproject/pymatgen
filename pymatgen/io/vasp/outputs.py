@@ -11,6 +11,7 @@ import re
 import warnings
 import xml.etree.ElementTree as ET
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass
 from glob import glob
 from io import StringIO
@@ -3412,7 +3413,10 @@ class VolumetricData(BaseVolumetricData):
                         lines.append(" ")
                 if count % 5 != 0:
                     f.write(" " + "".join(lines) + " \n")
-                f.write("".join(self.data_aug.get(data_type, [])))
+
+                data = self.data_aug.get(data_type, [])
+                if isinstance(data, Iterable):
+                    f.write("".join(data))
 
             write_spin("total")
             if self.is_spin_polarized and self.is_soc:
