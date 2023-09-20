@@ -104,7 +104,7 @@ class ElectrodeCharges(MSONable):
         method: str,
         tolerance: float | None = 1.0e-12,
         max_iterations: int | None = 100,
-        preconditioner: str | None | None = None,
+        preconditioner: str | None = None,
         nblocks: int | None = 0,
     ):
         known_methods = [
