@@ -20,8 +20,7 @@ __date__ = "May 16, 2016"
 
 
 class XcFunc(MSONable):
-    """
-    This object stores information about the XC correlation functional.
+    """This object stores information about the XC correlation functional.
 
     Client code usually creates the object by calling the class methods:
 
@@ -182,14 +181,14 @@ class XcFunc(MSONable):
 
     def as_dict(self):
         """Makes XcFunc obey the general json interface used in pymatgen for easier serialization."""
-        d = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.x is not None:
-            d["x"] = self.x.as_dict()
+            dct["x"] = self.x.as_dict()
         if self.c is not None:
-            d["c"] = self.c.as_dict()
+            dct["c"] = self.c.as_dict()
         if self.xc is not None:
-            d["xc"] = self.xc.as_dict()
-        return d
+            dct["xc"] = self.xc.as_dict()
+        return dct
 
     def __init__(self, xc=None, x=None, c=None):
         """
@@ -223,8 +222,7 @@ class XcFunc(MSONable):
 
     @lazy_property
     def name(self) -> str:
-        """
-        The name of the functional. If the functional is not found in the aliases,
+        """The name of the functional. If the functional is not found in the aliases,
         the string has the form X_NAME+C_NAME.
         """
         if self.xc in self.defined_aliases:

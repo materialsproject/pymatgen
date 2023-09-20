@@ -74,7 +74,7 @@ class Nwchem2Fiesta(MSONable):
         os.chdir(init_folder)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -86,7 +86,9 @@ class Nwchem2Fiesta(MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation.
-        :return: Nwchem2Fiesta
+
+        Returns:
+            Nwchem2Fiesta
         """
         return cls(folder=d["folder"], filename=d["filename"])
 
@@ -169,7 +171,7 @@ class FiestaRun(MSONable):
             os.chdir(init_folder)
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -182,7 +184,9 @@ class FiestaRun(MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: FiestaRun
+
+        Returns:
+            FiestaRun
         """
         return cls(folder=d["folder"], grid=d["grid"], log_file=d["log_file"])
 
@@ -233,11 +237,11 @@ class BasisSetReader:
                     l_angular = match_orb.group(1)
                     zeta = match_orb.group(2)
                     ng = match_orb.group(3)
-                    basis_set[l_angular + "_" + zeta + "_" + ng] = []
+                    basis_set[f"{l_angular}_{zeta}_{ng}"] = []
                 elif match_alpha:
                     alpha = match_alpha.group(1)
                     coef = match_alpha.group(2)
-                    basis_set[l_angular + "_" + zeta + "_" + ng].append((alpha, coef))
+                    basis_set[f"{l_angular}_{zeta}_{ng}"].append((alpha, coef))
             elif parse_lmax_nnlo:
                 match_orb = lmax_nnlo_patt.search(line)
                 if match_orb:
@@ -258,7 +262,7 @@ class BasisSetReader:
         return basis_set
 
     def set_n_nlmo(self):
-        """:return: the number of nlm orbitals for the basis set"""
+        """the number of nlm orbitals for the basis set"""
         nnlmo = 0
 
         data_tmp = self.data
@@ -376,7 +380,9 @@ class FiestaInput(MSONable):
     def dump_BSE_data_in_GW_run(self, BSE_dump=True):
         """
         :param BSE_dump: boolean
-        :return: set the "do_bse" variable to one in cell.in
+
+        Returns:
+            set the "do_bse" variable to one in cell.in
         """
         if BSE_dump:
             self.BSE_TDDFT_options.update(do_bse=1, do_tddft=0)
@@ -386,7 +392,9 @@ class FiestaInput(MSONable):
     def dump_TDDFT_data_in_GW_run(self, TDDFT_dump=True):
         """
         :param TDDFT_dump: boolean
-        :return: set the do_tddft variable to one in cell.in
+
+        Returns:
+            set the do_tddft variable to one in cell.in
         """
         if TDDFT_dump:
             self.BSE_TDDFT_options.update(do_bse=0, do_tddft=1)
@@ -529,7 +537,7 @@ $geometry
             f.write(str(self))
 
     def as_dict(self):
-        """:return: MSONable dict"""
+        """MSONable dict"""
         return {
             "mol": self._mol.as_dict(),
             "correlation_grid": self.correlation_grid,
@@ -543,7 +551,9 @@ $geometry
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: FiestaInput
+
+        Returns:
+            FiestaInput
         """
         return cls(
             Molecule.from_dict(d["mol"]),
@@ -582,78 +592,78 @@ $geometry
         # number of atoms and species
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        nat = toks[0]
-        nsp = toks[1]
+        tokens = line.split()
+        nat = tokens[0]
+        nsp = tokens[1]
         # number of valence bands
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
+        tokens = line.split()
 
         # correlation_grid
         # number of points and spacing in eV for correlation grid
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        correlation_grid["n_grid"] = toks[0]
-        correlation_grid["dE_grid"] = toks[1]
+        tokens = line.split()
+        correlation_grid["n_grid"] = tokens[0]
+        correlation_grid["dE_grid"] = tokens[1]
 
         # Exc DFT
         # relire=1 ou recalculer=0 Exc DFT
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        Exc_DFT_option["rdVxcpsi"] = toks[0]
+        tokens = line.split()
+        Exc_DFT_option["rdVxcpsi"] = tokens[0]
 
         # COHSEX
         # number of COHSEX corrected occp and unoccp bands: C=COHSEX  H=HF
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        COHSEX_options["nv_cohsex"] = toks[0]
-        COHSEX_options["nc_cohsex"] = toks[1]
-        COHSEX_options["eigMethod"] = toks[2]
+        tokens = line.split()
+        COHSEX_options["nv_cohsex"] = tokens[0]
+        COHSEX_options["nc_cohsex"] = tokens[1]
+        COHSEX_options["eigMethod"] = tokens[2]
         # number of COHSEX iter, scf on wfns, mixing coeff; V=RI-V  I=RI-D
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        COHSEX_options["nit_cohsex"] = toks[0]
-        COHSEX_options["resMethod"] = toks[1]
-        COHSEX_options["scf_cohsex_wf"] = toks[2]
-        COHSEX_options["mix_cohsex"] = toks[3]
+        tokens = line.split()
+        COHSEX_options["nit_cohsex"] = tokens[0]
+        COHSEX_options["resMethod"] = tokens[1]
+        COHSEX_options["scf_cohsex_wf"] = tokens[2]
+        COHSEX_options["mix_cohsex"] = tokens[3]
 
         # GW
         # number of GW corrected occp and unoccp bands
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        GW_options["nv_corr"] = toks[0]
-        GW_options["nc_corr"] = toks[1]
+        tokens = line.split()
+        GW_options["nv_corr"] = tokens[0]
+        GW_options["nc_corr"] = tokens[1]
         # number of GW iterations
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        GW_options["nit_gw"] = toks[0]
+        tokens = line.split()
+        GW_options["nit_gw"] = tokens[0]
 
         # BSE
         # dumping for BSE and TDDFT
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        BSE_TDDFT_options["do_bse"] = toks[0]
-        BSE_TDDFT_options["do_tddft"] = toks[1]
+        tokens = line.split()
+        BSE_TDDFT_options["do_bse"] = tokens[0]
+        BSE_TDDFT_options["do_tddft"] = tokens[1]
         # number of occp. and virtual bands of BSE: nocore and up to 40 eVs
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        BSE_TDDFT_options["nv_bse"] = toks[0]
-        BSE_TDDFT_options["nc_bse"] = toks[1]
+        tokens = line.split()
+        BSE_TDDFT_options["nv_bse"] = tokens[0]
+        BSE_TDDFT_options["nc_bse"] = tokens[1]
         # number of excitations needed and number of iterations
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
-        BSE_TDDFT_options["npsi_bse"] = toks[0]
-        BSE_TDDFT_options["nit_bse"] = toks[1]
+        tokens = line.split()
+        BSE_TDDFT_options["npsi_bse"] = tokens[0]
+        BSE_TDDFT_options["nit_bse"] = tokens[1]
 
         # Molecule
         # list of symbols in order
@@ -662,14 +672,14 @@ $geometry
         i = int(nsp)
         while i != 0:
             line = lines.pop(0).strip()
-            toks = line.split()
-            atname.append(toks[0])
+            tokens = line.split()
+            atname.append(tokens[0])
             i -= 1
 
         # scaling factor
         lines.pop(0)
         line = lines.pop(0).strip()
-        toks = line.split()
+        tokens = line.split()
         # atoms x,y,z cartesian .. will be multiplied by scale
         lines.pop(0)
         # Parse geometry
@@ -678,9 +688,9 @@ $geometry
         i = int(nat)
         while i != 0:
             line = lines.pop(0).strip()
-            toks = line.split()
-            coords.append([float(j) for j in toks[0:3]])
-            species.append(atname[int(toks[3]) - 1])
+            tokens = line.split()
+            coords.append([float(j) for j in tokens[0:3]])
+            species.append(atname[int(tokens[3]) - 1])
             i -= 1
 
         mol = Molecule(species, coords)

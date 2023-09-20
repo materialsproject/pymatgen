@@ -30,9 +30,10 @@ import os
 import re
 import textwrap
 import typing
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from monty.io import zopen
@@ -92,7 +93,7 @@ class Keyword(MSONable):
             repeats: Whether or not this keyword may be repeated. Default=False.
         """
         self.name = name
-        self.values = values  # noqa: PD011
+        self.values = values
         self.description = description
         self.repeats = repeats
         self.units = units
@@ -109,8 +110,8 @@ class Keyword(MSONable):
         if not isinstance(other, Keyword):
             return NotImplemented
         if self.name.upper() == other.name.upper():
-            v1 = [_.upper() if isinstance(_, str) else _ for _ in self.values]  # noqa: PD011
-            v2 = [_.upper() if isinstance(_, str) else _ for _ in other.values]  # noqa: PD011
+            v1 = [val.upper() if isinstance(val, str) else val for val in self.values]
+            v2 = [val.upper() if isinstance(val, str) else val for val in other.values]  # noqa: PD011
             if v1 == v2 and self.units == self.units:
                 return True
         return False
@@ -119,7 +120,7 @@ class Keyword(MSONable):
         return KeywordList(keywords=[self, other])
 
     def __getitem__(self, item):
-        return self.values[item]  # noqa: PD011
+        return self.values[item]
 
     def as_dict(self):
         """Get a dictionary representation of the Keyword."""
@@ -127,14 +128,18 @@ class Keyword(MSONable):
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         dct["name"] = self.name
-        dct["values"] = self.values  # noqa: PD011
+        dct["values"] = self.values
         dct["description"] = self.description
         dct["repeats"] = self.repeats
         dct["units"] = self.units
         dct["verbose"] = self.verbose
         return dct
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """String representation of Keyword."""
         return str(self)
 
@@ -204,7 +209,7 @@ class KeywordList(MSONable):
         self.keywords = list(keywords)
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
@@ -228,7 +233,11 @@ class KeywordList(MSONable):
         """Extend the keyword list."""
         self.keywords.extend(lst)
 
-    def get_string(self, indent=0):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self, indent: int = 0) -> str:
         """String representation of Keyword."""
         return " \n".join("\t" * indent + str(k) for k in self.keywords)
 
@@ -306,7 +315,7 @@ class Section(MSONable):
             self.keywords[k] = Keyword(k, v)
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
     def __eq__(self, d):
         d2 = copy.deepcopy(d)
@@ -391,12 +400,11 @@ class Section(MSONable):
     def get(self, d, default=None):
         """
         Similar to get for dictionaries. This will attempt to retrieve the
-        section or keyword matching d. Will not raise an error if d does not
-        exist.
+        section or keyword matching d. Will not raise an error if d does not exist.
 
         Args:
-             d: the key to retrieve, if present
-             default: what to return if d is not found
+            d: the key to retrieve, if present
+            default: what to return if d is not found
         """
         kw = self.get_keyword(d)
         if kw:
@@ -552,12 +560,16 @@ class Section(MSONable):
             s = s.get_section(p)
         return s
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Get string representation of Section."""
-        return Section._get_string(self)
+        return Section._get_str(self)
 
     @staticmethod
-    def _get_string(d, indent=0):
+    def _get_str(d, indent=0):
         """
         Helper function to return a pretty string of the section. Includes indentation and
         descriptions (if present).
@@ -576,34 +588,34 @@ class Section(MSONable):
 
         for v in d.keywords.values():
             if isinstance(v, KeywordList):
-                string += v.get_string(indent=indent + 1) + "\n"
+                string += f"{v.get_str(indent=indent + 1)}\n"
             else:
-                string += "\t" * (indent + 1) + v.get_string() + "\n"
+                string += "\t" * (indent + 1) + v.get_str() + "\n"
         for v in d.subsections.values():
-            string += v._get_string(v, indent + 1)
+            string += v._get_str(v, indent + 1)
         string += "\t" * indent + "&END " + d.name + "\n"
 
         return string
 
-    def verbosity(self, verbosity):
+    def verbosity(self, verbosity: bool) -> None:
         """
         Change the section verbosity recursively by turning on/off the printing of descriptions.
         Turning off descriptions may reduce the appealing documentation of input files, but also
         helps de-clutter them.
         """
         self.verbose = verbosity
-        for v in self.keywords.values():
-            v.verbosity(verbosity)
-        for v in self.subsections.values():
-            v.verbosity(verbosity)
+        for val in self.keywords.values():
+            val.verbosity(verbosity)
+        for val in self.subsections.values():
+            val.verbosity(verbosity)
 
     def silence(self):
         """Recursively delete all print sections so that only defaults are printed out."""
         if self.subsections:
             if self.subsections.get("PRINT"):
                 del self.subsections["PRINT"]
-            for v in self.subsections.values():
-                v.silence()
+            for val in self.subsections.values():
+                val.silence()
 
 
 class SectionList(MSONable):
@@ -622,7 +634,7 @@ class SectionList(MSONable):
         self.sections = list(sections)
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SectionList):
@@ -643,12 +655,16 @@ class SectionList(MSONable):
         return SectionList(sections=[d.__deepcopy__() for d in self.sections])
 
     @staticmethod
-    def _get_string(d, indent=0):
-        return " \n".join(s._get_string(s, indent) for s in d)
+    def _get_str(d, indent=0):
+        return " \n".join(s._get_str(s, indent) for s in d)
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Return string representation of section list."""
-        return SectionList._get_string(self.sections)
+        return SectionList._get_str(self.sections)
 
     def get(self, d, index=-1):
         """
@@ -674,7 +690,7 @@ class SectionList(MSONable):
 class Cp2kInput(Section):
     """
     Special instance of 'Section' class that is meant to represent the overall cp2k input.
-    Distinguishes itself from Section by overriding get_string() to not print this section's
+    Distinguishes itself from Section by overriding get_str() to not print this section's
     title and by implementing the file i/o.
     """
 
@@ -694,11 +710,11 @@ class Cp2kInput(Section):
             **kwargs,
         )
 
-    def get_string(self):
+    def get_str(self):
         """Get string representation of the Cp2kInput."""
         s = ""
         for v in self.subsections.values():
-            s += v.get_string()
+            s += v.get_str()
         return s
 
     @classmethod
@@ -758,7 +774,7 @@ class Cp2kInput(Section):
                     if len(subsection_params) == 1 and subsection_params[0].upper() in ("T", "TRUE", "F", "FALSE", "ON")
                     else subsection_params
                 )
-                alias = name + " " + " ".join(subsection_params) if subsection_params else None
+                alias = f"{name} {' '.join(subsection_params)}" if subsection_params else None
                 s = Section(
                     name,
                     section_parameters=subsection_params,
@@ -808,7 +824,7 @@ class Cp2kInput(Section):
             os.mkdir(output_dir)
         filepath = os.path.join(output_dir, input_filename)
         with open(filepath, "w") as f:
-            f.write(self.get_string())
+            f.write(self.get_str())
 
 
 class Global(Section):
@@ -839,7 +855,7 @@ class Global(Section):
         _keywords = {
             "PROJECT_NAME": Keyword("PROJECT_NAME", project_name),
             "RUN_TYPE": Keyword("RUN_TYPE", run_type),
-            "EXTENDED_FFT_LENGTHS": Keyword("EXTENDED_FFT_LENGTHS", True),
+            "EXTENDED_FFT_LENGTHS": Keyword("EXTENDED_FFT_LENGTHS", True),  # noqa: FBT003
         }
         keywords.update(_keywords)
         super().__init__(
@@ -1069,8 +1085,8 @@ class Mgrid(Section):
 
     def __init__(
         self,
-        cutoff: int | float = 1200,
-        rel_cutoff: int | float = 80,
+        cutoff: float = 1200,
+        rel_cutoff: float = 80,
         ngrids: int = 5,
         progression_factor: int = 3,
         keywords: dict | None = None,
@@ -1084,7 +1100,7 @@ class Mgrid(Section):
             cutoff: Cutoff energy (in Rydbergs for historical reasons) defining how find of
                 Gaussians will be used
             rel_cutoff: The relative cutoff energy, which defines how to map the Gaussians onto
-                the multigrid. If the the value is too low then, even if you have a high cutoff
+                the multigrid. If the value is too low then, even if you have a high cutoff
                 with sharp Gaussians, they will be mapped to the course part of the multigrid
             ngrids: number of grids to use
             progression_factor: divisor that decides how to map Gaussians the multigrid after
@@ -1138,7 +1154,7 @@ class Diagonalization(Section):
         subsections: dict | None = None,
         **kwargs,
     ):
-        """Initialize the diagronalization section."""
+        """Initialize the diagonalization section."""
         self.eps_adapt = eps_adapt
         self.eps_iter = eps_iter
         self.eps_jacobi = eps_jacobi
@@ -1187,7 +1203,7 @@ class Davidson(Section):
                     systems where make_preconditioner would dominate the total computational cost.
                 "FULL_KINETIC": Cholesky inversion of S and T, fast construction, robust, use for
                     very large systems.
-                "FULL_SINGLE": Based on H-eS diagonalisation, not as good as FULL_ALL, but
+                "FULL_SINGLE": Based on H-eS diagonalization, not as good as FULL_ALL, but
                     somewhat cheaper to apply.
                 "FULL_SINGLE_INVERSE": Based on H-eS cholesky inversion, similar to FULL_SINGLE
                     in preconditioning efficiency but cheaper to construct, might be somewhat
@@ -1255,7 +1271,7 @@ class OrbitalTransformation(Section):
                 time, FULL_KINETIC can be a good choice.
             algorithm: What algorithm to use for OT. 'Strict': Taylor or diagonalization
                 based algorithm. IRAC: Orbital Transformation based Iterative Refinement of the
-                Approximative Congruence transformation (OT/IR).
+                Approximate Congruence transformation (OT/IR).
             rotation: Introduce additional variables to allow subspace rotations (i.e fractional
                 occupations)
             occupation_preconditioner: include the fractional occupation in the preconditioning
@@ -1368,7 +1384,7 @@ class Kind(Section):
                 basis set file specified
             potential: Pseudopotential for this atom, accessible from the
                 potential file
-            ghost: Turn this into ghost atom (disaple the potential)
+            ghost: Turn this into ghost atom (disable the potential)
             aux_basis: Auxiliary basis to use with ADMM
             keywords: additional keywords
             subsections: additional subsections
@@ -1387,27 +1403,8 @@ class Kind(Section):
         description = "The description of this kind of atom including basis sets, element, etc."
 
         # Special case for closed-shell elements. Cannot impose magnetization in cp2k.
-        if Element(self.specie).Z in {
-            2,
-            4,
-            10,
-            12,
-            18,
-            20,
-            30,
-            36,
-            38,
-            48,
-            54,
-            56,
-            70,
-            80,
-            86,
-            88,
-            102,
-            112,
-            118,
-        }:
+        closed_shell_elems = {2, 4, 10, 12, 18, 20, 30, 36, 38, 48, 54, 56, 70, 80, 86, 88, 102, 112, 118}
+        if Element(self.specie).Z in closed_shell_elems:
             self.magnetization = 0
 
         _keywords = {
@@ -1583,10 +1580,7 @@ class PDOS(Section):
         subsections = subsections if subsections else {}
         description = "Controls printing of the projected density of states"
 
-        _keywords = {
-            "NLUMO": Keyword("NLUMO", nlumo),
-            "COMPONENTS": Keyword("COMPONENTS"),
-        }
+        _keywords = {"NLUMO": Keyword("NLUMO", nlumo), "COMPONENTS": Keyword("COMPONENTS")}
         keywords.update(_keywords)
         super().__init__("PDOS", description=description, keywords=keywords, subsections=subsections, **kwargs)
 
@@ -1711,7 +1705,7 @@ class Smear(Section):
 
     def __init__(
         self,
-        elec_temp: int | float = 300,
+        elec_temp: float = 300,
         method: str = "FERMI_DIRAC",
         fixed_magnetic_moment: float = -1e2,
         keywords: dict | None = None,
@@ -1903,8 +1897,8 @@ class PBE(Section):
     def __init__(
         self,
         parameterization: str = "ORIG",
-        scale_c: float | int = 1,
-        scale_x: float | int = 1,
+        scale_c: float = 1,
+        scale_x: float = 1,
         keywords: dict | None = None,
         subsections: dict | None = None,
     ):
@@ -2288,7 +2282,7 @@ class BasisInfo(MSONable):
 
         data["polarization"] = string.count("P")
         data["diffuse"] = string.count("X")
-        string = "#" + string
+        string = f"#{string}"
         for i, s in enumerate(string):
             if s == "Z":
                 z = int(tmp.get(string[i - 1], string[i - 1]))
@@ -2358,10 +2352,14 @@ class AtomicMetadata(MSONable):
         # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
         # https://github.com/materialsproject/pymatgen/issues/2804
         md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
-        md5.update(self.get_string().lower().encode("utf-8"))
+        md5.update(self.get_str().lower().encode("utf-8"))
         return md5.hexdigest()
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Get string representation."""
         return str(self)
 
@@ -2426,11 +2424,21 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         return [len(e) for e in self.exponents]
 
     @typing.no_type_check
-    def get_string(self) -> str:
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Get standard cp2k GTO formatted string."""
-        if any(
-            getattr(self, x, None) is None
-            for x in ("info", "nset", "n", "lmax", "lmin", "nshell", "exponents", "coefficients")
+        if (  # written verbosely so mypy can perform type narrowing
+            self.info is None
+            or self.nset is None
+            or self.n is None
+            or self.lmax is None
+            or self.lmin is None
+            or self.nshell is None
+            or self.exponents is None
+            or self.coefficients is None
         ):
             raise ValueError("Must have all attributes defined to get string representation")
 
@@ -2644,7 +2652,7 @@ class GthPotential(AtomicMetadata):
         if self.name is None:
             raise ValueError("Cannot get section without name attribute")
 
-        keywords = {"POTENTIAL": Keyword("", self.get_string())}
+        keywords = {"POTENTIAL": Keyword("", self.get_str())}
         return Section(
             name=self.name,
             section_parameters=None,
@@ -2657,24 +2665,27 @@ class GthPotential(AtomicMetadata):
     def from_section(cls, section: Section) -> GthPotential:
         """Extract GTH-formatted string from a section and convert it to model."""
         sec = copy.deepcopy(section)
-        sec.verbosity(False)
-        s = sec.get_string()
-        s = [_ for _ in s.split("\n") if not _.startswith("&")]
-        s = "\n".join(s)
-        return cls.from_str(s)
+        sec.verbosity(verbosity=False)
+        lst = sec.get_str().split("\n")
+        string = "\n".join(line for line in lst if not line.startswith("&"))
+        return cls.from_str(string)
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Convert model to a GTH-formatted string."""
-        if None in (
-            self.info,
-            self.n_elecs,
-            self.r_loc,
-            self.nexp_ppl,
-            self.c_exp_ppl,
-            self.radii,
-            self.nprj,
-            self.nprj_ppnl,
-            self.hprj_ppnl,
+        if (  # written verbosely so mypy can perform type narrowing
+            self.info is None
+            or self.n_elecs is None
+            or self.r_loc is None
+            or self.nexp_ppl is None
+            or self.c_exp_ppl is None
+            or self.radii is None
+            or self.nprj is None
+            or self.nprj_ppnl is None
+            or self.hprj_ppnl is None
         ):
             raise ValueError("Must initialize all attributes in order to get string")
 
@@ -2799,14 +2810,18 @@ class DataFile(MSONable):
     def write_file(self, fn):
         """Write to a file."""
         with open(fn, "w") as f:
-            f.write(self.get_string())
+            f.write(self.get_str())
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Get string representation."""
-        return "\n".join(b.get_string() for b in self.objects)
+        return "\n".join(b.get_str() for b in self.objects or [])
 
     def __str__(self):
-        return self.get_string()
+        return self.get_str()
 
 
 @dataclass

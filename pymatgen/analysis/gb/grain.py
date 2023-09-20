@@ -8,7 +8,7 @@ import warnings
 from fractions import Fraction
 from functools import reduce
 from math import cos, floor, gcd
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.fractions import lcm
@@ -19,8 +19,11 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from numpy.typing import ArrayLike
 
+    from pymatgen.core.trajectory import Vector3D
     from pymatgen.util.typing import CompositionLike
 
 # This module implements representations of grain boundaries, as well as
@@ -55,10 +58,10 @@ class GrainBoundary(Structure):
         lattice: np.ndarray | Lattice,
         species: Sequence[CompositionLike],
         coords: Sequence[ArrayLike],
-        rotation_axis: tuple[float, float, float],
+        rotation_axis: Vector3D,
         rotation_angle: float,
-        gb_plane: tuple[float, float, float],
-        join_plane: tuple[float, float, float],
+        gb_plane: Vector3D,
+        join_plane: Vector3D,
         init_cell: Structure,
         vacuum_thickness: float,
         ab_shift: tuple[float, float],
@@ -66,6 +69,7 @@ class GrainBoundary(Structure):
         oriented_unit_cell: Structure,
         validate_proximity: bool = False,
         coords_are_cartesian: bool = False,
+        properties: dict | None = None,
     ) -> None:
         """
         Makes a GB structure, a structure object with additional information
@@ -108,6 +112,8 @@ class GrainBoundary(Structure):
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
+            properties (dict): dictionary containing properties associated
+                with the whole GrainBoundary.
         """
         self.oriented_unit_cell = oriented_unit_cell
         self.rotation_axis = rotation_axis
@@ -124,6 +130,7 @@ class GrainBoundary(Structure):
             validate_proximity=validate_proximity,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
+            properties=properties,
         )
 
     def copy(self):
@@ -202,7 +209,7 @@ class GrainBoundary(Structure):
         for tag in self.site_properties["grain_label"]:
             if "incident" in tag:
                 n_coi += 1
-        return int(round(self.num_sites / n_coi))
+        return int(round(len(self) / n_coi))
 
     @property
     def top_grain(self) -> Structure:
@@ -267,18 +274,18 @@ class GrainBoundary(Structure):
         Returns:
             Dictionary representation of GrainBoundary object.
         """
-        d = super().as_dict()
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["init_cell"] = self.init_cell.as_dict()
-        d["rotation_axis"] = self.rotation_axis
-        d["rotation_angle"] = self.rotation_angle
-        d["gb_plane"] = self.gb_plane
-        d["join_plane"] = self.join_plane
-        d["vacuum_thickness"] = self.vacuum_thickness
-        d["ab_shift"] = self.ab_shift
-        d["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
-        return d
+        dct = super().as_dict()
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["init_cell"] = self.init_cell.as_dict()
+        dct["rotation_axis"] = self.rotation_axis
+        dct["rotation_angle"] = self.rotation_angle
+        dct["gb_plane"] = self.gb_plane
+        dct["join_plane"] = self.join_plane
+        dct["vacuum_thickness"] = self.vacuum_thickness
+        dct["ab_shift"] = self.ab_shift
+        dct["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
+        return dct
 
     @classmethod
     def from_dict(cls, d):
@@ -451,7 +458,7 @@ class GrainBoundaryGenerator:
                 find the smallest cell.
 
         Returns:
-           Grain boundary structure (GB object).
+            Grain boundary structure (GB object).
         """
         lat_type = self.lat_type
         # if the initial structure is primitive cell in cubic system,
@@ -647,22 +654,22 @@ class GrainBoundaryGenerator:
                 surface=plane,
                 max_search=max_search,
             )
-            oriended_unit_cell = fix_pbc(parent_structure * t_temp[0])
-            t_matrix = oriended_unit_cell.lattice.matrix
+            oriented_unit_cell = fix_pbc(parent_structure * t_temp[0])
+            t_matrix = oriented_unit_cell.lattice.matrix
             normal_v_plane = np.cross(t_matrix[0], t_matrix[1])
             unit_normal_v = normal_v_plane / np.linalg.norm(normal_v_plane)
             unit_ab_adjust = (t_matrix[2] - np.dot(unit_normal_v, t_matrix[2]) * unit_normal_v) / np.dot(
                 unit_normal_v, t_matrix[2]
             )
         else:
-            oriended_unit_cell = top_grain.copy()
+            oriented_unit_cell = top_grain.copy()
             unit_ab_adjust = 0.0
 
         # bottom grain, using top grain's lattice matrix
         bottom_grain = fix_pbc(parent_structure * t2, top_grain.lattice.matrix)
 
         # label both grains with 'top','bottom','top_incident','bottom_incident'
-        n_sites = top_grain.num_sites
+        n_sites = len(top_grain)
         t_and_b = Structure(
             top_grain.lattice,
             top_grain.species + bottom_grain.species,
@@ -783,7 +790,7 @@ class GrainBoundaryGenerator:
             vacuum_thickness,
             ab_shift,
             site_properties=gb_with_vac.site_properties,
-            oriented_unit_cell=oriended_unit_cell,
+            oriented_unit_cell=oriented_unit_cell,
             coords_are_cartesian=True,
         )
 
@@ -798,7 +805,7 @@ class GrainBoundaryGenerator:
                 0-a, 1-b, 2-c. Only may be needed for orthorhombic system.
 
         Returns:
-               axial ratio needed for GB generator (list of integers).
+            axial ratio needed for GB generator (list of integers).
         """
         structure = self.initial_structure
         lat_type = self.lat_type
@@ -1328,7 +1335,7 @@ class GrainBoundaryGenerator:
         for n_loop in range(1, n_max + 1):
             n = n_loop
             m_max = int(np.sqrt(cutoff * a_max - n**2 * sum(np.array(r_axis) ** 2)))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     n = 1 if m == 0 else n_loop
                     # construct the quadruple [m, U,V,W], count the number of odds in
@@ -1373,6 +1380,7 @@ class GrainBoundaryGenerator:
             c2_a2_ratio (list of two integers, e.g. mu, mv):
                     mu/mv is the square of the hexagonal axial ratio, which is rational
                     number. If irrational, set c2_a2_ratio = None
+
         Returns:
             sigmas (dict):
                     dictionary with keys as the possible integer sigma values
@@ -1425,7 +1433,7 @@ class GrainBoundaryGenerator:
                 m_max = 0
             else:
                 m_max = int(np.sqrt((cutoff * 12 * mu * mv - n**2 * d) / (3 * mu)))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1538,7 +1546,7 @@ class GrainBoundaryGenerator:
                 m_max = 0
             else:
                 m_max = int(np.sqrt((cutoff * abs(4 * mu * (mu - 3 * mv)) - n**2 * d) / (mu)))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1615,6 +1623,7 @@ class GrainBoundaryGenerator:
             c2_a2_ratio (list of two integers, e.g. mu, mv):
                     mu/mv is the square of the tetragonal axial ratio with rational number.
                     if irrational, set c2_a2_ratio = None
+
         Returns:
             sigmas (dict):
                     dictionary with keys as the possible integer sigma values
@@ -1656,7 +1665,7 @@ class GrainBoundaryGenerator:
         # Enumerate all possible n, m to give possible sigmas within the cutoff.
         for n in range(1, n_max + 1):
             m_max = 0 if c2_a2_ratio is None and w == 0 else int(np.sqrt((cutoff * 4 * mu * mv - n**2 * d) / mu))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1792,7 +1801,7 @@ class GrainBoundaryGenerator:
                 m_max = 0
             else:
                 m_max = int(np.sqrt((cutoff * 4 * mu * mv * lam * mv - n**2 * d) / mu / lam))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [

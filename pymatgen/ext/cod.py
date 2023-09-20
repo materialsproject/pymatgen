@@ -1,5 +1,4 @@
-"""
-This module provides classes to interface with the Crystallography Open
+"""This module provides classes to interface with the Crystallography Open
 Database. If you use data from the COD, please cite the following works (as
 stipulated by the COD developers).
 
@@ -43,24 +42,22 @@ from pymatgen.core.structure import Structure
 class COD:
     """An interface to the Crystallography Open Database."""
 
-    def __init__(self):
-        """Blank __init__. No args required."""
-        self.url = "www.crystallography.net"
+    url = "www.crystallography.net"
 
     def query(self, sql: str) -> str:
-        """
-        Perform a query.
+        """Perform a query.
 
         :param sql: SQL string
-        :return: Response from SQL query.
+
+        Returns:
+            Response from SQL query.
         """
         r = subprocess.check_output(["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"])
         return r.decode("utf-8")
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
     def get_cod_ids(self, formula):
-        """
-        Queries the COD for all cod ids associated with a formula. Requires
+        """Queries the COD for all cod ids associated with a formula. Requires
         mysql executable to be in the path.
 
         Args:
@@ -71,20 +68,19 @@ class COD:
         """
         # TODO: Remove dependency on external mysql call. MySQL-python package does not support Py3!
 
-        # Standardize formula to the version used by COD.
-
-        sql = f'select file from data where formula="- {Composition(formula).hill_formula} -"'
+        # Standardize formula to the version used by COD
+        cod_formula = Composition(formula).hill_formula
+        sql = f'select file from data where formula="- {cod_formula} -"'
         text = self.query(sql).split("\n")
         cod_ids = []
         for line in text:
-            m = re.search(r"(\d+)", line)
-            if m:
-                cod_ids.append(int(m.group(1)))
+            match = re.search(r"(\d+)", line)
+            if match:
+                cod_ids.append(int(match.group(1)))
         return cod_ids
 
     def get_structure_by_id(self, cod_id, **kwargs):
-        """
-        Queries the COD for a structure by id.
+        """Queries the COD for a structure by id.
 
         Args:
             cod_id (int): COD id.
@@ -99,8 +95,7 @@ class COD:
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
     def get_structure_by_formula(self, formula: str, **kwargs) -> list[dict[str, str | int | Structure]]:
-        """
-        Queries the COD for structures by formula. Requires mysql executable to
+        """Queries the COD for structures by formula. Requires mysql executable to
         be in the path.
 
         Args:

@@ -44,7 +44,7 @@ from pymatgen.util.string import htmlify
 if TYPE_CHECKING:
     from pymatgen.entries.computed_entries import ComputedEntry
 
-with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_chempot_layouts.json")) as file:
+with open(f"{os.path.dirname(__file__)}/../util/plotly_chempot_layouts.json") as file:
     plotly_layouts = json.load(file)
 
 
@@ -113,15 +113,12 @@ class ChemicalPotentialDiagram(MSONable):
         self.entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
         self.limits = limits
         self.default_min_limit = default_min_limit
-        self.elements = sorted({els for e in self.entries for els in e.composition.elements})
+        self.elements = sorted({els for e in self.entries for els in e.elements})
         self.dim = len(self.elements)
         self._min_entries, self._el_refs = self._get_min_entries_and_el_refs(self.entries)
         self._entry_dict = {e.composition.reduced_formula: e for e in self._min_entries}
         self._border_hyperplanes = self._get_border_hyperplanes()
-        (
-            self._hyperplanes,
-            self._hyperplane_entries,
-        ) = self._get_hyperplanes_and_entries()
+        self._hyperplanes, self._hyperplane_entries = self._get_hyperplanes_and_entries()
 
         if self.dim < 2:
             raise ValueError("ChemicalPotentialDiagram currently requires phase diagrams with 2 or more elements!")
@@ -184,7 +181,7 @@ class ChemicalPotentialDiagram(MSONable):
         if len(elems) == 2 and self.dim == 2:
             fig = self._get_2d_plot(elements=elems, label_stable=label_stable, element_padding=element_padding)
         elif len(elems) == 2 and self.dim > 2:
-            entries = [e for e in self.entries if set(e.composition.elements).issubset(elems)]
+            entries = [e for e in self.entries if set(e.elements).issubset(elems)]
             cpd = ChemicalPotentialDiagram(
                 entries=entries,
                 limits=self.limits,
@@ -299,7 +296,7 @@ class ChemicalPotentialDiagram(MSONable):
         layout = plotly_layouts["default_layout_2d"].copy()
         layout.update(self._get_axis_layout_dict(elements))
         if label_stable:
-            layout.update({"annotations": annotations})
+            layout["annotations"] = annotations
 
         data = self._get_2d_domain_lines(draw_domains)
 
@@ -339,7 +336,7 @@ class ChemicalPotentialDiagram(MSONable):
                     col = pts_3d[:, idx]
                     pts_3d[:, idx] = np.where(np.isclose(col, self.default_min_limit), new_lim, col)
 
-            contains_target_elems = set(entry.composition.elements).issubset(elements)
+            contains_target_elems = set(entry.elements).issubset(elements)
 
             if formulas_to_draw and entry.composition.reduced_composition in draw_comps:
                 domain_simplexes[formula] = None
@@ -370,7 +367,7 @@ class ChemicalPotentialDiagram(MSONable):
         layout["scene"]["annotations"] = None
 
         if label_stable:
-            layout["scene"].update({"annotations": annotations})
+            layout["scene"]["annotations"] = annotations
         layout["scene_camera"] = {
             "eye": {"x": 5, "y": 5, "z": 5},  # zoomed out
             "projection": {"type": "orthographic"},
@@ -568,7 +565,7 @@ class ChemicalPotentialDiagram(MSONable):
         annotation = plotly_layouts["default_annotation_layout"].copy()
         annotation.update({"x": ann_loc[0], "y": ann_loc[1], "text": formula})
         if len(ann_loc) == 3:
-            annotation.update({"z": ann_loc[2]})
+            annotation["z"] = ann_loc[2]
         return annotation
 
     @staticmethod
@@ -683,7 +680,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
     cy = 0
     a = 0
 
-    for idx in range(0, len(vertices) - 1):
+    for idx in range(len(vertices) - 1):
         xi = vertices[idx, 0]
         yi = vertices[idx, 1]
         xi_p = vertices[idx + 1, 0]

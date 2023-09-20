@@ -10,12 +10,12 @@ import logging
 import os
 import sys
 
+import matplotlib.pyplot as plt
 import numpy as np
 from monty.string import is_string, list_strings
 
 from pymatgen.io.core import ParseError
-from pymatgen.util.num import minloc
-from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         self._timers = {}
 
     def __iter__(self):
-        return self._timers.__iter__()
+        return iter(self._timers)
 
     def __len__(self):
         return len(self._timers)
@@ -249,7 +249,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         """
         Analyze the parallel efficiency.
 
-        Return: :class:`ParallelEfficiency` object.
+        Return: ParallelEfficiency object.
         """
         timers = self.timers()
 
@@ -257,7 +257,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ncpus = [timer.ncpus for timer in timers]
 
         # Find the minimum number of cpus used and its index in timers.
-        min_idx = minloc(ncpus)
+        min_idx = np.argmin(ncpus)
         min_ncpus = ncpus[min_idx]
 
         # Reference timer
@@ -315,7 +315,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         return frame
 
     @add_fig_kwargs
-    def plot_efficiency(self, key="wall_time", what="good+bad", nmax=5, ax=None, **kwargs):
+    def plot_efficiency(self, key="wall_time", what="good+bad", nmax=5, ax: plt.Axes = None, **kwargs):
         """
         Plot the parallel efficiency.
 
@@ -324,7 +324,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             what: Specifies what to plot: `good` for sections with good parallel efficiency.
                 `bad` for sections with bad efficiency. Options can be concatenated with `+`.
             nmax: Maximum number of entries in plot
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
         ================  ====================================================
         kwargs            Meaning
@@ -336,7 +336,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         Returns:
             `matplotlib` figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
         lw = kwargs.pop("linewidth", 2.0)
         msize = kwargs.pop("markersize", 10)
         what = what.split("+")
@@ -380,7 +380,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         # ax.set_title(title)
         ax.set_xlabel("Total_NCPUs")
         ax.set_ylabel("Efficiency")
-        ax.grid(True)
+        ax.grid(visible=True)
 
         # Set xticks and labels.
         labels = [f"MPI={t.mpi_nprocs}, OMP={t.omp_nthreads}" for t in timers]
@@ -418,21 +418,21 @@ class AbinitTimerParser(collections.abc.Iterable):
         return fig
 
     @add_fig_kwargs
-    def plot_stacked_hist(self, key="wall_time", nmax=5, ax=None, **kwargs):
+    def plot_stacked_hist(self, key="wall_time", nmax=5, ax: plt.Axes = None, **kwargs):
         """
         Plot stacked histogram of the different timers.
 
         Args:
             key: Keyword used to extract data from the timers. Only the first `nmax`
                 sections with largest value are show.
-            mmax: Maximum number of sections to show. Other entries are grouped together
+            nmax: Maximum number of sections to show. Other entries are grouped together
                 in the `others` section.
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
         Returns:
             `matplotlib` figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
 
         mpi_rank = "0"
         timers = self.timers(mpi_rank=mpi_rank)
@@ -441,14 +441,14 @@ class AbinitTimerParser(collections.abc.Iterable):
         names, values = [], []
         rest = np.zeros(n)
 
-        for idx, sname in enumerate(self.section_names(ordkey=key)):
-            sections = self.get_sections(sname)
-            svals = np.asarray([s.__dict__[key] for s in sections])
+        for idx, sec_name in enumerate(self.section_names(ordkey=key)):
+            sections = self.get_sections(sec_name)
+            sec_vals = np.asarray([s.__dict__[key] for s in sections])
             if idx < nmax:
-                names.append(sname)
-                values.append(svals)
+                names.append(sec_name)
+                values.append(sec_vals)
             else:
-                rest += svals
+                rest += sec_vals
 
         names.append(f"others ({nmax=})")
         values.append(rest)
@@ -646,11 +646,9 @@ class AbinitTimer:
         self.mpi_rank = info["mpi_rank"].strip()
         self.fname = info["fname"].strip()
 
-    def __str__(self):
-        return (
-            f"file={self.fname}, wall_time={self.wall_time:.1f}, "
-            f"mpi_nprocs={self.mpi_nprocs}, omp_nthreads={self.omp_nthreads}"
-        )
+    def __repr__(self):
+        file, wall_time, mpi_nprocs, omp_nthreads = self.fname, self.wall_time, self.mpi_nprocs, self.omp_nthreads
+        return f"{type(self).__name__}({file=}, {wall_time=:.3}, {mpi_nprocs=}, {omp_nthreads=})"
 
     @property
     def ncpus(self):
@@ -790,16 +788,17 @@ class AbinitTimer:
         return sorted(self.sections, key=lambda s: s.__dict__[key], reverse=reverse)
 
     @add_fig_kwargs
-    def cpuwall_histogram(self, ax=None, **kwargs):
+    def cpuwall_histogram(self, ax: plt.Axes = None, **kwargs):
         """
         Plot histogram with cpu- and wall-time on axis `ax`.
 
         Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
 
         nk = len(self.sections)
         ind = np.arange(nk)  # the x locations for the groups
@@ -824,18 +823,19 @@ class AbinitTimer:
         return fig
 
     @add_fig_kwargs
-    def pie(self, key="wall_time", minfract=0.05, ax=None, **kwargs):
+    def pie(self, key="wall_time", minfract=0.05, ax: plt.Axes = None, **kwargs):
         """
         Plot pie chart for this timer.
 
         Args:
             key: Keyword used to extract data from the timer.
             minfract: Don't show sections whose relative weight is less that minfract.
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
         # Set aspect ratio to be equal so that pie is drawn as a circle.
         ax.axis("equal")
         # Don't show section whose value is less that minfract
@@ -844,18 +844,19 @@ class AbinitTimer:
         return fig
 
     @add_fig_kwargs
-    def scatter_hist(self, ax=None, **kwargs):
+    def scatter_hist(self, ax: plt.Axes = None, **kwargs):
         """
         Scatter plot + histogram.
 
         Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
         from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
 
         x = np.asarray(self.get_values("cpu_time"))
         y = np.asarray(self.get_values("wall_time"))
@@ -888,13 +889,13 @@ class AbinitTimer:
         # thus there is no need to manually adjust the xlim and ylim of these axis.
 
         # axHistx.axis["bottom"].major_ticklabels.set_visible(False)
+        axHistx.set_yticks([0, 50, 100])
         for tl in axHistx.get_xticklabels():
-            tl.set_visible(False)
-            axHistx.set_yticks([0, 50, 100])
+            tl.set_visible(False)  # noqa: FBT003
 
             # axHisty.axis["left"].major_ticklabels.set_visible(False)
             for tl in axHisty.get_yticklabels():
-                tl.set_visible(False)
+                tl.set_visible(False)  # noqa: FBT003
                 axHisty.set_xticks([0, 50, 100])
 
         # plt.draw()

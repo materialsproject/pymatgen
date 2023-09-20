@@ -92,7 +92,7 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
         for trans_modules in ["molecule_matcher"]:
             level = 0  # Python 3.x
             mod = __import__(
-                "pymatgen.analysis." + trans_modules,
+                f"pymatgen.analysis.{trans_modules}",
                 globals(),
                 locals(),
                 [d["@class"]],
@@ -143,7 +143,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         label2_list = tuple(tuple(p[1] + 1 for p in x) for x in sorted_isomorph)
 
         vmol1 = ob_mol1
-        aligner = openbabel.OBAlign(True, False)
+        aligner = openbabel.OBAlign(includeH=True, symmetry=False)
         aligner.SetRefMol(vmol1)
         least_rmsd = float("Inf")
         best_label2 = None
@@ -369,7 +369,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             # used to align, but match by positions
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(False, False)
+        aligner = openbabel.OBAlign(includeH=False, symmetry=False)
         aligner.SetRefMol(vmol1)
         aligner.SetTargetMol(vmol2)
         aligner.Align()
@@ -448,7 +448,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(False, False)
+        aligner = openbabel.OBAlign(includeH=False, symmetry=False)
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()
@@ -526,43 +526,45 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Returns:
             Labels
         """
-        obmol1 = BabelMolAdaptor(mol1).openbabel_mol
-        obmol2 = BabelMolAdaptor(mol2).openbabel_mol
+        ob_mol1 = BabelMolAdaptor(mol1).openbabel_mol
+        ob_mol2 = BabelMolAdaptor(mol2).openbabel_mol
 
-        ilabel1, iequal_atom1, inchi1 = self._inchi_labels(obmol1)
-        ilabel2, iequal_atom2, inchi2 = self._inchi_labels(obmol2)
+        ilabel1, iequal_atom1, inchi1 = self._inchi_labels(ob_mol1)
+        ilabel2, iequal_atom2, inchi2 = self._inchi_labels(ob_mol2)
 
         if inchi1 != inchi2:
-            return None, None  # Topoligically different
+            return None, None  # Topologically different
 
         if iequal_atom1 != iequal_atom2:
-            raise Exception("Design Error! Equavilent atoms are inconsistent")
+            raise Exception("Design Error! Equivalent atoms are inconsistent")
 
-        vmol1 = self._virtual_molecule(obmol1, ilabel1, iequal_atom1)
-        vmol2 = self._virtual_molecule(obmol2, ilabel2, iequal_atom2)
+        vmol1 = self._virtual_molecule(ob_mol1, ilabel1, iequal_atom1)
+        vmol2 = self._virtual_molecule(ob_mol2, ilabel2, iequal_atom2)
 
         if vmol1.NumAtoms() != vmol2.NumAtoms():
             return None, None
 
         if vmol1.NumAtoms() < 3 or self._is_molecule_linear(vmol1) or self._is_molecule_linear(vmol2):
             # using isomorphism for difficult (actually simple) molecules
-            clabel1, clabel2 = self._assistant_mapper.uniform_labels(mol1, mol2)
+            c_label1, c_label2 = self._assistant_mapper.uniform_labels(mol1, mol2)
         else:
-            heavy_atom_indices2 = self._align_heavy_atoms(obmol1, obmol2, vmol1, vmol2, ilabel1, ilabel2, iequal_atom1)
-            clabel1, clabel2 = self._align_hydrogen_atoms(obmol1, obmol2, ilabel1, heavy_atom_indices2)
-        if clabel1 and clabel2:
-            elements1 = self._get_elements(obmol1, clabel1)
-            elements2 = self._get_elements(obmol2, clabel2)
+            heavy_atom_indices2 = self._align_heavy_atoms(
+                ob_mol1, ob_mol2, vmol1, vmol2, ilabel1, ilabel2, iequal_atom1
+            )
+            c_label1, c_label2 = self._align_hydrogen_atoms(ob_mol1, ob_mol2, ilabel1, heavy_atom_indices2)
+        if c_label1 and c_label2:
+            elements1 = self._get_elements(ob_mol1, c_label1)
+            elements2 = self._get_elements(ob_mol2, c_label2)
 
             if elements1 != elements2:
                 return None, None
 
-        return clabel1, clabel2
+        return c_label1, c_label2
 
     def get_molecule_hash(self, mol):
         """Return inchi as molecular hash."""
-        obmol = BabelMolAdaptor(mol).openbabel_mol
-        return self._inchi_labels(obmol)[2]
+        ob_mol = BabelMolAdaptor(mol).openbabel_mol
+        return self._inchi_labels(ob_mol)[2]
 
 
 class MoleculeMatcher(MSONable):
@@ -645,7 +647,7 @@ class MoleculeMatcher(MSONable):
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(True, False)
+        aligner = openbabel.OBAlign(includeH=True, symmetry=False)
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()

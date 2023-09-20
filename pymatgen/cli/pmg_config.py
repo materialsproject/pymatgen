@@ -38,8 +38,8 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
     from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
     from pymatgen.io.cp2k.utils import chunk
 
-    basis_files = glob(os.path.join(data_dir, "*BASIS*"))
-    potential_files = glob(os.path.join(data_dir, "*POTENTIAL*"))
+    basis_files = glob(f"{data_dir}/*BASIS*")
+    potential_files = glob(f"{data_dir}/*POTENTIAL*")
 
     settings: dict[str, dict] = {str(el): {"potentials": {}, "basis_sets": {}} for el in Element}
 
@@ -158,7 +158,7 @@ def setup_potcars(potcar_dirs: list[str]):
                     if subdir == "Osmium":
                         subdir = "Os"
                     dest = os.path.join(base_dir, f"POTCAR.{subdir}")
-                    shutil.move(os.path.join(base_dir, "POTCAR"), dest)
+                    shutil.move(f"{base_dir}/POTCAR", dest)
                     with subprocess.Popen(["gzip", "-f", dest]) as p:
                         p.communicate()
                 except Exception as exc:
@@ -172,8 +172,7 @@ def setup_potcars(potcar_dirs: list[str]):
 
 
 def build_enum(fortran_command: str = "gfortran") -> bool:
-    """
-    Build enum.
+    """Build enum.
 
     :param fortran_command:
     """
@@ -181,15 +180,14 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
     state = True
     try:
         subprocess.call(["git", "clone", "--recursive", "https://github.com/msg-byu/enumlib.git"])
-        os.chdir(os.path.join(cwd, "enumlib", "symlib", "src"))
+        os.chdir(f"{cwd}/enumlib/symlib/src")
         os.environ["F90"] = fortran_command
         subprocess.call(["make"])
-        enumpath = os.path.join(cwd, "enumlib", "src")
+        enumpath = f"{cwd}/enumlib/src"
         os.chdir(enumpath)
         subprocess.call(["make"])
-        for f in ["enum.x", "makestr.x"]:
-            subprocess.call(["make", f])
-            shutil.copy(f, os.path.join("..", ".."))
+        subprocess.call(["make", "enum.x"])
+        shutil.copy("enum.x", os.path.join("..", ".."))
     except Exception as exc:
         print(exc)
         state = False
@@ -200,8 +198,7 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
 
 
 def build_bader(fortran_command="gfortran"):
-    """
-    Build bader package.
+    """Build bader package.
 
     :param fortran_command:
     """

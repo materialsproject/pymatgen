@@ -13,7 +13,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Structure
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-bond_params = loadfn(os.path.join(MODULE_DIR, "DLS_bond_params.yaml"))
+bond_params = loadfn(f"{MODULE_DIR}/DLS_bond_params.yaml")
 
 
 def _is_ox(structure):
@@ -171,13 +171,12 @@ class DLSVolumePredictor:
 
         Args:
             structure (Structure) : a crystal structure with an unknown volume.
-            icsd_vol (bool) : True if the input structure's volume comes from
-                ICSD.
+            icsd_vol (bool) : True if the input structure's volume comes from ICSD.
 
         Returns:
             a float value of the predicted volume.
         """
-        # Get standard deviation of electronnegativity in the structure.
+        # Get standard deviation of electronegativity in the structure.
         std_x = np.std([site.specie.X for site in structure])
         # Sites that have atomic radii
         sub_sites = []

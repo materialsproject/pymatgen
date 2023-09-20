@@ -88,7 +88,6 @@ class Control(MSONable, dict):
                 with the keys "min", "max", "step".
             **kwargs: Other ShengBTE parameters. Several parameters are required
                 for ShengBTE to run - we have listed these parameters below:
-
                 - nelements (int): number of different elements in the compound
                 - natoms (int): number of atoms in the unit cell
                 - lattvec (size 3x3 array): real-space lattice vectors, in units
@@ -212,7 +211,7 @@ class Control(MSONable, dict):
         Returns:
             A ShengBTE control object.
         """
-        elements = list(map(str, structure.composition.elements))
+        elements = list(map(str, structure.elements))
 
         unique_nums = np.unique(structure.atomic_numbers)
         types_dict = dict(zip(unique_nums, range(len(unique_nums))))
@@ -220,7 +219,7 @@ class Control(MSONable, dict):
 
         control_dict = {
             "nelements": structure.ntypesp,
-            "natoms": structure.num_sites,
+            "natoms": len(structure),
             "norientations": 0,
             "lfactor": 0.1,
             "lattvec": structure.lattice.matrix.tolist(),

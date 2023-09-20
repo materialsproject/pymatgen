@@ -299,7 +299,7 @@ def open_ring(mol_graph, bond, opt_steps):
     self.steps, and then convert the resulting structure back into a molecule graph
     to be returned.
     """
-    obmol = BabelMolAdaptor.from_molecule_graph(mol_graph)
-    obmol.remove_bond(bond[0][0] + 1, bond[0][1] + 1)
-    obmol.localopt(steps=opt_steps, forcefield="uff")
-    return MoleculeGraph.with_local_env_strategy(obmol.pymatgen_mol, OpenBabelNN())
+    ob_mol = BabelMolAdaptor.from_molecule_graph(mol_graph)
+    ob_mol.remove_bond(bond[0][0] + 1, bond[0][1] + 1)
+    ob_mol.localopt(steps=opt_steps, forcefield="uff")
+    return MoleculeGraph.with_local_env_strategy(ob_mol.pymatgen_mol, OpenBabelNN())

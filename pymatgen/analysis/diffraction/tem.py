@@ -6,7 +6,7 @@ import json
 import os
 from collections import namedtuple
 from fractions import Fraction
-from typing import TYPE_CHECKING, List, Tuple, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import pandas as pd
@@ -55,7 +55,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 set to 0, no refinement is done. Otherwise, refinement is
                 performed using spglib with provided precision.
             voltage (float): The wavelength is a function of the TEM microscope's
-                voltage. By default, set to 200 kV. Units in kV.
+                voltage (in kV). Defaults to 200.
             beam_direction (tuple): The direction of the electron beam fired onto the sample.
                 By default, set to [0,0,1], which corresponds to the normal direction
                 of the sample plane.
@@ -64,7 +64,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             debye_waller_factors ({element symbol: float}): Allows the
                 specification of Debye-Waller factors. Note that these
                 factors are temperature dependent.
-            cs (float): the chromatic aberration coefficient. set by default to 1 mm.
+            cs (float): The chromatic aberration coefficient (in mm). Defaults to 1.
         """
         self.symprec = symprec
         self.voltage = voltage
@@ -94,12 +94,12 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             coord_right (int): The maximum coordinate value.
 
         Returns:
-            Numpy 2d array
+            np.array: 2d array
         """
         points = [0, 0, 0]
         coord_values = np.arange(coord_left, coord_right + 1)
         points[0], points[1], points[2] = np.meshgrid(coord_values, coord_values, coord_values)  # type: ignore
-        points_matrix = (np.ravel(points[i]) for i in range(0, 3))
+        points_matrix = (np.ravel(points[i]) for i in range(3))
         return np.vstack(list(points_matrix)).transpose()
 
     def zone_axis_filter(
@@ -121,7 +121,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]  # type: ignore
-        return cast(List[Tuple[int, int, int]], [tuple(x) for x in result.tolist()])
+        return cast(list[tuple[int, int, int]], [tuple(x) for x in result.tolist()])
 
     def get_interplanar_spacings(
         self, structure: Structure, points: list[tuple[int, int, int]] | np.ndarray
@@ -148,6 +148,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
         Args:
             interplanar_spacings (dict): dictionary of hkl to interplanar spacing
+
         Returns:
             dict of hkl plane (3-tuple) to Bragg angle in radians (float)
         """
@@ -188,7 +189,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         x_ray_factors = {}
         s2 = self.get_s2(bragg_angles)
-        atoms = structure.composition.elements
+        atoms = structure.elements
         scattering_factors_for_atom = {}
         for atom in atoms:
             coeffs = np.array(ATOMIC_SCATTERING_PARAMS[atom.symbol])
@@ -217,7 +218,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         electron_scattering_factors = {}
         x_ray_factors = self.x_ray_factors(structure, bragg_angles)
         s2 = self.get_s2(bragg_angles)
-        atoms = structure.composition.elements
+        atoms = structure.elements
         prefactor = 0.023934
         scattering_factors_for_atom = {}
         for atom in atoms:
@@ -285,9 +286,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Args:
             structure (Structure): The input structure.
             scaled (bool): Required value for inheritance, does nothing in TEM pattern
-            two_theta_range (Tuple): Required value for inheritance, does nothing in TEM pattern
+            two_theta_range (tuple[float, float]): Required value for inheritance, does nothing in TEM pattern
+
         Returns:
-            PandasDataFrame
+            pd.DataFrame
         """
         if self.symprec:
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
@@ -385,6 +387,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): The input structure.
             p1 (3-tuple): plane 1
             p2 (3-tuple): plane 2
+
         Returns:
             float
         """

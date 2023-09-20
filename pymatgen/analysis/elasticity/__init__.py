@@ -13,7 +13,7 @@ from .elastic import (
     get_diff_coeff,
     get_strain_state_dict,
     get_symbol_list,
-    raise_error_if_unphysical,
+    raise_if_unphysical,
     subs,
 )
 from .strain import Deformation, DeformedStructureSet, Strain

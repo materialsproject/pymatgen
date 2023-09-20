@@ -21,8 +21,7 @@ from pymatgen.io.vasp import Incar, Potcar
 
 
 def parse_view(args):
-    """
-    Handle view commands.
+    """Handle view commands.
 
     :param args: Args from command.
     """
@@ -37,8 +36,7 @@ def parse_view(args):
 
 
 def diff_incar(args):
-    """
-    Handle diff commands.
+    """Handle diff commands.
 
     :param args: Args from command.
     """
@@ -125,7 +123,7 @@ def main():
         "--add",
         dest="var_spec",
         nargs="+",
-        help="Variables to add in the form of space separated key value pairs. E.g., PMG_VASP_PSP_DIR ~/psps",
+        help="Variables to add in the form of space separated key value pairs. E.g., PMG_VASP_PSP_DIR ~/PSPs",
     )
 
     groups.add_argument(

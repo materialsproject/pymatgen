@@ -336,9 +336,10 @@ class JahnTellerAnalyzer:
         Get number of d electrons of a species.
 
         Args:
-          species: Species object
+            species: Species object
 
-        Returns: Number of d electrons.
+        Returns:
+            int: Number of d electrons.
         """
         # TODO: replace with more generic Hund's rule algorithm?
 
@@ -346,22 +347,23 @@ class JahnTellerAnalyzer:
         elec = species.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
             raise AttributeError(f"Invalid element {species.symbol} for crystal field calculation.")
-        nelectrons = int(elec[-1][2] + elec[-2][2] - species.oxi_state)
-        if nelectrons < 0 or nelectrons > 10:
+        n_electrons = int(elec[-1][2] + elec[-2][2] - species.oxi_state)
+        if n_electrons < 0 or n_electrons > 10:
             raise AttributeError(f"Invalid oxidation state {species.oxi_state} for element {species.symbol}")
 
-        return nelectrons
+        return n_electrons
 
     def get_magnitude_of_effect_from_species(self, species: str | Species, spin_state: str, motif: str) -> str:
         """
         Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
 
         Args:
-          species: e.g. Fe2+
-          spin_state: "high" or "low"
-          motif: "oct" or "tet"
+            species: e.g. Fe2+
+            spin_state: "high" or "low"
+            motif: "oct" or "tet"
 
-        Returns: "none", "weak" or "strong
+        Returns:
+            str: "none", "weak" or "strong"
         """
         magnitude = "none"
 
@@ -391,11 +393,11 @@ class JahnTellerAnalyzer:
         * in tetrahedral environments always weaker.
 
         Args:
-          motif: "oct" or "tet"
-          spin_config: dict of 'e' (e_g) and 't' (t2_g)
-            with number of electrons in each state
+            motif: "oct" or "tet"
+            spin_config: dict of 'e' (e_g) and 't' (t2_g) with number of electrons in each state
 
-        Returns:  "none", "weak" or "strong"
+        Returns:
+            str: "none", "weak" or "strong"
         """
         magnitude = "none"
         if motif == "oct":

@@ -8,6 +8,7 @@ from math import acos, pi
 from typing import TYPE_CHECKING
 from warnings import warn
 
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial import Voronoi
 
@@ -16,7 +17,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.num import abs_cap
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -146,73 +146,74 @@ class VoronoiAnalyzer:
         return sorted(voro_dict.items(), key=lambda x: (x[1], x[0]), reverse=True)[:most_frequent_polyhedra]
 
     @staticmethod
-    def plot_vor_analysis(voronoi_ensemble):
-        """
-        Plot the Voronoi analysis.
+    def plot_vor_analysis(voronoi_ensemble: list[tuple[str, float]]) -> plt.Axes:
+        """Plot the Voronoi analysis.
 
-        :param voronoi_ensemble:
-        :return: matplotlib.pyplot
-        """
-        t = list(zip(*voronoi_ensemble))
-        labels = t[0]
-        val = list(t[1])
-        tot = np.sum(val)
-        val = [float(j) / tot for j in val]
-        pos = np.arange(len(val)) + 0.5  # the bar centers on the y axis
-        import matplotlib.pyplot as plt
+        Args:
+            voronoi_ensemble (list[tuple[str, float]]): List of tuples containing labels and
+                values for Voronoi analysis.
 
-        plt.figure()
-        plt.barh(pos, val, align="center", alpha=0.5)
-        plt.yticks(pos, labels)
-        plt.xlabel("Count")
-        plt.title("Voronoi Spectra")
-        plt.grid(True)
-        return plt
+        Returns:
+            plt.Axes: Matplotlib Axes object with the plotted Voronoi analysis.
+        """
+        labels, val = zip(*voronoi_ensemble)
+        arr = np.array(val, dtype=float)
+        arr /= np.sum(arr)
+        pos = np.arange(len(arr)) + 0.5  # the bar centers on the y axis
+
+        fig, ax = plt.subplots()
+        ax.barh(pos, arr, align="center", alpha=0.5)
+        ax.set_yticks(pos)
+        ax.set_yticklabels(labels)
+        ax.set(title="Voronoi Spectra", xlabel="Count")
+        ax.grid(visible=True)
+        return ax
 
 
 class RelaxationAnalyzer:
     """This class analyzes the relaxation in a calculation."""
 
-    def __init__(self, initial_structure, final_structure):
-        """
-        Please note that the input and final structures should have the same
-        ordering of sites. This is typically the case for most computational
-        codes.
+    def __init__(self, initial_structure: Structure, final_structure: Structure) -> None:
+        """Please note that the input and final structures should have the same
+        ordering of sites. This is typically the case for most computational codes.
 
         Args:
             initial_structure (Structure): Initial input structure to
                 calculation.
             final_structure (Structure): Final output structure from
                 calculation.
+
+        Raises:
+            ValueError: If initial and final structures have different formulas.
         """
         if final_structure.formula != initial_structure.formula:
             raise ValueError("Initial and final structures have different formulas!")
         self.initial = initial_structure
         self.final = final_structure
 
-    def get_percentage_volume_change(self):
+    def get_percentage_volume_change(self) -> float:
         """
         Returns the percentage volume change.
 
         Returns:
-            Volume change in percentage, e.g., 0.055 implies a 5.5% increase.
+            float: Volume change in percent. 0.055 means a 5.5% increase.
         """
         return self.final.volume / self.initial.volume - 1
 
-    def get_percentage_lattice_parameter_changes(self):
+    def get_percentage_lattice_parameter_changes(self) -> dict[str, float]:
         """
         Returns the percentage lattice parameter changes.
 
         Returns:
-            A dict of the percentage change in lattice parameter, e.g.,
-            {'a': 0.012, 'b': 0.021, 'c': -0.031} implies a change of 1.2%,
-            2.1% and -3.1% in the a, b and c lattice parameters respectively.
+            dict[str, float]: Percent changes in lattice parameter, e.g.,
+                {'a': 0.012, 'b': 0.021, 'c': -0.031} implies a change of 1.2%,
+                2.1% and -3.1% in the a, b and c lattice parameters respectively.
         """
         initial_latt = self.initial.lattice
         final_latt = self.final.lattice
         return {length: getattr(final_latt, length) / getattr(initial_latt, length) - 1 for length in ["a", "b", "c"]}
 
-    def get_percentage_bond_dist_changes(self, max_radius=3.0):
+    def get_percentage_bond_dist_changes(self, max_radius: float = 3.0) -> dict[int, dict[int, float]]:
         """
         Returns the percentage bond distance changes for each site up to a
         maximum radius for nearest neighbors.
@@ -223,13 +224,12 @@ class RelaxationAnalyzer:
                not the final structure.
 
         Returns:
-            Bond distance changes as a dict of dicts. E.g.,
-            {index1: {index2: 0.011, ...}}. For economy of representation, the
-            index1 is always less than index2, i.e., since bonding between
-            site1 and site_n is the same as bonding between site_n and site1,
-            there is no reason to duplicate the information or computation.
+            dict[int, dict[int, float]]: Bond distance changes in the form {index1: {index2: 0.011, ...}}.
+                For economy of representation, the index1 is always less than index2, i.e., since bonding
+                between site1 and site_n is the same as bonding between site_n and site1, there is no
+                reason to duplicate the information or computation.
         """
-        data = collections.defaultdict(dict)
+        data: dict[int, dict[int, float]] = collections.defaultdict(dict)
         for inds in itertools.combinations(list(range(len(self.initial))), 2):
             (i, j) = sorted(inds)
             initial_dist = self.initial[i].distance(self.initial[j])
@@ -320,8 +320,8 @@ class VoronoiConnectivity:
         """
         con = []
         max_conn = self.max_connectivity
-        for ii in range(0, max_conn.shape[0]):
-            for jj in range(0, max_conn.shape[1]):
+        for ii in range(max_conn.shape[0]):
+            for jj in range(max_conn.shape[1]):
                 if max_conn[ii][jj] != 0:
                     dist = self.s.get_distance(ii, jj)
                     con.append([ii, jj, dist])
@@ -345,25 +345,24 @@ class VoronoiConnectivity:
 
 def solid_angle(center, coords):
     """
-    Helper method to calculate the solid angle of a set of coords from the
-    center.
+    Helper method to calculate the solid angle of a set of coords from the center.
 
     Args:
         center (3x1 array): Center to measure solid angle from.
         coords (Nx3 array): List of coords to determine solid angle.
 
     Returns:
-        The solid angle.
+        float: The solid angle.
     """
-    o = np.array(center)
-    r = [np.array(c) - o for c in coords]
+    origin = np.array(center)
+    r = [np.array(c) - origin for c in coords]
     r.append(r[0])
     n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
     n.append(np.cross(r[1], r[0]))
     vals = []
     for i in range(len(n) - 1):
         v = -np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
-        vals.append(acos(abs_cap(v)))
+        vals.append(acos(np.clip(v, -1, 1)))
     phi = sum(vals)
     return phi + (3 - len(r)) * pi
 
@@ -377,14 +376,14 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
         structure: (structure)
         el_radius_updates: (dict) symbol->float to update atom_ic radii
 
-    Returns: (dict) - (Element1, Element2) -> float. The two elements are
-        ordered by Z.
+    Returns:
+        dict[(Element1, Element2)], float]: The two elements are ordered by Z.
     """
     # jmc = JMolCoordFinder(el_radius_updates)
     jmnn = JmolNN(el_radius_updates=el_radius_updates)
 
     bonds_lens = {}
-    els = sorted(structure.composition.elements, key=lambda x: x.Z)
+    els = sorted(structure.elements, key=lambda x: x.Z)
 
     for i1, el1 in enumerate(els):
         for i2 in range(len(els) - i1):
@@ -440,9 +439,9 @@ class OxideType:
         h_sites_frac_coords = []
         lattice = structure.lattice
 
-        if isinstance(structure.composition.elements[0], Element):
+        if isinstance(structure.elements[0], Element):
             comp = structure.composition
-        elif isinstance(structure.composition.elements[0], Species):
+        elif isinstance(structure.elements[0], Species):
             elem_map: dict[Element, float] = collections.defaultdict(float)
             for site in structure:
                 for species, occu in site.species.items():

@@ -19,8 +19,7 @@ __date__ = "Aug 13 2016"
 
 
 def convert_fmt(args):
-    """
-    Convert files from one format to another.
+    """Convert files from one format to another.
 
     Args:
         args (dict): Args from argparse.
@@ -32,8 +31,7 @@ def convert_fmt(args):
 
 
 def analyze_symmetry(args):
-    """
-    Analyze symmetry of structures in files.
+    """Analyze symmetry of structures in files.
 
     Args:
         args (dict): Args from argparse.
@@ -49,17 +47,16 @@ def analyze_symmetry(args):
 
 
 def analyze_localenv(args):
-    """
-    Analyze local env of structures in files.
+    """Analyze local env of structures in files.
 
     Args:
         args (dict): Args for argparse.
     """
     bonds = {}
     for bond in args.localenv:
-        toks = bond.split("=")
-        species = toks[0].split("-")
-        bonds[(species[0], species[1])] = float(toks[1])
+        tokens = bond.split("=")
+        species = tokens[0].split("-")
+        bonds[(species[0], species[1])] = float(tokens[1])
     for filename in args.filenames:
         print(f"Analyzing {filename}...")
         data = []
@@ -68,8 +65,8 @@ def analyze_localenv(args):
             for species, dist in bonds.items():
                 if species[0] in [sp.symbol for sp in site.species]:
                     dists = [
-                        d
-                        for nn, d in struct.get_neighbors(site, dist)
+                        nn.nn_distance
+                        for nn in struct.get_neighbors(site, dist)
                         if species[1] in [sp.symbol for sp in nn.species]
                     ]
                     dists = ", ".join(f"{d:.3f}" for d in sorted(dists))
@@ -78,8 +75,7 @@ def analyze_localenv(args):
 
 
 def compare_structures(args):
-    """
-    Compare structures in files for similarity using structure matcher.
+    """Compare structures in files for similarity using structure matcher.
 
     Args:
         args (dict): Args from argparse.
@@ -102,8 +98,7 @@ def compare_structures(args):
 
 
 def analyze_structures(args):
-    """
-    Master function to handle which operation to perform.
+    """Master function to handle which operation to perform.
 
     Args:
         args (dict): Args from argparse.

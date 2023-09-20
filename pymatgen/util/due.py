@@ -1,5 +1,4 @@
-"""
-Stub file for a guaranteed safe import of duecredit constructs: if duecredit
+"""Stub file for a guaranteed safe import of duecredit constructs: if duecredit
 is not available.
 
 Then use in your code as
@@ -12,6 +11,7 @@ Origin:     Originally a part of the duecredit
 Copyright:  2015-2021  DueCredit developers
 License:    BSD-2
 """
+
 from __future__ import annotations
 
 __version__ = "0.0.9"

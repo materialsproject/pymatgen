@@ -37,8 +37,7 @@ __date__ = "March 2020"
 
 
 class KPathBase(metaclass=abc.ABCMeta):
-    """
-    This is the base class for classes used to generate high-symmetry
+    """This is the base class for classes used to generate high-symmetry
     paths in reciprocal space (k-paths) for band structure calculations.
     """
 
@@ -46,13 +45,13 @@ class KPathBase(metaclass=abc.ABCMeta):
     def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
         """
         Args:
-        structure (Structure): Structure object.
-        symprec (float): Tolerance for symmetry finding.
-        angle_tolerance (float): Angle tolerance for symmetry finding.
-        atol (float): Absolute tolerance used to compare structures
-            and determine symmetric equivalence of points and lines in the BZ.
-        *args: Other arguments supported by subclasses.
-        **kwargs: Other keyword arguments supported by subclasses.
+            structure (Structure): Structure object.
+            symprec (float): Tolerance for symmetry finding.
+            angle_tolerance (float): Angle tolerance for symmetry finding.
+            atol (float): Absolute tolerance used to compare structures
+                and determine symmetric equivalence of points and lines in the BZ.
+            *args: Other arguments supported by subclasses.
+            **kwargs: Other keyword arguments supported by subclasses.
         """
         self._structure = structure
         self._latt = self._structure.lattice
@@ -67,7 +66,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def structure(self):
         """
         Returns:
-        The input structure.
+            The input structure.
         """
         return self._structure
 
@@ -75,7 +74,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def lattice(self):
         """
         Returns:
-        The real space lattice.
+            The real space lattice.
         """
         return self._latt
 
@@ -83,7 +82,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def rec_lattice(self):
         """
         Returns:
-        The reciprocal space lattice.
+            The reciprocal space lattice.
         """
         return self._rec_lattice
 
@@ -91,14 +90,14 @@ class KPathBase(metaclass=abc.ABCMeta):
     def kpath(self):
         """
         Returns:
-        The symmetry line path in reciprocal space.
+            The symmetry line path in reciprocal space.
         """
         return self._kpath
 
     def get_kpoints(self, line_density=20, coords_are_cartesian=True):
         """
         Returns:
-        kpoints along the path in Cartesian coordinates
+            kpoints along the path in Cartesian coordinates
         together with the critical-point labels.
         """
         list_k_points = []
@@ -120,7 +119,7 @@ class KPathBase(metaclass=abc.ABCMeta):
                         + float(i)
                         / float(nb)
                         * (self._rec_lattice.get_cartesian_coords(end) - self._rec_lattice.get_cartesian_coords(start))
-                        for i in range(0, nb + 1)
+                        for i in range(nb + 1)
                     ]
                 )
         if coords_are_cartesian:
@@ -132,8 +131,7 @@ class KPathBase(metaclass=abc.ABCMeta):
 
 @cite_conventional_cell_algo
 class KPathSetyawanCurtarolo(KPathBase):
-    """
-    This class looks for a path along high-symmetry lines in
+    """This class looks for a path along high-symmetry lines in
     the Brillouin zone.
     It is based on Setyawan, W., & Curtarolo, S. (2010).
     High-throughput electronic band structure calculations:
@@ -153,12 +151,12 @@ class KPathSetyawanCurtarolo(KPathBase):
     def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5):
         """
         Args:
-        structure (Structure): Structure object.
-        symprec (float): Tolerance for symmetry finding.
-        angle_tolerance (float): Angle tolerance for symmetry finding.
-        atol (float): Absolute tolerance used to compare the input
-            structure with the one expected as primitive standard.
-            A warning will be issued if the cells don't match.
+            structure (Structure): Structure object.
+            symprec (float): Tolerance for symmetry finding.
+            angle_tolerance (float): Angle tolerance for symmetry finding.
+            atol (float): Absolute tolerance used to compare the input
+                structure with the one expected as primitive standard.
+                A warning will be issued if the cells don't match.
         """
         if "magmom" in structure.site_properties:
             warn(
@@ -889,8 +887,7 @@ class KPathSetyawanCurtarolo(KPathBase):
 
 
 class KPathSeek(KPathBase):
-    """
-    This class looks for a path along high-symmetry lines in the Brillouin zone. It is based on
+    """This class looks for a path along high-symmetry lines in the Brillouin zone. It is based on
     Hinuma, Y., Pizzi, G., Kumagai, Y., Oba, F., & Tanaka, I. (2017). Band structure diagram paths
     based on crystallography. Computational Materials Science, 128, 140-184.
     https://doi.org/10.1016/j.commatsci.2016.10.015. It should be used with primitive structures that
@@ -1010,8 +1007,7 @@ class KPathSeek(KPathBase):
 
 
 class KPathLatimerMunro(KPathBase):
-    """
-    This class looks for a path along high-symmetry lines in the
+    """This class looks for a path along high-symmetry lines in the
     Brillouin zone. It is based on the method outlined in:
     npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
     The user should ensure that the unit cell of the input structure
@@ -1099,10 +1095,9 @@ class KPathLatimerMunro(KPathBase):
     def mag_type(self):
         """
         Returns:
-        The type of magnetic space group as a string.
-        Current implementation does not distinguish
-        between types 3 and 4, so return value is '3/4'.
-        If has_magmoms is False, returns '0'.
+            The type of magnetic space group as a string. Current implementation does not
+            distinguish between types 3 and 4, so return value is '3/4'. If has_magmoms is
+            False, returns '0'.
         """
         return self._mag_type
 
@@ -1274,9 +1269,9 @@ class KPathLatimerMunro(KPathBase):
 
         orbit_labels = self._get_orbit_labels(orbit_cosines, key_points_inds_orbits, atol)
         key_points_labels = ["" for i in range(len(key_points))]
-        for i, orbit in enumerate(key_points_inds_orbits):
+        for idx, orbit in enumerate(key_points_inds_orbits):
             for point_ind in orbit:
-                key_points_labels[point_ind] = self.LabelSymbol(int(orbit_labels[i]))
+                key_points_labels[point_ind] = self.LabelSymbol(int(orbit_labels[idx]))
 
         kpoints = {}
         reverse_kpoints = {}
@@ -1295,27 +1290,27 @@ class KPathLatimerMunro(KPathBase):
                     max_occurence = max(int(label[3:-1]) for label in existing_labels[1:])
                 else:
                     max_occurence = max(int(label[4:-1]) for label in existing_labels[1:])
-                kpoints[point_label + "_{" + str(max_occurence + 1) + "}"] = key_points[point_ind]
-                reverse_kpoints[point_ind] = point_label + "_{" + str(max_occurence + 1) + "}"
+                kpoints[f"{point_label}_{{{max_occurence + 1}}}"] = key_points[point_ind]
+                reverse_kpoints[point_ind] = f"{point_label}_{{{max_occurence + 1}}}"
 
         path = []
-        i = 0
+        idx = 0
         start_of_subpath = True
-        while i < len(points_in_path_inds):
+        while idx < len(points_in_path_inds):
             if start_of_subpath:
-                path.append([reverse_kpoints[points_in_path_inds[i]]])
-                i += 1
+                path.append([reverse_kpoints[points_in_path_inds[idx]]])
+                idx += 1
                 start_of_subpath = False
-            elif points_in_path_inds[i] == points_in_path_inds[i + 1]:
-                path[-1].append(reverse_kpoints[points_in_path_inds[i]])
-                i += 2
+            elif points_in_path_inds[idx] == points_in_path_inds[idx + 1]:
+                path[-1].append(reverse_kpoints[points_in_path_inds[idx]])
+                idx += 2
             else:
-                path[-1].append(reverse_kpoints[points_in_path_inds[i]])
-                i += 1
+                path[-1].append(reverse_kpoints[points_in_path_inds[idx]])
+                idx += 1
                 start_of_subpath = True
-            if i == len(points_in_path_inds) - 1:
-                path[-1].append(reverse_kpoints[points_in_path_inds[i]])
-                i += 1
+            if idx == len(points_in_path_inds) - 1:
+                path[-1].append(reverse_kpoints[points_in_path_inds[idx]])
+                idx += 1
 
         return {"kpoints": kpoints, "path": path}
 
@@ -2021,7 +2016,7 @@ class KPathLatimerMunro(KPathBase):
     def _get_reciprocal_point_group_dict(recip_point_group, atol):
         PAR = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, -1]])
 
-        d = {
+        dct = {
             "reflections": [],
             "rotations": {
                 "two-fold": [],
@@ -2049,52 +2044,52 @@ class KPathLatimerMunro(KPathBase):
                     for j in range(3):
                         if np.isclose(evals[j], 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["two-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["two-fold"].append({"ind": i, "axis": ax, "op": op})
                 elif np.isclose(tr, 0, atol=atol):  # three-fold rotation
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["three-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["three-fold"].append({"ind": i, "axis": ax, "op": op})
                 # four-fold rotation
                 elif np.isclose(tr, 1, atol=atol):
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["four-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["four-fold"].append({"ind": i, "axis": ax, "op": op})
                 elif np.isclose(tr, 2, atol=atol):  # six-fold rotation
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["six-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["six-fold"].append({"ind": i, "axis": ax, "op": op})
 
             # Improper rotations
             if np.isclose(det, -1, atol=atol):
                 if np.isclose(tr, -3, atol=atol):
-                    d["inversion"].append({"ind": i, "op": PAR})
+                    dct["inversion"].append({"ind": i, "op": PAR})
                 elif np.isclose(tr, 1, atol=atol):  # two-fold rotation
                     for j in range(3):
                         if np.isclose(evals[j], -1, atol=atol):
                             norm = evects[:, j]
-                    d["reflections"].append({"ind": i, "normal": norm, "op": op})
+                    dct["reflections"].append({"ind": i, "normal": norm, "op": op})
                 elif np.isclose(tr, 0, atol=atol):  # three-fold rotoinversion
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["rotoinv-three-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["rotoinv-three-fold"].append({"ind": i, "axis": ax, "op": op})
                 # four-fold rotoinversion
                 elif np.isclose(tr, -1, atol=atol):
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["rotoinv-four-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["rotoinv-four-fold"].append({"ind": i, "axis": ax, "op": op})
                 # six-fold rotoinversion
                 elif np.isclose(tr, -2, atol=atol):
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["rotoinv-six-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["rotoinv-six-fold"].append({"ind": i, "axis": ax, "op": op})
 
-        return d
+        return dct
 
     @staticmethod
     def _op_maps_IRBZ_to_self(op, IRBZ_points, atol):

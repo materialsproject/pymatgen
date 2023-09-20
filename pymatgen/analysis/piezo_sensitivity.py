@@ -51,13 +51,12 @@ class BornEffectiveCharge:
         if np.sum(self.bec) >= tol:
             warnings.warn("Input born effective charge tensor does not satisfy charge neutrality")
 
-    def get_BEC_operations(self, eigtol=1e-05, opstol=1e-03):
+    def get_BEC_operations(self, eigtol=1e-5, opstol=1e-3):
         """
         Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1, site index 2, [Symmops mapping from site
         index 1 to site index 2]].
-
 
         Args:
             eigtol (float): tolerance for determining if two sites are
@@ -131,14 +130,14 @@ class BornEffectiveCharge:
                 )
                 BEC[atom] = temp_tensor
             else:
-                tempfcm = np.zeros([3, 3])
+                temp_fcm = np.zeros([3, 3])
                 for op in ops[2]:
-                    tempfcm += op.transform_tensor(BEC[self.BEC_operations[atom][1]])
-                BEC[ops[0]] = tempfcm
+                    temp_fcm += op.transform_tensor(BEC[self.BEC_operations[atom][1]])
+                BEC[ops[0]] = temp_fcm
                 if len(ops[2]) != 0:
                     BEC[ops[0]] = BEC[ops[0]] / len(ops[2])
 
-        #     Enforce Acoustic Sum
+        # Enforce Acoustic Sum
         disp_charge = np.einsum("ijk->jk", BEC) / n_atoms
         add = np.zeros([n_atoms, 3, 3])
 
@@ -187,13 +186,12 @@ class InternalStrainTensor:
         if not (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all():
             warnings.warn("Input internal strain tensor does not satisfy standard symmetries")
 
-    def get_IST_operations(self, opstol=1e-03):
+    def get_IST_operations(self, opstol=1e-3):
         """
         Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1, site index 2, [Symmops mapping from site
         index 1 to site index 2]].
-
 
         Args:
             opstol (float): tolerance for determining if a symmetry
@@ -215,7 +213,7 @@ class InternalStrainTensor:
         IST_operations = []
         for atom in range(len(self.ist)):  # pylint: disable=C0200
             IST_operations.append([])
-            for j in range(0, atom):
+            for j in range(atom):
                 for op in uniq_point_ops:
                     new = op.transform_tensor(self.ist[j])
 
@@ -278,13 +276,12 @@ class ForceConstantMatrix:
         self.sharedops = sharedops
         self.FCM_operations = None
 
-    def get_FCM_operations(self, eigtol=1e-05, opstol=1e-05):
+    def get_FCM_operations(self, eigtol=1e-5, opstol=1e-5):
         """
         Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1a, site index 1b, site index 2a, site index 2b,
         [Symmops mapping from site index 1a, 1b to site index 2a, 2b]].
-
 
         Args:
             eigtol (float): tolerance for determining if two sites are
@@ -497,7 +494,7 @@ class ForceConstantMatrix:
             maxeig = np.max(-1 * eigs)
             eigsort = np.argsort(np.abs(eigs))
             for i in range(3, len(eigs)):
-                if eigs[eigsort[i]] > 1e-06:
+                if eigs[eigsort[i]] > 1e-6:
                     eigs[eigsort[i]] = -1 * maxeig * np.random.rand()
             diag = np.real(np.eye(len(fcm)) * eigs)
 
@@ -508,7 +505,7 @@ class ForceConstantMatrix:
             unstable_modes = 0
             eigsort = np.argsort(np.abs(eigs))
             for i in range(3, len(eigs)):
-                if eigs[eigsort[i]] > 1e-06:
+                if eigs[eigsort[i]] > 1e-6:
                     unstable_modes = 1
             if unstable_modes == 1:
                 count = count + 1
@@ -627,28 +624,28 @@ class ForceConstantMatrix:
 
         n_sites = len(self.structure)
         structure = get_phonopy_structure(self.structure)
-        pnstruc = Phonopy(structure, np.eye(3), np.eye(3))
+        pn_struct = Phonopy(structure, np.eye(3), np.eye(3))
 
         dyn = self.get_unstable_FCM(force)
         dyn = self.get_stable_FCM(dyn)
 
         dyn = np.reshape(dyn, (n_sites, 3, n_sites, 3)).swapaxes(1, 2)
 
-        dynmass = np.zeros([len(self.structure), len(self.structure), 3, 3])
+        dyn_mass = np.zeros([len(self.structure), len(self.structure), 3, 3])
         masses = []
         for idx in range(n_sites):
             masses.append(self.structure[idx].specie.atomic_mass)
-        dynmass = np.zeros([n_sites, n_sites, 3, 3])
+        dyn_mass = np.zeros([n_sites, n_sites, 3, 3])
         for m in range(n_sites):
             for n in range(n_sites):
-                dynmass[m][n] = dyn[m][n] * np.sqrt(masses[m]) * np.sqrt(masses[n])
+                dyn_mass[m][n] = dyn[m][n] * np.sqrt(masses[m]) * np.sqrt(masses[n])
 
-        supercell = pnstruc.get_supercell()
-        primitive = pnstruc.get_primitive()
+        supercell = pn_struct.get_supercell()
+        primitive = pn_struct.get_primitive()
 
         converter = dyntofc.DynmatToForceConstants(primitive, supercell)
 
-        dyn = np.reshape(np.swapaxes(dynmass, 1, 2), (n_sites * 3, n_sites * 3))
+        dyn = np.reshape(np.swapaxes(dyn_mass, 1, 2), (n_sites * 3, n_sites * 3))
 
         converter.set_dynamical_matrices(dynmat=[dyn])
 

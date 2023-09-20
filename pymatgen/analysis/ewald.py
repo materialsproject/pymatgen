@@ -74,10 +74,10 @@ class EwaldSummation(MSONable):
                 Structure.add_oxidation_state... for example.
             real_space_cut (float): Real space cutoff radius dictating how
                 many terms are used in the real space sum. Defaults to None,
-                which means determine automagically using the formula given
+                which means determine automatically using the formula given
                 in gulp 3.1 documentation.
             recip_space_cut (float): Reciprocal space cutoff radius.
-                Defaults to None, which means determine automagically using
+                Defaults to None, which means determine automatically using
                 the formula given in gulp 3.1 documentation.
             eta (float): The screening parameter. Defaults to None, which means
                 determine automatically.
@@ -93,7 +93,7 @@ class EwaldSummation(MSONable):
             compute_forces (bool): Whether to compute forces. False by
                 default since it is usually not needed.
         """
-        self._s = structure
+        self._struct = structure
         self._charged = abs(structure.charge) > 1e-8
         self._vol = structure.volume
         self._compute_forces = compute_forces
@@ -115,7 +115,7 @@ class EwaldSummation(MSONable):
         # necessary to obtain several factors of improvement in speedup.
         self._oxi_states = [compute_average_oxidation_state(site) for site in structure]
 
-        self._coords = np.array(self._s.cart_coords)
+        self._coords = np.array(self._struct.cart_coords)
 
         # Define the private attributes to lazy compute reciprocal and real
         # space terms.
@@ -162,7 +162,7 @@ class EwaldSummation(MSONable):
             return None
 
         matches = []
-        for i, site in enumerate(self._s):
+        for i, site in enumerate(self._struct):
             matching_site = find_match(site)
             if matching_site:
                 new_charge = compute_average_oxidation_state(matching_site)
@@ -286,7 +286,8 @@ class EwaldSummation(MSONable):
 
         Args:
             site_index (int): Index of site
-        ReturnS:
+
+        Returns:
         (float) - Energy of that site
         """
         if not self._initialized:
@@ -315,12 +316,12 @@ class EwaldSummation(MSONable):
         This method is heavily vectorized to utilize numpy's C backend for
         speed.
         """
-        n_sites = self._s.num_sites
+        n_sites = len(self._struct)
         prefactor = 2 * pi / self._vol
         e_recip = np.zeros((n_sites, n_sites), dtype=np.float_)
         forces = np.zeros((n_sites, 3), dtype=np.float_)
         coords = self._coords
-        rcp_latt = self._s.lattice.reciprocal_lattice
+        rcp_latt = self._struct.lattice.reciprocal_lattice
         recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], self._gmax)
 
         frac_coords = [fcoords for (fcoords, dist, i, img) in recip_nn if dist != 0]
@@ -359,11 +360,11 @@ class EwaldSummation(MSONable):
 
     def _calc_real_and_point(self):
         """Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2."""
-        fcoords = self._s.frac_coords
-        forcepf = 2 * self._sqrt_eta / sqrt(pi)
+        frac_coords = self._struct.frac_coords
+        force_pf = 2 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
-        n_sites = self._s.num_sites
-        ereal = np.empty((n_sites, n_sites), dtype=np.float_)
+        n_sites = len(self._struct)
+        e_real = np.empty((n_sites, n_sites), dtype=np.float_)
 
         forces = np.zeros((n_sites, 3), dtype=np.float_)
 
@@ -372,38 +373,38 @@ class EwaldSummation(MSONable):
         epoint = -(qs**2) * sqrt(self._eta / pi)
 
         for i in range(n_sites):
-            nfcoords, rij, js, _ = self._s.lattice.get_points_in_sphere(
-                fcoords, coords[i], self._rmax, zip_results=False
+            nf_coords, rij, js, _ = self._struct.lattice.get_points_in_sphere(
+                frac_coords, coords[i], self._rmax, zip_results=False
             )
 
             # remove the rii term
             inds = rij > 1e-8
             js = js[inds]
             rij = rij[inds]
-            nfcoords = nfcoords[inds]
+            nf_coords = nf_coords[inds]
 
             qi = qs[i]
             qj = qs[js]
 
-            erfcval = erfc(self._sqrt_eta * rij)
-            new_ereals = erfcval * qi * qj / rij
+            erfc_val = erfc(self._sqrt_eta * rij)
+            new_ereals = erfc_val * qi * qj / rij
 
             # insert new_ereals
             for key in range(n_sites):
-                ereal[key, i] = np.sum(new_ereals[js == key])
+                e_real[key, i] = np.sum(new_ereals[js == key])
 
             if self._compute_forces:
-                nccoords = self._s.lattice.get_cartesian_coords(nfcoords)
+                nc_coords = self._struct.lattice.get_cartesian_coords(nf_coords)
 
-                fijpf = qj / rij**3 * (erfcval + forcepf * rij * np.exp(-self._eta * rij**2))
+                fijpf = qj / rij**3 * (erfc_val + force_pf * rij * np.exp(-self._eta * rij**2))
                 forces[i] += np.sum(
-                    np.expand_dims(fijpf, 1) * (np.array([coords[i]]) - nccoords) * qi * EwaldSummation.CONV_FACT,
+                    np.expand_dims(fijpf, 1) * (np.array([coords[i]]) - nc_coords) * qi * EwaldSummation.CONV_FACT,
                     axis=0,
                 )
 
-        ereal *= 0.5 * EwaldSummation.CONV_FACT
+        e_real *= 0.5 * EwaldSummation.CONV_FACT
         epoint *= EwaldSummation.CONV_FACT
-        return ereal, epoint, forces
+        return e_real, epoint, forces
 
     @property
     def eta(self):
@@ -431,7 +432,7 @@ class EwaldSummation(MSONable):
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "structure": self._s.as_dict(),
+            "structure": self._struct.as_dict(),
             "compute_forces": self._compute_forces,
             "eta": self._eta,
             "acc_factor": self._acc_factor,

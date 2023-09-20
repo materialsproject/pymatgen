@@ -1,5 +1,4 @@
-"""
-Copyright (C) 2004-2022, NetworkX Developers
+"""Copyright (C) 2004-2022, NetworkX Developers
 Aric Hagberg <hagberg@lanl.gov>
 Dan Schult <dschult@colgate.edu>
 Pieter Swart <swart@lanl.gov>
@@ -40,6 +39,7 @@ Isomorphic graphs should be assigned identical hashes.
 For now, only Weisfeiler-Lehman hashing is implemented.
 
 """
+
 from __future__ import annotations
 
 from collections import Counter, defaultdict
@@ -59,8 +59,7 @@ def _init_node_labels(G, edge_attr, node_attr):
 
 
 def _neighborhood_aggregate(G, node, node_labels, edge_attr=None):
-    """
-    Compute new labels for given node by aggregating
+    """Compute new labels for given node by aggregating
     the labels of each node's neighbors.
     """
     label_list = []
@@ -121,8 +120,7 @@ def weisfeiler_lehman_graph_hash(G, edge_attr=None, node_attr=None, iterations=3
     """
 
     def weisfeiler_lehman_step(G, labels, edge_attr=None):
-        """
-        Apply neighborhood aggregation to each node
+        """Apply neighborhood aggregation to each node
         in the graph.
         Computes a dictionary with labels for each node.
         """
@@ -147,8 +145,7 @@ def weisfeiler_lehman_graph_hash(G, edge_attr=None, node_attr=None, iterations=3
 
 
 def weisfeiler_lehman_subgraph_hashes(G, edge_attr=None, node_attr=None, iterations=3, digest_size=16):
-    """
-    Return a dictionary of subgraph hashes by node.
+    """Return a dictionary of subgraph hashes by node.
 
     The dictionary is keyed by node to a list of hashes in increasingly
     sized induced subgraphs containing the nodes within 2*k edges
@@ -226,8 +223,7 @@ def weisfeiler_lehman_subgraph_hashes(G, edge_attr=None, node_attr=None, iterati
     """
 
     def weisfeiler_lehman_step(G, labels, node_subgraph_hashes, edge_attr=None):
-        """
-        Apply neighborhood aggregation to each node
+        """Apply neighborhood aggregation to each node
         in the graph.
         Computes a dictionary with labels for each node.
         Appends the new hashed label to the dictionary of subgraph hashes

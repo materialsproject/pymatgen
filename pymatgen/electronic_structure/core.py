@@ -1,5 +1,4 @@
-"""
-This module provides core classes needed by all define electronic structure,
+"""This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.
 """
 
@@ -13,8 +12,7 @@ from monty.json import MSONable
 
 @unique
 class Spin(Enum):
-    """
-    Enum type for Spin. Only up and down.
+    """Enum type for Spin. Only up and down.
     Usage: Spin.up, Spin.down.
     """
 
@@ -32,10 +30,7 @@ class Spin(Enum):
 
 @unique
 class OrbitalType(Enum):
-    """
-    Enum type for orbital type. Indices are basically the azimuthal quantum
-    number, l.
-    """
+    """Enum type for orbital type. Indices are the azimuthal quantum number l."""
 
     s = 0
     p = 1
@@ -48,8 +43,7 @@ class OrbitalType(Enum):
 
 @unique
 class Orbital(Enum):
-    """
-    Enum type for specific orbitals. The indices are basically the order in
+    """Enum type for specific orbitals. The indices are the order in
     which the orbitals are reported in VASP and has no special meaning.
     """
 
@@ -84,8 +78,7 @@ class Orbital(Enum):
 
 
 class Magmom(MSONable):
-    """
-    New class in active development. Use with caution, feedback is
+    """New class in active development. Use with caution, feedback is
     appreciated.
 
     Class to handle magnetic moments. Defines the magnetic moment of a
@@ -129,11 +122,12 @@ class Magmom(MSONable):
     """
 
     def __init__(self, moment, saxis=(0, 0, 1)):
-        """
-        :param moment: magnetic moment, supplied as float or list/np.ndarray
+        """:param moment: magnetic moment, supplied as float or list/np.ndarray
         :param saxis: spin axis, supplied as list/np.ndarray, parameter will
             be converted to unit vector (default is [0, 0, 1])
-        :return: Magmom object
+
+        Returns:
+            Magmom object
         """
         # to init from another Magmom instance
         if isinstance(moment, Magmom):
@@ -152,8 +146,7 @@ class Magmom(MSONable):
 
     @classmethod
     def from_global_moment_and_saxis(cls, global_moment, saxis):
-        """
-        Convenience method to initialize Magmom from a given global
+        """Convenience method to initialize Magmom from a given global
         magnetic moment, i.e. magnetic moment with saxis=(0,0,1), and
         provided saxis.
 
@@ -162,7 +155,6 @@ class Magmom(MSONable):
 
         :param global_moment:
         :param saxis: desired saxis
-        :return:
         """
         magmom = Magmom(global_moment)
         return cls(magmom.get_moment(saxis=saxis), saxis=saxis)
@@ -204,14 +196,15 @@ class Magmom(MSONable):
         ]
 
     def get_moment(self, saxis=(0, 0, 1)):
-        """
-        Get magnetic moment relative to a given spin quantization axis.
+        """Get magnetic moment relative to a given spin quantization axis.
         If no axis is provided, moment will be given relative to the
         Magmom's internal spin quantization axis, i.e. equivalent to
         Magmom.moment.
 
         :param saxis: (list/numpy array) spin quantization axis
-        :return: np.ndarray of length 3
+
+        Returns:
+            np.ndarray of length 3
         """
         # transform back to moment with spin axis [0, 0, 1]
         m_inv = self._get_transformation_matrix_inv(self.saxis)
@@ -228,35 +221,34 @@ class Magmom(MSONable):
 
     @property
     def global_moment(self):
-        """
-        Get the magnetic moment defined in an arbitrary global reference frame.
+        """Get the magnetic moment defined in an arbitrary global reference frame.
 
-        :return: np.ndarray of length 3
+        Returns:
+            np.ndarray of length 3
         """
         return self.get_moment()
 
     @property
     def projection(self):
-        """
-        Projects moment along spin quantisation axis. Useful for obtaining
+        """Projects moment along spin quantization axis. Useful for obtaining
         collinear approximation for slightly non-collinear magmoms.
 
-        :return: float
+        Returns:
+            float
         """
         return np.dot(self.moment, self.saxis)
 
     def get_xyz_magmom_with_001_saxis(self):
-        """
-        Returns a Magmom in the default setting of saxis = [0, 0, 1] and
+        """Returns a Magmom in the default setting of saxis = [0, 0, 1] and
         the magnetic moment rotated as required.
 
-        :return: Magmom
+        Returns:
+            Magmom
         """
         return Magmom(self.get_moment())
 
     def get_00t_magmom_with_xyz_saxis(self):
-        """
-        For internal implementation reasons, in non-collinear calculations VASP prefers the following.
+        """For internal implementation reasons, in non-collinear calculations VASP prefers the following.
 
             MAGMOM = 0 0 total_magnetic_moment
             SAXIS = x y z
@@ -274,7 +266,8 @@ class Magmom(MSONable):
         in the case of collinear structures, rather than constraining assuming
         t is always positive.
 
-        :return: Magmom
+        Returns:
+            Magmom
         """
         # reference direction gives sign of moment
         # entirely arbitrary, there will always be a pathological case
@@ -293,15 +286,16 @@ class Magmom(MSONable):
 
     @staticmethod
     def have_consistent_saxis(magmoms):
-        """
-        This method checks that all Magmom objects in a list have a
+        """This method checks that all Magmom objects in a list have a
         consistent spin quantization axis. To write MAGMOM tags to a
         VASP INCAR, a global SAXIS value for all magmoms has to be used.
         If saxis are inconsistent, can create consistent set with:
         Magmom.get_consistent_set(magmoms).
 
         :param magmoms: list of magmoms (Magmoms, scalars or vectors)
-        :return: bool
+
+        Returns:
+            bool
         """
         magmoms = [Magmom(magmom) for magmom in magmoms]
         ref_saxis = magmoms[0].saxis
@@ -312,13 +306,14 @@ class Magmom(MSONable):
 
     @staticmethod
     def get_consistent_set_and_saxis(magmoms, saxis=None):
-        """
-        Method to ensure a list of magmoms use the same spin axis.
+        """Method to ensure a list of magmoms use the same spin axis.
         Returns a tuple of a list of Magmoms and their global spin axis.
 
         :param magmoms: list of magmoms (Magmoms, scalars or vectors)
         :param saxis: can provide a specific global spin axis
-        :return: (list of Magmoms, global spin axis) tuple
+
+        Returns:
+            (list of Magmoms, global spin axis) tuple
         """
         magmoms = [Magmom(magmom) for magmom in magmoms]
         saxis = Magmom.get_suggested_saxis(magmoms) if saxis is None else saxis / np.linalg.norm(saxis)
@@ -327,14 +322,15 @@ class Magmom(MSONable):
 
     @staticmethod
     def get_suggested_saxis(magmoms):
-        """
-        This method returns a suggested spin axis for a set of magmoms,
+        """This method returns a suggested spin axis for a set of magmoms,
         taking the largest magnetic moment as the reference. For calculations
         with collinear spins, this would give a sensible saxis for a ncl
         calculation.
 
         :param magmoms: list of magmoms (Magmoms, scalars or vectors)
-        :return: np.ndarray of length 3
+
+        Returns:
+            np.ndarray of length 3
         """
         # heuristic, will pick largest magmom as reference
         # useful for creating collinear approximations of
@@ -352,11 +348,12 @@ class Magmom(MSONable):
 
     @staticmethod
     def are_collinear(magmoms) -> bool:
-        """
-        Method checks to see if a set of magnetic moments are collinear
+        """Method checks to see if a set of magnetic moments are collinear
         with each other.
-        :param magmoms: list of magmoms (Magmoms, scalars or vectors)
-        :return: bool.
+        :param magmoms: list of magmoms (Magmoms, scalars or vectors).
+
+        Returns:
+            bool.
         """
         magmoms = [Magmom(magmom) for magmom in magmoms]
         if not Magmom.have_consistent_saxis(magmoms):
@@ -372,20 +369,19 @@ class Magmom(MSONable):
         ref_magmom = magmoms[0]
         # magnitude of cross products != 0 if non-collinear with reference
         num_ncl = np.count_nonzero(np.linalg.norm(np.cross(ref_magmom, magmoms), axis=1))
-        if num_ncl > 0:
-            return False
-        return True
+        return num_ncl == 0
 
     @classmethod
     def from_moment_relative_to_crystal_axes(cls, moment, lattice):
-        """
-        Obtaining a Magmom object from a magnetic moment provided
+        """Obtaining a Magmom object from a magnetic moment provided
         relative to crystal axes.
 
         Used for obtaining moments from magCIF file.
         :param moment: list of floats specifying vector magmom
         :param lattice: Lattice
-        :return: Magmom
+
+        Returns:
+            Magmom
         """
         # get matrix representing unit lattice vectors
         unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]
@@ -395,12 +391,13 @@ class Magmom(MSONable):
         return cls(moment)
 
     def get_moment_relative_to_crystal_axes(self, lattice):
-        """
-        If scalar magmoms, moments will be given arbitrarily along z.
+        """If scalar magmoms, moments will be given arbitrarily along z.
         Used for writing moments to magCIF file.
 
         :param lattice: Lattice
-        :return: vector as list of floats
+
+        Returns:
+            vector as list of floats
         """
         # get matrix representing unit lattice vectors
         unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]
@@ -435,11 +432,10 @@ class Magmom(MSONable):
         return Magmom(-self.moment, saxis=self.saxis)
 
     def __hash__(self) -> int:
-        return (tuple(self.moment) + tuple(self.saxis)).__hash__()
+        return hash(tuple(self.moment) + tuple(self.saxis))
 
     def __float__(self):
-        """
-        Returns magnitude of magnetic moment with a sign with respect to
+        """Returns magnitude of magnetic moment with a sign with respect to
         an arbitrary direction.
 
         Should give unsurprising output if Magmom is treated like a

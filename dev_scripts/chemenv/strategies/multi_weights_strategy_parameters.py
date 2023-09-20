@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,6 +25,9 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 )
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -121,16 +124,16 @@ class CoordinationEnvironmentMorphing:
         fig_height = fig_height_cm / 2.54
 
         fig = plt.figure(num=1, figsize=(fig_width, fig_height))
-        subplot = fig.add_subplot(111)
+        ax = fig.add_subplot(111)
 
-        subplot.plot(
+        ax.plot(
             morphing_factors,
             fractions_initial_environment,
             "b-",
             label=self.initial_environment_symbol,
             linewidth=1.5,
         )
-        subplot.plot(
+        ax.plot(
             morphing_factors,
             fractions_final_environment,
             "g--",
@@ -301,16 +304,16 @@ if __name__ == "__main__":
         self_weight_max_csms_per_cn[ce1.split(":")[1]].append(params["self_weight_max_csm"])
 
     fig = plt.figure(1)
-    subplot = fig.add_subplot(111)
+    ax = fig.add_subplot(111)
 
     for idx, cn_pair in enumerate(all_cn_pairs):
         if len(self_weight_max_csms[cn_pair]) == 0:
             continue
-        subplot.plot(idx * np.ones_like(self_weight_max_csms[cn_pair]), self_weight_max_csms[cn_pair], "rx")
-        subplot.plot(idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
+        ax.plot(idx * np.ones_like(self_weight_max_csms[cn_pair]), self_weight_max_csms[cn_pair], "rx")
+        ax.plot(idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
 
-    subplot.set_xticks(range(len(all_cn_pairs)))
-    subplot.set_xticklabels(all_cn_pairs, rotation="vertical")
+    ax.set_xticks(range(len(all_cn_pairs)))
+    ax.set_xticklabels(all_cn_pairs, rotation="vertical")
     fig.savefig("self_delta_params.pdf")
 
     fig2 = plt.figure(2)

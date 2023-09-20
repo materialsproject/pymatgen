@@ -7,9 +7,19 @@ import math
 import os
 import subprocess
 import time
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
+from monty.dev import requires
+from monty.serialization import loadfn
+
+from pymatgen.core.periodic_table import Species
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
+from pymatgen.util.coord import in_coord_list
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 try:
     import vtk
@@ -19,16 +29,8 @@ except ImportError:
     vtk = None
     vtkInteractorStyleTrackballCamera = object
 
-from monty.dev import requires
-from monty.serialization import loadfn
-
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
-from pymatgen.util.coord import in_coord_list
-
 module_dir = os.path.dirname(os.path.abspath(__file__))
-EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
+EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
 
 
 class StructureVis:
@@ -243,7 +245,7 @@ class StructureVis:
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
 
         if self.show_bonds or self.show_polyhedron:
-            elements = sorted(struct.composition.elements, key=lambda a: a.X)
+            elements = sorted(struct.elements, key=lambda a: a.X)
             anion = elements[-1]
 
             def contains_anion(site):
@@ -472,9 +474,9 @@ class StructureVis:
         grid.SetPoints(points)
 
         dsm = vtk.vtkDataSetMapper()
-        polysites = [center]
-        polysites.extend(neighbors)
-        self.mapper_map[dsm] = polysites
+        poly_sites = [center]
+        poly_sites.extend(neighbors)
+        self.mapper_map[dsm] = poly_sites
         if vtk.VTK_MAJOR_VERSION <= 5:
             dsm.SetInputConnection(grid.GetProducerPort())
         else:
@@ -486,12 +488,12 @@ class StructureVis:
         if color == "element":
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
-            myoccu = 0.0
+            max_occu = 0.0
             for specie, occu in center.species.items():
-                if occu > myoccu:
-                    myspecie = specie
-                    myoccu = occu
-            color = [i / 255 for i in self.el_color_mapping[myspecie.symbol]]
+                if occu > max_occu:
+                    max_specie = specie
+                    max_occu = occu
+            color = [i / 255 for i in self.el_color_mapping[max_specie.symbol]]
             ac.GetProperty().SetColor(color)
         else:
             ac.GetProperty().SetColor(color)
@@ -531,7 +533,7 @@ class StructureVis:
         triangles = vtk.vtkCellArray()
         triangles.InsertNextCell(triangle)
 
-        # polydata object
+        # vtkPolyData object
         trianglePolyData = vtk.vtkPolyData()
         trianglePolyData.SetPoints(points)
         trianglePolyData.SetPolys(triangles)
@@ -550,12 +552,12 @@ class StructureVis:
                 )
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
-            myoccu = 0.0
+            max_occu = 0.0
             for specie, occu in center.species.items():
-                if occu > myoccu:
-                    myspecie = specie
-                    myoccu = occu
-            color = [i / 255 for i in self.el_color_mapping[myspecie.symbol]]
+                if occu > max_occu:
+                    max_specie = specie
+                    max_occu = occu
+            color = [i / 255 for i in self.el_color_mapping[max_specie.symbol]]
             ac.GetProperty().SetColor(color)
         else:
             ac.GetProperty().SetColor(color)
@@ -830,7 +832,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
             parent.show_help = not parent.show_help
             parent.redraw()
         elif sym == "r":
-            parent.redraw(True)
+            parent.redraw(True)  # noqa: FBT003
         elif sym == "s":
             parent.write_image("image.png")
         elif sym == "Up":

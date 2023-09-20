@@ -6,6 +6,7 @@ import logging
 import re
 from typing import TYPE_CHECKING, Literal
 
+import numpy as np
 from monty.io import zopen
 
 from pymatgen.core import Molecule
@@ -202,7 +203,11 @@ class QCInput(InputFile):
         #   - Validity checks specific to job type?
         #   - Check OPT and PCM sections?
 
-    def get_string(self):
+    @np.deprecate(message="Use get_str instead")
+    def get_string(self, *args, **kwargs) -> str:
+        return self.get_str(*args, **kwargs)
+
+    def get_str(self) -> str:
         """Return a string representation of an entire input file."""
         return str(self)
 
@@ -1126,7 +1131,7 @@ class QCInput(InputFile):
             string (str): String
 
         Returns:
-             (list of lists of dicts) cdft parameters
+            list[list[dict]]: cdft parameters
         """
         pattern_sec = {
             "full_section": r"\$cdft((:?(:?\s*[0-9\.\-]+\s+[0-9]+\s+[0-9]+(:?\s+[A-Za-z]+)?\s*\n)+|"

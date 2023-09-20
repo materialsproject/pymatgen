@@ -274,7 +274,6 @@ class QChemDictSet(QCInput):
                 Note that a type of None will default to a charge constraint (which can also be
                 accessed by requesting a type of "c" or "charge").
 
-
                 2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
@@ -387,46 +386,46 @@ class QChemDictSet(QCInput):
 
         plots_defaults = {"grid_spacing": "0.05", "total_density": "0"}
 
-        myopt = {} if self.opt_variables is None else self.opt_variables
+        opt = {} if self.opt_variables is None else self.opt_variables
 
-        myscan = {} if self.scan_variables is None else self.scan_variables
+        scan = {} if self.scan_variables is None else self.scan_variables
 
-        mypcm: dict = {}
-        mysolvent: dict = {}
-        mysmx: dict = {}
-        myvdw: dict = {}
-        myplots: dict = {}
-        myrem: dict = {}
-        mysvp: dict = {}
-        mypcm_nonels: dict = {}
-        myrem["job_type"] = job_type
-        myrem["basis"] = self.basis_set
-        myrem["max_scf_cycles"] = str(self.max_scf_cycles)
-        myrem["gen_scfman"] = "true"
-        myrem["xc_grid"] = "3"
-        myrem["thresh"] = "14"
-        myrem["s2thresh"] = "16"
-        myrem["scf_algorithm"] = self.scf_algorithm
-        myrem["resp_charges"] = "true"
-        myrem["symmetry"] = "false"
-        myrem["sym_ignore"] = "true"
+        pcm: dict = {}
+        solvent: dict = {}
+        smx: dict = {}
+        vdw: dict = {}
+        plots: dict = {}
+        rem: dict = {}
+        svp: dict = {}
+        pcm_nonels: dict = {}
+        rem["job_type"] = job_type
+        rem["basis"] = self.basis_set
+        rem["max_scf_cycles"] = str(self.max_scf_cycles)
+        rem["gen_scfman"] = "true"
+        rem["xc_grid"] = "3"
+        rem["thresh"] = "14"
+        rem["s2thresh"] = "16"
+        rem["scf_algorithm"] = self.scf_algorithm
+        rem["resp_charges"] = "true"
+        rem["symmetry"] = "false"
+        rem["sym_ignore"] = "true"
 
         if self.dft_rung == 1:
-            myrem["method"] = "spw92"
+            rem["method"] = "spw92"
         elif self.dft_rung == 2:
-            myrem["method"] = "b97-d3"
-            myrem["dft_d"] = "d3_bj"
+            rem["method"] = "b97-d3"
+            rem["dft_d"] = "d3_bj"
         elif self.dft_rung == 3:
-            myrem["method"] = "b97mv"
+            rem["method"] = "b97mv"
         elif self.dft_rung == 4:
-            myrem["method"] = "wb97mv"
+            rem["method"] = "wb97mv"
         elif self.dft_rung == 5:
-            myrem["method"] = "wb97m(2)"
+            rem["method"] = "wb97m(2)"
         else:
             raise ValueError("dft_rung should be between 1 and 5!")
 
         if self.job_type.lower() in ["opt", "ts", "pes_scan"]:
-            myrem["geom_opt_max_cycles"] = str(self.geom_opt_max_cycles)
+            rem["geom_opt_max_cycles"] = str(self.geom_opt_max_cycles)
 
         solvent_def = 0
         for a in [self.pcm_dielectric, self.isosvp_dielectric, self.smd_solvent, self.cmirs_solvent]:
@@ -436,23 +435,23 @@ class QChemDictSet(QCInput):
             raise ValueError("Only one of PCM, ISOSVP, SMD, and CMIRSmay be used for solvation.")
 
         if self.pcm_dielectric is not None:
-            mypcm = pcm_defaults
-            mysolvent["dielectric"] = str(self.pcm_dielectric)
-            myrem["solvent_method"] = "pcm"
+            pcm = pcm_defaults
+            solvent["dielectric"] = str(self.pcm_dielectric)
+            rem["solvent_method"] = "pcm"
 
         if self.isosvp_dielectric is not None:
-            mysvp = svp_defaults
-            mysvp["dielst"] = str(self.isosvp_dielectric)
-            myrem["solvent_method"] = "isosvp"
-            myrem["gen_scfman"] = "false"
+            svp = svp_defaults
+            svp["dielst"] = str(self.isosvp_dielectric)
+            rem["solvent_method"] = "isosvp"
+            rem["gen_scfman"] = "false"
 
         if self.smd_solvent is not None:
             if self.smd_solvent == "custom":
-                mysmx["solvent"] = "other"
+                smx["solvent"] = "other"
             else:
-                mysmx["solvent"] = self.smd_solvent
-            myrem["solvent_method"] = "smd"
-            myrem["ideriv"] = "1"
+                smx["solvent"] = self.smd_solvent
+            rem["solvent_method"] = "smd"
+            rem["ideriv"] = "1"
             if self.smd_solvent in ("custom", "other"):
                 if self.custom_smd is None:
                     raise ValueError(
@@ -462,53 +461,53 @@ class QChemDictSet(QCInput):
                     )
                 if self.qchem_version == 6:
                     custom_smd_vals = self.custom_smd.split(",")
-                    mysmx["epsilon"] = custom_smd_vals[0]
-                    mysmx["SolN"] = custom_smd_vals[1]
-                    mysmx["SolA"] = custom_smd_vals[2]
-                    mysmx["SolB"] = custom_smd_vals[3]
-                    mysmx["SolG"] = custom_smd_vals[4]
-                    mysmx["SolC"] = custom_smd_vals[5]
-                    mysmx["SolH"] = custom_smd_vals[6]
+                    smx["epsilon"] = custom_smd_vals[0]
+                    smx["SolN"] = custom_smd_vals[1]
+                    smx["SolA"] = custom_smd_vals[2]
+                    smx["SolB"] = custom_smd_vals[3]
+                    smx["SolG"] = custom_smd_vals[4]
+                    smx["SolC"] = custom_smd_vals[5]
+                    smx["SolH"] = custom_smd_vals[6]
 
         if self.cmirs_solvent is not None:
             # set up the ISOSVP calculation consistently with the CMIRS
-            mysvp = svp_defaults
-            myrem["solvent_method"] = "isosvp"
-            myrem["gen_scfman"] = "false"
-            mysvp["dielst"] = CMIRS_SETTINGS[self.cmirs_solvent]["dielst"]  # type: ignore
-            mysvp["idefesr"] = "1"  # this flag enables the CMIRS part
-            mysvp["ipnrf"] = "1"  # this flag is also required for some undocumented reason
-            mypcm_nonels = CMIRS_SETTINGS[self.cmirs_solvent][mysvp["rhoiso"]]  # type: ignore
-            mypcm_nonels["delta"] = "7"  # as recommended by Q-Chem. See manual.
-            mypcm_nonels["gaulag_n"] = "40"  # as recommended by Q-Chem. See manual.
+            svp = svp_defaults
+            rem["solvent_method"] = "isosvp"
+            rem["gen_scfman"] = "false"
+            svp["dielst"] = CMIRS_SETTINGS[self.cmirs_solvent]["dielst"]  # type: ignore
+            svp["idefesr"] = "1"  # this flag enables the CMIRS part
+            svp["ipnrf"] = "1"  # this flag is also required for some undocumented reason
+            pcm_nonels = CMIRS_SETTINGS[self.cmirs_solvent][svp["rhoiso"]]  # type: ignore
+            pcm_nonels["delta"] = "7"  # as recommended by Q-Chem. See manual.
+            pcm_nonels["gaulag_n"] = "40"  # as recommended by Q-Chem. See manual.
 
         if self.plot_cubes:
-            myplots = plots_defaults
-            myrem["plots"] = "true"
-            myrem["make_cube_files"] = "true"
+            plots = plots_defaults
+            rem["plots"] = "true"
+            rem["make_cube_files"] = "true"
 
-        mynbo = self.nbo_params
+        nbo = self.nbo_params
         if self.nbo_params is not None:
-            myrem["nbo"] = "true"
+            rem["nbo"] = "true"
             if "version" in self.nbo_params:
                 if self.nbo_params["version"] == 7:
-                    myrem["nbo_external"] = "true"
+                    rem["nbo_external"] = "true"
                 else:
                     raise RuntimeError("nbo params version should only be set to 7! Exiting...")
-            mynbo = {}
+            nbo = {}
             for key in self.nbo_params:
                 if key != "version":
-                    mynbo[key] = self.nbo_params[key]
+                    nbo[key] = self.nbo_params[key]
 
         tmp_geom_opt = self.geom_opt
-        my_geom_opt = self.geom_opt
+        geom_opt = self.geom_opt
         if (
             self.job_type.lower() in ["opt", "optimization"]
             and self.qchem_version == 6
             or (self.qchem_version == 5 and self.geom_opt is not None)
         ):
             if self.qchem_version == 5:
-                myrem["geom_opt2"] = "3"
+                rem["geom_opt2"] = "3"
             elif self.qchem_version == 6 and not self.geom_opt:
                 tmp_geom_opt = {}
             if tmp_geom_opt is not None:
@@ -524,44 +523,44 @@ class QChemDictSet(QCInput):
                         tmp_geom_opt["max_displacement"] = "0.1"
                     if "optimization_restart" not in tmp_geom_opt:
                         tmp_geom_opt["optimization_restart"] = "false"
-                my_geom_opt = {}
+                geom_opt = {}
                 for key in tmp_geom_opt:
-                    my_geom_opt[key] = tmp_geom_opt[key]
+                    geom_opt[key] = tmp_geom_opt[key]
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
                 if sec == "rem":
                     temp_rem = lower_and_check_unique(sec_dict)
                     for k, v in temp_rem.items():
-                        myrem[k] = v
+                        rem[k] = v
                 if sec == "pcm":
                     temp_pcm = lower_and_check_unique(sec_dict)
                     for k, v in temp_pcm.items():
-                        mypcm[k] = v
+                        pcm[k] = v
                 if sec == "solvent":
                     temp_solvent = lower_and_check_unique(sec_dict)
-                    if myrem["solvent_method"] != "pcm":
+                    if rem["solvent_method"] != "pcm":
                         warnings.warn("The solvent section will be ignored unless solvent_method=pcm!", UserWarning)
                     for k, v in temp_solvent.items():
-                        mysolvent[k] = v
+                        solvent[k] = v
                 if sec == "smx":
                     temp_smx = lower_and_check_unique(sec_dict)
                     for k, v in temp_smx.items():
-                        mysmx[k] = v
+                        smx[k] = v
                 if sec == "scan":
                     temp_scan = lower_and_check_unique(sec_dict)
                     for k, v in temp_scan.items():
-                        myscan[k] = v
+                        scan[k] = v
                 if sec == "van_der_waals":
                     temp_vdw = lower_and_check_unique(sec_dict)
                     for k, v in temp_vdw.items():
-                        myvdw[k] = v
+                        vdw[k] = v
                     # set the PCM section to read custom radii
-                    mypcm["radii"] = "read"
+                    pcm["radii"] = "read"
                 if sec == "plots":
                     temp_plots = lower_and_check_unique(sec_dict)
                     for k, v in temp_plots.items():
-                        myplots[k] = v
+                        plots[k] = v
                 if sec == "nbo":
                     raise RuntimeError("Set nbo parameters directly with nbo_params input! Exiting...")
                 if sec == "geom_opt":
@@ -569,7 +568,7 @@ class QChemDictSet(QCInput):
                 if sec == "opt":
                     temp_opts = lower_and_check_unique(sec_dict)
                     for k, v in temp_opts.items():
-                        myopt[k] = v
+                        opt[k] = v
                 if sec == "svp":
                     temp_svp = lower_and_check_unique(sec_dict)
                     for k, v in temp_svp.items():
@@ -579,9 +578,9 @@ class QChemDictSet(QCInput):
                                 raise RuntimeError(
                                     "CMIRS is only parameterized for RHOISO values of 0.001 or 0.0005! Exiting..."
                                 )
-                            for k2 in mypcm_nonels:
+                            for k2 in pcm_nonels:
                                 if CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2):  # type: ignore
-                                    mypcm_nonels[k2] = CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2)  # type: ignore
+                                    pcm_nonels[k2] = CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2)  # type: ignore
                         if k == "idefesr":
                             if self.cmirs_solvent is not None and v == "0":
                                 warnings.warn(
@@ -592,44 +591,44 @@ class QChemDictSet(QCInput):
                                     "Setting IDEFESR=1 will have no effect unless you specify a cmirs_solvent!",
                                     UserWarning,
                                 )
-                        if k == "dielst" and myrem["solvent_method"] != "isosvp":
+                        if k == "dielst" and rem["solvent_method"] != "isosvp":
                             warnings.warn(
                                 "Setting DIELST will have no effect unless you specify a solvent_method=isosvp!",
                                 UserWarning,
                             )
 
-                        mysvp[k] = v
+                        svp[k] = v
                 if sec == "pcm_nonels":
                     temp_pcm_nonels = lower_and_check_unique(sec_dict)
                     for k, v in temp_pcm_nonels.items():
-                        mypcm_nonels[k] = v
+                        pcm_nonels[k] = v
 
         if extra_scf_print:
             # Allow for the printing of the Fock matrix and the eigenvales
-            myrem["scf_final_print"] = "3"
+            rem["scf_final_print"] = "3"
             # If extra_scf_print is specified, make sure that the convergence of the
             # SCF cycle is at least 1e-8. Anything less than that might not be appropriate
             # for printing out the Fock Matrix and coefficients of the MO.
-            if "scf_convergence" not in myrem or int(myrem["scf_convergence"]) < 8:
-                myrem["scf_convergence"] = "8"
+            if "scf_convergence" not in rem or int(rem["scf_convergence"]) < 8:
+                rem["scf_convergence"] = "8"
 
         super().__init__(
             self.molecule,
-            rem=myrem,
-            opt=myopt,
-            pcm=mypcm,
-            solvent=mysolvent,
-            smx=mysmx,
-            scan=myscan,
-            van_der_waals=myvdw,
+            rem=rem,
+            opt=opt,
+            pcm=pcm,
+            solvent=solvent,
+            smx=smx,
+            scan=scan,
+            van_der_waals=vdw,
             vdw_mode=self.vdw_mode,
-            plots=myplots,
-            nbo=mynbo,
-            geom_opt=my_geom_opt,
+            plots=plots,
+            nbo=nbo,
+            geom_opt=geom_opt,
             cdft=self.cdft_constraints,
             almo_coupling=self.almo_coupling_states,
-            svp=mysvp,
-            pcm_nonels=mypcm_nonels,
+            svp=svp,
+            pcm_nonels=pcm_nonels,
         )
 
     def write(self, input_file: str):
@@ -760,7 +759,6 @@ class SinglePointSet(QChemDictSet):
 
                 Note that a type of None will default to a charge constraint (which can also be
                 accessed by requesting a type of "c" or "charge").
-
 
                 2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
@@ -993,7 +991,6 @@ class OptSet(QChemDictSet):
 
                 Note that a type of None will default to a charge constraint (which can also be
                 accessed by requesting a type of "c" or "charge").
-
 
                 2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
@@ -1326,7 +1323,6 @@ class ForceSet(QChemDictSet):
                 Note that a type of None will default to a charge constraint (which can also be
                 accessed by requesting a type of "c" or "charge").
 
-
                 2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
@@ -1515,7 +1511,6 @@ class FreqSet(QChemDictSet):
 
                 Note that a type of None will default to a charge constraint (which can also be
                 accessed by requesting a type of "c" or "charge").
-
 
                 2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[

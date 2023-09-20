@@ -1,5 +1,4 @@
-"""
-Enumerator with the libxc identifiers.
+"""Enumerator with the libxc identifiers.
 This is a low level object, client code should not interact with LibxcFunc directly
 but use the API provided by the Xcfunc object defined in core.xcfunc.py.
 Part of this module is automatically generated so be careful when refactoring stuff.
@@ -32,8 +31,7 @@ with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as fh:
 
 # @unique
 class LibxcFunc(Enum):
-    """
-    Enumerator with the identifiers. This object is used by Xcfunc
+    """Enumerator with the identifiers. This object is used by Xcfunc
     declared in xcfunc.py to create an internal representation of the XC functional.
     This is a low level object, client code should not interact with LibxcFunc directly
     but use the API provided by Xcfunc.
@@ -411,24 +409,23 @@ class LibxcFunc(Enum):
             num: Number for the xc.
         """
         info = _all_xcfuncs[self.value]
-        self.kind = info["Kind"]
-        self.family = info["Family"]
+        self.kind = info["Kind"]  # type: ignore
+        self.family = info["Family"]  # type: ignore
 
-    def __str__(self):
-        return f"name={self.name}, kind={self.kind}, family={self.family}"
+    def __repr__(self):
+        name, kind, family = self.name, self.kind, self.family
+        return f"{type(self).__name__}({name=}, {kind=}, {family=})"
 
     @staticmethod
     def all_families():
-        """
-        List of strings with the libxc families.
+        """List of strings with the libxc families.
         Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA.
         """
         return sorted({d["Family"] for d in _all_xcfuncs.values()})
 
     @staticmethod
     def all_kinds():
-        """
-        List of strings with the libxc kinds.
+        """List of strings with the libxc kinds.
         Also in this case, the string is obtained by remove the XC_ prefix.
         XC_CORRELATION --> CORRELATION.
         """
@@ -485,23 +482,17 @@ class LibxcFunc(Enum):
         return self.family == "HYB_MGGA"
 
     def as_dict(self):
-        """
-        Makes LibxcFunc obey the general json interface used in pymatgen for
+        """Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
-        return {
-            "name": self.name,
-            "@module": type(self).__module__,
-            "@class": type(self).__name__,
-        }
+        return {"name": self.name, "@module": type(self).__module__, "@class": type(self).__name__}
 
-    @staticmethod
-    def from_dict(d):
-        """
-        Makes LibxcFunc obey the general json interface used in pymatgen for
+    @classmethod
+    def from_dict(cls, dct):
+        """Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
-        return LibxcFunc[d["name"]]
+        return cls[dct["name"]]
 
     def to_json(self):
         """Returns a json string representation of the MSONable object."""
