@@ -307,9 +307,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def element_composition(self) -> Composition:
-        """Returns the composition replacing any species by the corresponding
-        element.
-        """
+        """Returns the composition replacing any species by the corresponding element."""
         return Composition(self.get_el_amt_dict(), allow_negative=self.allow_negative)
 
     @property

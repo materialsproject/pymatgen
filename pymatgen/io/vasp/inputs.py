@@ -69,7 +69,7 @@ class Poscar(MSONable):
         predictor_corrector: Predictor corrector coordinates and derivatives for each site;
             i.e. a list of three 1x3 arrays for each site (typically read in from a MD CONTCAR).
         predictor_corrector_preamble: Predictor corrector preamble contains the predictor-corrector key,
-            POTIM, and thermostat parameters that precede the site-specic predictor corrector data in MD CONTCAR.
+            POTIM, and thermostat parameters that precede the site-specific predictor corrector data in MD CONTCAR.
         temperature: Temperature of velocity Maxwell-Boltzmann initialization.
             Initialized to -1 (MB hasn't been performed).
     """
