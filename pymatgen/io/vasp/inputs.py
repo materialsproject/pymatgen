@@ -132,7 +132,7 @@ class Poscar(MSONable):
             if predictor_corrector_preamble:
                 self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
         else:
-            raise ValueError("Structure with partial occupancies cannot be converted into POSCAR!")
+            raise ValueError("Disordered structure with partial occupancies cannot be converted into POSCAR!")
 
         self.temperature = -1.0
 

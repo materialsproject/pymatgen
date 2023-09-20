@@ -17,6 +17,7 @@ from pytest import approx, mark
 import pymatgen
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
+from pymatgen.core.composition import Composition
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, PotcarSingle
@@ -242,17 +243,19 @@ class TestMITMPRelaxSet(PymatgenTest):
         lattice = Lattice.cubic(4)
         struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
         assert self.set(struct).nelect == 16
-
-        # Check that it works even when oxidation states are present. Was a bug
-        # previously.
-        struct = Structure(lattice, ["Si4+", "Si4+", "Fe2+"], coords)
-        assert self.set(struct).nelect == 16
         assert MPRelaxSet(struct).nelect == 22
 
-        # Check that it works for disordered structure. Was a bug previously
-        struct = Structure(lattice, ["Si4+", "Fe2+", "Si4+"], coords)
-        assert self.set(struct).nelect == 16
-        assert MPRelaxSet(struct).nelect == 22
+        # Expect same answer when oxidation states are present. Was a bug previously.
+        oxi_struct = Structure(lattice, ["Si4+", "Si4+", "Fe2+"], coords)
+        assert self.set(oxi_struct).nelect == 16
+        assert MPRelaxSet(oxi_struct).nelect == 22
+
+        # disordered structure are not supported
+        disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
+        with pytest.raises(
+            ValueError, match="Disordered structure with partial occupancies cannot be converted into POSCAR"
+        ):
+            _ = self.set(disordered).nelect
 
     @skip_if_no_psp_dir
     def test_estimate_nbands(self):

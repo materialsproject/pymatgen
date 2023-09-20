@@ -590,8 +590,7 @@ class DictSet(VaspInputSet):
         """Gets the default number of electrons for a given structure."""
         n_electrons_by_element = {p.element: p.nelectrons for p in self.potcar}
         n_elect = sum(
-            num_atoms * n_electrons_by_element[str(el)]
-            for el, num_atoms in self.structure.composition.element_composition.items()
+            num_atoms * n_electrons_by_element[el.symbol] for el, num_atoms in self.structure.composition.items()
         )
 
         if self.use_structure_charge:
