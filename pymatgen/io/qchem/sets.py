@@ -500,10 +500,9 @@ class QChemDictSet(QCInput):
                     nbo[key] = self.nbo_params[key]
 
         tmp_geom_opt = self.geom_opt
-        if tmp_geom_opt is not None:
-            if "initial_hessian" in tmp_geom_opt:
-                if tmp_geom_opt["initial_hessian"] == "deleted":
-                    del tmp_geom_opt["initial_hessian"]
+        if tmp_geom_opt is not None and "initial_hessian" in tmp_geom_opt:
+            if tmp_geom_opt["initial_hessian"] == "deleted":
+                del tmp_geom_opt["initial_hessian"]
         geom_opt = self.geom_opt
         if (
             self.job_type.lower() in ["opt", "optimization"]
