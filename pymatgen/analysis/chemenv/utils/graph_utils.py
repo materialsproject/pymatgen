@@ -156,7 +156,7 @@ class SimpleGraphCycle(MSONable):
         - that there are either 1 or more than 2 nodes
 
         Returns:
-            True if the SimpleGraphCycle is valid, False otherwise.
+            bool: True if the SimpleGraphCycle is valid.
         """
         if len(self.nodes) == 1:
             return True, ""
@@ -335,12 +335,12 @@ class MultiGraphCycle(MSONable):
     def _is_valid(self, check_strict_ordering=False):
         """Check if a MultiGraphCycle is valid.
 
-        This method checks :
-        - that there are no duplicate nodes,
-        - that there are either 1 or more than 2 nodes
+        This method checks that:
+        1. there are no duplicate nodes,
+        2. there are either 1 or more than 2 nodes
 
         Returns:
-            True if the SimpleGraphCycle is valid, False otherwise.
+            bool: True if the SimpleGraphCycle is valid.
         """
         if len(self.nodes) != len(self.edge_indices):  # Should have the same number of nodes and edges
             return False, "Number of nodes different from number of edge indices."

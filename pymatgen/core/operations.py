@@ -161,7 +161,7 @@ class SymmOp(MSONable):
             tol (float): Absolute tolerance for checking distance. Defaults to 0.001.
 
         Returns:
-            True if self.operate(point_a) == point_b or vice versa.
+            bool: True if self.operate(point_a) == point_b or vice versa.
         """
         return any(np.allclose(self.operate(p1), p2, atol=tol) for p1, p2 in [(point_a, point_b), (point_b, point_a)])
 

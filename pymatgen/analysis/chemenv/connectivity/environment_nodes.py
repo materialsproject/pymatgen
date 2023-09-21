@@ -121,7 +121,7 @@ class EnvironmentNode(AbstractEnvironmentNode):
         """Compare with another environment node.
 
         Returns:
-            True if it is equal to the other node, False otherwise.
+            bool: True if it is equal to the other node.
         """
         return super().everything_equal(other) and self.coordination_environment == other.coordination_environment
 

@@ -135,7 +135,7 @@ class LammpsInputFile(InputFile):
             stage_name (str): String giving the stage name where the change should take place.
 
         Returns:
-            True if the command is present, False if not.
+            bool: True if the command is present, False if not.
         """
         return bool(self.get_args(command, stage_name))
 

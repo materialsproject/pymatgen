@@ -486,7 +486,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 "actinoid", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
 
         Returns:
-            True if any elements in Composition match category, otherwise False
+            bool: True if any elements in Composition match category, otherwise False
         """
         allowed_categories = (
             "noble_gas",
