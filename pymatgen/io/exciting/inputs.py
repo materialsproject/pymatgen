@@ -1,6 +1,4 @@
-"""
-Classes for reading/manipulating/writing exciting input files.
-"""
+"""Classes for reading/manipulating/writing exciting input files."""
 
 from __future__ import annotations
 
@@ -31,24 +29,16 @@ class ExcitingInput(MSONable):
     Object for representing the data stored in the structure part of the
     exciting input.
 
-    .. attribute:: structure
-
-        Associated Structure.
-
-    .. attribute:: title
-
-        Optional title string.
-
-    .. attribute:: lockxyz
-
-        Lockxyz attribute for each site if available. A Nx3 array of
-        booleans.
+    Attributes:
+        structure (Structure): Associated Structure.
+        title (str): Optional title string.
+        lockxyz (numpy.ndarray): Lockxyz attribute for each site if available. A Nx3 array of booleans.
     """
 
     def __init__(self, structure: Structure, title=None, lockxyz=None):
         """
         Args:
-            structure (Structure):  Structure object.
+            structure (Structure): Structure object.
             title (str): Optional title for exciting input. Defaults to unit
                 cell formula of structure. Defaults to None.
             lockxyz (Nx3 array): bool values for selective dynamics,
@@ -68,20 +58,21 @@ class ExcitingInput(MSONable):
 
     @property
     def lockxyz(self):
-        """
-        :return: Selective dynamics site properties.
-        """
+        """Selective dynamics site properties."""
         return self.structure.site_properties.get("selective_dynamics")
 
     @lockxyz.setter
     def lockxyz(self, lockxyz):
         self.structure.add_site_property("selective_dynamics", lockxyz)
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(data):
-        """
-        Reads the exciting input from a string
-        """
+    def from_str(data):
+        """Reads the exciting input from a string."""
         root = ET.fromstring(data)
         speciesnode = root.find("structure").iter("species")
         elements = []
@@ -152,11 +143,13 @@ class ExcitingInput(MSONable):
     def from_file(filename):
         """
         :param filename: Filename
-        :return: ExcitingInput
+
+        Returns:
+            ExcitingInput
         """
         with zopen(filename, "rt") as f:
             data = f.read().replace("\n", "")
-        return ExcitingInput.from_string(data)
+        return ExcitingInput.from_str(data)
 
     def write_etree(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
         """
@@ -344,7 +337,6 @@ class ExcitingInput(MSONable):
 
         :param elem:
         :param level:
-        :return:
         """
         i = "\n" + level * "  "
         if len(elem):

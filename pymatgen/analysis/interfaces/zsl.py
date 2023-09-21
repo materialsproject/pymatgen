@@ -1,17 +1,19 @@
-"""
-This module implements the Zur and McGill lattice matching algorithm
-"""
+"""This module implements the Zur and McGill lattice matching algorithm."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from itertools import product
-from typing import Iterator
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
 
+from pymatgen.util.due import Doi, due
 from pymatgen.util.numba import njit
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 @dataclass
@@ -20,7 +22,7 @@ class ZSLMatch(MSONable):
     A match from the Zur and McGill Algorithm. The super_lattice vectors are listed
     as _sl_vectors. These are reduced according to the algorithm in the paper which
     effectively a rotation in 3D space. Use the match_transformation property to get
-    the appropriate transformation matrix
+    the appropriate transformation matrix.
     """
 
     film_sl_vectors: list
@@ -32,12 +34,12 @@ class ZSLMatch(MSONable):
 
     @property
     def match_area(self):
-        """The area of the match between the substrate and film super lattice vectors"""
+        """The area of the match between the substrate and film super lattice vectors."""
         return vec_area(*self.film_sl_vectors)
 
     @property
     def match_transformation(self):
-        """The transformation matrix to convert the film super lattice vectors to the substrate"""
+        """The transformation matrix to convert the film super lattice vectors to the substrate."""
         # Generate 3D lattice vectors for film super lattice
         film_matrix = list(self.film_sl_vectors)
         film_matrix.append(np.cross(film_matrix[0], film_matrix[1]))
@@ -54,11 +56,13 @@ class ZSLMatch(MSONable):
         temp_sub = temp_sub * fast_norm(film_matrix[2]) / fast_norm(temp_sub)
         substrate_matrix.append(temp_sub)
 
-        transform_matrix = np.transpose(np.linalg.solve(film_matrix, substrate_matrix))
-
-        return transform_matrix
+        return np.transpose(np.linalg.solve(film_matrix, substrate_matrix))
 
 
+@due.dcite(
+    Doi("10.1063/1.333084"),
+    description="Lattice match: An application to heteroepitaxy",
+)
 class ZSLGenerator(MSONable):
     """
     This class generate matching interface super lattices based on the methodology
@@ -74,7 +78,7 @@ class ZSLGenerator(MSONable):
         1.) Reduce super lattice vectors
         2.) Check length and angle between film and substrate super lattice
             vectors to determine if the super lattices are the nearly same
-            and therefore coincident - get_equiv_transformations
+            and therefore coincident - get_equiv_transformations.
     """
 
     def __init__(
@@ -88,6 +92,7 @@ class ZSLGenerator(MSONable):
         """
         Initialize a Zur Super Lattice Generator for a specific film and
             substrate
+
         Args:
             max_area_ratio_tol(float): Max tolerance on ratio of
                 super-lattices to consider equal
@@ -95,7 +100,7 @@ class ZSLGenerator(MSONable):
             max_length_tol: maximum length tolerance in checking if two
                 vectors are of nearly the same length
             max_angle_tol: maximum angle tolerance in checking of two sets
-                of vectors have nearly the same angle between them
+                of vectors have nearly the same angle between them.
         """
         self.max_area_ratio_tol = max_area_ratio_tol
         self.max_area = max_area
@@ -109,25 +114,27 @@ class ZSLGenerator(MSONable):
         area of the unit cell area for the film and substrate. The
         transformation sets map the film and substrate unit cells to super
         lattices with a maximum area
+
         Args:
             film_area(int): the unit cell area for the film
             substrate_area(int): the unit cell area for the substrate
+
         Returns:
             transformation_sets: a set of transformation_sets defined as:
                 1.) the transformation matrices for the film to create a
                 super lattice of area i*film area
                 2.) the transformation matrices for the substrate to create
-                a super lattice of area j*film area
+                a super lattice of area j*film area.
         """
         transformation_indices = [
             (ii, jj)
-            for ii in range(1, int(self.max_area / film_area))
-            for jj in range(1, int(self.max_area / substrate_area))
+            for ii in range(1, int(np.ceil(self.max_area / film_area)))
+            for jj in range(1, int(np.ceil(self.max_area / substrate_area)))
             if np.absolute(film_area / substrate_area - float(jj) / ii) < self.max_area_ratio_tol
         ] + [
             (ii, jj)
-            for ii in range(1, int(self.max_area / film_area))
-            for jj in range(1, int(self.max_area / substrate_area))
+            for ii in range(1, int(np.ceil(self.max_area / film_area)))
+            for jj in range(1, int(np.ceil(self.max_area / substrate_area)))
             if np.absolute(substrate_area / film_area - float(ii) / jj) < self.max_area_ratio_tol
         ]
         transformation_indices = list(set(transformation_indices))
@@ -179,7 +186,6 @@ class ZSLGenerator(MSONable):
     def __call__(self, film_vectors, substrate_vectors, lowest=False) -> Iterator[ZSLMatch]:
         """
         Runs the ZSL algorithm to generate all possible matching
-        :return:
         """
         film_area = vec_area(*film_vectors)
         substrate_area = vec_area(*substrate_vectors)
@@ -236,16 +242,14 @@ def gen_sl_transform_matrices(area_multiple):
 
 @njit
 def rel_strain(vec1, vec2):
-    """
-    Calculate relative strain between two vectors
-    """
+    """Calculate relative strain between two vectors."""
     return fast_norm(vec2) / fast_norm(vec1) - 1
 
 
 @njit
 def rel_angle(vec_set1, vec_set2):
     """
-    Calculate the relative angle between two vector sets
+    Calculate the relative angle between two vector sets.
 
     Args:
         vec_set1(array[array]): an array of two vectors
@@ -257,7 +261,7 @@ def rel_angle(vec_set1, vec_set2):
 @njit
 def fast_norm(a):
     """
-    Much faster variant of numpy linalg norm
+    Much faster variant of numpy linalg norm.
 
     Note that if numba is installed, this cannot be provided a list of ints;
     please ensure input a is an np.array of floats.
@@ -267,9 +271,7 @@ def fast_norm(a):
 
 @njit
 def vec_angle(a, b):
-    """
-    Calculate angle between two vectors
-    """
+    """Calculate angle between two vectors."""
     cosang = np.dot(a, b)
     sinang = fast_norm(np.cross(a, b))
     return np.arctan2(sinang, cosang)
@@ -277,9 +279,7 @@ def vec_angle(a, b):
 
 @njit
 def vec_area(a, b):
-    """
-    Area of lattice plane defined by two vectors
-    """
+    """Area of lattice plane defined by two vectors."""
     return fast_norm(np.cross(a, b))
 
 
@@ -287,7 +287,7 @@ def vec_area(a, b):
 def reduce_vectors(a, b):
     """
     Generate independent and unique basis vectors based on the
-    methodology of Zur and McGill
+    methodology of Zur and McGill.
     """
     if np.dot(a, b) < 0:
         return reduce_vectors(a, -b)
@@ -308,9 +308,7 @@ def reduce_vectors(a, b):
 
 @njit
 def get_factors(n):
-    """
-    Generate all factors of n
-    """
+    """Generate all factors of n."""
     for x in range(1, n + 1):
         if n % x == 0:
             yield x
@@ -323,7 +321,7 @@ def _unidirectional_is_same_vectors(vec_set1, vec_set2, max_length_tol, max_angl
     tolerances
     Args:
         vec_set1(array[array]): an array of two vectors
-        vec_set2(array[array]): second array of two vectors
+        vec_set2(array[array]): second array of two vectors.
     """
     if np.absolute(rel_strain(vec_set1[0], vec_set2[0])) > max_length_tol:
         return False
@@ -336,7 +334,7 @@ def _unidirectional_is_same_vectors(vec_set1, vec_set2, max_length_tol, max_angl
 
 @njit
 def _bidirectional_same_vectors(vec_set1, vec_set2, max_length_tol, max_angle_tol):
-    """Bidirectional version of above matching constraint check"""
+    """Bidirectional version of above matching constraint check."""
     return _unidirectional_is_same_vectors(
         vec_set1, vec_set2, max_length_tol=max_length_tol, max_angle_tol=max_angle_tol
     ) or _unidirectional_is_same_vectors(vec_set2, vec_set1, max_length_tol=max_length_tol, max_angle_tol=max_angle_tol)
@@ -349,7 +347,7 @@ def is_same_vectors(vec_set1, vec_set2, bidirectional=False, max_length_tol=0.03
     tolerances
     Args:
         vec_set1(array[array]): an array of two vectors
-        vec_set2(array[array]): second array of two vectors
+        vec_set2(array[array]): second array of two vectors.
     """
     if bidirectional:
         return _bidirectional_same_vectors(

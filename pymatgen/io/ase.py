@@ -6,12 +6,11 @@ Atoms object and pymatgen Structure objects.
 
 from __future__ import annotations
 
-import sys
 import warnings
-from site import getsitepackages
 from typing import TYPE_CHECKING
 
 import numpy as np
+from monty.json import jsanitize
 
 from pymatgen.core.structure import Molecule, Structure
 
@@ -20,10 +19,6 @@ if TYPE_CHECKING:
 
     from pymatgen.core.structure import SiteCollection
 
-
-# ensure site packages have higher precedence than local modules so that this file
-# can't shadow the ase package
-sys.path.insert(0, getsitepackages()[0])
 try:
     from ase import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
@@ -41,12 +36,10 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
 
-# NOTE: If making notable changes to this class, please ping @arosen93 on GitHub.
+# NOTE: If making notable changes to this class, please ping @Andrew-S-Rosen on GitHub.
 # There are some subtleties in here, particularly related to spins/charges.
 class AseAtomsAdaptor:
-    """
-    Adaptor serves as a bridge between ASE Atoms and pymatgen objects.
-    """
+    """Adaptor serves as a bridge between ASE Atoms and pymatgen objects."""
 
     @staticmethod
     def get_atoms(structure: SiteCollection, **kwargs) -> Atoms:
@@ -79,6 +72,9 @@ class AseAtomsAdaptor:
             cell = None
 
         atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
+
+        if "tags" in structure.site_properties:
+            atoms.set_tags(structure.site_properties["tags"])
 
         # Set the site magmoms in the ASE Atoms object
         # Note: ASE distinguishes between initial and converged
@@ -163,10 +159,10 @@ class AseAtomsAdaptor:
         if any(oxi_states):
             atoms.set_array("oxi_states", np.array(oxi_states))
 
-        # Add any .info/calc.results flags to the ASE Atoms object so we don't lose them during
-        # interconversion.
-        if info := getattr(structure, "info", None):
-            atoms.info = info
+        # Atoms.info <---> Structure.properties
+        # Atoms.calc <---> Structure.calc
+        if properties := getattr(structure, "properties"):  # noqa: B009
+            atoms.info = properties
         if calc := getattr(structure, "calc", None):
             atoms.calc = calc
 
@@ -188,6 +184,9 @@ class AseAtomsAdaptor:
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
         lattice = atoms.get_cell()
+
+        # Get the tags
+        tags = atoms.get_tags() if atoms.has("tags") else None
 
         # Get the (final) site magmoms and charges from the ASE Atoms object.
         if getattr(atoms, "calc", None) is not None and getattr(atoms.calc, "results", None) is not None:
@@ -218,12 +217,19 @@ class AseAtomsAdaptor:
         else:
             sel_dyn = None
 
+        # Atoms.info <---> Structure.properties
+        properties = jsanitize(getattr(atoms, "info", {}))
+
         # Return a Molecule object if that was specifically requested;
         # otherwise return a Structure object as expected
         if cls == Molecule:
-            structure = cls(symbols, positions, **cls_kwargs)
+            structure = cls(symbols, positions, properties=properties, **cls_kwargs)
         else:
-            structure = cls(lattice, symbols, positions, coords_are_cartesian=True, **cls_kwargs)
+            structure = cls(lattice, symbols, positions, coords_are_cartesian=True, properties=properties, **cls_kwargs)
+
+        # Atoms.calc <---> Structure.calc
+        if calc := getattr(atoms, "calc", None):
+            structure.calc = calc
 
         # Set the site magmoms in the Pymatgen structure object
         # Note: ASE distinguishes between initial and converged
@@ -255,6 +261,8 @@ class AseAtomsAdaptor:
             structure.add_site_property("magmom", initial_magmoms)
         if sel_dyn is not None and ~np.all(sel_dyn):
             structure.add_site_property("selective_dynamics", sel_dyn)
+        if tags is not None:
+            structure.add_site_property("tags", tags)
 
         # Add oxidation states by site
         if oxi_states is not None:
@@ -274,13 +282,6 @@ class AseAtomsAdaptor:
                 "oxi_states",
             ]:
                 structure.add_site_property(prop, atoms.get_array(prop).tolist())
-
-        # Add any .info/calc.results flags to the Pymatgen structure object so we don't lose them
-        # during interconversion.
-        if info := getattr(atoms, "info", None):
-            structure.info = info
-        if calc := getattr(atoms, "calc", None):
-            structure.calc = calc
 
         return structure
 

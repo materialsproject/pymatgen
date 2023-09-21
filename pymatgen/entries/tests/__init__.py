@@ -1,3 +1,0 @@
-"""
-tests for pymatgen.entries
-"""

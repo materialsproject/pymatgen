@@ -1,6 +1,4 @@
-"""
-This module provides classes to identify optimal substrates for film growth
-"""
+"""This module provides classes to identify optimal substrates for film growth."""
 
 from __future__ import annotations
 
@@ -20,7 +18,7 @@ class SubstrateMatch(ZSLMatch):
     """
     A substrate match building on the Zur and McGill algorithm. This match class includes the miller
     planes of the film and substrate the full strain tensor, the Von Mises strain, the ground state
-    energy if provided, and the elastic energy
+    energy if provided, and the elastic energy.
     """
 
     film_miller: tuple[int, int, int]
@@ -40,7 +38,7 @@ class SubstrateMatch(ZSLMatch):
         elasticity_tensor=None,
         ground_state_energy=0,
     ):
-        """Generate a substrate match from a ZSL match plus metadata"""
+        """Generate a substrate match from a ZSL match plus metadata."""
         # Get the appropriate surface structure
         struct = SlabGenerator(film, film_miller, 20, 15, primitive=False).get_slab().oriented_unit_cell
 
@@ -78,7 +76,7 @@ class SubstrateMatch(ZSLMatch):
 
     @property
     def total_energy(self):
-        """Total energy of this match"""
+        """Total energy of this match."""
         return self.ground_state_energy + self.elastic_energy
 
 
@@ -89,19 +87,20 @@ class SubstrateAnalyzer(ZSLGenerator):
     and McGill to identify matching super-lattices on various faces of the
     two materials. Additional criteria can then be used to identify the most
     suitable substrate. Currently, the only additional criteria is the
-    elastic strain energy of the super-lattices
+    elastic strain energy of the super-lattices.
     """
 
     def __init__(self, film_max_miller=1, substrate_max_miller=1, **kwargs):
         """
         Initializes the substrate analyzer
+
         Args:
             zslgen(ZSLGenerator): Defaults to a ZSLGenerator with standard
                 tolerances, but can be fed one with custom tolerances
             film_max_miller(int): maximum miller index to generate for film
                 surfaces
             substrate_max_miller(int): maximum miller index to generate for
-                substrate surfaces
+                substrate surfaces.
         """
         self.film_max_miller = film_max_miller
         self.substrate_max_miller = substrate_max_miller
@@ -111,7 +110,7 @@ class SubstrateAnalyzer(ZSLGenerator):
     def generate_surface_vectors(self, film_millers, substrate_millers):
         """
         Generates the film/substrate slab combinations for a set of given
-        miller indices
+        miller indices.
 
         Args:
             film_millers(array): all miller indices to generate slabs for

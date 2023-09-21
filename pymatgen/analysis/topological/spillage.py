@@ -2,7 +2,7 @@
 Code to calculate spin-orbit spillage.
 Modified from JARVIS-Tools
 https://www.nature.com/articles/s41598-019-45028-y
-https://www.nature.com/articles/s41524-020-0319-4
+https://www.nature.com/articles/s41524-020-0319-4.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ class SOCSpillage:
     """
     Spin-orbit spillage criteria to predict whether a material is topologically non-trival.
     The spillage criteria physically signifies number of band-inverted electrons.
-    A non-zero, high value (generally >0.5) suggests non-trivial behavior
+    A non-zero, high value (generally >0.5) suggests non-trivial behavior.
     """
 
     def __init__(self, wf_noso="", wf_so=""):
@@ -32,16 +32,12 @@ class SOCSpillage:
 
     @staticmethod
     def isclose(n1, n2, rel_tol=1e-7):
-        """
-        Checking if the numbers are close enough
-        """
+        """Checking if the numbers are close enough."""
         return abs(n1 - n2) < rel_tol
 
     @staticmethod
     def orth(A):
-        """
-        Helper function to create orthonormal basis
-        """
+        """Helper function to create orthonormal basis."""
         u, s, vh = np.linalg.svd(A, full_matrices=False)
         M, N = A.shape
         eps = np.finfo(float).eps
@@ -51,9 +47,7 @@ class SOCSpillage:
         return Q, num
 
     def overlap_so_spinpol(self):
-        """
-        Main function to calculate SOC spillage
-        """
+        """Main function to calculate SOC spillage."""
         noso = Wavecar(self.wf_noso)
         so = Wavecar(self.wf_so)
 
@@ -163,7 +157,6 @@ class SOCSpillage:
 
                     if np.array(noso.coeffs[1][nk1 - 1]).shape[1] == vs // 2:
                         # if nk1==10 and nk2==10:
-                        # print (np.array(noso.coeffs[1][nk1-1]).shape[1], )
                         # prepare matrices
                         for n1 in range(1, nelec_up + 1):
                             Vnoso[0 : vs // 2, n1 - 1] = np.array(noso.coeffs[0][nk1 - 1][n1 - 1])[0 : vs // 2]
@@ -181,10 +174,10 @@ class SOCSpillage:
 
                         gamma_k.append(nelec_tot)
                         a = []
-                        for n1 in range(0, nelec_tot):  # noso occupied bands
+                        for n1 in range(nelec_tot):  # noso occupied bands
                             v1 = Qnoso[:, n1]
                             aa = 0.0
-                            for n2 in range(0, nelec_tot):  # so occupied bands
+                            for n2 in range(nelec_tot):  # so occupied bands
                                 v2 = Qso[:, n2]
 
                                 t = np.dot(np.conj(v1), v2)

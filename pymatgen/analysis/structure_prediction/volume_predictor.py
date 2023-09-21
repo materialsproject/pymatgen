@@ -1,6 +1,4 @@
-"""
-Predict volumes of crystal structures.
-"""
+"""Predict volumes of crystal structures."""
 
 from __future__ import annotations
 
@@ -15,13 +13,13 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Structure
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-bond_params = loadfn(os.path.join(MODULE_DIR, "DLS_bond_params.yaml"))
+bond_params = loadfn(f"{MODULE_DIR}/DLS_bond_params.yaml")
 
 
 def _is_ox(structure):
     for elem in structure.composition:
         try:
-            elem.oxi_state
+            elem.oxi_state  # noqa: B018
         except AttributeError:
             return False
     return True
@@ -161,7 +159,7 @@ class DLSVolumePredictor:
                 too-small volumes)
             max_scaling (float): if not None, this will ensure that the new
                 volume is at most this fraction of the original (preventing
-                too-large volumes)
+                too-large volumes).
         """
         self.cutoff = cutoff
         self.min_scaling = min_scaling
@@ -173,13 +171,12 @@ class DLSVolumePredictor:
 
         Args:
             structure (Structure) : a crystal structure with an unknown volume.
-            icsd_vol (bool) : True if the input structure's volume comes from
-                ICSD.
+            icsd_vol (bool) : True if the input structure's volume comes from ICSD.
 
         Returns:
             a float value of the predicted volume.
         """
-        # Get standard deviation of electronnegativity in the structure.
+        # Get standard deviation of electronegativity in the structure.
         std_x = np.std([site.specie.X for site in structure])
         # Sites that have atomic radii
         sub_sites = []

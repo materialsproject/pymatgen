@@ -1,0 +1,36 @@
+title: pymatgen
+email: ongsp@ucsd.edu
+description: >- # this means to ignore newlines until "baseurl:"
+  Python Materials Genomics (pymatgen) is a robust materials analysis code that
+  defines classes for structures and molecules with support for many electronic
+  structure codes. It powers the Materials Project.
+baseurl: ""
+url: https://pymatgen.org
+# twitter_username: pymatgen
+github_username: materialsproject
+
+# Build settings
+remote_theme: just-the-docs/just-the-docs
+plugins:
+  - jekyll-feed
+
+color_scheme: pmg
+favicon_ico: /assets/favicon.ico
+
+aux_links:
+  API docs: [/pymatgen]
+  GitHub: [https://github.com/materialsproject/pymatgen]
+  Issues: [https://github.com/materialsproject/pymatgen/issues]
+  Discourse: [https://matsci.org/pymatgen]
+  Materials Project: [https://materialsproject.org]
+
+# Enable or disable the site search
+# Supports true (default) or false
+search_enabled: true
+
+# Split pages into sections that can be searched individually
+# Supports 1 - 6, default: 2
+search.heading_level: 6
+
+kramdown:
+  toc_levels: 1..3

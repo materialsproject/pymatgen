@@ -17,8 +17,8 @@ from scipy.spatial import Delaunay
 from pymatgen import vis
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core import Molecule, Structure
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure import Structure
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
@@ -53,7 +53,9 @@ class AdsorbateSiteFinder:
             these sites
     """
 
-    def __init__(self, slab, selective_dynamics: bool = False, height: float = 0.9, mi_vec: ArrayLike = None) -> None:
+    def __init__(
+        self, slab, selective_dynamics: bool = False, height: float = 0.9, mi_vec: ArrayLike | None = None
+    ) -> None:
         """Create an AdsorbateSiteFinder object.
 
         Args:
@@ -108,7 +110,7 @@ class AdsorbateSiteFinder:
                 are 10% less coordinated than their bulk counterpart
         """
         # TODO: for some reason this works poorly with primitive cells
-        #       may want to switch the coordination algorithm eventually
+        # may want to switch the coordination algorithm eventually
         vnn_bulk = VoronoiNN(tol=0.05)
         bulk_coords = [len(vnn_bulk.get_nn(structure, n)) for n in range(len(structure))]
         struct = structure.copy(site_properties={"bulk_coordinations": bulk_coords})
@@ -355,7 +357,7 @@ class AdsorbateSiteFinder:
 
         return np.average([site_list[idx].frac_coords for idx in indices], axis=0)
 
-    def add_adsorbate(self, molecule, ads_coord, repeat=None, translate=True, reorient=True):
+    def add_adsorbate(self, molecule: Molecule, ads_coord, repeat=None, translate=True, reorient=True):
         """Adds an adsorbate at a particular coordinate. Adsorbate represented
         by a Molecule object and is translated to (0, 0, 0) if translate is
         True, or positioned relative to the input adsorbate coordinate if
@@ -387,9 +389,9 @@ class AdsorbateSiteFinder:
         if repeat:
             struct.make_supercell(repeat)
         if "surface_properties" in struct.site_properties:
-            molecule.add_site_property("surface_properties", ["adsorbate"] * molecule.num_sites)
+            molecule.add_site_property("surface_properties", ["adsorbate"] * len(molecule))
         if "selective_dynamics" in struct.site_properties:
-            molecule.add_site_property("selective_dynamics", [[True, True, True]] * molecule.num_sites)
+            molecule.add_site_property("selective_dynamics", [[True, True, True]] * len(molecule))
         for site in molecule:
             struct.append(
                 site.specie,
@@ -486,7 +488,7 @@ class AdsorbateSiteFinder:
         """
         # Get the adsorbed surfaces first
         find_args = find_args or {}
-        ad_slabss = self.generate_adsorption_structures(
+        ad_slabs = self.generate_adsorption_structures(
             molecule,
             repeat=repeat,
             min_lw=min_lw,
@@ -495,33 +497,33 @@ class AdsorbateSiteFinder:
             find_args=find_args,
         )
 
-        new_ad_slabss = []
-        for ad_slabs in ad_slabss:
+        new_ad_slabs = []
+        for ad_slab in ad_slabs:
             # Find the adsorbate sites and indices in each slab
             _, adsorbates, indices = False, [], []
-            for i, site in enumerate(ad_slabs.sites):
+            for idx, site in enumerate(ad_slab.sites):
                 if site.surface_properties == "adsorbate":
                     adsorbates.append(site)
-                    indices.append(i)
+                    indices.append(idx)
 
             # Start with the clean slab
-            ad_slabs.remove_sites(indices)
-            slab = ad_slabs.copy()
+            ad_slab.remove_sites(indices)
+            slab = ad_slab.copy()
 
             # For each site, we add it back to the slab along with a
             # symmetrically equivalent position on the other side of
             # the slab using symmetry operations
             for adsorbate in adsorbates:
-                p2 = ad_slabs.get_symmetric_site(adsorbate.frac_coords)
+                p2 = ad_slab.get_symmetric_site(adsorbate.frac_coords)
                 slab.append(adsorbate.specie, p2, properties={"surface_properties": "adsorbate"})
                 slab.append(
                     adsorbate.specie,
                     adsorbate.frac_coords,
                     properties={"surface_properties": "adsorbate"},
                 )
-            new_ad_slabss.append(slab)
+            new_ad_slabs.append(slab)
 
-        return new_ad_slabss
+        return new_ad_slabs
 
     def generate_substitution_structures(
         self,
@@ -556,7 +558,7 @@ class AdsorbateSiteFinder:
             props = self.slab.site_properties
             if sub_both_sides:
                 # Find an equivalent site on the other surface
-                eq_indices = [indices for indices in sym_slab.equivalent_indices if i in indices][0]
+                eq_indices = next(indices for indices in sym_slab.equivalent_indices if i in indices)
                 for ii in eq_indices:
                     if f"{sym_slab[ii].frac_coords[2]:.6f}" != f"{site.frac_coords[2]:.6f}":
                         props["surface_properties"][ii] = "substitute"
@@ -578,11 +580,11 @@ class AdsorbateSiteFinder:
         else:
             d = sorted_sites[-1].frac_coords[2] - dist_from_surf
 
-        for i, site in enumerate(sym_slab):
+        for idx, site in enumerate(sym_slab):
             if d - range_tol < site.frac_coords[2] < d + range_tol and (
                 target_species and site.species_string in target_species or not target_species
             ):
-                substituted_slabs.append(substitute(site, i))
+                substituted_slabs.append(substitute(site, idx))
 
         matcher = StructureMatcher()
         return [s[0] for s in matcher.group_structures(substituted_slabs)]
@@ -605,8 +607,7 @@ def get_rot(slab):
     x, y, z = np.eye(3)
     rot_matrix = np.array([np.dot(*el) for el in itertools.product([x, y, z], [new_x, new_y, new_z])]).reshape(3, 3)
     rot_matrix = np.transpose(rot_matrix)
-    sop = SymmOp.from_rotation_and_translation(rot_matrix)
-    return sop
+    return SymmOp.from_rotation_and_translation(rot_matrix)
 
 
 def put_coord_inside(lattice, cart_coordinate):
@@ -716,6 +717,5 @@ def plot_slab(
     lim_array = [center - extent * window, center + extent * window]
     x_lim = [ele[0] for ele in lim_array]
     y_lim = [ele[1] for ele in lim_array]
-    ax.set_xlim(x_lim)
-    ax.set_ylim(y_lim)
+    ax.set(xlim=x_lim, ylim=y_lim)
     return ax

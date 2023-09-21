@@ -1,6 +1,4 @@
-"""
-Module that implements various algorithms related to interface construction and analysis
-"""
+"""Module that implements various algorithms related to interface construction and analysis."""
 
 from __future__ import annotations
 

@@ -1,0 +1,151 @@
+# Runs the complete test suite incl. many external command line dependencies (like Openbabel)
+# as well as the pymatgen.ext package. Coverage is computed based on this workflow.
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      task:
+        type: choice
+        options: [release, release_only]
+        default: release
+        description: Only run tests or release a new version of pymatgen to PyPI after tests pass.
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.11"]
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+      MPLBACKEND: Agg # https://github.com/orgs/community/discussions/26434
+      PMG_TEST_FILES_DIR: ${{ github.workspace }}/tests/files
+      GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
+      PMG_VASP_PSP_DIR: ${{ github.workspace }}/tests/files
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: setup.py
+      - name: Copy GULP to bin
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo cp cmd_line/gulp/Linux_64bit/* /usr/local/bin/
+      - name: Install Bader
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          wget http://theory.cm.utexas.edu/henkelman/code/bader/download/bader_lnx_64.tar.gz
+          tar xvzf bader_lnx_64.tar.gz
+          sudo mv bader /usr/local/bin/
+        continue-on-error: true # This is not critical to succeed.
+      - name: Install Enumlib
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          git clone --recursive https://github.com/msg-byu/enumlib.git
+          cd enumlib/symlib/src
+          export F90=gfortran
+          make
+          cd ../../src
+          make enum.x
+          sudo mv enum.x /usr/local/bin/
+          cd ..
+          sudo cp aux_src/makeStr.py /usr/local/bin/
+        continue-on-error: true # This is not critical to succeed.
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install numpy cython packaging
+          python -m pip install -e '.[dev,optional]'
+      - name: pytest
+        if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
+        run: |
+          rm -rf .coverage* coverage*
+          pytest --cov=pymatgen tests
+      - name: Upload coverage reports to Codecov
+        if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+
+  build_sdist:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        name: Install Python
+        with:
+          python-version: "3.11"
+
+      - run: |
+          python -m pip install build
+          pip install -e .
+
+      - name: Build sdist
+        run: python -m build --sdist
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.tar.gz
+
+  build_wheels:
+    needs: test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["39", "310", "311"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.15.0
+        env:
+          CIBW_BUILD: cp${{ matrix.python-version }}-*
+
+      - name: Save artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+  release:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    permissions:
+      # For pypi trusted publishing
+      id-token: write
+    steps:
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+
+      - name: Publish to PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+          verbose: true

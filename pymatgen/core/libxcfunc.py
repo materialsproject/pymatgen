@@ -1,5 +1,4 @@
-"""
-Enumerator with the libxc identifiers.
+"""Enumerator with the libxc identifiers.
 This is a low level object, client code should not interact with LibxcFunc directly
 but use the API provided by the Xcfunc object defined in core.xcfunc.py.
 Part of this module is automatically generated so be careful when refactoring stuff.
@@ -32,8 +31,7 @@ with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as fh:
 
 # @unique
 class LibxcFunc(Enum):
-    """
-    Enumerator with the identifiers. This object is used by Xcfunc
+    """Enumerator with the identifiers. This object is used by Xcfunc
     declared in xcfunc.py to create an internal representation of the XC functional.
     This is a low level object, client code should not interact with LibxcFunc directly
     but use the API provided by Xcfunc.
@@ -411,52 +409,51 @@ class LibxcFunc(Enum):
             num: Number for the xc.
         """
         info = _all_xcfuncs[self.value]
-        self.kind = info["Kind"]
-        self.family = info["Family"]
+        self.kind = info["Kind"]  # type: ignore
+        self.family = info["Family"]  # type: ignore
 
-    def __str__(self):
-        return f"name={self.name}, kind={self.kind}, family={self.family}"
+    def __repr__(self):
+        name, kind, family = self.name, self.kind, self.family
+        return f"{type(self).__name__}({name=}, {kind=}, {family=})"
 
     @staticmethod
     def all_families():
-        """
-        List of strings with the libxc families.
-        Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA
+        """List of strings with the libxc families.
+        Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA.
         """
         return sorted({d["Family"] for d in _all_xcfuncs.values()})
 
     @staticmethod
     def all_kinds():
-        """
-        List of strings with the libxc kinds.
+        """List of strings with the libxc kinds.
         Also in this case, the string is obtained by remove the XC_ prefix.
-        XC_CORRELATION --> CORRELATION
+        XC_CORRELATION --> CORRELATION.
         """
         return sorted({d["Kind"] for d in _all_xcfuncs.values()})
 
     @property
     def info_dict(self):
-        """Dictionary with metadata. see libxc_docs.json"""
+        """Dictionary with metadata. see libxc_docs.json."""
         return _all_xcfuncs[self.value]
 
     @property
     def is_x_kind(self) -> bool:
-        """True if this is an exchange-only functional"""
+        """True if this is an exchange-only functional."""
         return self.kind == "EXCHANGE"
 
     @property
     def is_c_kind(self) -> bool:
-        """True if this is a correlation-only functional"""
+        """True if this is a correlation-only functional."""
         return self.kind == "CORRELATION"
 
     @property
     def is_k_kind(self) -> bool:
-        """True if this is a kinetic functional"""
+        """True if this is a kinetic functional."""
         return self.kind == "KINETIC"
 
     @property
     def is_xc_kind(self) -> bool:
-        """True if this is a exchange+correlation functional"""
+        """True if this is a exchange+correlation functional."""
         return self.kind == "EXCHANGE_CORRELATION"
 
     @property
@@ -485,28 +482,20 @@ class LibxcFunc(Enum):
         return self.family == "HYB_MGGA"
 
     def as_dict(self):
-        """
-        Makes LibxcFunc obey the general json interface used in pymatgen for
+        """Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
-        return {
-            "name": self.name,
-            "@module": type(self).__module__,
-            "@class": type(self).__name__,
-        }
+        return {"name": self.name, "@module": type(self).__module__, "@class": type(self).__name__}
 
-    @staticmethod
-    def from_dict(d):
-        """
-        Makes LibxcFunc obey the general json interface used in pymatgen for
+    @classmethod
+    def from_dict(cls, dct):
+        """Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
-        return LibxcFunc[d["name"]]
+        return cls[dct["name"]]
 
     def to_json(self):
-        """
-        Returns a json string representation of the MSONable object.
-        """
+        """Returns a json string representation of the MSONable object."""
         return json.dumps(self.as_dict(), cls=MontyEncoder)
 
 

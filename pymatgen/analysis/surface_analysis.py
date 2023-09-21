@@ -40,6 +40,7 @@ import random
 import warnings
 from typing import TYPE_CHECKING
 
+import matplotlib.pyplot as plt
 import numpy as np
 from sympy import Symbol
 from sympy.solvers import linsolve, solve
@@ -50,6 +51,7 @@ from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.vasp.outputs import Locpot, Outcar, Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:
@@ -66,26 +68,13 @@ class SlabEntry(ComputedStructureEntry):
     A ComputedStructureEntry object encompassing all data relevant to a
         slab for analyzing surface thermodynamics.
 
-    .. attribute:: miller_index
-
-        Miller index of plane parallel to surface.
-
-    .. attribute:: label
-
-        Brief description for this slab.
-
-    .. attribute:: adsorbates
-
-        List of ComputedStructureEntry for the types of adsorbates
-
-    ..attribute:: clean_entry
-
-        SlabEntry for the corresponding clean slab for an adsorbed slab
-
-    ..attribute:: ads_entries_dict
-
-        Dictionary where the key is the reduced composition of the
-            adsorbate entry and value is the entry itself
+    Attributes:
+        miller_index (tuple): Miller index of plane parallel to surface.
+        label (str): Brief description for this slab.
+        adsorbates (list): List of ComputedStructureEntry for the types of adsorbates.
+        clean_entry (SlabEntry): SlabEntry for the corresponding clean slab for an adsorbed slab.
+        ads_entries_dict (dict): Dictionary where the key is the reduced composition of the
+            adsorbate entry and value is the entry itself.
     """
 
     def __init__(
@@ -133,7 +122,7 @@ class SlabEntry(ComputedStructureEntry):
         self.label = label
         self.adsorbates = adsorbates if adsorbates else []
         self.clean_entry = clean_entry
-        self.ads_entries_dict = {str(list(ads.composition.as_dict())[0]): ads for ads in self.adsorbates}
+        self.ads_entries_dict = {str(next(iter(ads.composition.as_dict()))): ads for ads in self.adsorbates}
         self.mark = marker
         self.color = color
 
@@ -147,23 +136,21 @@ class SlabEntry(ComputedStructureEntry):
         )
 
     def as_dict(self):
-        """
-        Returns dict which contains Slab Entry data.
-        """
-        d = {"@module": type(self).__module__, "@class": type(self).__name__}
-        d["structure"] = self.structure
-        d["energy"] = self.energy
-        d["miller_index"] = self.miller_index
-        d["label"] = self.label
-        d["adsorbates"] = self.adsorbates
-        d["clean_entry"] = self.clean_entry
+        """Returns dict which contains Slab Entry data."""
+        dct = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct["structure"] = self.structure
+        dct["energy"] = self.energy
+        dct["miller_index"] = self.miller_index
+        dct["label"] = self.label
+        dct["adsorbates"] = self.adsorbates
+        dct["clean_entry"] = self.clean_entry
 
-        return d
+        return dct
 
     def gibbs_binding_energy(self, eads=False):
         """
-        Returns the adsorption energy or Gibbs binding energy
-            of an adsorbate on a surface
+        Returns the adsorption energy or Gibbs binding energy of an adsorbate on a surface.
+
         Args:
             eads (bool): Whether to calculate the adsorption energy
                 (True) or the binding energy (False) which is just
@@ -200,14 +187,14 @@ class SlabEntry(ComputedStructureEntry):
         ucell_entry_comp = ucell_entry.composition.reduced_composition.as_dict()
         slab_clean_comp = Composition({el: slab_comp[el] for el in ucell_entry_comp})
         if slab_clean_comp.reduced_composition != ucell_entry.composition.reduced_composition:
-            list_els = [list(entry.composition.as_dict())[0] for entry in ref_entries]
+            list_els = [next(iter(entry.composition.as_dict())) for entry in ref_entries]
             if not any(el in list_els for el in ucell_entry.composition.as_dict()):
                 warnings.warn("Elemental references missing for the non-dopant species.")
 
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
         ucell_comp = ucell_entry.composition
         ucell_reduced_comp = ucell_comp.reduced_composition
-        ref_entries_dict = {str(list(ref.composition.as_dict())[0]): ref for ref in ref_entries}
+        ref_entries_dict = {str(next(iter(ref.composition.as_dict()))): ref for ref in ref_entries}
         ref_entries_dict.update(self.ads_entries_dict)
 
         # Calculate Gibbs free energy of the bulk per unit formula
@@ -217,7 +204,7 @@ class SlabEntry(ComputedStructureEntry):
         # from each element with an existing ref_entry.
         bulk_energy, gbulk_eqn = 0, 0
         for el, ref in ref_entries_dict.items():
-            N, delu = self.composition.as_dict()[el], Symbol("delu_" + str(el))
+            N, delu = self.composition.as_dict()[el], Symbol(f"delu_{el}")
             if el in ucell_comp.as_dict():
                 gbulk_eqn += ucell_reduced_comp[el] * (delu + ref.energy_per_atom)
             bulk_energy += N * (Symbol("delu_" + el) + ref.energy_per_atom)
@@ -248,8 +235,7 @@ class SlabEntry(ComputedStructureEntry):
         """
         A_ads = self.surface_area
         A_clean = self.clean_entry.surface_area
-        n = A_ads / A_clean
-        return n
+        return A_ads / A_clean
 
     @property
     def get_monolayer(self):
@@ -264,16 +250,12 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def Nads_in_slab(self):
-        """
-        Returns the TOTAL number of adsorbates in the slab on BOTH sides
-        """
+        """Returns the TOTAL number of adsorbates in the slab on BOTH sides."""
         return sum(self.composition.as_dict()[a] for a in self.ads_entries_dict)
 
     @property
     def Nsurfs_ads_in_slab(self):
-        """
-        Returns the TOTAL number of adsorbed surfaces in the slab
-        """
+        """Returns the TOTAL number of adsorbed surfaces in the slab."""
         struct = self.structure
         weights = [s.species.weight for s in struct]
         center_of_mass = np.average(struct.frac_coords, weights=weights, axis=0)
@@ -294,9 +276,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @classmethod
     def from_dict(cls, dct):
-        """
-        Returns a SlabEntry by reading in an dictionary
-        """
+        """Returns a SlabEntry by reading in an dictionary."""
         structure = SlabEntry.from_dict(dct["structure"])
         energy = SlabEntry.from_dict(dct["energy"])
         miller_index = dct["miller_index"]
@@ -315,17 +295,13 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def surface_area(self):
-        """
-        Calculates the surface area of the slab
-        """
+        """Calculates the surface area of the slab."""
         m = self.structure.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
     @property
     def cleaned_up_slab(self):
-        """
-        Returns a slab with the adsorbates removed
-        """
+        """Returns a slab with the adsorbates removed."""
         ads_strs = list(self.ads_entries_dict)
         cleaned = self.structure.copy()
         cleaned.remove_species(ads_strs)
@@ -333,9 +309,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def create_slab_label(self):
-        """
-        Returns a label (str) for this particular slab based on composition, coverage and Miller index.
-        """
+        """Returns a label (str) for this particular slab based on composition, coverage and Miller index."""
         if "label" in self.data:
             return self.data["label"]
 
@@ -351,12 +325,12 @@ class SlabEntry(ComputedStructureEntry):
             label += f", {self.get_monolayer:.3f} ML"
         return label
 
-    @staticmethod
-    def from_computed_structure_entry(entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs):
-        """
-        Returns SlabEntry from a ComputedStructureEntry
-        """
-        return SlabEntry(
+    @classmethod
+    def from_computed_structure_entry(
+        cls, entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs
+    ):
+        """Returns SlabEntry from a ComputedStructureEntry."""
+        return cls(
             entry.structure,
             entry.energy,
             miller_index,
@@ -370,14 +344,13 @@ class SlabEntry(ComputedStructureEntry):
 class SurfaceEnergyPlotter:
     """
     A class used for generating plots to analyze the thermodynamics of surfaces
-        of a material. Produces stability maps of different slab configurations,
-        phases diagrams of two parameters to determine stability of configurations
-        (future release), and Wulff shapes.
+    of a material. Produces stability maps of different slab configurations,
+    phases diagrams of two parameters to determine stability of configurations
+    (future release), and Wulff shapes.
 
-    .. attribute:: all_slab_entries
-
-        Either a list of SlabEntry objects (note for a list, the SlabEntry must
-            have the adsorbates and clean_entry parameter pulgged in) or a Nested
+    Attributes:
+        all_slab_entries (dict | list): Either a list of SlabEntry objects (note for a list, the
+            SlabEntry must have the adsorbates and clean_entry parameter plugged in) or a Nested
             dictionary containing a list of entries for slab calculations as
             items and the corresponding Miller index of the slab as the key.
             To account for adsorption, each value is a sub-dictionary with the
@@ -390,31 +363,19 @@ class SurfaceEnergyPlotter:
             the adsorption energy (ie an adsorption site with a higher adsorption
             energy will always provide a higher surface energy than a site with a
             lower adsorption energy). An example parameter is provided:
-            {(h1,k1,l1): {clean_entry1: [ads_entry1, ads_entry2, ...],
-                          clean_entry2: [...], ...}, (h2,k2,l2): {...}}
+            {(h1,k1,l1): {clean_entry1: [ads_entry1, ads_entry2, ...], clean_entry2: [...], ...}, (h2,k2,l2): {...}}
             where clean_entry1 can be a pristine surface and clean_entry2 can be a
             reconstructed surface while ads_entry1 can be adsorption at site 1 with
             a 2x2 coverage while ads_entry2 can have a 3x3 coverage. If adsorption
             entries are present (i.e. if all_slab_entries[(h,k,l)][clean_entry1]), we
             consider adsorption in all plots and analysis for this particular facet.
-
-    ..attribute:: color_dict
-
-        Dictionary of colors (r,g,b,a) when plotting surface energy stability. The
-            keys are individual surface entries where clean surfaces have a solid
-            color while the corresponding adsorbed surface will be transparent.
-
-    .. attribute:: ucell_entry
-
-        ComputedStructureEntry of the bulk reference for this particular material.
-
-    .. attribute:: ref_entries
-
-        List of ComputedStructureEntries to be used for calculating chemical potential.
-
-    .. attribute:: color_dict
-
-        Randomly generated dictionary of colors associated with each facet.
+        color_dict (dict): Dictionary of colors (r,g,b,a) when plotting surface energy stability.
+            The keys are individual surface entries where clean surfaces have a solid color while
+            the corresponding adsorbed surface will be transparent.
+        ucell_entry (ComputedStructureEntry): ComputedStructureEntry of the bulk reference for
+            this particular material.
+        ref_entries (list): List of ComputedStructureEntries to be used for calculating chemical potential.
+        facet_color_dict (dict): Randomly generated dictionary of colors associated with each facet.
     """
 
     def __init__(self, all_slab_entries, ucell_entry, ref_entries=None):
@@ -435,7 +396,7 @@ class SurfaceEnergyPlotter:
                 be defined by a summation of the chemical potentials for each
                 element in the system. As the bulk energy is already provided,
                 one can solve for one of the chemical potentials as a function
-                of the other chemical potetinals and bulk energy. i.e. there
+                of the other chemical potentials and bulk energy. i.e. there
                 are n-1 variables (chempots). e.g. if your ucell_entry is for
                 LiFePO4 than your ref_entries should have an entry for Li, Fe,
                 and P if you want to use the chempot of O as the variable.
@@ -575,61 +536,61 @@ class SurfaceEnergyPlotter:
 
     def area_frac_vs_chempot_plot(
         self,
-        ref_delu,
-        chempot_range,
-        delu_dict=None,
-        delu_default=0,
-        increments=10,
-        no_clean=False,
-        no_doped=False,
-    ):
+        ref_delu: Symbol,
+        chempot_range: list[float],
+        delu_dict: dict[Symbol, float] | None = None,
+        delu_default: float = 0,
+        increments: int = 10,
+        no_clean: bool = False,
+        no_doped: bool = False,
+    ) -> plt.Axes:
         """
         1D plot. Plots the change in the area contribution
         of each facet as a function of chemical potential.
 
         Args:
-            ref_delu (sympy Symbol): The free variable chempot with the format:
+            ref_delu (Symbol): The free variable chempot with the format:
                 Symbol("delu_el") where el is the name of the element.
-            chempot_range (list): Min/max range of chemical potential to plot along
-            delu_dict (dict): Dictionary of the chemical potentials to be set as
+            chempot_range (list[float]): Min/max range of chemical potential to plot along.
+            delu_dict (dict[Symbol, float]): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
-            delu_default (float): Default value for all unset chemical potentials
+            delu_default (float): Default value for all unset chemical potentials.
             increments (int): Number of data points between min/max or point
                 of intersection. Defaults to 10 points.
+            no_clean (bool): Some parameter, description missing.
+            no_doped (bool): Some parameter, description missing.
 
         Returns:
-            (pyplot): Plot of area frac on the Wulff shape
-                for each facet vs chemical potential.
+            plt.Axes: Plot of area frac on the Wulff shape for each facet vs chemical potential.
         """
         delu_dict = delu_dict or {}
         chempot_range = sorted(chempot_range)
         all_chempots = np.linspace(min(chempot_range), max(chempot_range), increments)
 
         # initialize a dictionary of lists of fractional areas for each hkl
-        hkl_area_dict = {}
+        hkl_area_dict: dict[tuple[int, int, int], list[float]] = {}
         for hkl in self.all_slab_entries:
             hkl_area_dict[hkl] = []
 
         # Get plot points for each Miller index
         for u in all_chempots:
             delu_dict[ref_delu] = u
-            wulffshape = self.wulff_from_chempot(
+            wulff_shape = self.wulff_from_chempot(
                 delu_dict=delu_dict,
                 no_clean=no_clean,
                 no_doped=no_doped,
                 delu_default=delu_default,
             )
 
-            for hkl in wulffshape.area_fraction_dict:
-                hkl_area_dict[hkl].append(wulffshape.area_fraction_dict[hkl])
+            for hkl in wulff_shape.area_fraction_dict:
+                hkl_area_dict[hkl].append(wulff_shape.area_fraction_dict[hkl])
 
         # Plot the area fraction vs chemical potential for each facet
-        plt = pretty_plot(width=8, height=7)
-        axes = plt.gca()
+        ax = pretty_plot(width=8, height=7)
 
         for hkl in self.all_slab_entries:
-            clean_entry = list(self.all_slab_entries[hkl])[0]
+            clean_entry = next(iter(self.all_slab_entries[hkl]))
             # Ignore any facets that never show up on the
             # Wulff shape regardless of chemical potential
             if all(a == 0 for a in hkl_area_dict[hkl]):
@@ -643,18 +604,17 @@ class SurfaceEnergyPlotter:
             )
 
         # Make the figure look nice
-        plt.ylabel(r"Fractional area $A^{Wulff}_{hkl}/A^{Wulff}$")
+        ax.set(ylabel=r"Fractional area $A^{Wulff}_{hkl}/A^{Wulff}$")
         self.chempot_plot_addons(
-            plt,
+            ax,
             chempot_range,
             str(ref_delu).split("_")[1],
-            axes,
             rect=[-0.0, 0, 0.95, 1],
             pad=5,
             ylim=[0, 1],
         )
 
-        return plt
+        return ax
 
     def get_surface_equilibrium(self, slab_entries, delu_dict=None):
         """
@@ -697,7 +657,7 @@ class SurfaceEnergyPlotter:
         if not soln:
             warnings.warn("No solution")
             return soln
-        return {p: list(soln)[0][i] for i, p in enumerate(all_parameters)}
+        return {p: next(iter(soln))[i] for i, p in enumerate(all_parameters)}
 
     def stable_u_range_dict(
         self,
@@ -868,42 +828,36 @@ class SurfaceEnergyPlotter:
 
     def chempot_vs_gamma_plot_one(
         self,
-        plt,
-        entry,
-        ref_delu,
-        chempot_range,
-        delu_dict=None,
-        delu_default=0,
-        label="",
-        JPERM2=False,
-    ):
+        ax: plt.Axes,
+        entry: SlabEntry,
+        ref_delu: Symbol,
+        chempot_range: list[float],
+        delu_dict: dict[Symbol, float] | None = None,
+        delu_default: float = 0,
+        label: str = "",
+        JPERM2: bool = False,
+    ) -> plt.Axes:
         """
-        Helper function to  help plot the surface energy of a
+        Helper function to help plot the surface energy of a
         single SlabEntry as a function of chemical potential.
 
         Args:
-            plt (Plot): A plot.
-            entry (SlabEntry): Entry of the slab whose surface energy we want
-                to plot
-            ref_delu (sympy Symbol): The range stability of each slab is based
-                on the chempot range of this chempot. Should be a sympy Symbol
-                object of the format: Symbol("delu_el") where el is the name of
-                the element
-            chempot_range ([max_chempot, min_chempot]): Range to consider the
-                stability of the slabs.
-            delu_dict (dict): Dictionary of the chemical potentials to be set as
-                constant. Note the key should be a sympy Symbol object of the
-                format: Symbol("delu_el") where el is the name of the element.
-            delu_default (float): Default value for all unset chemical potentials
+            ax (plt.Axes): Matplotlib Axes instance for plotting.
+            entry: Entry of the slab whose surface energy we want
+                to plot. (Add appropriate description for type)
+            ref_delu (Symbol): The range stability of each slab is based
+                on the chempot range of this chempot.
+            chempot_range (list[float]): Range to consider the stability of the slabs.
+            delu_dict (dict[Symbol, float]): Dictionary of the chemical potentials.
+            delu_default (float): Default value for all unset chemical potentials.
             label (str): Label of the slab for the legend.
             JPERM2 (bool): Whether to plot surface energy in /m^2 (True) or
-                eV/A^2 (False)
+                eV/A^2 (False).
 
         Returns:
-            (Plot): Plot of surface energy vs chemical potential for one entry.
+            plt.Axes: Plot of surface energy vs chemical potential for one entry.
         """
-        if delu_dict is None:
-            delu_dict = {}
+        delu_dict = delu_dict or {}
         chempot_range = sorted(chempot_range)
 
         # use dashed lines for slabs that are not stoichiometric
@@ -918,10 +872,10 @@ class SurfaceEnergyPlotter:
         mark = "--" if ucell_comp != clean_comp else "-"
 
         delu_dict = self.set_all_variables(delu_dict, delu_default)
-        delu_dict[ref_delu] = chempot_range[0]
+        delu_dict[ref_delu] = chempot_range[0]  # type: ignore
         gamma_min = self.as_coeffs_dict[entry]
         gamma_min = gamma_min if type(gamma_min).__name__ == "float" else sub_chempots(gamma_min, delu_dict)
-        delu_dict[ref_delu] = chempot_range[1]
+        delu_dict[ref_delu] = chempot_range[1]  # type: ignore
         gamma_max = self.as_coeffs_dict[entry]
         gamma_max = gamma_max if type(gamma_max).__name__ == "float" else sub_chempots(gamma_max, delu_dict)
         gamma_range = [gamma_min, gamma_max]
@@ -930,9 +884,7 @@ class SurfaceEnergyPlotter:
 
         mark = entry.mark if entry.mark else mark
         c = entry.color if entry.color else self.color_dict[entry]
-        plt.plot(chempot_range, se_range, mark, color=c, label=label)
-
-        return plt
+        return plt.plot(chempot_range, se_range, mark, color=c, label=label)
 
     def chempot_vs_gamma(
         self,
@@ -1049,15 +1001,13 @@ class SurfaceEnergyPlotter:
 
         # Make the figure look nice
         plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
-        plt = self.chempot_plot_addons(plt, chempot_range, str(ref_delu).split("_")[1], axes, ylim=ylim)
-
-        return plt
+        return self.chempot_plot_addons(plt, chempot_range, str(ref_delu).split("_")[1], axes, ylim=ylim)
 
     def monolayer_vs_BE(self, plot_eads=False):
         """
         Plots the binding energy as a function of monolayers (ML), i.e.
             the fractional area adsorbate density for all facets. For each
-            facet at a specific monlayer, only plot the lowest binding energy.
+            facet at a specific monolayer, only plot the lowest binding energy.
 
         Args:
             plot_eads (bool): Option to plot the adsorption energy (binding
@@ -1066,7 +1016,7 @@ class SurfaceEnergyPlotter:
         Returns:
             (Plot): Plot of binding energy vs monolayer for all facets.
         """
-        plt = pretty_plot(width=8, height=7)
+        ax = pretty_plot(width=8, height=7)
         for hkl in self.all_slab_entries:
             ml_be_dict = {}
             for clean_entry in self.all_slab_entries[hkl]:
@@ -1081,18 +1031,17 @@ class SurfaceEnergyPlotter:
             # in order to properly draw a line plot
             vals = sorted(ml_be_dict.items())
             monolayers, BEs = zip(*vals)
-            plt.plot(monolayers, BEs, "-o", c=self.color_dict[clean_entry], label=hkl)
+            ax.plot(monolayers, BEs, "-o", c=self.color_dict[clean_entry], label=hkl)
 
         adsorbates = tuple(ads_entry.ads_entries_dict)
-        plt.xlabel(f"{' '.join(adsorbates)} Coverage (ML)")
-        plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
-        plt.legend()
+        ax.set_xlabel(f"{' '.join(adsorbates)} Coverage (ML)")
+        ax.set_ylabel("Adsorption Energy (eV)" if plot_eads else "Binding Energy (eV)")
+        ax.legend()
         plt.tight_layout()
-
-        return plt
+        return ax
 
     @staticmethod
-    def chempot_plot_addons(plt, xrange, ref_el, axes, pad=2.4, rect=None, ylim=None):
+    def chempot_plot_addons(ax, xrange, ref_el, pad=2.4, rect=None, ylim=None):
         """
         Helper function to a chempot plot look nicer.
 
@@ -1110,12 +1059,12 @@ class SurfaceEnergyPlotter:
         """
         # Make the figure look nice
         plt.legend(bbox_to_anchor=(1.01, 1), loc=2, borderaxespad=0.0)
-        axes.set_xlabel(rf"Chemical potential $\Delta\mu_{{{ref_el}}}$ (eV)")
+        ax.set_xlabel(rf"Chemical potential $\Delta\mu_{{{ref_el}}}$ (eV)")
 
-        ylim = ylim or axes.get_ylim()
+        ylim = ylim or ax.get_ylim()
         plt.xticks(rotation=60)
         plt.ylim(ylim)
-        xlim = axes.get_xlim()
+        xlim = ax.get_xlim()
         plt.xlim(xlim)
         plt.tight_layout(pad=pad, rect=rect or [-0.047, 0, 0.84, 1])
         plt.plot([xrange[0], xrange[0]], ylim, "--k")
@@ -1125,7 +1074,7 @@ class SurfaceEnergyPlotter:
         xy = [np.mean([xlim[0]]), np.mean(ylim)]
         plt.annotate(f"{ref_el}-poor", xy=xy, xytext=xy, rotation=90, fontsize=17)
 
-        return plt
+        return ax
 
     def BE_vs_clean_SE(
         self,
@@ -1155,7 +1104,7 @@ class SurfaceEnergyPlotter:
             (Plot): Plot of clean surface energy vs binding energy for
                 all facets.
         """
-        plt = pretty_plot(width=8, height=7)
+        ax = pretty_plot(width=8, height=7)
         for hkl in self.all_slab_entries:
             for clean_entry in self.all_slab_entries[hkl]:
                 all_delu_dict = self.set_all_variables(delu_dict, delu_default)
@@ -1167,16 +1116,15 @@ class SurfaceEnergyPlotter:
                         be = ads_entry.gibbs_binding_energy(eads=plot_eads)
 
                         # Now plot the surface energy vs binding energy
-                        plt.scatter(se, be)
+                        ax.scatter(se, be)
                         if annotate_monolayer:
-                            plt.annotate(f"{ml:.2f}", xy=[se, be], xytext=[se, be])
+                            ax.annotate(f"{ml:.2f}", xy=[se, be], xytext=[se, be])
 
-        plt.xlabel(r"Surface energy ($J/m^2$)") if JPERM2 else plt.xlabel(r"Surface energy ($eV/\AA^2$)")
-        plt.ylabel("Adsorption Energy (eV)") if plot_eads else plt.ylabel("Binding Energy (eV)")
+        ax.set_xlabel(r"Surface energy ($J/m^2$)" if JPERM2 else r"Surface energy ($eV/\AA^2$)")
+        ax.set_ylabel("Adsorption Energy (eV)" if plot_eads else "Binding Energy (eV)")
         plt.tight_layout()
-        plt.xticks(rotation=60)
-
-        return plt
+        ax.set_xticks(rotation=60)
+        return ax
 
     def surface_chempot_range_map(
         self,
@@ -1187,11 +1135,11 @@ class SurfaceEnergyPlotter:
         no_doped=False,
         no_clean=False,
         delu_dict=None,
-        plt=None,
+        ax=None,
         annotate=True,
         show_unphyiscal_only=False,
         fontsize=10,
-    ):
+    ) -> plt.Axes:
         """
         Adapted from the get_chempot_range_map() method in the PhaseDiagram
             class. Plot the chemical potential range map based on surface
@@ -1216,7 +1164,7 @@ class SurfaceEnergyPlotter:
             delu_dict (dict): Dictionary of the chemical potentials to be set as
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
-            plt (Plot): Plot object to plot on. If None, will create a new plot.
+            ax (plt.Axes): Axes object to plot on. If None, will create a new plot.
             annotate (bool): Whether to annotate each "phase" with the label of
                 the entry. If no label, uses the reduced formula
             show_unphyiscal_only (bool): Whether to only show the shaded region where
@@ -1225,16 +1173,16 @@ class SurfaceEnergyPlotter:
         """
         # Set up
         delu_dict = delu_dict or {}
-        plt = plt if plt else pretty_plot(12, 8)
+        ax = ax if ax else pretty_plot(12, 8)
         el1, el2 = str(elements[0]), str(elements[1])
-        delu1 = Symbol(f"delu_{elements[0]!s}")
-        delu2 = Symbol(f"delu_{elements[1]!s}")
+        delu1 = Symbol(f"delu_{elements[0]}")
+        delu2 = Symbol(f"delu_{elements[1]}")
         range1 = ranges[0]
         range2 = ranges[1]
 
         # Find a range map for each entry (surface). This part is very slow, will
         # need to implement a more sophisticated method of getting the range map
-        vertices_dict = {}
+        vertices_dict: dict[SlabEntry, list] = {}
         for dmu1 in np.linspace(range1[0], range1[1], incr):
             # Get chemical potential range of dmu2 for each increment of dmu1
             new_delu_dict = delu_dict.copy()
@@ -1251,21 +1199,20 @@ class SurfaceEnergyPlotter:
             )
 
             # Save the chempot range for dmu1 and dmu2
-            for entry, v in range_dict.items():
-                if not v:
+            for entry, vertex in range_dict.items():
+                if not vertex:
                     continue
-                if entry not in vertices_dict:
-                    vertices_dict[entry] = []
+                vertices_dict.setdefault(entry, [])
 
                 selist = se_dict[entry]
-                vertices_dict[entry].append({delu1: dmu1, delu2: [v, selist]})
+                vertices_dict[entry].append({delu1: dmu1, delu2: [vertex, selist]})
 
         # Plot the edges of the phases
-        for entry, v in vertices_dict.items():
+        for entry, vertex in vertices_dict.items():
             xvals, yvals = [], []
 
             # Plot each edge of a phase within the borders
-            for ii, pt1 in enumerate(v):
+            for ii, pt1 in enumerate(vertex):
                 # Determine if the surface energy at this lower range
                 # of dmu2 is negative. If so, shade this region.
                 if len(pt1[delu2][1]) == 3:
@@ -1274,17 +1221,17 @@ class SurfaceEnergyPlotter:
                     else:
                         neg_dmu_range = [pt1[delu2][0][1], pt1[delu2][0][2]]
                     # Shade the threshold and region at which se<=0
-                    plt.plot([pt1[delu1], pt1[delu1]], neg_dmu_range, "k--")
+                    ax.plot([pt1[delu1], pt1[delu1]], neg_dmu_range, "k--")
                 elif pt1[delu2][1][0] < 0 and pt1[delu2][1][1] < 0 and not show_unphyiscal_only:
                     # Any chempot at this point will result
                     # in se<0, shade the entire y range
-                    plt.plot([pt1[delu1], pt1[delu1]], range2, "k--")
+                    ax.plot([pt1[delu1], pt1[delu1]], range2, "k--")
 
-                if ii == len(v) - 1:
+                if ii == len(vertex) - 1:
                     break
-                pt2 = v[ii + 1]
+                pt2 = vertex[ii + 1]
                 if not show_unphyiscal_only:
-                    plt.plot(
+                    ax.plot(
                         [pt1[delu1], pt2[delu1]],
                         [pt1[delu2][0][0], pt2[delu2][0][0]],
                         "k",
@@ -1295,28 +1242,27 @@ class SurfaceEnergyPlotter:
                 yvals.extend([pt1[delu2][0][0], pt2[delu2][0][0]])
 
             # Plot the edge along the max x value
-            pt = v[-1]
+            pt = vertex[-1]
             delu1, delu2 = pt
             xvals.extend([pt[delu1], pt[delu1]])
             yvals.extend(pt[delu2][0])
             if not show_unphyiscal_only:
-                plt.plot([pt[delu1], pt[delu1]], [pt[delu2][0][0], pt[delu2][0][-1]], "k")
+                ax.plot([pt[delu1], pt[delu1]], [pt[delu2][0][0], pt[delu2][0][-1]], "k")
 
             if annotate:
                 # Label the phases
                 x = np.mean([max(xvals), min(xvals)])
                 y = np.mean([max(yvals), min(yvals)])
                 label = entry.label if entry.label else entry.composition.reduced_formula
-                plt.annotate(label, xy=[x, y], xytext=[x, y], fontsize=fontsize)
+                ax.annotate(label, xy=[x, y], xytext=[x, y], fontsize=fontsize)
 
         # Label plot
-        plt.xlim(range1)
-        plt.ylim(range2)
-        plt.xlabel(rf"$\Delta\mu_{{{el1}}} (eV)$", fontsize=25)
-        plt.ylabel(rf"$\Delta\mu_{{{el2}}} (eV)$", fontsize=25)
-        plt.xticks(rotation=60)
+        ax.set(xlim=range1, ylim=range2)
+        ax.set_xlabel(rf"$\Delta\mu_{{{el1}}} (eV)$", fontsize=25)
+        ax.set_ylabel(rf"$\Delta\mu_{{{el2}}} (eV)$", fontsize=25)
+        ax.set_xticks(rotation=60)
 
-        return plt
+        return ax
 
     def set_all_variables(self, delu_dict, delu_default):
         """
@@ -1344,24 +1290,6 @@ class SurfaceEnergyPlotter:
                 all_delu_dict[du] = delu_default
 
         return all_delu_dict
-
-        # def surface_phase_diagram(self, y_param, x_param, miller_index):
-        #     return
-        #
-        # def wulff_shape_extrapolated_model(self):
-        #     return
-        #
-        # def surface_pourbaix_diagram(self):
-        #
-        #     return
-        #
-        # def surface_p_vs_t_phase_diagram(self):
-        #
-        #     return
-        #
-        # def broken_bond_vs_gamma(self):
-        #
-        #     return
 
 
 def entry_dict_from_list(all_slab_entries):
@@ -1395,49 +1323,21 @@ def entry_dict_from_list(all_slab_entries):
 
 class WorkFunctionAnalyzer:
     """
-    A class used for calculating the work function
-        from a slab model and visualizing the behavior
-        of the local potential along the slab.
+    A class used for calculating the work function from a slab model and
+    visualizing the behavior of the local potential along the slab.
 
-    .. attribute:: efermi
-
-        The Fermi energy
-
-    .. attribute:: locpot_along_c
-
-        Local potential in eV along points along the  axis
-
-    .. attribute:: vacuum_locpot
-
-        The maximum local potential along the c direction for
-            the slab model, ie the potential at the vacuum
-
-    .. attribute:: work_function
-
-        The minimum energy needed to move an electron from the
-            surface to infinity. Defined as the difference between
-            the potential at the vacuum and the Fermi energy.
-
-    .. attribute:: slab
-
-        The slab structure model
-
-    .. attribute:: along_c
-
-        Points along the c direction with same
-            increments as the locpot in the c axis
-
-    .. attribute:: ave_locpot
-
-        Mean of the minimum and maximmum (vacuum) locpot along c
-
-    .. attribute:: sorted_sites
-
-        List of sites from the slab sorted along the c direction
-
-    .. attribute:: ave_bulk_p
-
-        The average locpot of the slab region along the c direction
+    Attributes:
+        efermi (float): The Fermi energy.
+        locpot_along_c (list): Local potential in eV along points along the c axis.
+        vacuum_locpot (float): The maximum local potential along the c direction for the slab model,
+            i.e. the potential at the vacuum.
+        work_function (float): The minimum energy needed to move an electron from the surface to infinity.
+            Defined as the difference between the potential at the vacuum and the Fermi energy.
+        slab (Slab): The slab structure model.
+        along_c (list): Points along the c direction with same increments as the locpot in the c axis.
+        ave_locpot (float): Mean of the minimum and maximum (vacuum) locpot along c.
+        sorted_sites (list): List of sites from the slab sorted along the c direction.
+        ave_bulk_p (float): The average locpot of the slab region along the c direction.
     """
 
     def __init__(self, structure: Structure, locpot_along_c, efermi, shift=0, blength=3.5):
@@ -1508,7 +1408,7 @@ class WorkFunctionAnalyzer:
     def get_locpot_along_slab_plot(self, label_energies=True, plt=None, label_fontsize=10):
         """
         Returns a plot of the local potential (eV) vs the
-            position along the c axis of the slab model (Ang)
+            position along the c axis of the slab model (Ang).
 
         Args:
             label_energies (bool): Whether to label relevant energy
@@ -1562,10 +1462,11 @@ class WorkFunctionAnalyzer:
     def get_labels(self, plt, label_fontsize=10):
         """
         Handles the optional labelling of the plot with relevant quantities
+
         Args:
             plt (plt): Plot of the locpot vs c axis
             label_fontsize (float): Fontsize of labels
-        Returns Labelled plt
+        Returns Labelled plt.
         """
         # center of vacuum and bulk region
         if len(self.slab_regions) > 1:
@@ -1661,21 +1562,26 @@ class WorkFunctionAnalyzer:
                     all_flat.append(True)
         return all(all_flat)
 
-    @staticmethod
-    def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
+    @classmethod
+    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
         """
-        :param poscar_filename: POSCAR file
-        :param locpot_filename: LOCPOT file
-        :param outcar_filename: OUTCAR file
-        :param shift: shift
-        :param blength: The longest bond length in the material.
-            Used to handle pbc for noncontiguous slab layers
-        :return: WorkFunctionAnalyzer
+        Initializes a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
+
+        Args:
+            poscar_filename (str): The path to the POSCAR file.
+            locpot_filename (str): The path to the LOCPOT file.
+            outcar_filename (str): The path to the OUTCAR file.
+            shift (float): The shift value. Defaults to 0.
+            blength (float): The longest bond length in the material.
+                Used to handle pbc for noncontiguous slab layers. Defaults to 3.5.
+
+        Returns:
+            WorkFunctionAnalyzer: A WorkFunctionAnalyzer instance.
         """
         poscar = Poscar.from_file(poscar_filename)
         locpot = Locpot.from_file(locpot_filename)
         outcar = Outcar(outcar_filename)
-        return WorkFunctionAnalyzer(
+        return cls(
             poscar.structure,
             locpot.get_average_along_axis(2),
             outcar.efermi,
@@ -1684,36 +1590,30 @@ class WorkFunctionAnalyzer:
         )
 
 
+@due.dcite(
+    Doi("10.1021/nl404557w"),
+    description="Nanoscale stabilization of sodium oxides: Implications for Na-O2 batteries",
+)
 class NanoscaleStability:
-    """
-    A class for analyzing the stability of nanoparticles of different
-        polymorphs with respect to size. The Wulff shape will be the
-        model for the nanoparticle. Stability will be determined by
-        an energetic competition between the weighted surface energy
-        (surface energy of the Wulff shape) and the bulk energy. A
-        future release will include a 2D phase diagram (e.g. wrt size
-        vs chempot for adsorbed or non-stoichiometric surfaces). Based
-        on the following work:
+    """A class for analyzing the stability of nanoparticles of different
+    polymorphs with respect to size. The Wulff shape will be the model for the
+    nanoparticle. Stability will be determined by an energetic competition between the
+    weighted surface energy (surface energy of the Wulff shape) and the bulk energy. A
+    future release will include a 2D phase diagram (e.g. wrt size vs chempot for adsorbed
+    or non-stoichiometric surfaces). Based on the following work:
 
-        Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
-            stabilization of sodium oxides: Implications for Na-O2
-            batteries. Nano Letters, 14(2), 1016-1020.
-            https://doi.org/10.1021/nl404557w
+    Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
+        stabilization of sodium oxides: Implications for Na-O2
+        batteries. Nano Letters, 14(2), 1016-1020.
+        https://doi.org/10.1021/nl404557w
 
-    .. attribute:: se_analyzers
-
-        List of SurfaceEnergyPlotter objects. Each item corresponds to a
-            different polymorph.
-
-    .. attribute:: symprec
-
-        See WulffShape.
+    Attributes:
+        se_analyzers (list[SurfaceEnergyPlotter]): Each item corresponds to a different polymorph.
+        symprec (float): Tolerance for symmetry finding. See WulffShape.
     """
 
     def __init__(self, se_analyzers, symprec=1e-5):
-        """
-        Analyzes the nanoscale stability of different polymorphs.
-        """
+        """Analyzes the nanoscale stability of different polymorphs."""
         self.se_analyzers = se_analyzers
         self.symprec = symprec
 
@@ -1812,7 +1712,7 @@ class NanoscaleStability:
         e = e / 1000 if e_units == "keV" else e
         e = e / ((4 / 3) * np.pi * new_r**3) if normalize else e
         bulk_struct = bulk_entry.structure
-        density = len(bulk_struct) / bulk_struct.lattice.volume
+        density = len(bulk_struct) / bulk_struct.volume
         e = e / (density * w_vol) if scale_per_atom else e
 
         return e, new_r
@@ -1820,11 +1720,15 @@ class NanoscaleStability:
     @staticmethod
     def bulk_gform(bulk_entry):
         """
-        Returns the formation energy of the bulk
+        Returns the formation energy of the bulk.
+
         Args:
             bulk_entry (ComputedStructureEntry): Entry of the corresponding bulk.
+
+        Returns:
+            float: bulk formation energy (in eV)
         """
-        return bulk_entry.energy / bulk_entry.structure.lattice.volume
+        return bulk_entry.energy / bulk_entry.structure.volume
 
     def scaled_wulff(self, wulffshape, r):
         """
@@ -1869,7 +1773,7 @@ class NanoscaleStability:
     ):
         """
         Returns the plot of the formation energy of a particle against its
-            effect radius
+            effect radius.
 
         Args:
             analyzer (SurfaceEnergyPlotter): Analyzer associated with the
@@ -1933,7 +1837,7 @@ class NanoscaleStability:
     ):
         """
         Returns the plot of the formation energy of a particles
-            of different polymorphs against its effect radius
+            of different polymorphs against its effect radius.
 
         Args:
             max_r (float): The maximum radius of the particle to plot up to.
@@ -1970,15 +1874,6 @@ class NanoscaleStability:
 
         return plt
 
-        # class GetChempotRange:
-        #     def __init__(self, entry):
-        #         self.entry = entry
-        #
-        #
-        # class SlabEntryGenerator:
-        #     def __init__(self, entry):
-        #         self.entry = entry
-
 
 def sub_chempots(gamma_dict, chempots):
     """
@@ -1991,6 +1886,7 @@ def sub_chempots(gamma_dict, chempots):
             as a coefficient dictionary
         chempots (dict): Dictionary assigning each chemical
             potential (key) in gamma a value
+
     Returns:
         Surface energy as a float
     """

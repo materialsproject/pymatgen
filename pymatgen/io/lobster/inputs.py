@@ -1,8 +1,11 @@
-# Distributed under the terms of the MIT License
-
 """
 Module for reading Lobster input files. For more information
 on LOBSTER see www.cohp.de.
+If you use this module, please cite:
+J. George, G. Petretto, A. Naik, M. Esters, A. J. Jackson, R. Nelson, R. Dronskowski, G.-M. Rignanese, G. Hautier,
+"Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
+ChemPlusChem 2022, e202200123,
+DOI: 10.1002/cplu.202200123.
 """
 
 from __future__ import annotations
@@ -10,7 +13,7 @@ from __future__ import annotations
 import itertools
 import os
 import warnings
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import spglib
@@ -22,19 +25,28 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pymatgen.core.composition import Composition
 
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__maintainer__ = "Janine George, Marco Esters"
-__email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
+__maintainer__ = "Janine George"
+__email__ = "janinegeorge.ulfen@gmail.com"
 __date__ = "Dec 13, 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+due.cite(
+    Doi("10.1002/cplu.202200123"),
+    description="Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
+)
 
 
 class Lobsterin(dict, MSONable):
@@ -48,15 +60,15 @@ class Lobsterin(dict, MSONable):
     # reminder: lobster is not case sensitive
 
     # keyword + one float can be used in file
-    FLOATKEYWORDS = [
+    FLOAT_KEYWORDS = (
         "COHPstartEnergy",
         "COHPendEnergy",
         "gaussianSmearingWidth",
         "useDecimalPlaces",
         "COHPSteps",
-    ]
+    )
     # one of these keywords +endstring can be used in file
-    STRINGKEYWORDS = [
+    STRING_KEYWORDS = (
         "basisSet",
         "cohpGenerator",
         "realspaceHamiltonian",
@@ -65,9 +77,9 @@ class Lobsterin(dict, MSONable):
         "printLCAORealSpaceWavefunction",
         "kSpaceCOHP",
         "EwaldSum",
-    ]
+    )
     # the keyword alone will turn on or off a function
-    BOOLEANKEYWORDS = [
+    BOOLEAN_KEYWORDS = (
         "saveProjectionToFile",
         "skipdos",
         "skipcohp",
@@ -99,29 +111,29 @@ class Lobsterin(dict, MSONable):
         "bandwiseSpilling",
         "kpointwiseSpilling",
         "LSODOS",
-    ]
+    )
     # several of these keywords + ending can be used in a lobsterin file:
-    LISTKEYWORDS = ["basisfunctions", "cohpbetween", "createFatband"]
+    LISTKEYWORDS = ("basisfunctions", "cohpbetween", "createFatband")
 
     # all keywords known to this class so far
-    AVAILABLEKEYWORDS = FLOATKEYWORDS + STRINGKEYWORDS + BOOLEANKEYWORDS + LISTKEYWORDS
+    AVAILABLE_KEYWORDS = FLOAT_KEYWORDS + STRING_KEYWORDS + BOOLEAN_KEYWORDS + LISTKEYWORDS
 
     def __init__(self, settingsdict: dict):
         """
         Args:
-            settingsdict: dict to initialize Lobsterin
+            settingsdict: dict to initialize Lobsterin.
         """
         super().__init__()
         # check for duplicates
-        listkey = [key.lower() for key in settingsdict]
-        if len(listkey) != len(list(set(listkey))):
+        keys = [key.lower() for key in settingsdict]
+        if len(keys) != len(set(keys)):
             raise OSError("There are duplicates for the keywords! The program will stop here.")
         self.update(settingsdict)
 
     def __setitem__(self, key, val):
         """
         Add parameter-val pair to Lobsterin. Warns if parameter is not in list of
-        valid lobsterintags. Also cleans the parameter and val by stripping
+        valid lobsterin tags. Also cleans the parameter and val by stripping
         leading and trailing white spaces. Similar to INCAR class.
         """
         # due to the missing case sensitivity of lobster, the following code is necessary
@@ -132,15 +144,13 @@ class Lobsterin(dict, MSONable):
                 found = True
         if not found:
             new_key = key
-        if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLEKEYWORDS]:
+        if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
             raise ValueError("Key is currently not available")
 
         super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
 
     def __getitem__(self, item):
-        """
-        Implements getitem from dict to avoid problems with cases
-        """
+        """Implements getitem from dict to avoid problems with cases."""
         found = False
         for key_here in self:
             if item.strip().lower() == key_here.lower():
@@ -149,8 +159,7 @@ class Lobsterin(dict, MSONable):
         if not found:
             new_key = item
 
-        val = dict.__getitem__(self, new_key)
-        return val
+        return dict.__getitem__(self, new_key)
 
     def diff(self, other):
         """
@@ -209,9 +218,7 @@ class Lobsterin(dict, MSONable):
         return {"Same": similar_param, "Different": different_param}
 
     def _get_nbands(self, structure: Structure):
-        """
-        Get number of bands.
-        """
+        """Get number of bands."""
         if self.get("basisfunctions") is None:
             raise OSError("No basis functions are provided. The program cannot calculate nbands.")
 
@@ -221,7 +228,7 @@ class Lobsterin(dict, MSONable):
             string_basis_raw = string_basis.strip().split(" ")
             while "" in string_basis_raw:
                 string_basis_raw.remove("")
-            for _idx in range(0, int(structure.composition.element_composition[string_basis_raw[0]])):
+            for _idx in range(int(structure.composition.element_composition[string_basis_raw[0]])):
                 basis_functions.extend(string_basis_raw[1:])
 
         no_basis_functions = 0
@@ -239,7 +246,7 @@ class Lobsterin(dict, MSONable):
 
     def write_lobsterin(self, path="lobsterin", overwritedict=None):
         """
-        Writes a lobsterin file
+        Writes a lobsterin file.
 
         Args:
             path (str): filename of the lobsterin file that will be written
@@ -259,37 +266,37 @@ class Lobsterin(dict, MSONable):
 
         filename = path
         with open(filename, "w") as f:
-            for key in Lobsterin.AVAILABLEKEYWORDS:
+            for key in Lobsterin.AVAILABLE_KEYWORDS:
                 if key.lower() in [element.lower() for element in self]:
-                    if key.lower() in [element.lower() for element in Lobsterin.FLOATKEYWORDS]:
-                        f.write(key + " " + str(self.get(key)) + "\n")
-                    elif key.lower() in [element.lower() for element in Lobsterin.BOOLEANKEYWORDS]:
+                    if key.lower() in [element.lower() for element in Lobsterin.FLOAT_KEYWORDS]:
+                        f.write(f"{key} {self.get(key)}\n")
+                    elif key.lower() in [element.lower() for element in Lobsterin.BOOLEAN_KEYWORDS]:
                         # checks if entry is True or False
                         for key_here in self:
                             if key.lower() == key_here.lower():
                                 new_key = key_here
                         if self.get(new_key):
                             f.write(key + "\n")
-                    elif key.lower() in [element.lower() for element in Lobsterin.STRINGKEYWORDS]:
-                        f.write(key + " " + str(self.get(key) + "\n"))
+                    elif key.lower() in [element.lower() for element in Lobsterin.STRING_KEYWORDS]:
+                        f.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:
                         for entry in self.get(key):
-                            f.write(key + " " + str(entry) + "\n")
+                            f.write(f"{key} {entry}\n")
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
-        d = dict(self)
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+        """MSONable dict"""
+        dct = dict(self)
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: Lobsterin
+
+        Returns:
+            Lobsterin
         """
         return Lobsterin({k: v for k, v in d.items() if k not in ["@module", "@class"]})
 
@@ -328,7 +335,6 @@ class Lobsterin(dict, MSONable):
         if further_settings is not None:
             for key, item in further_settings.items():
                 incar[key] = item
-        # print it to file
         incar.write_file(incar_output)
 
     @staticmethod
@@ -339,7 +345,7 @@ class Lobsterin(dict, MSONable):
     ):
         """
         Will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
-        #include this in lobsterin class
+        #include this in lobsterin class.
 
         Args:
             structure (Structure): Structure object
@@ -349,7 +355,7 @@ class Lobsterin(dict, MSONable):
             returns basis
         """
         if address_basis_file is None:
-            address_basis_file = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_standard.yaml")
+            address_basis_file = f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_standard.yaml"
         Potcar_names = list(potcar_symbols)
 
         AtomTypes_Potcar = [name.split("_")[0] for name in Potcar_names]
@@ -362,17 +368,15 @@ class Lobsterin(dict, MSONable):
 
         basis_functions = []
         list_forin = []
-        for itype, type in enumerate(Potcar_names):
-            if type not in BASIS:
+        for idx, basis in enumerate(Potcar_names):
+            if basis not in BASIS:
                 raise ValueError(
-                    "You have to provide the basis for"
-                    + str(type)
-                    + "manually. We don't have any information on this POTCAR."
+                    f"You have to provide the basis for {basis} manually. We don't have any information on this POTCAR."
                 )
-            basis_functions.append(BASIS[type].split())
-            tojoin = str(AtomTypes_Potcar[itype]) + " "
-            tojoin2 = "".join(str(str(e) + " ") for e in BASIS[type].split())
-            list_forin.append(str(tojoin + tojoin2))
+            basis_functions.append(BASIS[basis].split())
+            to_join = str(AtomTypes_Potcar[idx]) + " "
+            to_join2 = "".join(str(str(e) + " ") for e in BASIS[basis].split())
+            list_forin.append(str(to_join + to_join2))
         return list_forin
 
     @staticmethod
@@ -387,22 +391,21 @@ class Lobsterin(dict, MSONable):
             structure: Structure object
             potcar_symbols: list of the potcar symbols
             address_basis_file_min: path to file with the minimum required basis by the POTCAR
-            address_basis_file_max: path to file with the largest possible basis of the POTCAR
+            address_basis_file_max: path to file with the largest possible basis of the POTCAR.
 
-        Returns: List of dictionaries that can be used to create new Lobsterin objects in
-        standard_calculations_from_vasp_files as dict_for_basis
+        Returns:
+            list[dict]: Can be used to create new Lobsterin objects in
+                standard_calculations_from_vasp_files as dict_for_basis
         """
         max_basis = Lobsterin.get_basis(
             structure=structure,
             potcar_symbols=potcar_symbols,
-            address_basis_file=address_basis_file_max
-            or os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_max.yaml"),
+            address_basis_file=address_basis_file_max or f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_max.yaml",
         )
         min_basis = Lobsterin.get_basis(
             structure=structure,
             potcar_symbols=potcar_symbols,
-            address_basis_file=address_basis_file_min
-            or os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_min.yaml"),
+            address_basis_file=address_basis_file_min or f"{MODULE_DIR}/lobster_basis/BASIS_PBE_54_min.yaml",
         )
         all_basis = get_all_possible_basis_combinations(min_basis=min_basis, max_basis=max_basis)
         list_basis_dict = []
@@ -420,7 +423,7 @@ class Lobsterin(dict, MSONable):
         POSCAR_input="POSCAR", POSCAR_output="POSCAR.lobster", symprec: float = 0.01
     ):
         """
-        Writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath
+        Writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath.
 
         Args:
             POSCAR_input (str): filename of input POSCAR
@@ -445,7 +448,7 @@ class Lobsterin(dict, MSONable):
         symprec: float = 0.01,
     ):
         """
-        Writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered
+        Writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered.
 
         Args:
             POSCAR_input (str): path to POSCAR
@@ -461,8 +464,8 @@ class Lobsterin(dict, MSONable):
         """
         structure = Structure.from_file(POSCAR_input)
         if not from_grid:
-            kpointgrid = Kpoints.automatic_density_by_vol(structure, reciprocal_density).kpts
-            mesh = kpointgrid[0]
+            kpoint_grid = Kpoints.automatic_density_by_vol(structure, reciprocal_density).kpts
+            mesh = kpoint_grid[0]
         else:
             mesh = input_grid
 
@@ -546,14 +549,8 @@ class Lobsterin(dict, MSONable):
                 kpts.append(f)
                 weights.append(0.0)
                 all_labels.append(labels[k])
-        if isym == -1:
-            comment = (
-                "ISYM=-1, grid: " + str(mesh) if not line_mode else "ISYM=-1, grid: " + str(mesh) + " plus kpoint path"
-            )
-        elif isym == 0:
-            comment = (
-                "ISYM=0, grid: " + str(mesh) if not line_mode else "ISYM=0, grid: " + str(mesh) + " plus kpoint path"
-            )
+        ISYM = isym
+        comment = f"{ISYM=}, grid: {mesh}" if not line_mode else f"{ISYM=}, grid: {mesh} plus kpoint path"
 
         KpointObject = Kpoints(
             comment=comment,
@@ -570,7 +567,7 @@ class Lobsterin(dict, MSONable):
     def from_file(cls, lobsterin: str):
         """
         Args:
-            lobsterin (str): path to lobsterin
+            lobsterin (str): path to lobsterin.
 
         Returns:
             Lobsterin object
@@ -592,15 +589,15 @@ class Lobsterin(dict, MSONable):
             if len(raw_datum) > 1:
                 # check which type of keyword this is, handle accordingly
                 if raw_datum[0].lower() not in [datum2.lower() for datum2 in Lobsterin.LISTKEYWORDS]:
-                    if raw_datum[0].lower() not in [datum2.lower() for datum2 in Lobsterin.FLOATKEYWORDS]:
+                    if raw_datum[0].lower() not in [datum2.lower() for datum2 in Lobsterin.FLOAT_KEYWORDS]:
                         if raw_datum[0].lower() not in Lobsterindict:
                             Lobsterindict[raw_datum[0].lower()] = " ".join(raw_datum[1:])
                         else:
-                            raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                            raise ValueError(f"Same keyword {raw_datum[0].lower()} twice!")
                     elif raw_datum[0].lower() not in Lobsterindict:
                         Lobsterindict[raw_datum[0].lower()] = float(raw_datum[1])
                     else:
-                        raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                        raise ValueError(f"Same keyword {raw_datum[0].lower()} twice!")
                 elif raw_datum[0].lower() not in Lobsterindict:
                     Lobsterindict[raw_datum[0].lower()] = [" ".join(raw_datum[1:])]
                 else:
@@ -613,7 +610,7 @@ class Lobsterin(dict, MSONable):
     @staticmethod
     def _get_potcar_symbols(POTCAR_input: str) -> list:
         """
-        Will return the name of the species in the POTCAR
+        Will return the name of the species in the POTCAR.
 
         Args:
             POTCAR_input(str): string to potcar file
@@ -643,8 +640,7 @@ class Lobsterin(dict, MSONable):
         if potcar.functional != "PBE":
             raise OSError("We only have BASIS options for PBE so far")
 
-        Potcar_names = [name["symbol"] for name in potcar.spec]
-        return Potcar_names
+        return [name["symbol"] for name in potcar.spec]
 
     @classmethod
     def standard_calculations_from_vasp_files(
@@ -657,7 +653,7 @@ class Lobsterin(dict, MSONable):
         option: str = "standard",
     ):
         """
-        Will generate Lobsterin with standard settings
+        Will generate Lobsterin with standard settings.
 
         Args:
             POSCAR_input(str): path to POSCAR
@@ -813,7 +809,7 @@ class Lobsterin(dict, MSONable):
         if dict_for_basis is not None:
             # dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'}
             # will just insert this basis and not check with poscar
-            basis = [key + " " + value for key, value in dict_for_basis.items()]
+            basis = [f"{key} {value}" for key, value in dict_for_basis.items()]
         elif POTCAR_input is not None:
             # get basis from POTCAR
             potcar_names = Lobsterin._get_potcar_symbols(POTCAR_input=POTCAR_input)
@@ -833,9 +829,10 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
 
     Args:
         min_basis: list of basis entries: e.g., ['Si 3p 3s ']
-        max_basis: list of basis entries: e.g., ['Si 3p 3s ']
+        max_basis: list of basis entries: e.g., ['Si 3p 3s '].
 
-    Returns: all possible combinations of basis functions, e.g. [['Si 3p 3s']]
+    Returns:
+        list[list[str]]: all possible combinations of basis functions, e.g. [['Si 3p 3s']]
     """
     max_basis_lists = [x.split() for x in max_basis]
     min_basis_lists = [x.split() for x in min_basis]
@@ -849,7 +846,7 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
                 basis_dict[el[0]]["fixed"].append(basis)
             if basis not in min_basis_lists[iel]:
                 basis_dict[el[0]]["variable"].append(basis)
-        for L in range(0, len(basis_dict[el[0]]["variable"]) + 1):
+        for L in range(len(basis_dict[el[0]]["variable"]) + 1):
             for subset in itertools.combinations(basis_dict[el[0]]["variable"], L):
                 basis_dict[el[0]]["combinations"].append(" ".join([el[0]] + basis_dict[el[0]]["fixed"] + list(subset)))
 

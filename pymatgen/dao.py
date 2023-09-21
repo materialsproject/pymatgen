@@ -1,6 +1,4 @@
-"""
-The dao for pymatgen.
-"""
+"""The dao for pymatgen."""
 
 from __future__ import annotations
 
@@ -13,10 +11,10 @@ The 道 of Pymatgen
 3.  Clear documentation leads to more usage.
 4.  More usage improves code quality (and increases citations).
 5.  Even complex scientific ideas can be broken down into simple interfaces.
-6.  Though deep (Hulk-level) understanding is often necessary to develop the right interface design.
+6.  Deep (Hulk-level) understanding is often necessary to develop the right interface design.
 7.  Slow and accurate is better than fast and wrong.
 8.  But efficiency matters for core classes.
-9.  The law of thermodynamics apply: code entropy always increases in a closed system.
+9.  Code entropy always increases in a closed system.
 10. Constant refactoring is the hallmark of an open platform.
 
 ---

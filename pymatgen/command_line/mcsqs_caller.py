@@ -1,6 +1,5 @@
-"""
-Module to call mcsqs, distributed with AT-AT
-https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
+"""Module to call mcsqs, distributed with AT-AT
+https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/.
 """
 
 from __future__ import annotations
@@ -39,14 +38,13 @@ def run_mcsqs(
     search_time: float = 60,
     directory: str | None = None,
     instances: int | None = None,
-    temperature: int | float = 1,
+    temperature: float = 1,
     wr: float = 1,
     wn: float = 1,
     wd: float = 0.5,
     tol: float = 1e-3,
 ) -> Sqs:
-    """
-    Helper function for calling mcsqs with different arguments
+    """Helper function for calling mcsqs with different arguments
     Args:
         structure (Structure): Disordered pymatgen Structure object
         clusters (dict): Dictionary of cluster interactions with entries in the form
@@ -67,7 +65,7 @@ def run_mcsqs(
             function (default = 1)
         wn (int or float): Multiplicative decrease in weight per additional point in cluster (default: 1)
         wd (int or float): Exponent of decay in weight as function of cluster diameter (default: 0.5)
-        tol (int or float): Tolerance for matching correlations (default: 1e-3)
+        tol (int or float): Tolerance for matching correlations (default: 1e-3).
 
     Returns:
         Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
@@ -88,8 +86,8 @@ def run_mcsqs(
     os.chdir(directory)
 
     if isinstance(scaling, (int, float)):
-        if scaling % 1:
-            raise ValueError(f"Scaling should be an integer, not {scaling}")
+        if scaling % 1 != 0:
+            raise ValueError(f"{scaling=} should be an integer")
         mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * num_atoms}"]
 
     else:
@@ -104,7 +102,7 @@ def run_mcsqs(
     # Generate clusters
     mcsqs_generate_clusters_cmd = ["mcsqs"]
     for num in clusters:
-        mcsqs_generate_clusters_cmd.append("-" + str(num) + "=" + str(clusters[num]))
+        mcsqs_generate_clusters_cmd.append(f"-{num}={clusters[num]}")
 
     # Run mcsqs to find clusters
     with Popen(mcsqs_generate_clusters_cmd) as process:
@@ -163,18 +161,16 @@ def run_mcsqs(
             process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
-            sqs = _parse_sqs_path(".")
-            return sqs
+            return _parse_sqs_path(".")
 
         os.chdir(original_directory)
         raise TimeoutError("Cluster expansion took too long.")
 
 
 def _parse_sqs_path(path) -> Sqs:
-    """
-    Private function to parse mcsqs output directory
+    """Private function to parse mcsqs output directory
     Args:
-        path: directory to perform parsing
+        path: directory to perform parsing.
 
     Returns:
         Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
@@ -191,7 +187,7 @@ def _parse_sqs_path(path) -> Sqs:
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        bestsqs = Structure.from_file(path / "bestsqs.out")
+        best_sqs = Structure.from_file(path / "bestsqs.out")
 
     # Get best SQS objective function
     with open(path / "bestcorr.out") as f:
@@ -210,9 +206,7 @@ def _parse_sqs_path(path) -> Sqs:
         corr_out = f"bestcorr{i + 1}.out"
         with Popen(f"str2cif < {sqs_out} > {sqs_cif}", shell=True, cwd=path) as p:
             p.communicate()
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            sqs = Structure.from_file(path / sqs_out)
+        sqs = Structure.from_file(path / sqs_out)
         with open(path / corr_out) as f:
             lines = f.readlines()
 
@@ -224,7 +218,7 @@ def _parse_sqs_path(path) -> Sqs:
     clusters = _parse_clusters(path / "clusters.out")
 
     return Sqs(
-        bestsqs=bestsqs,
+        bestsqs=best_sqs,
         objective_function=objective_function,
         allsqs=allsqs,
         directory=str(path.resolve()),
@@ -233,10 +227,9 @@ def _parse_sqs_path(path) -> Sqs:
 
 
 def _parse_clusters(filename):
-    """
-    Private function to parse clusters.out file
+    """Private function to parse clusters.out file
     Args:
-        path: directory to perform parsing
+        path: directory to perform parsing.
 
     Returns:
         List of dicts
