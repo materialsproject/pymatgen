@@ -501,9 +501,9 @@ class Atoms(MSONable):
         """
         lines = [
             [
-                f"{self._cluster[0].x:f}",
-                f"{self._cluster[0].y:f}",
-                f"{self._cluster[0].z:f}",
+                f"{self._cluster[0].x}",
+                f"{self._cluster[0].y}",
+                f"{self._cluster[0].z}",
                 0,
                 self.absorbing_atom,
                 "0.0",
@@ -515,12 +515,12 @@ class Atoms(MSONable):
             ipot = self.pot_dict[site_symbol]
             lines.append(
                 [
-                    f"{site.x:f}",
-                    f"{site.y:f}",
-                    f"{site.z:f}",
+                    f"{site.x}",
+                    f"{site.y}",
+                    f"{site.z}",
                     ipot,
                     site_symbol,
-                    f"{self._cluster.get_distance(0, idx + 1):f}",
+                    f"{self._cluster.get_distance(0, idx + 1)}",
                     idx + 1,
                 ]
             )
