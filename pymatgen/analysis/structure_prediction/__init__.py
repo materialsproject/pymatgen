@@ -1,3 +1,1 @@
-"""
-Utilities to predict new structures.
-"""
+"""Utilities to predict new structures."""

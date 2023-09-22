@@ -1,8 +1,8 @@
-"""
-This module contains some utility functions and classes that are used in the chemenv package.
-"""
+"""This module contains some utility functions and classes that are used in the chemenv package."""
 
 from __future__ import annotations
+
+from typing import ClassVar
 
 import numpy as np
 
@@ -24,20 +24,18 @@ __date__ = "Feb 20, 2016"
 
 
 class AbstractRatioFunction:
-    """
-    Abstract class for all ratio functions
-    """
+    """Abstract class for all ratio functions."""
 
-    ALLOWED_FUNCTIONS: dict[str, list] = {}
+    ALLOWED_FUNCTIONS: ClassVar[dict[str, list]] = {}  # type: ignore[assignment]
 
     def __init__(self, function, options_dict=None):
-        """Constructor for AbstractRatioFunction
+        """Constructor for AbstractRatioFunction.
 
         :param function: Ration function name.
         :param options_dict: Dictionary containing the parameters for the ratio function.
         """
         if function not in self.ALLOWED_FUNCTIONS:
-            raise ValueError(f'Function {function!r} is not allowed in RatioFunction of type "{type(self).__name__}"')
+            raise ValueError(f"{function=!r} is not allowed in RatioFunction of type {type(self).__name__}")
         self.eval = object.__getattribute__(self, function)
         self.function = function
         self.setup_parameters(options_dict=options_dict)
@@ -46,7 +44,6 @@ class AbstractRatioFunction:
         """Set up the parameters for this ratio function.
 
         :param options_dict: Dictionary containing the parameters for the ratio function.
-        :return: None.
         """
         function_options = self.ALLOWED_FUNCTIONS[self.function]
         if len(function_options) > 0:
@@ -92,32 +89,36 @@ class AbstractRatioFunction:
         """Evaluate the ratio function for the given value.
 
         :param value: Value for which ratio function has to be evaluated.
-        :return: Ratio function corresponding to the value.
+
+        Returns:
+            Ratio function corresponding to the value.
         """
         return self.eval(value)
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """Construct ratio function from dict.
 
-        :param dd: Dict representation of the ratio function
-        :return: Ratio function object.
+        :param dct: Dict representation of the ratio function
+
+        Returns:
+            Ratio function object.
         """
-        return cls(function=dd["function"], options_dict=dd["options"])
+        return cls(function=dct["function"], options_dict=dct["options"])
 
 
 class RatioFunction(AbstractRatioFunction):
     """Concrete implementation of a series of ratio functions."""
 
-    ALLOWED_FUNCTIONS = {
-        "power2_decreasing_exp": ["max", "alpha"],
-        "smoothstep": ["lower", "upper"],
-        "smootherstep": ["lower", "upper"],
-        "inverse_smoothstep": ["lower", "upper"],
-        "inverse_smootherstep": ["lower", "upper"],
-        "power2_inverse_decreasing": ["max"],
-        "power2_inverse_power2_decreasing": ["max"],
-    }
+    ALLOWED_FUNCTIONS = dict(
+        power2_decreasing_exp=["max", "alpha"],
+        smoothstep=["lower", "upper"],
+        smootherstep=["lower", "upper"],
+        inverse_smoothstep=["lower", "upper"],
+        inverse_smootherstep=["lower", "upper"],
+        power2_inverse_decreasing=["max"],
+        power2_inverse_power2_decreasing=["max"],
+    )
 
     def power2_decreasing_exp(self, vals):
         """Get the evaluation of the ratio function f(x)=exp(-a*x)*(x-1)^2.
@@ -126,7 +127,9 @@ class RatioFunction(AbstractRatioFunction):
         correspond to the "alpha" parameter.
 
         :param vals: Values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the values.
+
+        Returns:
+            Result of the ratio function applied to the values.
         """
         return power2_decreasing_exp(vals, edges=[0.0, self.__dict__["max"]], alpha=self.__dict__["alpha"])
 
@@ -136,7 +139,9 @@ class RatioFunction(AbstractRatioFunction):
         The values (i.e. "x"), are scaled between the "lower" and "upper" parameters.
 
         :param vals: Values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the values.
+
+        Returns:
+            Result of the ratio function applied to the values.
         """
         return smootherstep(vals, edges=[self.__dict__["lower"], self.__dict__["upper"]])
 
@@ -146,7 +151,9 @@ class RatioFunction(AbstractRatioFunction):
         The values (i.e. "x"), are scaled between the "lower" and "upper" parameters.
 
         :param vals: Values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the values.
+
+        Returns:
+            Result of the ratio function applied to the values.
         """
         return smoothstep(vals, edges=[self.__dict__["lower"], self.__dict__["upper"]])
 
@@ -156,7 +163,9 @@ class RatioFunction(AbstractRatioFunction):
         The values (i.e. "x"), are scaled between the "lower" and "upper" parameters.
 
         :param vals: Values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the values.
+
+        Returns:
+            Result of the ratio function applied to the values.
         """
         return smootherstep(vals, edges=[self.__dict__["lower"], self.__dict__["upper"]], inverse=True)
 
@@ -166,7 +175,9 @@ class RatioFunction(AbstractRatioFunction):
         The values (i.e. "x"), are scaled between the "lower" and "upper" parameters.
 
         :param vals: Values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the values.
+
+        Returns:
+            Result of the ratio function applied to the values.
         """
         return smoothstep(vals, edges=[self.__dict__["lower"], self.__dict__["upper"]], inverse=True)
 
@@ -176,7 +187,9 @@ class RatioFunction(AbstractRatioFunction):
         The values (i.e. "x"), are scaled to the "max" parameter.
 
         :param vals: Values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the values.
+
+        Returns:
+            Result of the ratio function applied to the values.
         """
         return power2_inverse_decreasing(vals, edges=[0.0, self.__dict__["max"]])
 
@@ -186,7 +199,9 @@ class RatioFunction(AbstractRatioFunction):
         The values (i.e. "x"), are scaled to the "max" parameter.
 
         :param vals: Values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the values.
+
+        Returns:
+            Result of the ratio function applied to the values.
         """
         return power2_inverse_power2_decreasing(vals, edges=[0.0, self.__dict__["max"]])
 
@@ -201,11 +216,11 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = {
-        "power2_decreasing_exp": ["max_csm", "alpha"],
-        "smoothstep": ["lower_csm", "upper_csm"],
-        "smootherstep": ["lower_csm", "upper_csm"],
-    }
+    ALLOWED_FUNCTIONS = dict(
+        power2_decreasing_exp=["max_csm", "alpha"],
+        smoothstep=["lower_csm", "upper_csm"],
+        smootherstep=["lower_csm", "upper_csm"],
+    )
 
     def power2_decreasing_exp(self, vals):
         """Get the evaluation of the ratio function f(x)=exp(-a*x)*(x-1)^2.
@@ -214,7 +229,9 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         correspond to the "alpha" parameter.
 
         :param vals: CSM values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the CSM values.
+
+        Returns:
+            Result of the ratio function applied to the CSM values.
         """
         return power2_decreasing_exp(vals, edges=[0.0, self.__dict__["max_csm"]], alpha=self.__dict__["alpha"])
 
@@ -224,7 +241,9 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         The CSM values (i.e. "x"), are scaled between the "lower_csm" and "upper_csm" parameters.
 
         :param vals: CSM values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the CSM values.
+
+        Returns:
+            Result of the ratio function applied to the CSM values.
         """
         return smootherstep(
             vals,
@@ -238,7 +257,9 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         The CSM values (i.e. "x"), are scaled between the "lower_csm" and "upper_csm" parameters.
 
         :param vals: CSM values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the CSM values.
+
+        Returns:
+            Result of the ratio function applied to the CSM values.
         """
         return smootherstep(
             vals,
@@ -250,7 +271,9 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         """Get the fractions from the CSM ratio function applied to the data.
 
         :param data: List of CSM values to estimate fractions.
-        :return: Corresponding fractions for each CSM.
+
+        Returns:
+            Corresponding fractions for each CSM.
         """
         if len(data) == 0:
             return None
@@ -263,7 +286,9 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         """Get the weighted CSM using this CSM ratio function applied to the data.
 
         :param data: List of CSM values to estimate the weighted CSM.
-        :return: Weighted CSM from this ratio function.
+
+        Returns:
+            Weighted CSM from this ratio function.
         """
         if len(data) == 0:
             return None
@@ -287,10 +312,10 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = {
-        "power2_inverse_decreasing": ["max_csm"],
-        "power2_inverse_power2_decreasing": ["max_csm"],
-    }
+    ALLOWED_FUNCTIONS = dict(
+        power2_inverse_decreasing=["max_csm"],
+        power2_inverse_power2_decreasing=["max_csm"],
+    )
 
     def power2_inverse_decreasing(self, vals):
         """Get the evaluation of the ratio function f(x)=(x-1)^2 / x.
@@ -299,7 +324,9 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
         correspond to the "alpha" parameter.
 
         :param vals: CSM values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the CSM values.
+
+        Returns:
+            Result of the ratio function applied to the CSM values.
         """
         return power2_inverse_decreasing(vals, edges=[0.0, self.__dict__["max_csm"]])
 
@@ -310,7 +337,9 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
         correspond to the "alpha" parameter.
 
         :param vals: CSM values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the CSM values.
+
+        Returns:
+            Result of the ratio function applied to the CSM values.
         """
         return power2_inverse_power2_decreasing(vals, edges=[0.0, self.__dict__["max_csm"]])
 
@@ -318,17 +347,19 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
         """Get the fractions from the CSM ratio function applied to the data.
 
         :param data: List of CSM values to estimate fractions.
-        :return: Corresponding fractions for each CSM.
+
+        Returns:
+            Corresponding fractions for each CSM.
         """
         if len(data) == 0:
             return None
         close_to_zero = np.isclose(data, 0.0, atol=1e-10).tolist()
-        nzeros = close_to_zero.count(True)
-        if nzeros == 1:
+        n_zeros = close_to_zero.count(True)
+        if n_zeros == 1:
             fractions = [0.0] * len(data)
             fractions[close_to_zero.index(True)] = 1.0
             return fractions
-        if nzeros > 1:
+        if n_zeros > 1:
             raise RuntimeError("Should not have more than one continuous symmetry measure with value equal to 0.0")
         fractions = self.eval(np.array(data))
         total = np.sum(fractions)
@@ -340,7 +371,9 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
         """Get the weighted CSM using this CSM ratio function applied to the data.
 
         :param data: List of CSM values to estimate the weighted CSM.
-        :return: Weighted CSM from this ratio function.
+
+        Returns:
+            Weighted CSM from this ratio function.
         """
         if len(data) == 0:
             return None
@@ -366,7 +399,7 @@ class DeltaCSMRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = {"smootherstep": ["delta_csm_min", "delta_csm_max"]}
+    ALLOWED_FUNCTIONS = dict(smootherstep=["delta_csm_min", "delta_csm_max"])
 
     def smootherstep(self, vals):
         """Get the evaluation of the smootherstep ratio function: f(x)=6*x^5-15*x^4+10*x^3.
@@ -374,6 +407,8 @@ class DeltaCSMRatioFunction(AbstractRatioFunction):
         The DeltaCSM values (i.e. "x"), are scaled between the "delta_csm_min" and "delta_csm_max" parameters.
 
         :param vals: DeltaCSM values for which the ratio function has to be evaluated.
-        :return: Result of the ratio function applied to the DeltaCSM values.
+
+        Returns:
+            Result of the ratio function applied to the DeltaCSM values.
         """
         return smootherstep(vals, edges=[self.__dict__["delta_csm_min"], self.__dict__["delta_csm_max"]])

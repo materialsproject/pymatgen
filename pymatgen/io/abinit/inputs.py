@@ -85,16 +85,6 @@ _IRDVARS = {
     "ird1wf",
 }
 
-# Name of the (default) tolerance used by the runlevels.
-_runl2tolname = {
-    "scf": "tolvrs",
-    "nscf": "tolwfr",
-    "dfpt": "toldfe",  # ?
-    "screening": "toldfe",  # dummy
-    "sigma": "toldfe",  # dummy
-    "bse": "toldfe",  # ?
-    "relax": "tolrff",
-}
 
 # Tolerances for the different levels of accuracy.
 
@@ -155,7 +145,7 @@ class ShiftMode(Enum):
     def from_object(cls, obj):
         """
         Returns an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
-        on the iniital letter of the string. G for GammaCenterd, M for MonkhorstPack,
+        on the initial letter of the string. G for GammaCentered, M for MonkhorstPack,
         S for Symmetric, O for OneSymmetric.
         Case insensitive.
         """
@@ -163,17 +153,28 @@ class ShiftMode(Enum):
             return obj
         if is_string(obj):
             return cls(obj[0].upper())
-        raise TypeError(f"The object provided is not handled: type {type(obj)}")
+        raise TypeError(f"The object provided is not handled: type {type(obj).__name__}")
 
 
-def _stopping_criterion(runlevel, accuracy):
-    """Return the stopping criterion for this runlevel with the given accuracy."""
-    tolname = _runl2tolname[runlevel]
-    return {tolname: getattr(_tolerances[tolname], accuracy)}
+def _stopping_criterion(run_level, accuracy):
+    """Return the stopping criterion for this run_level with the given accuracy."""
+
+    # Name of the (default) tolerance used by the run levels.
+    _run_level_tolname_map = {
+        "scf": "tolvrs",
+        "nscf": "tolwfr",
+        "dfpt": "toldfe",  # ?
+        "screening": "toldfe",  # dummy
+        "sigma": "toldfe",  # dummy
+        "bse": "toldfe",  # ?
+        "relax": "tolrff",
+    }
+    tol_name = _run_level_tolname_map[run_level]
+    return {tol_name: getattr(_tolerances[tol_name], accuracy)}
 
 
 def _find_ecut_pawecutdg(ecut, pawecutdg, pseudos, accuracy):
-    """Return a |AttrDict| with the value of ``ecut`` and ``pawecutdg``."""
+    """Return a |AttrDict| with the value of ecut and pawecutdg."""
     # Get ecut and pawecutdg from the pseudo hints.
     if ecut is None or (pawecutdg is None and any(p.ispaw for p in pseudos)):
         has_hints = all(p.has_hints for p in pseudos)
@@ -194,18 +195,18 @@ def _find_ecut_pawecutdg(ecut, pawecutdg, pseudos, accuracy):
 
 
 def _find_scf_nband(structure, pseudos, electrons, spinat=None):
-    """Find the value of ``nband``."""
+    """Find the value of nband."""
     if electrons.nband is not None:
         return electrons.nband
 
     nsppol, smearing = electrons.nsppol, electrons.smearing
 
     # Number of valence electrons including possible extra charge
-    nval = num_valence_electrons(structure, pseudos)
-    nval -= electrons.charge
+    n_val_elec = num_valence_electrons(structure, pseudos)
+    n_val_elec -= electrons.charge
 
     # First guess (semiconductors)
-    nband = nval // 2
+    nband = n_val_elec // 2
 
     # TODO: Find better algorithm
     # If nband is too small we may kill the job, increase nband and restart
@@ -234,7 +235,7 @@ def _get_shifts(shift_mode, structure):
         centered otherwise.
 
     Note: for some cases (e.g. body centered tetragonal), both the Symmetric and OneSymmetric may fail to satisfy the
-        ``chksymbreak`` condition (Abinit input variable).
+        chksymbreak condition (Abinit input variable).
     """
     if shift_mode == ShiftMode.GammaCentered:
         return ((0, 0, 0),)
@@ -248,7 +249,7 @@ def _get_shifts(shift_mode, structure):
             return shifts
         return ((0, 0, 0),)
 
-    raise ValueError(f"invalid shift_mode: `{shift_mode!s}`")
+    raise ValueError(f"invalid {shift_mode=}")
 
 
 def gs_input(
@@ -475,7 +476,7 @@ def ion_ioncell_relax_input(
 
 def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
     """
-    Find the values of ``shiftk`` and ``nshiftk`` appropriated for the sampling of the Brillouin zone.
+    Find the values of shiftk and nshiftk appropriated for the sampling of the Brillouin zone.
 
     When the primitive vectors of the lattice do NOT form a FCC or a BCC lattice,
     the usual (shifted) Monkhorst-Pack grids are formed by using nshiftk=1 and shiftk 0.5 0.5 0.5 .
@@ -550,7 +551,7 @@ def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
                 if abs(angle - 120) < 1.0:
                     j = (i + 1) % 3
                     k = (i + 2) % 3
-                    hex_ax = [ax for ax in range(3) if ax not in [j, k]][0]
+                    hex_ax = next(ax for ax in range(3) if ax not in [j, k])
                     break
             else:
                 raise ValueError("Cannot find hexagonal axis")
@@ -585,9 +586,7 @@ def num_valence_electrons(structure, pseudos):
 
 
 class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
-    """
-    Abstract class defining the methods that must be implemented by Input objects.
-    """
+    """Abstract class defining the methods that must be implemented by Input objects."""
 
     # ABC protocol: __delitem__, __getitem__, __iter__, __len__, __setitem__
     def __delitem__(self, key):
@@ -597,7 +596,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return self.vars.__getitem__(key)
 
     def __iter__(self):
-        return self.vars.__iter__()
+        return iter(self.vars)
 
     def __len__(self):
         return len(self.vars)
@@ -610,12 +609,10 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return f"<{type(self).__name__} at {id(self)}>"
 
     def __str__(self):
-        return self.to_string()
+        return self.to_str()
 
     def write(self, filepath="run.abi"):
-        """
-        Write the input file to file to ``filepath``.
-        """
+        """Write the input file to file to filepath."""
         dirname = os.path.dirname(os.path.abspath(filepath))
         if not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -683,7 +680,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         removed = {}
         for key in list_strings(keys):
             if strict and key not in self:
-                raise KeyError(f"key: {key} not in self:\n {list(self)}")
+                raise KeyError(f"{key=} not in self:\n {list(self)}")
             if key in self:
                 removed[key] = self.pop(key)
 
@@ -698,18 +695,16 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         """Check if key is a valid name. Raise self.Error if not valid."""
 
     @abc.abstractmethod
-    def to_string(self):
+    def to_str(self):
         """Returns a string with the input."""
 
 
 class BasicAbinitInputError(Exception):
-    """Base error class for exceptions raised by ``BasicAbinitInput``."""
+    """Base error class for exceptions raised by BasicAbinitInput."""
 
 
 class BasicAbinitInput(AbstractInput, MSONable):
-    """
-    This object stores the ABINIT variables for a single dataset.
-    """
+    """This object stores the ABINIT variables for a single dataset."""
 
     Error = BasicAbinitInputError
 
@@ -733,7 +728,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             ndtset: Number of datasets.
             comment: Optional string with a comment that will be placed at the beginning of the file.
             abi_args: list of tuples (key, value) with the initial set of variables. Default: Empty
-            abi_kwargs: Dictionary with the initial set of variables. Default: Empty
+            abi_kwargs: Dictionary with the initial set of variables. Default: Empty.
         """
         # Internal dict with variables. we use an ordered dict so that
         # variables will be likely grouped by `topics` when we fill the input.
@@ -766,9 +761,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             self.set_comment(comment)
 
     def as_dict(self):
-        """
-        JSON interface used in pymatgen for easier serialization.
-        """
+        """JSON interface used in pymatgen for easier serialization."""
         # Use a list of (key, value) to serialize the dict
         abi_args = []
         for key, value in self.items():
@@ -792,21 +785,19 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        JSON interface used in pymatgen for easier serialization.
-        """
+        """JSON interface used in pymatgen for easier serialization."""
         pseudos = [Pseudo.from_file(p["filepath"]) for p in d["pseudos"]]
         return cls(d["structure"], pseudos, comment=d["comment"], abi_args=d["abi_args"])
 
     def add_abiobjects(self, *abi_objects):
         """
-        This function receive a list of ``AbiVarable`` objects and add
+        This function receive a list of AbiVarable objects and add
         the corresponding variables to the input.
         """
         dct = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
-                raise TypeError(f"type {type(obj)}: {obj!r} does not have `to_abivars` method")
+                raise TypeError(f"type {type(obj).__name__} does not have `to_abivars` method")
             dct.update(self.set_vars(obj.to_abivars()))
         return dct
 
@@ -823,7 +814,11 @@ class BasicAbinitInput(AbstractInput, MSONable):
                 "Use Structure objects to prepare the input file."
             )
 
-    def to_string(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
         """
         String representation.
 
@@ -955,7 +950,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         Return dictionary with the variables that have been removed.
 
         Args:
-            spin_mode: :class:`SpinMode` object or string. Possible values for string are:
+            spin_mode: SpinMode object or string. Possible values for string are:
 
             - polarized
             - unpolarized
@@ -1016,7 +1011,7 @@ class BasicMultiDataset:
     that provides an easy-to-use interface to apply global changes to the
     the inputs stored in the objects.
 
-    Let's assume for example that multi contains two ``BasicAbinitInput`` objects and we
+    Let's assume for example that multi contains two BasicAbinitInput objects and we
     want to set `ecut` to 1 in both dictionaries. The direct approach would be:
 
         for inp in multi:
@@ -1093,9 +1088,6 @@ class BasicMultiDataset:
         if isinstance(pseudos, Pseudo):
             pseudos = [pseudos]
 
-        elif isinstance(pseudos, PseudoTable):
-            pseudos = pseudos
-
         elif all(isinstance(p, Pseudo) for p in pseudos):
             pseudos = PseudoTable(pseudos)
 
@@ -1106,7 +1098,7 @@ class BasicMultiDataset:
 
             missing = [p for p in pseudo_paths if not os.path.exists(p)]
             if missing:
-                raise self.Error(f"Cannot find the following pseudopotential files:\n{missing!s}")
+                raise self.Error(f"Cannot find the following pseudopotential files:\n{missing}")
 
             pseudos = PseudoTable(pseudo_paths)
 
@@ -1147,7 +1139,7 @@ class BasicMultiDataset:
         return self._inputs[key]
 
     def __iter__(self):
-        return self._inputs.__iter__()
+        return iter(self._inputs)
 
     def __getattr__(self, name):
         _inputs = object.__getattribute__(self, "_inputs")
@@ -1162,7 +1154,6 @@ class BasicMultiDataset:
             results = []
             for obj in self._inputs:
                 a = getattr(obj, name)
-                # print("name", name, ", type:", type(a), "callable: ",callable(a))
                 if callable(a):
                     results.append(a(*args, **kwargs))
                 else:
@@ -1176,7 +1167,7 @@ class BasicMultiDataset:
         return on_all
 
     def __add__(self, other):
-        """Self + other"""
+        """Self + other."""
         if isinstance(other, BasicAbinitInput):
             new_mds = BasicMultiDataset.from_inputs(self)
             new_mds.append(other)
@@ -1214,7 +1205,7 @@ class BasicMultiDataset:
         self._inputs.extend(abinit_inputs)
 
     def addnew_from(self, dtindex):
-        """Add a new entry in the multidataset by copying the input with index ``dtindex``."""
+        """Add a new entry in the multidataset by copying the input with index dtindex."""
         self.append(self[dtindex].deepcopy())
 
     def split_datasets(self):
@@ -1231,9 +1222,13 @@ class BasicMultiDataset:
         return all(self[0].structure == inp.structure for inp in self)
 
     def __str__(self):
-        return self.to_string()
+        return self.to_str()
 
-    def to_string(self, with_pseudos=True):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, with_pseudos=True):
         """
         String representation i.e. the input file read by Abinit.
 
@@ -1252,7 +1247,7 @@ class BasicMultiDataset:
                 return np.array_equal(vref, otherv)
 
             # Don't repeat variable that are common to the different datasets.
-            # Put them in the `Global Variables` section and exclude these variables in inp.to_string
+            # Put them in the `Global Variables` section and exclude these variables in inp.to_str
             global_vars = set()
             for k0, v0 in self[0].items():
                 isame = True
@@ -1262,7 +1257,6 @@ class BasicMultiDataset:
                         break
                 if isame:
                     global_vars.add(k0)
-            # print("global_vars vars", global_vars)
 
             w = 92
             if global_vars:
@@ -1275,7 +1269,7 @@ class BasicMultiDataset:
 
             has_same_structures = self.has_same_structures
             if has_same_structures:
-                # Write structure here and disable structure output in input.to_string
+                # Write structure here and disable structure output in input.to_str
                 lines.append(w * "#")
                 lines.append("#" + ("STRUCTURE").center(w - 1))
                 lines.append(w * "#")
@@ -1286,7 +1280,7 @@ class BasicMultiDataset:
             for i, inp in enumerate(self):
                 header = f"### DATASET {i + 1} ###"
                 is_last = i == self.ndtset - 1
-                s = inp.to_string(
+                s = inp.to_str(
                     post=str(i + 1),
                     with_pseudos=is_last and with_pseudos,
                     with_structure=not has_same_structures,
@@ -1304,12 +1298,12 @@ class BasicMultiDataset:
         # and we have variables that end with the dataset index e.g. acell1
         # We don't want to specify ndtset here since abinit will start to add DS# to
         # the input and output files thus complicating the algorithms we have to use to locate the files.
-        return self[0].to_string(with_pseudos=with_pseudos)
+        return self[0].to_str(with_pseudos=with_pseudos)
 
     def write(self, filepath="run.abi"):
         """
-        Write ``ndset`` input files to disk. The name of the file
-        is constructed from the dataset index e.g. run0.abi
+        Write ndset input files to disk. The name of the file
+        is constructed from the dataset index e.g. run0.abi.
         """
         root, ext = os.path.splitext(filepath)
         for i, inp in enumerate(self):

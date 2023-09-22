@@ -1,8 +1,4 @@
-# Credit to Dr. Shyue Ping Ong for the template of the calculator
-
-"""
-This module implements a TEM pattern calculator.
-"""
+"""This module implements a TEM pattern calculator."""
 
 from __future__ import annotations
 
@@ -10,8 +6,7 @@ import json
 import os
 from collections import namedtuple
 from fractions import Fraction
-from functools import lru_cache
-from typing import TYPE_CHECKING, List, Tuple, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import pandas as pd
@@ -42,7 +37,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     Code partially inspired from XRD calculation implementation. X-ray factor to electron factor
         conversion based on the International Table of Crystallography.
     #TODO: Could add "number of iterations", "magnification", "critical value of beam",
-            "twin direction" for certain materials, "sample thickness", and "excitation error s"
+            "twin direction" for certain materials, "sample thickness", and "excitation error s".
     """
 
     def __init__(
@@ -60,7 +55,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 set to 0, no refinement is done. Otherwise, refinement is
                 performed using spglib with provided precision.
             voltage (float): The wavelength is a function of the TEM microscope's
-                voltage. By default, set to 200 kV. Units in kV.
+                voltage (in kV). Defaults to 200.
             beam_direction (tuple): The direction of the electron beam fired onto the sample.
                 By default, set to [0,0,1], which corresponds to the normal direction
                 of the sample plane.
@@ -69,7 +64,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             debye_waller_factors ({element symbol: float}): Allows the
                 specification of Debye-Waller factors. Note that these
                 factors are temperature dependent.
-            cs (float): the chromatic aberration coefficient. set by default to 1 mm.
+            cs (float): The chromatic aberration coefficient (in mm). Defaults to 1.
         """
         self.symprec = symprec
         self.voltage = voltage
@@ -78,25 +73,16 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         self.debye_waller_factors = debye_waller_factors or {}
         self.cs = cs
 
-    @lru_cache(1)
     def wavelength_rel(self) -> float:
         """
         Calculates the wavelength of the electron beam with relativistic kinematic effects taken
             into account.
 
-        Args:
-            none
         Returns:
-            Relativistic Wavelength (in angstroms)
+            float: Relativistic Wavelength (in angstroms)
         """
-        wavelength_rel = (
-            sc.h
-            / np.sqrt(
-                2 * sc.m_e * sc.e * 1000 * self.voltage * (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c**2))
-            )
-            * (10**10)
-        )
-        return wavelength_rel
+        sqr = 2 * sc.m_e * sc.e * 1000 * self.voltage * (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c**2))
+        return sc.h / np.sqrt(sqr) * (10**10)
 
     @staticmethod
     def generate_points(coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
@@ -108,14 +94,13 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             coord_right (int): The maximum coordinate value.
 
         Returns:
-            Numpy 2d array
+            np.array: 2d array
         """
         points = [0, 0, 0]
         coord_values = np.arange(coord_left, coord_right + 1)
         points[0], points[1], points[2] = np.meshgrid(coord_values, coord_values, coord_values)  # type: ignore
-        points_matrix = (np.ravel(points[i]) for i in range(0, 3))
-        result = np.vstack(list(points_matrix)).transpose()
-        return result
+        points_matrix = (np.ravel(points[i]) for i in range(3))
+        return np.vstack(list(points_matrix)).transpose()
 
     def zone_axis_filter(
         self, points: list[tuple[int, int, int]] | np.ndarray, laue_zone: int = 0
@@ -136,8 +121,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]  # type: ignore
-        result_tuples = cast(List[Tuple[int, int, int]], [tuple(x) for x in result.tolist()])
-        return result_tuples
+        return cast(list[tuple[int, int, int]], [tuple(x) for x in result.tolist()])
 
     def get_interplanar_spacings(
         self, structure: Structure, points: list[tuple[int, int, int]] | np.ndarray
@@ -154,8 +138,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         if (0, 0, 0) in points_filtered:
             points_filtered.remove((0, 0, 0))
         interplanar_spacings_val = np.array([structure.lattice.d_hkl(x) for x in points_filtered])
-        interplanar_spacings = dict(zip(points_filtered, interplanar_spacings_val))
-        return interplanar_spacings
+        return dict(zip(points_filtered, interplanar_spacings_val))
 
     def bragg_angles(
         self, interplanar_spacings: dict[tuple[int, int, int], float]
@@ -165,14 +148,14 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
         Args:
             interplanar_spacings (dict): dictionary of hkl to interplanar spacing
+
         Returns:
             dict of hkl plane (3-tuple) to Bragg angle in radians (float)
         """
         plane = list(interplanar_spacings)
         interplanar_spacings_val = np.array(list(interplanar_spacings.values()))
         bragg_angles_val = np.arcsin(self.wavelength_rel() / (2 * interplanar_spacings_val))
-        bragg_angles = dict(zip(plane, bragg_angles_val))
-        return bragg_angles
+        return dict(zip(plane, bragg_angles_val))
 
     def get_s2(self, bragg_angles: dict[tuple[int, int, int], float]) -> dict[tuple[int, int, int], float]:
         """
@@ -188,8 +171,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         plane = list(bragg_angles)
         bragg_angles_val = np.array(list(bragg_angles.values()))
         s2_val = (np.sin(bragg_angles_val) / self.wavelength_rel()) ** 2
-        s2 = dict(zip(plane, s2_val))
-        return s2
+        return dict(zip(plane, s2_val))
 
     def x_ray_factors(
         self, structure: Structure, bragg_angles: dict[tuple[int, int, int], float]
@@ -207,7 +189,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         x_ray_factors = {}
         s2 = self.get_s2(bragg_angles)
-        atoms = structure.composition.elements
+        atoms = structure.elements
         scattering_factors_for_atom = {}
         for atom in atoms:
             coeffs = np.array(ATOMIC_SCATTERING_PARAMS[atom.symbol])
@@ -236,7 +218,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         electron_scattering_factors = {}
         x_ray_factors = self.x_ray_factors(structure, bragg_angles)
         s2 = self.get_s2(bragg_angles)
-        atoms = structure.composition.elements
+        atoms = structure.elements
         prefactor = 0.023934
         scattering_factors_for_atom = {}
         for atom in atoms:
@@ -290,8 +272,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         csf = self.cell_scattering_factors(structure, bragg_angles)
         csf_val = np.array(list(csf.values()))
         cell_intensity_val = (csf_val * csf_val.conjugate()).real
-        cell_intensity = dict(zip(bragg_angles, cell_intensity_val))
-        return cell_intensity
+        return dict(zip(bragg_angles, cell_intensity_val))
 
     def get_pattern(
         self,
@@ -305,9 +286,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Args:
             structure (Structure): The input structure.
             scaled (bool): Required value for inheritance, does nothing in TEM pattern
-            two_theta_range (Tuple): Required value for inheritance, does nothing in TEM pattern
+            two_theta_range (tuple[float, float]): Required value for inheritance, does nothing in TEM pattern
+
         Returns:
-            PandasDataFrame
+            pd.DataFrame
         """
         if self.symprec:
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
@@ -331,8 +313,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 "Interplanar Spacing": dot.d_spacing,
             }
             rows_list.append(dict1)
-        df = pd.DataFrame(rows_list, columns=field_names)
-        return df
+        return pd.DataFrame(rows_list, columns=field_names)
 
     def normalized_cell_intensity(
         self, structure: Structure, bragg_angles: dict[tuple[int, int, int], float]
@@ -406,6 +387,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): The input structure.
             p1 (3-tuple): plane 1
             p2 (3-tuple): plane 2
+
         Returns:
             float
         """
@@ -415,10 +397,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             np.deg2rad(structure.lattice.beta),
             np.deg2rad(structure.lattice.gamma),
         )
-        v = structure.lattice.volume
-        a_star = b * c * np.sin(alpha) / v
-        b_star = a * c * np.sin(beta) / v
-        c_star = a * b * np.sin(gamma) / v
+        vol = structure.volume
+        a_star = b * c * np.sin(alpha) / vol
+        b_star = a * c * np.sin(beta) / vol
+        c_star = a * b * np.sin(gamma) / vol
         cos_alpha_star = (np.cos(beta) * np.cos(gamma) - np.cos(alpha)) / (np.sin(beta) * np.sin(gamma))
         cos_beta_star = (np.cos(alpha) * np.cos(gamma) - np.cos(beta)) / (np.sin(alpha) * np.sin(gamma))
         cos_gamma_star = (np.cos(alpha) * np.cos(beta) - np.cos(gamma)) / (np.sin(alpha) * np.sin(beta))
@@ -588,7 +570,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                     "cmax": 1,
                     "cmin": 0,
                     "color": intensities,
-                    "colorscale": [[0, "black"], [1.0, "white"]],
+                    "colorscale": [[0, "black"], [1, "white"]],
                 },
                 showlegend=False,
             ),
@@ -627,8 +609,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             paper_bgcolor="rgba(100,110,110,0.5)",
             plot_bgcolor="black",
         )
-        fig = go.Figure(data=data, layout=layout)
-        return fig
+        return go.Figure(data=data, layout=layout)
 
     def get_plot_2d_concise(self, structure: Structure) -> go.Figure:
         """
@@ -668,7 +649,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                     "cmax": 1,
                     "cmin": 0,
                     "color": intensities,
-                    "colorscale": [[0, "black"], [1.0, "white"]],
+                    "colorscale": [[0, "black"], [1, "white"]],
                 },
                 showlegend=False,
             )

@@ -1,5 +1,4 @@
-"""
-This module provides classes to interface with the Materials Project REST
+"""This module provides classes to interface with the Materials Project REST
 API v2 to enable the creation of data structures and pymatgen objects using
 Materials Project data.
 
@@ -21,11 +20,10 @@ import sys
 import warnings
 from enum import Enum, unique
 from time import sleep
-from typing import TYPE_CHECKING, Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
-from mp_api.client import MPRester as _MPResterNew
 from ruamel.yaml import YAML
 from tqdm import tqdm
 
@@ -38,8 +36,11 @@ from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
     from pymatgen.phonon.dos import CompletePhononDos
 
@@ -63,7 +64,7 @@ def get_chunks(sequence: Sequence[Any], size=1):
 
 @unique
 class TaskType(Enum):
-    """task types available in legacy MP data"""
+    """task types available in legacy MP data."""
 
     GGA_OPT = "GGA Structure Optimization"
     GGAU_OPT = "GGA+U Structure Optimization"
@@ -82,13 +83,12 @@ class TaskType(Enum):
 
 
 class _MPResterLegacy:
-    """
-    A class to conveniently interface with the Materials Project REST
-    interface. The recommended way to use MPRester is with the "with" context
-    manager to ensure that sessions are properly closed after usage::
+    """A class to conveniently interface with the Materials Project REST interface.
+    The recommended way to use MPRester is with the "with" context manager to ensure
+    sessions are properly closed after usage.
 
-        with MPRester("API_KEY") as m:
-            do_something
+        with MPRester("API_KEY") as mpr:
+            mpr.some_method()
 
     MPRester uses the "requests" package, which provides for HTTP connection
     pooling. All connections are made via https for security.
@@ -255,15 +255,11 @@ class _MPResterLegacy:
                 pass
 
     def __enter__(self):
-        """
-        Support for "with" context.
-        """
+        """Support for "with" context."""
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """
-        Support for "with" context.
-        """
+        """Support for "with" context."""
         self.session.close()
 
     def _make_request(
@@ -290,13 +286,12 @@ class _MPResterLegacy:
 
             raise MPRestError(f"REST query returned with error status code {response.status_code}")
 
-        except Exception as ex:
-            msg = f"{ex}. Content: {getattr(response, 'content', str(ex))}"
+        except Exception as exc:
+            msg = f"{exc}. Content: {getattr(response, 'content', str(exc))}"
             raise MPRestError(msg)
 
     def get_database_version(self) -> str:
-        """
-        The Materials Project database is periodically updated and has a
+        """The Materials Project database is periodically updated and has a
         database version associated with it. When the database is updated,
         consolidated data (information about "a material") may and does
         change, while calculation data about a specific calculation task
@@ -306,15 +301,15 @@ class _MPResterLegacy:
         where "-DD" may be optional. An additional numerical suffix
         might be added if multiple releases happen on the same day.
 
-        Returns: database version as a string
+        Returns:
+            str: database version
         """
         dct = self._make_request("/api_check")
         return dct["version"]["db"]
 
     def get_materials_id_from_task_id(self, task_id):
-        """
-        Returns a new MP materials id from a task id (which can be
-        equivalent to an old materials id)
+        """Returns a new MP materials id from a task id (which can be
+        equivalent to an old materials id).
 
         Args:
             task_id (str): A task id.
@@ -325,8 +320,7 @@ class _MPResterLegacy:
         return self._make_request(f"/materials/mid_from_tid/{task_id}")
 
     def get_materials_id_references(self, material_id):
-        """
-        Returns all references for a materials id.
+        """Returns all references for a materials id.
 
         Args:
             material_id (str): A material id.
@@ -337,8 +331,7 @@ class _MPResterLegacy:
         return self._make_request(f"/materials/{material_id}/refs")
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
-        """
-        Flexible method to get any data using the Materials Project REST
+        """Flexible method to get any data using the Materials Project REST
         interface. Generally used by other methods for more specific queries.
 
         Format of REST return is *always* a list of dict (regardless of the
@@ -365,8 +358,7 @@ class _MPResterLegacy:
         return self._make_request(sub_url)
 
     def get_materials_ids(self, chemsys_formula):
-        """
-        Get all materials ids for a formula or chemsys.
+        """Get all materials ids for a formula or chemsys.
 
         Args:
             chemsys_formula (str): A chemical system (e.g., Li-Fe-O),
@@ -381,8 +373,7 @@ class _MPResterLegacy:
     get_material_id = get_materials_ids
 
     def get_doc(self, materials_id):
-        """
-        Get the entire data document for one materials id. Use this judiciously.
+        """Get the entire data document for one materials id. Use this judiciously.
 
         REST Endpoint: https://materialsproject.org/materials/<mp-id>/doc.
 
@@ -396,8 +387,7 @@ class _MPResterLegacy:
         return self._make_request(f"/materials/{materials_id}/doc", mp_decode=False)
 
     def get_xas_data(self, material_id, absorbing_element):
-        """
-        Get X-ray absorption spectroscopy data for absorbing element in the
+        """Get X-ray absorption spectroscopy data for absorbing element in the
         structure corresponding to a material_id. Only X-ray Absorption Near Edge
         Structure (XANES) for K-edge is supported.
 
@@ -421,8 +411,7 @@ class _MPResterLegacy:
         return data[0]
 
     def get_task_data(self, chemsys_formula_id, prop=""):
-        """
-        Flexible method to get any data using the Materials Project REST
+        """Flexible method to get any data using the Materials Project REST
         interface. Generally used by other methods for more specific queries.
         Unlike the :func:`get_data`_, this method queries the task collection
         for specific run information.
@@ -445,8 +434,7 @@ class _MPResterLegacy:
         return self._make_request(sub_url)
 
     def get_structures(self, chemsys_formula_id, final=True):
-        """
-        Get a list of Structures corresponding to a chemical system, formula,
+        """Get a list of Structures corresponding to a chemical system, formula,
         or materials_id.
 
         Args:
@@ -463,8 +451,7 @@ class _MPResterLegacy:
         return [d[prop] for d in data]
 
     def find_structure(self, filename_or_structure):
-        """
-        Finds matching structures on the Materials Project site.
+        """Finds matching structures on the Materials Project site.
 
         Args:
             filename_or_structure: filename or Structure object
@@ -475,23 +462,20 @@ class _MPResterLegacy:
         Raises:
             MPRestError
         """
-        try:
-            if isinstance(filename_or_structure, str):
-                s = Structure.from_file(filename_or_structure)
-            elif isinstance(filename_or_structure, Structure):
-                s = filename_or_structure
-            else:
-                raise MPRestError("Provide filename or Structure object.")
-            payload = {"structure": json.dumps(s.as_dict(), cls=MontyEncoder)}
-            response = self.session.post(f"{self.preamble}/find_structure", data=payload)
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
-                if resp["valid_response"]:
-                    return resp["response"]
-                raise MPRestError(resp["error"])
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        if isinstance(filename_or_structure, str):
+            struct = Structure.from_file(filename_or_structure)
+        elif isinstance(filename_or_structure, Structure):
+            struct = filename_or_structure
+        else:
+            raise MPRestError("Provide filename or Structure object.")
+        payload = {"structure": json.dumps(struct.as_dict(), cls=MontyEncoder)}
+        response = self.session.post(f"{self.preamble}/find_structure", data=payload)
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text, cls=MontyDecoder)
+            if resp["valid_response"]:
+                return resp["response"]
+            raise MPRestError(resp["error"])
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def get_entries(
         self,
@@ -502,8 +486,7 @@ class _MPResterLegacy:
         conventional_unit_cell: bool = False,
         sort_by_e_above_hull: bool = False,
     ) -> list[ComputedEntry]:
-        """
-        Get a list of ComputedEntries or ComputedStructureEntries corresponding
+        """Get a list of ComputedEntries or ComputedStructureEntries corresponding
         to a chemical system, formula, or materials_id or full criteria.
 
         Args:
@@ -582,13 +565,13 @@ class _MPResterLegacy:
             else:
                 prim = d["initial_structure"] if inc_structure == "initial" else d["structure"]
                 if conventional_unit_cell:
-                    s = SpacegroupAnalyzer(prim).get_conventional_standard_structure()
-                    energy = d["energy"] * (len(s) / len(prim))
+                    struct = SpacegroupAnalyzer(prim).get_conventional_standard_structure()
+                    energy = d["energy"] * (len(struct) / len(prim))
                 else:
-                    s = prim.copy()
+                    struct = prim.copy()
                     energy = d["energy"]
                 e = ComputedStructureEntry(
-                    s,
+                    struct,
                     energy,
                     parameters={k: d[k] for k in params},
                     data=data,
@@ -607,8 +590,7 @@ class _MPResterLegacy:
         return entries
 
     def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProject2020Compatibility"):
-        """
-        A helper function to get all entries necessary to generate
+        """A helper function to get all entries necessary to generate
         a Pourbaix diagram from the rest interface.
 
         Args:
@@ -695,7 +677,7 @@ class _MPResterLegacy:
 
         extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} - {Element("H"), Element("O")}
         for entry in ion_ref_entries:
-            entry_elts = set(entry.composition.elements)
+            entry_elts = set(entry.elements)
             # Ensure no OH chemsys or extraneous elements from ion references
             if not (entry_elts <= {Element("H"), Element("O")} or extra_elts.intersection(entry_elts)):
                 # Create new computed entry
@@ -709,8 +691,7 @@ class _MPResterLegacy:
     def get_structure_by_material_id(
         self, material_id: str, final: bool = True, conventional_unit_cell: bool = False
     ) -> Structure:
-        """
-        Get a Structure corresponding to a material_id.
+        """Get a Structure corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project ID (e.g. mp-1234).
@@ -754,8 +735,7 @@ class _MPResterLegacy:
         property_data: list[str] | None = None,
         conventional_unit_cell: bool = False,
     ) -> ComputedEntry | ComputedStructureEntry:
-        """
-        Get a ComputedEntry corresponding to a material_id.
+        """Get a ComputedEntry corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project material_id (a string,
@@ -795,8 +775,7 @@ class _MPResterLegacy:
         return data[0]
 
     def get_dos_by_material_id(self, material_id):
-        """
-        Get a Dos corresponding to a material_id.
+        """Get a Dos corresponding to a material_id.
 
         REST Endpoint: https://materialsproject.org/rest/v2/materials/<mp-id>/vasp/dos
 
@@ -811,8 +790,7 @@ class _MPResterLegacy:
         return data[0]["dos"]
 
     def get_bandstructure_by_material_id(self, material_id, line_mode=True):
-        """
-        Get a BandStructure corresponding to a material_id.
+        """Get a BandStructure corresponding to a material_id.
 
         REST Endpoint: https://materialsproject.org/rest/v2/materials/<mp-id>/vasp/bandstructure or
         https://materialsproject.org/rest/v2/materials/<mp-id>/vasp/bandstructure_uniform
@@ -830,8 +808,7 @@ class _MPResterLegacy:
         return data[0][prop]
 
     def get_phonon_dos_by_material_id(self, material_id: str) -> CompletePhononDos:
-        """
-        Get phonon density of states data corresponding to a material_id.
+        """Get phonon density of states data corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project material_id.
@@ -842,8 +819,7 @@ class _MPResterLegacy:
         return self._make_request(f"/materials/{material_id}/phonondos")
 
     def get_phonon_bandstructure_by_material_id(self, material_id: str) -> PhononBandStructureSymmLine:
-        """
-        Get phonon dispersion data corresponding to a material_id.
+        """Get phonon dispersion data corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project material_id.
@@ -854,8 +830,7 @@ class _MPResterLegacy:
         return self._make_request(f"/materials/{material_id}/phononbs")
 
     def get_phonon_ddb_by_material_id(self, material_id: str) -> str:
-        """
-        Get ABINIT Derivative Data Base (DDB) output for phonon calculations.
+        """Get ABINIT Derivative Data Base (DDB) output for phonon calculations.
 
         Args:
             material_id (str): Materials Project material_id.
@@ -874,10 +849,11 @@ class _MPResterLegacy:
         conventional_unit_cell=False,
         additional_criteria=None,
     ):
-        """
-        Helper method to get a list of ComputedEntries in a chemical system. For example, elements = ["Li", "Fe", "O"]
-        will return a list of all entries in the Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz,
-        Li, Fe and O phases. Extremely useful for creating phase diagrams of entire chemical systems.
+        """Helper method to get a list of ComputedEntries in a chemical system.
+
+        For example, elements = ["Li", "Fe", "O"] will return a list of all entries in the
+        Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz, Li, Fe and O
+        phases. Extremely useful for creating phase diagrams of entire chemical systems.
 
         Args:
             elements (str or [str]): Chemical system string comprising element
@@ -917,18 +893,16 @@ class _MPResterLegacy:
         if additional_criteria:
             criteria.update(additional_criteria)
 
-        entries = self.get_entries(
+        return self.get_entries(
             criteria,
             compatible_only=compatible_only,
             inc_structure=inc_structure,
             property_data=property_data,
             conventional_unit_cell=conventional_unit_cell,
         )
-        return entries
 
     def get_exp_thermo_data(self, formula):
-        """
-        Get a list of ThermoData objects associated with a formula using the
+        """Get a list of ThermoData objects associated with a formula using the
         Materials Project REST interface.
 
         Args:
@@ -940,8 +914,7 @@ class _MPResterLegacy:
         return self.get_data(formula, data_type="exp")
 
     def get_exp_entry(self, formula):
-        """
-        Returns an ExpEntry object, which is the experimental equivalent of a
+        """Returns an ExpEntry object, which is the experimental equivalent of a
         ComputedEntry and can be used for analyses using experimental data.
 
         Args:
@@ -961,8 +934,7 @@ class _MPResterLegacy:
         mp_decode: bool = True,
         show_progress_bar: bool = True,
     ):
-        r"""
-        Performs an advanced query using MongoDB-like syntax for directly
+        r"""Performs an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
         queries which are otherwise too cumbersome to perform using the standard
         convenience methods.
@@ -1088,17 +1060,14 @@ class _MPResterLegacy:
         histories=None,
         created_at=None,
     ):
-        """
-        Submits a list of structures to the Materials Project as SNL files.
+        """Submits a list of structures to the Materials Project as SNL files.
         The argument list mirrors the arguments for the StructureNL object,
         except that a list of structures with the same metadata is used as an
         input.
 
-        .. note::
-
+        Note:
             As of now, this MP REST feature is open only to a select group of
-            users. Opening up submissions to all users is being planned for
-            the future.
+            users. Opening up submissions to all users is being planned for the future.
 
         Args:
             structures: A list of Structure objects
@@ -1137,14 +1106,11 @@ class _MPResterLegacy:
         self.submit_snl(snl_list)
 
     def submit_snl(self, snl):
-        """
-        Submits a list of StructureNL to the Materials Project site.
+        """Submits a list of StructureNL to the Materials Project site.
 
-        .. note::
-
+        Note:
             As of now, this MP REST feature is open only to a select group of
-            users. Opening up submissions to all users is being planned for
-            the future.
+            users. Opening up submissions to all users is being planned for the future.
 
         Args:
             snl (StructureNL/[StructureNL]): A single StructureNL, or a list
@@ -1156,33 +1122,26 @@ class _MPResterLegacy:
         Raises:
             MPRestError
         """
-        try:
-            snl = snl if isinstance(snl, list) else [snl]
-            jsondata = [s.as_dict() for s in snl]
-            payload = {"snl": json.dumps(jsondata, cls=MontyEncoder)}
-            response = self.session.post(f"{self.preamble}/snl/submit", data=payload)
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
-                if resp["valid_response"]:
-                    if resp.get("warning"):
-                        warnings.warn(resp["warning"])
-                    return resp["inserted_ids"]
-                raise MPRestError(resp["error"])
+        snl = snl if isinstance(snl, list) else [snl]
+        jsondata = [s.as_dict() for s in snl]
+        payload = {"snl": json.dumps(jsondata, cls=MontyEncoder)}
+        response = self.session.post(f"{self.preamble}/snl/submit", data=payload)
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text, cls=MontyDecoder)
+            if resp["valid_response"]:
+                if resp.get("warning"):
+                    warnings.warn(resp["warning"])
+                return resp["inserted_ids"]
+            raise MPRestError(resp["error"])
 
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def delete_snl(self, snl_ids):
-        """
-        Delete earlier submitted SNLs.
+        """Delete earlier submitted SNLs.
 
-        .. note::
-
+        Note:
             As of now, this MP REST feature is open only to a select group of
-            users. Opening up submissions to all users is being planned for
-            the future.
+            users. Opening up submissions to all users is being planned for the future.
 
         Args:
             snl_ids: List of SNL ids.
@@ -1190,32 +1149,25 @@ class _MPResterLegacy:
         Raises:
             MPRestError
         """
-        try:
-            payload = {"ids": json.dumps(snl_ids)}
-            response = self.session.post(f"{self.preamble}/snl/delete", data=payload)
+        payload = {"ids": json.dumps(snl_ids)}
+        response = self.session.post(f"{self.preamble}/snl/delete", data=payload)
 
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
-                if resp["valid_response"]:
-                    if resp.get("warning"):
-                        warnings.warn(resp["warning"])
-                    return resp
-                raise MPRestError(resp["error"])
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text, cls=MontyDecoder)
+            if resp["valid_response"]:
+                if resp.get("warning"):
+                    warnings.warn(resp["warning"])
+                return resp
+            raise MPRestError(resp["error"])
 
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def query_snl(self, criteria):
-        """
-        Query for submitted SNLs.
+        """Query for submitted SNLs.
 
-        .. note::
-
+        Note:
             As of now, this MP REST feature is open only to a select group of
-            users. Opening up submissions to all users is being planned for
-            the future.
+            users. Opening up submissions to all users is being planned for the future.
 
         Args:
             criteria (dict): Query criteria.
@@ -1226,21 +1178,17 @@ class _MPResterLegacy:
         Raises:
             MPRestError
         """
-        try:
-            payload = {"criteria": json.dumps(criteria)}
-            response = self.session.post(f"{self.preamble}/snl/query", data=payload)
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text)
-                if resp["valid_response"]:
-                    if resp.get("warning"):
-                        warnings.warn(resp["warning"])
-                    return resp["response"]
-                raise MPRestError(resp["error"])
+        payload = {"criteria": json.dumps(criteria)}
+        response = self.session.post(f"{self.preamble}/snl/query", data=payload)
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text)
+            if resp["valid_response"]:
+                if resp.get("warning"):
+                    warnings.warn(resp["warning"])
+                return resp["response"]
+            raise MPRestError(resp["error"])
 
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def submit_vasp_directory(
         self,
@@ -1254,17 +1202,14 @@ class _MPResterLegacy:
         created_at=None,
         ncpus=None,
     ):
-        """
-        Assimilates all vasp run directories beneath a particular
+        """Assimilates all vasp run directories beneath a particular
         directory using BorgQueen to obtain structures, and then submits thhem
         to the Materials Project as SNL files. VASP related meta data like
         initial structure and final energies are automatically incorporated.
 
-        .. note::
-
+        Note:
             As of now, this MP REST feature is open only to a select group of
-            users. Opening up submissions to all users is being planned for
-            the future.
+            users. Opening up submissions to all users is being planned for the future.
 
         Args:
             rootdir (str): Rootdir to start assimilating VASP runs from.
@@ -1327,29 +1272,23 @@ class _MPResterLegacy:
         )
 
     def get_stability(self, entries):
-        """
-        Returns the stability of all entries.
-        """
-        try:
-            payload = {"entries": json.dumps(entries, cls=MontyEncoder)}
-            response = self.session.post(
-                f"{self.preamble}/phase_diagram/calculate_stability",
-                data=payload,
-            )
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
-                if resp["valid_response"]:
-                    if resp.get("warning"):
-                        warnings.warn(resp["warning"])
-                    return resp["response"]
-                raise MPRestError(resp["error"])
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        """Returns the stability of all entries."""
+        payload = {"entries": json.dumps(entries, cls=MontyEncoder)}
+        response = self.session.post(
+            f"{self.preamble}/phase_diagram/calculate_stability",
+            data=payload,
+        )
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text, cls=MontyDecoder)
+            if resp["valid_response"]:
+                if resp.get("warning"):
+                    warnings.warn(resp["warning"])
+                return resp["response"]
+            raise MPRestError(resp["error"])
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def get_cohesive_energy(self, material_id, per_atom=False):
-        """
-        Gets the cohesive for a material (eV per formula unit). Cohesive energy
+        """Gets the cohesive for a material (eV per formula unit). Cohesive energy
             is defined as the difference between the bulk energy and the sum of
             total DFT energy of isolated atoms for atom elements in the bulk.
 
@@ -1373,8 +1312,7 @@ class _MPResterLegacy:
         return ecoh_per_formula / n if per_atom else ecoh_per_formula
 
     def get_reaction(self, reactants, products):
-        """
-        Gets a reaction from the Materials Project.
+        """Gets a reaction from the Materials Project.
 
         Args:
             reactants ([str]): List of formulas
@@ -1390,8 +1328,7 @@ class _MPResterLegacy:
         )
 
     def get_substrates(self, material_id, number=50, orient=None):
-        """
-        Get a substrate list for a material id. The list is in order of
+        """Get a substrate list for a material id. The list is in order of
         increasing elastic energy if a elastic tensor is available for
         the material_id. Otherwise the list is in order of increasing
         matching area.
@@ -1401,6 +1338,7 @@ class _MPResterLegacy:
             orient (list) : substrate orientation to look for
             number (int) : number of substrates to return
                 n=0 returns all available matches
+
         Returns:
             list of dicts with substrate matches
         """
@@ -1410,18 +1348,20 @@ class _MPResterLegacy:
         return self._make_request(req)
 
     def get_all_substrates(self):
-        """
-        Gets the list of all possible substrates considered in the
-        Materials Project substrate database
+        """Gets the list of all possible substrates considered in the
+        Materials Project substrate database.
 
         Returns:
             list of material_ids corresponding to possible substrates
         """
         return self._make_request("/materials/all_substrate_ids")
 
+    @due.dcite(
+        Doi("10.1038/sdata.2016.80"),
+        description="Data Descriptor: Surface energies of elemental crystals. Scientific Data",
+    )
     def get_surface_data(self, material_id, miller_index=None, inc_structures=False):
-        """
-        Gets surface data for a material. Useful for Wulff shapes.
+        """Gets surface data for a material. Useful for Wulff shapes.
 
         Reference for surface data:
 
@@ -1457,8 +1397,7 @@ class _MPResterLegacy:
         return self._make_request(req)
 
     def get_wulff_shape(self, material_id):
-        """
-        Constructs a Wulff shape for a material.
+        """Constructs a Wulff shape for a material.
 
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
@@ -1491,8 +1430,7 @@ class _MPResterLegacy:
         rotation_axis=None,
         include_work_of_separation=False,
     ):
-        """
-        Gets grain boundary data for a material.
+        """Gets grain boundary data for a material.
 
         Args:
             material_id (str): Materials Project material_id, e.g., 'mp-129'.
@@ -1548,8 +1486,7 @@ class _MPResterLegacy:
         relative_mu=None,
         use_hull_energy=False,
     ):
-        """
-        Gets critical reactions between two reactants.
+        """Gets critical reactions between two reactants.
 
         Get critical reactions ("kinks" in the mixing ratio where
         reaction products change) between two reactants. See the
@@ -1582,8 +1519,7 @@ class _MPResterLegacy:
         return self._make_request("/interface_reactions", payload=payload, method="POST")
 
     def get_download_info(self, material_ids, task_types=None, file_patterns=None):
-        """
-        Get a list of URLs to retrieve raw VASP output files from the NoMaD repository
+        """Get a list of URLs to retrieve raw VASP output files from the NoMaD repository.
 
         Args:
             material_ids (list): list of material identifiers (mp-id's)
@@ -1642,7 +1578,7 @@ class _MPResterLegacy:
     def _print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types):
         non_exist_ids = set(task_ids) - set(nomad_exist_task_ids)
         warnings.warn(
-            f"For file patterns [{file_patterns}] and task_types [{task_types}], \n"
+            f"For {file_patterns=}] and {task_types=}, \n"
             f"the following ids are not found on NOMAD [{list(non_exist_ids)}]. \n"
             f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov"
         )
@@ -1662,14 +1598,11 @@ class _MPResterLegacy:
         if response.status_code != 200:
             return False
         content = json.loads(response.text)
-        if content["pagination"]["total"] == 0:
-            return False
-        return True
+        return content["pagination"]["total"] != 0
 
     @staticmethod
     def parse_criteria(criteria_string):
-        """
-        Parses a powerful and simple string criteria and generates a proper
+        """Parses a powerful and simple string criteria and generates a proper
         mongo syntax criteria.
 
         Args:
@@ -1721,12 +1654,12 @@ class _MPResterLegacy:
                 else:
                     m = re.match(r"([A-Z][a-z]*)[\.\d]*", sym)
                     explicit_els.append(m.group(1))
-            nelements = len(wild_card_els) + len(set(explicit_els))
+            n_elements = len(wild_card_els) + len(set(explicit_els))
             parts = re.split(r"(\*|\{.*\})", t)
             parts = [parse_sym(s) for s in parts if s != ""]
             for f in itertools.product(*parts):
                 c = Composition("".join(f))
-                if len(c) == nelements:
+                if len(c) == n_elements:
                     # Check for valid Elements in keys.
                     for e in c:
                         Element(e.symbol)
@@ -1738,10 +1671,255 @@ class _MPResterLegacy:
         return {"$or": list(map(parse_tok, tokens))}
 
 
-class MPRester:
+class _MPResterNewBasic:
     """
-    A class to conveniently interface with the new and legacy Materials Project REST
-    interface. The recommended way to use MPRester is as a context manager to ensure
+    A new MPRester that supports the new MP API. If you are getting your API key from the new dashboard of MP, you will
+    need to use this instead of the original MPRester because the new API keys do not work with the old MP API (???!).
+    This is a basic implementation for now and features will be added soon. The current implementation is to enable
+    users with simple requirements use the API without having to install additional packages.
+
+    If you are a power user who needs the full functionality, please get the mp-api package instead.
+    """
+
+    def __init__(self, api_key: str | None = None, include_user_agent: bool = True) -> None:
+        """
+        Args:
+            api_key (str): A String API key for accessing the MaterialsProject
+                REST interface. Please obtain your API key at
+                https://www.materialsproject.org/dashboard. If this is None,
+                the code will check if there is a "PMG_MAPI_KEY" setting.
+                If so, it will use that environment variable. This makes
+                easier for heavy users to simply add this environment variable to
+                their setups and MPRester can then be called without any arguments.
+            include_user_agent (bool): If True, will include a user agent with the
+                HTTP request including information on pymatgen and system version
+                making the API request. This helps MP support pymatgen users, and
+                is similar to what most web browsers send with each page request.
+                Set to False to disable the user agent.
+        """
+        if api_key is not None:
+            self.api_key = api_key
+        else:
+            self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+        self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT", "https://api.materialsproject.org/")
+
+        self.session = requests.Session()
+        self.session.headers = {"x-api-key": self.api_key}
+        if include_user_agent:
+            pymatgen_info = f"pymatgen/{PMG_VERSION}"
+            python_info = f"Python/{sys.version.split()[0]}"
+            platform_info = f"{platform.system()}/{platform.release()}"
+            self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
+
+    def __getattr__(self, item):
+        raise AttributeError(
+            f"{item} is not available in this implementation of MPRester, which only has the most common "
+            f"functionality. If you are looking for the full functionality MPRester with the new API, pls install "
+            f"the mp-api package."
+        )
+
+    def __enter__(self):
+        """Support for "with" context."""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Support for "with" context."""
+        self.session.close()
+
+    def request(self, sub_url, payload=None, method="GET", mp_decode=True):
+        """Helper method to make the requests and perform decoding based on MSONable protocol."""
+        response = None
+        url = self.preamble + sub_url
+        try:
+            if method == "POST":
+                response = self.session.post(url, data=payload, verify=True)
+            else:
+                response = self.session.get(url, params=payload, verify=True)
+            if response.status_code in [200, 400]:
+                return json.loads(response.text, cls=MontyDecoder) if mp_decode else json.loads(response.text)
+
+            raise MPRestError(f"REST query returned with error status code {response.status_code}")
+
+        except Exception as ex:
+            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+            raise MPRestError(msg)
+
+    def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
+        """
+        Get a data corresponding to a criteria.
+
+        Args:
+            criteria (dict): Materials Project ID (e.g. mp-1234), e.g., {"formula": "Fe2O3,FeO"}
+            fields (list): Fields to query for. If None (the default), all fields are returned.
+
+        Returns:
+            List of dict of summary docs.
+        """
+        get = "_all_fields=True" if fields is None else "_fields=" + ",".join(fields)
+        return self.request(f"materials/summary?{get}", payload=criteria)["data"]
+
+    def get_summary_by_material_id(self, material_id: str, fields: list | None = None) -> dict:
+        """
+        Get a data corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project ID (e.g. mp-1234).
+            fields (list): Fields to query for. If None (the default), all fields are returned.
+
+        Returns:
+            Dict
+        """
+        get = "_all_fields=True" if fields is None else "_fields=" + ",".join(fields)
+        return self.request(f"materials/summary/{material_id}?{get}")["data"][0]
+
+    get_doc = get_summary_by_material_id
+
+    def get_material_ids(self, formula):
+        """
+        Get all materials ids for a formula.
+
+        Args:
+            formula (str): A formula (e.g., Fe2O3).
+
+        Returns:
+            ([str]) List of all materials ids.
+        """
+        return [d["material_id"] for d in self.get_summary({"formula": formula}, fields=["material_id"])]
+
+    def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
+        """
+        Get a Structure corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project ID (e.g. mp-1234).
+            final (bool): Whether to get the final structure, or the initial
+                (pre-relaxation) structures. Defaults to True.
+            conventional_unit_cell (bool): Whether to get the standard conventional unit cell
+
+        Returns:
+            Structure object.
+        """
+        prop = "structure"
+        resp = self.request(f"materials/summary/{material_id}?_fields={prop}")
+        structure = resp["data"][0][prop]
+        if conventional_unit_cell:
+            return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
+        return structure
+
+    def get_initial_structures_by_material_id(
+        self, material_id: str, conventional_unit_cell: bool = False
+    ) -> list[Structure]:
+        """
+        Get a Structure corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project ID (e.g. mp-1234).
+            final (bool): Whether to get the final structure, or the initial
+                (pre-relaxation) structures. Defaults to True.
+            conventional_unit_cell (bool): Whether to get the standard conventional unit cell
+
+        Returns:
+            Structure object.
+        """
+        prop = "initial_structures"
+        resp = self.request(f"materials/summary/{material_id}?_fields={prop}")
+        structures = resp["data"][0][prop]
+        if conventional_unit_cell:
+            return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
+        return structures
+
+    def get_entries(
+        self,
+        criteria,
+        compatible_only=True,
+        inc_structure=None,
+        property_data=None,
+        conventional_unit_cell=False,
+        sort_by_e_above_hull=False,
+    ):
+        """
+        Get a list of ComputedEntries or ComputedStructureEntries corresponding
+        to a chemical system, formula, or materials_id or full criteria.
+
+        Args:
+            criteria (dict): Mongo-style dict criteria.
+            compatible_only (bool): Whether to return only "compatible"
+                entries. Compatible entries are entries that have been
+                processed using the MaterialsProject2020Compatibility class,
+                which performs adjustments to allow mixing of GGA and GGA+U
+                calculations for more accurate phase diagrams and reaction
+                energies.
+            inc_structure (str): If None, entries returned are
+                ComputedEntries. If inc_structure="initial",
+                ComputedStructureEntries with initial structures are returned.
+                Otherwise, ComputedStructureEntries with final structures
+                are returned.
+            property_data (list): Specify additional properties to include in
+                entry.data. If None, no data. Should be a subset of
+                supported_properties.
+            conventional_unit_cell (bool): Whether to get the standard
+                conventional unit cell
+            sort_by_e_above_hull (bool): Whether to sort the list of entries by
+                e_above_hull (will query e_above_hull as a property_data if True).
+
+        Returns:
+            List of ComputedStructureEntry objects.
+        """
+        props = ["entries"]
+
+        r = self.request(f"materials?_fields={','.join(props)}", payload=criteria)
+        entries = []
+        for d in r["data"]:
+            entries.extend(d["entries"].values())
+        if compatible_only:
+            from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
+
+            # suppress the warning about missing oxidation states
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
+                entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
+        return entries
+
+    def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
+        r"""
+        Get a ComputedEntry corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project material_id (a string,
+                e.g., mp-1234).
+            *args: Pass-through to get_entries.
+            **kwargs: Pass-through to get_entries.
+
+        Returns:
+            ComputedStructureEntry object.
+        """
+        return self.get_entries({"task_ids": material_id}, *args, **kwargs)[0]
+
+    def get_entries_in_chemsys(self, elements, *args, **kwargs):
+        """
+        Helper method to get a list of ComputedEntries in a chemical system. For example, elements = ["Li", "Fe", "O"]
+        will return a list of all entries in the Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz,
+        Li, Fe and O phases. Extremely useful for creating phase diagrams of entire chemical systems.
+
+        Args:
+            elements (str or [str]): Chemical system string comprising element
+                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
+                symbols, e.g., ["Li", "Fe", "O"].
+            *args: Pass-through to get_entries.
+            **kwargs: Pass-through to get_entries.
+
+        Returns:
+            List of ComputedEntries.
+        """
+        criteria = {"chemsys": "-".join(sorted(elements))}
+
+        return self.get_entries(criteria, *args, **kwargs)
+
+
+class MPRester:
+    """A class to conveniently interface with the new and legacy Materials Project REST interface.
+
+    The recommended way to use MPRester is as a context manager to ensure
     that sessions are properly closed after usage:
 
         with MPRester("API_KEY") as mpr:
@@ -1772,6 +1950,12 @@ class MPRester:
 
         if not api_key:
             raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
+
+        try:
+            from mp_api.client import MPRester as _MPResterNew
+        except Exception as ex:
+            print(ex)
+            _MPResterNew = _MPResterNewBasic
 
         rester = _MPResterNew if len(api_key) == 32 else _MPResterLegacy
 

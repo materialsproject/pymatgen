@@ -1,3 +1,1 @@
-"""
-Package for analysis of X-ray Absorption Spectroscopy.
-"""
+"""Package for analysis of X-ray Absorption Spectroscopy."""

@@ -1,13 +1,12 @@
-"""
-This module provides classes to store, generate, and manipulate material interfaces.
-"""
+"""This module provides classes to store, generate, and manipulate material interfaces."""
 
 from __future__ import annotations
 
 from itertools import product
-from typing import TYPE_CHECKING, Iterator, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
+from numpy.testing import assert_allclose
 from scipy.linalg import polar
 
 from pymatgen.analysis.elasticity.strain import Deformation
@@ -16,6 +15,8 @@ from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
     from pymatgen.core import Structure
 
 
@@ -39,7 +40,7 @@ class CoherentInterfaceBuilder:
             film_structure: structure of film
             film_miller: miller index of the film layer
             substrate_miller: miller index for the substrate layer
-            zslgen: BiDirectionalZSL if you want custom lattice matching tolerances for coherency
+            zslgen: BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
         """
         # Bulk structures
         self.substrate_structure = substrate_structure
@@ -52,9 +53,7 @@ class CoherentInterfaceBuilder:
         self._find_terminations()
 
     def _find_matches(self) -> None:
-        """
-        Finds and stores the ZSL matches
-        """
+        """Finds and stores the ZSL matches."""
         self.zsl_matches = []
 
         film_sg = SlabGenerator(
@@ -91,20 +90,18 @@ class CoherentInterfaceBuilder:
         for match in self.zsl_matches:
             xform = get_2d_transform(film_vectors, match.film_vectors)
             strain, rot = polar(xform)
-            assert np.allclose(
-                strain, np.round(strain)
+            assert_allclose(
+                strain, np.round(strain), atol=1e-12
             ), "Film lattice vectors changed during ZSL match, check your ZSL Generator parameters"
 
             xform = get_2d_transform(substrate_vectors, match.substrate_vectors)
             strain, rot = polar(xform)
-            assert np.allclose(
-                strain, strain.astype(int)
+            assert_allclose(
+                strain, strain.astype(int), atol=1e-12
             ), "Substrate lattice vectors changed during ZSL match, check your ZSL Generator parameters"
 
     def _find_terminations(self):
-        """
-        Finds all terminations
-        """
+        """Finds all terminations."""
         film_sg = SlabGenerator(
             self.film_structure,
             self.film_miller,
@@ -149,19 +146,19 @@ class CoherentInterfaceBuilder:
         termination: tuple[str, str],
         gap: float = 2.0,
         vacuum_over_film: float = 20.0,
-        film_thickness: float | int = 1,
-        substrate_thickness: float | int = 1,
+        film_thickness: float = 1,
+        substrate_thickness: float = 1,
         in_layers: bool = True,
     ) -> Iterator[Interface]:
         """Generates interface structures given the film and substrate structure
-        as well as the desired terminations
+        as well as the desired terminations.
 
         Args:
             termination (tuple[str, str]): termination from self.termination list
             gap (float, optional): gap between film and substrate. Defaults to 2.0.
             vacuum_over_film (float, optional): vacuum over the top of the film. Defaults to 20.0.
-            film_thickness (float | int, optional): the film thickness. Defaults to 1.
-            substrate_thickness (float | int, optional): substrate thickness. Defaults to 1.
+            film_thickness (float, optional): the film thickness. Defaults to 1.
+            substrate_thickness (float, optional): substrate thickness. Defaults to 1.
             in_layers (bool, optional): set the thickness in layer units. Defaults to True.
 
         Yields:
@@ -201,11 +198,11 @@ class CoherentInterfaceBuilder:
             ).astype(int)
             film_sl_slab = film_slab.copy()
             film_sl_slab.make_supercell(super_film_transform)
-            assert np.allclose(
-                film_sl_slab.lattice.matrix[2], film_slab.lattice.matrix[2]
+            assert_allclose(
+                film_sl_slab.lattice.matrix[2], film_slab.lattice.matrix[2], atol=1e-08
             ), "2D transformation affected C-axis for Film transformation"
-            assert np.allclose(
-                film_sl_slab.lattice.matrix[:2], match.film_sl_vectors
+            assert_allclose(
+                film_sl_slab.lattice.matrix[:2], match.film_sl_vectors, atol=1e-08
             ), "Transformation didn't make proper supercell for film"
 
             # Build substrate superlattice
@@ -214,11 +211,11 @@ class CoherentInterfaceBuilder:
             ).astype(int)
             sub_sl_slab = sub_slab.copy()
             sub_sl_slab.make_supercell(super_sub_transform)
-            assert np.allclose(
-                sub_sl_slab.lattice.matrix[2], sub_slab.lattice.matrix[2]
+            assert_allclose(
+                sub_sl_slab.lattice.matrix[2], sub_slab.lattice.matrix[2], atol=1e-08
             ), "2D transformation affected C-axis for Film transformation"
-            assert np.allclose(
-                sub_sl_slab.lattice.matrix[:2], match.substrate_sl_vectors
+            assert_allclose(
+                sub_sl_slab.lattice.matrix[:2], match.substrate_sl_vectors, atol=1e-08
             ), "Transformation didn't make proper supercell for substrate"
 
             # Add extra info
@@ -234,21 +231,17 @@ class CoherentInterfaceBuilder:
             interface_properties["film_thickness"] = film_thickness
             interface_properties["substrate_thickness"] = substrate_thickness
 
-            yield (
-                Interface.from_slabs(
-                    substrate_slab=sub_sl_slab,
-                    film_slab=film_sl_slab,
-                    gap=gap,
-                    vacuum_over_film=vacuum_over_film,
-                    interface_properties=interface_properties,
-                )
+            yield Interface.from_slabs(
+                substrate_slab=sub_sl_slab,
+                film_slab=film_sl_slab,
+                gap=gap,
+                vacuum_over_film=vacuum_over_film,
+                interface_properties=interface_properties,
             )
 
 
 def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
-    """
-    Finds a transformation matrix that will rotate and strain the film to the substrate while preserving the c-axis
-    """
+    """Find transformation matrix that will rotate and strain the film to the substrate while preserving the c-axis."""
     film_matrix = np.array(film_matrix)
     film_matrix = film_matrix.tolist()[:2]
     film_matrix.append(np.cross(film_matrix[0], film_matrix[1]))
@@ -275,13 +268,13 @@ def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
 def get_2d_transform(start: Sequence, end: Sequence) -> np.ndarray:
     """
     Gets a 2d transformation matrix
-    that converts start to end
+    that converts start to end.
     """
     return np.dot(end, np.linalg.pinv(start))
 
 
 def from_2d_to_3d(mat: np.ndarray) -> np.ndarray:
-    """Converts a 2D matrix to a 3D matrix"""
+    """Converts a 2D matrix to a 3D matrix."""
     new_mat = np.diag([1.0, 1.0, 1.0])
     new_mat[:2, :2] = mat
     return new_mat

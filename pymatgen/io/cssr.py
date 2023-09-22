@@ -1,6 +1,4 @@
-"""
-This module provides input and output from the CSSR file format.
-"""
+"""This module provides input and output from the CSSR file format."""
 
 from __future__ import annotations
 
@@ -58,7 +56,7 @@ class Cssr:
             f.write(str(self) + "\n")
 
     @staticmethod
-    def from_string(string):
+    def from_str(string):
         """
         Reads a string representation to a Cssr object.
 
@@ -69,10 +67,10 @@ class Cssr:
             Cssr object.
         """
         lines = string.split("\n")
-        toks = lines[0].split()
-        lengths = [float(tok) for tok in toks]
-        toks = lines[1].split()
-        angles = [float(tok) for tok in toks[0:3]]
+        tokens = lines[0].split()
+        lengths = [float(tok) for tok in tokens]
+        tokens = lines[1].split()
+        angles = [float(tok) for tok in tokens[0:3]]
         latt = Lattice.from_parameters(*lengths, *angles)
         sp = []
         coords = []
@@ -95,4 +93,4 @@ class Cssr:
             Cssr object.
         """
         with zopen(filename, "rt") as f:
-            return Cssr.from_string(f.read())
+            return Cssr.from_str(f.read())

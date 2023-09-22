@@ -1,6 +1,4 @@
-"""
-This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.
-"""
+"""This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis."""
 
 from __future__ import annotations
 
@@ -13,8 +11,8 @@ from scipy.spatial import Voronoi
 
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
     get_lower_and_upper_f,
-    my_solid_angle,
     rectangle_surface_intersection,
+    solid_angle,
 )
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.analysis.chemenv.utils.math_utils import normal_cdf_step
@@ -61,9 +59,7 @@ def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
 
 
 class DetailedVoronoiContainer(MSONable):
-    """
-    Class used to store the full Voronoi of a given structure.
-    """
+    """Class used to store the full Voronoi of a given structure."""
 
     AC = AdditionalConditions()
     default_voronoi_cutoff = 10.0
@@ -145,7 +141,7 @@ class DetailedVoronoiContainer(MSONable):
         t1 = time.process_time()
         logging.debug("Setting up Voronoi list :")
         for jj, isite in enumerate(indices):
-            logging.debug(f"  - Voronoi analysis for site #{isite:d} ({jj + 1:d}/{len(indices):d})")
+            logging.debug(f"  - Voronoi analysis for site #{isite} ({jj + 1}/{len(indices)})")
             site = self.structure[isite]
             neighbors1 = [(site, 0.0, isite)]
             neighbors1.extend(struct_neighbors[isite])
@@ -156,11 +152,11 @@ class DetailedVoronoiContainer(MSONable):
             all_vertices = voro.vertices
 
             results2 = []
-            maxangle = 0.0
-            mindist = 10000.0
-            for iridge, ridge_points in enumerate(voro.ridge_points):
+            max_angle = 0.0
+            min_dist = 10000.0
+            for idx, ridge_points in enumerate(voro.ridge_points):
                 if 0 in ridge_points:
-                    ridge_vertices_indices = voro.ridge_vertices[iridge]
+                    ridge_vertices_indices = voro.ridge_vertices[idx]
                     if -1 in ridge_vertices_indices:
                         raise RuntimeError(
                             "This structure is pathological, infinite vertex in the voronoi construction"
@@ -168,25 +164,25 @@ class DetailedVoronoiContainer(MSONable):
 
                     ridge_point2 = max(ridge_points)
                     facets = [all_vertices[i] for i in ridge_vertices_indices]
-                    sa = my_solid_angle(site.coords, facets)
-                    maxangle = max([sa, maxangle])
+                    sa = solid_angle(site.coords, facets)
+                    max_angle = max([sa, max_angle])
 
-                    mindist = min([mindist, distances[ridge_point2]])
+                    min_dist = min([min_dist, distances[ridge_point2]])
                     for iii, sss in enumerate(self.structure):
                         if neighbors[ridge_point2].is_periodic_image(sss, tolerance=1.0e-6):
-                            myindex = iii
+                            idx = iii
                             break
                     results2.append(
                         {
                             "site": neighbors[ridge_point2],
                             "angle": sa,
                             "distance": distances[ridge_point2],
-                            "index": myindex,
+                            "index": idx,
                         }
                     )
             for dd in results2:
-                dd["normalized_angle"] = dd["angle"] / maxangle
-                dd["normalized_distance"] = dd["distance"] / mindist
+                dd["normalized_angle"] = dd["angle"] / max_angle
+                dd["normalized_distance"] = dd["distance"] / min_dist
             self.voronoi_list2[isite] = results2
             self.voronoi_list_coords[isite] = np.array([dd["site"].coords for dd in results2])
         t2 = time.process_time()
@@ -625,16 +621,14 @@ class DetailedVoronoiContainer(MSONable):
         Returns:
             List of neighbors of the given site for the given distance and angle factors.
         """
-        idist = None
-        dfact = None
+        idist = dfact = None
         for iwd, wd in enumerate(self.neighbors_normalized_distances[isite]):
             if distfactor >= wd["min"]:
                 idist = iwd
                 dfact = wd["max"]
             else:
                 break
-        iang = None
-        afact = None
+        iang = afact = None
         for iwa, wa in enumerate(self.neighbors_normalized_angles[isite]):
             if angfactor <= wa["max"]:
                 iang = iwa
@@ -721,7 +715,7 @@ class DetailedVoronoiContainer(MSONable):
             atol: Absolute tolerance to compare values.
 
         Returns:
-            True if the two DetailedVoronoiContainer are close to each other.
+            bool: True if the two DetailedVoronoiContainer are close to each other.
         """
         isclose = (
             np.isclose(
@@ -793,7 +787,7 @@ class DetailedVoronoiContainer(MSONable):
             step_function: Type of step function to be used for the RDF.
 
         Returns:
-            Matplotlib figure.
+            plt.figure: Matplotlib figure.
         """
 
         def dp_func(dp):
@@ -806,7 +800,7 @@ class DetailedVoronoiContainer(MSONable):
 
         # Initializes the figure
         fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
-        subplot = fig.add_subplot(111)
+        ax = fig.add_subplot(111)
         dists = self.neighbors_normalized_distances[isite] if normalized else self.neighbors_distances[isite]
 
         if step_function["type"] == "step_function":
@@ -824,15 +818,15 @@ class DetailedVoronoiContainer(MSONable):
             yy.append(yy[-1])
         elif step_function["type"] == "normal_cdf":
             scale = step_function["scale"]
-            mydists = [dp_func(dd["min"]) for dd in dists]
-            mydcns = [len(dd["dnb_indices"]) for dd in dists]
-            xx = np.linspace(0.0, 1.1 * max(mydists), num=500)
+            _dists = [dp_func(dd["min"]) for dd in dists]
+            _dcns = [len(dd["dnb_indices"]) for dd in dists]
+            xx = np.linspace(0.0, 1.1 * max(_dists), num=500)
             yy = np.zeros_like(xx)
-            for idist, dist in enumerate(mydists):
-                yy += mydcns[idist] * normal_cdf_step(xx, mean=dist, scale=scale)
+            for idist, dist in enumerate(_dists):
+                yy += _dcns[idist] * normal_cdf_step(xx, mean=dist, scale=scale)
         else:
             raise ValueError(f"Step function of type {step_function['type']!r} is not allowed")
-        subplot.plot(xx, yy)
+        ax.plot(xx, yy)
 
         return fig
 
@@ -847,7 +841,7 @@ class DetailedVoronoiContainer(MSONable):
             step_function: Type of step function to be used for the SADF.
 
         Returns:
-            Matplotlib figure.
+            plt.figure: matplotlib figure.
         """
 
         def ap_func(ap):
@@ -860,7 +854,7 @@ class DetailedVoronoiContainer(MSONable):
 
         # Initializes the figure
         fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
-        subplot = fig.add_subplot(111)
+        ax = fig.add_subplot(111)
         angs = self.neighbors_normalized_angles[isite] if normalized else self.neighbors_angles[isite]
 
         if step_function["type"] == "step_function":
@@ -878,15 +872,15 @@ class DetailedVoronoiContainer(MSONable):
             yy.append(yy[-1])
         elif step_function["type"] == "normal_cdf":
             scale = step_function["scale"]
-            myangs = [ap_func(aa["min"]) for aa in angs]
-            mydcns = [len(dd["dnb_indices"]) for dd in angs]
-            xx = np.linspace(0.0, 1.1 * max(myangs), num=500)
+            _angles = [ap_func(aa["min"]) for aa in angs]
+            _dcns = [len(dd["dnb_indices"]) for dd in angs]
+            xx = np.linspace(0.0, 1.1 * max(_angles), num=500)
             yy = np.zeros_like(xx)
-            for iang, ang in enumerate(myangs):
-                yy += mydcns[iang] * normal_cdf_step(xx, mean=ang, scale=scale)
+            for iang, ang in enumerate(_angles):
+                yy += _dcns[iang] * normal_cdf_step(xx, mean=ang, scale=scale)
         else:
             raise ValueError(f"Step function of type {step_function['type']!r} is not allowed")
-        subplot.plot(xx, yy)
+        ax.plot(xx, yy)
 
         return fig
 

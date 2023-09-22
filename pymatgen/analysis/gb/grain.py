@@ -1,6 +1,4 @@
-"""
-Module containing classes to generate grain boundaries.
-"""
+"""Module containing classes to generate grain boundaries."""
 
 from __future__ import annotations
 
@@ -10,15 +8,23 @@ import warnings
 from fractions import Fraction
 from functools import reduce
 from math import cos, floor, gcd
-from typing import Sequence
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.fractions import lcm
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from numpy.typing import ArrayLike
+
+    from pymatgen.core.trajectory import Vector3D
+    from pymatgen.util.typing import CompositionLike
 
 # This module implements representations of grain boundaries, as well as
 # algorithms for generating them.
@@ -35,46 +41,43 @@ logger = logging.getLogger(__name__)
 
 class GrainBoundary(Structure):
     """
-    Subclass of Structure representing a GrainBoundary (gb) object.
-    Implements additional attributes pertaining to gbs, but the
-    init method does not actually implement any algorithm that
-    creates a gb. This is a DUMMY class who's init method only holds
-    information about the gb. Also has additional methods that returns
-    other information about a gb such as sigma value.
+    Subclass of Structure representing a GrainBoundary (GB) object. Implements additional
+    attributes pertaining to gbs, but the init method does not actually implement any
+    algorithm that creates a GB. This is a DUMMY class who's init method only holds
+    information about the GB. Also has additional methods that returns other information
+    about a GB such as sigma value.
 
-    Note that all gbs have the gb surface normal oriented in the c-direction.
-    This means the lattice vectors a and b are in the gb surface plane (at
-     least for one grain) and the c vector is out of the surface plane
-     (though not necessary perpendicular to the surface.)
+    Note that all gbs have the GB surface normal oriented in the c-direction. This means
+    the lattice vectors a and b are in the GB surface plane (at least for one grain) and
+    the c vector is out of the surface plane (though not necessarily perpendicular to the
+    surface).
     """
 
     def __init__(
         self,
-        lattice,
-        species,
-        coords,
-        rotation_axis,
-        rotation_angle,
-        gb_plane,
-        join_plane,
-        init_cell,
-        vacuum_thickness,
-        ab_shift,
-        site_properties,
-        oriented_unit_cell,
-        validate_proximity=False,
-        coords_are_cartesian=False,
-    ):
+        lattice: np.ndarray | Lattice,
+        species: Sequence[CompositionLike],
+        coords: Sequence[ArrayLike],
+        rotation_axis: Vector3D,
+        rotation_angle: float,
+        gb_plane: Vector3D,
+        join_plane: Vector3D,
+        init_cell: Structure,
+        vacuum_thickness: float,
+        ab_shift: tuple[float, float],
+        site_properties: dict[str, Any],
+        oriented_unit_cell: Structure,
+        validate_proximity: bool = False,
+        coords_are_cartesian: bool = False,
+        properties: dict | None = None,
+    ) -> None:
         """
-        Makes a gb structure, a structure object with additional information
+        Makes a GB structure, a structure object with additional information
         and methods pertaining to gbs.
 
         Args:
-            lattice (Lattice/3x3 array): The lattice, either as a
-                :class:`pymatgen.core.lattice.Lattice` or
-                simply as any 2D array. Each row should correspond to a lattice
-                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+            lattice (Lattice/3x3 array): The lattice, either as an instance or
+                any 2D array. Each row should correspond to a lattice vector.
             species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
@@ -85,10 +88,8 @@ class GrainBoundary(Structure):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            coords (Nx3 array): list of fractional/cartesian coordinates of
-                each species.
-            rotation_axis (list): Rotation axis of GB in the form of a list of
-                integers, e.g. [1, 1, 0].
+            coords (Nx3 array): list of fractional/cartesian coordinates for each species.
+            rotation_axis (list[int]): Rotation axis of GB in the form of a list of integers, e.g. [1, 1, 0].
             rotation_angle (float, in unit of degree): rotation angle of GB.
             gb_plane (list): Grain boundary plane in the form of a list of integers
                 e.g.: [1, 2, 3].
@@ -97,7 +98,7 @@ class GrainBoundary(Structure):
             init_cell (Structure): initial bulk structure to form the GB.
             site_properties (dict): Properties associated with the sites as a
                 dict of sequences, The sequences have to be the same length as
-                the atomic species and fractional_coords. For gb, you should
+                the atomic species and fractional_coords. For GB, you should
                 have the 'grain_label' properties to classify the sites as 'top',
                 'bottom', 'top_incident', or 'bottom_incident'.
             vacuum_thickness (float in angstrom): The thickness of vacuum inserted
@@ -105,12 +106,14 @@ class GrainBoundary(Structure):
             ab_shift (list of float, in unit of crystal vector a, b): The relative
                 shift along a, b vectors.
             oriented_unit_cell (Structure): oriented unit cell of the bulk init_cell.
-                Help to accurate calculate the bulk properties that are consistent
-                with gb calculations.
+                Helps to accurately calculate the bulk properties that are consistent
+                with GB calculations.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
+            properties (dict): dictionary containing properties associated
+                with the whole GrainBoundary.
         """
         self.oriented_unit_cell = oriented_unit_cell
         self.rotation_axis = rotation_axis
@@ -127,6 +130,7 @@ class GrainBoundary(Structure):
             validate_proximity=validate_proximity,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
+            properties=properties,
         )
 
     def copy(self):
@@ -168,11 +172,11 @@ class GrainBoundary(Structure):
                 as if each comparison were reversed.
         """
         sites = sorted(self, key=key, reverse=reverse)
-        s = Structure.from_sites(sites)
+        struct = Structure.from_sites(sites)
         return GrainBoundary(
-            s.lattice,
-            s.species_and_occu,
-            s.frac_coords,
+            struct.lattice,
+            struct.species_and_occu,
+            struct.frac_coords,
             self.rotation_axis,
             self.rotation_angle,
             self.gb_plane,
@@ -185,33 +189,31 @@ class GrainBoundary(Structure):
         )
 
     @property
-    def sigma(self):
+    def sigma(self) -> int:
         """
-        This method returns the sigma value of the gb.
+        This method returns the sigma value of the GB.
         If using 'quick_gen' to generate GB, this value is not valid.
         """
         return int(round(self.oriented_unit_cell.volume / self.init_cell.volume))
 
     @property
-    def sigma_from_site_prop(self):
+    def sigma_from_site_prop(self) -> int:
         """
-        This method returns the sigma value of the gb from site properties.
+        This method returns the sigma value of the GB from site properties.
         If the GB structure merge some atoms due to the atoms too closer with
         each other, this property will not work.
         """
-        num_coi = 0
+        n_coi = 0
         if None in self.site_properties["grain_label"]:
             raise RuntimeError("Site were merged, this property do not work")
         for tag in self.site_properties["grain_label"]:
             if "incident" in tag:
-                num_coi += 1
-        return int(round(self.num_sites / num_coi))
+                n_coi += 1
+        return int(round(len(self) / n_coi))
 
     @property
-    def top_grain(self):
-        """
-        return the top grain (Structure) of the GB.
-        """
+    def top_grain(self) -> Structure:
+        """Return the top grain (Structure) of the GB."""
         top_sites = []
         for i, tag in enumerate(self.site_properties["grain_label"]):
             if "top" in tag:
@@ -219,10 +221,8 @@ class GrainBoundary(Structure):
         return Structure.from_sites(top_sites)
 
     @property
-    def bottom_grain(self):
-        """
-        return the bottom grain (Structure) of the GB.
-        """
+    def bottom_grain(self) -> Structure:
+        """Return the bottom grain (Structure) of the GB."""
         bottom_sites = []
         for i, tag in enumerate(self.site_properties["grain_label"]):
             if "bottom" in tag:
@@ -230,14 +230,12 @@ class GrainBoundary(Structure):
         return Structure.from_sites(bottom_sites)
 
     @property
-    def coincidents(self):
-        """
-        return the a list of coincident sites.
-        """
+    def coincidents(self) -> list[Site]:
+        """Return the a list of coincident sites."""
         coincident_sites = []
-        for i, tag in enumerate(self.site_properties["grain_label"]):
+        for idx, tag in enumerate(self.site_properties["grain_label"]):
             if "incident" in tag:
-                coincident_sites.append(self.sites[i])
+                coincident_sites.append(self.sites[idx])
         return coincident_sites
 
     def __str__(self):
@@ -274,20 +272,20 @@ class GrainBoundary(Structure):
     def as_dict(self):
         """
         Returns:
-            Dictionary representation of GrainBoundary object
+            Dictionary representation of GrainBoundary object.
         """
-        d = super().as_dict()
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["init_cell"] = self.init_cell.as_dict()
-        d["rotation_axis"] = self.rotation_axis
-        d["rotation_angle"] = self.rotation_angle
-        d["gb_plane"] = self.gb_plane
-        d["join_plane"] = self.join_plane
-        d["vacuum_thickness"] = self.vacuum_thickness
-        d["ab_shift"] = self.ab_shift
-        d["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
-        return d
+        dct = super().as_dict()
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["init_cell"] = self.init_cell.as_dict()
+        dct["rotation_axis"] = self.rotation_axis
+        dct["rotation_angle"] = self.rotation_angle
+        dct["gb_plane"] = self.gb_plane
+        dct["join_plane"] = self.join_plane
+        dct["vacuum_thickness"] = self.vacuum_thickness
+        dct["ab_shift"] = self.ab_shift
+        dct["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
+        return dct
 
     @classmethod
     def from_dict(cls, d):
@@ -394,7 +392,7 @@ class GrainBoundaryGenerator:
         rotation_angle,
         expand_times=4,
         vacuum_thickness=0.0,
-        ab_shift: Sequence[float] = (0, 0),
+        ab_shift: tuple[float, float] = (0, 0),
         normal=False,
         ratio=None,
         plane=None,
@@ -411,7 +409,7 @@ class GrainBoundaryGenerator:
                 Make sure the angle is accurate enough. You can use the enum* functions
                 in this class to extract the accurate angle.
                 e.g.: The rotation angle of sigma 3 twist GB with the rotation axis
-                [1, 1, 1] and GB plane (1, 1, 1) can be 60.000000000 degree.
+                [1, 1, 1] and GB plane (1, 1, 1) can be 60 degree.
                 If you do not know the rotation angle, but know the sigma value, we have
                 provide the function get_rotation_angle_from_sigma which is able to return
                 all the rotation angles of sigma value you provided.
@@ -460,7 +458,7 @@ class GrainBoundaryGenerator:
                 find the smallest cell.
 
         Returns:
-           Grain boundary structure (gb object).
+            Grain boundary structure (GB object).
         """
         lat_type = self.lat_type
         # if the initial structure is primitive cell in cubic system,
@@ -656,22 +654,22 @@ class GrainBoundaryGenerator:
                 surface=plane,
                 max_search=max_search,
             )
-            oriended_unit_cell = fix_pbc(parent_structure * t_temp[0])
-            t_matrix = oriended_unit_cell.lattice.matrix
+            oriented_unit_cell = fix_pbc(parent_structure * t_temp[0])
+            t_matrix = oriented_unit_cell.lattice.matrix
             normal_v_plane = np.cross(t_matrix[0], t_matrix[1])
             unit_normal_v = normal_v_plane / np.linalg.norm(normal_v_plane)
             unit_ab_adjust = (t_matrix[2] - np.dot(unit_normal_v, t_matrix[2]) * unit_normal_v) / np.dot(
                 unit_normal_v, t_matrix[2]
             )
         else:
-            oriended_unit_cell = top_grain.copy()
+            oriented_unit_cell = top_grain.copy()
             unit_ab_adjust = 0.0
 
         # bottom grain, using top grain's lattice matrix
         bottom_grain = fix_pbc(parent_structure * t2, top_grain.lattice.matrix)
 
         # label both grains with 'top','bottom','top_incident','bottom_incident'
-        n_sites = top_grain.num_sites
+        n_sites = len(top_grain)
         t_and_b = Structure(
             top_grain.lattice,
             top_grain.species + bottom_grain.species,
@@ -758,7 +756,7 @@ class GrainBoundaryGenerator:
             coords_are_cartesian=True,
             site_properties={"grain_label": grain_labels},
         )
-        # merge closer atoms. extract near gb atoms.
+        # merge closer atoms. extract near GB atoms.
         cos_c_norm_plane = np.dot(unit_normal_v, whole_matrix_with_vac[2]) / whole_lat.c
         range_c_len = abs(bond_length / cos_c_norm_plane / whole_lat.c)
         sites_near_gb = []
@@ -783,7 +781,7 @@ class GrainBoundaryGenerator:
         return GrainBoundary(
             whole_lat,
             gb_with_vac.species,
-            gb_with_vac.cart_coords,
+            gb_with_vac.cart_coords,  # type: ignore[arg-type]
             rotation_axis,
             rotation_angle,
             plane,
@@ -792,7 +790,7 @@ class GrainBoundaryGenerator:
             vacuum_thickness,
             ab_shift,
             site_properties=gb_with_vac.site_properties,
-            oriented_unit_cell=oriended_unit_cell,
+            oriented_unit_cell=oriented_unit_cell,
             coords_are_cartesian=True,
         )
 
@@ -807,7 +805,7 @@ class GrainBoundaryGenerator:
                 0-a, 1-b, 2-c. Only may be needed for orthorhombic system.
 
         Returns:
-               axial ratio needed for GB generator (list of integers).
+            axial ratio needed for GB generator (list of integers).
         """
         structure = self.initial_structure
         lat_type = self.lat_type
@@ -975,9 +973,9 @@ class GrainBoundaryGenerator:
                     c2_a2_ratio = 1.0 if ratio is None else ratio[0] / ratio[1]
                     metric = np.array([[1, 0, 0], [0, 1, 0], [0, 0, c2_a2_ratio]])
                 elif lat_type.lower() == "o":
-                    for i in range(3):
-                        if ratio[i] is None:
-                            ratio[i] = 1
+                    for idx in range(3):
+                        if ratio[idx] is None:
+                            ratio[idx] = 1
                     metric = np.array(
                         [
                             [1, 0, 0],
@@ -1252,13 +1250,13 @@ class GrainBoundaryGenerator:
         scale[hh, hh] = 1
         scale[kk, kk] = least_mul
         scale[ll, ll] = sigma / least_mul
-        for i in range(least_mul):
-            check_int = i * new_rot[:, kk] + (sigma / least_mul) * new_rot[:, ll]
+        for idx in range(least_mul):
+            check_int = idx * new_rot[:, kk] + (sigma / least_mul) * new_rot[:, ll]
             if all(np.round(x, 5).is_integer() for x in list(check_int)):
-                n_final = i
+                n_final = idx
                 break
         try:
-            n_final
+            n_final  # noqa: B018
         except NameError:
             raise RuntimeError("Something is wrong. Check if this GB exists or not")
         scale[kk, ll] = n_final
@@ -1298,7 +1296,7 @@ class GrainBoundaryGenerator:
         """
         Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in cubic system.
-        The algorithm for this code is from reference, Acta Cryst, A40,108(1984)
+        The algorithm for this code is from reference, Acta Cryst, A40,108(1984).
 
         Args:
             cutoff (int): the cutoff of sigma values.
@@ -1337,7 +1335,7 @@ class GrainBoundaryGenerator:
         for n_loop in range(1, n_max + 1):
             n = n_loop
             m_max = int(np.sqrt(cutoff * a_max - n**2 * sum(np.array(r_axis) ** 2)))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     n = 1 if m == 0 else n_loop
                     # construct the quadruple [m, U,V,W], count the number of odds in
@@ -1372,7 +1370,7 @@ class GrainBoundaryGenerator:
         """
         Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in hexagonal system.
-        The algorithm for this code is from reference, Acta Cryst, A38,550(1982)
+        The algorithm for this code is from reference, Acta Cryst, A38,550(1982).
 
         Args:
             cutoff (int): the cutoff of sigma values.
@@ -1382,6 +1380,7 @@ class GrainBoundaryGenerator:
             c2_a2_ratio (list of two integers, e.g. mu, mv):
                     mu/mv is the square of the hexagonal axial ratio, which is rational
                     number. If irrational, set c2_a2_ratio = None
+
         Returns:
             sigmas (dict):
                     dictionary with keys as the possible integer sigma values
@@ -1434,7 +1433,7 @@ class GrainBoundaryGenerator:
                 m_max = 0
             else:
                 m_max = int(np.sqrt((cutoff * 12 * mu * mv - n**2 * d) / (3 * mu)))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1547,7 +1546,7 @@ class GrainBoundaryGenerator:
                 m_max = 0
             else:
                 m_max = int(np.sqrt((cutoff * abs(4 * mu * (mu - 3 * mv)) - n**2 * d) / (mu)))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1595,8 +1594,7 @@ class GrainBoundaryGenerator:
                     m = -1 * m
                     F = mu * m**2 + d * n**2
                     all_list = R_list_inv + R_list + [F]
-                    # Compute the max common factors for the elements of the rotation matrix
-                    #  and its inverse.
+                    # Compute the max common factors for the elements of the rotation matrix and its inverse.
                     com_fac = reduce(gcd, all_list)
                     sigma = int(round(abs(F / com_fac)))
                     if 1 < sigma <= cutoff:
@@ -1616,7 +1614,7 @@ class GrainBoundaryGenerator:
         """
         Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in tetragonal system.
-        The algorithm for this code is from reference, Acta Cryst, B46,117(1990)
+        The algorithm for this code is from reference, Acta Cryst, B46,117(1990).
 
         Args:
             cutoff (int): the cutoff of sigma values.
@@ -1625,6 +1623,7 @@ class GrainBoundaryGenerator:
             c2_a2_ratio (list of two integers, e.g. mu, mv):
                     mu/mv is the square of the tetragonal axial ratio with rational number.
                     if irrational, set c2_a2_ratio = None
+
         Returns:
             sigmas (dict):
                     dictionary with keys as the possible integer sigma values
@@ -1666,7 +1665,7 @@ class GrainBoundaryGenerator:
         # Enumerate all possible n, m to give possible sigmas within the cutoff.
         for n in range(1, n_max + 1):
             m_max = 0 if c2_a2_ratio is None and w == 0 else int(np.sqrt((cutoff * 4 * mu * mv - n**2 * d) / mu))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1718,7 +1717,7 @@ class GrainBoundaryGenerator:
         """
         Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in orthorhombic system.
-        The algorithm for this code is from reference, Scipta Metallurgica 27, 291(1992)
+        The algorithm for this code is from reference, Scipta Metallurgica 27, 291(1992).
 
         Args:
             cutoff (int): the cutoff of sigma values.
@@ -1802,7 +1801,7 @@ class GrainBoundaryGenerator:
                 m_max = 0
             else:
                 m_max = int(np.sqrt((cutoff * 4 * mu * mv * lam * mv - n**2 * d) / mu / lam))
-            for m in range(0, m_max + 1):
+            for m in range(m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
@@ -1988,7 +1987,7 @@ class GrainBoundaryGenerator:
 
         sigmas = list(sigma_dict)
         if not sigmas:
-            raise RuntimeError("This is a wriong sigma value, and no sigma exists smaller than this value.")
+            raise RuntimeError("This is a wrong sigma value, and no sigma exists smaller than this value.")
         if sigma in sigmas:
             rotation_angles = sigma_dict[sigma]
         else:
@@ -2215,7 +2214,7 @@ class GrainBoundaryGenerator:
         """
         Reduce integer array mat's determinant mag times by linear combination
         of its row vectors, so that the new array after rotation (r_matrix) is
-        still an integer array
+        still an integer array.
 
         Args:
             mat (3 by 3 array): input matrix
@@ -2244,7 +2243,7 @@ class GrainBoundaryGenerator:
                 break
 
         if not reduced:
-            warnings.warn("Matrix reduction not performed, may lead to non-primitive gb cell.")
+            warnings.warn("Matrix reduction not performed, may lead to non-primitive GB cell.")
         return mat
 
     @staticmethod

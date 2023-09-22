@@ -1,19 +1,18 @@
+"""Command line script to get the chemical environment of a structure."""
+
 from __future__ import annotations
 
 import logging
 from argparse import ArgumentParser
 
 from pymatgen.analysis.chemenv.utils.chemenv_config import ChemEnvConfig
-from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.analysis.chemenv.utils.scripts_utils import compute_environments
 
-__author__ = "waroquiers"
+__author__ = "David Waroquiers"
 
 
 def main():
-    """
-    Main function for get_environment CLI.
-    """
+    """Main function for get_environment CLI."""
     parser = ArgumentParser(description="Welcome to the Chemical Environment Package.")
     setup_help = "Used to setup the configuration of the package "
     setup_help += "(MaterialsProject access, ICSD database access, package options, ...)"
@@ -34,7 +33,6 @@ def main():
 
     # Show welcome message
     print("Chemical Environment package (ChemEnv)")
-    print(chemenv_citations())
     print(chemenv_config.package_options_description())
 
     logging.basicConfig(
@@ -44,8 +42,7 @@ def main():
     compute_environments(chemenv_config)
 
     print("Thank you for using the ChemEnv package")
-    print(chemenv_citations())
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

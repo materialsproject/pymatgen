@@ -1,6 +1,4 @@
-"""
-Script to visualize the model coordination environments
-"""
+"""Script to visualize the model coordination environments."""
 
 from __future__ import annotations
 
@@ -45,11 +43,11 @@ if __name__ == "__main__":
             print("Wrong geometry, try again ...")
             continue
         print(cg.name)
-        for ipoint, point in enumerate(cg.points):
-            print(f"Point #{ipoint:d} : {point[0]!r} {point[1]!r} {point[2]!r}")
+        for idx, point in enumerate(cg.points):
+            print(f"Point #{idx} : {point[0]!r} {point[1]!r} {point[2]!r}")
         print("Algorithms used :")
-        for ialgo, algo in enumerate(cg.algorithms):
-            print(f"Algorithm #{ialgo:d} :")
+        for idx, algo in enumerate(cg.algorithms):
+            print(f"Algorithm #{idx} :")
             print(algo)
             print()
         # Visualize the separation plane of a given algorithm
@@ -58,21 +56,18 @@ if __name__ == "__main__":
             test = input("Enter index of the algorithm for which you want to visualize the plane : ")
             if test != "":
                 try:
-                    ialgo = int(test)
-                    algo = cg.algorithms[ialgo]
+                    idx = int(test)
+                    algo = cg.algorithms[idx]
                     sep_plane = True
                 except Exception:
                     print(
                         "Unable to determine the algorithm/separation_plane you want "
                         "to visualize for this geometry. Continues without ..."
                     )
-        my_factor = 3
-        if vis is None:
-            vis = visualize(cg=cg, zoom=1, myfactor=my_factor)
-        else:
-            vis = visualize(cg=cg, vis=vis, myfactor=my_factor)
-        cg_points = [my_factor * np.array(pp) for pp in cg.points]
-        cg_central_site = my_factor * np.array(cg.central_site)
+        factor = 3.0
+        vis = visualize(cg=cg, zoom=1, factor=factor) if vis is None else visualize(cg=cg, vis=vis, factor=factor)
+        cg_points = [factor * np.array(pp) for pp in cg.points]
+        cg_central_site = factor * np.array(cg.central_site)
         if sep_plane:
             pts = [cg_points[ii] for ii in algo.plane_points]
             if algo.minimum_number_of_points == 2:
