@@ -1915,7 +1915,7 @@ class _MPResterNewBasic:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
-        return entries
+        return list(set(entries))
 
     def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
         r"""

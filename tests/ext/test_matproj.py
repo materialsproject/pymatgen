@@ -880,6 +880,15 @@ class TestMPResterNewBasic:
             from mp_api.client import MPRester as MPResterMPAPI
         except ImportError:
             pytest.importorskip("mp_api.client.MPRester")
-        mp_data = MPResterMPAPI(PMG_MAPI_KEY).summary.search(formula="Al2O3")
+        mpr_mpapi = MPResterMPAPI(PMG_MAPI_KEY)
+        # Test summary
+        mp_data = mpr_mpapi.summary.search(formula="Al2O3")
         pmg_data = self.rester.get_summary({"formula": "Al2O3"})
         assert len(mp_data) == len(pmg_data)
+
+        # Test get_entries
+        chemsys = ["Li", "Fe", "O"]
+        mp_entries = mpr_mpapi.get_entries_in_chemsys(chemsys)
+        pmg_entries = self.rester.get_entries_in_chemsys(chemsys)
+
+        assert len(mp_entries) == len(pmg_entries)
