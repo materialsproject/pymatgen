@@ -1786,6 +1786,27 @@ class _MPResterNewBasic:
         """
         return [d["material_id"] for d in self.get_summary({"formula": formula}, fields=["material_id"])]
 
+    # For backwards compatibility and poor spelling.
+    get_materials_ids = get_material_ids
+
+    def get_structures(self, chemsys_formula: str, final=True) -> list[Structure]:
+        """Get a list of Structures corresponding to a chemical system or formula.
+
+        Args:
+            chemsys_formula (str): A chemical system, list of chemical systems
+                (e.g., Li-Fe-O, Si-*), or single formula (e.g., Fe2O3, Si*).
+            final (bool): Whether to get the final structure, or the list of initial
+                (pre-relaxation) structures. Defaults to True.
+
+        Returns:
+            List of Structure objects. ([Structure])
+        """
+        query = f"chemsys={chemsys_formula}" if "-" in chemsys_formula else f"formula={chemsys_formula}"
+        prop = "structure" if final else "initial_structure"
+        resp = self.request(f"materials/summary/?{query}&_all_fields=false&_fields={prop}")
+
+        return [d[prop] for d in resp["data"]]
+
     def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
         """
         Get a Structure corresponding to a material_id.
@@ -1865,10 +1886,9 @@ class _MPResterNewBasic:
         Returns:
             List of ComputedStructureEntry objects.
         """
-        props = ["entries"]
-
-        r = self.request(f"materials?_fields={','.join(props)}", payload=criteria)
+        r = self.request("materials/thermo?_fields=entries", payload=criteria)
         entries = []
+
         for d in r["data"]:
             entries.extend(d["entries"].values())
         if compatible_only:
@@ -1893,7 +1913,7 @@ class _MPResterNewBasic:
         Returns:
             ComputedStructureEntry object.
         """
-        return self.get_entries({"task_ids": material_id}, *args, **kwargs)[0]
+        return self.get_entries({"material_ids": material_id}, *args, **kwargs)[0]
 
     def get_entries_in_chemsys(self, elements, *args, **kwargs):
         """
