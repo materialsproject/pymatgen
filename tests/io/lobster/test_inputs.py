@@ -696,7 +696,9 @@ class TestNcicobilist(unittest.TestCase):
         assert self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up] == self.ncicobiwo.ncicobilist["2"]["ncicobi"][Spin.up]
         assert self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up] == self.ncicobigz.ncicobilist["2"]["ncicobi"][Spin.up]
         assert self.ncicobi.ncicobilist["2"]["interaction_type"] == self.ncicobigz.ncicobilist["2"]["interaction_type"]
-        assert sum(list(self.ncicobi.ncicobilist["2"]["ncicobi"].values())) ==approx(self.ncicobinospin.ncicobilist["2"]["ncicobi"][Spin.up])
+        assert sum(list(self.ncicobi.ncicobilist["2"]["ncicobi"].values())) == approx(
+            self.ncicobinospin.ncicobilist["2"]["ncicobi"][Spin.up]
+        )
 
 
 class TestDoscar(unittest.TestCase):
