@@ -239,7 +239,7 @@ class Cohpcar:
             Dict with the bond label, the bond length, a tuple of the site
             indices, a tuple containing the orbitals (if orbital-resolved),
             and a label for the orbitals (if orbital-resolved).
-        """
+        r"""
         line_new = line.rsplit("(", 1)
         length = float(line_new[-1][:-1])
 
@@ -414,7 +414,7 @@ class Icohplist:
                 icohp = {}
                 line = data_orb.split()
                 label = f"{line[0]}"
-                orbs = re.findall(r"_(.*?)(?=\s)", data_orb)
+                orbs = re.findall(r"_(.*?)(?=\\s)", data_orb)
                 orb_label, orbitals = get_orb_from_str(orbs)
                 icohp[Spin.up] = float(line[7])
 

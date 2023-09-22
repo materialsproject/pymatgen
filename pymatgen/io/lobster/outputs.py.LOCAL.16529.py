@@ -223,13 +223,12 @@ class Cohpcar:
             orbitals = None
             orb_label = None
 
-        bond_data = {
+        return {
             "length": length,
             "sites": site_indices,
             "orbitals": orbitals,
             "orb_label": orb_label,
         }
-        return bond_data
 
 
 class Icohplist:
@@ -355,7 +354,7 @@ class Icohplist:
                 length = float(line[3])
                 translation = [int(line[4]), int(line[5]), int(line[6])]
                 icohp[Spin.up] = float(line[7])
-                num = int(1)
+                num = 1
 
                 if self.is_spin_polarized:
                     icohp[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[7])
@@ -514,7 +513,7 @@ class Ncicobilist:
             numofatoms = str(line[1])
             ncicobi[Spin.up] = float(line[2])
             interactiontype = str(line[3:]).replace("'", "").replace(" ", "")
-            num = int(1)
+            num = 1
 
             if self.is_spin_polarized:
                 ncicobi[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[2])
@@ -760,7 +759,7 @@ class Charge:
         self.types: list[str] = []
         self.Mulliken: list[float] = []
         self.Loewdin: list[float] = []
-        for atom in range(0, self.num_atoms):
+        for atom in range(self.num_atoms):
             line = data[atom].split()
             self.atomlist.append(line[1] + line[0])
             self.types.append(line[1])
@@ -779,8 +778,7 @@ class Charge:
         Mulliken = self.Mulliken
         Loewdin = self.Loewdin
         site_properties = {"Mulliken Charges": Mulliken, "Loewdin Charges": Loewdin}
-        new_struct = struct.copy(site_properties=site_properties)
-        return new_struct
+        return struct.copy(site_properties=site_properties)
 
 
 class Lobsterout:
@@ -1539,8 +1537,7 @@ class Grosspop:
             "Total Mulliken GP": mullikengp,
             "Total Loewdin GP": loewdingp,
         }
-        new_struct = struct.copy(site_properties=site_properties)
-        return new_struct
+        return struct.copy(site_properties=site_properties)
 
 
 class Wavefunction:
@@ -1631,9 +1628,9 @@ class Wavefunction:
         new_density = []
 
         runner = 0
-        for x in range(0, Nx + 1):
-            for y in range(0, Ny + 1):
-                for z in range(0, Nz + 1):
+        for x in range(Nx + 1):
+            for y in range(Ny + 1):
+                for z in range(Nz + 1):
                     x_here = x / float(Nx) * a[0] + y / float(Ny) * b[0] + z / float(Nz) * c[0]
                     y_here = x / float(Nx) * a[1] + y / float(Ny) * b[1] + z / float(Nz) * c[1]
                     z_here = x / float(Nx) * a[2] + y / float(Ny) * b[2] + z / float(Nz) * c[2]
@@ -1797,7 +1794,7 @@ class SitePotential:
         self.types: list[str] = []
         self.sitepotentials_Mulliken: list[float] = []
         self.sitepotentials_Loewdin: list[float] = []
-        for atom in range(0, self.num_atoms):
+        for atom in range(self.num_atoms):
             line = data[atom].split()
             self.atomlist.append(line[1] + str(line[0]))
             self.types.append(line[1])
@@ -1822,8 +1819,7 @@ class SitePotential:
             "Mulliken Site Potentials (eV)": Mulliken,
             "Loewdin Site Potentials (eV)": Loewdin,
         }
-        new_struct = struct.copy(site_properties=site_properties)
-        return new_struct
+        return struct.copy(site_properties=site_properties)
 
 
 def get_orb_from_str(orbs):
