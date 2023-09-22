@@ -24,7 +24,6 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
-from mp_api.client import MPRester as _MPResterNew
 from ruamel.yaml import YAML
 from tqdm import tqdm
 
@@ -1672,6 +1671,250 @@ class _MPResterLegacy:
         return {"$or": list(map(parse_tok, tokens))}
 
 
+class _MPResterNewBasic:
+    """
+    A new MPRester that supports the new MP API. If you are getting your API key from the new dashboard of MP, you will
+    need to use this instead of the original MPRester because the new API keys do not work with the old MP API (???!).
+    This is a basic implementation for now and features will be added soon. The current implementation is to enable
+    users with simple requirements use the API without having to install additional packages.
+
+    If you are a power user who needs the full functionality, please get the mp-api package instead.
+    """
+
+    def __init__(self, api_key: str | None = None, include_user_agent: bool = True) -> None:
+        """
+        Args:
+            api_key (str): A String API key for accessing the MaterialsProject
+                REST interface. Please obtain your API key at
+                https://www.materialsproject.org/dashboard. If this is None,
+                the code will check if there is a "PMG_MAPI_KEY" setting.
+                If so, it will use that environment variable. This makes
+                easier for heavy users to simply add this environment variable to
+                their setups and MPRester can then be called without any arguments.
+            include_user_agent (bool): If True, will include a user agent with the
+                HTTP request including information on pymatgen and system version
+                making the API request. This helps MP support pymatgen users, and
+                is similar to what most web browsers send with each page request.
+                Set to False to disable the user agent.
+        """
+        if api_key is not None:
+            self.api_key = api_key
+        else:
+            self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+        self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT", "https://api.materialsproject.org/")
+
+        self.session = requests.Session()
+        self.session.headers = {"x-api-key": self.api_key}
+        if include_user_agent:
+            pymatgen_info = f"pymatgen/{PMG_VERSION}"
+            python_info = f"Python/{sys.version.split()[0]}"
+            platform_info = f"{platform.system()}/{platform.release()}"
+            self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
+
+    def __getattr__(self, item):
+        raise AttributeError(
+            f"{item} is not available in this implementation of MPRester, which only has the most common. If you are "
+            f"looking for the full functionality MPRester, pls install mp-api."
+        )
+
+    def __enter__(self):
+        """Support for "with" context."""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Support for "with" context."""
+        self.session.close()
+
+    def request(self, sub_url, payload=None, method="GET", mp_decode=True):
+        """Helper method to make the requests and perform decoding based on MSONable protocol."""
+        response = None
+        url = self.preamble + sub_url
+        try:
+            if method == "POST":
+                response = self.session.post(url, data=payload, verify=True)
+            else:
+                response = self.session.get(url, params=payload, verify=True)
+            if response.status_code in [200, 400]:
+                return json.loads(response.text, cls=MontyDecoder) if mp_decode else json.loads(response.text)
+
+            raise MPRestError(f"REST query returned with error status code {response.status_code}")
+
+        except Exception as ex:
+            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+            raise MPRestError(msg)
+
+    def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
+        """
+        Get a data corresponding to a criteria.
+
+        Args:
+            criteria (dict): Materials Project ID (e.g. mp-1234), e.g., {"formula": "Fe2O3,FeO"}
+            fields (list): Fields to query for. If None (the default), all fields are returned.
+
+        Returns:
+            List of dict of summary docs.
+        """
+        get = "_all_fields=True" if fields is None else "_fields=" + ",".join(fields)
+        return self.request(f"materials/summary?{get}", payload=criteria)["data"]
+
+    def get_summary_by_material_id(self, material_id: str, fields: list | None = None) -> dict:
+        """
+        Get a data corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project ID (e.g. mp-1234).
+            fields (list): Fields to query for. If None (the default), all fields are returned.
+
+        Returns:
+            Dict
+        """
+        get = "_all_fields=True" if fields is None else "_fields=" + ",".join(fields)
+        return self.request(f"materials/summary/{material_id}?{get}")["data"][0]
+
+    get_doc = get_summary_by_material_id
+
+    def get_material_ids(self, formula):
+        """
+        Get all materials ids for a formula.
+
+        Args:
+            formula (str): A formula (e.g., Fe2O3).
+
+        Returns:
+            ([str]) List of all materials ids.
+        """
+        return [d["material_id"] for d in self.get_summary({"formula": formula}, fields=["material_id"])]
+
+    def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
+        """
+        Get a Structure corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project ID (e.g. mp-1234).
+            final (bool): Whether to get the final structure, or the initial
+                (pre-relaxation) structures. Defaults to True.
+            conventional_unit_cell (bool): Whether to get the standard conventional unit cell
+
+        Returns:
+            Structure object.
+        """
+        prop = "structure"
+        resp = self.request(f"materials/summary/{material_id}?_fields={prop}")
+        structure = resp["data"][0][prop]
+        if conventional_unit_cell:
+            return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
+        return structure
+
+    def get_initial_structures_by_material_id(
+        self, material_id: str, conventional_unit_cell: bool = False
+    ) -> list[Structure]:
+        """
+        Get a Structure corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project ID (e.g. mp-1234).
+            final (bool): Whether to get the final structure, or the initial
+                (pre-relaxation) structures. Defaults to True.
+            conventional_unit_cell (bool): Whether to get the standard conventional unit cell
+
+        Returns:
+            Structure object.
+        """
+        prop = "initial_structures"
+        resp = self.request(f"materials/summary/{material_id}?_fields={prop}")
+        structures = resp["data"][0][prop]
+        if conventional_unit_cell:
+            return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
+        return structures
+
+    def get_entries(
+        self,
+        criteria,
+        compatible_only=True,
+        inc_structure=None,
+        property_data=None,
+        conventional_unit_cell=False,
+        sort_by_e_above_hull=False,
+    ):
+        """
+        Get a list of ComputedEntries or ComputedStructureEntries corresponding
+        to a chemical system, formula, or materials_id or full criteria.
+
+        Args:
+            criteria (dict): Mongo-style dict criteria.
+            compatible_only (bool): Whether to return only "compatible"
+                entries. Compatible entries are entries that have been
+                processed using the MaterialsProject2020Compatibility class,
+                which performs adjustments to allow mixing of GGA and GGA+U
+                calculations for more accurate phase diagrams and reaction
+                energies.
+            inc_structure (str): If None, entries returned are
+                ComputedEntries. If inc_structure="initial",
+                ComputedStructureEntries with initial structures are returned.
+                Otherwise, ComputedStructureEntries with final structures
+                are returned.
+            property_data (list): Specify additional properties to include in
+                entry.data. If None, no data. Should be a subset of
+                supported_properties.
+            conventional_unit_cell (bool): Whether to get the standard
+                conventional unit cell
+            sort_by_e_above_hull (bool): Whether to sort the list of entries by
+                e_above_hull (will query e_above_hull as a property_data if True).
+
+        Returns:
+            List of ComputedStructureEntry objects.
+        """
+        props = ["entries"]
+
+        r = self.request(f"materials?_fields={','.join(props)}", payload=criteria)
+        entries = []
+        for d in r["data"]:
+            entries.extend(d["entries"].values())
+        if compatible_only:
+            from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
+
+            # suppress the warning about missing oxidation states
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
+                entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
+        return entries
+
+    def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
+        r"""
+        Get a ComputedEntry corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project material_id (a string,
+                e.g., mp-1234).
+            *args: Pass-through to get_entries.
+            **kwargs: Pass-through to get_entries.
+
+        Returns:
+            ComputedStructureEntry object.
+        """
+        return self.get_entries({"task_ids": material_id}, *args, **kwargs)[0]
+
+    def get_entries_in_chemsys(self, elements, *args, **kwargs):
+        """
+        Helper method to get a list of ComputedEntries in a chemical system. For example, elements = ["Li", "Fe", "O"]
+        will return a list of all entries in the Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz,
+        Li, Fe and O phases. Extremely useful for creating phase diagrams of entire chemical systems.
+
+        Args:
+            elements (str or [str]): Chemical system string comprising element
+                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
+                symbols, e.g., ["Li", "Fe", "O"].
+            *args: Pass-through to get_entries.
+            **kwargs: Pass-through to get_entries.
+
+        Returns:
+            List of ComputedEntries.
+        """
+        criteria = {"chemsys": "-".join(sorted(elements))}
+
+        return self.get_entries(criteria, *args, **kwargs)
+
+
 class MPRester:
     """A class to conveniently interface with the new and legacy Materials Project REST interface.
 
@@ -1706,6 +1949,12 @@ class MPRester:
 
         if not api_key:
             raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
+
+        try:
+            from mp_api.client import MPRester as _MPResterNew
+        except Exception as ex:
+            print(ex)
+            _MPResterNew = _MPResterNewBasic
 
         rester = _MPResterNew if len(api_key) == 32 else _MPResterLegacy
 
