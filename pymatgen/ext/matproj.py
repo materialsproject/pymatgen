@@ -1731,19 +1731,28 @@ class _MPResterNewBasic:
         response = None
         url = self.preamble + sub_url
 
-        try:
-            if method == "POST":
-                response = self.session.post(url, data=payload, verify=True)
-            else:
-                response = self.session.get(url, params=payload, verify=True)
-            if response.status_code in [200, 400]:
-                return json.loads(response.text, cls=MontyDecoder) if mp_decode else json.loads(response.text)
-
-            raise MPRestError(f"REST query returned with error status code {response.status_code}")
-
-        except Exception as ex:
-            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
-            raise MPRestError(msg)
+        per_page = 1000
+        page = 1
+        all_data = []
+        while True:
+            actual_url = f"{url}&_per_page={per_page}&_page={page}"
+            try:
+                if method == "POST":
+                    response = self.session.post(actual_url, data=payload, verify=True)
+                else:
+                    response = self.session.get(actual_url, params=payload, verify=True)
+                if response.status_code in [200, 400]:
+                    data = json.loads(response.text, cls=MontyDecoder) if mp_decode else json.loads(response.text)
+                else:
+                    raise MPRestError(f"REST query returned with error status code {response.status_code}")
+                all_data.extend(data["data"])
+                if len(data["data"]) < per_page:
+                    break
+                page += 1
+            except Exception as ex:
+                msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+                raise MPRestError(msg)
+        return all_data
 
     def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
         """
@@ -1757,7 +1766,7 @@ class _MPResterNewBasic:
             List of dict of summary docs.
         """
         get = "_all_fields=True" if fields is None else "_fields=" + ",".join(fields)
-        return self.request(f"materials/summary?{get}", payload=criteria)["data"]
+        return self.request(f"materials/summary?{get}", payload=criteria)
 
     def get_summary_by_material_id(self, material_id: str, fields: list | None = None) -> dict:
         """
@@ -1771,7 +1780,7 @@ class _MPResterNewBasic:
             Dict
         """
         get = "_all_fields=True" if fields is None else "_fields=" + ",".join(fields)
-        return self.request(f"materials/summary/{material_id}?{get}")["data"][0]
+        return self.request(f"materials/summary/{material_id}?{get}")[0]
 
     get_doc = get_summary_by_material_id
 
@@ -1806,7 +1815,7 @@ class _MPResterNewBasic:
         prop = "structure" if final else "initial_structure"
         resp = self.request(f"materials/summary/?{query}&_all_fields=false&_fields={prop}")
 
-        return [d[prop] for d in resp["data"]]
+        return [d[prop] for d in resp]
 
     def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
         """
@@ -1823,7 +1832,7 @@ class _MPResterNewBasic:
         """
         prop = "structure"
         resp = self.request(f"materials/summary/{material_id}?_fields={prop}")
-        structure = resp["data"][0][prop]
+        structure = resp[0][prop]
         if conventional_unit_cell:
             return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
         return structure
@@ -1845,7 +1854,7 @@ class _MPResterNewBasic:
         """
         prop = "initial_structures"
         resp = self.request(f"materials/summary/{material_id}?_fields={prop}")
-        structures = resp["data"][0][prop]
+        structures = resp[0][prop]
         if conventional_unit_cell:
             return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
         return structures
@@ -1894,15 +1903,15 @@ class _MPResterNewBasic:
         else:
             query = f"formula={criteria}"
 
-        page = 1
         entries = []
-        while True:
-            r = self.request(f"materials/thermo?_fields=entries&_per_page=1000&_page={page}&{query}")
-            for d in r["data"]:
-                entries.extend(d["entries"].values())
-            if len(r["data"]) < 1000:
-                break
-            page += 1
+        r = self.request(f"materials/thermo?_fields=entries&{query}")
+        for d in r:
+            entries.extend(d["entries"].values())
+        # while True:
+        #
+        #     if len(r["data"]) < 1000:
+        #         break
+        #     page += 1
 
         if compatible_only:
             from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
