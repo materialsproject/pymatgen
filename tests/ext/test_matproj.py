@@ -535,6 +535,10 @@ class TestMPResterNewBasic:
     def setup(self):
         self.rester = _MPResterNewBasic()
 
+    def test_get_summary(self):
+        doc = self.rester.get_summary({"formula": "Fe2O3"})
+        assert len(doc) > 3
+
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_material_ids("Al2O3")
         random.shuffle(mids)
@@ -626,22 +630,28 @@ class TestMPResterNewBasic:
     #     data = mpr.find_structure(s)
     #     assert len(data) > 1
 
-    def test_get_entries_in_chemsys(self):
-        syms = ["Li", "Fe", "O"]
-        syms2 = "Li-Fe-O"
+    def test_get_entries_and_in_chemsys(self):
+        # One large system test.
+        syms = ["Li", "Fe", "O", "P"]
+
+        # Small test.
+        syms2 = "Fe-Li-O"
         entries = self.rester.get_entries_in_chemsys(syms)
-        entries2 = self.rester.get_entries_in_chemsys(syms2)
+        entries2 = self.rester.get_entries(syms2)
         elements = {Element(sym) for sym in syms}
         for e in entries:
             assert isinstance(e, ComputedEntry)
             assert set(e.elements).issubset(elements)
+        assert len(entries) > 1000
+
+        for e in entries2:
+            assert isinstance(e, ComputedEntry)
+            assert set(e.elements).issubset(elements)
+        assert len(entries2) < 1000
 
         e1 = {i.entry_id for i in entries}
         e2 = {i.entry_id for i in entries2}
         assert e1.issuperset(e2)
-
-        # stable_entries = self.rester.get_entries_in_chemsys(syms, additional_criteria={"e_above_hull": {"$lte": 0.001}})
-        # assert len(stable_entries) < len(entries)
 
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")

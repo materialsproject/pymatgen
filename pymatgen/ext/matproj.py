@@ -1730,6 +1730,7 @@ class _MPResterNewBasic:
         """Helper method to make the requests and perform decoding based on MSONable protocol."""
         response = None
         url = self.preamble + sub_url
+
         try:
             if method == "POST":
                 response = self.session.post(url, data=payload, verify=True)
@@ -1863,7 +1864,7 @@ class _MPResterNewBasic:
         to a chemical system, formula, or materials_id or full criteria.
 
         Args:
-            criteria (dict): Mongo-style dict criteria.
+            criteria: Chemsys, formula, or mp-id.
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
                 processed using the MaterialsProject2020Compatibility class,
@@ -1886,11 +1887,23 @@ class _MPResterNewBasic:
         Returns:
             List of ComputedStructureEntry objects.
         """
-        r = self.request("materials/thermo?_fields=entries", payload=criteria)
-        entries = []
+        if criteria.startswith("mp-"):
+            query = f"material_ids={criteria}"
+        elif "-" in criteria:
+            query = f"chemsys={criteria}"
+        else:
+            query = f"formula={criteria}"
 
-        for d in r["data"]:
-            entries.extend(d["entries"].values())
+        page = 1
+        entries = []
+        while True:
+            r = self.request(f"materials/thermo?_fields=entries&_per_page=1000&_page={page}&{query}")
+            for d in r["data"]:
+                entries.extend(d["entries"].values())
+            if len(r["data"]) < 1000:
+                break
+            page += 1
+
         if compatible_only:
             from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 
@@ -1913,7 +1926,7 @@ class _MPResterNewBasic:
         Returns:
             ComputedStructureEntry object.
         """
-        return self.get_entries({"material_ids": material_id}, *args, **kwargs)[0]
+        return self.get_entries(material_id, *args, **kwargs)[0]
 
     def get_entries_in_chemsys(self, elements, *args, **kwargs):
         """
@@ -1931,7 +1944,11 @@ class _MPResterNewBasic:
         Returns:
             List of ComputedEntries.
         """
-        criteria = {"chemsys": "-".join(sorted(elements))}
+        chemsys = []
+        for i in range(1, len(elements) + 1):
+            for els in itertools.combinations(elements, i):
+                chemsys.append("-".join(sorted(els)))
+        criteria = ",".join(chemsys)
 
         return self.get_entries(criteria, *args, **kwargs)
 
