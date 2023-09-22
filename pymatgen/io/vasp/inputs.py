@@ -2174,6 +2174,64 @@ class PotcarSingle:
         md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
+    
+    def _str_to_py(self,istr):
+
+        """
+        A function that tries to parse any input string to output as either
+        a bool, int, float, or failing that, str
+
+        Used to parse proprietary FORTRAN-generated text files where it's
+        unknown a priori what type of data will be encountered
+        """
+        istr = istr.strip()
+
+        if istr.lower() in ['t','f'] or istr.lower() in ['true','false']:
+            return istr[0].lower() == 't'
+
+        if (istr.upper() == istr.lower()) and istr[0].isnumeric():
+            if '.' in istr:
+                return float(istr)
+            else:
+                return int(istr)
+        else:
+            try:
+                return float(istr)
+            except ValueError:
+                return istr
+
+    def is_valid(self, tol = 1.e-6):
+        """
+        New method of checking that POTCAR matches reference attributes
+        """
+
+        self._data_keywords = []
+        self._data_vals = []
+        for aline in self.data.split('END of PSCTR-controll parameters\n')[1].split('\n'):
+            single_line_rows = aline.split(';') # FORTRAN multiple lines in one, woot woot
+            for brow in single_line_rows:
+                tmpstr = ''
+                for _tmp_ in brow.split():
+                    parsed_val = self._str_to_py(_tmp_)
+                    if isinstance(parsed_val,str):
+                        tmpstr += parsed_val.strip()
+                        #self._data_keywords.append(parsed_val.strip())
+                    elif isinstance(parsed_val,float) or isinstance(parsed_val,int):
+                        self._data_vals.append(parsed_val)
+                if len(tmpstr)>0:
+                    self._data_keywords.append(tmpstr)
+        self._data_keywords = list(set(self._data_keywords))
+        self._data_vals = np.array(self._data_vals)
+        ndps = self._data_vals.shape[0]
+        self._potcar_data_stats = {
+            'MEAN': np.sum(self._data_vals)/ndps,
+            'ABSMEAN': np.sum(np.abs(self._data_vals))/ndps,
+            'VAR': np.sum(self._data_vals**2)/ndps,
+            'MIN': self._data_vals.min(),
+            'MAX': self._data_vals.max()
+        }
+        
+        return
 
     def __getattr__(self, attr: str) -> Any:
         """Delegates attributes to keywords. For example, you can use potcarsingle.enmax to get the ENMAX of the POTCAR.
