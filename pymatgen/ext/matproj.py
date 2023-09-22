@@ -1713,9 +1713,8 @@ class _MPResterNewBasic:
 
     def __getattr__(self, item):
         raise AttributeError(
-            f"{item} is not available in this implementation of MPRester, which only has the most common "
-            f"functionality. If you are looking for the full functionality MPRester with the new API, pls install "
-            f"the mp-api package."
+            f"{item} is not an attribute of this implementation of MPRester, which only supports functionality used "
+            f"by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api package."
         )
 
     def __enter__(self):
