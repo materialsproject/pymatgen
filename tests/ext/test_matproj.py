@@ -530,8 +530,11 @@ class TestMPResterNewBasic:
         self.rester = _MPResterNewBasic()
 
     def test_get_summary(self):
-        doc = self.rester.get_summary({"formula": "Fe2O3"})
-        assert len(doc) > 3
+        docs = self.rester.get_summary({"formula": "Fe2O3"})
+        assert len(docs) > 3
+
+        doc = self.rester.get_summary_by_material_id(docs[0]["material_id"])
+        assert doc["formula_pretty"] == "Fe2O3"
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_material_ids("Al2O3")
@@ -626,7 +629,7 @@ class TestMPResterNewBasic:
 
     def test_get_entries_and_in_chemsys(self):
         # One large system test.
-        syms = ["Li", "Fe", "O", "P"]
+        syms = ["Li", "Fe", "O", "P", "Mn"]
 
         # Small test.
         syms2 = "Fe-Li-O"
