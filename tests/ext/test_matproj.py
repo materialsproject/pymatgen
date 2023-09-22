@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import random
 import re
 from unittest.mock import patch
@@ -35,16 +34,11 @@ except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
     skip_mprester_tests = True
 
 
-PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY")
-if os.getenv("CI") and PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
-    msg = f"Invalid legacy PMG_MAPI_KEY, should be 15-20 characters, got {len(PMG_MAPI_KEY)}"
-    if len(PMG_MAPI_KEY) == 32:
-        msg += " (this looks like a new API key)"
-    raise ValueError(msg)
+PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY", "")
 
 
 @pytest.mark.skipif(
-    skip_mprester_tests or (not len(PMG_MAPI_KEY) <= 20),
+    skip_mprester_tests or (not 10 < len(PMG_MAPI_KEY) <= 20),
     reason="Legacy PMG_MAPI_KEY environment variable not set or MP API is down.",
 )
 class TestMPResterOld(PymatgenTest):
@@ -528,7 +522,7 @@ class TestMPResterOld(PymatgenTest):
 
 
 @pytest.mark.skipif(
-    skip_mprester_tests or not PMG_MAPI_KEY,
+    skip_mprester_tests or (not len(PMG_MAPI_KEY) > 20),
     reason="PMG_MAPI_KEY environment variable not set or MP API is down.",
 )
 class TestMPResterNewBasic:
