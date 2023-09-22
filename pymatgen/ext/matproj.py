@@ -1907,11 +1907,6 @@ class _MPResterNewBasic:
         r = self.request(f"materials/thermo?_fields=entries&{query}")
         for d in r:
             entries.extend(d["entries"].values())
-        # while True:
-        #
-        #     if len(r["data"]) < 1000:
-        #         break
-        #     page += 1
 
         if compatible_only:
             from pymatgen.entries.compatibility import MaterialsProject2020Compatibility

@@ -21,6 +21,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructure, BandStruc
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, TaskType, _MPResterLegacy, _MPResterNewBasic
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
@@ -28,11 +29,10 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     skip_mprester_tests = requests.get("https://materialsproject.org").status_code != 200
-    from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, TaskType, _MPResterLegacy, _MPResterNewBasic
+
 except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
     # Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
     skip_mprester_tests = True
-
 
 PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY", "")
 
@@ -636,6 +636,7 @@ class TestMPResterNewBasic:
         for e in entries:
             assert isinstance(e, ComputedEntry)
             assert set(e.elements).issubset(elements)
+
         assert len(entries) > 1000
 
         for e in entries2:
@@ -873,3 +874,12 @@ class TestMPResterNewBasic:
     #     entries = self.rester.get_pourbaix_entries(["Bi", "V"])
     #     pbx = PourbaixDiagram(entries, filter_solids=True, conc_dict={"Bi": 1e-8, "V": 1e-8})
     #     assert all("Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries)
+
+    def test_parity_with_mp_api(self):
+        try:
+            from mp_api.client import MPRester as MPResterMPAPI
+        except ImportError:
+            pytest.importorskip("mp_api.client.MPRester")
+        mp_data = MPResterMPAPI(PMG_MAPI_KEY).summary.search(formula="Al2O3")
+        pmg_data = self.rester.get_summary({"formula": "Al2O3"})
+        assert len(mp_data) == len(pmg_data)
