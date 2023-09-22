@@ -452,12 +452,10 @@ class Ncicobilist:
             if len(data) > 2 and "s]" in str(entry.split()[3:]):
                 self.orbitalwise = True
                 warnings.warn(
-                    "This is an orbitalwise NcICOBILIST.lobster file. Currently, the orbitalwise "
-                    + "information is not read!"
+                    "This is an orbitalwise NcICOBILIST.lobster file. Currently, the orbitalwise information is not "
+                    "read!"
                 )
                 break  # condition has only to be met once
-            else:
-                self.orbitalwise = False
 
         if self.orbitalwise:
             data_without_orbitals = []
