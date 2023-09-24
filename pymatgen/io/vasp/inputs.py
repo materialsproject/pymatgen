@@ -1804,7 +1804,7 @@ class PotcarSingle:
         has_sh256, hash_check_passed = self.verify_potcar()
         if not has_sh256 and not hash_check_passed:
             warnings.warn(
-                f"POTCAR data with symbol { self.symbol} does not match any VASP "
+                f"POTCAR data with symbol {self.symbol} does not match any VASP "
                 "POTCAR known to pymatgen. There is a possibility your "
                 "POTCAR is corrupted or that the pymatgen database is incomplete.",
                 UnknownPotcarWarning,
