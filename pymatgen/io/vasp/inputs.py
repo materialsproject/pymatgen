@@ -2247,16 +2247,15 @@ class PotcarSingle:
         #psp_data_check = np.allclose()
 
         self._header_keys = list([kwd.lower() for kwd in self.keywords])
-        tmp_num = []
-        tmp_bool = []
+        header_vals = []
         for kwd in self.keywords:
             val = self.keywords[kwd]
-            if isinstance(val,float) or isinstance(val,int):
-                tmp_num.append(val)
-            elif isinstance(val,bool):
-                tmp_bool.append(1. if val else 0.)
-        self._header_stats = self._quickstat(tmp_num)
-        self._header_bool_stats = self._quickstat(tmp_bool)
+            if isinstance(val,bool):
+                # has to come first since bools are also ints
+                header_vals.append(1. if val else 0.)
+            elif isinstance(val,float) or isinstance(val,int):
+                header_vals.append(val)
+        self._header_stats = self._quickstat(header_vals)
         
         return
     
