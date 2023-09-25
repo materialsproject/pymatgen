@@ -1713,9 +1713,8 @@ class _MPResterNewBasic:
 
     def __getattr__(self, item):
         raise AttributeError(
-            f"{item} is not available in this implementation of MPRester, which only has the most common "
-            f"functionality. If you are looking for the full functionality MPRester with the new API, pls install "
-            f"the mp-api package."
+            f"{item} is not an attribute of this implementation of MPRester, which only supports functionality used "
+            f"by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api package."
         )
 
     def __enter__(self):
@@ -1730,19 +1729,29 @@ class _MPResterNewBasic:
         """Helper method to make the requests and perform decoding based on MSONable protocol."""
         response = None
         url = self.preamble + sub_url
-        try:
-            if method == "POST":
-                response = self.session.post(url, data=payload, verify=True)
-            else:
-                response = self.session.get(url, params=payload, verify=True)
-            if response.status_code in [200, 400]:
-                return json.loads(response.text, cls=MontyDecoder) if mp_decode else json.loads(response.text)
 
-            raise MPRestError(f"REST query returned with error status code {response.status_code}")
-
-        except Exception as ex:
-            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
-            raise MPRestError(msg)
+        per_page = 1000
+        page = 1
+        all_data = []
+        while True:
+            actual_url = f"{url}&_per_page={per_page}&_page={page}"
+            try:
+                if method == "POST":
+                    response = self.session.post(actual_url, data=payload, verify=True)
+                else:
+                    response = self.session.get(actual_url, params=payload, verify=True)
+                if response.status_code in [200, 400]:
+                    data = json.loads(response.text, cls=MontyDecoder) if mp_decode else json.loads(response.text)
+                else:
+                    raise MPRestError(f"REST query returned with error status code {response.status_code}")
+                all_data.extend(data["data"])
+                if len(data["data"]) < per_page:
+                    break
+                page += 1
+            except Exception as ex:
+                msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+                raise MPRestError(msg)
+        return all_data
 
     def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
         """
@@ -1756,7 +1765,7 @@ class _MPResterNewBasic:
             List of dict of summary docs.
         """
         get = "_all_fields=True" if fields is None else "_fields=" + ",".join(fields)
-        return self.request(f"materials/summary?{get}", payload=criteria)["data"]
+        return self.request(f"materials/summary?{get}", payload=criteria)
 
     def get_summary_by_material_id(self, material_id: str, fields: list | None = None) -> dict:
         """
@@ -1770,7 +1779,7 @@ class _MPResterNewBasic:
             Dict
         """
         get = "_all_fields=True" if fields is None else "_fields=" + ",".join(fields)
-        return self.request(f"materials/summary/{material_id}?{get}")["data"][0]
+        return self.request(f"materials/summary/{material_id}?{get}")[0]
 
     get_doc = get_summary_by_material_id
 
@@ -1785,6 +1794,27 @@ class _MPResterNewBasic:
             ([str]) List of all materials ids.
         """
         return [d["material_id"] for d in self.get_summary({"formula": formula}, fields=["material_id"])]
+
+    # For backwards compatibility and poor spelling.
+    get_materials_ids = get_material_ids
+
+    def get_structures(self, chemsys_formula: str, final=True) -> list[Structure]:
+        """Get a list of Structures corresponding to a chemical system or formula.
+
+        Args:
+            chemsys_formula (str): A chemical system, list of chemical systems
+                (e.g., Li-Fe-O, Si-*), or single formula (e.g., Fe2O3, Si*).
+            final (bool): Whether to get the final structure, or the list of initial
+                (pre-relaxation) structures. Defaults to True.
+
+        Returns:
+            List of Structure objects. ([Structure])
+        """
+        query = f"chemsys={chemsys_formula}" if "-" in chemsys_formula else f"formula={chemsys_formula}"
+        prop = "structure" if final else "initial_structure"
+        resp = self.request(f"materials/summary/?{query}&_all_fields=false&_fields={prop}")
+
+        return [d[prop] for d in resp]
 
     def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
         """
@@ -1801,7 +1831,7 @@ class _MPResterNewBasic:
         """
         prop = "structure"
         resp = self.request(f"materials/summary/{material_id}?_fields={prop}")
-        structure = resp["data"][0][prop]
+        structure = resp[0][prop]
         if conventional_unit_cell:
             return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
         return structure
@@ -1823,7 +1853,7 @@ class _MPResterNewBasic:
         """
         prop = "initial_structures"
         resp = self.request(f"materials/summary/{material_id}?_fields={prop}")
-        structures = resp["data"][0][prop]
+        structures = resp[0][prop]
         if conventional_unit_cell:
             return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
         return structures
@@ -1842,7 +1872,7 @@ class _MPResterNewBasic:
         to a chemical system, formula, or materials_id or full criteria.
 
         Args:
-            criteria (dict): Mongo-style dict criteria.
+            criteria: Chemsys, formula, or mp-id.
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
                 processed using the MaterialsProject2020Compatibility class,
@@ -1865,12 +1895,18 @@ class _MPResterNewBasic:
         Returns:
             List of ComputedStructureEntry objects.
         """
-        props = ["entries"]
+        if criteria.startswith("mp-"):
+            query = f"material_ids={criteria}"
+        elif "-" in criteria:
+            query = f"chemsys={criteria}"
+        else:
+            query = f"formula={criteria}"
 
-        r = self.request(f"materials?_fields={','.join(props)}", payload=criteria)
         entries = []
-        for d in r["data"]:
+        r = self.request(f"materials/thermo?_fields=entries&{query}")
+        for d in r:
             entries.extend(d["entries"].values())
+
         if compatible_only:
             from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 
@@ -1878,7 +1914,7 @@ class _MPResterNewBasic:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
-        return entries
+        return list(set(entries))
 
     def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
         r"""
@@ -1893,7 +1929,7 @@ class _MPResterNewBasic:
         Returns:
             ComputedStructureEntry object.
         """
-        return self.get_entries({"task_ids": material_id}, *args, **kwargs)[0]
+        return self.get_entries(material_id, *args, **kwargs)[0]
 
     def get_entries_in_chemsys(self, elements, *args, **kwargs):
         """
@@ -1911,7 +1947,11 @@ class _MPResterNewBasic:
         Returns:
             List of ComputedEntries.
         """
-        criteria = {"chemsys": "-".join(sorted(elements))}
+        chemsys = []
+        for i in range(1, len(elements) + 1):
+            for els in itertools.combinations(elements, i):
+                chemsys.append("-".join(sorted(els)))
+        criteria = ",".join(chemsys)
 
         return self.get_entries(criteria, *args, **kwargs)
 
