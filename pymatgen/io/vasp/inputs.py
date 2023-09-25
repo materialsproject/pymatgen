@@ -1998,6 +1998,7 @@ class PotcarSingle:
         mapping_dict = {
             "potUSPP_GGA": {
                 "pymatgen_key": "PW91_US",
+                "LEXCH": "91",
                 "vasp_description": "Ultrasoft pseudo potentials"
                 "for LDA and PW91 (dated 2002-08-20 and 2002-04-08,"
                 "respectively). These files are outdated, not"
@@ -2005,6 +2006,7 @@ class PotcarSingle:
             },
             "potUSPP_LDA": {
                 "pymatgen_key": "LDA_US",
+                "LEXCH": "CA",
                 "vasp_description": "Ultrasoft pseudo potentials"
                 "for LDA and PW91 (dated 2002-08-20 and 2002-04-08,"
                 "respectively). These files are outdated, not"
@@ -2012,6 +2014,7 @@ class PotcarSingle:
             },
             "potpaw_GGA": {
                 "pymatgen_key": "PW91",
+                "LEXCH": "91",
                 "vasp_description": "The LDA, PW91 and PBE PAW datasets"
                 "(snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,"
                 "respectively). These files are outdated, not"
@@ -2019,6 +2022,7 @@ class PotcarSingle:
             },
             "potpaw_LDA": {
                 "pymatgen_key": "Perdew-Zunger81",
+                "LEXCH": "CA",
                 "vasp_description": "The LDA, PW91 and PBE PAW datasets"
                 "(snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,"
                 "respectively). These files are outdated, not"
@@ -2026,6 +2030,7 @@ class PotcarSingle:
             },
             "potpaw_LDA.52": {
                 "pymatgen_key": "LDA_52",
+                "LEXCH": "CA",
                 "vasp_description": "LDA PAW datasets version 52,"
                 "including the early GW variety (snapshot 19-04-2012)."
                 "When read by VASP these files yield identical results"
@@ -2033,6 +2038,7 @@ class PotcarSingle:
             },
             "potpaw_LDA.54": {
                 "pymatgen_key": "LDA_54",
+                "LEXCH": "CA",
                 "vasp_description": "LDA PAW datasets version 54,"
                 "including the GW variety (original release 2015-09-04)."
                 "When read by VASP these files yield identical results as"
@@ -2040,6 +2046,7 @@ class PotcarSingle:
             },
             "potpaw_PBE": {
                 "pymatgen_key": "PBE",
+                "LEXCH": "PE",
                 "vasp_description": "The LDA, PW91 and PBE PAW datasets"
                 "(snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,"
                 "respectively). These files are outdated, not"
@@ -2047,6 +2054,7 @@ class PotcarSingle:
             },
             "potpaw_PBE.52": {
                 "pymatgen_key": "PBE_52",
+                "LEXCH": "PE",
                 "vasp_description": "PBE PAW datasets version 52,"
                 "including early GW variety (snapshot 19-04-2012)."
                 "When read by VASP these files yield identical"
@@ -2054,6 +2062,7 @@ class PotcarSingle:
             },
             "potpaw_PBE.54": {
                 "pymatgen_key": "PBE_54",
+                "LEXCH": "PE",
                 "vasp_description": "PBE PAW datasets version 54,"
                 "including the GW variety (original release 2015-09-04)."
                 "When read by VASP these files yield identical results as"
@@ -2061,26 +2070,32 @@ class PotcarSingle:
             },
             "unvie_potpaw.52": {
                 "pymatgen_key": "unvie_LDA_52",
+                "LEXCH": "CA",
                 "vasp_description": "files released previously"
                 "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
             "unvie_potpaw.54": {
                 "pymatgen_key": "unvie_LDA_54",
+                "LEXCH": "CA",
                 "vasp_description": "files released previously"
                 "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
             "unvie_potpaw_PBE.52": {
                 "pymatgen_key": "unvie_PBE_52",
+                "LEXCH": "PE",
                 "vasp_description": "files released previously"
                 "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
             "unvie_potpaw_PBE.54": {
                 "pymatgen_key": "unvie_PBE_52",
+                "LEXCH": "PE",
                 "vasp_description": "files released previously"
                 "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
         }
-
+        possible_matches = [akey for akey in mapping_dict if mapping_dict[akey]['LEXCH'] == self.LEXCH]
+        print(f'{possible_matches=}')
+        print(len(mapping_dict))
         cwd = os.path.abspath(os.path.dirname(__file__))
 
         if mode == "data":
@@ -2215,23 +2230,35 @@ class PotcarSingle:
                     parsed_val = self._str_to_py(_tmp_)
                     if isinstance(parsed_val,str):
                         tmpstr += parsed_val.strip()
-                        #self._data_keywords.append(parsed_val.strip())
                     elif isinstance(parsed_val,float) or isinstance(parsed_val,int):
                         self._data_vals.append(parsed_val)
                 if len(tmpstr)>0:
                     self._data_keywords.append(tmpstr)
         self._data_keywords = list(set(self._data_keywords))
         self._data_vals = np.array(self._data_vals)
-        ndps = self._data_vals.shape[0]
-        self._potcar_data_stats = {
-            'MEAN': np.sum(self._data_vals)/ndps,
-            'ABSMEAN': np.sum(np.abs(self._data_vals))/ndps,
-            'VAR': np.sum(self._data_vals**2)/ndps,
-            'MIN': self._data_vals.min(),
-            'MAX': self._data_vals.max()
-        }
+        self._potcar_data_stats = self.quickstat(self._data_vals)
+        
+        psp_data_check = np.allclose()
+
+        """
+        AK: not sure if it's best practice to check header keywords directly 
+        (basically are these protected under copyright?)
+        or use averaging to check their numeric values.
+        """
+        #hdr_data = [aval for aval in self.keywords if isinstance(aval,float) or isinstance(aval,int)]
+        #self._potcar_header_stats = self.quickstat(hdr_data)
         
         return
+    
+    def quickstat(self,data_list):
+        data_list = np.array(data_list)
+        return {
+            'MEAN': np.mean(data_list),
+            'ABSMEAN': np.mean(np.abs(data_list)),
+            'VAR': np.mean(data_list**2),
+            'MIN': data_list.min(),
+            'MAX': data_list.max()
+        }
 
     def __getattr__(self, attr: str) -> Any:
         """Delegates attributes to keywords. For example, you can use potcarsingle.enmax to get the ENMAX of the POTCAR.
