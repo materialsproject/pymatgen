@@ -1039,11 +1039,12 @@ class TestPotcarSingle(unittest.TestCase):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
 
         psingle = PotcarSingle.from_file(filename)
-        assert "PBE_54" in psingle.identify_potcar()[0]
-        assert "Fe" in psingle.identify_potcar()[1]
+        assert "PBE_54" in psingle._matched_meta['POTCAR_FUNCTIONAL']
+        assert "Fe" in psingle._matched_meta['TITEL']
 
     def test_potcar_hash_warning(self):
         filename = f"{TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
+        psp = PotcarSingle.from_file(filename)
         with pytest.warns(UnknownPotcarWarning, match="POTCAR is known to match the following functionals:"):
             PotcarSingle.from_file(filename)
 

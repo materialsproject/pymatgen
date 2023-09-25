@@ -1683,6 +1683,9 @@ class PotcarSingle:
         COPYR=_parse_string,
     )
 
+    cwd = os.path.abspath(os.path.dirname(__file__))
+    meta_db = loadfn(f"{cwd}/POTCAR_META.json")
+
     def __init__(self, data, symbol=None):
         """
         Args:
@@ -1784,32 +1787,23 @@ class PotcarSingle:
             except IndexError:
                 self._symbol = self.keywords["TITEL"].strip()
 
-        # Compute the POTCAR hashes to check them against the database of known
-        # VASP POTCARs and possibly SHA256 hashes contained in the file itself.
-        self.hash = self.get_potcar_hash()
-        self.file_hash = self.get_potcar_file_hash()
-        if hasattr(self, "SHA256"):
+        # Compute the POTCAR meta to check them against the database of known metadata,
+        # and possibly SHA256 hashes contained in the file itself.
+
+        sha256_pass = True
+        if has_sha256 := hasattr(self, "SHA256"):
             self.hash_sha256_from_file = self.SHA256.split()[0]
             self.hash_sha256_computed = self.get_sha256_file_hash()
+            sha256_pass = (self.hash_sha256_from_file == self.hash_sha256_computed)
 
-        if not self.identify_potcar(mode="data")[0]:
+        if not has_sha256 and not self.is_valid():
             warnings.warn(
-                f"POTCAR with symbol {self.symbol} has metadata that does\n"
-                "not match any VASP POTCAR known to pymatgen. The data in this\n"
-                "POTCAR is known to match the following functionals:\n"
-                f"{self.identify_potcar(mode='data')[0]}",
-                UnknownPotcarWarning,
-            )
-
-        has_sh256, hash_check_passed = self.verify_potcar()
-        if not has_sh256 and not hash_check_passed:
-            warnings.warn(
-                f"POTCAR data with symbol { self.symbol} does not match any VASP "
-                "POTCAR known to pymatgen. There is a possibility your "
+                f"POTCAR data with symbol { self.symbol} does not match any VASP\n"
+                "POTCAR known to pymatgen. There is a possibility your\n"
                 "POTCAR is corrupted or that the pymatgen database is incomplete.",
                 UnknownPotcarWarning,
             )
-        elif has_sh256 and not hash_check_passed:
+        elif has_sha256 and not sha256_pass:
             warnings.warn(
                 f"POTCAR with symbol {self.symbol} and functional\n"
                 f"{self.functional} has a SHA256 hash defined,\n"
@@ -2215,7 +2209,8 @@ class PotcarSingle:
 
     def is_valid(self, tol = 1.e-6):
         """
-        New method of checking that POTCAR matches reference attributes
+        New method of checking that POTCAR matches reference metadata
+        Trying to make this check less brittle
         """
 
         functional_lexch = {
@@ -2224,10 +2219,18 @@ class PotcarSingle:
             '91': ['PW91','PW91_US'],
         }
 
-        
+        possible_potcars = []
+        for afunc in functional_lexch[self.LEXCH]:
+            for titel_no_spc in self.meta_db[afunc]:
+                if (self.TITEL.replace(' ','') == titel_no_spc) \
+                    and (self.VRHFIN.replace(' ','') == self.meta_db[afunc][titel_no_spc]['VRHFIN']):
+                    possible_potcars.append({
+                        'POTCAR_FUNCTIONAL': afunc, 'TITEL': titel_no_spc, 
+                        **self.meta_db[afunc][titel_no_spc]
+                    })
 
-        self._data_keywords = []
-        self._data_vals = []
+        psp_keys = []
+        psp_vals = []
         for aline in self.data.split('END of PSCTR-controll parameters\n')[1].split('\n'):
             single_line_rows = aline.split(';') # FORTRAN multiple lines in one, woot woot
             for brow in single_line_rows:
@@ -2237,27 +2240,59 @@ class PotcarSingle:
                     if isinstance(parsed_val,str):
                         tmpstr += parsed_val.strip()
                     elif isinstance(parsed_val,float) or isinstance(parsed_val,int):
-                        self._data_vals.append(parsed_val)
+                        psp_vals.append(parsed_val)
                 if len(tmpstr)>0:
-                    self._data_keywords.append(tmpstr.lower())
-        self._data_keywords = list(set(self._data_keywords))
-        self._data_vals = np.array(self._data_vals)
-        self._potcar_data_stats = self._quickstat(self._data_vals)
-        
-        #psp_data_check = np.allclose()
+                    psp_keys.append(tmpstr.lower())
+                    
+        psp_vals = np.array(psp_vals)
 
-        self._header_keys = list([kwd.lower() for kwd in self.keywords])
-        header_vals = []
-        for kwd in self.keywords:
-            val = self.keywords[kwd]
+        psctr_vals = []
+        for kwd in self.PSCTR:
+            val = self.PSCTR[kwd]
             if isinstance(val,bool):
                 # has to come first since bools are also ints
-                header_vals.append(1. if val else 0.)
+                psctr_vals.append(1. if val else 0.)
             elif isinstance(val,float) or isinstance(val,int):
-                header_vals.append(val)
-        self._header_stats = self._quickstat(header_vals)
-        
-        return
+                psctr_vals.append(val)
+            elif hasattr(val,'__len__'):
+                psctr_vals += [subval for subval in val if (isinstance(subval,float) or isinstance(subval,int))]
+
+        self._meta = {
+            'keywords': {
+                'header': set([kwd.lower() for kwd in self.PSCTR]),
+                'data': set(psp_keys),
+            },
+            'stats': {
+                'header': self._quickstat(psctr_vals),
+                'data': self._quickstat(psp_vals),
+            }
+        }
+
+        self._matched_meta = {}
+        for ref_psp in possible_potcars:
+
+            kwd_pass = True
+            for akey in ref_psp['keywords']:
+                if set(ref_psp['keywords'][akey]) != self._meta['keywords'][akey]:
+                    kwd_pass = False
+                    break
+
+            if not kwd_pass: continue
+
+            stat_pass = True
+            for akey in ref_psp['stats']:
+                for astat in ref_psp['stats'][akey]:
+                    if abs(ref_psp['stats'][akey][astat] - self._meta['stats'][akey][astat]) >= tol:
+                        stat_pass = False
+                        break
+
+                if not stat_pass: break
+            
+            if stat_pass:
+                self._matched_meta = ref_psp.copy()
+                break
+                    
+        return len(self._matched_meta) > 0
     
     def _quickstat(self,data_list):
         """
