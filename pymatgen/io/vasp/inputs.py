@@ -2093,9 +2093,7 @@ class PotcarSingle:
                 "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
         }
-        possible_matches = [akey for akey in mapping_dict if mapping_dict[akey]['LEXCH'] == self.LEXCH]
-        print(f'{possible_matches=}')
-        print(len(mapping_dict))
+
         cwd = os.path.abspath(os.path.dirname(__file__))
 
         if mode == "data":
@@ -2220,6 +2218,14 @@ class PotcarSingle:
         New method of checking that POTCAR matches reference attributes
         """
 
+        functional_lexch = {
+            'PE': ['PBE','PBE_52','PBE_54'],
+            'CA': ['LDA','LDA_52','LDA_54','LDA_US','Perdew_Zunger81'],
+            '91': ['PW91','PW91_US'],
+        }
+
+        
+
         self._data_keywords = []
         self._data_vals = []
         for aline in self.data.split('END of PSCTR-controll parameters\n')[1].split('\n'):
@@ -2233,24 +2239,31 @@ class PotcarSingle:
                     elif isinstance(parsed_val,float) or isinstance(parsed_val,int):
                         self._data_vals.append(parsed_val)
                 if len(tmpstr)>0:
-                    self._data_keywords.append(tmpstr)
+                    self._data_keywords.append(tmpstr.lower())
         self._data_keywords = list(set(self._data_keywords))
         self._data_vals = np.array(self._data_vals)
-        self._potcar_data_stats = self.quickstat(self._data_vals)
+        self._potcar_data_stats = self._quickstat(self._data_vals)
         
-        psp_data_check = np.allclose()
+        #psp_data_check = np.allclose()
 
-        """
-        AK: not sure if it's best practice to check header keywords directly 
-        (basically are these protected under copyright?)
-        or use averaging to check their numeric values.
-        """
-        #hdr_data = [aval for aval in self.keywords if isinstance(aval,float) or isinstance(aval,int)]
-        #self._potcar_header_stats = self.quickstat(hdr_data)
+        self._header_keys = list([kwd.lower() for kwd in self.keywords])
+        tmp_num = []
+        tmp_bool = []
+        for kwd in self.keywords:
+            val = self.keywords[kwd]
+            if isinstance(val,float) or isinstance(val,int):
+                tmp_num.append(val)
+            elif isinstance(val,bool):
+                tmp_bool.append(1. if val else 0.)
+        self._header_stats = self._quickstat(tmp_num)
+        self._header_bool_stats = self._quickstat(tmp_bool)
         
         return
     
-    def quickstat(self,data_list):
+    def _quickstat(self,data_list):
+        """
+        Fast stats on input list - used for POTCAR checking without hashes
+        """
         data_list = np.array(data_list)
         return {
             'MEAN': np.mean(data_list),
