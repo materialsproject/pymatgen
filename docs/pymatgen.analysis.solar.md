@@ -83,7 +83,7 @@ the eigenvalues of each corresponding 3x3 symmetric numpy matrices.
 
 * **Return type**
 
-    (np.array)
+    np.array
 
 
 

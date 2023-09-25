@@ -365,12 +365,26 @@ Bases: `MSONable`
 
 A generalized simplex object. See [http://en.wikipedia.org/wiki/Simplex](http://en.wikipedia.org/wiki/Simplex).
 
-<!-- attribute: space_dim
 
-Dimension of the space. Usually, this is 1 more than the simplex_dim. -->
-<!-- attribute: simplex_dim
+#### space_dim()
+Dimension of the space. Usually, this is 1 more than the simplex_dim.
 
-Dimension of the simplex coordinate space. -->
+
+* **Type**
+
+    int
+
+
+
+#### simplex_dim()
+Dimension of the simplex coordinate space.
+
+
+* **Type**
+
+    int
+
+
 Initializes a Simplex from vertex coordinates.
 
 
@@ -422,11 +436,20 @@ is in the facet.
 
 
 #### line_intersection(point1, point2, tolerance=1e-08)
-Computes the intersection points of a line with a simplex
-:param point1: Points that determine the line.
-:type point1: [float]
-:param point2: Points that determine the line.
-:type point2: [float]
+Computes the intersection points of a line with a simplex.
+
+
+* **Parameters**
+
+
+    * **point1** (*Sequence**[**float**]*) – 1st point to determine the line.
+
+
+    * **point2** (*Sequence**[**float**]*) – 2nd point to determine the line.
+
+
+    * **tolerance** (*float*) – Tolerance for checking if an intersection is in the simplex. Defaults to 1e-8.
+
 
 
 * **Returns**
@@ -673,6 +696,12 @@ Tests if a particular coord is within a coord_list.
 
 
 
+* **Return type**
+
+    bool
+
+
+
 ### in_coord_list_pbc(fcoord_list, fcoord, atol=1e-08, pbc=(True, True, True))
 Tests if a particular fractional coord is within a fractional coord_list.
 
@@ -700,6 +729,12 @@ Tests if a particular fractional coord is within a fractional coord_list.
 
 
 
+* **Return type**
+
+    bool
+
+
+
 ### is_coord_subset(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-08)
 Tests if all coords in subset are contained in superset.
 Doesn’t use periodic boundary conditions.
@@ -721,6 +756,12 @@ Doesn’t use periodic boundary conditions.
 * **Returns**
 
     True if all of subset is in superset.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -753,6 +794,12 @@ Tests if all fractional coords in subset are contained in superset.
 * **Returns**
 
     True if all of subset is in superset.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -1327,28 +1374,6 @@ Author: Rickard Armiento, Ioannis Petousis
 This module provides utilities for basic math operations.
 
 
-### abs_cap(val, max_abs_val=1)
-Returns the value with its absolute value capped at max_abs_val.
-Particularly useful in passing values to trigonometric functions where
-numerical errors may result in an argument > 1 being passed in.
-
-
-* **Parameters**
-
-
-    * **val** (*float*) – Input value.
-
-
-    * **max_abs_val** (*float*) – The maximum absolute value for val. Defaults to 1.
-
-
-
-* **Returns**
-
-    val if abs(val) < 1 else sign of val \* max_abs_val.
-
-
-
 ### make_symmetric_matrix_from_upper_tri(val)
 Given a symmetric matrix in upper triangular matrix form as flat array indexes as:
 [A_xx,A_yy,A_zz,A_xy,A_xz,A_yz]
@@ -1356,44 +1381,9 @@ This will generate the full matrix:
 [[A_xx,A_xy,A_xz],[A_xy,A_yy,A_yz],[A_xz,A_yz,A_zz].
 
 
-### maxloc(seq)
-Return the index of the (first) maximum in seq.
-
-```python
->>> assert maxloc([1,3,2,3]) == 1
-```
-
-
-### min_max_indexes(seq)
-Uses enumerate, max, and min to return the indices of the values
-in a list with the maximum and minimum value.
-
-
-* **Parameters**
-
-    **seq** – A sequence of numbers.
-
-
-
-### minloc(seq)
-Return the index of the (first) minimum in seq.
-
-```python
->>> assert minloc(range(3)) == 0
-```
-
-
 ### round_to_sigfigs(num, sig_figs)
 Rounds a number rounded to a specific number of significant
 figures instead of to a specific precision.
-
-
-### strictly_decreasing(values)
-True if values are strictly decreasing.
-
-
-### strictly_increasing(values)
-True if values are strictly increasing.
 
 ## pymatgen.util.numba module
 
@@ -1437,7 +1427,7 @@ latex format for labelling purposes.
 
 
 
-### get_ax3d_fig_plt(ax: Axes | None = None, \*\*kwargs)
+### get_ax3d_fig(ax: plt.Axes = None, \*\*kwargs)
 Helper function used in plot functions supporting an optional Axes3D
 argument. If ax is None, we build the matplotlib figure and create the
 Axes3D else we return the current active figure.
@@ -1455,19 +1445,17 @@ Axes3D else we return the current active figure.
 
 * **Returns**
 
-    `Axes` object
-    figure: matplotlib figure
-    plt: matplotlib pyplot module.
+    matplotlib Axes3D and corresponding figure objects
 
 
 
 * **Return type**
 
-    ax
+    tuple[Axes3D, Figure]
 
 
 
-### get_ax_fig_plt(ax: Axes | None = None, \*\*kwargs)
+### get_ax_fig(ax: Axes | None = None, \*\*kwargs)
 Helper function used in plot functions supporting an optional Axes argument.
 If ax is None, we build the matplotlib figure and create the Axes else
 we return the current active figure.
@@ -1485,15 +1473,13 @@ we return the current active figure.
 
 * **Returns**
 
-    `Axes` object
-    figure: matplotlib figure
-    plt: matplotlib pyplot module.
+    matplotlib Axes object and Figure objects
 
 
 
 * **Return type**
 
-    ax
+    tuple[plt.Axes, plt.Figure]
 
 
 
@@ -1506,7 +1492,7 @@ current active figure.
 
 * **Returns**
 
-    Array of `Axes` objects
+    Array of Axes objects
     figure: matplotlib figure
     plt: matplotlib pyplot module.
 
@@ -1799,17 +1785,33 @@ A HistoryNode contains three fields:
 
 
 #### name()
-The name of a code or resource that this Structure encountered in
-its history (String)
+The name of a code or resource that this Structure encountered in its history.
+
+
+* **Type**
+
+    str
+
 
 
 #### url()
-The URL of that code/resource (String)
+The URL of that code/resource.
+
+
+* **Type**
+
+    str
+
 
 
 #### description()
-A free-form description of how the code/resource is related to the
-Structure (dict).
+A free-form description of how the code/resource is related to the Structure.
+
+
+* **Type**
+
+    dict
+
 
 Create new instance of HistoryNode(name, url, description)
 
@@ -2205,12 +2207,27 @@ True if stream supports colors. Python cookbook, #475186.
 
 
 ### transformation_to_string(matrix, translation_vec=(0, 0, 0), components=('x', 'y', 'z'), c='', delim=',')
-Convenience method. Given matrix returns string, e.g. x+2y+1/4
-:param matrix
-:param translation_vec
-:param components: either (‘x’, ‘y’, ‘z’) or (‘a’, ‘b’, ‘c’)
-:param c: optional additional character to print (used for magmoms)
-:param delim: delimiter.
+Convenience method. Given matrix returns string, e.g. x+2y+1/4.
+
+
+* **Parameters**
+
+
+    * **matrix** – A 3x3 matrix.
+
+
+    * **translation_vec** – A 3-element tuple representing the translation vector. Defaults to (0, 0, 0).
+
+
+    * **components** – A tuple of 3 strings representing the components. Either (‘x’, ‘y’, ‘z’) or (‘a’, ‘b’, ‘c’).
+    Defaults to (‘x’, ‘y’, ‘z’).
+
+
+    * **c** – An optional additional character to print (used for magmoms). Defaults to “”.
+
+
+    * **delim** – A delimiter. Defaults to “,”.
+
 
 
 * **Returns**

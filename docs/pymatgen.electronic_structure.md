@@ -24,42 +24,89 @@ This is the most generic band structure data possible
 it’s defined by a list of kpoints + energies for each of them.
 
 
-### kpoints:()
+#### kpoints()
+The list of kpoints (as Kpoint objects) in the band structure.
 
-### the list of kpoints (as Kpoint objects) in the band structure()
+
+* **Type**
+
+    list
+
+
 
 #### lattice_rec()
-the reciprocal lattice of the band structure.
+The reciprocal lattice of the band structure.
+
+
+* **Type**
+
+    [Lattice](pymatgen.core.md#pymatgen.core.lattice.Lattice)
+
 
 
 #### efermi()
-the fermi energy
+The Fermi energy.
+
+
+* **Type**
+
+    float
+
 
 
 #### is_spin_polarized()
-True if the band structure is spin-polarized, False otherwise
+True if the band structure is spin-polarized.
+
+
+* **Type**
+
+    bool
+
 
 
 #### bands()
 The energy eigenvalues as a {spin: ndarray}. Note that the use of an
-ndarray is necessary for computational as well as memory efficiency
-due to the large amount of numerical data. The indices of the ndarray
-are [band_index, kpoint_index].
+ndarray is necessary for computational as well as memory efficiency due to the large
+amount of numerical data. The indices of the ndarray are [band_index, kpoint_index].
+
+
+* **Type**
+
+    dict
+
 
 
 #### nb_bands()
-returns the number of bands in the band structure
+Returns the number of bands in the band structure.
+
+
+* **Type**
+
+    int
+
 
 
 #### structure()
-returns the structure
+Returns the structure.
+
+
+* **Type**
+
+    [Structure](pymatgen.core.md#pymatgen.core.structure.Structure)
+
 
 
 #### projections()
 The projections as a {spin: ndarray}. Note that the use of an
-ndarray is necessary for computational as well as memory efficiency
-due to the large amount of numerical data. The indices of the ndarray
-are [band_index, kpoint_index, orbital_index, ion_index].
+ndarray is necessary for computational as well as memory efficiency due to the large
+amount of numerical data. The indices of the ndarray are [band_index, kpoint_index,
+orbital_index, ion_index].
+
+
+* **Type**
+
+    dict
+
 
 
 * **Parameters**
@@ -204,13 +251,20 @@ band gap.
 
 
 #### get_kpoint_degeneracy(kpoint, cartesian=False, tol: float = 0.01)
-Returns degeneracy of a given k-point based on structure symmetry
-:param kpoint: coordinate of the k-point
-:type kpoint: 1x3 array
-:param cartesian: kpoint is in Cartesian or fractional coordinates
-:type cartesian: bool
-:param tol: tolerance below which coordinates are considered equal.
-:type tol: float
+Returns degeneracy of a given k-point based on structure symmetry.
+
+
+* **Parameters**
+
+
+    * **kpoint** (*1x3 array*) – coordinate of the k-point
+
+
+    * **cartesian** (*bool*) – kpoint is in Cartesian or fractional coordinates
+
+
+    * **tol** (*float*) – tolerance below which coordinates are considered equal.
+
 
 
 * **Returns**
@@ -334,7 +388,13 @@ level crosses a band.
 
 * **Returns**
 
-    True if a metal, False if not
+    True if a metal.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -470,7 +530,7 @@ pymatgen.core.structure.
     * **coords** – coordinate of the kpoint as a numpy array
 
 
-    * **lattice** – A pymatgen.core.lattice.Lattice object representing
+    * **lattice** – A pymatgen.core.Lattice object representing
     the reciprocal lattice of the kpoint
 
 
@@ -533,7 +593,7 @@ The label associated with the kpoint.
 
 #### _property_ lattice()
 The lattice associated with the kpoint. It’s a
-pymatgen.core.lattice.Lattice object.
+pymatgen.core.Lattice object.
 
 
 ### _class_ LobsterBandStructureSymmLine(kpoints, eigenvals, lattice, efermi, labels_dict, coords_are_cartesian=False, structure=None, projections=None)
@@ -1543,9 +1603,17 @@ lattice thermal conductivity.
 
 
 #### _static_ parse_cond_and_hall(path_dir, doping_levels=None)
-Parses the conductivity and Hall tensors
-:param path_dir: Path containing .condtens / .halltens files
-:param doping_levels: ([float]) - doping lvls, parse outtrans to get this.
+Parses the conductivity and Hall tensors.
+
+
+* **Parameters**
+
+
+    * **path_dir** – Path containing .condtens / .halltens files
+
+
+    * **doping_levels** – ([float]) - doping lvls, parse outtrans to get this.
+
 
 
 * **Returns**
@@ -1615,11 +1683,23 @@ Parses boltztrap.struct file (only the volume).
 
 
 #### _static_ parse_transdos(path_dir, efermi, dos_spin=1, trim_dos=False)
-Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files
-:param path_dir: (str) dir containing DOS files
-:param efermi: (float) Fermi energy
-:param dos_spin: (int) -1 for spin down, +1 for spin up
-:param trim_dos: (bool) whether to post-process / trim DOS.
+Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files.
+
+
+* **Parameters**
+
+
+    * **path_dir** – (str) dir containing DOS files
+
+
+    * **efermi** – (float) Fermi energy
+
+
+    * **dos_spin** – (int) -1 for spin down, +1 for spin up
+
+
+    * **trim_dos** – (bool) whether to post-process / trim DOS.
+
 
 
 * **Returns**
@@ -1871,8 +1951,17 @@ squared (%) if nb is specified.
 ### eta_from_seebeck(seeb, Lambda)
 It takes a value of seebeck and adjusts the analytic seebeck until it’s equal.
 
-Returns: eta where the two seebeck coefficients are equal
-(reduced chemical potential).
+
+* **Returns**
+
+    eta where the two seebeck coefficients are equal (reduced chemical potential).
+
+
+
+* **Return type**
+
+    float
+
 
 
 ### read_cube_file(filename)
@@ -2166,7 +2255,8 @@ Function to plot the transport properties.
     * **ax** – figure.axes where to plot. If None, a new figure is produced.
 
 
-Example:
+### Example
+
 bztPlotter.plot_props(‘S’,’mu’,’temp’,temps=[600,900,1200]).show()
 more example are provided in the notebook
 “How to use Boltztra2 interface.ipynb”.
@@ -2443,30 +2533,96 @@ Bases: `Cohp`
 
 A wrapper class that defines an average COHP, and individual COHPs.
 
-<!-- attribute: are_coops
 
-Indicates whether the object is consisting of COOPs. -->
-<!-- attribute: are_cobis
+#### are_coops()
+Indicates whether the object is consisting of COOPs.
 
-Indicates whether the object is consisting of COBIs. -->
-<!-- attribute: efermi
 
-Fermi energy -->
-<!-- attribute: energies
+* **Type**
 
-Sequence of energies -->
-<!-- attribute: structure
+    bool
 
-Structure associated with the COHPs. -->
-<!-- attribute: cohp, icohp
 
-The average COHP/ICOHP. -->
-<!-- attribute: all_cohps
 
-A dict of COHPs for individual bonds of the form {label: COHP} -->
-<!-- attribute: orb_res_cohp
+#### are_cobis()
+Indicates whether the object is consisting of COBIs.
 
-Orbital-resolved COHPs. -->
+
+* **Type**
+
+    bool
+
+
+
+#### efermi()
+Fermi energy.
+
+
+* **Type**
+
+    float
+
+
+
+#### energies()
+Sequence of energies.
+
+
+* **Type**
+
+    Sequence[float]
+
+
+
+#### structure()
+Structure associated with the COHPs.
+
+
+* **Type**
+
+    pymatgen.Structure
+
+
+
+#### cohp()
+The average COHP.
+
+
+* **Type**
+
+    Sequence[float]
+
+
+
+#### icohp()
+The average ICOHP.
+
+
+* **Type**
+
+    Sequence[float]
+
+
+
+#### all_cohps()
+A dict of COHPs for individual bonds of the form {label: COHP}.
+
+
+* **Type**
+
+    dict[str, Sequence[float]]
+
+
+
+#### orb_res_cohp()
+Orbital-resolved COHPs.
+
+
+* **Type**
+
+    dict[str, Dict[str, Sequence[float]]]
+
+
 
 * **Parameters**
 
@@ -2654,16 +2810,34 @@ Class to store IcohpValues.
 
 
 #### are_coops()
+Boolean to indicate if these are ICOOPs.
 
-### Boolean to indicate if these are ICOOPs()
+
+* **Type**
+
+    bool
+
+
 
 #### are_cobis()
+Boolean to indicate if these are ICOOPs.
 
-### Boolean to indicate if these are ICOOPs()
+
+* **Type**
+
+    bool
+
+
 
 #### is_spin_polarized()
+Boolean to indicate if the Lobster calculation was done spin polarized or not.
 
-### Boolean to indicate if the Lobster calculation was done spin polarized or not()
+
+* **Type**
+
+    bool
+
+
 
 * **Parameters**
 
@@ -2713,9 +2887,17 @@ Whether this is a coop.
 
 
 #### extremum_icohpvalue(summed_spin_channels=True, spin=Spin.up)
-Get ICOHP/ICOOP of strongest bond
-:param summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed.
-:param spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
+Get ICOHP/ICOOP of strongest bond.
+
+
+* **Parameters**
+
+
+    * **summed_spin_channels** – Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed.
+
+
+    * **spin** – if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
+
 
 
 * **Returns**
@@ -2752,9 +2934,17 @@ ICOHPLIST/ICOOPLIST).
 
 
 #### get_icohp_dict_by_bondlengths(minbondlength=0.0, maxbondlength=8.0)
-Get a dict of IcohpValues corresponding to certain bond lengths
-:param minbondlength: defines the minimum of the bond lengths of the bonds
-:param maxbondlength: defines the maximum of the bond lengths of the bonds.
+Get a dict of IcohpValues corresponding to certain bond lengths.
+
+
+* **Parameters**
+
+
+    * **minbondlength** – defines the minimum of the bond lengths of the bonds
+
+
+    * **maxbondlength** – defines the maximum of the bond lengths of the bonds.
+
 
 
 * **Returns**
@@ -2834,25 +3024,85 @@ Bases: `MSONable`
 Class to store information on an ICOHP or ICOOP value.
 
 
-#### num_bonds()
+#### energies()
+Energy values for the COHP/ICOHP/COOP/ICOOP.
 
-### number of bonds used for the average cohp (relevant for Lobster versions <3.0) (int)()
+
+* **Type**
+
+    ndarray
+
+
+
+#### densities()
+Density of states values for the COHP/ICOHP/COOP/ICOOP.
+
+
+* **Type**
+
+    ndarray
+
+
+
+#### energies_are_cartesian()
+Whether the energies are cartesian or not.
+
+
+* **Type**
+
+    bool
+
+
 
 #### are_coops()
+Whether the object is a COOP/ICOOP or not.
 
-### Boolean to indicates ICOOPs()
+
+* **Type**
+
+    bool
+
+
 
 #### are_cobis()
+Whether the object is a COBIS/ICOBIS or not.
 
-### Boolean to indicates ICOBIs()
+
+* **Type**
+
+    bool
+
+
 
 #### icohp()
+A dictionary of the ICOHP/COHP values. The keys are Spin.up and Spin.down.
 
-### dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}()
 
-### summed_icohp:()
+* **Type**
 
-### sum of icohp/icoop of both spin channels()
+    dict
+
+
+
+#### summed_icohp()
+The summed ICOHP/COHP values.
+
+
+* **Type**
+
+    float
+
+
+
+#### num_bonds()
+The number of bonds used for the average COHP (relevant for Lobster versions <3.0).
+
+
+* **Type**
+
+    int
+
+
 
 * **Parameters**
 
@@ -3391,8 +3641,20 @@ manually.
 Structure associated with the CompleteDos.
 
 
+* **Type**
+
+    [Structure](pymatgen.core.md#pymatgen.core.structure.Structure)
+
+
+
 #### pdos()
-Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}
+Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}.
+
+
+* **Type**
+
+    dict
+
 
 
 * **Parameters**
@@ -3703,8 +3965,17 @@ Calculates the similarity index (dot product) of two fingerprints.
     **ValueError** – If both tanimoto and normalize are set to True.
 
 
-Returns:
-Similarity index (float): The value of dot product
+
+* **Returns**
+
+    Similarity index given by the dot product
+
+
+
+* **Return type**
+
+    float
+
 
 
 #### get_element_dos()
@@ -3967,15 +4238,36 @@ Bases: [`Spectrum`](pymatgen.core.md#pymatgen.core.spectrum.Spectrum)
 Replacement basic DOS object. All other DOS objects are extended versions
 of this object. Work in progress.
 
-<!-- attribute: energies
 
-The sequence of energies -->
-<!-- attribute: densities
+#### energies()
+The sequence of energies.
 
-A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]} -->
-<!-- attribute: efermi
 
-Fermi level -->
+* **Type**
+
+    Sequence[float]
+
+
+
+#### densities()
+A dict of spin densities, e.g., {Spin.up: […], Spin.down: […]}.
+
+
+* **Type**
+
+    dict[Spin, Sequence[float]]
+
+
+
+#### efermi()
+Fermi level.
+
+
+* **Type**
+
+    float
+
+
 
 * **Parameters**
 
@@ -4090,15 +4382,36 @@ Bases: `MSONable`
 Basic DOS object. All other DOS objects are extended versions of this
 object.
 
-<!-- attribute: energies
 
-The sequence of energies -->
-<!-- attribute: densities
+#### energies()
+The sequence of energies.
 
-A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]} -->
-<!-- attribute: efermi
 
-Fermi level -->
+* **Type**
+
+    Sequence[float]
+
+
+
+#### densities()
+A dict of spin densities, e.g., {Spin.up: […], Spin.down: […]}.
+
+
+* **Type**
+
+    dict[Spin, Sequence[float]]
+
+
+
+#### efermi()
+Fermi level.
+
+
+* **Type**
+
+    float
+
+
 
 * **Parameters**
 
@@ -4688,15 +5001,35 @@ Draw an RGB triangle legend on the desired axis.
 #### _static_ _rgbline(ax, k, e, red, green, blue, alpha=1, linestyles='solid')
 An RGB colored line for plotting.
 creation of segments based on:
-[http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb](http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb)
-:param ax: matplotlib axis
-:param k: x-axis data (k-points)
-:param e: y-axis data (energies)
-:param red: red data
-:param green: green data
-:param blue: blue data
-:param alpha: alpha values data
-:param linestyles: linestyle for plot (e.g., “solid” or “dotted”).
+[http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb](http://nbviewer.ipython.org/urls/raw.github.com/dpsanders/matplotlib-examples/master/colorline.ipynb).
+
+
+* **Parameters**
+
+
+    * **ax** – matplotlib axis
+
+
+    * **k** – x-axis data (k-points)
+
+
+    * **e** – y-axis data (energies)
+
+
+    * **red** – red data
+
+
+    * **green** – green data
+
+
+    * **blue** – blue data
+
+
+    * **alpha** – alpha values data
+
+
+    * **linestyles** – linestyle for plot (e.g., “solid” or “dotted”).
+
 
 
 #### get_plot(bs: BandStructureSymmLine, dos: Dos | CompleteDos | None = None)
@@ -4763,7 +5096,7 @@ number of branches (high symmetry lines) defined in the
 BandStructureSymmLine object (see BandStructureSymmLine._branches).
 
 
-#### _maketicks(ax: Axes)
+#### _make_ticks(ax: Axes)
 Utility private method to add ticks to a band structure.
 
 
@@ -4911,6 +5244,18 @@ Get all ticks and labels for a band structure plot.
 Plot the Brillouin zone.
 
 
+* **Returns**
+
+    A matplotlib figure object with the Brillouin zone.
+
+
+
+* **Return type**
+
+    plt.Figure
+
+
+
 #### plot_compare(other_plotter, legend=True)
 Plot two band structure for comparison. One is in red the other in blue
 (no difference in spins). The two band structures need to be defined
@@ -5007,7 +5352,7 @@ projected along orbitals, elements or sites.
 
 #### _get_projections_by_branches_patom_pmorb(dictio, dictpa, sum_atoms, sum_morbs, selected_branches)
 
-#### _maketicks_selected(ax: Axes, branches: list[int])
+#### _make_ticks_selected(ax: Axes, branches: list[int])
 Utility private method to add ticks to a band structure with selected branches.
 
 
@@ -6017,7 +6362,7 @@ Folds a point with coordinates p inside the first Brillouin zone of the lattice.
 
 
 
-### plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None, fold=False, coords_are_cartesian=False, ax: Axes = None, \*\*kwargs)
+### plot_brillouin_zone(bz_lattice, lines=None, labels=None, kpoints=None, fold=False, coords_are_cartesian: bool = False, ax: Axes = None, \*\*kwargs)
 Plots a 3D representation of the Brillouin zone of the structure.
 Can add to the plot paths, labels and kpoints.
 
@@ -6045,7 +6390,7 @@ Can add to the plot paths, labels and kpoints.
     coordinates in Cartesian coordinates. Defaults to False.
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
     * **kwargs** – provided by add_fig_kwargs decorator
@@ -6122,7 +6467,7 @@ Gives the plot (as a matplotlib object) of the symmetry line path in
     * **kpath** ([*HighSymmKpath*](pymatgen.symmetry.md#pymatgen.symmetry.bandstructure.HighSymmKpath)) – a HighSymmKPath object
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
     * **\*\*kwargs** – provided by add_fig_kwargs decorator
@@ -6208,7 +6553,7 @@ of a band in a single k-point.
     * **rescale** – factor for size scaling of the ellipsoid
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
     * **coords_are_cartesian** – Set to True if you are providing a center in
@@ -6349,7 +6694,7 @@ Adds labels to a matplotlib Axes.
     Requires lattice if False.
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
     * **kwargs** – kwargs passed to the matplotlib function ‘text’. Color defaults to blue
@@ -6373,7 +6718,7 @@ Adds the basis vectors of the lattice provided to a matplotlib Axes.
     * **lattice** – Lattice object
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
     * **kwargs** – kwargs passed to the matplotlib function ‘plot’. Color defaults to green
@@ -6405,7 +6750,7 @@ Adds a line passing through the coordinates listed in ‘line’ to a matplotlib
     Requires lattice if False.
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
     * **kwargs** – kwargs passed to the matplotlib function ‘plot’. Color defaults to red
@@ -6441,7 +6786,7 @@ Adds Points to a matplotlib Axes.
     Defaults to False. Requires lattice if True.
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
     * **kwargs** – kwargs passed to the matplotlib function ‘scatter’. Color defaults to blue
@@ -6464,7 +6809,7 @@ Adds the skeleton of the Wigner-Seitz cell of the lattice to a matplotlib Axes.
     * **lattice** – Lattice object
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
     * **kwargs** – kwargs passed to the matplotlib function ‘plot’. Color defaults to black

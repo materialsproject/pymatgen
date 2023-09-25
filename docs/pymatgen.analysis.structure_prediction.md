@@ -377,7 +377,8 @@ can for instance come from a database like the ICSD). It will return
 all the structures formed by ionic substitutions with a probability
 higher than the threshold.
 
-Notes:
+### Notes
+
 If the default probability model is used, input structures must
 be oxidation state decorated. See AutoOxiStateDecorationTransformation
 

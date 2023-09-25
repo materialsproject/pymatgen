@@ -387,11 +387,9 @@ Draw network of environments in a matplotlib figure axes.
     * **periodicity_vectors** – List of periodicity vectors that should be drawn.
 
 
-Returns: None
-
 
 ### make_supergraph(graph, multiplicity, periodicity_vectors)
-Make supergraph from a graph of environments.
+Make super graph from a graph of environments.
 
 
 * **Parameters**
@@ -400,13 +398,23 @@ Make supergraph from a graph of environments.
     * **graph** – Graph of environments.
 
 
-    * **multiplicity** – Multiplicity of the supergraph.
+    * **multiplicity** – Multiplicity of the super graph.
 
 
-    * **periodicity_vectors** – Periodicity vectors needed to make the supergraph.
+    * **periodicity_vectors** – Periodicity vectors needed to make the super graph.
 
 
-Returns: Super graph of the environments.
+
+* **Returns**
+
+    Super graph of the environments.
+
+
+
+* **Return type**
+
+    nx.MultiGraph
+
 
 ## pymatgen.analysis.chemenv.connectivity.connectivity_finder module
 
@@ -563,7 +571,13 @@ Compare with another environment node.
 
 * **Returns**
 
-    True if it is equal to the other node, False otherwise.
+    True if it is equal to the other node.
+
+
+
+* **Return type**
+
+    bool
 
 
 

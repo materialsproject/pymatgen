@@ -299,7 +299,7 @@ Static constructor for path in k-space.
 * **Parameters**
 
 
-    * **structure** – `Structure` object.
+    * **structure** – Structure object.
 
 
     * **kpath_bounds** – List with the reduced coordinates of the k-points defining the path.
@@ -314,7 +314,7 @@ Static constructor for path in k-space.
 
 * **Returns**
 
-    `KSampling` object.
+    KSampling object.
 
 
 
@@ -371,7 +371,7 @@ Convenient static constructor for an automatic Gamma centered Kpoint grid.
 
 * **Returns**
 
-    `KSampling` object.
+    KSampling object.
 
 
 
@@ -405,7 +405,7 @@ Convenient static constructor for a Monkhorst-Pack mesh.
 
 * **Returns**
 
-    `KSampling` object.
+    KSampling object.
 
 
 
@@ -416,7 +416,7 @@ Convenient static constructor for an automatic Monkhorst-Pack mesh.
 * **Parameters**
 
 
-    * **structure** – `Structure` object.
+    * **structure** – Structure object.
 
 
     * **ngkpt** – Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
@@ -431,7 +431,7 @@ Convenient static constructor for an automatic Monkhorst-Pack mesh.
 
 * **Returns**
 
-    `KSampling` object.
+    KSampling object.
 
 
 
@@ -607,7 +607,7 @@ computation of the screening function.
     * **sc_mode** – Self-consistency mode.
 
 
-    * **hilbert** – Instance of `HilbertTransform` defining the parameters for the Hilber transform method.
+    * **hilbert** – Instance of HilbertTransform defining the parameters for the Hilber transform method.
 
 
     * **ecutwfn** – Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
@@ -652,7 +652,7 @@ This object defines the parameters used for the computation of the self-energy.
     * **ecutsigx** – Cutoff energy for the exchange part of the self-energy (Ha units).
 
 
-    * **screening** – `Screening` instance.
+    * **screening** – Screening instance.
 
 
     * **gw_qprange** – Option for the automatic selection of k-points and bands for GW corrections.
@@ -660,7 +660,7 @@ This object defines the parameters used for the computation of the self-energy.
     QP energies for all the point in the IBZ and one band above and one band below the Fermi level.
 
 
-    * **ppmodel** – `PPModel` instance with the parameters used for the plasmon-pole technique.
+    * **ppmodel** – PPModel instance with the parameters used for the plasmon-pole technique.
 
 
     * **ecuteps** – Cutoff energy for the screening (Ha units).
@@ -799,7 +799,7 @@ If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr.
 
 * **Parameters**
 
-    **cls** – Lattice class to be instantiated. pymatgen.core.lattice.Lattice if cls is None
+    **cls** – Lattice class to be instantiated. Defaults to pymatgen.core.Lattice.
 
 
 ### Example
@@ -819,7 +819,7 @@ produces [Specie_O, Specie_Si] and not set([Specie_O, Specie_Si]) as in types_of
 
 
 ### structure_from_abivars(cls=None, \*args, \*\*kwargs)
-Build a `Structure` object from a dictionary with ABINIT variables.
+Build a Structure object from a dictionary with ABINIT variables.
 
 
 * **Parameters**
@@ -899,10 +899,20 @@ Plot histogram with cpu- and wall-time on axis ax.
 
 * **Parameters**
 
-    **ax** – matplotlib `Axes` or None if a new figure should be created.
+    **ax** – matplotlib Axes or None if a new figure should be created.
 
 
-Returns: matplotlib figure
+
+* **Returns**
+
+    matplotlib figure
+
+
+
+* **Return type**
+
+    plt.Figure
+
 
 Keyword arguments controlling the display of the figure:
 
@@ -994,10 +1004,20 @@ Plot pie chart for this timer.
     * **minfract** – Don’t show sections whose relative weight is less that minfract.
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
-Returns: matplotlib figure
+
+* **Returns**
+
+    matplotlib figure
+
+
+
+* **Return type**
+
+    plt.Figure
+
 
 Keyword arguments controlling the display of the figure:
 
@@ -1057,10 +1077,20 @@ Scatter plot + histogram.
 
 * **Parameters**
 
-    **ax** – matplotlib `Axes` or None if a new figure should be created.
+    **ax** – matplotlib Axes or None if a new figure should be created.
 
 
-Returns: matplotlib figure
+
+* **Returns**
+
+    matplotlib figure
+
+
+
+* **Return type**
+
+    plt.Figure
+
 
 Keyword arguments controlling the display of the figure:
 
@@ -1194,7 +1224,7 @@ Return: list of successfully read files.
 #### pefficiency()
 Analyze the parallel efficiency.
 
-Return: `ParallelEfficiency` object.
+Return: ParallelEfficiency object.
 
 
 #### plot_all(show=True, \*\*kwargs)
@@ -1218,7 +1248,7 @@ Plot the parallel efficiency.
     * **nmax** – Maximum number of entries in plot
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
 | kwargs
@@ -1377,11 +1407,11 @@ Plot stacked histogram of the different timers.
     sections with largest value are show.
 
 
-    * **mmax** – Maximum number of sections to show. Other entries are grouped together
+    * **nmax** – Maximum number of sections to show. Other entries are grouped together
     in the others section.
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
 
@@ -1813,7 +1843,7 @@ Return dictionary with the variables that have been removed.
 * **Parameters**
 
 
-    * **spin_mode** – `SpinMode` object or string. Possible values for string are:
+    * **spin_mode** – SpinMode object or string. Possible values for string are:
 
 
     * **polarized** (*-*) –
@@ -2449,11 +2479,11 @@ Chemical symbols char [number of atom species][symbol length].
 #### read_abinit_hdr()
 Read the variables associated to the Abinit header.
 
-Return `AbinitHeader`
+Return AbinitHeader
 
 
 #### read_abinit_xcfunc()
-Read ixc from an Abinit file. Return `XcFunc` object.
+Read ixc from an Abinit file. Return XcFunc object.
 
 
 #### read_structure(cls=<class 'pymatgen.core.structure.Structure'>)
@@ -2631,7 +2661,7 @@ An AbinitPseudo is a pseudopotential whose file contains an abinit header.
     * **path** – Filename.
 
 
-    * **header** – `AbinitHeader` instance.
+    * **header** – AbinitHeader instance.
 
 
 
@@ -2691,10 +2721,8 @@ Parse the FHI abinit header. Example:
 Troullier-Martins psp for element  Sc        Thu Oct 27 17:33:22 EDT 1994
 
     21.00000   3.00000    940714                zatom, zion, pspdat
-
-        1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
-
-1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
+    1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
+    1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
 
 
 #### _static_ gth_header(filename, ppdesc)
@@ -2715,8 +2743,7 @@ Parse the HGH abinit header. Example:
 
 Hartwigsen-Goedecker-Hutter psp for Ne,  from PRB58, 3641 (1998)
 
-    > 10   8  010605 zatom,zion,pspdat
-
+    10   8  010605 zatom,zion,pspdat
     3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well
 
 
@@ -2770,7 +2797,7 @@ Norm-conserving pseudopotential in the Abinit format.
     * **path** – Filename.
 
 
-    * **header** – `AbinitHeader` instance.
+    * **header** – AbinitHeader instance.
 
 
 
@@ -2913,7 +2940,7 @@ Paw pseudopotential in the Abinit format.
     * **path** – Filename.
 
 
-    * **header** – `AbinitHeader` instance.
+    * **header** – AbinitHeader instance.
 
 
 
@@ -3000,13 +3027,13 @@ Maximum angular momentum.
 Radius of the PAW sphere in a.u.
 
 
-#### plot_densities(ax: Axes = None, \*\*kwargs)
+#### plot_densities(ax: plt.Axes = None, \*\*kwargs)
 Plot the PAW densities.
 
 
 * **Parameters**
 
-    **ax** – matplotlib `Axes` or None if a new figure should be created.
+    **ax** – matplotlib Axes or None if a new figure should be created.
 
 
 
@@ -3067,16 +3094,26 @@ Default: False
 
                                                                      |
 
-#### plot_projectors(ax: Axes = None, fontsize=12, \*\*kwargs)
+#### plot_projectors(ax: plt.Axes = None, fontsize=12, \*\*kwargs)
 Plot the PAW projectors.
 
 
 * **Parameters**
 
-    **ax** – matplotlib `Axes` or None if a new figure should be created.
+    **ax** – matplotlib Axes or None if a new figure should be created.
 
 
-Returns: matplotlib figure
+
+* **Returns**
+
+    matplotlib figure
+
+
+
+* **Return type**
+
+    plt.Figure
+
 
 Keyword arguments controlling the display of the figure:
 
@@ -3130,20 +3167,30 @@ Default: False
 
                                                                      |
 
-#### plot_waves(ax: Axes = None, fontsize=12, \*\*kwargs)
+#### plot_waves(ax: plt.Axes = None, fontsize=12, \*\*kwargs)
 Plot the AE and the pseudo partial waves.
 
 
 * **Parameters**
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
     * **fontsize** – fontsize for legends and titles
 
 
-Returns: matplotlib figure
+
+* **Returns**
+
+    matplotlib figure
+
+
+
+* **Return type**
+
+    plt.Figure
+
 
 Keyword arguments controlling the display of the figure:
 
@@ -3281,7 +3328,7 @@ The path of the djrepo file. None if file does not exist.
 
 
 #### _property_ element(_: [Element](pymatgen.core.md#pymatgen.core.periodic_table.Element_ )
-Pymatgen `Element`.
+Pymatgen Element.
 
 
 #### _property_ filepath(_: st_ )
@@ -3307,7 +3354,7 @@ True if self provides hints on the cutoff energy.
 
 
 #### hint_for_accuracy(accuracy='normal')
-Returns a `Hint` object with the suggested value of ecut [Ha] and
+Returns a Hint object with the suggested value of ecut [Ha] and
 pawecutdg [Ha] for the given accuracy.
 ecut and pawecutdg are set to zero if no hint is available.
 
@@ -3340,7 +3387,7 @@ MD5 hash value.
 
 #### open_pspsfile(ecut=20, pawecutdg=None)
 Calls Abinit to compute the internal tables for the application of the
-pseudopotential part. Returns `PspsFile` object providing methods
+pseudopotential part. Returns PspsFile object providing methods
 to plot and analyze the data or None if file is not found or it’s not readable.
 
 
@@ -3383,7 +3430,7 @@ Type of pseudo.
 ### _exception_ PseudoParseError()
 Bases: [`ParseError`](pymatgen.io.md#pymatgen.io.core.ParseError)
 
-Base Error class for the exceptions raised by `PseudoParser`.
+Base Error class for the exceptions raised by PseudoParser.
 
 
 ### _class_ PseudoParser()
@@ -3506,7 +3553,7 @@ Return dictionary for MSONable protocol.
 
 
 #### _classmethod_ as_table(items)
-Return an instance of `PseudoTable` from the iterable items.
+Return an instance of PseudoTable from the iterable items.
 
 
 #### _classmethod_ from_dict(d)
@@ -3530,16 +3577,16 @@ Find all pseudos in the directory tree starting from top.
     * **exclude_dirs** – Wildcard used to exclude directories.
 
 
-return: `PseudoTable` sorted by atomic number Z.
+return: PseudoTable sorted by atomic number Z.
 
 
 #### get_pseudos_for_structure(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
-Return the list of `Pseudo` objects to be used for this `Structure`.
+Return the list of Pseudo objects to be used for this Structure.
 
 
 * **Parameters**
 
-    **structure** – pymatgen `Structure`.
+    **structure** – pymatgen Structure.
 
 
 
@@ -3610,7 +3657,7 @@ Select only those pseudopotentials for which condition is True.
 
 * **Parameters**
 
-    **condition** – Function that accepts a `Pseudo` object and returns True or False.
+    **condition** – Function that accepts a Pseudo object and returns True or False.
 
 
 
@@ -3636,7 +3683,7 @@ rows can be either a int or a list of integers.
 
 
 #### select_symbols(symbols, ret_list=False)
-Return a `PseudoTable` with the pseudopotentials with the given list of chemical symbols.
+Return a PseudoTable with the pseudopotentials with the given list of chemical symbols.
 
 
 * **Parameters**
@@ -3646,12 +3693,12 @@ Return a `PseudoTable` with the pseudopotentials with the given list of chemical
     Prepend the symbol string with “-”, to exclude pseudos.
 
 
-    * **ret_list** – if True a list of pseudos is returned instead of a `PseudoTable`
+    * **ret_list** – if True a list of pseudos is returned instead of a PseudoTable
 
 
 
 #### sort_by_z()
-Return a new `PseudoTable` with pseudos sorted by Z.
+Return a new PseudoTable with pseudos sorted by Z.
 
 
 #### sorted(attrname, reverse=False)
