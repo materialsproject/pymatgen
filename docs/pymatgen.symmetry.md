@@ -292,7 +292,7 @@ symmops.
 
 
 
-#### inversion_op(_ = Rot: [[-1. -0. -0.]  [-0. -1. -0.]  [-0. -0. -1.]] tau [0. 0. 0._ )
+#### inversion_op(_ = SymmOp(affine_matrix=array([[-1., -0., -0.,  0.],        [-0., -1., -0.,  0.],        [-0., -0., -1.,  0.],        [-0., -0., -0.,  1.]])_ )
 
 #### is_valid_op(symmop)
 Check if a particular symmetry operation is a valid symmetry operation for a
@@ -369,6 +369,12 @@ Defines a point group, which is essentially a sequence of symmetry operations.
 
 #### sch_symbol()
 Schoenflies symbol of the point group.
+
+
+* **Type**
+
+    str
+
 
 
 * **Parameters**
@@ -803,7 +809,7 @@ have been grouped into symmetrically equivalent groups.
 
 * **Returns**
 
-    `pymatgen.symmetry.structure.SymmetrizedStructure` object.
+    pymatgen.symmetry.structure.SymmetrizedStructure object.
 
 
 
@@ -1002,7 +1008,7 @@ symmetrized molecule
 
     * **tolerance** (*float*) – Tolerance for detecting symmetry.
     Gets passed as Argument into
-    `PointGroupAnalyzer`.
+    ~pymatgen.analyzer.symmetry.PointGroupAnalyzer.
 
 
     * **epsilon** (*float*) – If the elementwise absolute difference of two
@@ -1216,13 +1222,30 @@ Class representing a Point Group, with generators and symmetry operations.
 Full International or Hermann-Mauguin Symbol.
 
 
+* **Type**
+
+    str
+
+
+
 #### generators()
-List of generator matrices. Note that 3x3 matrices are used for Point
-Groups.
+List of generator matrices. Note that 3x3 matrices are used for Point Groups.
+
+
+* **Type**
+
+    list
+
 
 
 #### symmetry_ops()
 Full set of symmetry operations as matrices.
+
+
+* **Type**
+
+    list
+
 
 Initializes a Point Group from its international symbol.
 
@@ -1245,17 +1268,40 @@ Class representing a SpaceGroup.
 Full International or Hermann-Mauguin Symbol.
 
 
+* **Type**
+
+    str
+
+
+
 #### int_number()
-International number
+International number.
+
+
+* **Type**
+
+    int
+
 
 
 #### generators()
-List of generator matrices. Note that 4x4 matrices are used for Space
-Groups.
+List of generator matrices. Note that 4x4 matrices are used for Space Groups.
+
+
+* **Type**
+
+    list
+
 
 
 #### order()
-Order of Space Group
+Order of Space Group.
+
+
+* **Type**
+
+    int
+
 
 Initializes a Space Group from its full or abbreviated international
 symbol. Only standard settings are supported.
@@ -1302,6 +1348,12 @@ True if this group is a subgroup of the supplied group.
 
 
 
+* **Return type**
+
+    bool
+
+
+
 #### is_supergroup(subgroup: SymmetryGroup)
 True if this group is a supergroup of the supplied group.
 
@@ -1315,6 +1367,12 @@ True if this group is a supergroup of the supplied group.
 * **Returns**
 
     True if this group is a supergroup of the supplied group.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -1393,28 +1451,28 @@ Bases: `object`
 This is the base class for classes used to generate high-symmetry
 paths in reciprocal space (k-paths) for band structure calculations.
 
-Args:
-structure (Structure): Structure object.
-symprec (float): Tolerance for symmetry finding.
-angle_tolerance (float): Angle tolerance for symmetry finding.
-atol (float): Absolute tolerance used to compare structures
 
-> and determine symmetric equivalence of points and lines in the BZ.
+* **Parameters**
 
 
-
-```
-*
-```
-
-args: Other arguments supported by subclasses.
+    * **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Structure object.
 
 
-```
-**
-```
+    * **symprec** (*float*) – Tolerance for symmetry finding.
 
-kwargs: Other keyword arguments supported by subclasses.
+
+    * **angle_tolerance** (*float*) – Angle tolerance for symmetry finding.
+
+
+    * **atol** (*float*) – Absolute tolerance used to compare structures
+    and determine symmetric equivalence of points and lines in the BZ.
+
+
+    * **\*args** – Other arguments supported by subclasses.
+
+
+    * **\*\*kwargs** – Other keyword arguments supported by subclasses.
+
 
 
 #### _abc_impl(_ = <_abc._abc_data object_ )
@@ -2043,9 +2101,17 @@ where the spacegroup and symmetry operations are defined. This class is
 typically not called but instead is typically obtained by calling
 pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure.
 
-<!-- attribute: equivalent_indices
 
-indices of structure grouped by equivalency -->
+#### equivalent_indices()
+A list of lists of indices of the sites in the structure that are
+considered equivalent based on the symmetry operations of the space group.
+
+
+* **Type**
+
+    list[List[int]]
+
+
 
 * **Parameters**
 
@@ -2064,6 +2130,8 @@ indices of structure grouped by equivalency -->
 
 
 #### _abc_impl(_ = <_abc._abc_data object_ )
+
+#### _properties(_: dic_ )
 
 #### _sites(_: tuple[[PeriodicSite](pymatgen.core.md#pymatgen.core.sites.PeriodicSite), ..._ )
 
@@ -2114,7 +2182,3 @@ Finds all symmetrically equivalent sites for a particular site.
 * **Returns**
 
     SymmetrizedStructure
-
-
-
-#### properties(_: dic_ )

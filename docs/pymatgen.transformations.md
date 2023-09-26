@@ -81,7 +81,17 @@ Use AdsorbateSiteFinder to add an absorbate to a slab.
 
 
 
-Returns: Slab with adsorbate
+
+* **Returns**
+
+    with adsorbate
+
+
+
+* **Return type**
+
+    [Slab](pymatgen.core.md#pymatgen.core.surface.Slab)
+
 
 
 #### _property_ inverse()
@@ -349,7 +359,7 @@ A transformation that performs doping of a structure.
     any sites which are not
 
 
-    * **\*\*kwargs** – Same keyword args as `EnumerateStructureTransformation`,
+    * **\*\*kwargs** – Same keyword args as EnumerateStructureTransformation,
     i.e., min_cell_size, etc.
 
 
@@ -633,9 +643,7 @@ Applies the transformation.
 
 
     * **return_ranked_list** (*bool** | **int**, **optional*) – If return_ranked_list is int, that number of structures
-
     is returned. If False, only the single lowest energy structure is returned. Defaults to False.
-
 
 
 
@@ -719,7 +727,7 @@ approximation first.
     global order parameter and can take values from 0.0 to 1.0
     (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
     list has to be a list of
-    `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`
+    pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint
     to specify more complicated orderings, see documentation for
     MagOrderParameterConstraint more details on usage
 
@@ -734,7 +742,7 @@ approximation first.
     * **kwargs** – Additional kwargs that are passed to
 
 
-`EnumerateStructureTransformation` such as min_cell_size etc.
+EnumerateStructureTransformation such as min_cell_size etc.
 
 
 #### _abc_impl(_ = <_abc._abc_data object_ )
@@ -939,9 +947,8 @@ structure for each substitution. Ordering is done using a dummy element so
 only one ordering must be done per substitution oxidation state. Charge
 balancing of the structure is optionally performed.
 
-**NOTE**: There are no checks to make sure that removal fractions are possible
-and rounding may occur. Currently charge balancing only works for
-removal of species.
+**NOTE**: There are no checks to make sure that removal fractions are possible and rounding
+may occur. Currently charge balancing only works for removal of species.
 
 Performs multiple fractional substitutions on a transmuter.
 
@@ -1086,8 +1093,13 @@ A transformation that creates a special quasirandom structure (SQS) from a struc
 #### _abc_impl(_ = <_abc._abc_data object_ )
 
 #### _static_ _get_disordered_substructure(struc_disordered)
-Converts disordered structure into a substructure consisting of only disordered sites
-:param struc_disordered: pymatgen disordered Structure object.
+Converts disordered structure into a substructure consisting of only disordered sites.
+
+
+* **Parameters**
+
+    **struc_disordered** – pymatgen disordered Structure object.
+
 
 
 * **Returns**
@@ -1097,11 +1109,18 @@ Converts disordered structure into a substructure consisting of only disordered 
 
 
 #### _static_ _get_max_neighbor_distance(struct, shell)
-Calculate maximum nearest neighbor distance
-:param struct: pymatgen Structure object
-:param shell: nearest neighbor shell, such that shell=1 is the first nearest
+Calculate maximum nearest neighbor distance.
 
-> neighbor, etc.
+
+* **Parameters**
+
+
+    * **struct** – pymatgen Structure object
+
+
+    * **shell** – nearest neighbor shell, such that shell=1 is the first nearest
+    neighbor, etc.
+
 
 
 * **Returns**
@@ -1113,7 +1132,7 @@ Calculate maximum nearest neighbor distance
 #### _static_ _get_unique_bestsqs_strucs(sqs, best_only, return_ranked_list, remove_duplicate_structures, reduction_algo)
 Gets unique sqs structures with lowest objective function. Requires an mcsqs output that has been run
 
-    in parallel, otherwise returns Sqs.bestsqs
+    in parallel, otherwise returns Sqs.bestsqs.
 
 
 * **Parameters**
@@ -1156,9 +1175,17 @@ Gets unique sqs structures with lowest objective function. Requires an mcsqs out
 
 
 #### _static_ _sqs_cluster_estimate(struc_disordered, cluster_size_and_shell: dict[int, int] | None = None)
-Set up an ATAT cluster.out file for a given structure and set of constraints
-:param struc_disordered: disordered pymatgen Structure object
-:param cluster_size_and_shell: dict of integers {cluster: shell}.
+Set up an ATAT cluster.out file for a given structure and set of constraints.
+
+
+* **Parameters**
+
+
+    * **struc_disordered** – disordered pymatgen Structure object
+
+
+    * **cluster_size_and_shell** – dict of integers {cluster: shell}.
+
 
 
 * **Returns**
@@ -1362,7 +1389,17 @@ per surface. Can substitute one surface or both.
 
 
 
-Returns: Slab with sites substituted
+
+* **Returns**
+
+    each dict has key ‘structure’ which is a Slab with sites substituted
+
+
+
+* **Return type**
+
+    list[dict]
+
 
 
 #### _property_ inverse()
@@ -2587,7 +2624,7 @@ computed.
 Given that the solution to selecting the right removals is NP-hard, there
 are several algorithms provided with varying degrees of accuracy and speed.
 Please see
-`pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation`.
+pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.
 
 
 * **Parameters**

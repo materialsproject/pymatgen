@@ -6,6 +6,12 @@ nav_order: 4
 
 # Changelog
 
+## v2023.9.25
+
+- New basic MPRester implemented that supports the most common use cases without having to install mp-api. mp-api is no longer a dependency of pymatgen.
+- Breaking: rename get_ax3d_fig_plt->get_ax3d_fig and get_ax_fig_plt->get_ax_fig plus no longer return plt
+- Misc bug fixes.
+
 ## v2023.9.10
 
 ### 🐛 Bug Fixes
