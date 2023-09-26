@@ -1794,7 +1794,7 @@ class PotcarSingle:
         if has_sha256 := hasattr(self, "SHA256"):
             self.hash_sha256_from_file = self.SHA256.split()[0]
             self.hash_sha256_computed = self.get_sha256_file_hash()
-            sha256_pass = (self.hash_sha256_from_file == self.hash_sha256_computed)
+            sha256_pass = self.hash_sha256_from_file == self.hash_sha256_computed
 
         if not has_sha256 and not self.is_valid():
             warnings.warn(
@@ -1809,7 +1809,7 @@ class PotcarSingle:
                 f"{self.functional} has a SHA256 hash defined,\n"
                 "but the computed hash differs.\n"
                 "YOUR POTCAR FILE HAS BEEN CORRUPTED AND SHOULD NOT BE USED!",
-                UnknownPotcarWarning
+                UnknownPotcarWarning,
             )
 
     def __str__(self):
@@ -2169,9 +2169,8 @@ class PotcarSingle:
         md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
-    
-    def _str_to_py(self,input_str : str) -> Any:
 
+    def _str_to_py(self, input_str: str) -> Any:
         """
         A function that tries to parse any input string to output as either
         a bool, int, float, or failing that, str
@@ -2181,116 +2180,112 @@ class PotcarSingle:
         """
         input_str = input_str.strip()
 
-        if input_str.lower() in ['t','f'] or input_str.lower() in ['true','false']:
-            return input_str[0].lower() == 't'
+        if input_str.lower() in ["t", "f"] or input_str.lower() in ["true", "false"]:
+            return input_str[0].lower() == "t"
 
         if (input_str.upper() == input_str.lower()) and input_str[0].isnumeric():
-            if '.' in input_str:
+            if "." in input_str:
                 return float(input_str)
-            else:
-                return int(input_str)
-        else:
-            try:
-                return float(input_str)
-            except ValueError:
-                return input_str
+            return int(input_str)
+        try:
+            return float(input_str)
+        except ValueError:
+            return input_str
 
-    def is_valid(self, tol : float = 1.e-6) -> bool:
-        """
-        New method of checking that POTCAR matches reference metadata
-        Trying to make this check less brittle
-        """
+    def is_valid(self, tol: float = 1.0e-6) -> bool:
+        """Check that POTCAR matches reference metadata."""
 
         functional_lexch = {
-            'PE': ['PBE','PBE_52','PBE_54'],
-            'CA': ['LDA','LDA_52','LDA_54','LDA_US','Perdew_Zunger81'],
-            '91': ['PW91','PW91_US'],
+            "PE": ["PBE", "PBE_52", "PBE_54"],
+            "CA": ["LDA", "LDA_52", "LDA_54", "LDA_US", "Perdew_Zunger81"],
+            "91": ["PW91", "PW91_US"],
         }
 
         possible_potcars = []
-        for afunc in functional_lexch.get(self.LEXCH,[]):
+        for afunc in functional_lexch.get(self.LEXCH, []):
             for titel_no_spc in self.meta_db[afunc]:
-                if (self.TITEL.replace(' ','') == titel_no_spc) \
-                    and (self.VRHFIN.replace(' ','') == self.meta_db[afunc][titel_no_spc]['VRHFIN']):
-                    possible_potcars.append({
-                        'POTCAR_FUNCTIONAL': afunc, 'TITEL': titel_no_spc, 
-                        **self.meta_db[afunc][titel_no_spc]
-                    })
+                if (self.TITEL.replace(" ", "") == titel_no_spc) and (
+                    self.VRHFIN.replace(" ", "") == self.meta_db[afunc][titel_no_spc]["VRHFIN"]
+                ):
+                    possible_potcars.append(
+                        {"POTCAR_FUNCTIONAL": afunc, "TITEL": titel_no_spc, **self.meta_db[afunc][titel_no_spc]}
+                    )
 
         psp_keys = []
         psp_vals = []
-        for aline in self.data.split('END of PSCTR-controll parameters\n')[1].split('\n'):
-            single_line_rows = aline.split(';') # FORTRAN multiple lines in one, woot woot
+        for aline in self.data.split("END of PSCTR-controll parameters\n")[1].split("\n"):
+            single_line_rows = aline.split(";")  # FORTRAN multiple lines in one, woot woot
             for brow in single_line_rows:
-                tmpstr = ''
+                tmpstr = ""
                 for _tmp_ in brow.split():
                     parsed_val = self._str_to_py(_tmp_)
-                    if isinstance(parsed_val,str):
+                    if isinstance(parsed_val, str):
                         tmpstr += parsed_val.strip()
-                    elif isinstance(parsed_val,float) or isinstance(parsed_val,int):
+                    elif isinstance(parsed_val, (float, int)):
                         psp_vals.append(parsed_val)
-                if len(tmpstr)>0:
+                if len(tmpstr) > 0:
                     psp_keys.append(tmpstr.lower())
-                    
+
         psctr_vals = []
         for kwd in self.PSCTR:
             val = self.PSCTR[kwd]
-            if isinstance(val,bool):
+            if isinstance(val, bool):
                 # has to come first since bools are also ints
-                psctr_vals.append(1. if val else 0.)
-            elif isinstance(val,float) or isinstance(val,int):
+                psctr_vals.append(1.0 if val else 0.0)
+            elif isinstance(val, (float, int)):
                 psctr_vals.append(val)
-            elif hasattr(val,'__len__'):
-                psctr_vals += [subval for subval in val if (isinstance(subval,float) or isinstance(subval,int))]
+            elif hasattr(val, "__len__"):
+                psctr_vals += [subval for subval in val if (isinstance(subval, (float, int)))]
 
         self._meta = {
-            'keywords': {
-                'header': [kwd.lower() for kwd in self.PSCTR],
-                'data': psp_keys,
+            "keywords": {
+                "header": [kwd.lower() for kwd in self.PSCTR],
+                "data": psp_keys,
             },
-            'stats': {
-                'header': self._quickstat(psctr_vals),
-                'data': self._quickstat(psp_vals),
-            }
+            "stats": {
+                "header": self._quickstat(psctr_vals),
+                "data": self._quickstat(psp_vals),
+            },
         }
 
         self._matched_meta = []
         for ref_psp in possible_potcars:
-
             kwd_pass = True
-            for akey in ref_psp['keywords']:
-                if set(ref_psp['keywords'][akey]) != set(self._meta['keywords'][akey]):
+            for akey in ref_psp["keywords"]:
+                if set(ref_psp["keywords"][akey]) != set(self._meta["keywords"][akey]):
                     kwd_pass = False
                     break
 
-            if not kwd_pass: continue
+            if not kwd_pass:
+                continue
 
             stat_pass = True
-            for akey in ref_psp['stats']:
-                for astat in ref_psp['stats'][akey]:
-                    if abs(ref_psp['stats'][akey][astat] - self._meta['stats'][akey][astat]) >= tol:
+            for akey in ref_psp["stats"]:
+                for astat in ref_psp["stats"][akey]:
+                    if abs(ref_psp["stats"][akey][astat] - self._meta["stats"][akey][astat]) >= tol:
                         stat_pass = False
                         break
 
-                if not stat_pass: break
-            
+                if not stat_pass:
+                    break
+
             if stat_pass:
-                self._matched_meta.append(ref_psp.copy()) 
-                    
+                self._matched_meta.append(ref_psp.copy())
+
         self.valid_POTCAR = len(self._matched_meta) > 0
         return self.valid_POTCAR
-    
-    def _quickstat(self,data_list : Sequence) -> dict:
+
+    def _quickstat(self, data_list: Sequence) -> dict:
         """
         Fast stats on input list - used for POTCAR checking without hashes
         """
         data_list = np.array(data_list)
         return {
-            'MEAN': np.mean(data_list),
-            'ABSMEAN': np.mean(np.abs(data_list)),
-            'VAR': np.mean(data_list**2),
-            'MIN': data_list.min(),
-            'MAX': data_list.max()
+            "MEAN": np.mean(data_list),
+            "ABSMEAN": np.mean(np.abs(data_list)),
+            "VAR": np.mean(data_list**2),
+            "MIN": data_list.min(),
+            "MAX": data_list.max(),
         }
 
     def __getattr__(self, attr: str) -> Any:
