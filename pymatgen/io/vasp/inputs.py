@@ -2192,8 +2192,50 @@ class PotcarSingle:
         except ValueError:
             return input_str
 
-    def is_valid(self, tol: float = 1.0e-6) -> bool:
-        """Check that POTCAR matches reference metadata."""
+    def is_valid(self) -> bool:
+        """
+        Check that POTCAR matches reference metadata.
+        Parsed metadata is stored in self._meta as a human-readable dict,
+            self._meta = {
+                "keywords": {
+                    "header": list[str],
+                    "data": list[str],
+                },
+                "stats": {
+                    "header": dict[float],
+                    "data": dict[float],
+                },
+            }
+
+        Rationale:
+        Each POTCAR is structured as
+            Header (self.PSCTR)
+            Data (actual pseudopotential values in data blocks)
+
+        For the Data block of POTCAR, there are unformatted data blocks
+        of unknown length and contents/data type, e.g., you might see
+            <float> <bool>
+            <Data Keyword>
+            <int> <int> <float>
+            <float> ... <float>
+            <Data Keyword>
+            <float> ... <float>
+        but this is impossible to process algorithmically without a full POTCAR schema.
+        Note also that POTCARs can contain **different** data keywords
+
+        All keywords found in the header, essentially self.PSCTR.keys(), and the data block
+        (<Data Keyword> above) are stored in self._meta["keywords"]
+
+        To avoid issues of copyright, statistics (mean, mean of abs vals, variance, max, min)
+        for the numeric values in the header and data sections of POTCAR are stored
+        in self._meta["stats"]
+
+        tol is then used to match statistical values within a tolerance
+
+        self._matched_meta collects reference metadata that matched the input POTCAR data
+        """
+
+        tol = 1.0e-6
 
         functional_lexch = {
             "PE": ["PBE", "PBE_52", "PBE_54"],
@@ -2213,8 +2255,8 @@ class PotcarSingle:
 
         psp_keys = []
         psp_vals = []
-        for aline in self.data.split("END of PSCTR-controll parameters\n")[1].split("\n"):
-            single_line_rows = aline.split(";")  # FORTRAN multiple lines in one, woot woot
+        for file_line in self.data.split("END of PSCTR-controll parameters\n")[1].split("\n"):
+            single_line_rows = file_line.split(";")  # FORTRAN multiple lines in one, woot woot
             for brow in single_line_rows:
                 tmpstr = ""
                 for _tmp_ in brow.split():
@@ -2250,36 +2292,30 @@ class PotcarSingle:
 
         self._matched_meta = []
         for ref_psp in possible_potcars:
-            kwd_pass = True
-            for akey in ref_psp["keywords"]:
-                if set(ref_psp["keywords"][akey]) != set(self._meta["keywords"][akey]):
-                    kwd_pass = False
-                    break
+            key_match = all(
+                set(ref_psp["keywords"][key]) == set(self._meta["keywords"][key])  # type: ignore
+                for key in ["header", "data"]
+            )
 
-            if not kwd_pass:
-                continue
+            data_diff = np.array(
+                [
+                    abs(ref_psp["stats"][key][stat] - self._meta["stats"][key][stat])  # type: ignore
+                    for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
+                    for key in ["header", "data"]
+                ]
+            )
+            data_match = np.all(data_diff < tol)
 
-            stat_pass = True
-            for akey in ref_psp["stats"]:
-                for astat in ref_psp["stats"][akey]:
-                    if abs(ref_psp["stats"][akey][astat] - self._meta["stats"][akey][astat]) >= tol:
-                        stat_pass = False
-                        break
-
-                if not stat_pass:
-                    break
-
-            if stat_pass:
+            if key_match and data_match:
                 self._matched_meta.append(ref_psp.copy())
 
-        self.valid_POTCAR = len(self._matched_meta) > 0
-        return self.valid_POTCAR
+        return len(self._matched_meta) > 0
 
-    def _quickstat(self, data_list: Sequence) -> dict:
+    def _quickstat(self, in_data_list: Sequence) -> dict:
         """
         Fast stats on input list - used for POTCAR checking without hashes
         """
-        data_list = np.array(data_list)
+        data_list = np.array(in_data_list)
         return {
             "MEAN": np.mean(data_list),
             "ABSMEAN": np.mean(np.abs(data_list)),

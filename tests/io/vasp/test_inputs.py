@@ -9,11 +9,9 @@ import numpy as np
 import pytest
 import scipy.constants as const
 from monty.io import zopen
-from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
 
-import pymatgen
 from pymatgen.core import SETTINGS
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
@@ -1043,9 +1041,8 @@ class TestPotcarSingle(unittest.TestCase):
         assert "PBE_54" in matched_funcs
         assert "Fe" in psingle._matched_meta[0]["TITEL"]
 
-    def test_potcar_hash_warning(self):
+    def test_unknown_potcar_warning(self):
         filename = f"{TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
-        PotcarSingle.from_file(filename)
         with pytest.warns(UnknownPotcarWarning, match="POTCAR data with symbol Fe_pv does not match any VASP"):
             PotcarSingle.from_file(filename)
 
@@ -1064,29 +1061,21 @@ class TestPotcarSingle(unittest.TestCase):
         with pytest.warns(UnknownPotcarWarning, match="but the computed hash differs"):
             PotcarSingle.from_file(filename)
 
-    def test_verify_correct_potcar_with_hash(self):
+    def test_verify_correct_potcar_with_sha256(self):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash.gz"
-        vaspdir = os.path.abspath(os.path.dirname(pymatgen.io.vasp.__file__))
-        loadfn(f"{vaspdir}/vasp_potcar_file_hashes.json")
-        loadfn(f"{vaspdir}/vasp_potcar_pymatgen_hashes.json")
-
         psingle = PotcarSingle.from_file(filename)
-        # assert psingle.hash in metadata_hash_db
-        # assert psingle.file_hash in file_hash_db
         assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
 
-    def test_multi_potcar_with_and_without_hash(self):
+    def test_multi_potcar_with_and_without_sha256(self):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_O.gz"
-        vaspdir = os.path.abspath(os.path.dirname(pymatgen.io.vasp.__file__))
-        loadfn(f"{vaspdir}/vasp_potcar_file_hashes.json")
-        Potcar.from_file(filename)
+        potcars = Potcar.from_file(filename)
         # Still need to test the if POTCAR can be read.
         # No longer testing for hashes
-        # for psingle in potcars:
-        #     if hasattr(psingle, "hash_sha256_from_file"):
-        #         assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
-        # else:
-        #     assert psingle.file_hash in file_hash_db
+        for psingle in potcars:
+            if hasattr(psingle, "hash_sha256_from_file"):
+                assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
+            else:
+                assert psingle.is_valid()
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
