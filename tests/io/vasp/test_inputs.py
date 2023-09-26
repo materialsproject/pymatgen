@@ -1039,13 +1039,13 @@ class TestPotcarSingle(unittest.TestCase):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
 
         psingle = PotcarSingle.from_file(filename)
-        matched_funcs = [refpsp['POTCAR_FUNCTIONAL'] for refpsp in psingle._matched_meta]
+        matched_funcs = [refpsp["POTCAR_FUNCTIONAL"] for refpsp in psingle._matched_meta]
         assert "PBE_54" in matched_funcs
-        assert "Fe" in psingle._matched_meta[0]['TITEL']
+        assert "Fe" in psingle._matched_meta[0]["TITEL"]
 
     def test_potcar_hash_warning(self):
         filename = f"{TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
-        psp = PotcarSingle.from_file(filename)
+        PotcarSingle.from_file(filename)
         with pytest.warns(UnknownPotcarWarning, match="POTCAR data with symbol Fe_pv does not match any VASP"):
             PotcarSingle.from_file(filename)
 
@@ -1067,12 +1067,12 @@ class TestPotcarSingle(unittest.TestCase):
     def test_verify_correct_potcar_with_hash(self):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash.gz"
         vaspdir = os.path.abspath(os.path.dirname(pymatgen.io.vasp.__file__))
-        file_hash_db = loadfn(f"{vaspdir}/vasp_potcar_file_hashes.json")
-        metadata_hash_db = loadfn(f"{vaspdir}/vasp_potcar_pymatgen_hashes.json")
+        loadfn(f"{vaspdir}/vasp_potcar_file_hashes.json")
+        loadfn(f"{vaspdir}/vasp_potcar_pymatgen_hashes.json")
 
         psingle = PotcarSingle.from_file(filename)
-        #assert psingle.hash in metadata_hash_db
-        #assert psingle.file_hash in file_hash_db
+        # assert psingle.hash in metadata_hash_db
+        # assert psingle.file_hash in file_hash_db
         assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
 
     def test_multi_potcar_with_and_without_hash(self):
