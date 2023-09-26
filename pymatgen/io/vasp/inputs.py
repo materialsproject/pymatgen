@@ -1808,7 +1808,8 @@ class PotcarSingle:
                 f"POTCAR with symbol {self.symbol} and functional\n"
                 f"{self.functional} has a SHA256 hash defined,\n"
                 "but the computed hash differs.\n"
-                "YOUR POTCAR FILE HAS BEEN CORRUPTED AND SHOULD NOT BE USED!"
+                "YOUR POTCAR FILE HAS BEEN CORRUPTED AND SHOULD NOT BE USED!",
+                UnknownPotcarWarning
             )
 
     def __str__(self):
@@ -2268,7 +2269,7 @@ class PotcarSingle:
             }
         }
 
-        self._matched_meta = {}
+        self._matched_meta = []
         for ref_psp in possible_potcars:
 
             kwd_pass = True
@@ -2289,8 +2290,7 @@ class PotcarSingle:
                 if not stat_pass: break
             
             if stat_pass:
-                self._matched_meta = ref_psp.copy()
-                break
+                self._matched_meta.append(ref_psp.copy()) 
                     
         return len(self._matched_meta) > 0
     
