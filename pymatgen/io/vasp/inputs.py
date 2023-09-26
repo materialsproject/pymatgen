@@ -1993,7 +1993,6 @@ class PotcarSingle:
         mapping_dict = {
             "potUSPP_GGA": {
                 "pymatgen_key": "PW91_US",
-                "LEXCH": "91",
                 "vasp_description": "Ultrasoft pseudo potentials"
                 "for LDA and PW91 (dated 2002-08-20 and 2002-04-08,"
                 "respectively). These files are outdated, not"
@@ -2001,7 +2000,6 @@ class PotcarSingle:
             },
             "potUSPP_LDA": {
                 "pymatgen_key": "LDA_US",
-                "LEXCH": "CA",
                 "vasp_description": "Ultrasoft pseudo potentials"
                 "for LDA and PW91 (dated 2002-08-20 and 2002-04-08,"
                 "respectively). These files are outdated, not"
@@ -2009,7 +2007,6 @@ class PotcarSingle:
             },
             "potpaw_GGA": {
                 "pymatgen_key": "PW91",
-                "LEXCH": "91",
                 "vasp_description": "The LDA, PW91 and PBE PAW datasets"
                 "(snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,"
                 "respectively). These files are outdated, not"
@@ -2017,7 +2014,6 @@ class PotcarSingle:
             },
             "potpaw_LDA": {
                 "pymatgen_key": "Perdew-Zunger81",
-                "LEXCH": "CA",
                 "vasp_description": "The LDA, PW91 and PBE PAW datasets"
                 "(snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,"
                 "respectively). These files are outdated, not"
@@ -2025,7 +2021,6 @@ class PotcarSingle:
             },
             "potpaw_LDA.52": {
                 "pymatgen_key": "LDA_52",
-                "LEXCH": "CA",
                 "vasp_description": "LDA PAW datasets version 52,"
                 "including the early GW variety (snapshot 19-04-2012)."
                 "When read by VASP these files yield identical results"
@@ -2033,7 +2028,6 @@ class PotcarSingle:
             },
             "potpaw_LDA.54": {
                 "pymatgen_key": "LDA_54",
-                "LEXCH": "CA",
                 "vasp_description": "LDA PAW datasets version 54,"
                 "including the GW variety (original release 2015-09-04)."
                 "When read by VASP these files yield identical results as"
@@ -2041,7 +2035,6 @@ class PotcarSingle:
             },
             "potpaw_PBE": {
                 "pymatgen_key": "PBE",
-                "LEXCH": "PE",
                 "vasp_description": "The LDA, PW91 and PBE PAW datasets"
                 "(snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,"
                 "respectively). These files are outdated, not"
@@ -2049,7 +2042,6 @@ class PotcarSingle:
             },
             "potpaw_PBE.52": {
                 "pymatgen_key": "PBE_52",
-                "LEXCH": "PE",
                 "vasp_description": "PBE PAW datasets version 52,"
                 "including early GW variety (snapshot 19-04-2012)."
                 "When read by VASP these files yield identical"
@@ -2057,7 +2049,6 @@ class PotcarSingle:
             },
             "potpaw_PBE.54": {
                 "pymatgen_key": "PBE_54",
-                "LEXCH": "PE",
                 "vasp_description": "PBE PAW datasets version 54,"
                 "including the GW variety (original release 2015-09-04)."
                 "When read by VASP these files yield identical results as"
@@ -2065,25 +2056,21 @@ class PotcarSingle:
             },
             "unvie_potpaw.52": {
                 "pymatgen_key": "unvie_LDA_52",
-                "LEXCH": "CA",
                 "vasp_description": "files released previously"
                 "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
             "unvie_potpaw.54": {
                 "pymatgen_key": "unvie_LDA_54",
-                "LEXCH": "CA",
                 "vasp_description": "files released previously"
                 "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
             "unvie_potpaw_PBE.52": {
                 "pymatgen_key": "unvie_PBE_52",
-                "LEXCH": "PE",
                 "vasp_description": "files released previously"
                 "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
             "unvie_potpaw_PBE.54": {
                 "pymatgen_key": "unvie_PBE_52",
-                "LEXCH": "PE",
                 "vasp_description": "files released previously"
                 "for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04) by univie.",
             },
@@ -2183,7 +2170,7 @@ class PotcarSingle:
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
     
-    def _str_to_py(self,istr):
+    def _str_to_py(self,input_str : str) -> Any:
 
         """
         A function that tries to parse any input string to output as either
@@ -2192,23 +2179,23 @@ class PotcarSingle:
         Used to parse proprietary FORTRAN-generated text files where it's
         unknown a priori what type of data will be encountered
         """
-        istr = istr.strip()
+        input_str = input_str.strip()
 
-        if istr.lower() in ['t','f'] or istr.lower() in ['true','false']:
-            return istr[0].lower() == 't'
+        if input_str.lower() in ['t','f'] or input_str.lower() in ['true','false']:
+            return input_str[0].lower() == 't'
 
-        if (istr.upper() == istr.lower()) and istr[0].isnumeric():
-            if '.' in istr:
-                return float(istr)
+        if (input_str.upper() == input_str.lower()) and input_str[0].isnumeric():
+            if '.' in input_str:
+                return float(input_str)
             else:
-                return int(istr)
+                return int(input_str)
         else:
             try:
-                return float(istr)
+                return float(input_str)
             except ValueError:
-                return istr
+                return input_str
 
-    def is_valid(self, tol = 1.e-6):
+    def is_valid(self, tol : float = 1.e-6) -> bool:
         """
         New method of checking that POTCAR matches reference metadata
         Trying to make this check less brittle
@@ -2245,8 +2232,6 @@ class PotcarSingle:
                 if len(tmpstr)>0:
                     psp_keys.append(tmpstr.lower())
                     
-        psp_vals = np.array(psp_vals)
-
         psctr_vals = []
         for kwd in self.PSCTR:
             val = self.PSCTR[kwd]
@@ -2292,9 +2277,10 @@ class PotcarSingle:
             if stat_pass:
                 self._matched_meta.append(ref_psp.copy()) 
                     
-        return len(self._matched_meta) > 0
+        self.valid_POTCAR = len(self._matched_meta) > 0
+        return self.valid_POTCAR
     
-    def _quickstat(self,data_list):
+    def _quickstat(self,data_list : Sequence) -> dict:
         """
         Fast stats on input list - used for POTCAR checking without hashes
         """
