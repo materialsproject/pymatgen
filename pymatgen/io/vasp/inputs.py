@@ -2220,7 +2220,7 @@ class PotcarSingle:
         }
 
         possible_potcars = []
-        for afunc in functional_lexch[self.LEXCH]:
+        for afunc in functional_lexch.get(self.LEXCH,[]):
             for titel_no_spc in self.meta_db[afunc]:
                 if (self.TITEL.replace(' ','') == titel_no_spc) \
                     and (self.VRHFIN.replace(' ','') == self.meta_db[afunc][titel_no_spc]['VRHFIN']):
@@ -2259,8 +2259,8 @@ class PotcarSingle:
 
         self._meta = {
             'keywords': {
-                'header': set([kwd.lower() for kwd in self.PSCTR]),
-                'data': set(psp_keys),
+                'header': [kwd.lower() for kwd in self.PSCTR],
+                'data': psp_keys,
             },
             'stats': {
                 'header': self._quickstat(psctr_vals),
@@ -2273,7 +2273,7 @@ class PotcarSingle:
 
             kwd_pass = True
             for akey in ref_psp['keywords']:
-                if set(ref_psp['keywords'][akey]) != self._meta['keywords'][akey]:
+                if set(ref_psp['keywords'][akey]) != set(self._meta['keywords'][akey]):
                     kwd_pass = False
                     break
 
