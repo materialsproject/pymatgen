@@ -1684,7 +1684,7 @@ class PotcarSingle:
     )
 
     cwd = os.path.abspath(os.path.dirname(__file__))
-    meta_db = loadfn(f"{cwd}/POTCAR_META.json")
+    meta_db = loadfn(f"{cwd}/POTCAR_META.json.gz")
 
     def __init__(self, data, symbol=None):
         """
