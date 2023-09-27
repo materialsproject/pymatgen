@@ -914,10 +914,9 @@ class TestPotcarSingle(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        self.psingle = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
-
-    def test_keywords(self):
-        data = {
+        self.psingle_Mn_pv = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
+        self.psingle_Fe = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe.gz")
+        self.Mn_pv_attrs = {
             "VRHFIN": "Mn: 3p4s3d",
             "LPAW": True,
             "DEXC": -0.003,
@@ -944,7 +943,9 @@ class TestPotcarSingle(unittest.TestCase):
             "POMASS": 54.938,
             "RWIGS": 1.323,
         }
-        assert self.psingle.keywords == data
+
+    def test_keywords(self):
+        assert self.psingle_Mn_pv.keywords == self.Mn_pv_attrs
 
     def test_psctr(self):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
@@ -977,33 +978,17 @@ class TestPotcarSingle(unittest.TestCase):
             assert psingle.PSCTR[k] == v
 
     def test_nelectrons(self):
-        assert self.psingle.nelectrons == 13
+        assert self.psingle_Mn_pv.nelectrons == 13
+        assert self.psingle_Fe.nelectrons == 8
 
     def test_electron_config(self):
-        config = self.psingle.electron_configuration
-        assert config[-1] == (3, "p", 6)
+        assert self.psingle_Mn_pv.electron_configuration == [(4, "s", 2), (3, "d", 5), (3, "p", 6)]
+        assert self.psingle_Fe.electron_configuration == [(4, "s", 2), (3, "d", 6)]
 
     def test_attributes(self):
-        for key in [
-            "DEXC",
-            "RPACOR",
-            "ENMAX",
-            "QCUT",
-            "EAUG",
-            "RMAX",
-            "ZVAL",
-            "EATOM",
-            "NDATA",
-            "QGAM",
-            "ENMIN",
-            "RCLOC",
-            "RCORE",
-            "RDEP",
-            "RAUG",
-            "POMASS",
-            "RWIGS",
-        ]:
-            assert getattr(self.psingle, key) is not None
+        for key, val in self.Mn_pv_attrs.items():
+            assert getattr(self.psingle_Mn_pv, key) == val
+            assert isinstance(getattr(self.psingle_Fe, key), type(val))
 
     def test_found_unknown_key(self):
         with pytest.raises(KeyError, match="BAD_KEY"):
@@ -1011,17 +996,17 @@ class TestPotcarSingle(unittest.TestCase):
 
     def test_bad_value(self):
         with pytest.raises(ValueError, match="could not convert string to float"):
-            PotcarSingle.parse_functions["ENMAX"]("ThisShouldBeAFloat")
+            PotcarSingle.parse_functions["ENMAX"]("this should be a float")
 
     def test_hash(self):
-        assert self.psingle.get_potcar_hash() == "fa52f891f234d49bb4cb5ea96aae8f98"
+        assert self.psingle_Mn_pv.get_potcar_hash() == "fa52f891f234d49bb4cb5ea96aae8f98"
 
     def test_functional_types(self):
-        assert self.psingle.functional == "PBE"
+        assert self.psingle_Mn_pv.functional == "PBE"
 
-        assert self.psingle.functional_class == "GGA"
+        assert self.psingle_Mn_pv.functional_class == "GGA"
 
-        assert self.psingle.potential_type == "PAW"
+        assert self.psingle_Mn_pv.potential_type == "PAW"
 
         psingle = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_LDA_PAW/POTCAR.Fe.gz")
 
@@ -1031,7 +1016,7 @@ class TestPotcarSingle(unittest.TestCase):
 
         assert psingle.potential_type == "PAW"
 
-        assert self.psingle.symbol == "Mn_pv"
+        assert self.psingle_Mn_pv.symbol == "Mn_pv"
 
     def test_is_valid(self):
         Fe_psp_path = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
@@ -1096,7 +1081,8 @@ class TestPotcarSingle(unittest.TestCase):
 
     def test_repr(self):
         assert (
-            repr(self.psingle) == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000',"
+            repr(self.psingle_Mn_pv)
+            == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000',"
             " VRHFIN='Mn: 3p4s3d', n_valence_elec=13)"
         )
 
