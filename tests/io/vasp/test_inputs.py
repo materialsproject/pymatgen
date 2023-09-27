@@ -1094,8 +1094,7 @@ class TestPotcarSingle(unittest.TestCase):
 
 class TestPotcar(PymatgenTest):
     def setUp(self):
-        if "PMG_VASP_PSP_DIR" not in SETTINGS:
-            SETTINGS["PMG_VASP_PSP_DIR"] = str(TEST_FILES_DIR)
+        SETTINGS.setdefault("PMG_VASP_PSP_DIR", str(TEST_FILES_DIR))
         self.filepath = f"{TEST_FILES_DIR}/POTCAR"
         self.potcar = Potcar.from_file(self.filepath)
 

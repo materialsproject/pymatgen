@@ -51,6 +51,7 @@ __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chev
 __copyright__ = "Copyright 2011, The Materials Project"
 
 logger = logging.getLogger(__name__)
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class Poscar(MSONable):
@@ -617,8 +618,7 @@ class Poscar(MSONable):
         self.structure.add_site_property("velocities", velocities.tolist())
 
 
-cwd = os.path.abspath(os.path.dirname(__file__))
-with open(f"{cwd}/incar_parameters.json") as incar_params:
+with open(f"{module_dir}/incar_parameters.json") as incar_params:
     incar_params = json.loads(incar_params.read())
 
 
@@ -1683,8 +1683,7 @@ class PotcarSingle:
         COPYR=_parse_string,
     )
 
-    cwd = os.path.abspath(os.path.dirname(__file__))
-    meta_db = loadfn(f"{cwd}/POTCAR_META.json.gz")
+    meta_db = loadfn(f"{module_dir}/POTCAR_META.json.gz")
 
     def __init__(self, data, symbol=None):
         """
@@ -1955,22 +1954,19 @@ class PotcarSingle:
         whole file) is checked against all POTCAR file hashes known to pymatgen.
 
         Returns:
-        -------
-        (bool, bool)
-            has_sh256 and passed_hash_check are returned.
-
+            tuple[bool, bool]: has_sh256 and passed_hash_check are returned.
         """
         if hasattr(self, "SHA256"):
             has_sha256 = True
-            passed_hash_check = self.hash_sha256_from_file == self.hash_sha256_computed
+            hash_is_valid = self.hash_sha256_from_file == self.hash_sha256_computed
         else:
             has_sha256 = False
             # if no sha256 hash is found in the POTCAR file, compare the whole
             # file with known potcar file hashes.
             md5_file_hash = self.file_hash
-            hash_db = loadfn(f"{cwd}/vasp_potcar_file_hashes.json")
-            passed_hash_check = md5_file_hash in hash_db
-        return (has_sha256, passed_hash_check)
+            hash_db = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
+            hash_is_valid = md5_file_hash in hash_db
+        return has_sha256, hash_is_valid
 
     def identify_potcar(self, mode: Literal["data", "file"] = "data"):
         """
@@ -2076,13 +2072,11 @@ class PotcarSingle:
             },
         }
 
-        cwd = os.path.abspath(os.path.dirname(__file__))
-
         if mode == "data":
-            hash_db = loadfn(f"{cwd}/vasp_potcar_pymatgen_hashes.json")
+            hash_db = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
             potcar_hash = self.hash
         elif mode == "file":
-            hash_db = loadfn(f"{cwd}/vasp_potcar_file_hashes.json")
+            hash_db = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
             potcar_hash = self.file_hash
         else:
             raise ValueError("Bad 'mode' argument. Specify 'data' or 'file'.")
@@ -2304,24 +2298,24 @@ class PotcarSingle:
                     for key in ["header", "data"]
                 ]
             )
-            data_match = np.all(data_diff < tol)
+            data_match = all(data_diff < tol)
 
             if key_match and data_match:
                 self._matched_meta.append(ref_psp.copy())
 
         return len(self._matched_meta) > 0
 
-    def _quickstat(self, in_data_list: Sequence) -> dict:
+    def _quickstat(self, data_list: Sequence) -> dict:
         """
         Fast stats on input list - used for POTCAR checking without hashes
         """
-        data_list = np.array(in_data_list)
+        arr = np.array(data_list)
         return {
-            "MEAN": np.mean(data_list),
-            "ABSMEAN": np.mean(np.abs(data_list)),
-            "VAR": np.mean(data_list**2),
-            "MIN": data_list.min(),
-            "MAX": data_list.max(),
+            "MEAN": np.mean(arr),
+            "ABSMEAN": np.mean(np.abs(arr)),
+            "VAR": np.mean(arr**2),
+            "MIN": arr.min(),
+            "MAX": arr.max(),
         }
 
     def __getattr__(self, attr: str) -> Any:
