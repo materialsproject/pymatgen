@@ -149,9 +149,8 @@ class ChargemolAnalysis:
             # and this would give 'static' over 'relax2' over 'relax'
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
-            warning_msg = f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
-            if warning_msg:
-                warnings.warn(warning_msg)
+            if len(paths) > 1:
+                warnings.warn(f"Multiple files detected, using {os.path.basename(paths[0])}")
             fpath = paths[0]
         return fpath
 
