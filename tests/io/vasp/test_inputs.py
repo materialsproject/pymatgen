@@ -1033,13 +1033,16 @@ class TestPotcarSingle(unittest.TestCase):
 
         assert self.psingle.symbol == "Mn_pv"
 
-    def test_identify_potcar(self):
-        filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
+    def test_is_valid(self):
+        good_Fe_psp_filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
+        bad_Fe_psp_filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_broken.gz"
 
-        psingle = PotcarSingle.from_file(filename)
-        matched_funcs = [ref_psp["POTCAR_FUNCTIONAL"] for ref_psp in psingle._matched_meta]
-        assert "PBE_54" in matched_funcs
-        assert "Fe" in psingle._matched_meta[0]["TITEL"]
+        psingle_good = PotcarSingle.from_file(good_Fe_psp_filename)
+        assert psingle_good.is_valid
+
+        # same POTCAR as before, but RCORE changed from 2.300 to 2.299
+        psingle_bad_rcore = PotcarSingle.from_file(bad_Fe_psp_filename)
+        assert not psingle_bad_rcore.is_valid
 
     def test_unknown_potcar_warning(self):
         filename = f"{TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv"

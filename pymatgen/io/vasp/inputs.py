@@ -2159,7 +2159,7 @@ class PotcarSingle:
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
 
-    def _str_to_py(self, input_str: str) -> Any:
+    def _fortran_style_str_to_py_var(self, input_str: str) -> Any:
         """
         A function that tries to parse any input string to output as either
         a bool, int, float, or failing that, str
@@ -2174,6 +2174,15 @@ class PotcarSingle:
 
         if (input_str.upper() == input_str.lower()) and input_str[0].isnumeric():
             if "." in input_str:
+                """
+                NB: fortran style floats always include a decimal point.
+                    While you can set, e.g., x = 1E4, you cannot print/write x without
+                    a decimal point:
+                        `write(6,*) x`          -->   `10000.0000` in stdout
+                        `write(6,'(E10.0)') x`  -->   segfault
+                    The (E10.0) means write an exponential-format number with 10
+                        characters before the decimal, and 0 characters after
+                """
                 return float(input_str)
             return int(input_str)
         try:
@@ -2250,7 +2259,7 @@ class PotcarSingle:
             for row in single_line_rows:
                 tmp_str = ""
                 for _tmp_ in row.split():
-                    parsed_val = self._str_to_py(_tmp_)
+                    parsed_val = self._fortran_style_str_to_py_var(_tmp_)
                     if isinstance(parsed_val, str):
                         tmp_str += parsed_val.strip()
                     elif isinstance(parsed_val, (float, int)):
