@@ -213,7 +213,7 @@ structure = pmg.Structure(lattice, ["Cs", "Cl"], ...[[0, 0, 0], [0.5, 0.5, 0.5]]
 
 # You can create a Structure using spacegroup symmetry as well.
 li2o = pmg.Structure.from_spacegroup(
-    "Fm-3m", pmg.Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]]
+   "Fm-3m", pmg.Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]]
 )
 
 finder = SpacegroupAnalyzer(structure)
