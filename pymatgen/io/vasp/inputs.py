@@ -1792,9 +1792,8 @@ class PotcarSingle:
 
         if not has_sha256 and not self.is_valid:
             warnings.warn(
-                f"POTCAR data with symbol {self.symbol} does not match any VASP "
-                "POTCAR known to pymatgen. There is a possibility your "
-                "POTCAR is corrupted or that the pymatgen database is incomplete.",
+                f"POTCAR data with symbol {self.symbol} is not known to pymatgen. Your "
+                "POTCAR may be corrupted or pymatgen's POTCAR database is incomplete.",
                 UnknownPotcarWarning,
             )
         elif has_sha256 and not sha256_pass:
@@ -2276,7 +2275,7 @@ class PotcarSingle:
             elif isinstance(val, (float, int)):
                 psctr_vals.append(val)
             elif hasattr(val, "__len__"):
-                psctr_vals += [subval for subval in val if (isinstance(subval, (float, int)))]
+                psctr_vals += [num for num in val if (isinstance(num, (float, int)))]
 
         self._meta = {
             "keywords": {

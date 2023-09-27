@@ -1046,7 +1046,7 @@ class TestPotcarSingle(unittest.TestCase):
 
     def test_unknown_potcar_warning(self):
         filename = f"{TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="POTCAR data with symbol Fe_pv does not match any VASP"):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR data with symbol Fe_pv is not known to pymatgen. "):
             PotcarSingle.from_file(filename)
 
     """
