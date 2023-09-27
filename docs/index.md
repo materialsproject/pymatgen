@@ -224,9 +224,9 @@ finder.get_space_group_symbol()
 # Without a filename, a string is returned. Otherwise,
 # the output is written to the file. If only the filename is provided,
 # the format is intelligently determined from a file.
-structure.write_to_file(fmt="poscar")
-structure.write_to_file(filename="POSCAR")
-structure.write_to_file(filename="CsCl.cif")
+structure.to(fmt="poscar")
+structure.to(filename="POSCAR")
+structure.to(filename="CsCl.cif")
 
 # Reading a structure is similarly easy.
 structure = pmg.Structure.from_str(open("CsCl.cif").read(), fmt="cif")
@@ -236,7 +236,7 @@ structure = pmg.Structure.from_file("CsCl.cif")
 # Gaussian input and output by default. Support for many other
 # formats via the optional openbabel dependency (if installed).
 methane = pmg.Molecule.from_file("methane.xyz")
-methane.write_to_file("methane.gjf")
+methane.to("methane.gjf")
 
 # Pythonic API for editing Structures and Molecules (v2.9.1 onwards)
 # Changing the specie of a site.

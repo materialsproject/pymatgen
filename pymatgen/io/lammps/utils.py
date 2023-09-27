@@ -323,7 +323,7 @@ class PackmolRunner:
         # ugly hack to get around the openbabel issues with inconsistent
         # residue labelling.
         with ScratchDir("."):
-            mol.write_to_file(fmt="pdb", filename="tmp.pdb")
+            mol.to(fmt="pdb", filename="tmp.pdb")
             bma = BabelMolAdaptor.from_file("tmp.pdb", "pdb")
 
         num = num or 1

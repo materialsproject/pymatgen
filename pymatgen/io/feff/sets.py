@@ -107,7 +107,7 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
 
         # write the structure to cif file
         if "ATOMS" not in feff:
-            self.atoms.struct.write_to_file(fmt="cif", filename=os.path.join(output_dir, feff["PARAMETERS"]["CIF"]))
+            self.atoms.struct.to(fmt="cif", filename=os.path.join(output_dir, feff["PARAMETERS"]["CIF"]))
 
 
 class FEFFDictSet(AbstractFeffInputSet):

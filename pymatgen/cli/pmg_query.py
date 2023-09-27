@@ -34,7 +34,7 @@ def do_query(args):
                 fname = f"POSCAR.{dct['task_id']}_{formula}"
             else:
                 fname = f"{dct['task_id']}-{formula}.{args.structure}"
-            struct.write_to_file(filename=fname)
+            struct.to(filename=fname)
             count += 1
         print(f"{count} structures written!")
     elif args.entries:

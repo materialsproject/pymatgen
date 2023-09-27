@@ -760,23 +760,23 @@ Direct
 
     def test_to_from_file_string(self):
         for fmt in ["cif", "json", "poscar", "cssr"]:
-            struct = self.struct.write_to_file(fmt=fmt)
+            struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = IStructure.from_str(struct, fmt=fmt)
             assert_allclose(ss.lattice.parameters, self.struct.lattice.parameters, atol=1e-5)
             assert_allclose(ss.frac_coords, self.struct.frac_coords)
             assert isinstance(ss, IStructure)
 
-        assert "Fd-3m" in self.struct.write_to_file(fmt="CIF", symprec=0.1)
+        assert "Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1)
 
         poscar_path = f"{self.tmp_path}/POSCAR.testing"
-        poscar_str = self.struct.write_to_file(filename=poscar_path)
+        poscar_str = self.struct.to(filename=poscar_path)
         with open(poscar_path) as file:
             assert file.read() == poscar_str
         assert Structure.from_file(poscar_path) == self.struct
 
         yaml_path = f"{self.tmp_path}/Si_testing.yaml"
-        yaml_str = self.struct.write_to_file(filename=yaml_path)
+        yaml_str = self.struct.to(filename=yaml_path)
         with open(yaml_path) as file:
             assert file.read() == yaml_str
         assert Structure.from_file(yaml_path) == self.struct
@@ -791,11 +791,11 @@ Direct
         assert Structure.from_file(yml_path) == self.struct
 
         with pytest.raises(ValueError, match="Format not specified and could not infer from filename='whatever'"):
-            self.struct.write_to_file(filename="whatever")
+            self.struct.to(filename="whatever")
         with pytest.raises(ValueError, match="Invalid format='badformat'"):
-            self.struct.write_to_file(fmt="badformat")
+            self.struct.to(fmt="badformat")
 
-        self.struct.write_to_file(filename="POSCAR.testing.gz")
+        self.struct.to(filename="POSCAR.testing.gz")
         struct = Structure.from_file("POSCAR.testing.gz")
         assert struct == self.struct
 
@@ -972,7 +972,7 @@ class TestStructure(PymatgenTest):
         assert struct.properties == props
         assert dct == struct.as_dict()
 
-        json_str = struct_with_props.write_to_file(fmt="json")
+        json_str = struct_with_props.to(fmt="json")
         assert '"test_property": 42' in json_str
         struct = Structure.from_str(json_str, fmt="json")
         assert struct.properties == props
@@ -1205,7 +1205,7 @@ class TestStructure(PymatgenTest):
     def test_to_from_file_string(self):
         # to/from string
         for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf", "res"]:
-            struct = self.struct.write_to_file(fmt=fmt)
+            struct = self.struct.to(fmt=fmt)
             assert struct is not None
             ss = Structure.from_str(struct, fmt=fmt)
             assert_allclose(ss.lattice.parameters, self.struct.lattice.parameters, atol=1e-5)
@@ -1213,11 +1213,11 @@ class TestStructure(PymatgenTest):
             assert isinstance(ss, Structure)
 
         # to/from file
-        self.struct.write_to_file(filename="POSCAR.testing")
+        self.struct.to(filename="POSCAR.testing")
         assert os.path.isfile("POSCAR.testing")
 
         for ext in (".json", ".json.gz", ".json.bz2", ".json.xz", ".json.lzma"):
-            self.struct.write_to_file(filename=f"json-struct{ext}")
+            self.struct.to(filename=f"json-struct{ext}")
             assert os.path.isfile(f"json-struct{ext}")
             assert Structure.from_file(f"json-struct{ext}") == self.struct
 
@@ -1900,7 +1900,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
     def test_to_from_file_string(self):
         self.mol.properties["test_prop"] = 42
         for fmt in ("xyz", "json", "g03", "yaml", "yml"):
-            mol = self.mol.write_to_file(fmt=fmt)
+            mol = self.mol.to(fmt=fmt)
             assert isinstance(mol, str)
             mol = IMolecule.from_str(mol, fmt=fmt)
             if not mol.properties:
@@ -1911,13 +1911,13 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             assert mol == self.mol
             assert isinstance(mol, IMolecule)
 
-        ch4_xyz_str = self.mol.write_to_file(filename=f"{self.tmp_path}/CH4_testing.xyz")
+        ch4_xyz_str = self.mol.to(filename=f"{self.tmp_path}/CH4_testing.xyz")
         with open("CH4_testing.xyz") as xyz_file:
             assert xyz_file.read() == ch4_xyz_str
         ch4_mol = IMolecule.from_file(f"{self.tmp_path}/CH4_testing.xyz")
         ch4_mol.properties = self.mol.properties
         assert self.mol == ch4_mol
-        ch4_yaml_str = self.mol.write_to_file(filename=f"{self.tmp_path}/CH4_testing.yaml")
+        ch4_yaml_str = self.mol.to(filename=f"{self.tmp_path}/CH4_testing.yaml")
 
         with open("CH4_testing.yaml") as yaml_file:
             assert yaml_file.read() == ch4_yaml_str
@@ -2071,13 +2071,13 @@ class TestMolecule(PymatgenTest):
 
     def test_to_from_file_string(self):
         for fmt in ["xyz", "json", "g03"]:
-            mol = self.mol.write_to_file(fmt=fmt)
+            mol = self.mol.to(fmt=fmt)
             assert mol is not None
             m = Molecule.from_str(mol, fmt=fmt)
             assert m == self.mol
             assert isinstance(m, Molecule)
 
-        self.mol.write_to_file(filename="CH4_testing.xyz")
+        self.mol.to(filename="CH4_testing.xyz")
         assert os.path.isfile("CH4_testing.xyz")
         os.remove("CH4_testing.xyz")
 

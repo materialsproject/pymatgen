@@ -433,7 +433,7 @@ class Lobsterin(dict, MSONable):
         structure = Structure.from_file(POSCAR_input)
         kpath = HighSymmKpath(structure, symprec=symprec)
         new_structure = kpath.prim
-        new_structure.write_to_file(fmt="POSCAR", filename=POSCAR_output)
+        new_structure.to(fmt="POSCAR", filename=POSCAR_output)
 
     @staticmethod
     def write_KPOINTS(

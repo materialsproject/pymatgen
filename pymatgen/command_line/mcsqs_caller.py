@@ -97,7 +97,7 @@ def run_mcsqs(
         structure = structure * scaling
         mcsqs_find_sqs_cmd = ["mcsqs", "-rc", f"-n {num_atoms}"]
 
-    structure.write_to_file(filename="rndstr.in")
+    structure.to(filename="rndstr.in")
 
     # Generate clusters
     mcsqs_generate_clusters_cmd = ["mcsqs"]
