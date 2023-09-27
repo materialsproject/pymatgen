@@ -554,8 +554,7 @@ class ElementBase(Enum):
             symbol (str): Element symbol
 
         Returns:
-            True if symbol is a valid element (e.g., "H"). False otherwise
-            (e.g., "Zebra").
+            bool: True if symbol is a valid element (e.g., "H").
         """
         return symbol in Element.__members__
 

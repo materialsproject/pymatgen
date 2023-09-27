@@ -112,12 +112,13 @@ suitable substrate. Currently, the only additional criteria is the
 elastic strain energy of the super-lattices.
 
 Initializes the substrate analyzer
-:param zslgen: Defaults to a ZSLGenerator with standard
-
-> tolerances, but can be fed one with custom tolerances
 
 
 * **Parameters**
+
+
+    * **zslgen** (*ZSLGenerator*) – Defaults to a ZSLGenerator with standard
+    tolerances, but can be fed one with custom tolerances
 
 
     * **film_max_miller** (*int*) – maximum miller index to generate for film
@@ -264,10 +265,16 @@ Generates transformation sets for film/substrate pair given the
 area of the unit cell area for the film and substrate. The
 transformation sets map the film and substrate unit cells to super
 lattices with a maximum area
-:param film_area: the unit cell area for the film
-:type film_area: int
-:param substrate_area: the unit cell area for the substrate
-:type substrate_area: int
+
+
+* **Parameters**
+
+
+    * **film_area** (*int*) – the unit cell area for the film
+
+
+    * **substrate_area** (*int*) – the unit cell area for the substrate
+
 
 
 * **Returns**

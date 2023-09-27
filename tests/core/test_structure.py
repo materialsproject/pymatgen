@@ -1396,7 +1396,7 @@ class TestStructure(PymatgenTest):
         assert struct.formula == "Si1.25 C0.125"
 
     def test_init_error(self):
-        with pytest.raises(StructureError, match="atomic species and fractional coordinates must have same length"):
+        with pytest.raises(StructureError, match=r"len\(species\)=1 != len\(coords\)=2"):
             Structure(Lattice.cubic(3), ["Si"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
     def test_from_sites(self):

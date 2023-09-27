@@ -6,6 +6,12 @@ nav_order: 4
 
 # Changelog
 
+## v2023.9.25
+
+- New basic MPRester implemented that supports the most common use cases without having to install mp-api. mp-api is no longer a dependency of pymatgen.
+- Breaking: rename get_ax3d_fig_plt->get_ax3d_fig and get_ax_fig_plt->get_ax_fig plus no longer return plt
+- Misc bug fixes.
+
 ## v2023.9.10
 
 ### 🐛 Bug Fixes
@@ -178,7 +184,7 @@ MagOrderingTransformation` does not implicitly yield spins of 0 on the nonmagnet
 
 This release changes the Ytterbium (Yb) pseudo-potential (PSP) from Yb_2 to Yb_3 for all PBE_54 VASP input sets.
 
-Background: The `A-lab <https://newscenter.lbl.gov/2023/04/17/meet-the-autonomous-lab-of-the-future>`\_ revealed that as a result of using Yb_2 the energy on Yb compounds is off by a lot, resulting in supposedly stable things being unsynthesizable. While an unfortunate mistake, it's also great to see how experiment can help surface simulation errors.
+Background: The `A-lab <https://newscenter.lbl.gov/2023/04/17/meet-the-autonomous-lab-of-the-future>` revealed that as a result of using Yb_2 the energy on Yb compounds is off by a lot, resulting in supposedly stable things being unsynthesizable. While an unfortunate mistake, it's also great to see how experiment can help surface simulation errors.
 
 On pre-PBE_54 input sets, we now issue a warning that Yb_2 will give bad results for most systems since Yb is most often in oxidation state Yb3+.
 

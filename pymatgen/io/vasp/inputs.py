@@ -69,7 +69,7 @@ class Poscar(MSONable):
         predictor_corrector: Predictor corrector coordinates and derivatives for each site;
             i.e. a list of three 1x3 arrays for each site (typically read in from a MD CONTCAR).
         predictor_corrector_preamble: Predictor corrector preamble contains the predictor-corrector key,
-            POTIM, and thermostat parameters that precede the site-specic predictor corrector data in MD CONTCAR.
+            POTIM, and thermostat parameters that precede the site-specific predictor corrector data in MD CONTCAR.
         temperature: Temperature of velocity Maxwell-Boltzmann initialization.
             Initialized to -1 (MB hasn't been performed).
     """
@@ -132,7 +132,7 @@ class Poscar(MSONable):
             if predictor_corrector_preamble:
                 self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
         else:
-            raise ValueError("Structure with partial occupancies cannot be converted into POSCAR!")
+            raise ValueError("Disordered structure with partial occupancies cannot be converted into POSCAR!")
 
         self.temperature = -1.0
 
@@ -609,15 +609,8 @@ class Poscar(MSONable):
         velocities *= scale * 1e-5  # these are in A/fs
 
         self.temperature = temperature
-        try:
-            del self.structure.site_properties["selective_dynamics"]
-        except KeyError:
-            pass
-
-        try:
-            del self.structure.site_properties["predictor_corrector"]
-        except KeyError:
-            pass
+        self.structure.site_properties.pop("selective_dynamics", None)
+        self.structure.site_properties.pop("predictor_corrector", None)
         # returns as a list of lists to be consistent with the other
         # initializations
 
@@ -1811,7 +1804,7 @@ class PotcarSingle:
         has_sh256, hash_check_passed = self.verify_potcar()
         if not has_sh256 and not hash_check_passed:
             warnings.warn(
-                f"POTCAR data with symbol { self.symbol} does not match any VASP "
+                f"POTCAR data with symbol {self.symbol} does not match any VASP "
                 "POTCAR known to pymatgen. There is a possibility your "
                 "POTCAR is corrupted or that the pymatgen database is incomplete.",
                 UnknownPotcarWarning,

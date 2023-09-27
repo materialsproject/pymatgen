@@ -435,10 +435,7 @@ class DictSet(VaspInputSet):
         settings = dict(self._config_dict["INCAR"])
         for k, v in self.user_incar_settings.items():
             if v is None:
-                try:
-                    del settings[k]
-                except KeyError:
-                    settings[k] = v
+                settings.pop(k, None)
             elif k == "KSPACING" and self.user_kpoints_settings != {}:
                 pass  # Ignore KSPACING if user_kpoints_settings are given
             else:
@@ -593,8 +590,7 @@ class DictSet(VaspInputSet):
         """Gets the default number of electrons for a given structure."""
         n_electrons_by_element = {p.element: p.nelectrons for p in self.potcar}
         n_elect = sum(
-            num_atoms * n_electrons_by_element[str(el)]
-            for el, num_atoms in self.structure.composition.element_composition.items()
+            num_atoms * n_electrons_by_element[el.symbol] for el, num_atoms in self.structure.composition.items()
         )
 
         if self.use_structure_charge:
@@ -995,10 +991,7 @@ class MPScanRelaxSet(DictSet):
             # delete any vdw parameters that may have been added to the INCAR
             vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
             for k in vdw_par[self.vdw]:
-                try:
-                    del self._config_dict["INCAR"][k]
-                except KeyError:
-                    pass
+                self._config_dict["INCAR"].pop(k, None)
 
         self._config_dict["INCAR"].update(updates)
 
@@ -2651,7 +2644,7 @@ class MPMDSet(DictSet):
         start_temp: float = 0.0,
         end_temp: float = 300.0,
         nsteps: int = 1000,
-        time_step: float = 2,
+        time_step: float | None = None,
         spin_polarized=False,
         **kwargs,
     ):
@@ -2661,8 +2654,10 @@ class MPMDSet(DictSet):
             start_temp (int): Starting temperature.
             end_temp (int): Final temperature.
             nsteps (int): Number of time steps for simulations. NSW parameter.
-            time_step (int): The time step for the simulation. The POTIM
-                parameter. Defaults to 2fs.
+            time_step (float): The time step for the simulation. The POTIM
+                parameter. Defaults to None, which will set it automatically
+                to 2.0 fs for non-hydrogen containing structures and 0.5 fs
+                for hydrogen containing structures.
             spin_polarized (bool): Whether to do spin polarized calculations.
                 The ISPIN parameter. Defaults to False.
             **kwargs: Other kwargs supported by DictSet.
@@ -2690,7 +2685,6 @@ class MPMDSet(DictSet):
             "NBLOCK": 1,
             "KBLOCK": 100,
             "SMASS": 0,
-            "POTIM": time_step,
             "PREC": "Normal",
             "ISPIN": 2 if spin_polarized else 1,
             "LDAU": False,
@@ -2702,6 +2696,7 @@ class MPMDSet(DictSet):
         self.start_temp = start_temp
         self.end_temp = end_temp
         self.nsteps = nsteps
+        self.time_step = time_step
         self.spin_polarized = spin_polarized
         self.kwargs = kwargs
 
@@ -2715,9 +2710,15 @@ class MPMDSet(DictSet):
     @property
     def incar(self) -> Incar:
         incar = super().incar
-        if Element("H") in self.structure.species:
-            incar["POTIM"] = 0.5
-            incar["NSW"] = incar["NSW"] * 4
+        if self.time_step is None:
+            if Element("H") in self.structure.species:
+                incar["POTIM"] = 0.5
+                incar["NSW"] = incar["NSW"] * 4
+            else:
+                incar["POTIM"] = 2.0
+        else:
+            incar["POTIM"] = self.time_step
+
         return incar
 
     @property

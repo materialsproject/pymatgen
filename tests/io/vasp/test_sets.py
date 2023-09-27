@@ -17,6 +17,7 @@ from pytest import approx, mark
 import pymatgen
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
+from pymatgen.core.composition import Composition
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, PotcarSingle
@@ -32,6 +33,7 @@ from pymatgen.io.vasp.sets import (
     MPAbsorptionSet,
     MPHSEBSSet,
     MPHSERelaxSet,
+    MPMDSet,
     MPMetalRelaxSet,
     MPNMRSet,
     MPNonSCFSet,
@@ -242,17 +244,19 @@ class TestMITMPRelaxSet(PymatgenTest):
         lattice = Lattice.cubic(4)
         struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
         assert self.set(struct).nelect == 16
-
-        # Check that it works even when oxidation states are present. Was a bug
-        # previously.
-        struct = Structure(lattice, ["Si4+", "Si4+", "Fe2+"], coords)
-        assert self.set(struct).nelect == 16
         assert MPRelaxSet(struct).nelect == 22
 
-        # Check that it works for disordered structure. Was a bug previously
-        struct = Structure(lattice, ["Si4+", "Fe2+", "Si4+"], coords)
-        assert self.set(struct).nelect == 16
-        assert MPRelaxSet(struct).nelect == 22
+        # Expect same answer when oxidation states are present. Was a bug previously.
+        oxi_struct = Structure(lattice, ["Si4+", "Si4+", "Fe2+"], coords)
+        assert self.set(oxi_struct).nelect == 16
+        assert MPRelaxSet(oxi_struct).nelect == 22
+
+        # disordered structure are not supported
+        disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
+        with pytest.raises(
+            ValueError, match="Disordered structure with partial occupancies cannot be converted into POSCAR"
+        ):
+            _ = self.set(disordered).nelect
 
     @skip_if_no_psp_dir
     def test_estimate_nbands(self):
@@ -1046,19 +1050,19 @@ class TestMagmomLdau(PymatgenTest):
         assert magmom == magmom_ans
 
     def test_ln_magmom(self):
-        YAML_PATH = MODULE_DIR / "VASPIncarBase.yaml"
-        MAGMOM_SETTING = loadfn(YAML_PATH)["INCAR"]["MAGMOM"]
+        yaml_path = MODULE_DIR / "VASPIncarBase.yaml"
+        magmom_setting = loadfn(yaml_path)["INCAR"]["MAGMOM"]
         structure = Structure.from_file(f"{TEST_FILES_DIR}/La4Fe4O12.cif")
         structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
-        for ion in MAGMOM_SETTING:
+        for ion in magmom_setting:
             struct = structure.copy()
             struct.replace_species({"La3+": ion})
             vis = MPRelaxSet(struct)
             fe_pos = vis.poscar.comment.index("Fe")
             if fe_pos == 0:
-                magmom_ans = [5] * 4 + [MAGMOM_SETTING[ion]] * 4 + [0.6] * 12
+                magmom_ans = [5] * 4 + [magmom_setting[ion]] * 4 + [0.6] * 12
             else:
-                magmom_ans = [MAGMOM_SETTING[ion]] * 4 + [5] * 4 + [0.6] * 12
+                magmom_ans = [magmom_setting[ion]] * 4 + [5] * 4 + [0.6] * 12
 
             assert vis.incar["MAGMOM"] == magmom_ans
 
@@ -1125,6 +1129,50 @@ class TestMVLNPTMDSet(PymatgenTest):
         d = self.mvl_npt_set.as_dict()
         v = dec.process_decoded(d)
         assert isinstance(v, MVLNPTMDSet)
+        assert v._config_dict["INCAR"]["NSW"] == 1000
+
+
+class TestMPMDSet(PymatgenTest):
+    def setUp(self):
+        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        poscar = Poscar.from_file(filepath)
+        poscar_with_h = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR_hcp", check_for_POTCAR=False)
+        self.struct = poscar.structure
+        self.struct_with_H = poscar_with_h.structure
+        self.mp_md_set_noTS = MPMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000)
+        self.mp_md_set_noTS_with_H = MPMDSet(self.struct_with_H, start_temp=0, end_temp=300, nsteps=1000)
+        self.mp_md_set_TS1 = MPMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000, time_step=1.0)
+
+    def test_incar_no_ts(self):
+        mpmdset = self.mp_md_set_noTS
+        incar = mpmdset.incar
+
+        assert incar["TEBEG"] == 0
+        assert incar["TEEND"] == 300
+        assert incar["NSW"] == 1000
+        assert incar["IBRION"] == 0
+        assert incar["ISIF"] == 0
+        assert incar["ISYM"] == 0
+        assert incar["POTIM"] == 2.0
+
+    def test_incar_no_ts_with_h(self):
+        mpmdset = self.mp_md_set_noTS_with_H
+        incar = mpmdset.incar
+
+        assert incar["POTIM"] == 0.5
+        assert incar["NSW"] == 4000
+
+    def test_incar_ts1(self):
+        mpmdset = self.mp_md_set_TS1
+        incar = mpmdset.incar
+
+        assert incar["POTIM"] == 1.0
+        assert incar["NSW"] == 1000
+
+    def test_as_from_dict(self):
+        d = self.mp_md_set_noTS.as_dict()
+        v = dec.process_decoded(d)
+        assert isinstance(v, MPMDSet)
         assert v._config_dict["INCAR"]["NSW"] == 1000
 
 

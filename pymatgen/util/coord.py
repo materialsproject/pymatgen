@@ -50,7 +50,7 @@ def in_coord_list(coord_list, coord, atol=1e-8):
             array.
 
     Returns:
-        True if coord is in the coord list.
+        bool: True if coord is in the coord list.
     """
     return len(find_in_coord_list(coord_list, coord, atol=atol)) > 0
 
@@ -65,7 +65,7 @@ def is_coord_subset(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8) 
         atol (float): Absolute tolerance for comparing coordinates. Defaults to 1e-8.
 
     Returns:
-        True if all of subset is in superset.
+        bool: True if all of subset is in superset.
     """
     c1 = np.array(subset)
     c2 = np.array(superset)
@@ -239,7 +239,7 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True)):
             axis of the lattice.
 
     Returns:
-        True if coord is in the coord list.
+        bool: True if coord is in the coord list.
     """
     return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol, pbc=pbc)) > 0
 
@@ -258,7 +258,7 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc=(True, True,
             axis of the lattice.
 
     Returns:
-        True if all of subset is in superset.
+        bool: True if all of subset is in superset.
     """
     # pylint: disable=I1101
     c1 = np.array(subset, dtype=np.float64)

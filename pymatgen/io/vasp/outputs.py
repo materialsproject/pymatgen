@@ -510,8 +510,7 @@ class Vasprun(MSONable):
     def converged_electronic(self):
         """
         Returns:
-            True if electronic step convergence has been reached in the final
-            ionic step.
+            bool: True if electronic step convergence has been reached in the final ionic step.
         """
         final_elec_steps = (
             self.ionic_steps[-1]["electronic_steps"] if self.incar.get("ALGO", "").lower() != "chi" else 0
@@ -529,8 +528,8 @@ class Vasprun(MSONable):
     def converged_ionic(self):
         """
         Returns:
-            True if ionic step convergence has been reached, i.e. that vasp
-            exited before reaching the max ionic steps for a relaxation run.
+            bool: True if ionic step convergence has been reached, i.e. that vasp
+                exited before reaching the max ionic steps for a relaxation run.
         """
         nsw = self.parameters.get("NSW", 0)
         return nsw <= 1 or len(self.ionic_steps) < nsw
@@ -539,8 +538,7 @@ class Vasprun(MSONable):
     def converged(self):
         """
         Returns:
-            True if a relaxation run is converged both ionically and
-            electronically.
+            bool: True if a relaxation run is both ionically and electronically converged.
         """
         return self.converged_electronic and self.converged_ionic
 

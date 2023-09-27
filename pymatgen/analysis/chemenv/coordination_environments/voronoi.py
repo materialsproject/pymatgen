@@ -715,7 +715,7 @@ class DetailedVoronoiContainer(MSONable):
             atol: Absolute tolerance to compare values.
 
         Returns:
-            True if the two DetailedVoronoiContainer are close to each other.
+            bool: True if the two DetailedVoronoiContainer are close to each other.
         """
         isclose = (
             np.isclose(

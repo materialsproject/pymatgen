@@ -201,8 +201,7 @@ class FrameworkComparator(AbstractComparator):
     """A Comparator that matches sites, regardless of species."""
 
     def are_equal(self, sp1, sp2) -> bool:
-        """
-        True if there are atoms on both sites.
+        """True if there are atoms on both sites.
 
         Args:
             sp1: First species. A dict of {specie/element: amt} as per the
@@ -263,7 +262,7 @@ class OccupancyComparator(AbstractComparator):
                 definition in Site and PeriodicSite.
 
         Returns:
-            True if sets of occupancies (amt) are equal on both sites.
+            bool: True if sets of occupancies (amt) are equal on both sites.
         """
         return set(sp1.element_composition.values()) == set(sp2.element_composition.values())
 
@@ -1055,7 +1054,7 @@ class StructureMatcher(MSONable):
                 If True, skip to get a primitive structure and perform Niggli reduction for struct1 and struct2
 
         Returns:
-            True/False: Whether a species mapping can map struct1 to stuct2
+            bool: Whether a species mapping can map struct1 to struct2
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2, niggli, skip_structure_reduction)

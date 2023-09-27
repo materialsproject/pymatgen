@@ -141,7 +141,7 @@ class BandStructure:
         kpoints (list): The list of kpoints (as Kpoint objects) in the band structure.
         lattice_rec (Lattice): The reciprocal lattice of the band structure.
         efermi (float): The Fermi energy.
-        is_spin_polarized (bool): True if the band structure is spin-polarized, False otherwise.
+        is_spin_polarized (bool): True if the band structure is spin-polarized.
         bands (dict): The energy eigenvalues as a {spin: ndarray}. Note that the use of an
             ndarray is necessary for computational as well as memory efficiency due to the large
             amount of numerical data. The indices of the ndarray are [band_index, kpoint_index].
@@ -285,7 +285,7 @@ class BandStructure:
         level crosses a band.
 
         Returns:
-            True if a metal, False if not
+            bool: True if a metal.
         """
         for values in self.bands.values():
             for idx in range(self.nb_bands):

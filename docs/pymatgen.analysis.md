@@ -1003,9 +1003,6 @@ nav_exclude: true
                     * [`CoordinationGeometry.ref_permutation()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ref_permutation)
 
 
-                    * [`CoordinationGeometry.set_permutations_safe_override()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.set_permutations_safe_override)
-
-
                     * [`CoordinationGeometry.solid_angles()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.solid_angles)
 
 
@@ -2284,7 +2281,7 @@ nav_exclude: true
         * [`get_symbol_list()`](pymatgen.analysis.elasticity.md#pymatgen.analysis.elasticity.elastic.get_symbol_list)
 
 
-        * [`raise_error_if_unphysical()`](pymatgen.analysis.elasticity.md#pymatgen.analysis.elasticity.elastic.raise_error_if_unphysical)
+        * [`raise_if_unphysical()`](pymatgen.analysis.elasticity.md#pymatgen.analysis.elasticity.elastic.raise_if_unphysical)
 
 
         * [`subs()`](pymatgen.analysis.elasticity.md#pymatgen.analysis.elasticity.elastic.subs)
@@ -2427,10 +2424,10 @@ nav_exclude: true
             * [`PolarizationLattice._abc_impl`](pymatgen.analysis.ferroelectricity.md#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice._abc_impl)
 
 
+            * [`PolarizationLattice._properties`](pymatgen.analysis.ferroelectricity.md#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice._properties)
+
+
             * [`PolarizationLattice.get_nearest_site()`](pymatgen.analysis.ferroelectricity.md#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice.get_nearest_site)
-
-
-            * [`PolarizationLattice.properties`](pymatgen.analysis.ferroelectricity.md#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice.properties)
 
 
         * [`calc_ionic()`](pymatgen.analysis.ferroelectricity.md#pymatgen.analysis.ferroelectricity.polarization.calc_ionic)
@@ -2456,6 +2453,9 @@ nav_exclude: true
             * [`GrainBoundary._abc_impl`](pymatgen.analysis.gb.md#pymatgen.analysis.gb.grain.GrainBoundary._abc_impl)
 
 
+            * [`GrainBoundary._properties`](pymatgen.analysis.gb.md#pymatgen.analysis.gb.grain.GrainBoundary._properties)
+
+
             * [`GrainBoundary.as_dict()`](pymatgen.analysis.gb.md#pymatgen.analysis.gb.grain.GrainBoundary.as_dict)
 
 
@@ -2472,9 +2472,6 @@ nav_exclude: true
 
 
             * [`GrainBoundary.get_sorted_structure()`](pymatgen.analysis.gb.md#pymatgen.analysis.gb.grain.GrainBoundary.get_sorted_structure)
-
-
-            * [`GrainBoundary.properties`](pymatgen.analysis.gb.md#pymatgen.analysis.gb.grain.GrainBoundary.properties)
 
 
             * [`GrainBoundary.sigma`](pymatgen.analysis.gb.md#pymatgen.analysis.gb.grain.GrainBoundary.sigma)
@@ -3054,6 +3051,24 @@ nav_exclude: true
 
 
         * [`XAS`](pymatgen.analysis.xas.md#pymatgen.analysis.xas.spectrum.XAS)
+
+
+            * [`XAS.x`](pymatgen.analysis.xas.md#pymatgen.analysis.xas.spectrum.XAS.x)
+
+
+            * [`XAS.y`](pymatgen.analysis.xas.md#pymatgen.analysis.xas.spectrum.XAS.y)
+
+
+            * [`XAS.absorbing_element`](pymatgen.analysis.xas.md#pymatgen.analysis.xas.spectrum.XAS.absorbing_element)
+
+
+            * [`XAS.edge`](pymatgen.analysis.xas.md#pymatgen.analysis.xas.spectrum.XAS.edge)
+
+
+            * [`XAS.spectrum_type`](pymatgen.analysis.xas.md#pymatgen.analysis.xas.spectrum.XAS.spectrum_type)
+
+
+            * [`XAS.absorbing_index`](pymatgen.analysis.xas.md#pymatgen.analysis.xas.spectrum.XAS.absorbing_index)
 
 
             * [`XAS.XLABEL`](pymatgen.analysis.xas.md#pymatgen.analysis.xas.spectrum.XAS.XLABEL)
@@ -4437,9 +4452,20 @@ Note that if you pass both, el_radius_updates are ignored.
     defined as {(“P”, “O”): 3}.
 
 
-Returns: (int) the dimensionality of the structure - 1 (molecules/chains),
 
-    2 (layered), or 3 (3D)
+* **Returns**
+
+    the dimensionality of the structure - 1 (molecules/chains),
+
+        2 (layered), or 3 (3D)
+
+
+
+
+* **Return type**
+
+    int
+
 
 
 ### get_dimensionality_larsen(bonded_structure)
@@ -4678,7 +4704,7 @@ Bases: `EnergyModel`
 Wrapper around EwaldSum to calculate the electrostatic energy.
 
 Initializes the model. Args have the same definitions as in
-`pymatgen.analysis.ewald.EwaldSummation`.
+pymatgen.analysis.ewald.EwaldSummation.
 
 
 * **Parameters**
@@ -4791,11 +4817,10 @@ MSONable dict
 ### _class_ SymmetryModel(symprec: float = 0.1, angle_tolerance=5)
 Bases: `EnergyModel`
 
-Sets the energy to the -ve of the spacegroup number. Higher symmetry =>
+Sets the energy to the negative of the spacegroup number. Higher symmetry =>
 lower “energy”.
 
-Args have same meaning as in
-`pymatgen.symmetry.finder.SpacegroupAnalyzer`.
+Args have same meaning as in pymatgen.symmetry.SpacegroupAnalyzer.
 
 
 * **Parameters**
@@ -5084,7 +5109,7 @@ to the ones obtained from fitting.
 
 
 
-#### plot(width=8, height=None, ax: Axes | None = None, dpi=None, \*\*kwargs)
+#### plot(width=8, height=None, ax: plt.Axes = None, dpi=None, \*\*kwargs)
 Plot the equation of state.
 
 
@@ -5122,14 +5147,14 @@ Plot the equation of state.
 
 
 
-#### plot_ax(ax: Axes = None, fontsize=12, \*\*kwargs)
+#### plot_ax(ax: plt.Axes = None, fontsize=12, \*\*kwargs)
 Plot the equation of state on axis ax.
 
 
 * **Parameters**
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
     * **fontsize** – Legend fontsize.
@@ -5790,10 +5815,26 @@ Bases: [`Spectrum`](pymatgen.core.md#pymatgen.core.spectrum.Spectrum)
 
 Basic excitation spectrum object.
 
-<!-- attribute: x
-The sequence of energies -->
-<!-- attribute: y
-The sequence of mu(E) -->
+
+#### x()
+The sequence of energies.
+
+
+* **Type**
+
+    Sequence[float]
+
+
+
+#### y()
+The sequence of mu(E).
+
+
+* **Type**
+
+    Sequence[float]
+
+
 
 * **Parameters**
 
@@ -6210,7 +6251,7 @@ an edge in the MoleculeGraph.
 
 
 #### as_dict()
-As in `pymatgen.core.Molecule` except
+As in pymatgen.core.Molecule except
 with using to_dict_of_dicts from NetworkX
 to store graph information.
 
@@ -6384,7 +6425,7 @@ Find ring structures in the MoleculeGraph.
 
 
 #### _classmethod_ from_dict(dct)
-As in `pymatgen.core.Molecule` except
+As in pymatgen.core.Molecule except
 restoring graphs using from_dict_of_dicts
 from NetworkX to restore graph information.
 
@@ -6743,7 +6784,7 @@ that correspond to Sites in Molecule).
 
 #### _static_ with_local_env_strategy(molecule, strategy)
 Constructor for MoleculeGraph, using a strategy
-from `pymatgen.analysis.local_env`.
+from pymatgen.analysis.local_env.
 
 
 * **Parameters**
@@ -6753,7 +6794,7 @@ from `pymatgen.analysis.local_env`.
 
 
     * **strategy** – an instance of a
-    `pymatgen.analysis.local_env.NearNeighbors` object
+    pymatgen.analysis.local_env.NearNeighbors object
 
 
 
@@ -6869,7 +6910,7 @@ an edge in the StructureGraph.
 
 
 #### as_dict()
-As in `pymatgen.core.Structure` except
+As in pymatgen.core.Structure except
 with using to_dict_of_dicts from NetworkX
 to store graph information.
 
@@ -7002,7 +7043,7 @@ Units of the edge weight property of graph
 
 
 #### _classmethod_ from_dict(d)
-As in `pymatgen.core.Structure` except
+As in pymatgen.core.Structure except
 restoring graphs using from_dict_of_dicts
 from NetworkX to restore graph information.
 
@@ -7295,7 +7336,7 @@ to sites in Structure.
 
 #### _static_ with_local_env_strategy(structure, strategy, weights=False, edge_properties=False)
 Constructor for StructureGraph, using a strategy
-from `pymatgen.analysis.local_env`.
+from pymatgen.analysis.local_env.
 
 
 * **Parameters**
@@ -7305,7 +7346,7 @@ from `pymatgen.analysis.local_env`.
 
 
     * **strategy** – an instance of a
-    `pymatgen.analysis.local_env.NearNeighbors` object
+    pymatgen.analysis.local_env.NearNeighbors object
 
 
     * **weights** – if True, use weights from local_env class
@@ -8021,8 +8062,7 @@ for which molecules_allowed is False.
 
 
 #### get_bonded_structure(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), decorate: bool = False)
-Obtain a MoleculeGraph object using this NearNeighbor
-class.
+Obtain a MoleculeGraph object using this NearNeighbor class.
 
 
 * **Parameters**
@@ -8040,7 +8080,17 @@ class.
     * **class** (*this NearNeighbor*) –
 
 
-Returns: a pymatgen.analysis.graphs.MoleculeGraph object
+
+* **Returns**
+
+    object from pymatgen.analysis.graphs
+
+
+
+* **Return type**
+
+    MoleculeGraph
+
 
 
 #### get_nn_info(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), n: int)
@@ -8505,8 +8555,16 @@ objects?
 
 #### _static_ transform_to_length(nn_data, length)
 Given NNData, transforms data to the specified fingerprint length
-:param nn_data: (NNData)
-:param length: (int) desired length of NNData.
+
+
+* **Parameters**
+
+
+    * **nn_data** – (NNData)
+
+
+    * **length** – (int) desired length of NNData.
+
 
 
 ### _class_ CutOffDictNN(cut_off_dict=None)
@@ -8563,17 +8621,16 @@ for which molecules_allowed is False.
 
 
 
-#### _static_ from_preset(preset)
-Initialize a CutOffDictNN according to a preset set of cut-offs.
+#### _classmethod_ from_preset(preset)
+Initialize a CutOffDictNN according to a preset set of cutoffs.
 
 
 * **Parameters**
 
     **preset** (*str*) – A preset name. The list of supported presets are:
+    - “vesta_2019”: The distance cutoffs used by the VESTA
 
-
-    * ”vesta_2019”: The distance cut-offs used by the VESTA
-    visualisation program.
+    > visualisation program.
 
 
 
@@ -8884,10 +8941,28 @@ for which molecules_allowed is False.
 
 #### get_max_bond_distance(el1_sym, el2_sym)
 Use Jmol algorithm to determine bond length from atomic parameters
-:param el1_sym: (str) symbol of atom 1
-:param el2_sym: (str) symbol of atom 2.
 
-Returns: (float) max bond length
+
+* **Parameters**
+
+
+    * **el1_sym** – (str) symbol of atom 1
+
+
+    * **el2_sym** – (str) symbol of atom 2.
+
+
+
+* **Returns**
+
+    max bond length
+
+
+
+* **Return type**
+
+    float
+
 
 
 #### get_nn_info(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), n: int)
@@ -9758,7 +9833,17 @@ class. Requires the optional dependency networkx
     ‘take_max_species’ will use Fe as the site specie.
 
 
-Returns: a pymatgen.analysis.graphs.StructureGraph object
+
+* **Returns**
+
+    object from pymatgen.analysis.graphs
+
+
+
+* **Return type**
+
+    StructureGraph
+
 
 
 #### get_cn(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), n: int, use_weights: bool = False, on_disorder: Literal['take_majority_strict', 'take_majority_drop', 'take_max_species', 'error'] = 'take_majority_strict')
@@ -10089,7 +10174,17 @@ class. Requires the optional dependency networkx
     * **class** (*this NearNeighbor*) –
 
 
-Returns: a pymatgen.analysis.graphs.MoleculeGraph object
+
+* **Returns**
+
+    object from pymatgen.analysis.graphs
+
+
+
+* **Return type**
+
+    MoleculeGraph
+
 
 
 #### get_nn_info(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), n: int)
@@ -10691,7 +10786,11 @@ method.
     * **cutoff** (*float*) – (large) radius to find tentative neighbors.
 
 
-Returns: neighbor sites.
+
+* **Returns**
+
+    neighbor sites.
+
 
 
 ### get_okeeffe_distance_prediction(el1, el2)
@@ -10867,7 +10966,17 @@ different motifs, “multiple assignments” is returned.
     “qoct”: 0.5, “qbcc”: 0.5, “q6”: 0.4).
 
 
-Returns: motif type (str).
+
+* **Returns**
+
+    motif type
+
+
+
+* **Return type**
+
+    str
+
 
 
 ### solid_angle(center, coords)
@@ -12294,7 +12403,7 @@ Initializes a CompoundPhaseDiagram.
     Li-P-O entries as an input.
 
 
-    * **terminal_compositions** (*[*[*Composition*](pymatgen.core.md#pymatgen.core.composition.Composition)*]*) – Terminal compositions of
+    * **terminal_compositions** (*list**[*[*Composition*](pymatgen.core.md#pymatgen.core.composition.Composition)*]*) – Terminal compositions of
     phase space. In the Li2O-P2O5 example, these will be the
     Li2O and P2O5 compositions.
 
@@ -14826,6 +14935,12 @@ By default, this is the reduced formula for the composition, but can be
 set to some other string for display purposes.
 
 
+* **Type**
+
+    str
+
+
+
 * **Parameters**
 
 
@@ -14879,7 +14994,7 @@ Returns: MSONable dict.
 
 * **Parameters**
 
-    **d** (*dict*) – Dict representation.
+    **dct** (*dict*) – Dict representation.
 
 
 
@@ -14979,9 +15094,20 @@ are included.
     the convex hull
 
 
-Returns: list of entries and stable facets corresponding to that
 
-    list of entries
+* **Returns**
+
+    PourbaixEntry list and stable
+
+        facets corresponding to that list
+
+
+
+
+* **Return type**
+
+    tuple[list[PourbaixEntry], list[[Simplex](pymatgen.util.md#pymatgen.util.coord.Simplex)]]
+
 
 
 #### _preprocess_pourbaix_entries(entries, nproc=None)
@@ -15020,10 +15146,16 @@ Return all entries used to generate the Pourbaix diagram.
 
 #### find_stable_entry(pH, V)
 Finds stable entry at a pH,V condition
-:param pH: pH to find stable entry
-:type pH: float
-:param V: V to find stable entry.
-:type V: float
+
+
+* **Parameters**
+
+
+    * **pH** (*float*) – pH to find stable entry
+
+
+    * **V** (*float*) – V to find stable entry.
+
 
 Returns:
 
@@ -15440,13 +15572,13 @@ Plots the stability of an entry in the Pourbaix diagram.
     * **entry** (*Any*) – The entry to plot stability for.
 
 
-    * **pH_range** (*Tuple**[**float**, **float**]**, **optional*) – pH range for the plot. Defaults to [-2, 16].
+    * **pH_range** (*tuple**[**float**, **float**]**, **optional*) – pH range for the plot. Defaults to [-2, 16].
 
 
     * **pH_resolution** (*int**, **optional*) – pH resolution. Defaults to 100.
 
 
-    * **V_range** (*Tuple**[**float**, **float**]**, **optional*) – Voltage range for the plot. Defaults to [-3, 3].
+    * **V_range** (*tuple**[**float**, **float**]**, **optional*) – Voltage range for the plot. Defaults to [-3, 3].
 
 
     * **V_resolution** (*int**, **optional*) – Voltage resolution. Defaults to 100.
@@ -15488,12 +15620,6 @@ Shows the Pourbaix plot.
 
 
     * **\*\*kwargs** – kwargs to get_pourbaix_plot
-
-
-
-* **Returns**
-
-    None
 
 
 
@@ -16181,14 +16307,14 @@ List of elements in the reaction.
 
 
 
-#### _static_ from_str(rxn_string)
+#### _static_ from_str(rxn_str)
 Generates a balanced reaction from a string. The reaction must
 already be balanced.
 
 
 * **Parameters**
 
-    **rxn_string** – The reaction string. For example, “4 Li + O2-> 2Li2O”
+    **rxn_string** (*str*) – The reaction string. For example, “4 Li + O2 -> 2Li2O”
 
 
 
@@ -16763,9 +16889,17 @@ table and algorithms.
     * **el_radius_updates** – (dict) symbol->float to update atom_ic radii
 
 
-Returns: (dict) - (Element1, Element2) -> float. The two elements are
 
-    ordered by Z.
+* **Returns**
+
+    The two elements are ordered by Z.
+
+
+
+* **Return type**
+
+    dict[(Element1, Element2)], float]
+
 
 
 ### oxide_type(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), relative_cutoff: float = 1.1, return_nbonds: bool = False)
@@ -16787,8 +16921,7 @@ Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.
 
 
 ### solid_angle(center, coords)
-Helper method to calculate the solid angle of a set of coords from the
-center.
+Helper method to calculate the solid angle of a set of coords from the center.
 
 
 * **Parameters**
@@ -16804,6 +16937,12 @@ center.
 * **Returns**
 
     The solid angle.
+
+
+
+* **Return type**
+
+    float
 
 
 
@@ -17004,6 +17143,12 @@ irrespective of the species of those sites.
 
 
 
+* **Return type**
+
+    bool
+
+
+
 #### get_hash(composition)
 
 * **Parameters**
@@ -17085,7 +17230,7 @@ True if species are exactly the same, i.e., Fe2+ == Fe2+ but not Fe3+.
 
 
 
-#### get_hash(composition)
+#### get_hash(composition: [Composition](pymatgen.core.md#pymatgen.core.composition.Composition))
 Returns: Fractional composition.
 
 
@@ -17361,8 +17506,11 @@ Returns mask for matching struct2 to struct1. If struct1 has sites
 a b c, and fu = 2, assumes supercells of struct2 will be ordered
 aabbcc (rather than abcabc).
 
-Returns:
-mask, struct1 translation indices, struct2 translation index
+
+* **Returns**
+
+    mask, struct1 translation indices, struct2 translation index
+
 
 
 #### _classmethod_ _get_reduced_structure(struct: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), primitive_cell: bool = True, niggli: bool = True)
@@ -17502,13 +17650,13 @@ to another. E.g., to compare if the Li2O and Na2O structures are similar.
 
 * **Returns**
 
-    Whether a species mapping can map struct1 to stuct2
+    Whether a species mapping can map struct1 to struct2
 
 
 
 * **Return type**
 
-    True/False
+    bool
 
 
 
@@ -17794,30 +17942,37 @@ Todo:
 Bases: `object`
 
 A class for analyzing the stability of nanoparticles of different
+polymorphs with respect to size. The Wulff shape will be the model for the
+nanoparticle. Stability will be determined by an energetic competition between the
+weighted surface energy (surface energy of the Wulff shape) and the bulk energy. A
+future release will include a 2D phase diagram (e.g. wrt size vs chempot for adsorbed
+or non-stoichiometric surfaces). Based on the following work:
 
-    polymorphs with respect to size. The Wulff shape will be the
-    model for the nanoparticle. Stability will be determined by
-    an energetic competition between the weighted surface energy
-    (surface energy of the Wulff shape) and the bulk energy. A
-    future release will include a 2D phase diagram (e.g. wrt size
-    vs chempot for adsorbed or non-stoichiometric surfaces). Based
-    on the following work:
+Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
 
-    Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
-
-        stabilization of sodium oxides: Implications for Na-O2
-        batteries. Nano Letters, 14(2), 1016-1020.
-        [https://doi.org/10.1021/nl404557w](https://doi.org/10.1021/nl404557w)
+    stabilization of sodium oxides: Implications for Na-O2
+    batteries. Nano Letters, 14(2), 1016-1020.
+    [https://doi.org/10.1021/nl404557w](https://doi.org/10.1021/nl404557w)
 
 
 #### se_analyzers()
-List of SurfaceEnergyPlotter objects. Each item corresponds to a
+Each item corresponds to a different polymorph.
 
-    different polymorph.
+
+* **Type**
+
+    list[SurfaceEnergyPlotter]
+
 
 
 #### symprec()
-See WulffShape.
+Tolerance for symmetry finding. See WulffShape.
+
+
+* **Type**
+
+    float
+
 
 Analyzes the nanoscale stability of different polymorphs.
 
@@ -18044,22 +18199,51 @@ A ComputedStructureEntry object encompassing all data relevant to a
 Miller index of plane parallel to surface.
 
 
+* **Type**
+
+    tuple
+
+
+
 #### label()
 Brief description for this slab.
 
 
+* **Type**
+
+    str
+
+
+
 #### adsorbates()
-List of ComputedStructureEntry for the types of adsorbates
+List of ComputedStructureEntry for the types of adsorbates.
 
-..attribute:: clean_entry
 
-> SlabEntry for the corresponding clean slab for an adsorbed slab
+* **Type**
 
-..attribute:: ads_entries_dict
+    list
 
-> Dictionary where the key is the reduced composition of the
 
->     adsorbate entry and value is the entry itself
+
+#### clean_entry()
+SlabEntry for the corresponding clean slab for an adsorbed slab.
+
+
+* **Type**
+
+    SlabEntry
+
+
+
+#### ads_entries_dict()
+Dictionary where the key is the reduced composition of the
+adsorbate entry and value is the entry itself.
+
+
+* **Type**
+
+    dict
+
 
 Make a SlabEntry containing all relevant surface thermodynamics data.
 
@@ -18139,7 +18323,7 @@ Returns a slab with the adsorbates removed.
 Returns a label (str) for this particular slab based on composition, coverage and Miller index.
 
 
-#### _static_ from_computed_structure_entry(entry, miller_index, label=None, adsorbates=None, clean_entry=None, \*\*kwargs)
+#### _classmethod_ from_computed_structure_entry(entry, miller_index, label=None, adsorbates=None, clean_entry=None, \*\*kwargs)
 Returns SlabEntry from a ComputedStructureEntry.
 
 
@@ -18158,9 +18342,7 @@ unit area of the primitive slab system.
 
 
 #### gibbs_binding_energy(eads=False)
-Returns the adsorption energy or Gibbs binding energy
-
-    of an adsorbate on a surface
+Returns the adsorption energy or Gibbs binding energy of an adsorbate on a surface.
 
 
 * **Parameters**
@@ -18200,56 +18382,81 @@ Returns (Add (Sympy class)): Surface energy
 Bases: `object`
 
 A class used for generating plots to analyze the thermodynamics of surfaces
-
-    of a material. Produces stability maps of different slab configurations,
-    phases diagrams of two parameters to determine stability of configurations
-    (future release), and Wulff shapes.
+of a material. Produces stability maps of different slab configurations,
+phases diagrams of two parameters to determine stability of configurations
+(future release), and Wulff shapes.
 
 
 #### all_slab_entries()
-Either a list of SlabEntry objects (note for a list, the SlabEntry must
+Either a list of SlabEntry objects (note for a list, the
+SlabEntry must have the adsorbates and clean_entry parameter plugged in) or a Nested
+dictionary containing a list of entries for slab calculations as
+items and the corresponding Miller index of the slab as the key.
+To account for adsorption, each value is a sub-dictionary with the
+entry of a clean slab calculation as the sub-key and a list of
+entries for adsorption calculations as the sub-value. The sub-value
+can contain different adsorption configurations such as a different
+site or a different coverage, however, ordinarily only the most stable
+configuration for a particular coverage will be considered as the
+function of the adsorbed surface energy has an intercept dependent on
+the adsorption energy (ie an adsorption site with a higher adsorption
+energy will always provide a higher surface energy than a site with a
+lower adsorption energy). An example parameter is provided:
+{(h1,k1,l1): {clean_entry1: [ads_entry1, ads_entry2, …], clean_entry2: […], …}, (h2,k2,l2): {…}}
+where clean_entry1 can be a pristine surface and clean_entry2 can be a
+reconstructed surface while ads_entry1 can be adsorption at site 1 with
+a 2x2 coverage while ads_entry2 can have a 3x3 coverage. If adsorption
+entries are present (i.e. if all_slab_entries[(h,k,l)][clean_entry1]), we
+consider adsorption in all plots and analysis for this particular facet.
 
-    have the adsorbates and clean_entry parameter pulgged in) or a Nested
-    dictionary containing a list of entries for slab calculations as
-    items and the corresponding Miller index of the slab as the key.
-    To account for adsorption, each value is a sub-dictionary with the
-    entry of a clean slab calculation as the sub-key and a list of
-    entries for adsorption calculations as the sub-value. The sub-value
-    can contain different adsorption configurations such as a different
-    site or a different coverage, however, ordinarily only the most stable
-    configuration for a particular coverage will be considered as the
-    function of the adsorbed surface energy has an intercept dependent on
-    the adsorption energy (ie an adsorption site with a higher adsorption
-    energy will always provide a higher surface energy than a site with a
-    lower adsorption energy). An example parameter is provided:
-    {(h1,k1,l1): {clean_entry1: [ads_entry1, ads_entry2, …],
 
-    > clean_entry2: […], …}, (h2,k2,l2): {…}}
+* **Type**
 
-    where clean_entry1 can be a pristine surface and clean_entry2 can be a
-    reconstructed surface while ads_entry1 can be adsorption at site 1 with
-    a 2x2 coverage while ads_entry2 can have a 3x3 coverage. If adsorption
-    entries are present (i.e. if all_slab_entries[(h,k,l)][clean_entry1]), we
-    consider adsorption in all plots and analysis for this particular facet.
+    dict | list
 
-..attribute:: color_dict
 
-> Dictionary of colors (r,g,b,a) when plotting surface energy stability. The
 
->     keys are individual surface entries where clean surfaces have a solid
->     color while the corresponding adsorbed surface will be transparent.
+#### color_dict()
+Dictionary of colors (r,g,b,a) when plotting surface energy stability.
+The keys are individual surface entries where clean surfaces have a solid color while
+the corresponding adsorbed surface will be transparent.
+
+
+* **Type**
+
+    dict
+
 
 
 #### ucell_entry()
-ComputedStructureEntry of the bulk reference for this particular material.
+ComputedStructureEntry of the bulk reference for
+this particular material.
+
+
+* **Type**
+
+    [ComputedStructureEntry](pymatgen.entries.md#pymatgen.entries.computed_entries.ComputedStructureEntry)
+
 
 
 #### ref_entries()
 List of ComputedStructureEntries to be used for calculating chemical potential.
 
 
-#### color_dict()
+* **Type**
+
+    list
+
+
+
+#### facet_color_dict()
 Randomly generated dictionary of colors associated with each facet.
+
+
+* **Type**
+
+    dict
+
 
 Object for plotting surface energy in different ways for clean and
 
@@ -18275,7 +18482,7 @@ Object for plotting surface energy in different ways for clean and
     be defined by a summation of the chemical potentials for each
     element in the system. As the bulk energy is already provided,
     one can solve for one of the chemical potentials as a function
-    of the other chemical potetinals and bulk energy. i.e. there
+    of the other chemical potentials and bulk energy. i.e. there
     are n-1 variables (chempots). e.g. if your ucell_entry is for
     LiFePO4 than your ref_entries should have an entry for Li, Fe,
     and P if you want to use the chempot of O as the variable.
@@ -18808,53 +19015,100 @@ Method to get the Wulff shape at a specific chemical potential.
 ### _class_ WorkFunctionAnalyzer(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), locpot_along_c, efermi, shift=0, blength=3.5)
 Bases: `object`
 
-A class used for calculating the work function
-
-    from a slab model and visualizing the behavior
-    of the local potential along the slab.
+A class used for calculating the work function from a slab model and
+visualizing the behavior of the local potential along the slab.
 
 
 #### efermi()
-The Fermi energy
+The Fermi energy.
+
+
+* **Type**
+
+    float
+
 
 
 #### locpot_along_c()
-Local potential in eV along points along the  axis
+Local potential in eV along points along the c axis.
+
+
+* **Type**
+
+    list
+
 
 
 #### vacuum_locpot()
-The maximum local potential along the c direction for
+The maximum local potential along the c direction for the slab model,
+i.e. the potential at the vacuum.
 
-    the slab model, ie the potential at the vacuum
+
+* **Type**
+
+    float
+
 
 
 #### work_function()
-The minimum energy needed to move an electron from the
+The minimum energy needed to move an electron from the surface to infinity.
+Defined as the difference between the potential at the vacuum and the Fermi energy.
 
-    surface to infinity. Defined as the difference between
-    the potential at the vacuum and the Fermi energy.
+
+* **Type**
+
+    float
+
 
 
 #### slab()
-The slab structure model
+The slab structure model.
+
+
+* **Type**
+
+    [Slab](pymatgen.core.md#pymatgen.core.surface.Slab)
+
 
 
 #### along_c()
-Points along the c direction with same
+Points along the c direction with same increments as the locpot in the c axis.
 
-    increments as the locpot in the c axis
+
+* **Type**
+
+    list
+
 
 
 #### ave_locpot()
-Mean of the minimum and maximmum (vacuum) locpot along c
+Mean of the minimum and maximum (vacuum) locpot along c.
+
+
+* **Type**
+
+    float
+
 
 
 #### sorted_sites()
-List of sites from the slab sorted along the c direction
+List of sites from the slab sorted along the c direction.
+
+
+* **Type**
+
+    list
+
 
 
 #### ave_bulk_p()
-The average locpot of the slab region along the c direction
+The average locpot of the slab region along the c direction.
+
+
+* **Type**
+
+    float
+
 
 Initializes the WorkFunctionAnalyzer class.
 
@@ -18881,29 +19135,37 @@ Initializes the WorkFunctionAnalyzer class.
 
 
 
-#### _static_ from_files(poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5)
+#### _classmethod_ from_files(poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5)
+Initializes a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
+
 
 * **Parameters**
 
 
-    * **poscar_filename** – POSCAR file
+    * **poscar_filename** (*str*) – The path to the POSCAR file.
 
 
-    * **locpot_filename** – LOCPOT file
+    * **locpot_filename** (*str*) – The path to the LOCPOT file.
 
 
-    * **outcar_filename** – OUTCAR file
+    * **outcar_filename** (*str*) – The path to the OUTCAR file.
 
 
-    * **shift** – shift
+    * **shift** (*float*) – The shift value. Defaults to 0.
 
 
-    * **blength** – The longest bond length in the material.
-    Used to handle pbc for noncontiguous slab layers
+    * **blength** (*float*) – The longest bond length in the material.
+    Used to handle pbc for noncontiguous slab layers. Defaults to 3.5.
 
 
 
 * **Returns**
+
+    A WorkFunctionAnalyzer instance.
+
+
+
+* **Return type**
 
     WorkFunctionAnalyzer
 
@@ -18911,10 +19173,16 @@ Initializes the WorkFunctionAnalyzer class.
 
 #### get_labels(plt, label_fontsize=10)
 Handles the optional labelling of the plot with relevant quantities
-:param plt: Plot of the locpot vs c axis
-:type plt: plt
-:param label_fontsize: Fontsize of labels
-:type label_fontsize: float
+
+
+* **Parameters**
+
+
+    * **plt** (*plt*) – Plot of the locpot vs c axis
+
+
+    * **label_fontsize** (*float*) – Fontsize of labels
+
 
 Returns Labelled plt.
 
@@ -19182,7 +19450,7 @@ a 5-image example is shown):
 
 #### _classmethod_ from_outcars(outcars, structures, \*\*kwargs)
 Initializes an NEBAnalysis from Outcar and Structure objects. Use
-the static constructors, e.g., `from_dir` instead if you
+the static constructors, e.g., from_dir instead if you
 prefer to have these automatically generated from a directory of NEB
 calculations.
 
@@ -19340,7 +19608,7 @@ Based on:
 Process:
 
 
-    1. get wulff simplices
+    1. get Wulff simplices
 
 
     2. label with color
@@ -19349,69 +19617,195 @@ Process:
     3. get wulff_area and other properties
 
 
-#### debug(bool)
+#### debug()
+Whether to print debug information.
+
+
+* **Type**
+
+    bool
+
+
 
 #### alpha()
+Transparency of the Wulff shape.
 
-#### transparency()
+
+* **Type**
+
+    float
+
+
 
 #### color_set()
+colors to use for facets.
 
-#### grid_off(bool)
 
-#### axis_off(bool)
+* **Type**
+
+    list
+
+
+
+#### grid_off()
+Whether to turn off the grid.
+
+
+* **Type**
+
+    bool
+
+
+
+#### axis_off()
+Whether to turn off the axis.
+
+
+* **Type**
+
+    bool
+
+
 
 #### show_area()
+Whether to show the area of each facet.
+
+
+* **Type**
+
+    bool
+
+
 
 #### off_color()
+Color of facets not on the Wulff shape.
 
-### color of facets off wulff()
+
+* **Type**
+
+    str
+
+
 
 #### structure()
+Input conventional unit cell (with H) from lattice.
 
-### Structure object, input conventional unit cell (with H ) from lattice()
+
+* **Type**
+
+    [Structure](pymatgen.core.md#pymatgen.core.structure.Structure)
+
+
 
 #### miller_list()
+input Miller indices, for hcp in the form of hkil.
 
-### list of input miller index, for hcp in the form of hkil()
+
+* **Type**
+
+    list
+
+
 
 #### hkl_list()
+Modified Miller indices in the same order as input_miller.
 
-### modify hkill to hkl, in the same order with input_miller()
+
+* **Type**
+
+    list
+
+
 
 #### e_surf_list()
+input surface energies in the same order as input_miller.
 
-### list of input surface energies, in the same order with input_miller()
+
+* **Type**
+
+    list
+
+
 
 #### lattice()
+Input lattice for the conventional unit cell.
 
-### Lattice object, the input lattice for the conventional unit cell()
+
+* **Type**
+
+    [Lattice](pymatgen.core.md#pymatgen.core.lattice.Lattice)
+
+
 
 #### facets()
+WulffFacet objects considering symmetry.
 
-### [WulffFacet] for all facets considering symm()
+
+* **Type**
+
+    list
+
+
 
 #### dual_cv_simp()
+Simplices from the dual convex hull (dual_pt).
 
-### simplices from the dual convex hull (dual_pt)()
+
+* **Type**
+
+    list
+
+
 
 #### wulff_pt_list()
+Wulff points.
+
+
+* **Type**
+
+    list
+
+
 
 #### wulff_cv_simp()
+Simplices from the convex hull of wulff_pt_list.
 
-### simplices from the convex hull of wulff_pt_list()
+
+* **Type**
+
+    list
+
+
 
 #### on_wulff()
+List for all input_miller, True if on the Wulff shape.
 
-### list for all input_miller, True is on wulff.()
+
+* **Type**
+
+    list
+
+
 
 #### color_area()
+List for all input_miller, total area on the Wulff shape, off_wulff = 0.
 
-### list for all input_miller, total area on wulff, off_wulff = 0.()
+
+* **Type**
+
+    list
+
+
 
 #### miller_area()
+Dictionary of Miller indices and their corresponding areas.
 
-### ($hkl$): area for all input_miller()
+
+* **Type**
+
+    dict
+
+
 
 * **Parameters**
 
@@ -19425,7 +19819,7 @@ Process:
     * **e_surf_list** (*[**float**]*) – list of corresponding surface energies
 
 
-    * **symprec** (*float*) – for recp_operation, default is 1e-5.
+    * **symprec** (*float*) – for reciprocal lattice operation, default is 1e-5.
 
 
 
@@ -19570,21 +19964,21 @@ Get the Wulff shape plot.
     * **aspect_ratio** – default is (8, 8)
 
 
-    * **(****{****(****h** (*custom_colors*) – [r,g,b,alpha}): Customize color of each
+    * **(****{****(****h** (*custom_colors*) – [r,g,b,alpha]}): Customize color of each
     facet with a dictionary. The key is the corresponding Miller
     index and value is the color. Undefined facets will use default
     color site. Note: If you decide to set your own colors, it
     probably won’t make any sense to have the color bar on.
 
 
-    * **k** – [r,g,b,alpha}): Customize color of each
+    * **k** – [r,g,b,alpha]}): Customize color of each
     facet with a dictionary. The key is the corresponding Miller
     index and value is the color. Undefined facets will use default
     color site. Note: If you decide to set your own colors, it
     probably won’t make any sense to have the color bar on.
 
 
-    * **l}** – [r,g,b,alpha}): Customize color of each
+    * **l}** – [r,g,b,alpha]}): Customize color of each
     facet with a dictionary. The key is the corresponding Miller
     index and value is the color. Undefined facets will use default
     color site. Note: If you decide to set your own colors, it

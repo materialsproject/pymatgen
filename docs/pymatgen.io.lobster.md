@@ -137,8 +137,20 @@ Similar to the diff in INCAR.
     * **address_basis_file_max** – path to file with the largest possible basis of the POTCAR.
 
 
-Returns: List of dictionaries that can be used to create new Lobsterin objects in
-standard_calculations_from_vasp_files as dict_for_basis
+
+* **Returns**
+
+    Can be used to create new Lobsterin objects in
+
+        standard_calculations_from_vasp_files as dict_for_basis
+
+
+
+
+* **Return type**
+
+    list[dict]
+
 
 
 #### _static_ get_basis(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), potcar_symbols: list, address_basis_file: str | None = None)
@@ -304,7 +316,17 @@ Writes a lobsterin file.
     * **max_basis** – list of basis entries: e.g., [‘Si 3p 3s ‘].
 
 
-Returns: all possible combinations of basis functions, e.g. [[‘Si 3p 3s’]]
+
+* **Returns**
+
+    all possible combinations of basis functions, e.g. [[‘Si 3p 3s’]]
+
+
+
+* **Return type**
+
+    list[list[str]]
+
 
 ## pymatgen.io.lobster.lobsterenv module
 
@@ -420,7 +442,12 @@ Constructor for the LightStructureEnvironments object.
 
 #### as_dict()
 Bson-serializable dict representation of the LightStructureEnvironments object.
-:returns: Bson-serializable dict representation of the LightStructureEnvironments object.
+
+
+* **Returns**
+
+    Bson-serializable dict representation of the LightStructureEnvironments object.
+
 
 
 #### _classmethod_ from_Lobster(list_ce_symbol, list_csm, list_permutation, list_neighsite, list_neighisite, structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), valences=None)
@@ -451,7 +478,11 @@ Will set up a LightStructureEnvironments from Lobster.
     * **valences** – list of valences
 
 
-Returns: LobsterLightStructureEnvironments
+
+* **Returns**
+
+    LobsterLightStructureEnvironments
+
 
 
 #### _property_ uniquely_determines_coordination_environments()
@@ -557,7 +588,17 @@ Convinicence method for returning the extremum of the given icohps or icoops or 
     **list_icohps** – can be a list of icohps or icobis or icobis
 
 
-Returns: min value of input list of icohps / max value of input list of icobis or icobis
+
+* **Returns**
+
+    min value of input list of icohps / max value of input list of icobis or icobis
+
+
+
+* **Return type**
+
+    float
+
 
 
 #### _static_ _determine_unit_cell(site)
@@ -658,7 +699,17 @@ Return the number of the atom within the initial POSCAR (e.g., Return 0 for “N
     **atomstring** – string such as “Na1”
 
 
-Returns: integer indicating the position in the POSCAR
+
+* **Returns**
+
+    indicating the position in the POSCAR
+
+
+
+* **Return type**
+
+    int
+
 
 
 #### _static_ _get_icohps(icohpcollection, isite, lowerlimit, upperlimit, only_bonds_to)
@@ -709,7 +760,20 @@ Return -float(‘inf’), min(max_icohp\*0.15,-0.1). Currently only works for IC
     * **additional_condition** – additional condition to determine which bonds are relevant
 
 
-Returns: [-inf, min(strongest_icohp\*0.15,-noise_cutoff)] / [max(strongest_icohp\*0.15, noise_cutoff),inf]
+
+* **Returns**
+
+    [-inf, min(strongest_icohp\*0.15,-noise_cutoff)] / [max(strongest_icohp\*0.15,
+
+        noise_cutoff), inf]
+
+
+
+
+* **Return type**
+
+    tuple[float, float]
+
 
 
 #### _get_plot_label(atoms, per_bond)
@@ -727,15 +791,24 @@ Will split strings such as “Na1” in “Na” and “1” and return “1”.
 #### _property_ anion_types()
 Return the types of anions present in crystal structure as a set
 
-Returns: set of Element describing anions in the crystal structure.
+
+* **Returns**
+
+    describing anions in the crystal structure.
+
+
+
+* **Return type**
+
+    set[[Element](pymatgen.core.md#pymatgen.core.periodic_table.Element)]
+
 
 
 #### get_anion_types(\*\*kwargs)
 
 #### get_info_cohps_to_neighbors(path_to_COHPCAR='COHPCAR.lobster', isites=None, only_bonds_to=None, onlycation_isites=True, per_bond=True, summed_spin_channels=False)
 Return info about the cohps (coops or cobis) as a summed cohp object and a label
-
-    from all sites mentioned in isites with neighbors.
+from all sites mentioned in isites with neighbors.
 
 
 * **Parameters**
@@ -759,8 +832,20 @@ Return info about the cohps (coops or cobis) as a summed cohp object and a label
     * **summed_spin_channels** – will sum all spin channels
 
 
-Returns: label for cohp (str), CompleteCohp object which describes all cohps (coops or cobis) of the sites
-as given by isites and the other parameters
+
+* **Returns**
+
+    label for cohp (str), CompleteCohp object which describes all cohps (coops or cobis)
+
+        of the sites as given by isites and the other parameters
+
+
+
+
+* **Return type**
+
+    str
+
 
 
 #### get_info_icohps_between_neighbors(isites=None, onlycation_isites=True)
@@ -776,7 +861,9 @@ Return infos about interactions between neighbors of a certain atom.
     * **onlycation_isites** – will only use cations, if isite==None
 
 
-Returns: ICOHPNeighborsInfo
+Returns
+
+    ICOHPNeighborsInfo
 
 
 #### get_info_icohps_to_neighbors(isites=None, onlycation_isites=True)
@@ -794,7 +881,11 @@ This is useful for plotting the relevant cohps of a site in the structure.
     * **onlycation_isites** – if True and if isite==None, it will only analyse the sites of the cations
 
 
-Returns: ICOHPNeighborsInfo
+
+* **Returns**
+
+    ICOHPNeighborsInfo
+
 
 
 #### get_light_structure_environment(only_cation_environments=False, only_indices=None)
@@ -811,7 +902,11 @@ if the structure only contains coordination environments smaller 13.
     * **only_indices** – will only evaluate the list of isites in this list
 
 
-Returns: LobsterLightStructureEnvironments Object
+
+* **Returns**
+
+    LobsterLightStructureEnvironments
+
 
 
 #### get_nn_info(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), n, use_weights=False)
@@ -911,12 +1006,29 @@ DOI: 10.1002/cplu.202200123.
 Bases: `object`
 
 Class to read in bandOverlaps.lobster files. These files are not created during every Lobster run.
-.. attribute: bandoverlapsdict is a dict of the following form:
+.. attribute:: bandoverlapsdict
 
-> {spin:{“kpoint as string”: {“maxDeviation”: float that describes the max deviation, “matrix”: 2D
-> array of the size number of bands times number of bands including the overlap matrices with } }}.
+> A dictionary
+> containing the band overlap data of the form: {spin: {“kpoint as string”: {“maxDeviation”:
+> float that describes the max deviation, “matrix”: 2D array of the size number of bands
+> times number of bands including the overlap matrices with}}}.
 
-<!-- attribute: maxDeviation is a list of floats describing the maximal Deviation for each problematic kpoint -->
+
+> * **type**
+
+>     dict[Spin, Dict[str, Dict[str, Union[float, np.ndarray]]]]
+
+
+
+#### maxDeviation()
+A list of floats describing the maximal deviation for each problematic kpoint.
+
+
+* **Type**
+
+    list[float]
+
+
 
 * **Parameters**
 
@@ -926,8 +1038,16 @@ Class to read in bandOverlaps.lobster files. These files are not created during 
 
 #### _read(contents: list, spin_numbers: list)
 Will read in all contents of the file
-:param contents: list of strings
-:param spin_numbers: list of spin numbers depending on Lobster version.
+
+
+* **Parameters**
+
+
+    * **contents** – list of strings
+
+
+    * **spin_numbers** – list of spin numbers depending on Lobster version.
+
 
 
 #### has_good_quality_check_occupied_bands(number_occ_bands_spin_up: int, number_occ_bands_spin_down: int | None = None, spin_polarized: bool = False, limit_deviation: float = 0.1)
@@ -978,16 +1098,56 @@ Bases: `object`
 
 Class to read CHARGE files generated by LOBSTER.
 
-<!-- attribute: atomlist
-List of atoms in CHARGE.lobster -->
-<!-- attribute: types
-List of types of atoms in CHARGE.lobster -->
-<!-- attribute: Mulliken
-List of Mulliken charges of atoms in CHARGE.lobster -->
-<!-- attribute: Loewdin
-List of Loewdin charges of atoms in CHARGE.Loewdin -->
-<!-- attribute: num_atoms
-Number of atoms in CHARGE.lobster -->
+
+#### atomlist()
+List of atoms in CHARGE.lobster.
+
+
+* **Type**
+
+    list[str]
+
+
+
+#### types()
+List of types of atoms in CHARGE.lobster.
+
+
+* **Type**
+
+    list[str]
+
+
+
+#### Mulliken()
+List of Mulliken charges of atoms in CHARGE.lobster.
+
+
+* **Type**
+
+    list[float]
+
+
+
+#### Loewdin()
+List of Loewdin charges of atoms in CHARGE.Loewdin.
+
+
+* **Type**
+
+    list[float]
+
+
+
+#### num_atoms()
+Number of atoms in CHARGE.lobster.
+
+
+* **Type**
+
+    int
+
+
 
 * **Parameters**
 
@@ -997,7 +1157,12 @@ Number of atoms in CHARGE.lobster -->
 
 #### get_structure_with_charges(structure_filename)
 Get a Structure with Mulliken and Loewdin charges as site properties
-:param structure_filename: filename of POSCAR
+
+
+* **Parameters**
+
+    **structure_filename** – filename of POSCAR
+
 
 
 * **Returns**
@@ -1011,34 +1176,73 @@ Bases: `object`
 
 Class to read COHPCAR/COOPCAR files generated by LOBSTER.
 
-<!-- attribute: cohp_data
 
-Dict that contains the COHP data of the form:
-  {bond: {"COHP": {Spin.up: cohps, Spin.down:cohps},
-          "ICOHP": {Spin.up: icohps, Spin.down: icohps},
-          "length": bond length,
-          "sites": sites corresponding to the bond}
-Also contains an entry for the average, which does not have
-a "length" key. -->
-<!-- attribute: efermi
+#### cohp_data()
+A dictionary containing the COHP data of the form:
+{bond: {“COHP”: {Spin.up: cohps, Spin.down:cohps},
 
-The Fermi energy in eV. -->
-<!-- attribute: energies
+> “ICOHP”: {Spin.up: icohps, Spin.down: icohps},
+> “length”: bond length,
+> “sites”: sites corresponding to the bond}
 
+Also contains an entry for the average, which does not have a “length” key.
+
+
+* **Type**
+
+    dict[str, Dict[str, Any]]
+
+
+
+#### efermi()
+The Fermi energy in eV.
+
+
+* **Type**
+
+    float
+
+
+
+#### energies()
 Sequence of energies in eV. Note that LOBSTER shifts the energies
-so that the Fermi energy is at zero. -->
-<!-- attribute: is_spin_polarized
+so that the Fermi energy is at zero.
 
-Boolean to indicate if the calculation is spin polarized. -->
-<!-- attribute: orb_cohp
 
-orb_cohp[label] = {bond_data["orb_label"]: {
-    "COHP": {Spin.up: cohps, Spin.down:cohps},
-    "ICOHP": {Spin.up: icohps, Spin.down: icohps},
-    "orbitals": orbitals,
-    "length": bond lengths,
-    "sites": sites corresponding to the bond},
-} -->
+* **Type**
+
+    Sequence[float]
+
+
+
+#### is_spin_polarized()
+Boolean to indicate if the calculation is spin polarized.
+
+
+* **Type**
+
+    bool
+
+
+
+#### orb_cohp()
+A dictionary containing the orbital-resolved COHPs of the form:
+orb_cohp[label] = {bond_data[“orb_label”]: {
+
+> “COHP”: {Spin.up: cohps, Spin.down:cohps},
+> “ICOHP”: {Spin.up: icohps, Spin.down: icohps},
+> “orbitals”: orbitals,
+> “length”: bond lengths,
+> “sites”: sites corresponding to the bond},
+
+}
+
+
+* **Type**
+
+    dict[str, Dict[str, Dict[str, Any]]]
+
+
 
 * **Parameters**
 
@@ -1089,50 +1293,82 @@ The beforehand quantum-chemical calculation was performed with VASP.
 
 
 #### completedos()
-LobsterCompleteDos Object
+LobsterCompleteDos Object.
+
+
+* **Type**
+
+    [LobsterCompleteDos](pymatgen.electronic_structure.md#pymatgen.electronic_structure.dos.LobsterCompleteDos)
+
 
 
 #### pdos()
+List of Dict including numpy arrays with pdos. Access as
+pdos[atomindex][‘orbitalstring’][‘Spin.up/Spin.down’].
 
-### List of Dict including numpy arrays with pdos. Access as pdos[atomindex]['orbitalstring']['Spin.up/Spin.down']()
+
+* **Type**
+
+    list
+
+
 
 #### tdos()
+Dos Object of the total density of states.
 
-### Dos Object of the total density of states()
+
+* **Type**
+
+    [Dos](pymatgen.electronic_structure.md#pymatgen.electronic_structure.dos.Dos)
+
+
 
 #### energies()
+Numpy array of the energies at which the DOS was calculated
+(in eV, relative to Efermi).
 
-### numpy array of the energies at which the DOS was calculated (in eV, relative to Efermi)()
+
+* **Type**
+
+    numpy.ndarray
+
+
 
 #### tdensities()
-
-### tdensities[Spin.up]: numpy array of the total density of states for the Spin.up contribution at each of the()
-
-#### energies()
-
-### tdensities[Spin.down]: numpy array of the total density of states for the Spin.down contribution at each of the()
-
-#### energies()
-if is_spin_polarized=False:
-tdensities[Spin.up]: numpy array of the total density of states
+tdensities[Spin.up]: numpy array of the total density of states for
+the Spin.up contribution at each of the energies. tdensities[Spin.down]: numpy array
+of the total density of states for the Spin.down contribution at each of the energies.
+If is_spin_polarized=False, tdensities[Spin.up]: numpy array of the total density of states.
 
 
-### itdensities:()
+* **Type**
 
-### itdensities[Spin.up]: numpy array of the total density of states for the Spin.up contribution at each of the()
+    dict
 
-#### energies()
 
-### itdensities[Spin.down]: numpy array of the total density of states for the Spin.down contribution at each of the()
 
-#### energies()
-if is_spin_polarized=False:
-itdensities[Spin.up]: numpy array of the total density of states
+#### itdensities()
+itdensities[Spin.up]: numpy array of the total density of states for
+the Spin.up contribution at each of the energies. itdensities[Spin.down]: numpy array
+of the total density of states for the Spin.down contribution at each of the energies.
+If is_spin_polarized=False, itdensities[Spin.up]: numpy array of the total density of states.
+
+
+* **Type**
+
+    dict
+
 
 
 #### is_spin_polarized()
+Boolean. Tells if the system is spin polarized.
 
-### Boolean. Tells if the system is spin polarized()
+
+* **Type**
+
+    bool
+
+
 
 * **Parameters**
 
@@ -1183,40 +1419,104 @@ Bases: `object`
 
 Reads in FATBAND_x_y.lobster files.
 
-<!-- attribute: efermi
 
-efermi that was read in from vasprun.xml -->
-<!-- attribute: eigenvals
-{Spin.up:[][],Spin.down:[][]}, the first index of the array
-    [][] refers to the band and the second to the index of the
-    kpoint. The kpoints are ordered according to the order of the
-    kpoints array. If the band structure is not spin polarized, we
-    only store one data set under Spin.up. -->
-<!-- attribute: is_spinpolarized
+#### efermi()
+Fermi energy read in from vasprun.xml.
 
-Boolean that tells you whether this was a spin-polarized calculation -->
-<!-- attribute: kpoints_array
 
-list of kpoint as numpy arrays, in frac_coords of the given lattice by default -->
-<!-- attribute: label_dict
+* **Type**
 
-(dict) of {} this link a kpoint (in frac coords or Cartesian coordinates depending on the coords). -->
-<!-- attribute: lattice
+    float
 
-lattice object of reciprocal lattice as read in from vasprun.xml -->
-<!-- attribute: nbands
 
-number of bands used in the calculation -->
-<!-- attribute: p_eigenvals
 
-dict of orbital projections as {spin: array of dict}.
+#### eigenvals()
+Eigenvalues as a dictionary of numpy arrays of shape (nbands, nkpoints).
+The first index of the array refers to the band and the second to the index of the kpoint.
+The kpoints are ordered according to the order of the kpoints_array attribute.
+If the band structure is not spin polarized, we only store one data set under Spin.up.
+
+
+* **Type**
+
+    dict[[Spin](pymatgen.electronic_structure.md#pymatgen.electronic_structure.core.Spin), np.ndarray]
+
+
+
+#### is_spin_polarized()
+Boolean that tells you whether this was a spin-polarized calculation.
+
+
+* **Type**
+
+    bool
+
+
+
+#### kpoints_array()
+List of kpoints as numpy arrays, in frac_coords of the given
+lattice by default.
+
+
+* **Type**
+
+    list[np.ndarray]
+
+
+
+#### label_dict()
+Dictionary that links a kpoint (in frac coords or Cartesian
+coordinates depending on the coords attribute) to a label.
+
+
+* **Type**
+
+    dict[str, Union[str, np.ndarray]]
+
+
+
+#### lattice()
+Lattice object of reciprocal lattice as read in from vasprun.xml.
+
+
+* **Type**
+
+    [Lattice](pymatgen.core.md#pymatgen.core.lattice.Lattice)
+
+
+
+#### nbands()
+Number of bands used in the calculation.
+
+
+* **Type**
+
+    int
+
+
+
+#### p_eigenvals()
+Dictionary of orbital projections as {spin: array of dict}.
 The indices of the array are [band_index, kpoint_index].
-The dict is then built the following way:
-{"string of element": "string of orbital as read in from FATBAND file"}
-If the band structure is not spin polarized, we only store one data set under Spin.up. -->
-<!-- attribute: structure
+The dict is then built the following way: {“string of element”: “string of orbital as read in
+from FATBAND file”}. If the band structure is not spin polarized, we only store one data set under Spin.up.
 
-structure read in from vasprun.xml -->
+
+* **Type**
+
+    dict[[Spin](pymatgen.electronic_structure.md#pymatgen.electronic_structure.core.Spin), np.ndarray]
+
+
+
+#### structure()
+Structure read in from vasprun.xml.
+
+
+* **Type**
+
+    [Structure](pymatgen.core.md#pymatgen.core.structure.Structure)
+
+
 
 * **Parameters**
 
@@ -1241,11 +1541,28 @@ Bases: `object`
 
 Class to read in GROSSPOP.lobster files.
 
-<!-- attribute: list_dict_grosspop
-which is a list of dicts including all information about the grosspopulations, one sample dict looks like this:
- {'element': 'O', 'Mulliken GP': {'2s': '1.80', '2p_y': '1.83', '2p_z': '1.79', '2p_x': '1.75', 'total': '7.18'},
-  'Loewdin GP': {'2s': '1.60', '2p_y': '1.82', '2p_z': '1.77', '2p_x': '1.73', 'total': '6.92'}}
- The 0. entry of the list refers to the first atom in GROSSPOP.lobster and so on. -->
+
+#### list_dict_grosspop()
+List of dictionaries
+including all information about the grosspopulations. Each dictionary contains the following keys:
+- ‘element’: The element symbol of the atom.
+- ‘Mulliken GP’: A dictionary of Mulliken gross populations, where the keys are the orbital labels and the
+
+> values are the corresponding gross populations as strings.
+
+
+* ‘Loewdin GP’: A dictionary of Loewdin gross populations, where the keys are the orbital labels and the
+
+    values are the corresponding gross populations as strings.
+
+The 0th entry of the list refers to the first atom in GROSSPOP.lobster and so on.
+
+
+* **Type**
+
+    list[dict[str, str| dict[str, str]]]
+
+
 
 * **Parameters**
 
@@ -1255,8 +1572,12 @@ which is a list of dicts including all information about the grosspopulations, o
 
 #### get_structure_with_total_grosspop(structure_filename: str)
 Get a Structure with Mulliken and Loewdin total grosspopulations as site properties
-:param structure_filename: filename of POSCAR
-:type structure_filename: str
+
+
+* **Parameters**
+
+    **structure_filename** (*str*) – filename of POSCAR
+
 
 
 * **Returns**
@@ -1270,17 +1591,53 @@ Bases: `object`
 
 Class to read ICOHPLIST/ICOOPLIST files generated by LOBSTER.
 
-<!-- attribute: are_coops
-Boolean to indicate if the populations are COOPs or COHPs. -->
-<!-- attribute: is_spin_polarized
-Boolean to indicate if the calculation is spin polarized. -->
-<!-- attribute: Icohplist
-Dict containing the listfile data of the form:
-   {bond: "length": bond length,
-          "number_of_bonds": number of bonds
-          "icohp": {Spin.up: ICOHP(Ef) spin up, Spin.down: ...}} -->
-<!-- attribute: IcohpCollection
-IcohpCollection Object -->
+
+#### are_coops()
+Indicates whether the object is consisting of COOPs.
+
+
+* **Type**
+
+    bool
+
+
+
+#### is_spin_polarized()
+Boolean to indicate if the calculation is spin polarized.
+
+
+* **Type**
+
+    bool
+
+
+
+#### Icohplist()
+Dict containing the
+listfile data of the form: {
+
+> bond: “length”: bond length,
+> “number_of_bonds”: number of bonds
+> “icohp”: {Spin.up: ICOHP(Ef) spin up, Spin.down: …}
+
+}
+
+
+* **Type**
+
+    dict[str, Dict[str, Union[float, int, Dict[[Spin](pymatgen.electronic_structure.md#pymatgen.electronic_structure.core.Spin), float]]]]
+
+
+
+#### IcohpCollection()
+IcohpCollection Object.
+
+
+* **Type**
+
+    [IcohpCollection](pymatgen.electronic_structure.md#pymatgen.electronic_structure.cohp.IcohpCollection)
+
+
 
 * **Parameters**
 
@@ -1323,58 +1680,269 @@ Bases: `object`
 
 Class to read in the lobsterout and evaluate the spilling, save the basis, save warnings, save infos.
 
-> <!-- attribute: basis_functions
-> list of basis functions that were used in lobster run as strings -->
-> <!-- attribute: basis_type
-> list of basis type that were used in lobster run as strings -->
-> <!-- attribute: charge_spilling
-> list of charge spilling (first entry: result for spin 1, second entry: result for spin 2 or not present) -->
-> <!-- attribute: dft_program
-> string representing the dft program used for the calculation of the wave function -->
-> <!-- attribute: elements
-> list of strings of elements that were present in lobster calculation -->
-> <!-- attribute: has_charge
-> Boolean, indicates that CHARGE.lobster is present -->
-> <!-- attribute: has_cohpcar
-> Boolean, indicates that COHPCAR.lobster and ICOHPLIST.lobster are present -->
-> <!-- attribute: has_madelung
-> Boolean, indicates that SitePotentials.lobster and MadelungEnergies.lobster are present -->
-> <!-- attribute: has_coopcar
-> Boolean, indicates that COOPCAR.lobster and ICOOPLIST.lobster are present -->
-> <!-- attribute: has_cobicar
-> Boolean, indicates that COBICAR.lobster and ICOBILIST.lobster are present -->
-> <!-- attribute: has_doscar
-> Boolean, indicates that DOSCAR.lobster is present -->
-> <!-- attribute: has_doscar_lso
-> Boolean, indicates that DOSCAR.LSO.lobster is present -->
-> <!-- attribute: has_projection
-> Boolean, indicates that projectionData.lobster is present -->
-> <!-- attribute: has_bandoverlaps
-> Boolean, indicates that bandOverlaps.lobster is present -->
-> <!-- attribute: has_density_of_energies
-> Boolean, indicates that DensityOfEnergy.lobster is present -->
-> <!-- attribute: has_fatbands
-> Boolean, indicates that fatband calculation was performed -->
-> <!-- attribute: has_grosspopulation
-> Boolean, indicates that GROSSPOP.lobster is present -->
-> <!-- attribute: info_lines
-> string with additional infos on the run -->
-> <!-- attribute: info_orthonormalization
-> string with infos on orthonormalization -->
-> <!-- attribute: is_restart_from_projection
-> Boolean that indicates that calculation was restartet from existing projection file -->
-> <!-- attribute: lobster_version
-> string that indicates Lobster version -->
-> <!-- attribute: number_of_spins
-> Integer indicating the number of spins -->
-> <!-- attribute: number_of_threads
-> integer that indicates how many threads were used -->
-> <!-- attribute: timing
-> dict with infos on timing -->
-> <!-- attribute: total_spilling
-> list of values indicating the total spilling for spin channel 1 (and spin channel 2) -->
-> <!-- attribute: warning_lines
-> string with all warnings -->
+
+#### basis_functions()
+List of basis functions that were used in lobster run as strings.
+
+
+* **Type**
+
+    list[str]
+
+
+
+#### basis_type()
+List of basis type that were used in lobster run as strings.
+
+
+* **Type**
+
+    list[str]
+
+
+
+#### charge_spilling()
+List of charge spilling (first entry: result for spin 1,
+second entry: result for spin 2 or not present).
+
+
+* **Type**
+
+    list[float]
+
+
+
+#### dft_program()
+String representing the DFT program used for the calculation of the wave function.
+
+
+* **Type**
+
+    str
+
+
+
+#### elements()
+List of strings of elements that were present in lobster calculation.
+
+
+* **Type**
+
+    list[str]
+
+
+
+#### has_charge()
+Whether CHARGE.lobster is present.
+
+
+* **Type**
+
+    bool
+
+
+
+#### has_cohpcar()
+Whether COHPCAR.lobster and ICOHPLIST.lobster are present.
+
+
+* **Type**
+
+    bool
+
+
+
+#### has_madelung()
+Whether SitePotentials.lobster and MadelungEnergies.lobster are present.
+
+
+* **Type**
+
+    bool
+
+
+
+#### has_coopcar()
+Whether COOPCAR.lobster and ICOOPLIST.lobster are present.
+
+
+* **Type**
+
+    bool
+
+
+
+#### has_cobicar()
+Whether COBICAR.lobster and ICOBILIST.lobster are present.
+
+
+* **Type**
+
+    bool
+
+
+
+#### has_doscar()
+Whether DOSCAR.lobster is present.
+
+
+* **Type**
+
+    bool
+
+
+
+#### has_doscar_lso()
+Whether DOSCAR.LSO.lobster is present.
+
+
+* **Type**
+
+    bool
+
+
+
+#### has_projection()
+Whether projectionData.lobster is present.
+
+
+* **Type**
+
+    bool
+
+
+
+#### has_bandoverlaps()
+Whether bandOverlaps.lobster is present.
+
+
+* **Type**
+
+    bool
+
+
+
+#### has_density_of_energies()
+Whether DensityOfEnergy.lobster is present.
+
+
+* **Type**
+
+    bool
+
+
+
+#### has_fatbands()
+Whether fatband calculation was performed.
+
+
+* **Type**
+
+    bool
+
+
+
+#### has_grosspopulation()
+Whether GROSSPOP.lobster is present.
+
+
+* **Type**
+
+    bool
+
+
+
+#### info_lines()
+String with additional infos on the run.
+
+
+* **Type**
+
+    str
+
+
+
+#### info_orthonormalization()
+String with infos on orthonormalization.
+
+
+* **Type**
+
+    str
+
+
+
+#### is_restart_from_projection()
+Boolean that indicates that calculation was restarted
+from existing projection file.
+
+
+* **Type**
+
+    bool
+
+
+
+#### lobster_version()
+String that indicates Lobster version.
+
+
+* **Type**
+
+    str
+
+
+
+#### number_of_spins()
+Integer indicating the number of spins.
+
+
+* **Type**
+
+    int
+
+
+
+#### number_of_threads()
+Integer that indicates how many threads were used.
+
+
+* **Type**
+
+    int
+
+
+
+#### timing()
+Dictionary with infos on timing.
+
+
+* **Type**
+
+    dict[str, float]
+
+
+
+#### total_spilling()
+List of values indicating the total spilling for spin
+channel 1 (and spin channel 2).
+
+
+* **Type**
+
+    list[float]
+
+
+
+#### warning_lines()
+String with all warnings.
+
+
+* **Type**
+
+    str
+
+
 
 * **Parameters**
 
@@ -1413,12 +1981,36 @@ Bases: `object`
 
 Class to read MadelungEnergies.lobster files generated by LOBSTER.
 
-<!-- attribute: madelungenergies_Mulliken
-float that gives the madelung energy based on the Mulliken approach -->
-<!-- attribute: madelungenergies_Loewdin
-float that gives the madelung energy based on the Loewdin approach -->
-<!-- attribute: ewald_splitting
-Ewald Splitting parameter to compute SitePotentials -->
+
+#### madelungenergies_Mulliken()
+Float that gives the Madelung energy based on the Mulliken approach.
+
+
+* **Type**
+
+    float
+
+
+
+#### madelungenergies_Loewdin()
+Float that gives the Madelung energy based on the Loewdin approach.
+
+
+* **Type**
+
+    float
+
+
+
+#### ewald_splitting()
+Ewald splitting parameter to compute SitePotentials.
+
+
+* **Type**
+
+    float
+
+
 
 * **Parameters**
 
@@ -1431,22 +2023,86 @@ Bases: `object`
 
 Class to read SitePotentials.lobster files generated by LOBSTER.
 
-<!-- attribute: atomlist
-List of atoms in SitePotentials.lobster -->
-<!-- attribute: types
-List of types of atoms in SitePotentials.lobster -->
-<!-- attribute: num_atoms
-Number of atoms in SitePotentials.lobster -->
-<!-- attribute: sitepotentials_Mulliken
-List of Mulliken potentials of sites in SitePotentials.lobster -->
-<!-- attribute: sitepotentials_Loewdin
-List of Loewdin potentials of sites in SitePotentials.lobster -->
-<!-- attribute: madelung_Mulliken
-float that gives the madelung energy based on the Mulliken approach -->
-<!-- attribute: madelung_Loewdin
-float that gives the madelung energy based on the Loewdin approach -->
-<!-- attribute: ewald_splitting
-Ewald Splitting parameter to compute SitePotentials -->
+
+#### atomlist()
+List of atoms in SitePotentials.lobster.
+
+
+* **Type**
+
+    list[str]
+
+
+
+#### types()
+List of types of atoms in SitePotentials.lobster.
+
+
+* **Type**
+
+    list[str]
+
+
+
+#### num_atoms()
+Number of atoms in SitePotentials.lobster.
+
+
+* **Type**
+
+    int
+
+
+
+#### sitepotentials_Mulliken()
+List of Mulliken potentials of sites in SitePotentials.lobster.
+
+
+* **Type**
+
+    list[float]
+
+
+
+#### sitepotentials_Loewdin()
+List of Loewdin potentials of sites in SitePotentials.lobster.
+
+
+* **Type**
+
+    list[float]
+
+
+
+#### madelung_Mulliken()
+Float that gives the Madelung energy based on the Mulliken approach.
+
+
+* **Type**
+
+    float
+
+
+
+#### madelung_Loewdin()
+Float that gives the Madelung energy based on the Loewdin approach.
+
+
+* **Type**
+
+    float
+
+
+
+#### ewald_splitting()
+Ewald Splitting parameter to compute SitePotentials.
+
+
+* **Type**
+
+    float
+
+
 
 * **Parameters**
 
@@ -1456,7 +2112,12 @@ Ewald Splitting parameter to compute SitePotentials -->
 
 #### get_structure_with_site_potentials(structure_filename)
 Get a Structure with Mulliken and Loewdin charges as site properties
-:param structure_filename: filename of POSCAR
+
+
+* **Parameters**
+
+    **structure_filename** – filename of POSCAR
+
 
 
 * **Returns**
@@ -1470,21 +2131,56 @@ Bases: `object`
 
 Class to read in wave function files from Lobster and transfer them into an object of the type VolumetricData.
 
-<!-- attribute: grid
 
-grid for the wave function [Nx+1,Ny+1,Nz+1] -->
-<!-- attribute: points
+#### grid()
+Grid for the wave function [Nx+1,Ny+1,Nz+1].
 
-list of points -->
-<!-- attribute: real
 
-list of real part of wave function -->
-<!-- attribute: imaginary
+* **Type**
 
-list of imaginary part of wave function -->
-<!-- attribute: distance
+    tuple[int, int, int]
 
-list of distance to first point in wave function file -->
+
+
+#### points()
+List of points.
+
+
+* **Type**
+
+    list[Tuple[float, float, float]]
+
+
+
+#### real()
+List of real part of wave function.
+
+
+* **Type**
+
+    list[float]
+
+
+
+#### imaginary()
+List of imaginary part of wave function.
+
+
+* **Type**
+
+    list[float]
+
+
+
+#### distance()
+List of distance to first point in wave function file.
+
+
+* **Type**
+
+    list[float]
+
+
 
 * **Parameters**
 
@@ -1501,19 +2197,31 @@ list of distance to first point in wave function file -->
 #### get_volumetricdata_density()
 Will return a VolumetricData object including the imaginary part of the wave function.
 
-Returns: VolumetricData object
+
+* **Returns**
+
+    VolumetricData
+
 
 
 #### get_volumetricdata_imaginary()
 Will return a VolumetricData object including the imaginary part of the wave function.
 
-Returns: VolumetricData object
+
+* **Returns**
+
+    VolumetricData
+
 
 
 #### get_volumetricdata_real()
 Will return a VolumetricData object including the real part of the wave function.
 
-Returns: VolumetricData object
+
+* **Returns**
+
+    VolumetricData
+
 
 
 #### set_volumetric_data(grid, structure)
