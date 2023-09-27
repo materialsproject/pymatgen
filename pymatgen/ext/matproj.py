@@ -1671,7 +1671,7 @@ class _MPResterLegacy:
         return {"$or": list(map(parse_tok, tokens))}
 
 
-class _MPResterNewBasic:
+class _MPResterBasic:
     """
     A new MPRester that supports the new MP API. If you are getting your API key from the new dashboard of MP, you will
     need to use this instead of the original MPRester because the new API keys do not work with the old MP API (???!).
@@ -1712,10 +1712,12 @@ class _MPResterNewBasic:
             self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
 
     def __getattr__(self, item):
-        raise AttributeError(
-            f"{item} is not an attribute of this implementation of MPRester, which only supports functionality used "
-            f"by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api package."
-        )
+        if item in ("summary", "materials", "thermo"):
+            raise AttributeError(
+                f"{item} is not an attribute of this implementation of MPRester, which only supports functionality"
+                "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
+            )
+        super().__getattr__(item)
 
     def __enter__(self):
         """Support for "with" context."""
@@ -1993,9 +1995,8 @@ class MPRester:
 
         try:
             from mp_api.client import MPRester as _MPResterNew
-        except Exception as ex:
-            print(ex)
-            _MPResterNew = _MPResterNewBasic
+        except Exception:
+            _MPResterNew = _MPResterBasic
 
         rester = _MPResterNew if len(api_key) == 32 else _MPResterLegacy
 

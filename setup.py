@@ -34,7 +34,7 @@ setup(
         "matplotlib>=1.5",
         "monty>=3.0.2",
         "networkx>=2.2",
-        "numpy>=1.20.1",
+        "numpy>=1.25.0",
         "palettable>=3.1.1",
         "pandas",
         "plotly>=4.5.0",
