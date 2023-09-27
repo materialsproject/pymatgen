@@ -1037,7 +1037,7 @@ class TestPotcarSingle(unittest.TestCase):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
 
         psingle = PotcarSingle.from_file(filename)
-        matched_funcs = [refpsp["POTCAR_FUNCTIONAL"] for refpsp in psingle._matched_meta]
+        matched_funcs = [ref_psp["POTCAR_FUNCTIONAL"] for ref_psp in psingle._matched_meta]
         assert "PBE_54" in matched_funcs
         assert "Fe" in psingle._matched_meta[0]["TITEL"]
 

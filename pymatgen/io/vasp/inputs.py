@@ -732,8 +732,7 @@ class Incar(dict, MSONable):
         return self.get_str(sort_keys=True, pretty=False)
 
     def write_file(self, filename: PathLike):
-        """
-        Write Incar to a file.
+        """Write Incar to a file.
 
         Args:
             filename (str): filename to write to.
@@ -743,8 +742,7 @@ class Incar(dict, MSONable):
 
     @staticmethod
     def from_file(filename: PathLike) -> Incar:
-        """
-        Reads an Incar object from a file.
+        """Reads an Incar object from a file.
 
         Args:
             filename (str): Filename for file
@@ -762,8 +760,7 @@ class Incar(dict, MSONable):
 
     @staticmethod
     def from_str(string: str) -> Incar:
-        """
-        Reads an Incar object from a string.
+        """Reads an Incar object from a string.
 
         Args:
             string (str): Incar string
@@ -785,9 +782,7 @@ class Incar(dict, MSONable):
 
     @staticmethod
     def proc_val(key: str, val: Any):
-        """
-        Static helper method to convert INCAR parameters to proper types, e.g.,
-        integers, floats, lists, etc.
+        """Helper method to convert INCAR parameters to proper types like ints, floats, lists, etc.
 
         Args:
             key: INCAR parameter key
@@ -2230,7 +2225,7 @@ class PotcarSingle:
         self._matched_meta collects reference metadata that matched the input POTCAR data
         """
 
-        tol = 1.0e-6
+        tol = 1e-6
 
         functional_lexch = {
             "PE": ["PBE", "PBE_52", "PBE_54"],
@@ -2239,29 +2234,29 @@ class PotcarSingle:
         }
 
         possible_potcars = []
-        for afunc in functional_lexch.get(self.LEXCH, []):
-            for titel_no_spc in self.meta_db[afunc]:
+        for func in functional_lexch.get(self.LEXCH, []):
+            for titel_no_spc in self.meta_db[func]:
                 if (self.TITEL.replace(" ", "") == titel_no_spc) and (
-                    self.VRHFIN.replace(" ", "") == self.meta_db[afunc][titel_no_spc]["VRHFIN"]
+                    self.VRHFIN.replace(" ", "") == self.meta_db[func][titel_no_spc]["VRHFIN"]
                 ):
                     possible_potcars.append(
-                        {"POTCAR_FUNCTIONAL": afunc, "TITEL": titel_no_spc, **self.meta_db[afunc][titel_no_spc]}
+                        {"POTCAR_FUNCTIONAL": func, "TITEL": titel_no_spc, **self.meta_db[func][titel_no_spc]}
                     )
 
         psp_keys = []
         psp_vals = []
         for file_line in self.data.split("END of PSCTR-controll parameters\n")[1].split("\n"):
             single_line_rows = file_line.split(";")  # FORTRAN multiple lines in one, woot woot
-            for brow in single_line_rows:
-                tmpstr = ""
-                for _tmp_ in brow.split():
+            for row in single_line_rows:
+                tmp_str = ""
+                for _tmp_ in row.split():
                     parsed_val = self._str_to_py(_tmp_)
                     if isinstance(parsed_val, str):
-                        tmpstr += parsed_val.strip()
+                        tmp_str += parsed_val.strip()
                     elif isinstance(parsed_val, (float, int)):
                         psp_vals.append(parsed_val)
-                if len(tmpstr) > 0:
-                    psp_keys.append(tmpstr.lower())
+                if len(tmp_str) > 0:
+                    psp_keys.append(tmp_str.lower())
 
         psctr_vals = []
         for kwd in self.PSCTR:
