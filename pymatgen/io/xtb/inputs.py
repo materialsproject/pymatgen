@@ -55,7 +55,7 @@ class CRESTInput(MSONable):
 
     def write_input_files(self):
         """Write input files to working directory."""
-        self.molecule.to(filename=os.path.join(self.working_dir, self.coords_filename))
+        self.molecule.write_to_file(filename=os.path.join(self.working_dir, self.coords_filename))
         if self.constraints:
             constrains_string = self.constrains_template(
                 molecule=self.molecule,

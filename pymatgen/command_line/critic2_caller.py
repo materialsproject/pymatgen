@@ -222,7 +222,7 @@ class Critic2Caller:
         input_script = "\n".join(input_script)
 
         with ScratchDir("."):
-            structure.to(filename="POSCAR")
+            structure.write_to_file(filename="POSCAR")
 
             if chgcar and isinstance(chgcar, VolumetricData):
                 chgcar.write_file("int.CHGCAR")

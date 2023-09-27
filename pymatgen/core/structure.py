@@ -434,7 +434,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return np.min(all_dists) > tol
 
     @abstractmethod
-    def to(self, filename: str = "", fmt: str = "") -> str | None:
+    def write_to_file(self, filename: str = "", fmt: str = "") -> str | None:
         """Generates string representations (cif, json, poscar, ....) of SiteCollections (e.g.,
         molecules / structures). Should return str or None if written to a file.
         """
@@ -2613,7 +2613,7 @@ class IStructure(SiteCollection, MSONable):
         charge = d.get("charge")
         return cls.from_sites(sites, charge=charge, properties=d.get("properties"))
 
-    def to(self, filename: str = "", fmt: str = "", **kwargs) -> str:
+    def write_to_file(self, filename: str = "", fmt: str = "", **kwargs) -> str:
         """Outputs the structure to a file or string.
 
         Args:
@@ -3403,7 +3403,7 @@ class IMolecule(SiteCollection, MSONable):
             properties=self.properties,
         )
 
-    def to(self, filename: str = "", fmt: str = "") -> str | None:
+    def write_to_file(self, filename: str = "", fmt: str = "") -> str | None:
         """Outputs the molecule to a file or string.
 
         Args:

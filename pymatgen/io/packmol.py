@@ -203,7 +203,7 @@ class PackmolBoxGen(InputGenerator):
             elif isinstance(d["coords"], Molecule):
                 mol = d["coords"]
             fname = f"packmol_{d['name']}.xyz"
-            mapping.update({fname: mol.to(fmt="xyz")})
+            mapping.update({fname: mol.write_to_file(fmt="xyz")})
             if " " in str(fname):
                 # NOTE - double quotes are deliberately used inside the f-string here, do not change
                 # fmt: off

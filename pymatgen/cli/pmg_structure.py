@@ -27,7 +27,7 @@ def convert_fmt(args):
     if len(args.filenames) != 2:
         print("File format conversion takes in only two filenames.")
     struct = Structure.from_file(args.filenames[0], primitive="prim" in args.filenames[1].lower())
-    struct.to(filename=args.filenames[1])
+    struct.write_to_file(filename=args.filenames[1])
 
 
 def analyze_symmetry(args):

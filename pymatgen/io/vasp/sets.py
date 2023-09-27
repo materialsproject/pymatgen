@@ -180,7 +180,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         if include_cif:
             struct = vasp_input["POSCAR"].structure
             cif_name = f"{output_dir}/{struct.formula.replace(' ', '')}.cif"
-            struct.to(filename=cif_name)
+            struct.write_to_file(filename=cif_name)
 
         if zip_output:
             filename = type(self).__name__ + ".zip"
@@ -2528,7 +2528,7 @@ class MITNEBSet(DictSet):
                 d.mkdir(parents=True)
             p.write_file(str(d / "POSCAR"))
             if write_cif:
-                p.structure.to(filename=str(d / f"{i}.cif"))
+                p.structure.write_to_file(filename=str(d / f"{i}.cif"))
         if write_endpoint_inputs:
             end_point_param = MITRelaxSet(self.structures[0], user_incar_settings=self.user_incar_settings)
 
@@ -2542,7 +2542,7 @@ class MITNEBSet(DictSet):
             for site in chain(*(s.sites for s in self.structures)):
                 sites.add(PeriodicSite(site.species, site.frac_coords, lat))
             nebpath = Structure.from_sites(sorted(sites))
-            nebpath.to(filename=str(output_dir / "path.cif"))
+            nebpath.write_to_file(filename=str(output_dir / "path.cif"))
 
 
 class MITMDSet(DictSet):

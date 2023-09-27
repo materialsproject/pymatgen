@@ -494,7 +494,7 @@ class LobsterNeighbors(NearNeighbors):
         with tempfile.TemporaryDirectory() as t:
             path = f"{t}/POSCAR.vasp"
 
-            self.structure.to(filename=path, fmt="POSCAR")
+            self.structure.write_to_file(filename=path, fmt="POSCAR")
 
             if not hasattr(self, "completecohp"):
                 self.completecohp = CompleteCohp.from_file(
