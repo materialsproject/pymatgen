@@ -1075,7 +1075,7 @@ class TestPotcarSingle(unittest.TestCase):
             if hasattr(psingle, "hash_sha256_from_file"):
                 assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
             else:
-                assert psingle.is_valid()
+                assert psingle.is_valid
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")

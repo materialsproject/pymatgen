@@ -1795,7 +1795,7 @@ class PotcarSingle:
             self.hash_sha256_computed = self.get_sha256_file_hash()
             sha256_pass = self.hash_sha256_from_file == self.hash_sha256_computed
 
-        if not has_sha256 and not self.is_valid():
+        if not has_sha256 and not self.is_valid:
             warnings.warn(
                 f"POTCAR data with symbol {self.symbol} does not match any VASP\n"
                 "POTCAR known to pymatgen. There is a possibility your\n"
@@ -2186,6 +2186,7 @@ class PotcarSingle:
         except ValueError:
             return input_str
 
+    @property
     def is_valid(self) -> bool:
         """
         Check that POTCAR matches reference metadata.
