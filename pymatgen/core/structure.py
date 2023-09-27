@@ -2714,9 +2714,7 @@ class IStructure(SiteCollection, MSONable):
         return str(writer)
 
     def to_file(self, filename: str = "", fmt: str = "", **kwargs) -> str:
-        """
-        An alias for .to() for more user-friendliness
-        """
+        """An alias for .to() for more user-friendliness."""
         return self.to(filename, fmt, **kwargs)
 
     @classmethod
@@ -3463,9 +3461,7 @@ class IMolecule(SiteCollection, MSONable):
         return str(writer)
 
     def to_file(self, filename: str = "", fmt: str = "") -> str | None:
-        """
-        An alias for .to() for more user-friendliness
-        """
+        """An alias for .to() for more user-friendliness."""
         return self.to(filename, fmt)
 
     @classmethod
