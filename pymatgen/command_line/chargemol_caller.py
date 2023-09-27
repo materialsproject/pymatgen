@@ -92,13 +92,9 @@ class ChargemolAnalysis:
         """
         if not path:
             path = os.getcwd()
-        if run_chargemol and not (
-            which("Chargemol_09_26_2017_linux_parallel")
-            or which("Chargemol_09_26_2017_linux_serial")
-            or which("chargemol"),
-        ):
+        if run_chargemol and not CHARGEMOL_EXE:
             raise OSError(
-                "ChargemolAnalysis requires the Chargemol executable to be in the path."
+                "ChargemolAnalysis requires the Chargemol executable to be in PATH."
                 " Please download the library at https://sourceforge.net/projects/ddec/files"
                 "and follow the instructions."
             )
