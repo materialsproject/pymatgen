@@ -1034,15 +1034,21 @@ class TestPotcarSingle(unittest.TestCase):
         assert self.psingle.symbol == "Mn_pv"
 
     def test_is_valid(self):
-        good_Fe_psp_filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
-        bad_Fe_psp_filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_broken.gz"
+        Fe_psp_path = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
 
-        psingle_good = PotcarSingle.from_file(good_Fe_psp_filename)
-        assert psingle_good.is_valid
+        psingle = PotcarSingle.from_file(Fe_psp_path)
+        assert psingle.is_valid
 
-        # same POTCAR as before, but RCORE changed from 2.300 to 2.299
-        psingle_bad_rcore = PotcarSingle.from_file(bad_Fe_psp_filename)
-        assert not psingle_bad_rcore.is_valid
+        # corrupt the file
+        assert psingle.keywords["RCORE"] == 2.3
+        psingle.keywords["RCORE"] = 2.2
+        assert not psingle.is_valid
+
+        psingle.keywords.pop("RCORE")
+        assert not psingle.is_valid
+
+        psingle.data = psingle.data.replace("RCORE  =    2.300", "RCORE  =    2.200")
+        assert not psingle.is_valid
 
     def test_unknown_potcar_warning(self):
         filename = f"{TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
