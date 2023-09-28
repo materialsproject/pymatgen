@@ -55,11 +55,6 @@ class AseAtomsAdaptor:
         Returns:
             Atoms: ASE Atoms object
         """
-        if not ase_loaded:
-            raise ImportError(
-                "AseAtomsAdaptor requires the ASE package.\n"
-                "Use `pip install ase` or `conda install ase -c conda-forge`"
-            )
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
 
