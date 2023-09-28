@@ -998,9 +998,6 @@ class TestPotcarSingle(unittest.TestCase):
         with pytest.raises(ValueError, match="could not convert string to float"):
             PotcarSingle.parse_functions["ENMAX"]("this should be a float")
 
-    def test_hash(self):
-        assert self.psingle_Mn_pv.get_potcar_hash() == "fa52f891f234d49bb4cb5ea96aae8f98"
-
     def test_functional_types(self):
         assert self.psingle_Mn_pv.functional == "PBE"
 
@@ -1085,6 +1082,18 @@ class TestPotcarSingle(unittest.TestCase):
             == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000',"
             " VRHFIN='Mn: 3p4s3d', n_valence_elec=13)"
         )
+
+    def test_hash(self):
+        assert self.psingle_Mn_pv.potcar_hash == "fa52f891f234d49bb4cb5ea96aae8f98"
+        assert self.psingle_Fe.potcar_hash == "9530da8244e4dac17580869b4adab115"
+
+    def test_potcar_file_hash(self):
+        assert self.psingle_Mn_pv.potcar_file_hash == "f2fb52af9afe1b1c8571f5383d9ee13d"
+        assert self.psingle_Fe.potcar_file_hash == "e22e63251023983eedc527e095050ae0"
+
+    def test_sha256_file_hash(self):
+        assert self.psingle_Mn_pv.sha256_file_hash == "09fb1f012264c0e93524775af8f2b3cf58daa4b01b7c7c9f4324742358553fb0"
+        assert self.psingle_Fe.sha256_file_hash == "ce7d4b7964a67af533b56dc0cea7cb5e527820837eeb5984f3fc3f958acda36c"
 
 
 class TestPotcar(PymatgenTest):
