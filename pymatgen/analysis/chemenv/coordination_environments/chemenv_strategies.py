@@ -1050,7 +1050,7 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
         max_csm=5.0,
         symmetry_measure_type=AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE,
     ):
-        """Initializes strategy.
+        """Initialize strategy.
 
         Not yet implemented.
         :param structure_environments:
@@ -1928,9 +1928,6 @@ class CNBiasNbSetWeight(NbSetWeight):
 
         return self.cn_weights == other.cn_weights and self.initialization_options == other.initialization_options
 
-    def __ne__(self, other):
-        return not self == other
-
     def as_dict(self):
         """MSONable dict."""
         return {
@@ -1956,7 +1953,7 @@ class CNBiasNbSetWeight(NbSetWeight):
 
     @classmethod
     def linearly_equidistant(cls, weight_cn1, weight_cn13):
-        """Initializes linearly equidistant weights for each coordination.
+        """Initialize linearly equidistant weights for each coordination.
 
         :param weight_cn1: Weight of coordination 1.
         :param weight_cn13: Weight of coordination 13.
@@ -1975,7 +1972,7 @@ class CNBiasNbSetWeight(NbSetWeight):
 
     @classmethod
     def geometrically_equidistant(cls, weight_cn1, weight_cn13):
-        """Initializes geometrically equidistant weights for each coordination.
+        """Initialize geometrically equidistant weights for each coordination.
 
         :param weight_cn1: Weight of coordination 1.
         :param weight_cn13: Weight of coordination 13.
@@ -1994,7 +1991,7 @@ class CNBiasNbSetWeight(NbSetWeight):
 
     @classmethod
     def explicit(cls, cn_weights):
-        """Initializes weights explicitly for each coordination.
+        """Initialize weights explicitly for each coordination.
 
         :param cn_weights: Weights for each coordination.
 
@@ -2008,7 +2005,7 @@ class CNBiasNbSetWeight(NbSetWeight):
 
     @classmethod
     def from_description(cls, dct):
-        """Initializes weights from description.
+        """Initialize weights from description.
 
         :param dct: Dictionary description.
 
@@ -2225,9 +2222,6 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
             and self.additional_condition == other.additional_condition
         )
 
-    def __ne__(self, other):
-        return not self == other
-
     def as_dict(self):
         """MSONable dict."""
         return {
@@ -2298,9 +2292,6 @@ class DistancePlateauNbSetWeight(NbSetWeight):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, type(self))
 
-    def __ne__(self, other):
-        return not self == other
-
     def as_dict(self):
         """MSONable dict."""
         return {
@@ -2364,9 +2355,6 @@ class AnglePlateauNbSetWeight(NbSetWeight):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, type(self))
-
-    def __ne__(self, other):
-        return not self == other
 
     def as_dict(self):
         """MSONable dict."""
@@ -2445,9 +2433,6 @@ class DistanceNbSetWeight(NbSetWeight):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, type(self))
-
-    def __ne__(self, other):
-        return not self == other
 
     def as_dict(self):
         """MSOnable dict."""
@@ -2529,9 +2514,6 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, type(self))
-
-    def __ne__(self, other):
-        return not self == other
 
     def as_dict(self):
         """MSONable dict."""
@@ -2813,9 +2795,6 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
             and self.ce_estimator == other.ce_estimator
         )
 
-    def __ne__(self, other):
-        return not self == other
-
     def as_dict(self):
         """
         Bson-serializable dict representation of the WeightedNbSetChemenvStrategy object.
@@ -2981,9 +2960,6 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
             and self.normalized_angle_distance_weight == other.normalized_angle_distance_weight
             and self.ce_estimator == other.ce_estimator
         )
-
-    def __ne__(self, other):
-        return not self == other
 
     def as_dict(self):
         """
