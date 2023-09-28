@@ -222,7 +222,7 @@ class AseAtomsAdaptor:
 
         # Atoms.info <---> Structure.properties
         # But first make sure `spacegroup` is JSON serializable
-        if atoms.info.get("spacegroup"):
+        if atoms.info.get("spacegroup") and isinstance(atoms.info["spacegroup"], Spacegroup):
             atoms.info["spacegroup"] = atoms.info["spacegroup"].todict()
         properties = getattr(atoms, "info", {})
 
