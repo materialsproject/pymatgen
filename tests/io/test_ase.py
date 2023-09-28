@@ -228,7 +228,7 @@ class TestAseAtomsAdaptor:
         assert molecule.charge == 2
         assert molecule.spin_multiplicity == 3
 
-    @pytest.mark.parametrize("structure_file", ["OUTCAR", "V2O3.cif"], indirect=True)
+    @pytest.mark.parametrize("structure_file", ["OUTCAR", "V2O3.cif"])
     def test_back_forth(self, structure_file):
         from ase.constraints import FixAtoms
         from ase.io import read
