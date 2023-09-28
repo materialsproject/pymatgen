@@ -21,7 +21,7 @@ import os
 import warnings
 from functools import reduce
 from math import gcd
-from typing import Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.fractions import lcm
@@ -36,6 +36,9 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from pymatgen.symmetry.groups import CrystalSystem
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 
@@ -64,19 +67,10 @@ class Slab(Structure):
     surface plane and the c vector is out of the surface plane (though not
     necessarily perpendicular to the surface).
 
-    .. attribute:: miller_index
-
-        Miller index of plane parallel to surface.
-
-    .. attribute:: scale_factor
-
-        Final computed scale factor that brings the parent cell to the
-        surface cell.
-
-    .. attribute:: shift
-
-        The shift value in Angstrom that indicates how much this
-        slab has been shifted.
+    Attributes:
+        miller_index (tuple): Miller index of plane parallel to surface.
+        scale_factor (float): Final computed scale factor that brings the parent cell to the surface cell.
+        shift (float): The shift value in Angstrom that indicates how much this slab has been shifted.
     """
 
     def __init__(
@@ -102,7 +96,7 @@ class Slab(Structure):
 
         Args:
             lattice (Lattice/3x3 array): The lattice, either as a
-                :class:`pymatgen.core.lattice.Lattice` or
+                pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -116,8 +110,7 @@ class Slab(Structure):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            coords (Nx3 array): list of fractional/cartesian coordinates of
-                each species.
+            coords (Nx3 array): list of fractional/cartesian coordinates of each species.
             miller_index ([h, k, l]): Miller index of plane parallel to
                 surface. Note that this is referenced to the input structure. If
                 you need this to be based on the conventional cell,
@@ -485,16 +478,16 @@ class Slab(Structure):
 
     def as_dict(self):
         """MSONable dict."""
-        d = super().as_dict()
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
-        d["miller_index"] = self.miller_index
-        d["shift"] = self.shift
-        d["scale_factor"] = self.scale_factor.tolist()
-        d["reconstruction"] = self.reconstruction
-        d["energy"] = self.energy
-        return d
+        dct = super().as_dict()
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
+        dct["miller_index"] = self.miller_index
+        dct["shift"] = self.shift
+        dct["scale_factor"] = self.scale_factor.tolist()
+        dct["reconstruction"] = self.reconstruction
+        dct["energy"] = self.energy
+        return dct
 
     @classmethod
     def from_dict(cls, d):
@@ -707,41 +700,17 @@ class SlabGenerator:
     termination doesn't break a polyhedral bond. The shift value then indicates
     where the slab layer will begin and terminate in the slab-vacuum system.
 
-    .. attribute:: oriented_unit_cell
-
-        A unit cell of the parent structure with the miller
-        index of plane parallel to surface
-
-    .. attribute:: parent
-
-        Parent structure from which Slab was derived.
-
-    .. attribute:: lll_reduce
-
-        Whether or not the slabs will be orthogonalized
-
-    .. attribute:: center_slab
-
-        Whether or not the slabs will be centered between
-        the vacuum layer
-
-    .. attribute:: slab_scale_factor
-
-        Final computed scale factor that brings the parent cell to the
-        surface cell.
-
-    .. attribute:: miller_index
-
-        Miller index of plane parallel to surface.
-
-    .. attribute:: min_slab_size
-
-        Minimum size in angstroms of layers containing atoms
-
-    .. attribute:: min_vac_size
-
-        Minimize size in angstroms of layers containing vacuum
-
+    Attributes:
+        oriented_unit_cell (Structure): A unit cell of the parent structure with the miller
+            index of plane parallel to surface.
+        parent (Structure): Parent structure from which Slab was derived.
+        lll_reduce (bool): Whether or not the slabs will be orthogonalized.
+        center_slab (bool): Whether or not the slabs will be centered between the vacuum layer.
+        slab_scale_factor (float): Final computed scale factor that brings the parent cell to the
+            surface cell.
+        miller_index (tuple): Miller index of plane parallel to surface.
+        min_slab_size (float): Minimum size in angstroms of layers containing atoms.
+        min_vac_size (float): Minimum size in angstroms of layers containing vacuum.
     """
 
     def __init__(
@@ -1321,29 +1290,17 @@ class ReconstructionGenerator:
     then use the formatted instructions provided by the dictionary to build
     the desired reconstructed slab from the initial structure.
 
-    .. attribute:: slabgen_params
-
-        Parameters for the SlabGenerator
-
-    .. trans_matrix::
-
-        A 3x3 transformation matrix to generate the reconstructed
-            slab. Only the a and b lattice vectors are actually
-            changed while the c vector remains the same. This
-            matrix is what the Wood's notation is based on.
-
-    .. reconstruction_json::
-
-        The full json or dictionary containing the instructions
-            for building the reconstructed slab
-
-    .. termination::
-
-        The index of the termination of the slab
+    Attributes:
+        slabgen_params (dict): Parameters for the SlabGenerator.
+        trans_matrix (np.ndarray): A 3x3 transformation matrix to generate the reconstructed
+            slab. Only the a and b lattice vectors are actually changed while the c vector remains
+            the same. This matrix is what the Wood's notation is based on.
+        reconstruction_json (dict): The full json or dictionary containing the instructions for
+            building the reconstructed slab.
+        termination (int): The index of the termination of the slab.
 
     Todo:
-    - Right now there is no way to specify what atom is being
-        added. In the future, use basis sets?
+        - Right now there is no way to specify what atom is being added. In the future, use basis sets?
     """
 
     def __init__(self, initial_structure, min_slab_size, min_vacuum_size, reconstruction_name):
@@ -1566,8 +1523,7 @@ def get_symmetrically_equivalent_miller_indices(
     structure,
     miller_index,
     return_hkil=True,
-    system: Literal["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"]
-    | None = None,
+    system: CrystalSystem | None = None,
 ):
     """Returns all symmetrically equivalent indices for a given structure. Analysis
     is based on the symmetry of the reciprocal lattice of the structure.
@@ -1584,8 +1540,8 @@ def get_symmetrically_equivalent_miller_indices(
     # Change to hkl if hkil because in_coord_list only handles tuples of 3
     miller_index = (miller_index[0], miller_index[1], miller_index[3]) if len(miller_index) == 4 else miller_index
     mmi = max(np.abs(miller_index))
-    r = list(range(-mmi, mmi + 1))
-    r.reverse()
+    rng = list(range(-mmi, mmi + 1))
+    rng.reverse()
 
     sg = None
     if not system:
@@ -1602,7 +1558,7 @@ def get_symmetrically_equivalent_miller_indices(
         symm_ops = structure.lattice.get_recp_symmetry_operation()
 
     equivalent_millers = [miller_index]
-    for miller in itertools.product(r, r, r):
+    for miller in itertools.product(rng, rng, rng):
         if miller == miller_index:
             continue
         if any(i != 0 for i in miller):

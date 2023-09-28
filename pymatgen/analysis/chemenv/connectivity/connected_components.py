@@ -27,9 +27,6 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         ax: Axes object in which the network should be drawn.
         sg: Not used currently (drawing of supergraphs).
         periodicity_vectors: List of periodicity vectors that should be drawn.
-
-    Returns: None
-
     """
     for n in env_graph:
         c = Circle(pos[n], radius=0.02, alpha=0.5)
@@ -124,18 +121,18 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
 
 
 def make_supergraph(graph, multiplicity, periodicity_vectors):
-    """Make supergraph from a graph of environments.
+    """Make super graph from a graph of environments.
 
     Args:
         graph: Graph of environments.
-        multiplicity: Multiplicity of the supergraph.
-        periodicity_vectors: Periodicity vectors needed to make the supergraph.
+        multiplicity: Multiplicity of the super graph.
+        periodicity_vectors: Periodicity vectors needed to make the super graph.
 
-    Returns: Super graph of the environments.
-
+    Returns:
+        nx.MultiGraph: Super graph of the environments.
     """
-    supergraph = nx.MultiGraph()
-    print("peridoicity vectors :")
+    super_graph = nx.MultiGraph()
+    print("periodicity vectors :")
     print(periodicity_vectors)
     if isinstance(multiplicity, int) or len(multiplicity) == 1:
         mult = multiplicity if isinstance(multiplicity, int) else multiplicity[0]
@@ -173,25 +170,25 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                 new_data = dict(data)
                 new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
                 new_data["end"] = (imult * len(nodes)) + indices_nodes[n2]
-                supergraph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
+                super_graph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
             for n1, n2, key, data in connecting_edges:
                 new_data = dict(data)
                 new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
                 new_data["end"] = np.mod(((imult + 1) * len(nodes)) + indices_nodes[n2], len(nodes) * mult)
                 new_data["delta"] = (0, 0, 0)
-                supergraph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
+                super_graph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
         imult = mult - 1
         for n1, n2, key, data in other_edges:
             new_data = dict(data)
             new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
             new_data["end"] = (imult * len(nodes)) + indices_nodes[n2]
-            supergraph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
+            super_graph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
         for n1, n2, key, data in connecting_edges:
             new_data = dict(data)
             new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
             new_data["end"] = indices_nodes[n2]
-            supergraph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
-        return supergraph
+            super_graph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
+        return super_graph
 
     raise NotImplementedError("make_supergraph not yet implemented for 2- and 3-periodic graphs")
 
@@ -367,8 +364,8 @@ class ConnectedComponent(MSONable):
             if coordination == "number":
                 cseq[path_len] = len(current_ends)
             elif coordination == "env:number":
-                myenvs = [myend.coordination_environment for myend, _ in current_ends]
-                cseq[path_len] = {myenv: myenvs.count(myenv) for myenv in set(myenvs)}
+                envs = [end.coordination_environment for end, _ in current_ends]
+                cseq[path_len] = {env: envs.count(env) for env in set(envs)}
             else:
                 raise ValueError(f"Coordination type {coordination!r} is not valid for coordination_sequence.")
         return cseq
@@ -395,7 +392,7 @@ class ConnectedComponent(MSONable):
         """Get the periodicity vectors of the connected component."""
         self_loop_nodes = list(nx.nodes_with_selfloops(self._connected_subgraph))
         all_nodes_independent_cell_image_vectors = []
-        my_simple_graph = nx.Graph(self._connected_subgraph)
+        simple_graph = nx.Graph(self._connected_subgraph)
         for test_node in self._connected_subgraph.nodes():
             # TODO: do we need to go through all test nodes ?
             this_node_cell_img_vectors = []
@@ -412,7 +409,7 @@ class ConnectedComponent(MSONable):
             # because otherwise, the all_simple_paths algorithm fail when the source node is equal to the target node.
             paths = []
             # TODO: its probably possible to do just a dfs or bfs traversal instead of taking all simple paths!
-            test_node_neighbors = my_simple_graph.neighbors(test_node)
+            test_node_neighbors = simple_graph.neighbors(test_node)
             break_node_loop = False
             for test_node_neighbor in test_node_neighbors:
                 # Special case for two nodes
@@ -430,7 +427,7 @@ class ConnectedComponent(MSONable):
                     if len(this_node_cell_img_vectors) == 3:
                         break
                 for path in nx.all_simple_paths(
-                    my_simple_graph,
+                    simple_graph,
                     test_node,
                     test_node_neighbor,
                     cutoff=len(self._connected_subgraph),
@@ -478,8 +475,8 @@ class ConnectedComponent(MSONable):
 
     def compute_periodicity_cycle_basis(self) -> None:
         """Compute periodicity vectors of the connected component."""
-        my_simple_graph = nx.Graph(self._connected_subgraph)
-        cycles = nx.cycle_basis(my_simple_graph)
+        simple_graph = nx.Graph(self._connected_subgraph)
+        cycles = nx.cycle_basis(simple_graph)
         all_deltas: list[list] = []
         for cyc in map(list, cycles):
             cyc.append(cyc[0])
@@ -496,7 +493,7 @@ class ConnectedComponent(MSONable):
             if len(all_deltas) == 3:
                 return
         # One has to consider pairs of nodes with parallel edges (these are not considered in the simple graph cycles)
-        edges = my_simple_graph.edges()
+        edges = simple_graph.edges()
         for n1, n2 in edges:
             if n1 == n2:
                 continue
@@ -720,13 +717,13 @@ class ConnectedComponent(MSONable):
                     logging.debug("          Edge outside the cell ... getting neighbor back inside")
                     if (0, 0, 0) in ddeltas:
                         ddeltas.remove((0, 0, 0))
-                    myddelta = np.array(ddeltas[0], int)
+                    d_delta = np.array(ddeltas[0], int)
                     node_neighbor_edges = centered_connected_subgraph.edges(
                         nbunch=[node_neighbor], data=True, keys=True
                     )
                     logging.debug(
                         f"            Delta image from {node=} to {node_neighbor=} : "
-                        f"({', '.join(map(str, myddelta))})"
+                        f"({', '.join(map(str, d_delta))})"
                     )
                     # Loop on the edges of this neighbor
                     for n1, n2, key, edata in node_neighbor_edges:
@@ -735,11 +732,11 @@ class ConnectedComponent(MSONable):
                         ):
                             if edata["start"] == node_neighbor.isite and edata["end"] != node_neighbor.isite:
                                 centered_connected_subgraph[n1][n2][key]["delta"] = tuple(
-                                    np.array(edata["delta"], int) + myddelta
+                                    np.array(edata["delta"], int) + d_delta
                                 )
                             elif edata["end"] == node_neighbor.isite:
                                 centered_connected_subgraph[n1][n2][key]["delta"] = tuple(
-                                    np.array(edata["delta"], int) - myddelta
+                                    np.array(edata["delta"], int) - d_delta
                                 )
                             else:
                                 raise ValueError("DUHH")

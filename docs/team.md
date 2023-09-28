@@ -58,7 +58,7 @@ If you've contributed but your name is missing from this list, please let us kno
 | **Alex Dunn**             | Lawrence Berkeley National Laboratory; University of California, Berkeley                                       | ardunn [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:ardunn)                           | [0000-0002-8567-1879 ![orcid logo]](https://orcid.org/0000-0002-8567-1879) |
 | **Alex Epstein**          | University of California, Berkeley; Lawrence Berkeley National Laboratory                                       | arepstein [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:arepstein)                     | [0000-0002-9914-2388 ![orcid logo]](https://orcid.org/0000-0002-9914-2388) |
 | **Alexander Bonkowski**   | RWTH Aachen University; Université catholique de Louvain                                                        | ab5424 [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:ab5424)                           | [0000-0002-0525-4742 ![orcid logo]](https://orcid.org/0000-0002-0525-4742) |
-| **Andrew Rosen**          | Department of Chemical & Biological Engineering, Northwestern University                                        | arosen93 [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:arosen93)                       | [0000-0002-0141-7006 ![orcid logo]](https://orcid.org/0000-0002-0141-7006) |
+| **Andrew Rosen**          | Department of Chemical & Biological Engineering, Princeton University                                           | Andrew-S-Rosen [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:Andrew-S-Rosen)           | [0000-0002-0141-7006 ![orcid logo]](https://orcid.org/0000-0002-0141-7006) |
 | **Ann Rutt**              | University of California Berkeley                                                                               | acrutt [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:acrutt)                           | [0000-0001-6534-454X ![orcid logo]](https://orcid.org/0000-0001-6534-454X) |
 | **Benjamin J. Morgan**    | University of Bath                                                                                              | bjmorgan [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:bjmorgan)                       | [0000-0002-3056-8233 ![orcid logo]](https://orcid.org/0000-0002-3056-8233) |
 | **Brandon M. Wood**       | Lawrence Berkeley National Laboratory                                                                           | wood-b [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:wood-b)                           | [0000-0002-7251-337X ![orcid logo]](https://orcid.org/0000-0002-7251-337X) |
@@ -97,6 +97,7 @@ If you've contributed but your name is missing from this list, please let us kno
 | **Yu Kumagai**            | Tokyo Institute of Technology                                                                                   | yuuukuma [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:yuuukuma)                       | [0000-0003-0489-8148 ![orcid logo]](https://orcid.org/0000-0003-0489-8148) |
 | **Yuh-Chieh Lin**         | TSMC                                                                                                            | random-var-x [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:random-var-x)               |                                                                            |
 | **Zachary M Gibbs**       | California Institute of Technology                                                                              | zacharygibbs [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:zacharygibbs)               |                                                                            |
+| **Aakash Naik**           | Federal Institute for Materials Research and Testing (BAM), Berlin, Germany.                                    | naik-aakash [![github logo]](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:naik-aakash)                 | [0000-0002-6071-6786 ![orcid logo]](https://orcid.org/0000-0002-6071-6786) |
 
 ### < 1 year active
 
@@ -252,6 +253,5 @@ These are developers who have contributed via GitHub but have not filled out the
 [YunxingZuo]: https://github.com/YunxingZuo
 [Zhuoying]: https://github.com/Zhuoying
 [zooks97]: https://github.com/zooks97
-
 [github logo]: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
 [orcid logo]: assets/orcid.svg

@@ -51,7 +51,7 @@ class PDEntry(Entry):
     Attributes:
         composition (Composition): The composition associated with the PDEntry.
         energy (float): The energy associated with the entry.
-        name (str):  A name for the entry. This is the string shown in the phase diagrams.
+        name (str): A name for the entry. This is the string shown in the phase diagrams.
             By default, this is the reduced formula for the composition, but can be
             set to some other string for display purposes.
         attribute (MSONable): A arbitrary attribute. Can be used to specify that the
@@ -1476,7 +1476,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
             entries ([PDEntry]): Sequence of input entries. For example,
                if you want a Li2O-P2O5 phase diagram, you might have all
                Li-P-O entries as an input.
-            terminal_compositions ([Composition]): Terminal compositions of
+            terminal_compositions (list[Composition]): Terminal compositions of
                 phase space. In the Li2O-P2O5 example, these will be the
                 Li2O and P2O5 compositions.
             normalize_terminal_compositions (bool): Whether to normalize the
@@ -2308,17 +2308,17 @@ class PDPlotter:
         profile steps you want to show label in the plot.
 
         Args:
-         element (Element): An element of which the chemical potential is
-            considered. It also must be in the phase diagram.
-         comp (Composition): A composition.
-         show_label_index (list of integers): The labels for reaction products
-            you want to show in the plot. Default to None (not showing any
-            annotation for reaction products). For the profile steps you want
-            to show the labels, just add it to the show_label_index. The
-            profile step counts from zero. For example, you can set
-            show_label_index=[0, 2, 5] to label profile step 0,2,5.
-         xlim (float): The max x value. x value is from 0 to xlim. Default to
-            5 eV.
+            element (Element): An element of which the chemical potential is
+                considered. It also must be in the phase diagram.
+            comp (Composition): A composition.
+            show_label_index (list of integers): The labels for reaction products
+                you want to show in the plot. Default to None (not showing any
+                annotation for reaction products). For the profile steps you want
+                to show the labels, just add it to the show_label_index. The
+                profile step counts from zero. For example, you can set
+                show_label_index=[0, 2, 5] to label profile step 0,2,5.
+            xlim (float): The max x value. x value is from 0 to xlim. Default to
+                5 eV.
 
         Returns:
             Plot of element profile evolution by varying the chemical potential
@@ -2978,8 +2978,7 @@ class PDPlotter:
         """
 
         def get_marker_props(coords, entries):
-            """
-            Method for getting marker locations, hovertext, and error bars
+            """Method for getting marker locations, hovertext, and error bars
             from pd_plot_data.
             """
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
@@ -3566,13 +3565,8 @@ class PDPlotter:
             if energy_colormap == "default":
                 mid = -vmin / (vmax - vmin)
                 cmap = LinearSegmentedColormap.from_list(
-                    "my_colormap",
-                    [
-                        (0.0, "#005500"),
-                        (mid, "#55FF55"),
-                        (mid, "#FFAAAA"),
-                        (1.0, "#FF0000"),
-                    ],
+                    "custom_colormap",
+                    [(0.0, "#005500"), (mid, "#55FF55"), (mid, "#FFAAAA"), (1.0, "#FF0000")],
                 )
             else:
                 cmap = energy_colormap
@@ -3793,9 +3787,9 @@ def triangular_coord(coord):
     Returns:
         coordinates in a triangular-based coordinate system.
     """
-    unitvec = np.array([[1, 0], [0.5, math.sqrt(3) / 2]])
+    unit_vec = np.array([[1, 0], [0.5, math.sqrt(3) / 2]])
 
-    result = np.dot(np.array(coord), unitvec)
+    result = np.dot(np.array(coord), unit_vec)
     return result.transpose()
 
 

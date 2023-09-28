@@ -1,7 +1,4 @@
-"""Module contains classes presenting Element, Species (Element + oxidation state) and PeriodicTable.
-
-It should be noted that Element and Species are meant to be immutable objects.
-"""
+"""Classes representing Element, Species (Element + oxidation state) and PeriodicTable."""
 
 from __future__ import annotations
 
@@ -53,161 +50,65 @@ class ElementBase(Enum):
         Args:
             symbol (str): Element symbol, e.g., "H", "Fe"
 
-        .. attribute:: Z
-
-            Atomic number
-
-        .. attribute:: symbol
-
-            Element symbol
-
-        .. attribute:: long_name
-
-           Long name for element. E.g., "Hydrogen".
-
-        .. attribute:: atomic_radius_calculated
-
-            Calculated atomic radius for the element. This is the empirical value.
-            Data is obtained from
-            http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
-
-        .. attribute:: van_der_waals_radius
-
-            Van der Waals radius for the element. This is the empirical
-            value determined from critical reviews of X-ray diffraction, gas kinetic
-            collision cross-section, and other experimental data by Bondi and later
-            workers. The uncertainty in these values is on the order of 0.1 Å.
-
-            Data are obtained from
-
-            "Atomic Radii of the Elements" in CRC Handbook of Chemistry and Physics,
+        Attributes:
+            Z (int): Atomic number.
+            symbol (str): Element symbol.
+            long_name (str): Long name for element. E.g., "Hydrogen".
+            atomic_radius_calculated (float): Calculated atomic radius for the element. This is the empirical value.
+                Data is obtained from http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+            van_der_waals_radius (float): Van der Waals radius for the element. This is the empirical value determined
+                from critical reviews of X-ray diffraction, gas kinetic collision cross-section, and other experimental
+                data by Bondi and later workers. The uncertainty in these values is on the order of 0.1 Å.
+                Data are obtained from "Atomic Radii of the Elements" in CRC Handbook of Chemistry and Physics,
                 91st Ed.; Haynes, W.M., Ed.; CRC Press: Boca Raton, FL, 2010.
-
-        .. attribute:: mendeleev_no
-
-            Mendeleev number from definition given by Pettifor, D. G. (1984).
-            A chemical scale for crystal-structure maps. Solid State Communications,
-            51 (1), 31-34
-
-        .. attribute:: electrical_resistivity
-
-            Electrical resistivity
-
-        .. attribute:: velocity_of_sound
-
-            Velocity of sound
-
-        .. attribute:: reflectivity
-
-            Reflectivity
-
-        .. attribute:: refractive_index
-
-            Refractice index
-
-        .. attribute:: poissons_ratio
-
-            Poisson's ratio
-
-        .. attribute:: molar_volume
-
-            Molar volume
-
-        .. attribute:: electronic_structure
-
-            Electronic structure.
-            E.g., The electronic structure for Fe is represented as
-            [Ar].3d6.4s2
-
-        .. attribute:: atomic_orbitals
-
-            Atomic Orbitals. Energy of the atomic orbitals as a dict.
-            E.g., The orbitals energies in eV are represented as
-            {'1s': -1.0, '2s': -0.1}
-            Data is obtained from
-            https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
-            The LDA values for neutral atoms are used
-
-        .. attribute:: thermal_conductivity
-
-            Thermal conductivity
-
-        .. attribute:: boiling_point
-
-            Boiling point
-
-        .. attribute:: melting_point
-
-            Melting point
-
-        .. attribute:: critical_temperature
-
-            Critical temperature
-
-        .. attribute:: superconduction_temperature
-
-            Superconduction temperature
-
-        .. attribute:: liquid_range
-
-            Liquid range
-
-        .. attribute:: bulk_modulus
-
-            Bulk modulus
-
-        .. attribute:: youngs_modulus
-
-            Young's modulus
-
-        .. attribute:: brinell_hardness
-
-            Brinell hardness
-
-        .. attribute:: rigidity_modulus
-
-            Rigidity modulus
-
-        .. attribute:: mineral_hardness
-
-            Mineral hardness
-
-        .. attribute:: vickers_hardness
-
-            Vicker's hardness
-
-        .. attribute:: density_of_solid
-
-            Density of solid phase
-
-        .. attribute:: coefficient_of_linear_thermal_expansion
-
-            Coefficient of linear thermal expansion
-
-        .. attribute:: ground_level
-
-            Ground level for element
-
-        .. attribute:: ionization_energies
-
-            List of ionization energies. First value is the first ionization energy, second is the second ionization
-            energy, etc. Note that this is zero-based indexing! So Element.ionization_energies[0] refer to the 1st
-            ionization energy. Values are from the NIST Atomic Spectra Database. Missing values are None.
+            mendeleev_no (int): Mendeleev number from definition given by Pettifor, D. G. (1984). A chemical scale
+                for crystal-structure maps. Solid State Communications, 51 (1), 31-34.
+            electrical_resistivity (float): Electrical resistivity.
+            velocity_of_sound (float): Velocity of sound.
+            reflectivity (float): Reflectivity.
+            refractive_index (float): Refractive index.
+            poissons_ratio (float): Poisson's ratio.
+            molar_volume (float): Molar volume.
+            electronic_structure (str): Electronic structure. E.g., The electronic structure for Fe is represented
+                as [Ar].3d6.4s2.
+            atomic_orbitals (dict): Atomic Orbitals. Energy of the atomic orbitals as a dict. E.g., The orbitals
+                energies in eV are represented as {'1s': -1.0, '2s': -0.1}. Data is obtained from
+                https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations.
+                The LDA values for neutral atoms are used.
+            thermal_conductivity (float): Thermal conductivity.
+            boiling_point (float): Boiling point.
+            melting_point (float): Melting point.
+            critical_temperature (float): Critical temperature.
+            superconduction_temperature (float): Superconduction temperature.
+            liquid_range (float): Liquid range.
+            bulk_modulus (float): Bulk modulus.
+            youngs_modulus (float): Young's modulus.
+            brinell_hardness (float): Brinell hardness.
+            rigidity_modulus (float): Rigidity modulus.
+            mineral_hardness (float): Mineral hardness.
+            vickers_hardness (float): Vicker's hardness.
+            density_of_solid (float): Density of solid phase.
+            coefficient_of_linear_thermal_expansion (float): Coefficient of linear thermal expansion.
+            ground_level (float): Ground level for element.
+            ionization_energies (list[Optional[float]]): List of ionization energies. First value is the first
+                ionization energy, second is the second ionization energy, etc. Note that this is zero-based indexing!
+                So Element.ionization_energies[0] refer to the 1st ionization energy. Values are from the NIST Atomic
+                Spectra Database. Missing values are None.
         """
         self.symbol = str(symbol)
-        d = _pt_data[symbol]
+        data = _pt_data[symbol]
 
         # Store key variables for quick access
-        self.Z = d["Atomic no"]
+        self.Z = data["Atomic no"]
 
-        at_r = d.get("Atomic radius", "no data")
+        at_r = data.get("Atomic radius", "no data")
         if str(at_r).startswith("no data"):
             self._atomic_radius = None
         else:
             self._atomic_radius = Length(at_r, "ang")
-        self._atomic_mass = Mass(d["Atomic mass"], "amu")
-        self.long_name = d["Name"]
-        self._data = d
+        self._atomic_mass = Mass(data["Atomic mass"], "amu")
+        self.long_name = data["Name"]
+        self._data = data
 
     @property
     def X(self) -> float:
@@ -277,10 +178,12 @@ class ElementBase(Enum):
             "valence",
             "ground_level",
             "ionization_energies",
+            "metallic_radius",
         ]:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr)
-            if str(val).startswith("no data"):
+            if val is None or str(val).startswith("no data"):
+                warnings.warn(f"No data available for {item} for {self.symbol}")
                 val = None
             elif isinstance(val, (list, dict)):
                 pass
@@ -313,6 +216,14 @@ class ElementBase(Enum):
                         except ValueError:
                             # Ignore error. val will just remain a string.
                             pass
+                    if item in ("refractive_index", "melting_point") and isinstance(val, str):
+                        # Final attempt to parse a float.
+                        m = re.findall(r"[\.\d]+", val)
+                        if m:
+                            warnings.warn(
+                                f"Ambiguous values ({val}) for {item} of {self.symbol}. Returning first float value."
+                            )
+                            return float(m[0])
             return val
         raise AttributeError(f"Element has no attribute {item}!")
 
@@ -322,9 +233,12 @@ class ElementBase(Enum):
         return self._data.copy()
 
     @property
-    def ionization_energy(self) -> float:
+    def ionization_energy(self) -> float | None:
         """First ionization energy of element."""
-        return self._data["Ionization energies"][0]
+        if not self.ionization_energies:
+            warnings.warn(f"No data available for ionization_energy for {self.symbol}")
+            return None
+        return self.ionization_energies[0]
 
     @property
     def electron_affinity(self) -> float:
@@ -420,11 +334,6 @@ class ElementBase(Enum):
         return tuple(self._data.get("ICSD oxidation states", []))
 
     @property
-    def metallic_radius(self) -> float:
-        """Metallic radius of the element. Radius is given in ang."""
-        return FloatWithUnit(self._data["Metallic radius"], "ang")
-
-    @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
         """Full electronic structure as tuple.
         E.g., The electronic structure for Fe is represented as:
@@ -468,9 +377,12 @@ class ElementBase(Enum):
 
     @property
     def term_symbols(self) -> list[list[str]]:
-        """All possible  Russell-Saunders term symbol of the Element.
+        """All possible Russell-Saunders term symbol of the Element.
         eg. L = 1, n_e = 2 (s2) returns [['1D2'], ['3P0', '3P1', '3P2'], ['1S0']].
         """
+        if self.is_noble_gas:
+            return [["1S0"]]
+
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
         L, v_e = self.valence
@@ -589,8 +501,7 @@ class ElementBase(Enum):
         """Get an element from its long name.
 
         Args:
-            name: Long name of the element, e.g. 'Hydrogen' or
-                  'Iron'. Not case-sensitive.
+            name: Long name of the element, e.g. 'Hydrogen' or 'Iron'. Not case-sensitive.
 
         Returns:
             Element with the name 'name'
@@ -617,8 +528,8 @@ class ElementBase(Enum):
                 standard group number except for the lanthanoids
                 and actinoids for which it is 3 (La, Ac) to 17 (Lu, Lr).
 
-        .. note::
-            The 18 group number system is used, i.e., Noble gases are group 18.
+        Note:
+            The 18 group number system is used, i.e. noble gases are group 18.
         """
         for sym in _pt_data:
             el = Element(sym)
@@ -643,8 +554,7 @@ class ElementBase(Enum):
             symbol (str): Element symbol
 
         Returns:
-            True if symbol is a valid element (e.g., "H"). False otherwise
-            (e.g., "Zebra").
+            bool: True if symbol is a valid element (e.g., "H").
         """
         return symbol in Element.__members__
 
@@ -1091,14 +1001,14 @@ class Species(MSONable, Stringify):
         if self._oxi_state in self.ionic_radii:
             return self.ionic_radii[self._oxi_state]
         if self._oxi_state:
-            d = self._el.data
+            dct = self._el.data
             oxi_str = str(int(self._oxi_state))
-            if oxi_str in d.get("Ionic radii hs", {}):
+            if oxi_str in dct.get("Ionic radii hs", {}):
                 warnings.warn(f"No default ionic radius for {self}. Using hs data.")
-                return d["Ionic radii hs"][oxi_str]
-            if oxi_str in d.get("Ionic radii ls", {}):
+                return dct["Ionic radii hs"][oxi_str]
+            if oxi_str in dct.get("Ionic radii ls", {}):
                 warnings.warn(f"No default ionic radius for {self}. Using ls data.")
-                return d["Ionic radii ls"][oxi_str]
+                return dct["Ionic radii ls"][oxi_str]
         warnings.warn(f"No ionic radius for {self}!")
         return None
 
@@ -1305,21 +1215,14 @@ class DummySpecies(Species):
     example, representation of vacancies (charged or otherwise), or special
     sites, etc.
 
-    .. attribute:: oxi_state
-
-        Oxidation state associated with Species.
-
-    .. attribute:: Z
-
-        DummySpecies is always assigned an atomic number equal to the hash
-        number of the symbol. Obviously, it makes no sense whatsoever to use
-        the atomic number of a Dummy specie for anything scientific. The purpose
-        of this is to ensure that for most use cases, a DummySpecies behaves no
-        differently from an Element or Species.
-
-    .. attribute:: X
-
-        DummySpecies is always assigned a Pauling electronegativity of 0.
+    Attributes:
+        oxi_state (int): Oxidation state associated with Species.
+        Z (int): DummySpecies is always assigned an atomic number equal to the hash
+            number of the symbol. Obviously, it makes no sense whatsoever to use
+            the atomic number of a Dummy specie for anything scientific. The purpose
+            of this is to ensure that for most use cases, a DummySpecies behaves no
+            differently from an Element or Species.
+        X (float): DummySpecies is always assigned a Pauling electronegativity of 0.
     """
 
     def __init__(

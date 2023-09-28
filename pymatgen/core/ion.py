@@ -35,6 +35,7 @@ class Ion(Composition, MSONable, Stringify):
         Also note that (aq) can be included in the formula, e.g. "NaOH (aq)".
 
         :param formula:
+
         Returns:
             Ion
         """
@@ -205,20 +206,20 @@ class Ion(Composition, MSONable, Stringify):
         Returns:
             dict with composition, as well as charge.
         """
-        d = super().as_dict()
-        d["charge"] = self.charge
-        return d
+        dct = super().as_dict()
+        dct["charge"] = self.charge
+        return dct
 
     @classmethod
-    def from_dict(cls, d) -> Ion:
+    def from_dict(cls, dct) -> Ion:
         """Generates an ion object from a dict created by as_dict().
 
         Args:
-            d: {symbol: amount} dict.
+            dct: {symbol: amount} dict.
         """
-        input = deepcopy(d)
-        charge = input.pop("charge")
-        composition = Composition(input)
+        dct_copy = deepcopy(dct)
+        charge = dct_copy.pop("charge")
+        composition = Composition(dct_copy)
         return Ion(composition, charge)
 
     @property
@@ -228,9 +229,9 @@ class Ion(Composition, MSONable, Stringify):
             dict with element symbol and reduced amount e.g.,
         {"Fe": 2.0, "O":3.0}.
         """
-        d = self.composition.to_reduced_dict
-        d["charge"] = self.charge
-        return d
+        dct = self.composition.to_reduced_dict
+        dct["charge"] = self.charge
+        return dct
 
     @property
     def composition(self) -> Composition:
@@ -311,6 +312,6 @@ class Ion(Composition, MSONable, Stringify):
     def to_pretty_string(self) -> str:
         """Pretty string with proper superscripts."""
         str_ = super().reduced_formula
-        if val := formula_double_format(self.charge, False):
+        if val := formula_double_format(self.charge, ignore_ones=False):
             str_ += f"^{val:+}"
         return str_

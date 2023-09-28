@@ -548,20 +548,20 @@ class LammpsData(MSONable):
             if "PairIJ Coeffs" in self.force_field:
                 nbc = self.force_field["PairIJ Coeffs"]
                 nbc = nbc.sort_values(["id1", "id2"]).drop(["id1", "id2"], axis=1)
-                nonbond_coeffs = [list(t) for t in nbc.itertuples(False, None)]
+                nonbond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
             elif "Pair Coeffs" in self.force_field:
                 nbc = self.force_field["Pair Coeffs"].sort_index()
-                nonbond_coeffs = [list(t) for t in nbc.itertuples(False, None)]
+                nonbond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
 
             topo_coeffs = {k: [] for k in SECTION_KEYWORDS["ff"][2:] if k in self.force_field}
             for kw in topo_coeffs:
                 class2_coeffs = {
-                    k: list(v.itertuples(False, None))
+                    k: list(v.itertuples(index=False, name=None))
                     for k, v in self.force_field.items()
                     if k in CLASS2_KEYWORDS.get(kw, [])
                 }
                 ff_df = self.force_field[kw]
-                for t in ff_df.itertuples(True, None):
+                for t in ff_df.itertuples(index=True, name=None):
                     d = {"coeffs": list(t[1:]), "types": []}
                     if class2_coeffs:
                         d.update({k: list(v[t[0] - 1]) for k, v in class2_coeffs.items()})
@@ -574,7 +574,7 @@ class LammpsData(MSONable):
 
             for k, v in self.topology.items():
                 ff_kw = k[:-1] + " Coeffs"
-                for topo in v.itertuples(False, None):
+                for topo in v.itertuples(index=False, name=None):
                     topo_idx = topo[0] - 1
                     indices = list(topo[1:])
                     mids = atoms_df.loc[indices]["molecule-ID"].unique()

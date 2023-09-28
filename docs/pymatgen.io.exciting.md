@@ -29,13 +29,30 @@ exciting input.
 Associated Structure.
 
 
+* **Type**
+
+    [Structure](pymatgen.core.md#pymatgen.core.structure.Structure)
+
+
+
 #### title()
 Optional title string.
 
 
+* **Type**
+
+    str
+
+
+
 #### lockxyz()
-Lockxyz attribute for each site if available. A Nx3 array of
-booleans.
+Lockxyz attribute for each site if available. A Nx3 array of booleans.
+
+
+* **Type**
+
+    numpy.ndarray
+
 
 
 * **Parameters**

@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import math
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm, colors
 
 from pymatgen.core.periodic_table import Element
+
+if TYPE_CHECKING:
+    from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 
 def pretty_plot(
@@ -415,9 +418,9 @@ def van_arkel_triangle(list_of_materials, annotate=True):
                 to the Theory of the Chemical Bond, Elsevier, New York (1958).
 
     Args:
-         list_of_materials (list): A list of computed entries of binary
+        list_of_materials (list): A list of computed entries of binary
             materials or a list of lists containing two elements (str).
-         annotate (bool): Whether or not to label the points on the
+        annotate (bool): Whether or not to label the points on the
             triangle with reduced formula (if list of entries) or pair
             of elements (if list of list of str).
     """
@@ -534,7 +537,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     return plt
 
 
-def get_ax_fig_plt(ax: plt.Axes = None, **kwargs):
+def get_ax_fig(ax: plt.Axes = None, **kwargs) -> tuple[plt.Axes, plt.Figure]:
     """Helper function used in plot functions supporting an optional Axes argument.
     If ax is None, we build the `matplotlib` figure and create the Axes else
     we return the current active figure.
@@ -544,22 +547,18 @@ def get_ax_fig_plt(ax: plt.Axes = None, **kwargs):
         kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
-        ax: :class:`Axes` object
-        figure: matplotlib figure
-        plt: matplotlib pyplot module.
+        tuple[plt.Axes, plt.Figure]: matplotlib Axes object and Figure objects
     """
-    import matplotlib.pyplot as plt
-
     if ax is None:
         fig = plt.figure(**kwargs)
         ax = fig.gca()
     else:
         fig = plt.gcf()
 
-    return ax, fig, plt
+    return ax, fig
 
 
-def get_ax3d_fig_plt(ax: plt.Axes = None, **kwargs):
+def get_ax3d_fig(ax: plt.Axes = None, **kwargs) -> tuple[Axes3D, plt.Figure]:
     """Helper function used in plot functions supporting an optional Axes3D
     argument. If ax is None, we build the `matplotlib` figure and create the
     Axes3D else we return the current active figure.
@@ -569,20 +568,15 @@ def get_ax3d_fig_plt(ax: plt.Axes = None, **kwargs):
         kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
-        ax: :class:`Axes` object
-        figure: matplotlib figure
-        plt: matplotlib pyplot module.
+        tuple[Axes3D, Figure]: matplotlib Axes3D and corresponding figure objects
     """
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import axes3d
-
     if ax is None:
         fig = plt.figure(**kwargs)
-        ax = axes3d.Axes3D(fig)
+        ax = fig.add_subplot(projection="3d")
     else:
         fig = plt.gcf()
 
-    return ax, fig, plt
+    return ax, fig
 
 
 def get_axarray_fig_plt(
@@ -594,7 +588,7 @@ def get_axarray_fig_plt(
     current active figure.
 
     Returns:
-        ax: Array of :class:`Axes` objects
+        ax: Array of Axes objects
         figure: matplotlib figure
         plt: matplotlib pyplot module.
     """

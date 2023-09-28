@@ -36,7 +36,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
 
-# NOTE: If making notable changes to this class, please ping @arosen93 on GitHub.
+# NOTE: If making notable changes to this class, please ping @Andrew-S-Rosen on GitHub.
 # There are some subtleties in here, particularly related to spins/charges.
 @requires(ase_loaded)
 class AseAtomsAdaptor:
@@ -161,13 +161,14 @@ class AseAtomsAdaptor:
             atoms.set_array("oxi_states", np.array(oxi_states))
 
         # Atoms.info <---> Structure.properties
-        # Atoms.calc <---> Structure.calc
-        atoms.info = structure.properties
-
+        if properties := getattr(structure, "properties"):  # noqa: B009
+            atoms.info = properties
+        
         # Regenerate Spacegroup object
-        if isinstance(atoms.info.get("spacegroup"),dict):
-            atoms.info["spacegroup"] = Spacegroup(atoms.info["spacegroup"]["number"],setting=atoms.info["spacegroup"].get("setting",1))
-
+        if isinstance(atoms.info.get("spacegroup"), dict):
+            atoms.info["spacegroup"] = Spacegroup(atoms.info["spacegroup"]["number"], setting=atoms.info["spacegroup"].get("setting", 1))
+        
+        # Atoms.calc <---> Structure.calc
         if calc := getattr(structure, "calc", None):
             atoms.calc = calc
 

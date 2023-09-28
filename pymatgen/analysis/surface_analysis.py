@@ -68,26 +68,13 @@ class SlabEntry(ComputedStructureEntry):
     A ComputedStructureEntry object encompassing all data relevant to a
         slab for analyzing surface thermodynamics.
 
-    .. attribute:: miller_index
-
-        Miller index of plane parallel to surface.
-
-    .. attribute:: label
-
-        Brief description for this slab.
-
-    .. attribute:: adsorbates
-
-        List of ComputedStructureEntry for the types of adsorbates
-
-    ..attribute:: clean_entry
-
-        SlabEntry for the corresponding clean slab for an adsorbed slab
-
-    ..attribute:: ads_entries_dict
-
-        Dictionary where the key is the reduced composition of the
-            adsorbate entry and value is the entry itself
+    Attributes:
+        miller_index (tuple): Miller index of plane parallel to surface.
+        label (str): Brief description for this slab.
+        adsorbates (list): List of ComputedStructureEntry for the types of adsorbates.
+        clean_entry (SlabEntry): SlabEntry for the corresponding clean slab for an adsorbed slab.
+        ads_entries_dict (dict): Dictionary where the key is the reduced composition of the
+            adsorbate entry and value is the entry itself.
     """
 
     def __init__(
@@ -150,20 +137,20 @@ class SlabEntry(ComputedStructureEntry):
 
     def as_dict(self):
         """Returns dict which contains Slab Entry data."""
-        d = {"@module": type(self).__module__, "@class": type(self).__name__}
-        d["structure"] = self.structure
-        d["energy"] = self.energy
-        d["miller_index"] = self.miller_index
-        d["label"] = self.label
-        d["adsorbates"] = self.adsorbates
-        d["clean_entry"] = self.clean_entry
+        dct = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct["structure"] = self.structure
+        dct["energy"] = self.energy
+        dct["miller_index"] = self.miller_index
+        dct["label"] = self.label
+        dct["adsorbates"] = self.adsorbates
+        dct["clean_entry"] = self.clean_entry
 
-        return d
+        return dct
 
     def gibbs_binding_energy(self, eads=False):
         """
-        Returns the adsorption energy or Gibbs binding energy
-            of an adsorbate on a surface
+        Returns the adsorption energy or Gibbs binding energy of an adsorbate on a surface.
+
         Args:
             eads (bool): Whether to calculate the adsorption energy
                 (True) or the binding energy (False) which is just
@@ -338,10 +325,12 @@ class SlabEntry(ComputedStructureEntry):
             label += f", {self.get_monolayer:.3f} ML"
         return label
 
-    @staticmethod
-    def from_computed_structure_entry(entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs):
+    @classmethod
+    def from_computed_structure_entry(
+        cls, entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs
+    ):
         """Returns SlabEntry from a ComputedStructureEntry."""
-        return SlabEntry(
+        return cls(
             entry.structure,
             entry.energy,
             miller_index,
@@ -355,14 +344,13 @@ class SlabEntry(ComputedStructureEntry):
 class SurfaceEnergyPlotter:
     """
     A class used for generating plots to analyze the thermodynamics of surfaces
-        of a material. Produces stability maps of different slab configurations,
-        phases diagrams of two parameters to determine stability of configurations
-        (future release), and Wulff shapes.
+    of a material. Produces stability maps of different slab configurations,
+    phases diagrams of two parameters to determine stability of configurations
+    (future release), and Wulff shapes.
 
-    .. attribute:: all_slab_entries
-
-        Either a list of SlabEntry objects (note for a list, the SlabEntry must
-            have the adsorbates and clean_entry parameter pulgged in) or a Nested
+    Attributes:
+        all_slab_entries (dict | list): Either a list of SlabEntry objects (note for a list, the
+            SlabEntry must have the adsorbates and clean_entry parameter plugged in) or a Nested
             dictionary containing a list of entries for slab calculations as
             items and the corresponding Miller index of the slab as the key.
             To account for adsorption, each value is a sub-dictionary with the
@@ -375,31 +363,19 @@ class SurfaceEnergyPlotter:
             the adsorption energy (ie an adsorption site with a higher adsorption
             energy will always provide a higher surface energy than a site with a
             lower adsorption energy). An example parameter is provided:
-            {(h1,k1,l1): {clean_entry1: [ads_entry1, ads_entry2, ...],
-                          clean_entry2: [...], ...}, (h2,k2,l2): {...}}
+            {(h1,k1,l1): {clean_entry1: [ads_entry1, ads_entry2, ...], clean_entry2: [...], ...}, (h2,k2,l2): {...}}
             where clean_entry1 can be a pristine surface and clean_entry2 can be a
             reconstructed surface while ads_entry1 can be adsorption at site 1 with
             a 2x2 coverage while ads_entry2 can have a 3x3 coverage. If adsorption
             entries are present (i.e. if all_slab_entries[(h,k,l)][clean_entry1]), we
             consider adsorption in all plots and analysis for this particular facet.
-
-    ..attribute:: color_dict
-
-        Dictionary of colors (r,g,b,a) when plotting surface energy stability. The
-            keys are individual surface entries where clean surfaces have a solid
-            color while the corresponding adsorbed surface will be transparent.
-
-    .. attribute:: ucell_entry
-
-        ComputedStructureEntry of the bulk reference for this particular material.
-
-    .. attribute:: ref_entries
-
-        List of ComputedStructureEntries to be used for calculating chemical potential.
-
-    .. attribute:: color_dict
-
-        Randomly generated dictionary of colors associated with each facet.
+        color_dict (dict): Dictionary of colors (r,g,b,a) when plotting surface energy stability.
+            The keys are individual surface entries where clean surfaces have a solid color while
+            the corresponding adsorbed surface will be transparent.
+        ucell_entry (ComputedStructureEntry): ComputedStructureEntry of the bulk reference for
+            this particular material.
+        ref_entries (list): List of ComputedStructureEntries to be used for calculating chemical potential.
+        facet_color_dict (dict): Randomly generated dictionary of colors associated with each facet.
     """
 
     def __init__(self, all_slab_entries, ucell_entry, ref_entries=None):
@@ -420,7 +396,7 @@ class SurfaceEnergyPlotter:
                 be defined by a summation of the chemical potentials for each
                 element in the system. As the bulk energy is already provided,
                 one can solve for one of the chemical potentials as a function
-                of the other chemical potetinals and bulk energy. i.e. there
+                of the other chemical potentials and bulk energy. i.e. there
                 are n-1 variables (chempots). e.g. if your ucell_entry is for
                 LiFePO4 than your ref_entries should have an entry for Li, Fe,
                 and P if you want to use the chempot of O as the variable.
@@ -1223,21 +1199,20 @@ class SurfaceEnergyPlotter:
             )
 
             # Save the chempot range for dmu1 and dmu2
-            for entry, v in range_dict.items():
-                if not v:
+            for entry, vertex in range_dict.items():
+                if not vertex:
                     continue
-                if entry not in vertices_dict:
-                    vertices_dict[entry] = []
+                vertices_dict.setdefault(entry, [])
 
                 selist = se_dict[entry]
-                vertices_dict[entry].append({delu1: dmu1, delu2: [v, selist]})
+                vertices_dict[entry].append({delu1: dmu1, delu2: [vertex, selist]})
 
         # Plot the edges of the phases
-        for entry, v in vertices_dict.items():
+        for entry, vertex in vertices_dict.items():
             xvals, yvals = [], []
 
             # Plot each edge of a phase within the borders
-            for ii, pt1 in enumerate(v):
+            for ii, pt1 in enumerate(vertex):
                 # Determine if the surface energy at this lower range
                 # of dmu2 is negative. If so, shade this region.
                 if len(pt1[delu2][1]) == 3:
@@ -1252,9 +1227,9 @@ class SurfaceEnergyPlotter:
                     # in se<0, shade the entire y range
                     ax.plot([pt1[delu1], pt1[delu1]], range2, "k--")
 
-                if ii == len(v) - 1:
+                if ii == len(vertex) - 1:
                     break
-                pt2 = v[ii + 1]
+                pt2 = vertex[ii + 1]
                 if not show_unphyiscal_only:
                     ax.plot(
                         [pt1[delu1], pt2[delu1]],
@@ -1267,7 +1242,7 @@ class SurfaceEnergyPlotter:
                 yvals.extend([pt1[delu2][0][0], pt2[delu2][0][0]])
 
             # Plot the edge along the max x value
-            pt = v[-1]
+            pt = vertex[-1]
             delu1, delu2 = pt
             xvals.extend([pt[delu1], pt[delu1]])
             yvals.extend(pt[delu2][0])
@@ -1348,49 +1323,21 @@ def entry_dict_from_list(all_slab_entries):
 
 class WorkFunctionAnalyzer:
     """
-    A class used for calculating the work function
-        from a slab model and visualizing the behavior
-        of the local potential along the slab.
+    A class used for calculating the work function from a slab model and
+    visualizing the behavior of the local potential along the slab.
 
-    .. attribute:: efermi
-
-        The Fermi energy
-
-    .. attribute:: locpot_along_c
-
-        Local potential in eV along points along the  axis
-
-    .. attribute:: vacuum_locpot
-
-        The maximum local potential along the c direction for
-            the slab model, ie the potential at the vacuum
-
-    .. attribute:: work_function
-
-        The minimum energy needed to move an electron from the
-            surface to infinity. Defined as the difference between
-            the potential at the vacuum and the Fermi energy.
-
-    .. attribute:: slab
-
-        The slab structure model
-
-    .. attribute:: along_c
-
-        Points along the c direction with same
-            increments as the locpot in the c axis
-
-    .. attribute:: ave_locpot
-
-        Mean of the minimum and maximmum (vacuum) locpot along c
-
-    .. attribute:: sorted_sites
-
-        List of sites from the slab sorted along the c direction
-
-    .. attribute:: ave_bulk_p
-
-        The average locpot of the slab region along the c direction
+    Attributes:
+        efermi (float): The Fermi energy.
+        locpot_along_c (list): Local potential in eV along points along the c axis.
+        vacuum_locpot (float): The maximum local potential along the c direction for the slab model,
+            i.e. the potential at the vacuum.
+        work_function (float): The minimum energy needed to move an electron from the surface to infinity.
+            Defined as the difference between the potential at the vacuum and the Fermi energy.
+        slab (Slab): The slab structure model.
+        along_c (list): Points along the c direction with same increments as the locpot in the c axis.
+        ave_locpot (float): Mean of the minimum and maximum (vacuum) locpot along c.
+        sorted_sites (list): List of sites from the slab sorted along the c direction.
+        ave_bulk_p (float): The average locpot of the slab region along the c direction.
     """
 
     def __init__(self, structure: Structure, locpot_along_c, efermi, shift=0, blength=3.5):
@@ -1515,6 +1462,7 @@ class WorkFunctionAnalyzer:
     def get_labels(self, plt, label_fontsize=10):
         """
         Handles the optional labelling of the plot with relevant quantities
+
         Args:
             plt (plt): Plot of the locpot vs c axis
             label_fontsize (float): Fontsize of labels
@@ -1614,23 +1562,26 @@ class WorkFunctionAnalyzer:
                     all_flat.append(True)
         return all(all_flat)
 
-    @staticmethod
-    def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
+    @classmethod
+    def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
         """
-        :param poscar_filename: POSCAR file
-        :param locpot_filename: LOCPOT file
-        :param outcar_filename: OUTCAR file
-        :param shift: shift
-        :param blength: The longest bond length in the material.
-            Used to handle pbc for noncontiguous slab layers
+        Initializes a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
+
+        Args:
+            poscar_filename (str): The path to the POSCAR file.
+            locpot_filename (str): The path to the LOCPOT file.
+            outcar_filename (str): The path to the OUTCAR file.
+            shift (float): The shift value. Defaults to 0.
+            blength (float): The longest bond length in the material.
+                Used to handle pbc for noncontiguous slab layers. Defaults to 3.5.
 
         Returns:
-            WorkFunctionAnalyzer
+            WorkFunctionAnalyzer: A WorkFunctionAnalyzer instance.
         """
         poscar = Poscar.from_file(poscar_filename)
         locpot = Locpot.from_file(locpot_filename)
         outcar = Outcar(outcar_filename)
-        return WorkFunctionAnalyzer(
+        return cls(
             poscar.structure,
             locpot.get_average_along_axis(2),
             outcar.efermi,
@@ -1644,29 +1595,21 @@ class WorkFunctionAnalyzer:
     description="Nanoscale stabilization of sodium oxides: Implications for Na-O2 batteries",
 )
 class NanoscaleStability:
-    """
-    A class for analyzing the stability of nanoparticles of different
-        polymorphs with respect to size. The Wulff shape will be the
-        model for the nanoparticle. Stability will be determined by
-        an energetic competition between the weighted surface energy
-        (surface energy of the Wulff shape) and the bulk energy. A
-        future release will include a 2D phase diagram (e.g. wrt size
-        vs chempot for adsorbed or non-stoichiometric surfaces). Based
-        on the following work:
+    """A class for analyzing the stability of nanoparticles of different
+    polymorphs with respect to size. The Wulff shape will be the model for the
+    nanoparticle. Stability will be determined by an energetic competition between the
+    weighted surface energy (surface energy of the Wulff shape) and the bulk energy. A
+    future release will include a 2D phase diagram (e.g. wrt size vs chempot for adsorbed
+    or non-stoichiometric surfaces). Based on the following work:
 
-        Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
-            stabilization of sodium oxides: Implications for Na-O2
-            batteries. Nano Letters, 14(2), 1016-1020.
-            https://doi.org/10.1021/nl404557w
+    Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
+        stabilization of sodium oxides: Implications for Na-O2
+        batteries. Nano Letters, 14(2), 1016-1020.
+        https://doi.org/10.1021/nl404557w
 
-    .. attribute:: se_analyzers
-
-        List of SurfaceEnergyPlotter objects. Each item corresponds to a
-            different polymorph.
-
-    .. attribute:: symprec
-
-        See WulffShape.
+    Attributes:
+        se_analyzers (list[SurfaceEnergyPlotter]): Each item corresponds to a different polymorph.
+        symprec (float): Tolerance for symmetry finding. See WulffShape.
     """
 
     def __init__(self, se_analyzers, symprec=1e-5):

@@ -45,13 +45,13 @@ class KPathBase(metaclass=abc.ABCMeta):
     def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
         """
         Args:
-        structure (Structure): Structure object.
-        symprec (float): Tolerance for symmetry finding.
-        angle_tolerance (float): Angle tolerance for symmetry finding.
-        atol (float): Absolute tolerance used to compare structures
-            and determine symmetric equivalence of points and lines in the BZ.
-        *args: Other arguments supported by subclasses.
-        **kwargs: Other keyword arguments supported by subclasses.
+            structure (Structure): Structure object.
+            symprec (float): Tolerance for symmetry finding.
+            angle_tolerance (float): Angle tolerance for symmetry finding.
+            atol (float): Absolute tolerance used to compare structures
+                and determine symmetric equivalence of points and lines in the BZ.
+            *args: Other arguments supported by subclasses.
+            **kwargs: Other keyword arguments supported by subclasses.
         """
         self._structure = structure
         self._latt = self._structure.lattice
@@ -2016,7 +2016,7 @@ class KPathLatimerMunro(KPathBase):
     def _get_reciprocal_point_group_dict(recip_point_group, atol):
         PAR = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, -1]])
 
-        d = {
+        dct = {
             "reflections": [],
             "rotations": {
                 "two-fold": [],
@@ -2044,52 +2044,52 @@ class KPathLatimerMunro(KPathBase):
                     for j in range(3):
                         if np.isclose(evals[j], 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["two-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["two-fold"].append({"ind": i, "axis": ax, "op": op})
                 elif np.isclose(tr, 0, atol=atol):  # three-fold rotation
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["three-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["three-fold"].append({"ind": i, "axis": ax, "op": op})
                 # four-fold rotation
                 elif np.isclose(tr, 1, atol=atol):
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["four-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["four-fold"].append({"ind": i, "axis": ax, "op": op})
                 elif np.isclose(tr, 2, atol=atol):  # six-fold rotation
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["six-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["six-fold"].append({"ind": i, "axis": ax, "op": op})
 
             # Improper rotations
             if np.isclose(det, -1, atol=atol):
                 if np.isclose(tr, -3, atol=atol):
-                    d["inversion"].append({"ind": i, "op": PAR})
+                    dct["inversion"].append({"ind": i, "op": PAR})
                 elif np.isclose(tr, 1, atol=atol):  # two-fold rotation
                     for j in range(3):
                         if np.isclose(evals[j], -1, atol=atol):
                             norm = evects[:, j]
-                    d["reflections"].append({"ind": i, "normal": norm, "op": op})
+                    dct["reflections"].append({"ind": i, "normal": norm, "op": op})
                 elif np.isclose(tr, 0, atol=atol):  # three-fold rotoinversion
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["rotoinv-three-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["rotoinv-three-fold"].append({"ind": i, "axis": ax, "op": op})
                 # four-fold rotoinversion
                 elif np.isclose(tr, -1, atol=atol):
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["rotoinv-four-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["rotoinv-four-fold"].append({"ind": i, "axis": ax, "op": op})
                 # six-fold rotoinversion
                 elif np.isclose(tr, -2, atol=atol):
                     for j in range(3):
                         if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["rotoinv-six-fold"].append({"ind": i, "axis": ax, "op": op})
+                    dct["rotations"]["rotoinv-six-fold"].append({"ind": i, "axis": ax, "op": op})
 
-        return d
+        return dct
 
     @staticmethod
     def _op_maps_IRBZ_to_self(op, IRBZ_points, atol):

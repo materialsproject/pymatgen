@@ -39,19 +39,21 @@ Initializes a covalent bond between two sites.
 
 
 #### get_bond_order(tol: float = 0.2, default_bl: float | None = None)
-The bond order according the distance between the two sites
-:param tol: Relative tolerance to test.
-
-> (1 + tol) \* the longest bond distance is considered
-> to be the threshold length for a bond to exist.
-> (1 - tol) \* the shortest bond distance is considered
-> to be the shortest possible bond length
-> Defaults to 0.2.
+The bond order according the distance between the two sites.
 
 
 * **Parameters**
 
-    **default_bl** – If a particular type of bond does not exist,
+
+    * **tol** (*float*) – Relative tolerance to test.
+    (1 + tol) \* the longest bond distance is considered
+    to be the threshold length for a bond to exist.
+    (1 - tol) \* the shortest bond distance is considered
+    to be the shortest possible bond length
+    Defaults to 0.2.
+
+
+    * **default_bl** – If a particular type of bond does not exist,
     use this bond length as a default value
     (bond order = 1). If None, a ValueError will be thrown.
 
@@ -548,13 +550,18 @@ Check if Composition contains any elements matching a given category.
 
 
 
+* **Return type**
+
+    bool
+
+
+
 #### copy()
 A copy of the composition.
 
 
 #### _property_ element_composition(_: Compositio_ )
-Returns the composition replacing any species by the corresponding
-element.
+Returns the composition replacing any species by the corresponding element.
 
 
 #### _property_ elements(_: list[Element | Species | DummySpecies_ )
@@ -793,11 +800,17 @@ on ICSD statistics. Use max_sites to improve performance if needed.
 
 * **Returns**
 
-    A list of dicts - each dict reports an element symbol and average
+    each dict reports an element symbol and average
 
         oxidation state across all sites in that composition. If the
         composition is not charge balanced, an empty list is returned.
 
+
+
+
+* **Return type**
+
+    list[dict]
 
 
 
@@ -969,7 +982,7 @@ and methods pertaining to interfaces.
 
 
     * **lattice** (*Lattice/3x3 array*) – The lattice, either as a
-    `pymatgen.core.lattice.Lattice` or
+    pymatgen.core.Lattice or
     simply as any 2D array. Each row should correspond to a lattice
     vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
     lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -1026,12 +1039,14 @@ and methods pertaining to interfaces.
 
 
 
-#### \__update_c(new_c: float)
+#### _abc_impl(_ = <_abc._abc_data object_ )
+
+#### _properties(_: dic_ )
+
+#### _update_c(new_c: float)
 Modifies the c-direction of the lattice without changing the site Cartesian coordinates
 Be careful you can mess up the interface by setting a c-length that can’t accommodate all the sites.
 
-
-#### _abc_impl(_ = <_abc._abc_data object_ )
 
 #### as_dict()
 MSONable dict.
@@ -1160,8 +1175,6 @@ The shift between the film and substrate in fractional
 coordinates.
 
 
-#### properties(_: dic_ )
-
 #### _property_ substrate(_: Structur_ )
 A pymatgen Structure for just the substrate.
 
@@ -1245,13 +1258,13 @@ charge is written with the sign preceding the magnitude, e.g.,
 ‘Ca1 +2’. Uncharged species have “(aq)” appended, e.g. “O2 (aq)”.
 
 
-#### _classmethod_ from_dict(d)
+#### _classmethod_ from_dict(dct)
 Generates an ion object from a dict created by as_dict().
 
 
 * **Parameters**
 
-    **d** – {symbol: amount} dict.
+    **dct** – {symbol: amount} dict.
 
 
 
@@ -1552,8 +1565,7 @@ Finds all mappings between current lattice and another lattice.
 * **Parameters**
 
 
-    * **other_lattice** (*Lattice*) – Another lattice that is equivalent to
-    this one.
+    * **other_lattice** (*Lattice*) – Another lattice that is equivalent to this one.
 
 
     * **ltol** (*float*) – Tolerance for matching lengths. Defaults to 1e-5.
@@ -1896,7 +1908,7 @@ Algorithm:
 
 
 1. place sphere of radius r in crystal and determine minimum supercell
-(parallelpiped) which would contain a sphere of radius r. for this
+(parallelepiped) which would contain a sphere of radius r. for this
 we need the projection of a_1 on a unit vector perpendicular
 to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
 determine how many a_1”s it will take to contain the sphere.
@@ -2003,8 +2015,13 @@ Nxmax = r \* length_of_b_1 / (2 Pi)
 
 #### get_recp_symmetry_operation(symprec: float = 0.01)
 Find the symmetric operations of the reciprocal lattice,
-to be used for hkl transformations
-:param symprec: default is 0.001.
+to be used for hkl transformations.
+
+
+* **Parameters**
+
+    **symprec** – default is 0.001.
+
 
 
 #### get_vector_along_lattice_directions(cart_coords: ArrayLike)
@@ -2316,7 +2333,17 @@ Compute the cube index from coordinates
 :param global_min: (float) lower boundary of coordinates
 :param radius: (float) cutoff radius.
 
-Returns: (nx3 array) int indices
+
+* **Returns**
+
+    nx3 array int indices
+
+
+
+* **Return type**
+
+    np.ndarray
+
 
 
 ### _one_to_three(label1d: ndarray, ny: int, nz: int)
@@ -2335,7 +2362,17 @@ Convert a 1D index array to 3D index array.
     * **nz** – (int) number of cells in z direction
 
 
-Returns: (nx3) int array of index
+
+* **Returns**
+
+    nx3 array int indices
+
+
+
+* **Return type**
+
+    np.ndarray
+
 
 
 ### _three_to_one(label3d: ndarray, ny: int, nz: int)
@@ -3203,7 +3240,7 @@ Makes LibxcFunc obey the general json interface used in pymatgen for
 easier serialization.
 
 
-#### _static_ from_dict(d)
+#### _classmethod_ from_dict(dct)
 Makes LibxcFunc obey the general json interface used in pymatgen for
 easier serialization.
 
@@ -3369,12 +3406,17 @@ and translation.
 
 
 #### as_dict()
-MSONABle dict.
+MSONable dict.
 
 
-#### as_xyzt_string()
+#### as_xyzt_str()
 Returns a string of the form ‘x, y, z, +1’, ‘-x, -y, z, -1’,
 ‘-y+1/2, x+1/2, z+1/2, +1’, etc. Only works for integer rotation matrices.
+
+
+#### as_xyzt_string(\*\*kwds)
+as_xyzt_string is deprecated!
+Use as_xyzt_str instead
 
 
 #### _classmethod_ from_dict(d: dict)
@@ -3438,7 +3480,7 @@ Initialize a MagSymmOp from a SymmOp and time reversal operator.
 
 
 
-#### _static_ from_xyzt_string(xyzt_string: str)
+#### _classmethod_ from_xyzt_str(xyzt_string: str)
 
 * **Parameters**
 
@@ -3451,6 +3493,11 @@ Initialize a MagSymmOp from a SymmOp and time reversal operator.
 
     MagSymmOp object
 
+
+
+#### _classmethod_ from_xyzt_string(\*args, \*\*kwds)
+from_xyzt_string is deprecated!
+Use from_xyzt_str instead
 
 
 #### operate_magmom(magmom)
@@ -3486,7 +3533,13 @@ for efficiency. Read: [http://en.wikipedia.org/wiki/Affine_transformation](http:
 
 
 #### affine_matrix()
-A 4x4 numpy.array representing the symmetry operation.
+A 4x4 array representing the symmetry operation.
+
+
+* **Type**
+
+    np.ndarray
+
 
 Initializes the SymmOp from a 4x4 affine transformation matrix.
 In general, this constructor should not be used unless you are
@@ -3501,7 +3554,7 @@ generate a SymmOp from proper rotations and translation.
     affine transformation.
 
 
-    * **tol** (*float*) – Tolerance for determining if matrices are equal.
+    * **tol** (*float*) – Tolerance for determining if matrices are equal. Defaults to 0.01.
 
 
 
@@ -3535,13 +3588,19 @@ Checks if two points are symmetrically related.
     * **point_b** (*3x1 array*) – Second point.
 
 
-    * **tol** (*float*) – Absolute tolerance for checking distance.
+    * **tol** (*float*) – Absolute tolerance for checking distance. Defaults to 0.001.
 
 
 
 * **Returns**
 
     True if self.operate(point_a) == point_b or vice versa.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -3821,7 +3880,7 @@ full form, not the Voigt form.
 
 * **Parameters**
 
-    **tensor** (*numpy array*) – a rank n tensor
+    **tensor** (*numpy array*) – A rank n tensor
 
 
 
@@ -3836,9 +3895,7 @@ A rank 1 numpy.array of dim 3 representing the translation vector.
 
 ## pymatgen.core.periodic_table module
 
-Module contains classes presenting Element, Species (Element + oxidation state) and PeriodicTable.
-
-It should be noted that Element and Species are meant to be immutable objects.
+Classes representing Element, Species (Element + oxidation state) and PeriodicTable.
 
 
 ### _class_ DummySpecie(symbol: str = 'X', oxidation_state: float | None = 0, spin: float | None = None)
@@ -3879,6 +3936,12 @@ sites, etc.
 Oxidation state associated with Species.
 
 
+* **Type**
+
+    int
+
+
+
 #### Z()
 DummySpecies is always assigned an atomic number equal to the hash
 number of the symbol. Obviously, it makes no sense whatsoever to use
@@ -3887,8 +3950,20 @@ of this is to ensure that for most use cases, a DummySpecies behaves no
 differently from an Element or Species.
 
 
+* **Type**
+
+    int
+
+
+
 #### X()
 DummySpecies is always assigned a Pauling electronegativity of 0.
+
+
+* **Type**
+
+    float
+
 
 
 * **Parameters**
@@ -3990,145 +4065,316 @@ represented by a None unless otherwise stated.
 
 
 #### Z()
-Atomic number
+Atomic number.
+
+
+* **Type**
+
+    int
+
 
 
 #### symbol()
-Element symbol
+Element symbol.
+
+
+* **Type**
+
+    str
+
 
 
 #### long_name()
 Long name for element. E.g., “Hydrogen”.
 
 
+* **Type**
+
+    str
+
+
+
 #### atomic_radius_calculated()
 Calculated atomic radius for the element. This is the empirical value.
-Data is obtained from
-[http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page](http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)).
+Data is obtained from [http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page](http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)).
+
+
+* **Type**
+
+    float
+
 
 
 #### van_der_waals_radius()
-Van der Waals radius for the element. This is the empirical
-value determined from critical reviews of X-ray diffraction, gas kinetic
-collision cross-section, and other experimental data by Bondi and later
-workers. The uncertainty in these values is on the order of 0.1 Å.
+Van der Waals radius for the element. This is the empirical value determined
+from critical reviews of X-ray diffraction, gas kinetic collision cross-section, and other experimental
+data by Bondi and later workers. The uncertainty in these values is on the order of 0.1 Å.
+Data are obtained from “Atomic Radii of the Elements” in CRC Handbook of Chemistry and Physics,
+91st Ed.; Haynes, W.M., Ed.; CRC Press: Boca Raton, FL, 2010.
 
-Data are obtained from
 
-“Atomic Radii of the Elements” in CRC Handbook of Chemistry and Physics,
+* **Type**
 
-    91st Ed.; Haynes, W.M., Ed.; CRC Press: Boca Raton, FL, 2010.
+    float
+
 
 
 #### mendeleev_no()
-Mendeleev number from definition given by Pettifor, D. G. (1984).
-A chemical scale for crystal-structure maps. Solid State Communications,
-51 (1), 31-34
+Mendeleev number from definition given by Pettifor, D. G. (1984). A chemical scale
+for crystal-structure maps. Solid State Communications, 51 (1), 31-34.
+
+
+* **Type**
+
+    int
+
 
 
 #### electrical_resistivity()
-Electrical resistivity
+Electrical resistivity.
+
+
+* **Type**
+
+    float
+
 
 
 #### velocity_of_sound()
-Velocity of sound
+Velocity of sound.
+
+
+* **Type**
+
+    float
+
 
 
 #### reflectivity()
-Reflectivity
+Reflectivity.
+
+
+* **Type**
+
+    float
+
 
 
 #### refractive_index()
-Refractice index
+Refractive index.
+
+
+* **Type**
+
+    float
+
 
 
 #### poissons_ratio()
-Poisson’s ratio
+Poisson’s ratio.
+
+
+* **Type**
+
+    float
+
 
 
 #### molar_volume()
-Molar volume
+Molar volume.
+
+
+* **Type**
+
+    float
+
 
 
 #### electronic_structure()
-Electronic structure.
-E.g., The electronic structure for Fe is represented as
-[Ar].3d6.4s2
+Electronic structure. E.g., The electronic structure for Fe is represented
+as [Ar].3d6.4s2.
+
+
+* **Type**
+
+    str
+
 
 
 #### atomic_orbitals()
-Atomic Orbitals. Energy of the atomic orbitals as a dict.
-E.g., The orbitals energies in eV are represented as
-{‘1s’: -1.0, ‘2s’: -0.1}
-Data is obtained from
-[https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations](https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations)
-The LDA values for neutral atoms are used
+Atomic Orbitals. Energy of the atomic orbitals as a dict. E.g., The orbitals
+energies in eV are represented as {‘1s’: -1.0, ‘2s’: -0.1}. Data is obtained from
+[https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations](https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations).
+The LDA values for neutral atoms are used.
+
+
+* **Type**
+
+    dict
+
 
 
 #### thermal_conductivity()
-Thermal conductivity
+Thermal conductivity.
+
+
+* **Type**
+
+    float
+
 
 
 #### boiling_point()
-Boiling point
+Boiling point.
+
+
+* **Type**
+
+    float
+
 
 
 #### melting_point()
-Melting point
+Melting point.
+
+
+* **Type**
+
+    float
+
 
 
 #### critical_temperature()
-Critical temperature
+Critical temperature.
+
+
+* **Type**
+
+    float
+
 
 
 #### superconduction_temperature()
-Superconduction temperature
+Superconduction temperature.
+
+
+* **Type**
+
+    float
+
 
 
 #### liquid_range()
-Liquid range
+Liquid range.
+
+
+* **Type**
+
+    float
+
 
 
 #### bulk_modulus()
-Bulk modulus
+Bulk modulus.
+
+
+* **Type**
+
+    float
+
 
 
 #### youngs_modulus()
-Young’s modulus
+Young’s modulus.
+
+
+* **Type**
+
+    float
+
 
 
 #### brinell_hardness()
-Brinell hardness
+Brinell hardness.
+
+
+* **Type**
+
+    float
+
 
 
 #### rigidity_modulus()
-Rigidity modulus
+Rigidity modulus.
+
+
+* **Type**
+
+    float
+
 
 
 #### mineral_hardness()
-Mineral hardness
+Mineral hardness.
+
+
+* **Type**
+
+    float
+
 
 
 #### vickers_hardness()
-Vicker’s hardness
+Vicker’s hardness.
+
+
+* **Type**
+
+    float
+
 
 
 #### density_of_solid()
-Density of solid phase
+Density of solid phase.
+
+
+* **Type**
+
+    float
+
 
 
 #### coefficient_of_linear_thermal_expansion()
-Coefficient of linear thermal expansion
+Coefficient of linear thermal expansion.
+
+
+* **Type**
+
+    float
+
 
 
 #### ground_level()
-Ground level for element
+Ground level for element.
+
+
+* **Type**
+
+    float
+
 
 
 #### ionization_energies()
-List of ionization energies. First value is the first ionization energy, second is the second ionization
-energy, etc. Note that this is zero-based indexing! So Element.ionization_energies[0] refer to the 1st
-ionization energy. Values are from the NIST Atomic Spectra Database. Missing values are None.
+List of ionization energies. First value is the first
+ionization energy, second is the second ionization energy, etc. Note that this is zero-based indexing!
+So Element.ionization_energies[0] refer to the 1st ionization energy. Values are from the NIST Atomic
+Spectra Database. Missing values are None.
+
+
+* **Type**
+
+    list[Optional[float]]
+
 
 
 #### Ac(_ = 'Ac_ )
@@ -4392,145 +4638,316 @@ represented by a None unless otherwise stated.
 
 
 #### Z()
-Atomic number
+Atomic number.
+
+
+* **Type**
+
+    int
+
 
 
 #### symbol()
-Element symbol
+Element symbol.
+
+
+* **Type**
+
+    str
+
 
 
 #### long_name()
 Long name for element. E.g., “Hydrogen”.
 
 
+* **Type**
+
+    str
+
+
+
 #### atomic_radius_calculated()
 Calculated atomic radius for the element. This is the empirical value.
-Data is obtained from
-[http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page](http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)).
+Data is obtained from [http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page](http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)).
+
+
+* **Type**
+
+    float
+
 
 
 #### van_der_waals_radius()
-Van der Waals radius for the element. This is the empirical
-value determined from critical reviews of X-ray diffraction, gas kinetic
-collision cross-section, and other experimental data by Bondi and later
-workers. The uncertainty in these values is on the order of 0.1 Å.
+Van der Waals radius for the element. This is the empirical value determined
+from critical reviews of X-ray diffraction, gas kinetic collision cross-section, and other experimental
+data by Bondi and later workers. The uncertainty in these values is on the order of 0.1 Å.
+Data are obtained from “Atomic Radii of the Elements” in CRC Handbook of Chemistry and Physics,
+91st Ed.; Haynes, W.M., Ed.; CRC Press: Boca Raton, FL, 2010.
 
-Data are obtained from
 
-“Atomic Radii of the Elements” in CRC Handbook of Chemistry and Physics,
+* **Type**
 
-    91st Ed.; Haynes, W.M., Ed.; CRC Press: Boca Raton, FL, 2010.
+    float
+
 
 
 #### mendeleev_no()
-Mendeleev number from definition given by Pettifor, D. G. (1984).
-A chemical scale for crystal-structure maps. Solid State Communications,
-51 (1), 31-34
+Mendeleev number from definition given by Pettifor, D. G. (1984). A chemical scale
+for crystal-structure maps. Solid State Communications, 51 (1), 31-34.
+
+
+* **Type**
+
+    int
+
 
 
 #### electrical_resistivity()
-Electrical resistivity
+Electrical resistivity.
+
+
+* **Type**
+
+    float
+
 
 
 #### velocity_of_sound()
-Velocity of sound
+Velocity of sound.
+
+
+* **Type**
+
+    float
+
 
 
 #### reflectivity()
-Reflectivity
+Reflectivity.
+
+
+* **Type**
+
+    float
+
 
 
 #### refractive_index()
-Refractice index
+Refractive index.
+
+
+* **Type**
+
+    float
+
 
 
 #### poissons_ratio()
-Poisson’s ratio
+Poisson’s ratio.
+
+
+* **Type**
+
+    float
+
 
 
 #### molar_volume()
-Molar volume
+Molar volume.
+
+
+* **Type**
+
+    float
+
 
 
 #### electronic_structure()
-Electronic structure.
-E.g., The electronic structure for Fe is represented as
-[Ar].3d6.4s2
+Electronic structure. E.g., The electronic structure for Fe is represented
+as [Ar].3d6.4s2.
+
+
+* **Type**
+
+    str
+
 
 
 #### atomic_orbitals()
-Atomic Orbitals. Energy of the atomic orbitals as a dict.
-E.g., The orbitals energies in eV are represented as
-{‘1s’: -1.0, ‘2s’: -0.1}
-Data is obtained from
-[https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations](https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations)
-The LDA values for neutral atoms are used
+Atomic Orbitals. Energy of the atomic orbitals as a dict. E.g., The orbitals
+energies in eV are represented as {‘1s’: -1.0, ‘2s’: -0.1}. Data is obtained from
+[https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations](https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations).
+The LDA values for neutral atoms are used.
+
+
+* **Type**
+
+    dict
+
 
 
 #### thermal_conductivity()
-Thermal conductivity
+Thermal conductivity.
+
+
+* **Type**
+
+    float
+
 
 
 #### boiling_point()
-Boiling point
+Boiling point.
+
+
+* **Type**
+
+    float
+
 
 
 #### melting_point()
-Melting point
+Melting point.
+
+
+* **Type**
+
+    float
+
 
 
 #### critical_temperature()
-Critical temperature
+Critical temperature.
+
+
+* **Type**
+
+    float
+
 
 
 #### superconduction_temperature()
-Superconduction temperature
+Superconduction temperature.
+
+
+* **Type**
+
+    float
+
 
 
 #### liquid_range()
-Liquid range
+Liquid range.
+
+
+* **Type**
+
+    float
+
 
 
 #### bulk_modulus()
-Bulk modulus
+Bulk modulus.
+
+
+* **Type**
+
+    float
+
 
 
 #### youngs_modulus()
-Young’s modulus
+Young’s modulus.
+
+
+* **Type**
+
+    float
+
 
 
 #### brinell_hardness()
-Brinell hardness
+Brinell hardness.
+
+
+* **Type**
+
+    float
+
 
 
 #### rigidity_modulus()
-Rigidity modulus
+Rigidity modulus.
+
+
+* **Type**
+
+    float
+
 
 
 #### mineral_hardness()
-Mineral hardness
+Mineral hardness.
+
+
+* **Type**
+
+    float
+
 
 
 #### vickers_hardness()
-Vicker’s hardness
+Vicker’s hardness.
+
+
+* **Type**
+
+    float
+
 
 
 #### density_of_solid()
-Density of solid phase
+Density of solid phase.
+
+
+* **Type**
+
+    float
+
 
 
 #### coefficient_of_linear_thermal_expansion()
-Coefficient of linear thermal expansion
+Coefficient of linear thermal expansion.
+
+
+* **Type**
+
+    float
+
 
 
 #### ground_level()
-Ground level for element
+Ground level for element.
+
+
+* **Type**
+
+    float
+
 
 
 #### ionization_energies()
-List of ionization energies. First value is the first ionization energy, second is the second ionization
-energy, etc. Note that this is zero-based indexing! So Element.ionization_energies[0] refer to the 1st
-ionization energy. Values are from the NIST Atomic Spectra Database. Missing values are None.
+List of ionization energies. First value is the first
+ionization energy, second is the second ionization energy, etc. Note that this is zero-based indexing!
+So Element.ionization_energies[0] refer to the 1st ionization energy. Values are from the NIST Atomic
+Spectra Database. Missing values are None.
+
+
+* **Type**
+
+    list[Optional[float]]
+
 
 
 #### _property_ X(_: floa_ )
@@ -4619,8 +5036,7 @@ Get an element from its long name.
 
 * **Parameters**
 
-    **name** – Long name of the element, e.g. ‘Hydrogen’ or
-    ‘Iron’. Not case-sensitive.
+    **name** – Long name of the element, e.g. ‘Hydrogen’ or ‘Iron’. Not case-sensitive.
 
 
 
@@ -4652,7 +5068,7 @@ elements.
     and actinoids for which it is 3 (La, Ac) to 17 (Lu, Lr).
 
 
-**NOTE**: The 18 group number system is used, i.e., Noble gases are group 18.
+**NOTE**: The 18 group number system is used, i.e. noble gases are group 18.
 
 
 #### _property_ full_electronic_structure(_: list[tuple[int, str, int]_ )
@@ -4682,7 +5098,7 @@ All ionic radii of the element as a dict of
 {oxidation state: ionic radii}. Radii are given in angstrom.
 
 
-#### _property_ ionization_energy(_: floa_ )
+#### _property_ ionization_energy(_: float | Non_ )
 First ionization energy of element.
 
 
@@ -4750,8 +5166,13 @@ Returns true if symbol is a valid element symbol.
 
 * **Returns**
 
-    True if symbol is a valid element (e.g., “H”). False otherwise
-    (e.g., “Zebra”).
+    True if symbol is a valid element (e.g., “H”).
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -4764,10 +5185,6 @@ and hydrogen.
 
 #### _property_ max_oxidation_state(_: floa_ )
 Maximum oxidation state for element.
-
-
-#### _property_ metallic_radius(_: floa_ )
-Metallic radius of the element. Radius is given in ang.
 
 
 #### _property_ min_oxidation_state(_: floa_ )
@@ -4808,7 +5225,7 @@ respectively.
 
 
 #### _property_ term_symbols(_: list[list[str]_ )
-All possible  Russell-Saunders term symbol of the Element.
+All possible Russell-Saunders term symbol of the Element.
 eg. L = 1, n_e = 2 (s2) returns [[‘1D2’], [‘3P0’, ‘3P1’, ‘3P2’], [‘1S0’]].
 
 
@@ -5604,8 +6021,7 @@ Bases: `SiteCollection`, `MSONable`
 
 Basic immutable Molecule object without periodicity. Essentially a
 sequence of sites. IMolecule is made to be immutable so that they can
-function as keys in a dict. For a mutable molecule,
-use the :class:Molecule.
+function as keys in a dict. For a mutable object, use the Molecule class.
 
 Molecule extends Sequence and Hashable, which means that in many cases,
 it can be used like any Python sequence. Iterating through a molecule is
@@ -5666,6 +6082,8 @@ Create a Molecule.
 #### _find_nn_pos_before_site(site_idx)
 Returns index of nearest neighbor atoms.
 
+
+#### _properties(_: dic_ )
 
 #### as_dict()
 JSON-serializable dict representation of Molecule.
@@ -5996,8 +6414,6 @@ Returns a z-matrix representation of the molecule.
 Number of electrons in the molecule.
 
 
-#### properties(_: dic_ )
-
 #### _property_ spin_multiplicity(_: floa_ )
 Spin multiplicity of molecule.
 
@@ -6055,7 +6471,7 @@ Create a periodic structure.
 
 
     * **lattice** (*Lattice/3x3 array*) – The lattice, either as a
-    `pymatgen.core.lattice.Lattice` or
+    pymatgen.core.Lattice or
     simply as any 2D array. Each row should correspond to a lattice
     vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
     lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -6148,8 +6564,20 @@ distances[i].
     numerical tolerance distance, default to True
 
 
-Returns: (center_indices, points_indices, offset_vectors, distances)
 
+* **Returns**
+
+    (center_indices, points_indices, offset_vectors, distances)
+
+
+
+* **Return type**
+
+    tuple
+
+
+
+#### _properties(_: dic_ )
 
 #### as_dataframe()
 Create a Pandas dataframe of the sites. Structure-level attributes are stored in DataFrame.attrs.
@@ -6285,7 +6713,7 @@ vasprun.xml, CSSR, Netcdf and pymatgen’s JSON-serialized structures.
     * **filename** (*str*) – The filename to read from.
 
 
-    * **primitive** (*bool*) – Whether to convert to a primitive cell. Only available for cifs. Defaults to False.
+    * **primitive** (*bool*) – Whether to convert to a primitive cell. Only available for CIFs. Defaults to False.
 
 
     * **sort** (*bool*) – Whether to sort sites. Default to False.
@@ -6315,7 +6743,7 @@ All equivalent sites are generated from the spacegroup operations.
 * **Parameters**
 
 
-    * **msg** (str/list/[`pymatgen.symmetry.maggroups.MagneticSpaceGroup`](pymatgen.symmetry.md#pymatgen.symmetry.maggroups.MagneticSpaceGroup)) – The magnetic spacegroup.
+    * **msg** (*str/list/pymatgen.symmetry.maggroups.MagneticSpaceGroup*) – The magnetic spacegroup.
     If a string, it will be interpreted as one of the notations
     supported by MagneticSymmetryGroup, e.g., “R-3’c” or “Fm’-3’m”.
     If a list of two ints, it will be interpreted as the number of
@@ -6323,7 +6751,7 @@ All equivalent sites are generated from the spacegroup operations.
 
 
     * **lattice** (*Lattice/3x3 array*) – The lattice, either as a
-    `pymatgen.core.lattice.Lattice` or
+    pymatgen.core.Lattice or
     simply as any 2D array. Each row should correspond to a lattice
     vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
     lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -6436,7 +6864,7 @@ are generated from the spacegroup operations.
 
 
     * **lattice** (*Lattice/3x3 array*) – The lattice, either as a
-    `pymatgen.core.lattice.Lattice` or
+    pymatgen.core.Lattice or
     simply as any 2D array. Each row should correspond to a lattice
     vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
     lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -6571,7 +6999,7 @@ current position, but which image of the unit cell it resides.
 
 * **Returns**
 
-    [[`pymatgen.core.structure.PeriodicNeighbor`], ..]
+    [[pymatgen.core.structure.PeriodicNeighbor], ..]
 
 
 
@@ -6731,7 +7159,17 @@ distances[i].
     numerical tolerance distance, default to True
 
 
-Returns: (center_indices, points_indices, offset_vectors, distances)
+
+* **Returns**
+
+    (center_indices, points_indices, offset_vectors, distances)
+
+
+
+* **Return type**
+
+    tuple
+
 
 
 #### get_neighbors(site: PeriodicSite, r: float, include_index: bool = False, include_image: bool = False)
@@ -6961,18 +7399,15 @@ Convenience method to quickly get the spacegroup of a structure.
 #### get_symmetric_neighbor_list(r: float, sg: str, unique: bool = False, numerical_tol: float = 1e-08, exclude_self: bool = True)
 Similar to ‘get_neighbor_list’ with sites=None, but the neighbors are
 grouped by symmetry. The returned values are a tuple of numpy arrays
-(center_indices, points_indices, offset_vectors, distances,
-
-> symmetry_indices). Atom center_indices[i] has neighbor atom
-
-points_indices[i] that is translated by offset_vectors[i] lattice
-vectors, and the distance is distances[i]. Symmetry_idx groups the bonds
-that are related by a symmetry of the provided space group and symmetry_op
-is the operation that relates the first bond of the same symmetry_idx to
-the respective atom. The first bond maps onto itself via the Identity. The
-output is sorted w.r.t. to symmetry_indices. If unique is True only one of the
-two bonds connecting two points is given. Out of the two, the bond that does not
-reverse the sites is chosen.
+(center_indices, points_indices, offset_vectors, distances, symmetry_indices).
+Atom center_indices[i] has neighbor atom points_indices[i] that is translated
+by offset_vectors[i] lattice vectors, and the distance is distances[i].
+Symmetry_idx groups the bonds that are related by a symmetry of the provided space
+group and symmetry_op is the operation that relates the first bond of the same
+symmetry_idx to the respective atom. The first bond maps onto itself via the
+Identity. The output is sorted w.r.t. to symmetry_indices. If unique is True only
+one of the two bonds connecting two points is given. Out of the two, the bond that
+does not reverse the sites is chosen.
 
 
 * **Parameters**
@@ -7005,9 +7440,20 @@ reverse the sites is chosen.
     numerical tolerance distance, default to True
 
 
-Returns: (center_indices, points_indices, offset_vectors, distances,
 
-    symmetry_indices, symmetry_ops)
+* **Returns**
+
+    (center_indices, points_indices, offset_vectors, distances,
+
+        symmetry_indices, symmetry_ops)
+
+
+
+
+* **Return type**
+
+    tuple
+
 
 
 #### interpolate(end_structure: IStructure | Structure, nimages: int | Iterable = 10, interpolate_lattices: bool = False, pbc: bool = True, autosort_tol: float = 0)
@@ -7081,7 +7527,7 @@ Basically a convenience method to call structure matching.
     ```
 
     kwargs as in
-    [`pymatgen.analysis.structure_matcher.StructureMatcher`](pymatgen.analysis.md#pymatgen.analysis.structure_matcher.StructureMatcher).
+    pymatgen.analysis.structure_matcher.StructureMatcher.
 
 
 
@@ -7101,7 +7547,10 @@ Basically a convenience method to call structure matching.
 Returns the periodicity of the structure.
 
 
-#### properties(_: dic_ )
+#### _property_ properties(_: dic_ )
+Properties associated with the whole Structure. Note that this information is
+only guaranteed to be saved if serializing to native pymatgen output formats (JSON/YAML).
+
 
 #### to(filename: str = '', fmt: str = '', \*\*kwargs)
 Outputs the structure to a file or string.
@@ -7124,7 +7573,7 @@ Outputs the structure to a file or string.
 
     * **\*\*kwargs** – Kwargs passthru to relevant methods. E.g., This allows
     the passing of parameters like symprec to the
-    CifWriter.__init__ method for generation of symmetric cifs.
+    CifWriter.__init__ method for generation of symmetric CIFs.
 
 
 
@@ -7208,6 +7657,8 @@ Creates a MutableMolecule.
 
 
 #### _abc_impl(_ = <_abc._abc_data object_ )
+
+#### _properties(_: dic_ )
 
 #### append(species: CompositionLike, coords: ArrayLike, validate_proximity: bool = False, properties: dict | None = None)
 Appends a site to the molecule.
@@ -7317,8 +7768,6 @@ symmetries.
     site.
 
 
-
-#### properties(_: dic_ )
 
 #### relax(calculator: str | Calculator = 'gfn2-xtb', optimizer: str | Optimizer = 'FIRE', steps: int = 500, fmax: float = 0.1, opt_kwargs: dict | None = None, return_trajectory: bool = False, verbose: bool = False)
 Performs a molecule relaxation using an ASE calculator.
@@ -7516,18 +7965,16 @@ In future, usage should be to call attributes, e.g., Neighbor.index, Neighbor.di
 #### as_dict()
 Note that method calls the super of Site, which is MSONable itself.
 
-Returns: dict
-
 
 #### coords(_: ndarra_ )
 
-#### _classmethod_ from_dict(d: dict)
+#### _classmethod_ from_dict(dct: dict)
 Returns a Neighbor from a dict.
 
 
 * **Parameters**
 
-    **d** – MSONable dict format.
+    **dct** – MSONable dict format.
 
 
 
@@ -7592,8 +8039,6 @@ PeriodicNeighbor.distance, etc.
 
 #### as_dict()
 Note that method calls the super of Site, which is MSONable itself.
-
-Returns: dict
 
 
 #### _property_ coords(_: ndarra_ )
@@ -7688,6 +8133,8 @@ Convert string name of special ASE calculators into ASE calculator objects.
     Calculator
 
 
+
+#### _properties(_: dic_ )
 
 #### _relax(calculator: str | Calculator, relax_cell: bool = True, optimizer: str | Optimizer = 'FIRE', steps: int = 500, fmax: float = 0.1, stress_weight: float = 0.01, opt_kwargs: dict | None = None, return_trajectory: bool = False, verbose: bool = False)
 Performs a structure relaxation using an ASE calculator.
@@ -8000,8 +8447,6 @@ Number of types of atoms.
 Number of sites.
 
 
-#### properties(_: dic_ )
-
 #### remove_oxidation_states()
 Removes oxidation states from a structure.
 
@@ -8107,7 +8552,7 @@ Create a periodic structure.
 * **Parameters**
 
 
-    * **lattice** – The lattice, either as a pymatgen.core.lattice.Lattice or
+    * **lattice** – The lattice, either as a pymatgen.core.Lattice or
     simply as any 2D array. Each row should correspond to a lattice
     vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
     lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -8168,6 +8613,8 @@ Create a periodic structure.
 
 
 #### _abc_impl(_ = <_abc._abc_data object_ )
+
+#### _properties(_: dic_ )
 
 #### _sites(_: tuple[PeriodicSite, ..._ )
 
@@ -8423,8 +8870,6 @@ symmetries.
     ‘min_distance’ and ‘distance’.
 
 
-
-#### properties(_: dic_ )
 
 #### relax(calculator: str | Calculator = 'm3gnet', relax_cell: bool = True, optimizer: str | Optimizer = 'FIRE', steps: int = 500, fmax: float = 0.1, stress_weight: float = 0.01, opt_kwargs: dict | None = None, return_trajectory: bool = False, verbose: bool = False)
 Performs a crystal structure relaxation using an ASE calculator.
@@ -8689,12 +9134,46 @@ the desired reconstructed slab from the initial structure.
 
 
 #### slabgen_params()
-Parameters for the SlabGenerator
+Parameters for the SlabGenerator.
 
-Todo:
-- Right now there is no way to specify what atom is being
 
-> added. In the future, use basis sets?
+* **Type**
+
+    dict
+
+
+
+#### trans_matrix()
+A 3x3 transformation matrix to generate the reconstructed
+slab. Only the a and b lattice vectors are actually changed while the c vector remains
+the same. This matrix is what the Wood’s notation is based on.
+
+
+* **Type**
+
+    np.ndarray
+
+
+
+#### reconstruction_json()
+The full json or dictionary containing the instructions for
+building the reconstructed slab.
+
+
+* **Type**
+
+    dict
+
+
+
+#### termination()
+The index of the termination of the slab.
+
+
+* **Type**
+
+    int
+
 
 Generates reconstructed slabs from a set of instructions
 
@@ -8880,14 +9359,30 @@ necessarily perpendicular to the surface).
 Miller index of plane parallel to surface.
 
 
+* **Type**
+
+    tuple
+
+
+
 #### scale_factor()
-Final computed scale factor that brings the parent cell to the
-surface cell.
+Final computed scale factor that brings the parent cell to the surface cell.
+
+
+* **Type**
+
+    float
+
 
 
 #### shift()
-The shift value in Angstrom that indicates how much this
-slab has been shifted.
+The shift value in Angstrom that indicates how much this slab has been shifted.
+
+
+* **Type**
+
+    float
+
 
 Makes a Slab structure, a structure object with additional information
 and methods pertaining to slabs.
@@ -8897,7 +9392,7 @@ and methods pertaining to slabs.
 
 
     * **lattice** (*Lattice/3x3 array*) – The lattice, either as a
-    `pymatgen.core.lattice.Lattice` or
+    pymatgen.core.Lattice or
     simply as any 2D array. Each row should correspond to a lattice
     vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
     lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -8918,8 +9413,7 @@ and methods pertaining to slabs.
 
 
 
-    * **coords** (*Nx3 array*) – list of fractional/cartesian coordinates of
-    each species.
+    * **coords** (*Nx3 array*) – list of fractional/cartesian coordinates of each species.
 
 
     * **miller_index** (*[**h**, **k**, **l**]*) – Miller index of plane parallel to
@@ -8974,6 +9468,8 @@ and methods pertaining to slabs.
 
 
 #### _abc_impl(_ = <_abc._abc_data object_ )
+
+#### _properties(_: dic_ )
 
 #### _sites(_: tuple[PeriodicSite, ..._ )
 
@@ -9212,8 +9708,6 @@ Checks if surfaces are symmetric, i.e., contains inversion, mirror on (hkl) plan
 Calculates the surface normal vector of the slab.
 
 
-#### properties(_: dic_ )
-
 #### _property_ surface_area()
 Calculates the surface area of the slab.
 
@@ -9267,20 +9761,43 @@ where the slab layer will begin and terminate in the slab-vacuum system.
 
 #### oriented_unit_cell()
 A unit cell of the parent structure with the miller
-index of plane parallel to surface
+index of plane parallel to surface.
+
+
+* **Type**
+
+    Structure
+
 
 
 #### parent()
 Parent structure from which Slab was derived.
 
 
+* **Type**
+
+    Structure
+
+
+
 #### lll_reduce()
-Whether or not the slabs will be orthogonalized
+Whether or not the slabs will be orthogonalized.
+
+
+* **Type**
+
+    bool
+
 
 
 #### center_slab()
-Whether or not the slabs will be centered between
-the vacuum layer
+Whether or not the slabs will be centered between the vacuum layer.
+
+
+* **Type**
+
+    bool
+
 
 
 #### slab_scale_factor()
@@ -9288,16 +9805,40 @@ Final computed scale factor that brings the parent cell to the
 surface cell.
 
 
+* **Type**
+
+    float
+
+
+
 #### miller_index()
 Miller index of plane parallel to surface.
 
 
+* **Type**
+
+    tuple
+
+
+
 #### min_slab_size()
-Minimum size in angstroms of layers containing atoms
+Minimum size in angstroms of layers containing atoms.
+
+
+* **Type**
+
+    float
+
 
 
 #### min_vac_size()
-Minimize size in angstroms of layers containing vacuum
+Minimum size in angstroms of layers containing vacuum.
+
+
+* **Type**
+
+    float
+
 
 Calculates the slab scale factor and uses it to generate a unit cell
 of the initial structure that has been oriented by its miller index.
@@ -9694,7 +10235,7 @@ lattice of the structure.
 
 
 
-### get_symmetrically_equivalent_miller_indices(structure, miller_index, return_hkil=True, system: Literal['triclinic', 'monoclinic', 'orthorhombic', 'tetragonal', 'trigonal', 'hexagonal', 'cubic'] | None = None)
+### get_symmetrically_equivalent_miller_indices(structure, miller_index, return_hkil=True, system: CrystalSystem | None = None)
 Returns all symmetrically equivalent indices for a given structure. Analysis
 is based on the symmetry of the reciprocal lattice of the structure.
 

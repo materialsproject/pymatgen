@@ -6,6 +6,12 @@ nav_order: 4
 
 # Changelog
 
+## v2023.9.25
+
+- New basic MPRester implemented that supports the most common use cases without having to install mp-api. mp-api is no longer a dependency of pymatgen.
+- Breaking: rename get_ax3d_fig_plt->get_ax3d_fig and get_ax_fig_plt->get_ax_fig plus no longer return plt
+- Misc bug fixes.
+
 ## v2023.9.10
 
 ### 🐛 Bug Fixes
@@ -30,14 +36,14 @@ nav_order: 4
 - VaspInputSets now allow structure to be None for stateless initialization.
 - MatPESStaticSet designed for generating PES data. (@SophiaRuan, @JiQi535)
 - Breaking: Bump minimum Python version to 3.9, in line with numpy.
-- Add `properties` to Structure and Molecule, with ASE adaptor support (@gpetretto, @arosen93)
+- Add `properties` to Structure and Molecule, with ASE adaptor support (@gpetretto, @Andrew-S-Rosen)
 
 ## v2023.8.10
 
 - fix `estimate_nbands` function by @matthewkuner in <https://github.com/materialsproject/pymatgen/pull/3149>
 - Add `CifParser.get_structures(on_error='warn')` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3175>
 - `ruff . --fix` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3176>
-- `AseAtomsAdaptor`: Retain `tags` property when interconverting `Atoms` and `Structure`/`Molecule` by @arosen93 in <https://github.com/materialsproject/pymatgen/pull/3151>
+- `AseAtomsAdaptor`: Retain `tags` property when interconverting `Atoms` and `Structure`/`Molecule` by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/3151>
 - Fix a bug in pwscf.py. The proc_val function modifies string values. by @pablogalaviz in <https://github.com/materialsproject/pymatgen/pull/3172>
 - Delete commented out print statements by @janosh in <https://github.com/materialsproject/pymatgen/pull/3178>
 - lots of `from_string` should be `classmethod` by @njzjz in <https://github.com/materialsproject/pymatgen/pull/3177>
@@ -60,7 +66,7 @@ nav_order: 4
 - Fix GitHub language statistics after test files migration by @janosh in <https://github.com/materialsproject/pymatgen/pull/3214>
 - Fix `automatic_density_by_lengths` and add tests for it by @janosh in <https://github.com/materialsproject/pymatgen/pull/3218>
 - Prefer `len(structure)` over `structure.num_sites` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3219>
-- Add `PhaseDiagram` method `get_reference_energy`  by @janosh in <https://github.com/materialsproject/pymatgen/pull/3222>
+- Add `PhaseDiagram` method `get_reference_energy` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3222>
 - Fix isomorphic for molecular graphs by @rohithsrinivaas in <https://github.com/materialsproject/pymatgen/pull/3221>
 - Add `Structure.elements` property by @janosh in <https://github.com/materialsproject/pymatgen/pull/3223>
 - Add keyword `in_place: bool = True` to `SiteCollection.replace_species` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3224>
@@ -99,7 +105,7 @@ nav_order: 4
   introduced in #2727 now mean that structures with only partially defined magnetic moments (e.g., on
   half the sites) cannot be successfully analyzed by `SpaceGroupAnalyzer`. This was encountered when
   performing magnetic ordering enumeration, as the previous default behavior for `
-  MagOrderingTransformation` does not implicitly yield spins of 0 on the nonmagnetic sites. This has now
+MagOrderingTransformation` does not implicitly yield spins of 0 on the nonmagnetic sites. This has now
   been fixed.
 
 ## v2023.7.14
@@ -125,14 +131,14 @@ nav_order: 4
 
 ## v2023.6.23
 
-- PR #3062 from @arosen93 asefix
-    Closes #3061. @JaGeo
+- PR #3062 from @Andrew-S-Rosen asefix
+  Closes #3061. @JaGeo
 - PR #3030 from @lbluque master
-    Remove superfluous structure argument docstring from `SQSTransformation` init
+  Remove superfluous structure argument docstring from `SQSTransformation` init
 - PR #3031 from @kavanase master
-    This is a quick fix to allow direct initialisation of the `DictSet` class, which was possible before but broke in <https://github.com/materialsproject/pymatgen/pull/2972> due to the `Yb_2` check querying `self.CONFIG`, which is only defined if `DictSet` was being initialised from a subclass and not directly.
+  This is a quick fix to allow direct initialisation of the `DictSet` class, which was possible before but broke in <https://github.com/materialsproject/pymatgen/pull/2972> due to the `Yb_2` check querying `self.CONFIG`, which is only defined if `DictSet` was being initialised from a subclass and not directly.
 - PR #3015 from @lbluque neighbors
-    Optimized cython code in `find_points_in_spheres`, getting ~5x faster runtime.
+  Optimized cython code in `find_points_in_spheres`, getting ~5x faster runtime.
 
 ## v2023.5.31
 
@@ -140,7 +146,7 @@ nav_order: 4
 - Unignore ruff PD011 [#3020](https://github.com/materialsproject/pymatgen/pull/3020)
 - Tweak variable names [#3019](https://github.com/materialsproject/pymatgen/pull/3019)
 - MaterialsProjectCompatibility issue silencable deprecation warning [#3017](https://github.com/materialsproject/pymatgen/pull/3017)
-- Optimize cython find_points_in _spheres [#3015](https://github.com/materialsproject/pymatgen/pull/3015)
+- Optimize cython find_points_in \_spheres [#3015](https://github.com/materialsproject/pymatgen/pull/3015)
 - Cp2k 2.0 [#2672](https://github.com/materialsproject/pymatgen/pull/2672)
 - Added methods to compute and compare DOS fingerprints [#2772](https://github.com/materialsproject/pymatgen/pull/2772)
 - Breaking: Overhaul class PymatgenTest [#3014](https://github.com/materialsproject/pymatgen/pull/3014)
@@ -164,8 +170,8 @@ nav_order: 4
 - fix unwanted x margins in get_elt_projected_plots_color (closes #562) [#562](https://github.com/materialsproject/pymatgen/issues/562)
 - Add LightStructureEnvironments.from_structure_environments() fallback value if ce_and_neighbors is None (#3002) [#2756](https://github.com/materialsproject/pymatgen/issues/2756)
 - add doc str explaining need for class ElementBase (closes #2999) [#2999](https://github.com/materialsproject/pymatgen/issues/2999)
-- Update docs. `3e3c31c <https://github.com/materialsproject/pymatgen/commit/3e3c31c8d342c84f2c6bbb961c321e458b9accb9>`_
-- ruff set isort.split-on-trailing-comma = false `c0ec534 <https://github.com/materialsproject/pymatgen/commit/c0ec53452c3dc87c6cca5edc1c6b2b6218f15569>`_
+- Update docs. `3e3c31c <https://github.com/materialsproject/pymatgen/commit/3e3c31c8d342c84f2c6bbb961c321e458b9accb9>`\_
+- ruff set isort.split-on-trailing-comma = false `c0ec534 <https://github.com/materialsproject/pymatgen/commit/c0ec53452c3dc87c6cca5edc1c6b2b6218f15569>`\_
 
 ## v2023.5.10
 
@@ -188,7 +194,7 @@ For more details see [#2968](https://github.com/materialsproject/pymatgen/pull/2
 
 What's Changed
 
-- Fix TypeError: a bytes-like object is required, not 'list' when passing triplet of bools to find_points_in_spheres() pbc kwarg  by @janosh in [#2907](https://github.com/materialsproject/pymatgen/pull/2907)
+- Fix TypeError: a bytes-like object is required, not 'list' when passing triplet of bools to find_points_in_spheres() pbc kwarg by @janosh in [#2907](https://github.com/materialsproject/pymatgen/pull/2907)
 - Fix ValueError: not enough values to unpack in PDPlotter if no unstable entries in PD by @janosh in [#2908](https://github.com/materialsproject/pymatgen/pull/2908)
 - Fix VolumetricData.to_cube() not preserving structure dimensions by @janosh in [#2909](https://github.com/materialsproject/pymatgen/pull/2909)
 - Update team.rst by @jmmshn in [#2912](https://github.com/materialsproject/pymatgen/pull/2912)
@@ -233,15 +239,15 @@ What's Changed
 - e63cab3620 add 3.11 to release job python-versions
 - c03dacb94d use `cibuildwheel` to build linux wheels (#2800)
 - fe2597d92e Merge setup.cfg into pyproject.toml (#2858)
-- 40cbf1d7c4 del class AtomicFile, _maketemp(), ask_yesno() from pymatgen/util/io_utils.py (#2860)
+- 40cbf1d7c4 del class AtomicFile, \_maketemp(), ask_yesno() from pymatgen/util/io_utils.py (#2860)
 - 0b16987f2c fix reduced formula in Ion (#2864)
 
 ## v2023.2.22
 
 - PR #2848 from @ml-evs ml-evs/update_optimade_aliases
-    Currently `OptimadeRester` defaults to an outdated list of OPTIMADE database URLs (several of which fail) and the design of the class is such that refreshing these aliases can only be done post-init which means they will not be used if the user provides their own filtered list of aliases, without doing some extra work.
-    This PR refreshes the vendored list of aliases (which should be much more stable now since their initial addition 2 years ago), and also adds the option to refresh the aliases on initialization of the class.
-    This currently affects the pymatgen OPTIMADE tutorials at <https://github.com/Materials-Consortia/optimade-tutorial-exercises>.
+  Currently `OptimadeRester` defaults to an outdated list of OPTIMADE database URLs (several of which fail) and the design of the class is such that refreshing these aliases can only be done post-init which means they will not be used if the user provides their own filtered list of aliases, without doing some extra work.
+  This PR refreshes the vendored list of aliases (which should be much more stable now since their initial addition 2 years ago), and also adds the option to refresh the aliases on initialization of the class.
+  This currently affects the pymatgen OPTIMADE tutorials at <https://github.com/Materials-Consortia/optimade-tutorial-exercises>.
 
 ## v2023.1.30
 
@@ -261,11 +267,11 @@ What's Changed
 - Passthrough kwargs support for Structure.from_file and Structure.from_str
 - Allow the `frac_tolerance` to be specified for rounding coordinates in CifParser.
 - PR #2803 from @amkrajewski add_weightbasedfunctions
-    When working with metallic alloys, weight-fraction-based notations such as Ti64 / Ti-6V-4Al or NiTiNOL60 / Ni-40Ti are commonly employed in both industrial specifications and scientific literature. Regardless of the numerous downsides of this situation, including errors in scientific experiments or NLP-parsing when they are mistaken for atomic fractions or chemical formulas, being able to create a Composition object from them (under correct interpretation) would be a useful pymatgen feature.
+  When working with metallic alloys, weight-fraction-based notations such as Ti64 / Ti-6V-4Al or NiTiNOL60 / Ni-40Ti are commonly employed in both industrial specifications and scientific literature. Regardless of the numerous downsides of this situation, including errors in scientific experiments or NLP-parsing when they are mistaken for atomic fractions or chemical formulas, being able to create a Composition object from them (under correct interpretation) would be a useful pymatgen feature.
   - Composition class method to initialize it from a dictionary of weight fractions
   - Composition property giving a dictionary of weight fractions
   - concise tests for the two above were added
-QChem: translate DMSO name in smd_solvent
+    QChem: translate DMSO name in smd_solvent
 
 ## v2023.1.9
 
@@ -304,7 +310,7 @@ QChem: translate DMSO name in smd_solvent
 - @JaGeo Extend the ThermalDisplacementMatrices class to read cif files in P1 format.
 - @rkingsbury Changes to FEFF I/O to support the use of non-periodic input structures.
 - @jmmshn Merge Waverder and Wavederf
-- @jmmshn  Set the structure_charge while parsing Potcar
+- @jmmshn Set the structure_charge while parsing Potcar
 
 ## v2022.9.21
 
@@ -347,7 +353,7 @@ include the older defects code by default, but can also be replaced with
 the newer defects code through installation of pymatgen-analysis-defects.
 
 Subsequent versions of pymatgen will require
-the additional installation of `pymatgen-analysis-defects <https://github.com/materialsproject/pymatgen-analysis-defects>`_ for all defect-related
+the additional installation of `pymatgen-analysis-defects <https://github.com/materialsproject/pymatgen-analysis-defects>`\_ for all defect-related
 functionality via pip install pymatgen-analysis-defects.
 
 Relevant imports will still be from the pymatgen.analysis.defects namespace but the code will now be maintained and developed in this separate repository.
@@ -356,7 +362,7 @@ There will be significant changes to the defects code to support new functionali
 about this change should be directed to Jimmy-Xuan Shen, @jmmshn.
 
 For more information about other pymatgen "add-on" packages, please see
-`this page in our documentation <https://pymatgen.org/addons.html>`_.
+`this page in our documentation <https://pymatgen.org/addons.html>`\_.
 
 - Preparation for the removal of the defects module, PR #2582 by @jmmshn
 
@@ -374,7 +380,7 @@ Welcome to new contributors @naveensrinivasan, @xivh, @dgaines2, @yang-ruoxi, @c
 - Enhancement: Ion.oxi_state_guesses will use correct charge by default, PR #2566 by @rkingsbury
 - Enhancement: Remove not converged warning for VASP AIMD runs, PR #2571 by @mjwen
 - Fix: generation of continuous line-mode band structures, PR #2533 by @munrojm
-- Fix: duplicate site properties for magnetic moments hwen using `AseAtomsAdaptor`, PR #2545 by @arosen93
+- Fix: duplicate site properties for magnetic moments hwen using `AseAtomsAdaptor`, PR #2545 by @Andrew-S-Rosen
 - Fix: bug in Grüneisen parameter calculation, PR #2543 by @ab5424
 - Fix: allow a comment on final line of KPOINTS file, PR #2549 by @xivh
 - Fix: for `Composition.replace` with complex mappings, PR #2555 by @jacksund
@@ -412,7 +418,7 @@ see deprecation notice.
 ## v2022.5.17
 
 - PR #2518 from @JaGeo. Fixed wrong line in ICOHPLIST.lobster being read to assess whether orbitalwise interactions are included in these files.
-- PR #2520 from @arosen93. Adds a new property to the `PointGroupAnalyzer`: the rotational symmetry number.
+- PR #2520 from @Andrew-S-Rosen. Adds a new property to the `PointGroupAnalyzer`: the rotational symmetry number.
 - PR #2522 from @jmmshn. Fixes PD JSON serialization.
 - PR #2514 from @qianchenqc. Replaced the IALGO tag with ALGO as recommended in the vasp documentation <https://www.vasp.at/wiki/index.php/IALGO>.
 - PR #2404 from @nheinsdorf. Added a method that gets all the neighbors up a maximum distance for a Structure, and groups these 'bonds' according to their symmetry.
@@ -444,10 +450,10 @@ see deprecation notice.
 
 ## v2022.3.22
 
-- Support kwargs for ASE adaptor. (@arosen93)
+- Support kwargs for ASE adaptor. (@Andrew-S-Rosen)
 - Fix for cation error in Lobster analysis. (@JaGeo)
 - Major revampt of Abstract interface for Input classes in IO. (@rkingsbury)
-- Orbital-projected band center, band filling, band center, skewness, kurtosis, etc. (@arosen93)
+- Orbital-projected band center, band filling, band center, skewness, kurtosis, etc. (@Andrew-S-Rosen)
 - Misc cleanups. (@janosh)
 
 ## v2022.3.7
@@ -455,7 +461,7 @@ see deprecation notice.
 - Add VASP WSWQ file parsing, PR #2439 from @jmmshn
 - Improve chemical potential diagram plotting, PR #2447 from @mattmcdermott
 - Update to Lobster calculation settings, PR #2434 from @JaGeo master
-- Allow non-integer G-vector cut-off values when parsing WAVECAR, PR #2410 from @arosen93
+- Allow non-integer G-vector cut-off values when parsing WAVECAR, PR #2410 from @Andrew-S-Rosen
 - Fix for Structure.from_file when file is in YAML format from @janosh fix-structure-from-yml
 - Update of linter configuration, PR #2440 from @janosh
 - Update to ChemEnv citation, PR #2448 from @JaGeo
@@ -481,15 +487,15 @@ you may need to re-generate this file. This issue should now be fixed and not re
 
 ## v2022.2.1
 
-- Chargemol caller for partial atomic charge analysis (@arosen93)
-- ASEAtomAdaptor: (1) Updates to magmom support, (2) Oxidation states support, (3) Charges are now passed (@arosen93)
+- Chargemol caller for partial atomic charge analysis (@Andrew-S-Rosen)
+- ASEAtomAdaptor: (1) Updates to magmom support, (2) Oxidation states support, (3) Charges are now passed (@Andrew-S-Rosen)
 - Cleanup of deprecated methods. (@janosh)
 - Bigfix for gzipped DOSCAR (@JaGeo)
 - Updates for QChem Support (@samblau)
 - QuantumEspresso k-grid fix input fix. (@vorwerkc)
 - `Entry.__repr__()` now outputs name where available. (@janosh)
-- Fixes to Vasprun.final_energy to report `e_0_energy` (the desired energy quantity) for VASP 6+. (@arosen93)
-- `Outcar().final_energy` now prints out `e_0_energy` (also called "energy(sigma->0)" in the OUTCAR) rather than `energy_fr_energy` (also called "free  energy   TOTEN" in the OUTCAR). This is to be consistent with `Vasprun().final_energy` and because it is generally the desired quantity. `Outcar` now has two new attributes: `.final_energy_wo_entrp` and `final_fr_energy`, which correspond to `e_wo_entrp` and `e_fr_energy`, respectively. (@arosen93)
+- Fixes to Vasprun.final_energy to report `e_0_energy` (the desired energy quantity) for VASP 6+. (@Andrew-S-Rosen)
+- `Outcar().final_energy` now prints out `e_0_energy` (also called "energy(sigma->0)" in the OUTCAR) rather than `energy_fr_energy` (also called "free energy TOTEN" in the OUTCAR). This is to be consistent with `Vasprun().final_energy` and because it is generally the desired quantity. `Outcar` now has two new attributes: `.final_energy_wo_entrp` and `final_fr_energy`, which correspond to `e_wo_entrp` and `e_fr_energy`, respectively. (@Andrew-S-Rosen)
 - Improved parsing of coupled cluster calculations in QChem (@espottesmith).
 
 ## v2022.1.24
@@ -500,8 +506,8 @@ you may need to re-generate this file. This issue should now be fixed and not re
 
 - Unicode fixes (@janosh)
 - YAML deprecation fixes. (@janosh)
-- ASE adaptor support for charge, spin multiiciplity and site properties of molecules. (@arosen93).
-- New keyword option (`keep_site_properties`) in various `structure.symmetry.analyzer` functions to keep the site properties on the sites after a transformation. (@arosen93)
+- ASE adaptor support for charge, spin multiiciplity and site properties of molecules. (@Andrew-S-Rosen).
+- New keyword option (`keep_site_properties`) in various `structure.symmetry.analyzer` functions to keep the site properties on the sites after a transformation. (@Andrew-S-Rosen)
 - Bug fixes for Lobster module (@JaGeo).
 - SCAN / GGA(+U) mixing scheme (@rkingsbury). Mixing scheme code lives in the new file `mixing_scheme.py` and is implemented as a `Compatibility` class.
 - Fix for parsing of QuantumExpresso files due to new format (@vorwerkc)
@@ -516,8 +522,8 @@ you may need to re-generate this file. This issue should now be fixed and not re
 - First proper new release of 2022 formalizes the switch back to date-based versioning introduced as a temporary measure last year.
 - Numpy version pinned to 1.22.0. This is necessary to avoid binary incompatibility.
 - With the numpy version, py37 support is dropped.
-- ASE io improvements (e.g., magnetic moments and selective dynamics transfer). @arosen93
-- New automatic k-point generation scheme, `automatic_density_by_lengths`, which allows the user to specify a density of k-points in each dimension (rather than just for the entire volume). @arosen93
+- ASE io improvements (e.g., magnetic moments and selective dynamics transfer). @Andrew-S-Rosen
+- New automatic k-point generation scheme, `automatic_density_by_lengths`, which allows the user to specify a density of k-points in each dimension (rather than just for the entire volume). @Andrew-S-Rosen
 - Build improvements to dynamically generate C code by running Cython on pyx files rather than having hard-generated .c files.
 
 ## v2022.0.17
@@ -526,12 +532,12 @@ Welcome to new contributor @e-kwsm!
 
 - More robust smart fermi method by @utf in <https://github.com/materialsproject/pymatgen/pull/2303>
 - Replace-species by @janosh in <https://github.com/materialsproject/pymatgen/pull/2291>
-- Add warning if improper ALGO is used for hybrid calculations by @arosen93 in <https://github.com/materialsproject/pymatgen/pull/2298>
+- Add warning if improper ALGO is used for hybrid calculations by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/2298>
 - Wrap supercell to unit cell when performing change of setting by @jmmshn in <https://github.com/materialsproject/pymatgen/pull/2300>
-- Clearer handling of the MAGMOM flag in pymatgen.io.vasp.sets by @arosen93 in <https://github.com/materialsproject/pymatgen/pull/2301>
-- Add warning if LASPH != True for meta-GGA/hybrid/vdW/+U by @arosen93 in <https://github.com/materialsproject/pymatgen/pull/2297>
+- Clearer handling of the MAGMOM flag in pymatgen.io.vasp.sets by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/2301>
+- Add warning if LASPH != True for meta-GGA/hybrid/vdW/+U by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/2297>
 - Add ability to request additional OPTIMADE fields by @ml-evs in <https://github.com/materialsproject/pymatgen/pull/2315>
-- Add missing elements to MPScanRelaxSet PBE .54 potentials by @arosen93 in <https://github.com/materialsproject/pymatgen/pull/2316>
+- Add missing elements to MPScanRelaxSet PBE .54 potentials by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/2316>
 
 - Fix write Trajectory XDATACAR with variable lattice by @gpetretto in <https://github.com/materialsproject/pymatgen/pull/2310>
 - Fix small cutoff neighbor by @chc273 in <https://github.com/materialsproject/pymatgen/pull/2277>
@@ -542,7 +548,7 @@ Welcome to new contributor @e-kwsm!
 - Remove accidentally tracked files and unset executable flag by @e-kwsm in <https://github.com/materialsproject/pymatgen/pull/2296>
 
 - Update DOI URLs by @e-kwsm in <https://github.com/materialsproject/pymatgen/pull/2295>
-- Documentation update: Fix missing Outcar attributes and update elemental_dos_dos string by @arosen93 in <https://github.com/materialsproject/pymatgen/pull/2293>
+- Documentation update: Fix missing Outcar attributes and update elemental_dos_dos string by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/2293>
 - Documentation update for CutOffDictNN by @ltalirz in <https://github.com/materialsproject/pymatgen/pull/2278>
 
 ## v2022.0.16
@@ -605,7 +611,7 @@ you are acknowledged appropriately by filling out the linked form.
 
 ## v2022.0.10
 
-- Add spin-dependent eigenvalue band properties (@arosen93, #2187)
+- Add spin-dependent eigenvalue band properties (@Andrew-S-Rosen, #2187)
 - Bug fix for settings loading (@ardunn, #2186)
 
 ## v2022.0.9
@@ -665,7 +671,7 @@ you are acknowledged appropriately by filling out the linked form.
 ## v2022.0.6
 
 - Feature to calculate Selling vectors and distances between Lattices (@bwjustus, #1888)
-- XPS Spectrum class added (@shyuep, #2110, see `galore <https://github.com/SMTG-UCL/galore>`_)
+- XPS Spectrum class added (@shyuep, #2110, see `galore <https://github.com/SMTG-UCL/galore>`\_)
 - Updated `MaterialsProject2020Compatibility` for formation energy correction (@rkingsbury, #2106)
 - Bug fix for detecting broken bonds in slab generation (@fyalcin, #2015)
 - Bug fix for electrodes (@jmmshn, #2101)
@@ -681,7 +687,7 @@ you are acknowledged appropriately by filling out the linked form.
   `electron_affinity` properties.
 - Extensive documentation has been added on pymatgen compatibility and the
   new namespace architecture! We have also released a
-  `template repo <https://github.com/materialsproject/pymatgen-addon-template>`_
+  `template repo <https://github.com/materialsproject/pymatgen-addon-template>`\_
   to help new developers write add-ons for pymatgen! Check out our
   :doc:`contributing page</contributing>` for details.
 
@@ -726,13 +732,13 @@ you are acknowledged appropriately by filling out the linked form.
   `from pymatgen import` with `from pymatgen.core import`. Alternatively, if you
   are using a Mac command line, you can do::
 
-    find . -name '_.py' | xargs sed -i "" 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
-    find . -name '_.py' | xargs sed -i "" 's/from pymatgen import/from pymatgen.core import/g'
+  find . -name '_.py' | xargs sed -i "" 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
+  find . -name '_.py' | xargs sed -i "" 's/from pymatgen import/from pymatgen.core import/g'
 
   From a Linux command line, you can do::
 
-    find . -name '_.py' | xargs sed -i 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
-    find . -name '_.py' | xargs sed -i 's/from pymatgen import/from pymatgen.core import/g'
+  find . -name '_.py' | xargs sed -i 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
+  find . -name '_.py' | xargs sed -i 's/from pymatgen import/from pymatgen.core import/g'
 
   This should resolve most import errors and only a few more modifications may
   need to be done by hand.
@@ -740,15 +746,15 @@ you are acknowledged appropriately by filling out the linked form.
   Specifically, the following "convenience imports" have been removed in favor of
   their canonical import::
 
-    from pymatgen import Composition  # now "from pymatgen.core.composition import Composition"
-    from pymatgen import Lattice  # now "from pymatgen.core.lattice import Lattice"
-    from pymatgen import SymmOp  # now "from pymatgen.core.operations import SymmOp"
-    from pymatgen import DummySpecie, DummySpecies, Element, Specie, Species  # now "from pymatgen.core.periodic_table ..."
-    from pymatgen import PeriodicSite, Site  # now "from pymatgen.core.sites ..."
-    from pymatgen import IMolecule, IStructure, Molecule, Structure  # now "from pymatgen.core.structure ..."
-    from pymatgen import ArrayWithUnit, FloatWithUnit, Unit  # now "from pymatgen.core.units ..."
-    from pymatgen import Orbital, Spin  # now "from pymatgen.electronic_structure.core ..."
-    from pymatgen import MPRester  # now "from pymatgen.ext.matproj ..."
+  from pymatgen import Composition # now "from pymatgen.core.composition import Composition"
+  from pymatgen import Lattice # now "from pymatgen.core.lattice import Lattice"
+  from pymatgen import SymmOp # now "from pymatgen.core.operations import SymmOp"
+  from pymatgen import DummySpecie, DummySpecies, Element, Specie, Species # now "from pymatgen.core.periodic_table ..."
+  from pymatgen import PeriodicSite, Site # now "from pymatgen.core.sites ..."
+  from pymatgen import IMolecule, IStructure, Molecule, Structure # now "from pymatgen.core.structure ..."
+  from pymatgen import ArrayWithUnit, FloatWithUnit, Unit # now "from pymatgen.core.units ..."
+  from pymatgen import Orbital, Spin # now "from pymatgen.electronic_structure.core ..."
+  from pymatgen import MPRester # now "from pymatgen.ext.matproj ..."
 
 ## v2021.3.3
 
@@ -919,7 +925,7 @@ you are acknowledged appropriately by filling out the linked form.
 - Fixed: Elfcar serialization (@ayushgupta, #1859)
 - Fixed: Units in label for phonon plot (@ab5424, #1857)
 - Fixed: StructureMatcher serialization (@lbluque, #1850)
-- Fixed: Comment string in KPOINTS file (@arosen93, #1842)
+- Fixed: Comment string in KPOINTS file (@Andrew-S-Rosen, #1842)
 - Fixed: parsing of dielectric function in VASP output (@computron, #1836)
 
 ## v2020.4.29
@@ -1037,7 +1043,7 @@ you are acknowledged appropriately by filling out the linked form.
 - New fast Pourbaix algorithm (@montoyjh)
 - VASP Incar parameter checking (@CifLord)
 - New VASP input set for Lobster, read support for GROSSPOP file (@JaGeo)
-- New CombinedData class  for LAMMPS (@htz1992213)
+- New CombinedData class for LAMMPS (@htz1992213)
 - Improvements to molecule fragmenter (@samblau)
 - Various bug fixes and improvements (@dongsenfo, @shyuep, @ardunn, @nathan-diodan, @rkingsbury, @kmu)
 
@@ -1140,13 +1146,13 @@ you are acknowledged appropriately by filling out the linked form.
 ## v2019.3.27
 
 - Bug fixes for OrderDisorderComparator (@utf), custom k-points
-in MPNonSCFSet (@dyllamt), battery app (@jmmshn), MPSOCSet (@mkhorton),
-more
+  in MPNonSCFSet (@dyllamt), battery app (@jmmshn), MPSOCSet (@mkhorton),
+  more
 - Improvements to COHP (@JaGeo)
 - Support to read WAVEDER files (@knc6)
 - Addition of van Arkel-Ketelaar triangle plots (@CifLord)
 - Addition of optional user agent to MPRester API calls, see documentation
-for more information (@dwinston)
+  for more information (@dwinston)
 
 ## v2019.3.13
 
@@ -1663,7 +1669,7 @@ for more information (@dwinston)
 
 ## v4.5.7
 
-- PMG settings are now prefixed with PMG_ to ensure proper namespacing.
+- PMG settings are now prefixed with PMG\_ to ensure proper namespacing.
 - Improve error output in command line bader caller.
 - Add Py3.6 classifier.
 - Misc bug fixes.
@@ -1771,13 +1777,13 @@ for more information (@dwinston)
   strings, slices, and sequences should magically work, in addition to the
   previous API of simple int indices. Examples::
 
-    s[0] = "Fe"
-    s[0] = "Fe", [0.5, 0.5, 0.5]  # Replaces site and fractional coordinates.
-    s[0] = "Fe", [0.5, 0.5, 0.5], {"spin": 2}  # Replaces site and fractional coordinates and properties.
-    s[(0, 2, 3)] = "Fe"  # Replaces sites 0, 2 and 3 with Fe.
-    s[0::2] = "Fe"  # Replaces all even index sites with Fe.
-    s["Mn"] = "Fe"  # Replaces all Mn in the structure with Fe.
-    s["Mn"] = "Fe0.5Co0.5"  # Replaces all Mn in the structure with Fe: 0.5, Co: 0.5, i.e.,creates a disordered structure!
+  s[0] = "Fe"
+  s[0] = "Fe", [0.5, 0.5, 0.5] # Replaces site and fractional coordinates.
+  s[0] = "Fe", [0.5, 0.5, 0.5], {"spin": 2} # Replaces site and fractional coordinates and properties.
+  s[(0, 2, 3)] = "Fe" # Replaces sites 0, 2 and 3 with Fe.
+  s[0::2] = "Fe" # Replaces all even index sites with Fe.
+  s["Mn"] = "Fe" # Replaces all Mn in the structure with Fe.
+  s["Mn"] = "Fe0.5Co0.5" # Replaces all Mn in the structure with Fe: 0.5, Co: 0.5, i.e.,creates a disordered structure!
 
 - Massive update to internal representation of Bandstructure objects for
   memory and computational efficiency.
@@ -1818,7 +1824,7 @@ for more information (@dwinston)
 
 ## v4.2.2
 
-- Global configuration variables such as VASP\_PSP\_DIR and MAPI\_KEY are now
+- Global configuration variables such as VASP_PSP_DIR and MAPI_KEY are now
   stored in "~/.pmgrc.yaml". If you are setting these as environmental
   variables right now, you can easily transition to the new system using::
 
@@ -1827,6 +1833,7 @@ for more information (@dwinston)
   This new scheme will provide greater flexibility for user-defined
   global behavior in pymatgen, e.g., tolerances, default input sets for
   transmuters, etc., in future.
+
 - Beta of k-point weight calculator.
 - Use default MSONable as and from_dict for all transformations.
 
@@ -1966,7 +1973,7 @@ for more information (@dwinston)
 
 ## v3.3.0
 
-- Updated and checked for Python 3.5.* compatibility.
+- Updated and checked for Python 3.5.\* compatibility.
 - Element, Spin, Orbital and various other Enum-like classes are now actually
   implemented using Enum (with enum34 dependency for Python < 3.4).
 - Speed up Site creation by 20% for ordered sites, with cost in terms of
@@ -2052,7 +2059,7 @@ for more information (@dwinston)
 - Fix wrong U value for Ce and Eu.
 - Properly handle empty multiline strings in Cif
 - Add ability to get specific data in MPRester.get_entries. Make all get_entry
-  methods consistent  in kwargs.
+  methods consistent in kwargs.
 
 ## v3.2.0
 
@@ -2080,7 +2087,7 @@ for more information (@dwinston)
 ## v3.1.5
 
 - Move vasp.vasp*put to vasp.*puts. Also, maintain backwards compatibility with
-  vaspio.vasp_*put
+  vaspio.vasp\_\*put
 
 ## v3.1.4
 
@@ -2097,7 +2104,7 @@ for more information (@dwinston)
   messages.
 - Make Composition.anonymized_formula truly chemistry independent (No A2B2
   for peroxides or A2 for diatomic gasses)
-- Allowing CIF data_* header to be prefixed with spaces and tabulations.
+- Allowing CIF data\_\* header to be prefixed with spaces and tabulations.
 
 ## v3.1.2
 
@@ -2375,7 +2382,7 @@ for more information (@dwinston)
 - Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
 - Vastly improved docs.
 - Refactoring to move commonly used Python utility functions to `Monty
-  package <https://pypi.python.org/pypi/monty>`_, which is now a dependency
+package <https://pypi.python.org/pypi/monty>`\_, which is now a dependency
   for pymatgen.
 - Minor fixes and improvements to DiffusionAnalyzer.
 - Many bug fixes and improvements.
@@ -2416,7 +2423,7 @@ for more information (@dwinston)
 ## v2.8.2
 
 - Bug fix release to improve CIF parsing for more non-standard CIF files.
-  In particular, non-ascii characters are removed and _cgraph* fields are
+  In particular, non-ascii characters are removed and \_cgraph\* fields are
   removed prior to parsing for better support in PyCiFRW.
 
 ## v2.8.1
@@ -2640,7 +2647,7 @@ for more information (@dwinston)
 
 - Significant improvements to the high-level interface to the Materials API.
   New interface provides more options to make it easier to get structures and
-  entries, better warnings and error handling. It uses the *requests*
+  entries, better warnings and error handling. It uses the _requests_
   library for a cleaner API.
 - Bug fix for VolumetricData parsing and methods such as CHGCAR and LOCPOT.
   Previously, the parsing was done incorrectly because VASP actually provides

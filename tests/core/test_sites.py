@@ -251,7 +251,7 @@ def get_distance_and_image_old(site1, site2, jimage=None):
             distance and periodic lattice translations of the other site
             for which the distance applies.
 
-    .. note::
+    Note:
         Assumes the primitive cell vectors are sufficiently not skewed such
         that the condition \\|a\\|cos(ab_angle) < \\|b\\| for all possible cell
         vector pairs. ** this method does not check this condition **

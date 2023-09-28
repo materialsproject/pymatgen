@@ -47,7 +47,7 @@ due.cite(
 def _load_cross_sections(fname):
     data = pd.read_csv(fname)
 
-    d = collections.defaultdict(dict)
+    dct = collections.defaultdict(dict)
     for row in data.itertuples():
         sym = row.element
         el = Element(sym)
@@ -62,8 +62,8 @@ def _load_cross_sections(fname):
                 n_elect = n_ele
                 break
         if n_elect is not None:
-            d[sym][orb_type] = row.weight / n_elect
-    return d
+            dct[sym][orb_type] = row.weight / n_elect
+    return dct
 
 
 CROSS_SECTIONS = _load_cross_sections(Path(__file__).parent / "atomic_subshell_photoionization_cross_sections.csv")
@@ -80,6 +80,7 @@ class XPS(Spectrum):
         """
         :param dos: CompleteDos object with project element-orbital DOS. Can be obtained from Vasprun.get_complete_dos.
         :param sigma: Smearing for Gaussian.
+
         Returns:
             XPS
         """

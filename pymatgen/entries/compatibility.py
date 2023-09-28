@@ -717,7 +717,7 @@ class CorrectionsList(Compatibility):
         corrected_energy = corr_entry.energy if corr_entry else None
         correction_uncertainty = corr_entry.correction_uncertainty if corr_entry else None
 
-        d = {
+        dct = {
             "compatibility": type(self).__name__,
             "uncorrected_energy": uncorrected_energy,
             "corrected_energy": corrected_energy,
@@ -737,8 +737,8 @@ class CorrectionsList(Compatibility):
                 "uncertainty": uncer,
             }
             corrections.append(cd)
-        d["corrections"] = corrections
-        return d
+        dct["corrections"] = corrections
+        return dct
 
     def explain(self, entry):
         """Prints an explanation of the corrections that are being applied for a
@@ -1035,12 +1035,9 @@ class MaterialsProject2020Compatibility(Compatibility):
             try:
                 oxi_states = entry.composition.oxi_state_guesses(max_sites=-20)
             except ValueError:
-                oxi_states = []
+                oxi_states = ({},)
 
-            if oxi_states == []:
-                entry.data["oxidation_states"] = {}
-            else:
-                entry.data["oxidation_states"] = oxi_states[0]
+            entry.data["oxidation_states"] = (oxi_states or ({},))[0]
 
         if entry.data["oxidation_states"] == {}:
             warnings.warn(

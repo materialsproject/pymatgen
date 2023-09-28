@@ -88,7 +88,7 @@ class Cohp(MSONable):
 
     def as_dict(self):
         """JSON-serializable dict representation of COHP."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "are_coops": self.are_coops,
@@ -98,8 +98,8 @@ class Cohp(MSONable):
             "COHP": {str(spin): pops.tolist() for spin, pops in self.cohp.items()},
         }
         if self.icohp:
-            d["ICOHP"] = {str(spin): pops.tolist() for spin, pops in self.icohp.items()}
-        return d
+            dct["ICOHP"] = {str(spin): pops.tolist() for spin, pops in self.icohp.items()}
+        return dct
 
     def get_cohp(self, spin=None, integrated=False):
         """Returns the COHP or ICOHP for a particular spin.
@@ -198,39 +198,16 @@ class Cohp(MSONable):
 class CompleteCohp(Cohp):
     """A wrapper class that defines an average COHP, and individual COHPs.
 
-    .. attribute: are_coops
-
-         Indicates whether the object is consisting of COOPs.
-
-
-    .. attribute: are_cobis
-
-         Indicates whether the object is consisting of COBIs.
-
-
-    .. attribute: efermi
-
-         Fermi energy
-
-    .. attribute: energies
-
-         Sequence of energies
-
-    .. attribute: structure
-
-         Structure associated with the COHPs.
-
-    .. attribute: cohp, icohp
-
-         The average COHP/ICOHP.
-
-    .. attribute: all_cohps
-
-         A dict of COHPs for individual bonds of the form {label: COHP}
-
-    .. attribute: orb_res_cohp
-
-        Orbital-resolved COHPs.
+    Attributes:
+        are_coops (bool): Indicates whether the object is consisting of COOPs.
+        are_cobis (bool): Indicates whether the object is consisting of COBIs.
+        efermi (float): Fermi energy.
+        energies (Sequence[float]): Sequence of energies.
+        structure (pymatgen.Structure): Structure associated with the COHPs.
+        cohp (Sequence[float]): The average COHP.
+        icohp (Sequence[float]): The average ICOHP.
+        all_cohps (dict[str, Sequence[float]]): A dict of COHPs for individual bonds of the form {label: COHP}.
+        orb_res_cohp (dict[str, Dict[str, Sequence[float]]]): Orbital-resolved COHPs.
     """
 
     def __init__(
@@ -289,7 +266,7 @@ class CompleteCohp(Cohp):
 
     def as_dict(self):
         """JSON-serializable dict representation of CompleteCohp."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "are_coops": self.are_coops,
@@ -301,21 +278,21 @@ class CompleteCohp(Cohp):
         }
 
         if self.icohp is not None:
-            d["ICOHP"] = {"average": {str(spin): pops.tolist() for spin, pops in self.icohp.items()}}
+            dct["ICOHP"] = {"average": {str(spin): pops.tolist() for spin, pops in self.icohp.items()}}
 
         for label in self.all_cohps:
-            d["COHP"].update({label: {str(spin): pops.tolist() for spin, pops in self.all_cohps[label].cohp.items()}})
+            dct["COHP"].update({label: {str(spin): pops.tolist() for spin, pops in self.all_cohps[label].cohp.items()}})
             if self.all_cohps[label].icohp is not None:
-                if "ICOHP" not in d:
-                    d["ICOHP"] = {
+                if "ICOHP" not in dct:
+                    dct["ICOHP"] = {
                         label: {str(spin): pops.tolist() for spin, pops in self.all_cohps[label].icohp.items()}
                     }
                 else:
-                    d["ICOHP"].update(
+                    dct["ICOHP"].update(
                         {label: {str(spin): pops.tolist() for spin, pops in self.all_cohps[label].icohp.items()}}
                     )
         if False in [bond_dict == {} for bond_dict in self.bonds.values()]:
-            d["bonds"] = {
+            dct["bonds"] = {
                 bond: {
                     "length": self.bonds[bond]["length"],
                     "sites": [site.as_dict() for site in self.bonds[bond]["sites"]],
@@ -333,9 +310,9 @@ class CompleteCohp(Cohp):
                     orb_dict[label][orbs]["ICOHP"] = icohp
                     orbitals = [[orb[0], orb[1].name] for orb in self.orb_res_cohp[label][orbs]["orbitals"]]
                     orb_dict[label][orbs]["orbitals"] = orbitals
-            d["orb_res_cohp"] = orb_dict
+            dct["orb_res_cohp"] = orb_dict
 
-        return d
+        return dct
 
     def get_cohp_by_label(self, label, summed_spin_channels=False):
         """Get specific COHP object.
@@ -798,21 +775,15 @@ class CompleteCohp(Cohp):
 class IcohpValue(MSONable):
     """Class to store information on an ICOHP or ICOOP value.
 
-    .. attribute:: num_bonds
-            number of bonds used for the average cohp (relevant for Lobster versions <3.0) (int)
-
-    .. attribute:: are_coops
-            Boolean to indicates ICOOPs
-
-    .. attribute:: are_cobis
-            Boolean to indicates ICOBIs
-
-    .. attribute:: icohp
-            dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
-
-    .. attribute:: summed_icohp:
-            sum of icohp/icoop of both spin channels
-
+    Attributes:
+        energies (ndarray): Energy values for the COHP/ICOHP/COOP/ICOOP.
+        densities (ndarray): Density of states values for the COHP/ICOHP/COOP/ICOOP.
+        energies_are_cartesian (bool): Whether the energies are cartesian or not.
+        are_coops (bool): Whether the object is a COOP/ICOOP or not.
+        are_cobis (bool): Whether the object is a COBIS/ICOBIS or not.
+        icohp (dict): A dictionary of the ICOHP/COHP values. The keys are Spin.up and Spin.down.
+        summed_icohp (float): The summed ICOHP/COHP values.
+        num_bonds (int): The number of bonds used for the average COHP (relevant for Lobster versions <3.0).
     """
 
     def __init__(
@@ -985,15 +956,10 @@ class IcohpValue(MSONable):
 class IcohpCollection(MSONable):
     """Class to store IcohpValues.
 
-    .. attribute:: are_coops
-        Boolean to indicate if these are ICOOPs
-
-    .. attribute:: are_cobis
-        Boolean to indicate if these are ICOOPs
-
-    .. attribute:: is_spin_polarized
-        Boolean to indicate if the Lobster calculation was done spin polarized or not
-
+    Attributes:
+        are_coops (bool): Boolean to indicate if these are ICOOPs.
+        are_cobis (bool): Boolean to indicate if these are ICOOPs.
+        is_spin_polarized (bool): Boolean to indicate if the Lobster calculation was done spin polarized or not.
     """
 
     def __init__(
@@ -1070,6 +1036,7 @@ class IcohpCollection(MSONable):
             summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed
             spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
             orbitals: List of Orbital or "str(Orbital1)-str(Orbital2)"
+
         Returns:
             float describing ICOHP/ICOOP value
         """
@@ -1114,19 +1081,20 @@ class IcohpCollection(MSONable):
         return sum_icohp / divisor
 
     def get_icohp_dict_by_bondlengths(self, minbondlength=0.0, maxbondlength=8.0):
-        """Get a dict of IcohpValues corresponding to certain bond lengths
+        """Get a dict of IcohpValues corresponding to certain bond lengths.
+
         Args:
             minbondlength: defines the minimum of the bond lengths of the bonds
             maxbondlength: defines the maximum of the bond lengths of the bonds.
 
         Returns:
-             dict of IcohpValues, the keys correspond to the values from the initial list_labels.
+            dict of IcohpValues, the keys correspond to the values from the initial list_labels.
         """
-        newicohp_dict = {}
+        new_icohp_dict = {}
         for value in self._icohplist.values():
             if value._length >= minbondlength and value._length <= maxbondlength:
-                newicohp_dict[value._label] = value
-        return newicohp_dict
+                new_icohp_dict[value._label] = value
+        return new_icohp_dict
 
     def get_icohp_dict_of_site(
         self,
@@ -1152,7 +1120,7 @@ class IcohpCollection(MSONable):
         Returns:
             dict of IcohpValues, the keys correspond to the values from the initial list_labels
         """
-        newicohp_dict = {}
+        new_icohp_dict = {}
         for key, value in self._icohplist.items():
             atomnumber1 = int(re.split(r"(\d+)", value._atom1)[1]) - 1
             atomnumber2 = int(re.split(r"(\d+)", value._atom2)[1]) - 1
@@ -1169,19 +1137,20 @@ class IcohpCollection(MSONable):
                         if value.summed_icohp >= minsummedicohp:
                             if maxsummedicohp is not None:
                                 if value.summed_icohp <= maxsummedicohp:
-                                    newicohp_dict[key] = value
+                                    new_icohp_dict[key] = value
                             else:
-                                newicohp_dict[key] = value
+                                new_icohp_dict[key] = value
                     elif maxsummedicohp is not None:
                         if value.summed_icohp <= maxsummedicohp:
-                            newicohp_dict[key] = value
+                            new_icohp_dict[key] = value
                     else:
-                        newicohp_dict[key] = value
+                        new_icohp_dict[key] = value
 
-        return newicohp_dict
+        return new_icohp_dict
 
     def extremum_icohpvalue(self, summed_spin_channels=True, spin=Spin.up):
-        """Get ICOHP/ICOOP of strongest bond
+        """Get ICOHP/ICOOP of strongest bond.
+
         Args:
             summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed.
 

@@ -154,7 +154,7 @@ class AbstractGeometry:
         String representation of the AbstractGeometry
 
         Returns:
-            String representation of the AbstractGeometry.
+            str: String representation of the AbstractGeometry.
         """
         outs = [f"\nAbstract Geometry with {len(self.coords)} points :"]
         for pp in self.coords:
@@ -468,6 +468,7 @@ class LocalGeometryFinder:
         """
         Returns the pymatgen Structure that has been setup for the identification of geometries (the initial one
         might have been refined/symmetrized using the SpaceGroupAnalyzer).
+
         Returns:
             The pymatgen Structure that has been setup for the identification of geometries (the initial one
         might have been refined/symmetrized using the SpaceGroupAnalyzer).
@@ -713,7 +714,7 @@ class LocalGeometryFinder:
                 all_cns = list(set(all_cns).intersection(cns_to_recompute))
             do_recompute = True
 
-        # Variables used for checking timelimit
+        # Variables used for checking time limit
         max_time_one_site = 0.0
         break_it = False
 
@@ -761,8 +762,7 @@ class LocalGeometryFinder:
                         optimization=optimization,
                     )
                     t_nbset2 = time.process_time()
-                    if cn not in nb_sets_info:
-                        nb_sets_info[cn] = {}
+                    nb_sets_info.setdefault(cn, {})
                     nb_sets_info[cn][inb_set] = {"time": t_nbset2 - t_nbset1}
                     if get_from_hints:
                         for cg_symbol, cg_dict in ce:
@@ -962,20 +962,20 @@ class LocalGeometryFinder:
         else:
             raise ValueError("Wrong mp_symbol to setup coordination geometry")
         neighb_coords = []
-        mypoints = points if points is not None else cg.points
+        _points = points if points is not None else cg.points
         if randomness:
             rv = np.random.random_sample(3)
             while norm(rv) > 1.0:
                 rv = np.random.random_sample(3)
             coords = [np.zeros(3, np.float_) + max_random_dist * rv]
-            for pp in mypoints:
+            for pp in _points:
                 rv = np.random.random_sample(3)
                 while norm(rv) > 1.0:
                     rv = np.random.random_sample(3)
                 neighb_coords.append(np.array(pp) + max_random_dist * rv)
         else:
             coords = [np.zeros(3, np.float_)]
-            for pp in mypoints:
+            for pp in _points:
                 neighb_coords.append(np.array(pp))
         if indices == "RANDOM":
             shuffle(neighb_coords)
@@ -1047,8 +1047,8 @@ class LocalGeometryFinder:
         neighb_coords = [cc + translation for cc in neighb_coords]
 
         coords.extend(neighb_coords)
-        myspecies = ["O"] * (len(coords))
-        myspecies[0] = "Cu"
+        species = ["O"] * (len(coords))
+        species[0] = "Cu"
 
         amin = np.min([cc[0] for cc in coords])
         amax = np.max([cc[0] for cc in coords])
@@ -1063,7 +1063,7 @@ class LocalGeometryFinder:
         lattice = Lattice.cubic(a=aa)
         structure = Structure(
             lattice=lattice,
-            species=myspecies,
+            species=species,
             coords=coords,
             to_unit_cell=False,
             coords_are_cartesian=True,
@@ -1120,6 +1120,7 @@ class LocalGeometryFinder:
     def get_coordination_symmetry_measures(self, only_minimum=True, all_csms=True, optimization=None):
         """
         Returns the continuous symmetry measures of the current local geometry in a dictionary.
+
         Returns:
             the continuous symmetry measures of the current local geometry in a dictionary.
         """
@@ -1249,6 +1250,7 @@ class LocalGeometryFinder:
     ):
         """
         Returns the continuous symmetry measures of the current local geometry in a dictionary.
+
         Returns:
             the continuous symmetry measures of the current local geometry in a dictionary.
         """
@@ -1305,15 +1307,17 @@ class LocalGeometryFinder:
         points_perfect=None,
         optimization=None,
     ):
-        """
-        Returns the symmetry measures of a given coordination_geometry for a set of permutations depending on
-        the permutation setup. Depending on the parameters of the LocalGeometryFinder and on the coordination
-         geometry, different methods are called.
+        """Returns the symmetry measures of a given coordination_geometry for a set of
+        permutations depending on the permutation setup. Depending on the parameters of
+        the LocalGeometryFinder and on the coordination geometry, different methods are called.
+
         :param coordination_geometry: Coordination geometry for which the symmetry measures are looked for
+
+        Raises:
+            NotImplementedError: if the permutation_setup does not exist
 
         Returns:
             the symmetry measures of a given coordination_geometry for a set of permutations
-        :raise: NotImplementedError if the permutation_setup does not exists.
         """
         if tested_permutations:
             tested_permutations = set()
@@ -1351,15 +1355,17 @@ class LocalGeometryFinder:
     def coordination_geometry_symmetry_measures_sepplane_optim(
         self, coordination_geometry, points_perfect=None, nb_set=None, optimization=None
     ):
-        """
-        Returns the symmetry measures of a given coordination_geometry for a set of permutations depending on
-        the permutation setup. Depending on the parameters of the LocalGeometryFinder and on the coordination
-         geometry, different methods are called.
+        """Returns the symmetry measures of a given coordination_geometry for a set of
+        permutations depending on the permutation setup. Depending on the parameters of
+        the LocalGeometryFinder and on the coordination geometry, different methods are called.
+
         :param coordination_geometry: Coordination geometry for which the symmetry measures are looked for
+
+        Raises:
+            NotImplementedError: if the permutation_setup does not exist
 
         Returns:
             the symmetry measures of a given coordination_geometry for a set of permutations
-        :raise: NotImplementedError if the permutation_setup does not exists.
         """
         csms = []
         permutations = []
@@ -1687,10 +1693,10 @@ class LocalGeometryFinder:
                         continue
                     if sep not in nb_set.separations:
                         nb_set.separations[sep] = {}
-                    mysep = [np.array(ss, dtype=int) for ss in separation]
-                    nb_set.separations[sep][separation] = (plane, mysep)
+                    _sep = [np.array(ss, dtype=int) for ss in separation]
+                    nb_set.separations[sep][separation] = (plane, _sep)
                     if sep == separation_plane_algo.separation:
-                        new_seps.append(mysep)
+                        new_seps.append(_sep)
 
                 for separation_indices in new_seps:
                     cgsm = cgcsmoptim(

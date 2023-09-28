@@ -796,12 +796,12 @@ Cartesian
         kpoints = Kpoints.automatic_density(poscar.structure, 500)
         assert kpoints.kpts == [[1, 3, 3]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
-        kpoints = Kpoints.automatic_density(poscar.structure, 500, True)
+        kpoints = Kpoints.automatic_density(poscar.structure, 500, force_gamma=True)
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.automatic_density_by_vol(poscar.structure, 1000)
         assert kpoints.kpts == [[6, 10, 13]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
-        kpoints = Kpoints.automatic_density_by_lengths(poscar.structure, [50, 50, 1], True)
+        kpoints = Kpoints.automatic_density_by_lengths(poscar.structure, [50, 50, 1], force_gamma=True)
         assert kpoints.kpts == [[5, 9, 1]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
@@ -1096,7 +1096,7 @@ class TestPotcarSingle(unittest.TestCase):
         )
 
 
-class TestPotcar(unittest.TestCase):
+class TestPotcar(PymatgenTest):
     def setUp(self):
         if "PMG_VASP_PSP_DIR" not in SETTINGS:
             SETTINGS["PMG_VASP_PSP_DIR"] = str(TEST_FILES_DIR)
@@ -1125,24 +1125,20 @@ class TestPotcar(unittest.TestCase):
         assert potcar.symbols == ["Fe", "P", "O"]
 
     def test_write(self):
-        tempfname = Path("POTCAR.testing")
-        self.potcar.write_file(tempfname)
-        p = Potcar.from_file(tempfname)
+        tmp_file = f"{self.tmp_path}/POTCAR.testing"
+        self.potcar.write_file(tmp_file)
+        p = Potcar.from_file(tmp_file)
         assert p.symbols == self.potcar.symbols
 
-        # check line by line
-        with open(self.filepath) as f_ref, open(tempfname) as f_new:
+        with open(self.filepath) as f_ref, open(tmp_file) as f_new:
             ref_potcar = f_ref.readlines()
             new_potcar = f_new.readlines()
 
-        if len(ref_potcar) != len(new_potcar):
-            raise AssertionError("POTCAR file lengths are not equal")
+        assert len(ref_potcar) == len(new_potcar), f"wrong POTCAR line count: {len(ref_potcar)} != {len(new_potcar)}"
 
+        # check line by line
         for line1, line2 in zip(ref_potcar, new_potcar):
-            if line1.strip() != line2.strip():
-                raise AssertionError("POTCAR contents are not")
-
-        tempfname.unlink()
+            assert line1.strip() == line2.strip(), f"wrong POTCAR line: {line1} != {line2}"
 
     def test_set_symbol(self):
         assert self.potcar.symbols == ["Fe", "P", "O"]

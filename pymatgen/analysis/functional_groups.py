@@ -102,6 +102,7 @@ class FunctionalGroupExtractor:
 
         :param elements: List of elements to identify (if only certain
             functional groups are of interest).
+
         Returns:
             set of ints representing node indices
         """
@@ -132,6 +133,7 @@ class FunctionalGroupExtractor:
         :param elements: List of elements that will qualify a carbon as special
             (if only certain functional groups are of interest).
             Default None.
+
         Returns:
             set of ints representing node indices
         """
@@ -197,6 +199,7 @@ class FunctionalGroupExtractor:
 
         :param atoms: set of marked "interesting" atoms, presumably identified
             using other functions in this class.
+
         Returns:
             list of sets of ints, representing groups of connected atoms
         """
@@ -233,6 +236,7 @@ class FunctionalGroupExtractor:
         :param func_groups: List of strs representing the functional groups of
             interest. Default to None, meaning that all of the functional groups
             defined in this function will be sought.
+
         Returns:
             list of sets of ints, representing groups of connected atoms
         """
@@ -316,6 +320,7 @@ class FunctionalGroupExtractor:
         Determine classes of functional groups present in a set.
 
         :param groups: Set of functional groups.
+
         Returns:
             dict containing representations of the groups, the indices of
             where the group occurs in the MoleculeGraph, and how many of each

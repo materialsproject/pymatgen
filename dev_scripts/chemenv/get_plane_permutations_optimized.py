@@ -233,9 +233,9 @@ if __name__ == "__main__":
                     points_perfect=points_perfect,
                 )
 
-                my_csms = [c["symmetry_measure"] for c in csms]
+                sym_measures = [c["symmetry_measure"] for c in csms]
                 prt1(string="Continuous symmetry measures", printing_volume=printing_volume)
-                prt1(string=my_csms, printing_volume=printing_volume)
+                prt1(string=sym_measures, printing_volume=printing_volume)
                 csms_with_recorded_permutation = []  # type: ignore
                 explicit_permutations = []
                 for icsm, csm in enumerate(csms):
@@ -376,19 +376,20 @@ if __name__ == "__main__":
                         points_perfect=points_perfect,
                     )
 
-                    my_csms = [c["symmetry_measure"] for c in csms]
-                    imin = np.argmin(my_csms)
-                    mincsm = min(my_csms)
-                    if not mincsm < 1.0:
+                    sym_measures = [c["symmetry_measure"] for c in csms]
+                    imin = np.argmin(sym_measures)
+                    min_csm = min(sym_measures)
+                    if not min_csm < 1.0:
                         print("Following is not close enough to 0 ...")
-                        input(my_csms)
+                        input(sym_measures)
                     mincsm_indices = []
-                    for icsm, csm in enumerate(my_csms):
-                        if np.isclose(mincsm, csm, rtol=0.0):
+                    for icsm, csm in enumerate(sym_measures):
+                        if np.isclose(min_csm, csm, rtol=0.0):
                             mincsm_indices.append(icsm)
                     this_plane_sep_perm = tuple(sep_perms[imin])
                     prt2(
-                        string=f"  permutation {'-'.join(map(str, this_plane_sep_perm))} gives csm={my_csms[imin]:.6f}",
+                        string=f"  permutation {'-'.join(map(str, this_plane_sep_perm))} "
+                        f"gives csm={sym_measures[imin]:.6f}",
                         printing_volume=printing_volume,
                     )
 

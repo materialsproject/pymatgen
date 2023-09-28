@@ -400,12 +400,11 @@ class Section(MSONable):
     def get(self, d, default=None):
         """
         Similar to get for dictionaries. This will attempt to retrieve the
-        section or keyword matching d. Will not raise an error if d does not
-        exist.
+        section or keyword matching d. Will not raise an error if d does not exist.
 
         Args:
-             d: the key to retrieve, if present
-             default: what to return if d is not found
+            d: the key to retrieve, if present
+            default: what to return if d is not found
         """
         kw = self.get_keyword(d)
         if kw:
@@ -598,25 +597,25 @@ class Section(MSONable):
 
         return string
 
-    def verbosity(self, verbosity):
+    def verbosity(self, verbosity: bool) -> None:
         """
         Change the section verbosity recursively by turning on/off the printing of descriptions.
         Turning off descriptions may reduce the appealing documentation of input files, but also
         helps de-clutter them.
         """
         self.verbose = verbosity
-        for v in self.keywords.values():
-            v.verbosity(verbosity)
-        for v in self.subsections.values():
-            v.verbosity(verbosity)
+        for val in self.keywords.values():
+            val.verbosity(verbosity)
+        for val in self.subsections.values():
+            val.verbosity(verbosity)
 
     def silence(self):
         """Recursively delete all print sections so that only defaults are printed out."""
         if self.subsections:
             if self.subsections.get("PRINT"):
                 del self.subsections["PRINT"]
-            for v in self.subsections.values():
-                v.silence()
+            for val in self.subsections.values():
+                val.silence()
 
 
 class SectionList(MSONable):
@@ -856,7 +855,7 @@ class Global(Section):
         _keywords = {
             "PROJECT_NAME": Keyword("PROJECT_NAME", project_name),
             "RUN_TYPE": Keyword("RUN_TYPE", run_type),
-            "EXTENDED_FFT_LENGTHS": Keyword("EXTENDED_FFT_LENGTHS", True),
+            "EXTENDED_FFT_LENGTHS": Keyword("EXTENDED_FFT_LENGTHS", True),  # noqa: FBT003
         }
         keywords.update(_keywords)
         super().__init__(
@@ -1155,7 +1154,7 @@ class Diagonalization(Section):
         subsections: dict | None = None,
         **kwargs,
     ):
-        """Initialize the diagronalization section."""
+        """Initialize the diagonalization section."""
         self.eps_adapt = eps_adapt
         self.eps_iter = eps_iter
         self.eps_jacobi = eps_jacobi
@@ -1204,7 +1203,7 @@ class Davidson(Section):
                     systems where make_preconditioner would dominate the total computational cost.
                 "FULL_KINETIC": Cholesky inversion of S and T, fast construction, robust, use for
                     very large systems.
-                "FULL_SINGLE": Based on H-eS diagonalisation, not as good as FULL_ALL, but
+                "FULL_SINGLE": Based on H-eS diagonalization, not as good as FULL_ALL, but
                     somewhat cheaper to apply.
                 "FULL_SINGLE_INVERSE": Based on H-eS cholesky inversion, similar to FULL_SINGLE
                     in preconditioning efficiency but cheaper to construct, might be somewhat
@@ -1272,7 +1271,7 @@ class OrbitalTransformation(Section):
                 time, FULL_KINETIC can be a good choice.
             algorithm: What algorithm to use for OT. 'Strict': Taylor or diagonalization
                 based algorithm. IRAC: Orbital Transformation based Iterative Refinement of the
-                Approximative Congruence transformation (OT/IR).
+                Approximate Congruence transformation (OT/IR).
             rotation: Introduce additional variables to allow subspace rotations (i.e fractional
                 occupations)
             occupation_preconditioner: include the fractional occupation in the preconditioning
@@ -1385,7 +1384,7 @@ class Kind(Section):
                 basis set file specified
             potential: Pseudopotential for this atom, accessible from the
                 potential file
-            ghost: Turn this into ghost atom (disaple the potential)
+            ghost: Turn this into ghost atom (disable the potential)
             aux_basis: Auxiliary basis to use with ADMM
             keywords: additional keywords
             subsections: additional subsections
@@ -1581,10 +1580,7 @@ class PDOS(Section):
         subsections = subsections if subsections else {}
         description = "Controls printing of the projected density of states"
 
-        _keywords = {
-            "NLUMO": Keyword("NLUMO", nlumo),
-            "COMPONENTS": Keyword("COMPONENTS"),
-        }
+        _keywords = {"NLUMO": Keyword("NLUMO", nlumo), "COMPONENTS": Keyword("COMPONENTS")}
         keywords.update(_keywords)
         super().__init__("PDOS", description=description, keywords=keywords, subsections=subsections, **kwargs)
 
@@ -2669,7 +2665,7 @@ class GthPotential(AtomicMetadata):
     def from_section(cls, section: Section) -> GthPotential:
         """Extract GTH-formatted string from a section and convert it to model."""
         sec = copy.deepcopy(section)
-        sec.verbosity(False)
+        sec.verbosity(verbosity=False)
         lst = sec.get_str().split("\n")
         string = "\n".join(line for line in lst if not line.startswith("&"))
         return cls.from_str(string)

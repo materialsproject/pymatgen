@@ -50,7 +50,7 @@ def in_coord_list(coord_list, coord, atol=1e-8):
             array.
 
     Returns:
-        True if coord is in the coord list.
+        bool: True if coord is in the coord list.
     """
     return len(find_in_coord_list(coord_list, coord, atol=atol)) > 0
 
@@ -65,7 +65,7 @@ def is_coord_subset(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8) 
         atol (float): Absolute tolerance for comparing coordinates. Defaults to 1e-8.
 
     Returns:
-        True if all of subset is in superset.
+        bool: True if all of subset is in superset.
     """
     c1 = np.array(subset)
     c2 = np.array(superset)
@@ -239,7 +239,7 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True)):
             axis of the lattice.
 
     Returns:
-        True if coord is in the coord list.
+        bool: True if coord is in the coord list.
     """
     return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol, pbc=pbc)) > 0
 
@@ -258,7 +258,7 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc=(True, True,
             axis of the lattice.
 
     Returns:
-        True if all of subset is in superset.
+        bool: True if all of subset is in superset.
     """
     # pylint: disable=I1101
     c1 = np.array(subset, dtype=np.float64)
@@ -344,13 +344,9 @@ def get_angle(v1, v2, units="degrees"):
 class Simplex(MSONable):
     """A generalized simplex object. See http://en.wikipedia.org/wiki/Simplex.
 
-    .. attribute: space_dim
-
-        Dimension of the space. Usually, this is 1 more than the simplex_dim.
-
-    .. attribute: simplex_dim
-
-        Dimension of the simplex coordinate space.
+    Attributes:
+        space_dim (int): Dimension of the space. Usually, this is 1 more than the simplex_dim.
+        simplex_dim (int): Dimension of the simplex coordinate space.
     """
 
     def __init__(self, coords):
@@ -364,7 +360,7 @@ class Simplex(MSONable):
         self.space_dim, self.simplex_dim = self._coords.shape
         self.origin = self._coords[-1]
         if self.space_dim == self.simplex_dim + 1:
-            # precompute augmented matrix for calculating bary_coords
+            # pre-compute augmented matrix for calculating bary_coords
             self._aug = np.concatenate([coords, np.ones((self.space_dim, 1))], axis=-1)
             self._aug_inv = np.linalg.inv(self._aug)
 
@@ -417,9 +413,12 @@ class Simplex(MSONable):
         return (self.bary_coords(point) >= -tolerance).all()
 
     def line_intersection(self, point1, point2, tolerance=1e-8):
-        """Computes the intersection points of a line with a simplex
+        """Computes the intersection points of a line with a simplex.
+
         Args:
-            point1, point2 ([float]): Points that determine the line.
+            point1 (Sequence[float]): 1st point to determine the line.
+            point2 (Sequence[float]): 2nd point to determine the line.
+            tolerance (float): Tolerance for checking if an intersection is in the simplex. Defaults to 1e-8.
 
         Returns:
             points where the line intersects the simplex (0, 1, or 2).

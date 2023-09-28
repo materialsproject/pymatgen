@@ -94,23 +94,20 @@ class Neighbor(Site):
         return (self, self.nn_distance, self.index)[idx]
 
     def as_dict(self) -> dict:  # type: ignore
-        """Note that method calls the super of Site, which is MSONable itself.
-
-        Returns: dict
-        """
+        """Note that method calls the super of Site, which is MSONable itself."""
         return super(Site, self).as_dict()  # pylint: disable=E1003
 
     @classmethod
-    def from_dict(cls, d: dict) -> Neighbor:  # type: ignore
+    def from_dict(cls, dct: dict) -> Neighbor:  # type: ignore
         """Returns a Neighbor from a dict.
 
         Args:
-            d: MSONable dict format.
+            dct: MSONable dict format.
 
         Returns:
             Neighbor
         """
-        return super(Site, cls).from_dict(d)  # pylint: disable=E1003
+        return super(Site, cls).from_dict(dct)  # pylint: disable=E1003
 
 
 class PeriodicNeighbor(PeriodicSite):
@@ -169,10 +166,7 @@ class PeriodicNeighbor(PeriodicSite):
         return (self, self.nn_distance, self.index, self.image)[idx]
 
     def as_dict(self) -> dict:  # type: ignore
-        """Note that method calls the super of Site, which is MSONable itself.
-
-        Returns: dict
-        """
+        """Note that method calls the super of Site, which is MSONable itself."""
         return super(Site, self).as_dict()  # pylint: disable=E1003
 
     @classmethod
@@ -197,7 +191,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     # Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.5
-    properties: dict
+    _properties: dict
 
     @property
     def sites(self) -> list[Site]:
@@ -856,7 +850,7 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             lattice (Lattice/3x3 array): The lattice, either as a
-                :class:`pymatgen.core.lattice.Lattice` or
+                pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -894,7 +888,7 @@ class IStructure(SiteCollection, MSONable):
                 lost when converting to other formats.
         """
         if len(species) != len(coords):
-            raise StructureError("atomic species and fractional coordinates must have same length")
+            raise StructureError(f"{len(species)=} != {len(coords)=}")
 
         self._lattice = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
@@ -920,7 +914,7 @@ class IStructure(SiteCollection, MSONable):
         if validate_proximity and not self.is_valid():
             raise StructureError("Structure contains sites that are less than 0.01 Angstrom apart!")
         self._charge = charge
-        self.properties = properties or {}
+        self._properties = properties or {}
 
     @classmethod
     def from_sites(
@@ -1002,7 +996,7 @@ class IStructure(SiteCollection, MSONable):
                 pymatgen.symmetry.groups.Spacegroup. E.g., "R-3c" or "Fm-3m".
                 If an int, it will be interpreted as an international number.
             lattice (Lattice/3x3 array): The lattice, either as a
-                :class:`pymatgen.core.lattice.Lattice` or
+                pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -1091,14 +1085,14 @@ class IStructure(SiteCollection, MSONable):
         All equivalent sites are generated from the spacegroup operations.
 
         Args:
-            msg (str/list/:class:`pymatgen.symmetry.maggroups.MagneticSpaceGroup`):
+            msg (str/list/pymatgen.symmetry.maggroups.MagneticSpaceGroup):
                 The magnetic spacegroup.
                 If a string, it will be interpreted as one of the notations
                 supported by MagneticSymmetryGroup, e.g., "R-3'c" or "Fm'-3'm".
                 If a list of two ints, it will be interpreted as the number of
                 the spacegroup in its Belov, Neronova and Smirnova (BNS) setting.
             lattice (Lattice/3x3 array): The lattice, either as a
-                :class:`pymatgen.core.lattice.Lattice` or
+                pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -1185,6 +1179,26 @@ class IStructure(SiteCollection, MSONable):
         self._charge = None
 
     @property
+    def properties(self) -> dict:
+        """Properties associated with the whole Structure. Note that this information is
+        only guaranteed to be saved if serializing to native pymatgen output formats (JSON/YAML).
+        """
+        # getattr() check for backwards compatibility:
+        # IStructure.properties is a recent addition and so any pickled Structure objects from an
+        # older pymatgen version may have issues when de-serialized. Note that pickle is *not*
+        # recommended as an archival format. Nevertheless, since this is a core pymatgen class,
+        # additional effort has been made to retain compatibility.
+        if properties := getattr(self, "_properties", None):
+            return properties
+        self._properties = {}
+        return self._properties
+
+    @properties.setter
+    def properties(self, properties: dict) -> None:
+        """Sets properties associated with the whole Structure."""
+        self._properties = properties
+
+    @property
     def charge(self) -> float:
         """Overall charge of the structure."""
         formal_charge = super().charge
@@ -1252,7 +1266,7 @@ class IStructure(SiteCollection, MSONable):
             anonymous (bool): Whether to use anonymous structure matching which allows distinct
                 species in one structure to map to another.
             **kwargs: Same **kwargs as in
-                :class:`pymatgen.analysis.structure_matcher.StructureMatcher`.
+                pymatgen.analysis.structure_matcher.StructureMatcher.
 
         Returns:
             bool: True if the structures are similar under some affine transformation.
@@ -1491,7 +1505,8 @@ class IStructure(SiteCollection, MSONable):
             exclude_self (bool): whether to exclude atom neighboring with itself within
                 numerical tolerance distance, default to True
 
-        Returns: (center_indices, points_indices, offset_vectors, distances)
+        Returns:
+            tuple: (center_indices, points_indices, offset_vectors, distances)
         """
         neighbors = self.get_all_neighbors_py(
             r=r, include_index=True, include_image=True, sites=sites, numerical_tol=1e-8
@@ -1542,7 +1557,8 @@ class IStructure(SiteCollection, MSONable):
             exclude_self (bool): whether to exclude atom neighboring with itself within
                 numerical tolerance distance, default to True
 
-        Returns: (center_indices, points_indices, offset_vectors, distances)
+        Returns:
+            tuple: (center_indices, points_indices, offset_vectors, distances)
         """
         try:
             from pymatgen.optimization.neighbors import find_points_in_spheres
@@ -1579,16 +1595,15 @@ class IStructure(SiteCollection, MSONable):
     ) -> tuple[np.ndarray, ...]:
         """Similar to 'get_neighbor_list' with sites=None, but the neighbors are
         grouped by symmetry. The returned values are a tuple of numpy arrays
-        (center_indices, points_indices, offset_vectors, distances,
-         symmetry_indices). Atom `center_indices[i]` has neighbor atom
-        `points_indices[i]` that is translated by `offset_vectors[i]` lattice
-        vectors, and the distance is `distances[i]`. Symmetry_idx groups the bonds
-        that are related by a symmetry of the provided space group and symmetry_op
-        is the operation that relates the first bond of the same symmetry_idx to
-        the respective atom. The first bond maps onto itself via the Identity. The
-        output is sorted w.r.t. to symmetry_indices. If unique is True only one of the
-        two bonds connecting two points is given. Out of the two, the bond that does not
-        reverse the sites is chosen.
+        (center_indices, points_indices, offset_vectors, distances, symmetry_indices).
+        Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is translated
+        by `offset_vectors[i]` lattice vectors, and the distance is `distances[i]`.
+        Symmetry_idx groups the bonds that are related by a symmetry of the provided space
+        group and symmetry_op is the operation that relates the first bond of the same
+        symmetry_idx to the respective atom. The first bond maps onto itself via the
+        Identity. The output is sorted w.r.t. to symmetry_indices. If unique is True only
+        one of the two bonds connecting two points is given. Out of the two, the bond that
+        does not reverse the sites is chosen.
 
         Args:
             r (float): Radius of sphere
@@ -1609,8 +1624,9 @@ class IStructure(SiteCollection, MSONable):
             exclude_self (bool): whether to exclude atom neighboring with itself within
                 numerical tolerance distance, default to True
 
-        Returns: (center_indices, points_indices, offset_vectors, distances,
-                  symmetry_indices, symmetry_ops)
+        Returns:
+            tuple: (center_indices, points_indices, offset_vectors, distances,
+                symmetry_indices, symmetry_ops)
         """
         from pymatgen.symmetry.groups import SpaceGroup
 
@@ -1765,7 +1781,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
 
         Returns:
-            [[:class:`pymatgen.core.structure.PeriodicNeighbor`], ..]
+            [[pymatgen.core.structure.PeriodicNeighbor], ..]
         """
         if sites is None:
             sites = self.sites
@@ -2327,7 +2343,7 @@ class IStructure(SiteCollection, MSONable):
             np.abs(fdist, fdist)
             non_nbrs = np.any(fdist > 2 * super_ftol[None, None, :], axis=-1)
             # since we want sites to match to themselves
-            np.fill_diagonal(non_nbrs, True)
+            np.fill_diagonal(non_nbrs, val=True)
             grouped_non_nbrs.append(non_nbrs)
 
         num_fu = functools.reduce(math.gcd, map(len, grouped_sites))
@@ -2611,7 +2627,7 @@ class IStructure(SiteCollection, MSONable):
                 Non-case sensitive.
             **kwargs: Kwargs passthru to relevant methods. E.g., This allows
                 the passing of parameters like symprec to the
-                CifWriter.__init__ method for generation of symmetric cifs.
+                CifWriter.__init__ method for generation of symmetric CIFs.
 
         Returns:
             str: String representation of molecule in given format. If a filename
@@ -2734,7 +2750,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt_low == "poscar":
             from pymatgen.io.vasp import Poscar
 
-            struct = Poscar.from_str(input_string, False, read_velocities=False, **kwargs).structure
+            struct = Poscar.from_str(input_string, default_names=False, read_velocities=False, **kwargs).structure
         elif fmt_low == "cssr":
             from pymatgen.io.cssr import Cssr
 
@@ -2786,7 +2802,7 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             filename (str): The filename to read from.
-            primitive (bool): Whether to convert to a primitive cell. Only available for cifs. Defaults to False.
+            primitive (bool): Whether to convert to a primitive cell. Only available for CIFs. Defaults to False.
             sort (bool): Whether to sort sites. Default to False.
             merge_tol (float): If this is some positive number, sites that are within merge_tol from each other will be
                 merged. Usually 0.01 should be enough to deal with common numerical issues.
@@ -2858,8 +2874,7 @@ class IStructure(SiteCollection, MSONable):
 class IMolecule(SiteCollection, MSONable):
     """Basic immutable Molecule object without periodicity. Essentially a
     sequence of sites. IMolecule is made to be immutable so that they can
-    function as keys in a dict. For a mutable molecule,
-    use the :class:Molecule.
+    function as keys in a dict. For a mutable object, use the Molecule class.
 
     Molecule extends Sequence and Hashable, which means that in many cases,
     it can be used like any Python sequence. Iterating through a molecule is
@@ -3161,7 +3176,7 @@ class IMolecule(SiteCollection, MSONable):
 
     def as_dict(self):
         """JSON-serializable dict representation of Molecule."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "charge": self.charge,
@@ -3173,8 +3188,8 @@ class IMolecule(SiteCollection, MSONable):
             site_dict = site.as_dict()
             del site_dict["@module"]
             del site_dict["@class"]
-            d["sites"].append(site_dict)
-        return d
+            dct["sites"].append(site_dict)
+        return dct
 
     @classmethod
     def from_dict(cls, dct) -> IMolecule | Molecule:
@@ -3540,7 +3555,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """Create a periodic structure.
 
         Args:
-            lattice: The lattice, either as a pymatgen.core.lattice.Lattice or
+            lattice: The lattice, either as a pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].

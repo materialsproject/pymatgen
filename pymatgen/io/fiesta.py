@@ -86,6 +86,7 @@ class Nwchem2Fiesta(MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation.
+
         Returns:
             Nwchem2Fiesta
         """

@@ -690,7 +690,7 @@ Default attributes:
     mu: The total absorption cross-section.
     mu0: The embedded atomic background absorption.
     chi: fine structure.
-    Edge: Aborption Edge
+    Edge: Absorption Edge
     Absorbing atom: Species of absorbing atom
     Material: Formula of material
     Source: Source of structure

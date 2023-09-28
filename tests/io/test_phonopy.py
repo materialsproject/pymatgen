@@ -119,7 +119,7 @@ class TestStructureConversion(PymatgenTest):
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestGetDisplacedStructures(PymatgenTest):
     def test_get_displaced_structures(self):
-        pmg_s = Structure.from_file(f"{test_dir}/POSCAR-unitcell", False)
+        pmg_s = Structure.from_file(f"{test_dir}/POSCAR-unitcell", primitive=False)
         supercell_matrix = [[2, 0, 0], [0, 1, 0], [0, 0, 2]]
         structures = get_displaced_structures(pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix)
 

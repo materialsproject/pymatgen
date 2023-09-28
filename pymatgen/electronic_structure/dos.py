@@ -31,17 +31,10 @@ class DOS(Spectrum):
     """Replacement basic DOS object. All other DOS objects are extended versions
     of this object. Work in progress.
 
-    .. attribute: energies
-
-        The sequence of energies
-
-    .. attribute: densities
-
-        A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}
-
-    .. attribute: efermi
-
-        Fermi level
+    Attributes:
+        energies (Sequence[float]): The sequence of energies.
+        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
+        efermi (float): Fermi level.
     """
 
     XLABEL = "Energy"
@@ -173,17 +166,10 @@ class Dos(MSONable):
     """Basic DOS object. All other DOS objects are extended versions of this
     object.
 
-    .. attribute: energies
-
-        The sequence of energies
-
-    .. attribute: densities
-
-        A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}
-
-    .. attribute: efermi
-
-        Fermi level
+    Attributes:
+        energies (Sequence[float]): The sequence of energies.
+        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
+        efermi (float): Fermi level.
     """
 
     def __init__(
@@ -610,13 +596,9 @@ class CompleteDos(Dos):
     a vasprun.xml file. You are unlikely to try to generate this object
     manually.
 
-    .. attribute:: structure
-
-        Structure associated with the CompleteDos.
-
-    .. attribute:: pdos
-
-        Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}
+    Attributes:
+        structure (Structure): Structure associated with the CompleteDos.
+        pdos (dict): Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}.
     """
 
     def __init__(
@@ -1128,7 +1110,6 @@ class CompleteDos(Dos):
         Source - https://gitlab.com/vibes-developers/vibes/-/tree/master/vibes/materials_fp
         Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
 
-
         Args:
             type (str): Specify fingerprint type needed can accept '{s/p/d/f/}summed_{pdos/tdos}'
             (default is summed_pdos)
@@ -1239,7 +1220,7 @@ class CompleteDos(Dos):
             ValueError: If both tanimoto and normalize are set to True.
 
         Returns:
-        Similarity index (float): The value of dot product
+            float: Similarity index given by the dot product
         """
         fp1_dict = CompleteDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
 
@@ -1285,7 +1266,7 @@ class CompleteDos(Dos):
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation of CompleteDos."""
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "efermi": self.efermi,
@@ -1301,10 +1282,10 @@ class CompleteDos(Dos):
                     dd[str(orb)] = {
                         "densities": {str(int(spin)): list(dens) for spin, dens in pdos.items()}  # type: ignore
                     }
-                d["pdos"].append(dd)
-            d["atom_dos"] = {str(at): dos.as_dict() for at, dos in self.get_element_dos().items()}
-            d["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
-        return d
+                dct["pdos"].append(dd)
+            dct["atom_dos"] = {str(at): dos.as_dict() for at, dos in self.get_element_dos().items()}
+            dct["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
+        return dct
 
     def __str__(self):
         return f"Complete DOS for {self.structure}"
@@ -1394,7 +1375,6 @@ class LobsterCompleteDos(CompleteDos):
 
     def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:  # type: ignore
         """Get element and spd projected Dos.
-
 
         Args:
             el: Element in Structure.composition associated with LobsterCompleteDos
@@ -1490,7 +1470,7 @@ def _get_orb_lobster(orb):
         orb: string representation of orbital.
 
     Returns:
-         Orbital.
+        Orbital.
     """
     orb_labs = [
         "s",

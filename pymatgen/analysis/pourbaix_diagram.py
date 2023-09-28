@@ -220,15 +220,15 @@ class PourbaixEntry(MSONable, Stringify):
         Note that the pH, voltage, H2O factors are always calculated when
         constructing a PourbaixEntry object.
         """
-        d = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct = {"@module": type(self).__module__, "@class": type(self).__name__}
         if isinstance(self.entry, IonEntry):
-            d["entry_type"] = "Ion"
+            dct["entry_type"] = "Ion"
         else:
-            d["entry_type"] = "Solid"
-        d["entry"] = self.entry.as_dict()
-        d["concentration"] = self.concentration
-        d["entry_id"] = self.entry_id
-        return d
+            dct["entry_type"] = "Solid"
+        dct["entry"] = self.entry.as_dict()
+        dct["concentration"] = self.concentration
+        dct["entry_id"] = self.entry_id
+        return dct
 
     @classmethod
     def from_dict(cls, d):
@@ -310,10 +310,9 @@ class MultiEntry(PourbaixEntry):
         return " + ".join(e.name for e in self.entry_list)
 
     def __repr__(self):
-        return (
-            f"Multiple Pourbaix Entry: energy = {self.energy:.4f}, npH = {self.npH}, nPhi = {self.nPhi}, "
-            f"nH2O = {self.nH2O}, entry_id = {self.entry_id}, species: {self.name}"
-        )
+        energy, npH, nPhi, nH2O, entry_id = self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id
+        cls_name, species = type(self).__name__, self.name
+        return f"Pourbaix{cls_name}({energy=:.4f}, {npH=}, {nPhi=}, {nH2O=}, {entry_id=}, {species=})"
 
     def as_dict(self):
         """Returns: MSONable dict."""
@@ -328,7 +327,7 @@ class MultiEntry(PourbaixEntry):
     def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             MultiEntry
@@ -344,11 +343,10 @@ class IonEntry(PDEntry):
     Object similar to PDEntry, but contains an Ion object instead of a
     Composition object.
 
-    .. attribute:: name
-
-        A name for the entry. This is the string shown in the phase diagrams.
-        By default, this is the reduced formula for the composition, but can be
-        set to some other string for display purposes.
+    Attributes:
+        name (str): A name for the entry. This is the string shown in the phase diagrams.
+            By default, this is the reduced formula for the composition, but can be
+            set to some other string for display purposes.
     """
 
     def __init__(self, ion: Ion, energy: float, name: str | None = None, attribute=None):
@@ -451,7 +449,7 @@ class PourbaixDiagram(MSONable):
         )
         self.dim = len(self.pbx_elts) - 1
 
-        # Process multientry inputs
+        # Process multi-entry inputs
         if isinstance(entries[0], MultiEntry):
             self._processed_entries = entries
             # Extract individual entries
@@ -460,7 +458,7 @@ class PourbaixDiagram(MSONable):
             self._filtered_entries = single_entries
             self._conc_dict = None
             self._elt_comp = {k: v for k, v in entries[0].composition.items() if k not in ELEMENTS_HO}
-            self._multielement = True
+            self._multi_element = True
 
         # Process single entry inputs
         else:
@@ -500,11 +498,11 @@ class PourbaixDiagram(MSONable):
 
             self._filtered_entries = solid_entries + ion_entries
             if len(comp_dict) > 1:
-                self._multielement = True
+                self._multi_element = True
                 self._processed_entries = self._preprocess_pourbaix_entries(self._filtered_entries, nproc=nproc)
             else:
                 self._processed_entries = self._filtered_entries
-                self._multielement = False
+                self._multi_element = False
 
         self._stable_domains, self._stable_domain_vertices = self.get_pourbaix_domains(self._processed_entries)
 
@@ -527,7 +525,7 @@ class PourbaixDiagram(MSONable):
         vecs *= norms
         return vecs
 
-    def _get_hull_in_nph_nphi_space(self, entries):
+    def _get_hull_in_nph_nphi_space(self, entries) -> tuple[list[PourbaixEntry], list[Simplex]]:
         """
         Generates convex hull of Pourbaix diagram entries in composition,
         npH, and nphi space. This enables filtering of multi-entries
@@ -538,8 +536,9 @@ class PourbaixDiagram(MSONable):
             entries ([PourbaixEntry]): list of PourbaixEntries to construct
                 the convex hull
 
-        Returns: list of entries and stable facets corresponding to that
-            list of entries
+        Returns:
+            tuple[list[PourbaixEntry], list[Simplex]]: PourbaixEntry list and stable
+                facets corresponding to that list
         """
         ion_entries = [entry for entry in entries if entry.phase_type == "Ion"]
         solid_entries = [entry for entry in entries if entry.phase_type == "Solid"]
@@ -804,6 +803,7 @@ class PourbaixDiagram(MSONable):
     def find_stable_entry(self, pH, V):
         """
         Finds stable entry at a pH,V condition
+
         Args:
             pH (float): pH to find stable entry
             V (float): V to find stable entry.
@@ -939,9 +939,6 @@ class PourbaixPlotter:
         Args:
             *args: args to get_pourbaix_plot
             **kwargs: kwargs to get_pourbaix_plot
-
-        Returns:
-            None
         """
         plt = self.get_pourbaix_plot(*args, **kwargs)
         plt.show()
@@ -1032,9 +1029,9 @@ class PourbaixPlotter:
 
         Args:
             entry (Any): The entry to plot stability for.
-            pH_range (Tuple[float, float], optional): pH range for the plot. Defaults to [-2, 16].
+            pH_range (tuple[float, float], optional): pH range for the plot. Defaults to [-2, 16].
             pH_resolution (int, optional): pH resolution. Defaults to 100.
-            V_range (Tuple[float, float], optional): Voltage range for the plot. Defaults to [-3, 3].
+            V_range (tuple[float, float], optional): Voltage range for the plot. Defaults to [-3, 3].
             V_resolution (int, optional): Voltage resolution. Defaults to 100.
             e_hull_max (float, optional): Maximum energy above the hull. Defaults to 1.
             cmap (str, optional): Colormap for the plot. Defaults to "RdYlBu_r".

@@ -68,10 +68,10 @@ def function_comparison(f1, f2, x1, x2, numpoints_check=500):
         numpoints_check: Number of points used to compare the functions
 
     Returns:
-        Whether the function are equal ("="), f1 is always lower than f2 ("<"), f1 is always larger than f2 (">"),
-         f1 is always lower than or equal to f2 ("<"), f1 is always larger than or equal to f2 (">") on the
-         interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
-         functions that do not cross...)
+        str: '=' if the functions are equal, '<' if f1 is always lower than f2, '>' if f1 is always larger than f2,
+            f1 is always lower than or equal to f2 ("<"), f1 is always larger than or equal to f2 (">") on the
+            interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
+            functions that do not cross...)
     """
     xx = np.linspace(x1, x2, num=numpoints_check)
     y1 = f1(xx)
@@ -392,8 +392,7 @@ def vectorsToMatrix(aa, bb):
     :param bb: Another vector of size 3
 
     Returns:
-        A 3x3 matrix M composed of the products of the elements of aa and bb :
-     M_ij = aa_i * bb_j.
+        A 3x3 matrix M composed of the products of the elements of aa and bb : M_ij = aa_i * bb_j.
     """
     MM = np.zeros([3, 3], np.float_)
     for ii in range(3):
@@ -480,7 +479,7 @@ def collinear(p1, p2, p3=None, tolerance=0.25):
     :param p3: Third point (origin [0.0, 0.0, 0.0 if not given])
     :param tolerance: Area tolerance for the collinearity test (0.25 gives about 0.125 deviation from the line)
     Returns:
-        True if the three points are considered as collinear within the given tolerance, False otherwise.
+        bool: True if the three points are considered as collinear within the given tolerance.
     """
     if p3 is None:
         triangle_area = 0.5 * np.linalg.norm(np.cross(p1, p2))
@@ -500,14 +499,14 @@ def anticlockwise_sort(pps):
     Returns:
         Sorted list of points.
     """
-    newpps = []
+    new_pps = []
     angles = np.zeros(len(pps), np.float_)
     for ipp, pp in enumerate(pps):
         angles[ipp] = np.arctan2(pp[1], pp[0])
-    iisorted = np.argsort(angles)
+    idx_sorted = np.argsort(angles)
     for ii in range(len(pps)):
-        newpps.append(pps[iisorted[ii]])
-    return newpps
+        new_pps.append(pps[idx_sorted[ii]])
+    return new_pps
 
 
 def anticlockwise_sort_indices(pps):
@@ -564,7 +563,7 @@ def separation_in_list(separation_indices, separation_indices_list):
     :param separation_indices_list: list of the list of separation indices to be compared to
 
     Returns:
-        True if the separation indices are already in the list, False otherwise.
+        bool: True if the separation indices are already in the list.
     """
     sorted_separation = sort_separation(separation_indices)
     for sep in separation_indices_list:
@@ -581,7 +580,7 @@ def is_anion_cation_bond(valences, ii, jj) -> bool:
     :param jj: index of another site
 
     Returns:
-        True if one site is an anion and the other is a cation (from the valences).
+        bool: True if one site is an anion and the other is a cation (based on valences).
     """
     if valences == "undefined":
         return True
@@ -655,8 +654,6 @@ class Plane:
 
         :param non_zeros: Indices of plane coefficients ([a, b, c]) that are not zero.
         :param zeros: Indices of plane coefficients ([a, b, c]) that are equal to zero.
-        Returns:
-            None
         """
         if len(non_zeros) == 3:
             self.p1 = np.array([-self.d / self.a, 0.0, 0.0], np.float_)
@@ -700,7 +697,7 @@ class Plane:
         :param dist_tolerance: tolerance on the distance to the plane within which point pp is considered in the plane
 
         Returns:
-            True if pp is in the plane, False otherwise.
+            bool: True if pp is in the plane.
         """
         return np.abs(np.dot(self.normal_vector, pp) + self._coefficients[3]) <= dist_tolerance
 
@@ -710,7 +707,7 @@ class Plane:
         :param plane: Plane to be compared to
 
         Returns:
-            True if the two facets are identical, False otherwise.
+            bool: True if the two facets are identical.
         """
         return np.allclose(self._coefficients, plane.coefficients)
 
@@ -720,7 +717,7 @@ class Plane:
         :param plane_list: List of Planes to be compared to
 
         Returns:
-            True if the plane is in the list, False otherwise.
+            bool: True if the plane is in the list.
         """
         return any(self.is_same_plane_as(plane) for plane in plane_list)
 
@@ -732,6 +729,7 @@ class Plane:
         :param points: list of points
         :param dist_tolerance: tolerance to which a point is considered to lie on the plane
             or not (distance to the plane)
+
         Returns:
             The lists of indices of the points on one side of the plane, on the plane and
             on the other side of the plane.
@@ -890,6 +888,7 @@ class Plane:
 
         :param points: List of points.
         :param fit: Type of fit error.
+
         Returns:
             Error for a list of points with respect to this plane.
         """
@@ -903,6 +902,7 @@ class Plane:
         """Evaluate the sum of squared distances error for a list of points with respect to this plane.
 
         :param points: List of points.
+
         Returns:
             Sum of squared distances error for a list of points with respect to this plane.
         """
@@ -912,6 +912,7 @@ class Plane:
         """Evaluate the max distance error for a list of points with respect to this plane.
 
         :param points: List of points.
+
         Returns:
             Max distance error for a list of points with respect to this plane.
         """
@@ -976,6 +977,7 @@ class Plane:
 
         :param p1: First point.
         :param p2: Second point.
+
         Returns:
             Plane.
         """
@@ -988,6 +990,7 @@ class Plane:
         :param p1: First point.
         :param p2: Second point.
         :param p3: Third point.
+
         Returns:
             Plane.
         """
@@ -1008,6 +1011,7 @@ class Plane:
 
         :param points: List of points.
         :param best_fit: Type of fitting procedure for more than 3 points.
+
         Returns:
             Plane
         """
@@ -1026,6 +1030,7 @@ class Plane:
         """Initializes plane from a list of points using a least square fitting procedure.
 
         :param points: List of points.
+
         Returns:
             Plane.
         """
@@ -1054,6 +1059,7 @@ class Plane:
 
         :param p1: First point.
         :param p2: Second point.
+
         Returns:
             Plane.
         """
@@ -1067,6 +1073,7 @@ class Plane:
         """Initializes plane from a list of points using a max distance fitting procedure.
 
         :param points: List of points.
+
         Returns:
             Plane.
         """
@@ -1098,6 +1105,7 @@ class Plane:
         :param b: b coefficient of the plane.
         :param c: c coefficient of the plane.
         :param d: d coefficient of the plane.
+
         Returns:
             Plane.
         """

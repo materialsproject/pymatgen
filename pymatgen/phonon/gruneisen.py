@@ -376,7 +376,8 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         Args:
             dct: Dict representation.
 
-        Returns: GruneisenPhononBandStructureSymmLine
+        Returns:
+            GruneisenPhononBandStructureSymmLine
         """
         lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
         eigendisplacements = (

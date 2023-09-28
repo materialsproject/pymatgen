@@ -134,8 +134,8 @@ class TestIStructure(PymatgenTest):
         with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
             IStructure(self.lattice, ["Si"] * 3, coords, validate_proximity=True)
         # these shouldn't raise an error
-        IStructure(self.lattice, ["Si"] * 2, coords[:2], True)
-        IStructure(self.lattice, ["Si"], coords[:1], True)
+        IStructure(self.lattice, ["Si"] * 2, coords[:2], validate_proximity=True)
+        IStructure(self.lattice, ["Si"], coords[:1], validate_proximity=True)
 
     def test_volume(self):
         assert self.struct.volume == approx(40.04, abs=1e-2), "Volume wrong!"
@@ -536,7 +536,7 @@ class TestIStructure(PymatgenTest):
         nn = struct.get_neighbors_in_shell(struct[0].frac_coords, 2, 4, include_index=True, include_image=True)
         assert len(nn) == 47
         rand_radius = random.uniform(3, 6)
-        all_nn = struct.get_all_neighbors(rand_radius, True, True)
+        all_nn = struct.get_all_neighbors(rand_radius, include_index=True, include_image=True)
         for idx, site in enumerate(struct):
             assert len(all_nn[idx][0]) == 4
             assert len(all_nn[idx]) == len(struct.get_neighbors(site, rand_radius))
@@ -702,7 +702,7 @@ Direct
             ["Li", "Li", "Li", "Si"],
             [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3],
         )
-        all_nn = struct.get_all_neighbors(0.2, True)
+        all_nn = struct.get_all_neighbors(0.2, include_index=True)
         for site, nns in zip(struct, all_nn):
             for nn in nns:
                 assert nn[0].is_periodic_image(struct[nn[2]])
@@ -716,11 +716,11 @@ Direct
             ["Li", "Li", "Li", "Si"],
             [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3],
         )
-        all_nn = struct.get_all_neighbors(1e-5, True)
+        all_nn = struct.get_all_neighbors(1e-5, include_index=True)
         assert len(all_nn) == len(struct)
         assert [] == all_nn[0]
 
-        all_nn = struct.get_all_neighbors(0, True)
+        all_nn = struct.get_all_neighbors(0, include_index=True)
         assert len(all_nn) == len(struct)
         assert [] == all_nn[0]
 
@@ -731,7 +731,7 @@ Direct
             [[0.1, 0.1, 0.1], [0.1, 0.1, 0.1], [3, 3, 3]],
             coords_are_cartesian=True,
         )
-        all_nn = struct.get_all_neighbors(1e-5, True)
+        all_nn = struct.get_all_neighbors(1e-5, include_index=True)
         assert [len(i) for i in all_nn] == [0, 0, 0]
 
     def test_get_all_neighbors_equal(self):
@@ -1396,7 +1396,7 @@ class TestStructure(PymatgenTest):
         assert struct.formula == "Si1.25 C0.125"
 
     def test_init_error(self):
-        with pytest.raises(StructureError, match="atomic species and fractional coordinates must have same length"):
+        with pytest.raises(StructureError, match=r"len\(species\)=1 != len\(coords\)=2"):
             Structure(Lattice.cubic(3), ["Si"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
     def test_from_sites(self):
@@ -1430,7 +1430,7 @@ class TestStructure(PymatgenTest):
         silica_zeolite = Molecule.from_file(f"{TEST_FILES_DIR}/CON_vesta.xyz")
 
         s_vesta = Structure(
-            lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, True),
+            lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, vesta=True),
             species=silica_zeolite.species,
             coords=silica_zeolite.cart_coords,
             coords_are_cartesian=True,

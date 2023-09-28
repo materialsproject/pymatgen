@@ -3,12 +3,14 @@ from __future__ import annotations
 import unittest
 
 from pymatgen.command_line.chargemol_caller import ChargemolAnalysis
+from pymatgen.core.periodic_table import Element
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestChargemolAnalysis(unittest.TestCase):
     def test_parse_chargemol(self):
-        ca = ChargemolAnalysis(path=f"{TEST_FILES_DIR}/chargemol/spin_unpolarized", run_chargemol=False)
+        test_dir = f"{TEST_FILES_DIR}/chargemol/spin_unpolarized"
+        ca = ChargemolAnalysis(path=test_dir, run_chargemol=False)
         assert ca.ddec_charges == [0.8432, -0.8432]
         assert ca.get_partial_charge(0) == 0.8432
         assert ca.get_partial_charge(0, charge_type="cm5") == 0.420172
@@ -35,15 +37,19 @@ class TestChargemolAnalysis(unittest.TestCase):
         assert ca.natoms == [1, 1]
         assert ca.structure is not None
         assert len(ca.bond_order_dict) == 2
-        assert ca.bond_order_dict[0]["bonded_to"][0]["spin_polarization"] == 0.0
-        assert ca.bond_order_dict[0]["bonded_to"][0]["index"] == 1
-        assert ca.bond_order_dict[0]["bonded_to"][0]["direction"] == (-1, -1, 0)
-        assert ca.bond_order_dict[0]["bonded_to"][0]["bond_order"] == 0.0882
+        assert ca.bond_order_dict[0]["bonded_to"][0] == {
+            "spin_polarization": 0.0,
+            "index": 1,
+            "direction": (-1, -1, 0),
+            "bond_order": 0.0882,
+            "element": Element("Cl"),
+        }
         assert ca.bond_order_dict[1]["bonded_to"][-1]["direction"] == (-1, 0, 0)
         assert ca.get_property_decorated_structure().site_properties["partial_charge_ddec6"] == ca.ddec_charges
 
     def test_parse_chargemol2(self):
-        ca = ChargemolAnalysis(path=f"{TEST_FILES_DIR}/chargemol/spin_polarized", run_chargemol=False)
+        test_dir = f"{TEST_FILES_DIR}/chargemol/spin_polarized"
+        ca = ChargemolAnalysis(path=test_dir, run_chargemol=False)
         assert ca.ddec_spin_moments == [0.201595, 0.399203, 0.399203]
         assert ca.summary["ddec"]["bond_order_dict"][0]["bonded_to"][0]["spin_polarization"] == 0.0490
         assert ca.summary["ddec"]["spin_moments"] == ca.ddec_spin_moments

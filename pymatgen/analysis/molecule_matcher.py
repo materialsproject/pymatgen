@@ -143,7 +143,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         label2_list = tuple(tuple(p[1] + 1 for p in x) for x in sorted_isomorph)
 
         vmol1 = ob_mol1
-        aligner = openbabel.OBAlign(True, False)
+        aligner = openbabel.OBAlign(True, False)  # meaning includeH=True, symmetry=False  # noqa: FBT003
         aligner.SetRefMol(vmol1)
         least_rmsd = float("Inf")
         best_label2 = None
@@ -369,7 +369,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             # used to align, but match by positions
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(False, False)
+        aligner = openbabel.OBAlign(includeH=False, symmetry=False)
         aligner.SetRefMol(vmol1)
         aligner.SetTargetMol(vmol2)
         aligner.Align()
@@ -448,7 +448,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(False, False)
+        aligner = openbabel.OBAlign(includeH=False, symmetry=False)
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()
@@ -647,7 +647,7 @@ class MoleculeMatcher(MSONable):
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(True, False)
+        aligner = openbabel.OBAlign(True, False)  # meaning includeH=True, symmetry=False  # noqa: FBT003
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()

@@ -92,33 +92,33 @@ class LDos(MSONable):
             dicts = Potential.pot_dict_from_string(pot_string)
             pot_dict = dicts[0]
 
-        with zopen(ldos_file + "00.dat", "r") as fobject:
-            f = fobject.readlines()
-        efermi = float(f[0].split()[4])
+        with zopen(ldos_file + "00.dat", "r") as file:
+            lines = file.readlines()
+        efermi = float(lines[0].split()[4])
 
         dos_energies = []
         ldos = {}
 
-        for i in range(1, len(pot_dict) + 1):
-            if len(str(i)) == 1:
-                ldos[i] = np.loadtxt(f"{ldos_file}0{i}.dat")
+        for idx in range(1, len(pot_dict) + 1):
+            if len(str(idx)) == 1:
+                ldos[idx] = np.loadtxt(f"{ldos_file}0{idx}.dat")
             else:
-                ldos[i] = np.loadtxt(f"{ldos_file}{i}.dat")
+                ldos[idx] = np.loadtxt(f"{ldos_file}{idx}.dat")
 
-        for i in range(len(ldos[1])):
-            dos_energies.append(ldos[1][i][0])
+        for idx in range(len(ldos[1])):
+            dos_energies.append(ldos[1][idx][0])
 
         all_pdos = []
         vorb = {"s": Orbital.s, "p": Orbital.py, "d": Orbital.dxy, "f": Orbital.f0}
         forb = {"s": 0, "p": 1, "d": 2, "f": 3}
 
-        dlength = len(ldos[1])
+        d_length = len(ldos[1])
 
-        for i in range(n_sites):
-            pot_index = pot_dict[structure.species[i].symbol]
+        for idx in range(n_sites):
+            pot_index = pot_dict[structure.species[idx].symbol]
             all_pdos.append(defaultdict(dict))
             for k, v in vorb.items():
-                density = [ldos[pot_index][j][forb[k] + 1] for j in range(dlength)]
+                density = [ldos[pot_index][j][forb[k] + 1] for j in range(d_length)]
                 updos = density
                 downdos = None
                 if downdos:
@@ -132,16 +132,16 @@ class LDos(MSONable):
 
         forb = {"s": 0, "p": 1, "d": 2, "f": 3}
 
-        tdos = [0] * dlength
-        for i in range(n_sites):
-            pot_index = pot_dict[structure.species[i].symbol]
+        t_dos = [0] * d_length
+        for idx in range(n_sites):
+            pot_index = pot_dict[structure.species[idx].symbol]
             for v in forb.values():
-                density = [ldos[pot_index][j][v + 1] for j in range(dlength)]
-                for j in range(dlength):
-                    tdos[j] = tdos[j] + density[j]
-        tdos = {Spin.up: tdos}
+                density = [ldos[pot_index][j][v + 1] for j in range(d_length)]
+                for j in range(d_length):
+                    t_dos[j] = t_dos[j] + density[j]
+        t_dos = {Spin.up: t_dos}
 
-        dos = Dos(efermi, dos_energies, tdos)
+        dos = Dos(efermi, dos_energies, t_dos)
         complete_dos = CompleteDos(structure, dos, pdoss)
         charge_transfer = LDos.charge_transfer_from_file(feff_inp_file, ldos_file)
         return LDos(complete_dos, charge_transfer)
@@ -267,7 +267,7 @@ class Xmu(MSONable):
         mu: The total absorption cross-section.
         mu0: The embedded atomic background absorption.
         chi: fine structure.
-        Edge: Aborption Edge
+        Edge: Absorption Edge
         Absorbing atom: Species of absorbing atom
         Material: Formula of material
         Source: Source of structure
@@ -377,9 +377,9 @@ class Xmu(MSONable):
 
     def as_dict(self):
         """Returns dict representations of Xmu object."""
-        d = MSONable.as_dict(self)
-        d["data"] = self.data.tolist()
-        return d
+        dct = MSONable.as_dict(self)
+        dct["data"] = self.data.tolist()
+        return dct
 
 
 class Eels(MSONable):
@@ -428,6 +428,6 @@ class Eels(MSONable):
 
     def as_dict(self):
         """Returns dict representations of Xmu object."""
-        d = MSONable.as_dict(self)
-        d["data"] = self.data.tolist()
-        return d
+        dct = MSONable.as_dict(self)
+        dct["data"] = self.data.tolist()
+        return dct

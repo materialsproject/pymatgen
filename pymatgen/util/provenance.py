@@ -48,7 +48,7 @@ def is_valid_bibtex(reference: str) -> bool:
     # filter expression removes all non-ASCII characters.
     sio = StringIO(remove_non_ascii(reference))
     parser = bibtex.Parser()
-    errors.set_strict_mode(False)
+    errors.set_strict_mode(enable=False)
     bib_data = parser.parse_stream(sio)
     return len(bib_data.entries) > 0
 
@@ -64,19 +64,10 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
 
     A HistoryNode contains three fields:
 
-    .. attribute:: name
-
-        The name of a code or resource that this Structure encountered in
-        its history (String)
-
-    .. attribute:: url
-
-        The URL of that code/resource (String)
-
-    .. attribute:: description
-
-        A free-form description of how the code/resource is related to the
-        Structure (dict).
+    Attributes:
+        name (str): The name of a code or resource that this Structure encountered in its history.
+        url (str): The URL of that code/resource.
+        description (dict): A free-form description of how the code/resource is related to the Structure.
     """
 
     __slots__ = ()
@@ -267,10 +258,10 @@ class StructureNL:
 
     def as_dict(self):
         """Returns: MSONable dict."""
-        d = self.structure.as_dict()
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["about"] = {
+        dct = self.structure.as_dict()
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["about"] = {
             "authors": [a.as_dict() for a in self.authors],
             "projects": self.projects,
             "references": self.references,
@@ -278,8 +269,8 @@ class StructureNL:
             "history": [h.as_dict() for h in self.history],
             "created_at": json.loads(json.dumps(self.created_at, cls=MontyEncoder)),
         }
-        d["about"].update(json.loads(json.dumps(self.data, cls=MontyEncoder)))
-        return d
+        dct["about"].update(json.loads(json.dumps(self.data, cls=MontyEncoder)))
+        return dct
 
     @classmethod
     def from_dict(cls, d):

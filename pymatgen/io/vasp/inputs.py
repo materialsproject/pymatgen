@@ -69,7 +69,7 @@ class Poscar(MSONable):
         predictor_corrector: Predictor corrector coordinates and derivatives for each site;
             i.e. a list of three 1x3 arrays for each site (typically read in from a MD CONTCAR).
         predictor_corrector_preamble: Predictor corrector preamble contains the predictor-corrector key,
-            POTIM, and thermostat parameters that precede the site-specic predictor corrector data in MD CONTCAR.
+            POTIM, and thermostat parameters that precede the site-specific predictor corrector data in MD CONTCAR.
         temperature: Temperature of velocity Maxwell-Boltzmann initialization.
             Initialized to -1 (MB hasn't been performed).
     """
@@ -132,7 +132,7 @@ class Poscar(MSONable):
             if predictor_corrector_preamble:
                 self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
         else:
-            raise ValueError("Structure with partial occupancies cannot be converted into POSCAR!")
+            raise ValueError("Disordered structure with partial occupancies cannot be converted into POSCAR!")
 
         self.temperature = -1.0
 
@@ -299,7 +299,7 @@ class Poscar(MSONable):
             raise ValueError("Empty POSCAR")
 
         # Parse positions
-        lines = tuple(clean_lines(chunks[0].split("\n"), False))
+        lines = tuple(clean_lines(chunks[0].split("\n"), remove_empty_lines=False))
         comment = lines[0]
         scale = float(lines[1])
         lattice = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
@@ -560,6 +560,7 @@ class Poscar(MSONable):
     def from_dict(cls, d: dict) -> Poscar:
         """
         :param d: Dict representation.
+
         Returns:
             Poscar
         """
@@ -608,15 +609,8 @@ class Poscar(MSONable):
         velocities *= scale * 1e-5  # these are in A/fs
 
         self.temperature = temperature
-        try:
-            del self.structure.site_properties["selective_dynamics"]
-        except KeyError:
-            pass
-
-        try:
-            del self.structure.site_properties["predictor_corrector"]
-        except KeyError:
-            pass
+        self.structure.site_properties.pop("selective_dynamics", None)
+        self.structure.site_properties.pop("predictor_corrector", None)
         # returns as a list of lists to be consistent with the other
         # initializations
 
@@ -672,15 +666,16 @@ class Incar(dict, MSONable):
 
     def as_dict(self) -> dict:
         """MSONable dict."""
-        d = dict(self)
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+        dct = dict(self)
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d) -> Incar:
         """
         :param d: Dict representation.
+
         Returns:
             Incar
         """
@@ -1529,7 +1524,7 @@ class Kpoints(MSONable):
 
     def as_dict(self):
         """MSONable dict."""
-        d = {
+        dct = {
             "comment": self.comment,
             "nkpoints": self.num_kpts,
             "generation_style": self.style.name,
@@ -1546,15 +1541,16 @@ class Kpoints(MSONable):
         optional_paras = ["genvec1", "genvec2", "genvec3", "shift"]
         for para in optional_paras:
             if para in self.__dict__:
-                d[para] = self.__dict__[para]
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+                dct[para] = self.__dict__[para]
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d):
         """
         :param d: Dict representation.
+
         Returns:
             Kpoints
         """
@@ -1614,15 +1610,10 @@ class PotcarSingle:
     Object for a **single** POTCAR. The builder assumes the POTCAR contains
     the complete untouched data in "data" as a string and a dict of keywords.
 
-    .. attribute:: data
-
-        POTCAR data as a string.
-
-    .. attribute:: keywords
-
-        Keywords parsed from the POTCAR as a dict. All keywords are also
-        accessible as attributes in themselves. E.g., potcar.enmax,
-        potcar.encut, etc.
+    Attributes:
+        data (str): POTCAR data as a string.
+        keywords (dict): Keywords parsed from the POTCAR as a dict. All keywords are also
+            accessible as attributes in themselves. E.g., potcar.enmax, potcar.encut, etc.
 
     md5 hashes of the entire POTCAR file and the actual data are validated
     against a database of known good hashes. Appropriate warnings or errors
@@ -1813,7 +1804,7 @@ class PotcarSingle:
         has_sh256, hash_check_passed = self.verify_potcar()
         if not has_sh256 and not hash_check_passed:
             warnings.warn(
-                f"POTCAR data with symbol { self.symbol} does not match any VASP "
+                f"POTCAR data with symbol {self.symbol} does not match any VASP "
                 "POTCAR known to pymatgen. There is a possibility your "
                 "POTCAR is corrupted or that the pymatgen database is incomplete.",
                 UnknownPotcarWarning,
@@ -1861,6 +1852,7 @@ class PotcarSingle:
         Reads PotcarSingle from file.
 
         :param filename: Filename.
+
         Returns:
             PotcarSingle.
         """
@@ -2105,10 +2097,7 @@ class PotcarSingle:
         if identity:
             # convert the potcar_functionals from the .json dict into the functional
             # keys that pymatgen uses
-            potcar_functionals = []
-            for i in identity["potcar_functionals"]:
-                potcar_functionals.append(mapping_dict[i]["pymatgen_key"])
-            potcar_functionals = list(set(potcar_functionals))
+            potcar_functionals = [*{mapping_dict[i]["pymatgen_key"] for i in identity["potcar_functionals"]}]
 
             return potcar_functionals, identity["potcar_symbols"]
         return [], []
@@ -2364,15 +2353,16 @@ class VaspInput(dict, MSONable):
 
     def as_dict(self):
         """MSONable dict."""
-        d = {k: v.as_dict() for k, v in self.items()}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+        dct = {k: v.as_dict() for k, v in self.items()}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d):
         """
         :param d: Dict representation.
+
         Returns:
             VaspInput
         """

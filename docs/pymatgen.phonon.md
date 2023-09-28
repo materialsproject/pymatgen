@@ -230,7 +230,11 @@ Re-order the eigenvalues according to the similarity of the eigenvectors.
     **dct** – Dict representation.
 
 
-Returns: PhononBandStructureSymmLine
+
+* **Returns**
+
+    PhononBandStructureSymmLine
+
 
 
 #### get_branch(index)
@@ -295,14 +299,22 @@ according to the number of atoms in the system.
 This module defines classes to represent the phonon density of states, etc.
 
 
-### _class_ CompletePhononDos(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), total_dos, pdoss)
+### _class_ CompletePhononDos(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), total_dos, pdoses)
 Bases: `PhononDos`
 
 This wrapper class defines a total dos, and also provides a list of PDos.
 
 
 #### pdos()
-Dict of partial densities of the form {Site:Densities}
+Dict of partial densities of the form {Site:Densities}.
+Densities are a dict of {Orbital:Values} where Values are a list of floats.
+Site is a pymatgen.core.sites.Site object.
+
+
+* **Type**
+
+    dict
+
 
 
 * **Parameters**
@@ -314,7 +326,7 @@ Dict of partial densities of the form {Site:Densities}
     * **total_dos** – total Dos for structure
 
 
-    * **pdoss** – The pdoss are supplied as an {Site: Densities}.
+    * **pdoses** – The pdoses are supplied as a dict of {Site: Densities}.
 
 
 
@@ -836,7 +848,11 @@ for every frequency.
     **dct** – Dict representation.
 
 
-Returns: GruneisenPhononBandStructureSymmLine
+
+* **Returns**
+
+    GruneisenPhononBandStructureSymmLine
+
 
 ## pymatgen.phonon.ir_spectra module
 
@@ -1193,31 +1209,69 @@ Bases: `object`
 
 Class to plot Gruneisenparameter Object.
 
-Class to plot information from Gruneisenparameter Object
-:param gruneisen: GruneisenParameter Object.
+Class to plot information from Gruneisenparameter Object.
+
+
+* **Parameters**
+
+    **gruneisen** – GruneisenParameter Object.
+
 
 
 #### get_plot(marker='o', markersize=None, units='thz')
-Will produce a plot
-:param marker: marker for the depiction
-:param markersize: size of the marker
-:param units: unit for the plots, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
+Will produce a plot.
 
-Returns: plot
+
+* **Parameters**
+
+
+    * **marker** – marker for the depiction
+
+
+    * **markersize** – size of the marker
+
+
+    * **units** – unit for the plots, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
+
+
+
+* **Returns**
+
+    matplotlib axes object
+
+
+
+* **Return type**
+
+    plt.Axes
+
 
 
 #### save_plot(filename, img_format='pdf', units='thz')
-Will save the plot to a file
-:param filename: name of the filename
-:param img_format: format of the saved plot
-:param units: accepted units: thz, ev, mev, ha, cm-1, cm^-1.
+Will save the plot to a file.
+
+
+* **Parameters**
+
+
+    * **filename** – name of the filename
+
+
+    * **img_format** – format of the saved plot
+
+
+    * **units** – accepted units: thz, ev, mev, ha, cm-1, cm^-1.
+
 
 
 #### show(units='thz')
-Will show the plot
-:param units: units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
+Will show the plot.
 
-Returns: plot
+
+* **Parameters**
+
+    **units** – units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
+
 
 
 ### _class_ PhononBSPlotter(bs)
@@ -1241,7 +1295,7 @@ eigenvector.
 Convert the eigendisplacements to rgb colors.
 
 
-#### _maketicks(ax: Axes)
+#### _make_ticks(ax: Axes)
 Utility private method to add ticks to a band structure.
 
 
@@ -1585,7 +1639,7 @@ Plots a thermodynamic property for a generic function from a PhononDos instance.
     the units.
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be created.
+    * **ax** – matplotlib Axes or None if a new figure should be created.
 
 
     * **ylabel** – label for the y axis
@@ -2096,29 +2150,84 @@ An earlier implementation based on Matlab can be found here:
 
 #### _property_ B()
 Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-Returns: B as a numpy array, first dimension are the atoms in the structure.
+
+
+* **Returns**
+
+    First dimension are the atoms in the structure.
+
+
+
+* **Return type**
+
+    np.array
+
 
 
 #### _property_ U1U2U3()
 Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure.
+
+
+* **Returns**
+
+    eigenvalues of Ucart. First dimension are the atoms in the structure.
+
+
+
+* **Return type**
+
+    np.array
+
 
 
 #### _property_ Ucif()
 Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-Returns: Ucif as a numpy array, first dimension are the atoms in the structure.
+
+
+* **Returns**
+
+    Ucif as array. First dimension are the atoms in the structure.
+
+
+
+* **Return type**
+
+    np.array
+
 
 
 #### _property_ Ustar()
 Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-Returns: Ustar as a numpy array, first dimension are the atoms in the structure.
+
+
+* **Returns**
+
+    Ustar as array. First dimension are the atoms in the structure.
+
+
+
+* **Return type**
+
+    np.array
+
 
 
 #### _static_ _angle_dot(a, b)
 
 #### _property_ beta()
 Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-Returns: beta as a numpy array, first dimension are the atoms in the structure.
+
+
+* **Returns**
+
+    First dimension are the atoms in the structure.
+
+
+
+* **Return type**
+
+    np.array
+
 
 
 #### compute_directionality_quality_criterion(other)
@@ -2184,10 +2293,19 @@ Starting from a numpy array, it will convert Ucif values into Ucart values and i
 
 #### _static_ from_cif_P1(filename: str)
 Reads a cif with P1 symmetry including positions and ADPs.
-Currently, no check of symmetry is performed as CifParser methods cannot be easily reused
-:param filename: Filename of the cif.
+Currently, no check of symmetry is performed as CifParser methods cannot be easily reused.
 
-Returns: ThermalDisplacementMatrices Object.
+
+* **Parameters**
+
+    **filename** – Filename of the CIF.
+
+
+
+* **Returns**
+
+    ThermalDisplacementMatrices
+
 
 
 #### _static_ from_structure_with_site_properties_Ucif(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), temperature: float | None = None)
@@ -2206,7 +2324,11 @@ Will create this object with the help of a structure with site properties.
     * **temperature** – temperature for Ucif data
 
 
-Returns: ThermalDisplacementMatrices Object.
+
+* **Returns**
+
+    ThermalDisplacementMatrices
+
 
 
 #### _static_ get_full_matrix(thermal_displacement)
@@ -2255,7 +2377,11 @@ def sort_order(site):
 
 new_structure0 = Structure.from_sites(sorted(structure0, key=sort_order)).
 
-Returns: Structure object.
+
+* **Returns**
+
+    Structure
+
 
 
 #### visualize_directionality_quality_criterion(other, filename: str = 'visualization.vesta', which_structure: int = 0)
