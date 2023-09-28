@@ -178,16 +178,15 @@ class Poscar(MSONable):
         self.structure.properties["predictor_corrector"] = predictor_corrector_preamble
 
     @property
-    def site_symbols(self):
+    def site_symbols(self) -> list[str]:
         """
-        Sequence of symbols associated with the Poscar. Similar to 6th line in
-        vasp 5+ POSCAR.
+        Sequence of symbols associated with the Poscar. Similar to 6th line in VASP 5+ POSCAR.
         """
         syms = [site.specie.symbol for site in self.structure]
         return [a[0] for a in itertools.groupby(syms)]
 
     @property
-    def natoms(self):
+    def natoms(self) -> list[int]:
         """
         Sequence of number of sites of each type associated with the Poscar.
         Similar to 7th line in vasp 5+ POSCAR or the 6th line in vasp 4 POSCAR.
@@ -1683,13 +1682,10 @@ class PotcarSingle:
     def __init__(self, data: str, symbol: str | None = None) -> None:
         """
         Args:
-            data:
-                Complete and single potcar file as a string.
-            symbol:
-                POTCAR symbol corresponding to the filename suffix
-                e.g. "Tm_3" for POTCAR.TM_3". If not given, pymatgen
-                will attempt to extract the symbol from the file itself.
-                However, this is not always reliable!
+            data (str): Complete and single POTCAR file as a string.
+            symbol (str): POTCAR symbol corresponding to the filename suffix e.g. "Tm_3" for POTCAR.TM_3".
+                If not given, pymatgen will attempt to extract the symbol from the file itself. This is
+                not always reliable!
         """
         self.data = data  # raw POTCAR as a string
 
@@ -1711,12 +1707,9 @@ class PotcarSingle:
         array_search = re.compile(r"(-*[0-9.]+)")
         orbitals = []
         descriptions = []
-        atomic_configuration = re.search(
-            r"(?s)Atomic configuration(.*?)Description",
-            search_lines,
-        )
-        if atomic_configuration:
-            lines = atomic_configuration.group(1).splitlines()
+        atomic_config_match = re.search(r"(?s)Atomic configuration(.*?)Description", search_lines)
+        if atomic_config_match:
+            lines = atomic_config_match.group(1).splitlines()
             match = re.search(r"([0-9]+)", lines[1])
             num_entries = int(match.group(1)) if match else 0
             PSCTR["nentries"] = num_entries
@@ -1863,15 +1856,14 @@ class PotcarSingle:
         functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
         assert isinstance(functional, str)  # mypy type narrowing
         funcdir = PotcarSingle.functional_dir[functional]
-        d = SETTINGS.get("PMG_VASP_PSP_DIR")
-        if d is None:
+        PMG_VASP_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR")
+        if PMG_VASP_PSP_DIR is None:
             raise ValueError(
-                f"No POTCAR for {symbol} with {functional=} found. Please set the PMG_VASP_PSP_DIR "
-                "environment in .pmgrc.yaml."
+                f"No POTCAR for {symbol} with {functional=} found. Please set the PMG_VASP_PSP_DIR in .pmgrc.yaml."
             )
         paths_to_try = [
-            os.path.join(d, funcdir, f"POTCAR.{symbol}"),
-            os.path.join(d, funcdir, symbol, "POTCAR"),
+            os.path.join(PMG_VASP_PSP_DIR, funcdir, f"POTCAR.{symbol}"),
+            os.path.join(PMG_VASP_PSP_DIR, funcdir, symbol, "POTCAR"),
         ]
         for path in paths_to_try:
             path = os.path.expanduser(path)
@@ -1879,8 +1871,8 @@ class PotcarSingle:
             if os.path.isfile(path):
                 return PotcarSingle.from_file(path)
         raise OSError(
-            f"You do not have the right POTCAR with {functional=} and label {symbol} "
-            f"in your VASP_PSP_DIR. Paths tried: {paths_to_try}"
+            f"You do not have the right POTCAR with {functional=} and {symbol=} "
+            f"in your {PMG_VASP_PSP_DIR=}. Paths tried: {paths_to_try}"
         )
 
     @property
@@ -2205,30 +2197,24 @@ class PotcarSingle:
         in self._meta["stats"]
 
         tol is then used to match statistical values within a tolerance
-
-        self._matched_meta collects reference metadata that matched the input POTCAR data
         """
-
-        tol = 1e-6
-
         functional_lexch = {
             "PE": ["PBE", "PBE_52", "PBE_54"],
             "CA": ["LDA", "LDA_52", "LDA_54", "LDA_US", "Perdew_Zunger81"],
             "91": ["PW91", "PW91_US"],
         }
 
-        possible_potcars = []
+        possible_potcar_matches = []
         for func in functional_lexch.get(self.LEXCH, []):
             for titel_no_spc in self.meta_db[func]:
                 if (self.TITEL.replace(" ", "") == titel_no_spc) and (
                     self.VRHFIN.replace(" ", "") == self.meta_db[func][titel_no_spc]["VRHFIN"]
                 ):
-                    possible_potcars.append(
+                    possible_potcar_matches.append(
                         {"POTCAR_FUNCTIONAL": func, "TITEL": titel_no_spc, **self.meta_db[func][titel_no_spc]}
                     )
 
-        psp_keys = []
-        psp_vals = []
+        psp_keys, psp_vals = [], []
         for file_line in self.data.split("END of PSCTR-controll parameters\n")[1].split("\n"):
             single_line_rows = file_line.split(";")  # FORTRAN multiple lines in one, woot woot
             for row in single_line_rows:
@@ -2275,26 +2261,24 @@ class PotcarSingle:
             },
         }
 
-        self._matched_meta = []
-        for ref_psp in possible_potcars:
+        data_match_tol = 1e-6
+        for ref_psp in possible_potcar_matches:
             key_match = all(
                 set(ref_psp["keywords"][key]) == set(self._meta["keywords"][key])  # type: ignore
                 for key in ["header", "data"]
             )
 
-            data_diff = np.array(
-                [
-                    abs(ref_psp["stats"][key][stat] - self._meta["stats"][key][stat])  # type: ignore
-                    for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
-                    for key in ["header", "data"]
-                ]
-            )
-            data_match = all(data_diff < tol)
+            data_diff = [
+                abs(ref_psp["stats"][key][stat] - self._meta["stats"][key][stat])  # type: ignore
+                for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
+                for key in ["header", "data"]
+            ]
+            data_match = all(np.array(data_diff) < data_match_tol)
 
             if key_match and data_match:
-                self._matched_meta.append(ref_psp.copy())
+                return True
 
-        return len(self._matched_meta) > 0
+        return False
 
     def __getattr__(self, attr: str) -> Any:
         """Delegates attributes to keywords. For example, you can use potcarsingle.enmax to get the ENMAX of the POTCAR.
