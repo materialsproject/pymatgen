@@ -8,8 +8,9 @@ from __future__ import annotations
 
 import warnings
 from typing import TYPE_CHECKING
-from monty.dev import requires
+
 import numpy as np
+from monty.dev import requires
 
 from pymatgen.core.structure import Molecule, Structure
 
@@ -163,11 +164,13 @@ class AseAtomsAdaptor:
         # Atoms.info <---> Structure.properties
         if properties := getattr(structure, "properties"):  # noqa: B009
             atoms.info = properties
-        
+
         # Regenerate Spacegroup object
         if isinstance(atoms.info.get("spacegroup"), dict):
-            atoms.info["spacegroup"] = Spacegroup(atoms.info["spacegroup"]["number"], setting=atoms.info["spacegroup"].get("setting", 1))
-        
+            atoms.info["spacegroup"] = Spacegroup(
+                atoms.info["spacegroup"]["number"], setting=atoms.info["spacegroup"].get("setting", 1)
+            )
+
         # Atoms.calc <---> Structure.calc
         if calc := getattr(structure, "calc", None):
             atoms.calc = calc
