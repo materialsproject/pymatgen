@@ -1699,10 +1699,10 @@ class PotcarSingle:
         match = re.search(r"(?s)(parameters from PSCTR are:.*?END of PSCTR-controll parameters)", data)
         search_lines = match.group(1) if match else ""
 
-        self.keywords = {}
+        keywords = {}
         for key, val in re.findall(r"(\S+)\s*=\s*(.*?)(?=;|$)", search_lines, flags=re.MULTILINE):
             try:
-                self.keywords[key] = self.parse_functions[key](val)
+                keywords[key] = self.parse_functions[key](val)
             except KeyError:
                 warnings.warn(f"Ignoring unknown variable type {key}")
 
@@ -1762,16 +1762,16 @@ class PotcarSingle:
             if rrkj_array:
                 PSCTR["RRKJ"] = tuple(rrkj_array)
 
-        PSCTR.update(self.keywords)
+        PSCTR.update(keywords)
         self.PSCTR = dict(sorted(PSCTR.items()))
 
         if symbol:
             self._symbol = symbol
         else:
             try:
-                self._symbol = self.keywords["TITEL"].split(" ")[1].strip()
+                self._symbol = keywords["TITEL"].split(" ")[1].strip()
             except IndexError:
-                self._symbol = self.keywords["TITEL"].strip()
+                self._symbol = keywords["TITEL"].strip()
 
         # Compute the POTCAR meta to check them against the database of known metadata,
         # and possibly SHA256 hashes contained in the file itself.
@@ -1887,7 +1887,7 @@ class PotcarSingle:
     @property
     def element(self) -> str:
         """Attempt to return the atomic symbol based on the VRHFIN keyword."""
-        element = self.keywords["VRHFIN"].split(":")[0].strip()
+        element = self.PSCTR["VRHFIN"].split(":")[0].strip()
         try:
             return Element(element).symbol
         except ValueError:
@@ -2148,7 +2148,7 @@ class PotcarSingle:
         if input_str.lower() in ["t", "f"] or input_str.lower() in ["true", "false"]:
             return input_str[0].lower() == "t"
 
-        if (input_str.upper() == input_str.lower()) and input_str[0].isnumeric():
+        if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
             if "." in input_str:
                 """
                 NB: fortran style floats always include a decimal point.
@@ -2304,15 +2304,15 @@ class PotcarSingle:
         default, all energies in eV and all length scales are in Angstroms.
         """
         try:
-            return self.keywords[attr.upper()]
+            return self.PSCTR[attr.upper()]
         except Exception:
             raise AttributeError(attr)
 
     def __repr__(self) -> str:
         cls_name = type(self).__name__
         symbol, functional = self.symbol, self.functional
-        TITEL, VRHFIN = self.keywords["TITEL"], self.keywords["VRHFIN"]
-        TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
+        TITEL, VRHFIN = self.PSCTR["TITEL"], self.PSCTR["VRHFIN"]
+        TITEL, VRHFIN, n_valence_elec = (self.PSCTR.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
 

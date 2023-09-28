@@ -945,7 +945,7 @@ class TestPotcarSingle(unittest.TestCase):
         }
 
     def test_keywords(self):
-        assert self.psingle_Mn_pv.keywords == self.Mn_pv_attrs
+        assert {*self.psingle_Mn_pv.PSCTR} > {*self.Mn_pv_attrs}
 
     def test_psctr(self):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
@@ -1022,11 +1022,11 @@ class TestPotcarSingle(unittest.TestCase):
         assert psingle.is_valid
 
         # corrupt the file
-        assert psingle.keywords["RCORE"] == 2.3
-        psingle.keywords["RCORE"] = 2.2
+        assert psingle.PSCTR["RCORE"] == 2.3
+        psingle.PSCTR["RCORE"] = 2.2
         assert not psingle.is_valid
 
-        psingle.keywords.pop("RCORE")
+        psingle.PSCTR.pop("RCORE")
         assert not psingle.is_valid
 
         psingle.data = psingle.data.replace("RCORE  =    2.300", "RCORE  =    2.200")
