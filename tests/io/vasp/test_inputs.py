@@ -947,7 +947,8 @@ class TestPotcarSingle(unittest.TestCase):
         }
 
     def test_keywords(self):
-        assert {*self.psingle_Mn_pv.keywords} > {*self.Mn_pv_attrs}
+        for key, val in self.Mn_pv_attrs.items():
+            assert self.psingle_Mn_pv.keywords[key] == val
 
         psingle = self.psingle_Fe_54
         data = {
