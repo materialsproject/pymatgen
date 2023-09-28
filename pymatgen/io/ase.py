@@ -7,8 +7,8 @@ Atoms object and pymatgen Structure objects.
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -120,7 +120,11 @@ class AseAtomsAdaptor:
             fix_atoms = []
             for site in structure:
                 selective_dynamics: ArrayLike = site.properties.get("selective_dynamics")  # type: ignore[assignment]
-                if isinstance(selective_dynamics,Iterable) and True in selective_dynamics and False in selective_dynamics:
+                if (
+                    isinstance(selective_dynamics, Iterable)
+                    and True in selective_dynamics
+                    and False in selective_dynamics
+                ):
                     raise ValueError(
                         "ASE FixAtoms constraint does not support selective dynamics in only some dimensions. "
                         f"Remove the {selective_dynamics=} and try again if you do not need them."
@@ -162,7 +166,7 @@ class AseAtomsAdaptor:
             charges = structure.site_properties.get("final_charge")
             magmoms = structure.site_properties.get("final_magmom")
             if charges or magmoms:
-                calc = SinglePointDFTCalculator(atoms, magmoms=magmoms,charges=charges)
+                calc = SinglePointDFTCalculator(atoms, magmoms=magmoms, charges=charges)
                 atoms.calc = calc
 
         return atoms
