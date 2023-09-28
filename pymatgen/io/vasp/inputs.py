@@ -2254,14 +2254,25 @@ class PotcarSingle:
             elif hasattr(val, "__len__"):
                 psctr_vals += [num for num in val if (isinstance(num, (float, int)))]
 
+        def data_stats(data_list: Sequence) -> dict:
+            """Used for hash-less and therefore less brittle POTCAR validity checking."""
+            arr = np.array(data_list)
+            return {
+                "MEAN": np.mean(arr),
+                "ABSMEAN": np.mean(np.abs(arr)),
+                "VAR": np.mean(arr**2),
+                "MIN": arr.min(),
+                "MAX": arr.max(),
+            }
+
         self._meta = {
             "keywords": {
                 "header": [kwd.lower() for kwd in self.PSCTR],
                 "data": psp_keys,
             },
             "stats": {
-                "header": self._quickstat(psctr_vals),
-                "data": self._quickstat(psp_vals),
+                "header": data_stats(psctr_vals),
+                "data": data_stats(psp_vals),
             },
         }
 
@@ -2285,19 +2296,6 @@ class PotcarSingle:
                 self._matched_meta.append(ref_psp.copy())
 
         return len(self._matched_meta) > 0
-
-    def _quickstat(self, data_list: Sequence) -> dict:
-        """
-        Fast stats on input list - used for POTCAR checking without hashes
-        """
-        arr = np.array(data_list)
-        return {
-            "MEAN": np.mean(arr),
-            "ABSMEAN": np.mean(np.abs(arr)),
-            "VAR": np.mean(arr**2),
-            "MIN": arr.min(),
-            "MAX": arr.max(),
-        }
 
     def __getattr__(self, attr: str) -> Any:
         """Delegates attributes to keywords. For example, you can use potcarsingle.enmax to get the ENMAX of the POTCAR.
