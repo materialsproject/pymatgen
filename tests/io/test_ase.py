@@ -171,11 +171,11 @@ def test_get_structure_mag():
     assert "magmom" not in structure.site_properties
     assert "initial_magmoms" not in structure.site_properties
 
-    @pytest.mark.parametrize(
-        "select_dyn",
-        [[True, True, True], [False, False, False], np.array([True, True, True]), np.array([False, False, False])],
-    )
-    def test_get_structure_dyn(self, select_dyn):
+@pytest.mark.parametrize(
+    "select_dyn",
+    [[True, True, True], [False, False, False], np.array([True, True, True]), np.array([False, False, False])],
+)
+def test_get_structure_dyn(select_dyn):
 
     atoms = read(TEST_FILES_DIR / "POSCAR")
     atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
