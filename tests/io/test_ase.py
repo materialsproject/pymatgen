@@ -296,5 +296,5 @@ class TestAseAtomsAdaptor:
         # test document can be jsanitized and decoded
         d = jsanitize(molecule, strict=True, enum_values=True)
         MontyDecoder().process_decoded(d)
-        
+
     def test_back_forth_v2(self):
