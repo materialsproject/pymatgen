@@ -1781,13 +1781,13 @@ class TestLobsterin(unittest.TestCase):
         assert result[0] == {"Fe": "3d 4s", "O": "2p 2s"}
         assert result[1] == {"Fe": "3d 4s 4p", "O": "2p 2s"}
 
-        potcar2 = Potcar.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv.gz")
+        potcar2 = Potcar.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz")
         Potcar_names2 = [name["symbol"] for name in potcar2.spec]
         result2 = Lobsterin.get_all_possible_basis_functions(
             Structure.from_file(f"{TEST_FILES_DIR}/Fe.cif"),
             potcar_symbols=Potcar_names2,
         )
-        assert result2[0] == {"Fe": "3d 3p 4s"}
+        assert result2[0] == {"Fe": "3d 4s"}
 
     def test_get_potcar_symbols(self):
         lobsterin1 = Lobsterin({})
