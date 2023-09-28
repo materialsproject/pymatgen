@@ -534,7 +534,7 @@ class TestMPResterNewBasic:
             _ = self.rester.summary
 
     def test_get_summary(self):
-        docs = self.rester.get_summary({"formula": "Fe2O3"})
+        docs = self.rester.summary_search({"formula": "Fe2O3"})
         assert len(docs) > 3
 
         doc = self.rester.get_summary_by_material_id(docs[0]["material_id"])
@@ -890,7 +890,7 @@ class TestMPResterNewBasic:
         mpr_mpapi = MPResterMPAPI(PMG_MAPI_KEY)
         # Test summary
         mp_data = mpr_mpapi.summary.search(formula="Al2O3")
-        pmg_data = self.rester.get_summary({"formula": "Al2O3"})
+        pmg_data = self.rester.summary_search({"formula": "Al2O3"})
         assert len(mp_data) == len(pmg_data)
 
         # Test get_entries
