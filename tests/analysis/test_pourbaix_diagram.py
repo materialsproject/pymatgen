@@ -19,9 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class TestPourbaixEntry(PymatgenTest):
-    """
-    Test all functions using a fictitious entry
-    """
+    """Test all functions using a fictitious entry"""
 
     def setUp(self):
         # comp = Composition("Mn2O3")
