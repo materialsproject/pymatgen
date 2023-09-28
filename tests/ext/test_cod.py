@@ -15,8 +15,6 @@ except requests.exceptions.ConnectionError:
 
 @unittest.skipIf(website_down, "www.crystallography.net is down.")
 class TestCOD(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     @unittest.skipIf(not which("mysql"), "No mysql.")
     def test_get_cod_ids(self):
         ids = COD().get_cod_ids("Li2O")
