@@ -228,12 +228,13 @@ class TestAseAtomsAdaptor:
         assert molecule.charge == 2
         assert molecule.spin_multiplicity == 3
 
-    def test_back_forth(self):
+    @pytest.mark.parametrize("structure_file", ["OUTCAR", "V2O3.cif"], indirect=True)
+    def test_back_forth(self, structure_file):
         from ase.constraints import FixAtoms
         from ase.io import read
 
         # Atoms --> Structure --> Atoms --> Structure
-        atoms = read(TEST_FILES_DIR / "OUTCAR")
+        atoms = read(TEST_FILES_DIR / structure_file)
         atoms.info = {"test": "hi"}
         atoms.set_tags([1] * len(atoms))
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
@@ -295,3 +296,5 @@ class TestAseAtomsAdaptor:
         # test document can be jsanitized and decoded
         d = jsanitize(molecule, strict=True, enum_values=True)
         MontyDecoder().process_decoded(d)
+        
+    def test_back_forth_v2(self):
