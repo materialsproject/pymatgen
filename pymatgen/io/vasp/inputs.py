@@ -1680,7 +1680,7 @@ class PotcarSingle:
 
     meta_db = loadfn(f"{module_dir}/POTCAR_META.json.gz")
 
-    def __init__(self, data, symbol=None):
+    def __init__(self, data: str, symbol: str | None = None) -> None:
         """
         Args:
             data:
@@ -1696,10 +1696,8 @@ class PotcarSingle:
         # VASP parses header in vasprun.xml and this differs from the titel
         self.header = data.split("\n")[0].strip()
 
-        search_lines = re.search(
-            r"(?s)(parameters from PSCTR are:.*?END of PSCTR-controll parameters)",
-            data,
-        ).group(1)
+        match = re.search(r"(?s)(parameters from PSCTR are:.*?END of PSCTR-controll parameters)", data)
+        search_lines = match.group(1) if match else ""
 
         self.keywords = {}
         for key, val in re.findall(r"(\S+)\s*=\s*(.*?)(?=;|$)", search_lines, flags=re.MULTILINE):
@@ -1708,7 +1706,7 @@ class PotcarSingle:
             except KeyError:
                 warnings.warn(f"Ignoring unknown variable type {key}")
 
-        PSCTR = {}
+        PSCTR: dict[str, Any] = {}
 
         array_search = re.compile(r"(-*[0-9.]+)")
         orbitals = []
@@ -1719,8 +1717,8 @@ class PotcarSingle:
         )
         if atomic_configuration:
             lines = atomic_configuration.group(1).splitlines()
-            num_entries = re.search(r"([0-9]+)", lines[1]).group(1)
-            num_entries = int(num_entries)
+            match = re.search(r"([0-9]+)", lines[1])
+            num_entries = int(match.group(1)) if match else 0
             PSCTR["nentries"] = num_entries
             for line in lines[3:]:
                 orbit = array_search.findall(line)
