@@ -1075,8 +1075,8 @@ your_input_file._add_command(
 
 
 #### _add_comment(comment: str, inline: bool = False, stage_name: str | None = None, index_comment: bool = False)
-> Method to add a comment inside a stage (between actual commands)
-> or as a whole stage (which will do nothing when LAMMPS runs).
+Method to add a comment inside a stage (between actual commands)
+or as a whole stage (which will do nothing when LAMMPS runs).
 
 
 * **Parameters**
@@ -1383,6 +1383,12 @@ A stage name can be given; in this case the search will happen only for this sta
 
 
 
+* **Return type**
+
+    bool
+
+
+
 #### _classmethod_ from_file(path: str | Path, ignore_comments: bool = False, keep_stages: bool = False)
 Creates an InputFile object from a file.
 
@@ -1484,7 +1490,17 @@ Other comments will be put inline within stages, where they have been added.
     If False, stage names are not printed and all commands appear in a single block.
 
 
-Returns: String representation of the LammpsInputFile.
+
+* **Returns**
+
+    String representation of the LammpsInputFile.
+
+
+
+* **Return type**
+
+    str
+
 
 
 #### get_string(\*\*kwds)

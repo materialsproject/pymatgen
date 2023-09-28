@@ -52,7 +52,12 @@ Abstract constructor for the all chemenv strategies.
 
 #### _abstract_ as_dict()
 Bson-serializable dict representation of the SimplestChemenvStrategy object.
-:returns: Bson-serializable dict representation of the SimplestChemenvStrategy object.
+
+
+* **Returns**
+
+    Bson-serializable dict representation of the SimplestChemenvStrategy object.
+
 
 
 #### equivalent_site_index_and_transform(psite)
@@ -86,7 +91,7 @@ SimpleAbundanceChemenvStrategy object created using the as_dict method.
 #### get_site_ce_fractions_and_neighbors(site, full_ce_info=False, strategy_info=False)
 Applies the strategy to the structure_environments object in order to get coordination environments, their
 fraction, csm, geometry_info, and neighbors
-:param site: Site for which the above information is seeked
+:param site: Site for which the above information is sought
 
 
 * **Returns**
@@ -169,12 +174,6 @@ Set up a given option for this strategy.
 
 
 
-* **Returns**
-
-    None
-
-
-
 #### set_structure_environments(structure_environments)
 Set the structure environments to this strategy.
 
@@ -182,12 +181,6 @@ Set the structure environments to this strategy.
 * **Parameters**
 
     **structure_environments** – StructureEnvironments object.
-
-
-
-* **Returns**
-
-    None
 
 
 
@@ -201,19 +194,12 @@ Set up options for this strategy based on a dict.
 
 
 
-* **Returns**
-
-    None
-
-
-
 #### _property_ symmetry_measure_type()
 Type of symmetry measure.
 
 
 #### _property_ uniquely_determines_coordination_environments()
-Returns True if the strategy leads to a unique coordination environment, False otherwise.
-:returns: True if the strategy leads to a unique coordination environment, False otherwise.
+Returns True if the strategy leads to a unique coordination environment.
 
 
 ### _class_ AdditionalConditionInt(integer)
@@ -246,7 +232,7 @@ Initialize additional condition from dict.
 
 #### integer(_ = _ )
 
-### _class_ AngleCutoffFloat(myfloat)
+### _class_ AngleCutoffFloat(cutoff)
 Bases: `float`, `StrategyOption`
 
 Angle cutoff in a strategy.
@@ -256,7 +242,7 @@ Special float that should be between 0 and 1.
 
 * **Parameters**
 
-    **myfloat** – Angle cutoff.
+    **cutoff** – Angle cutoff.
 
 
 
@@ -332,9 +318,8 @@ Sum of all angles to a given power in a neighbors set.
 MSONable dict.
 
 
-#### _classmethod_ from_dict(dd)
-From dict
-:param dd:
+#### _classmethod_ from_dict(dct)
+Construct AngleNbSetWeight from dict representation.
 
 
 #### weight(nb_set, structure_environments, cn_map=None, additional_info=None)
@@ -389,13 +374,13 @@ Initialize AnglePlateauNbSetWeight.
 MSONable dict.
 
 
-#### _classmethod_ from_dict(dd)
+#### _classmethod_ from_dict(dct)
 Initialize from dict.
 
 
 * **Parameters**
 
-    **dd** – Dict representation of AnglePlateauNbSetWeight.
+    **dct** – Dict representation of AnglePlateauNbSetWeight.
 
 
 
@@ -473,13 +458,13 @@ Initializes weights explicitly for each coordination.
 
 
 
-#### _classmethod_ from_description(dd)
+#### _classmethod_ from_description(dct)
 Initializes weights from description.
 
 
 * **Parameters**
 
-    **dd** – Dictionary description.
+    **dct** – Dictionary description.
 
 
 
@@ -489,13 +474,13 @@ Initializes weights from description.
 
 
 
-#### _classmethod_ from_dict(dd)
+#### _classmethod_ from_dict(dct)
 Initialize from dict.
 
 
 * **Parameters**
 
-    **dd** – Dict representation of CNBiasNbSetWeight.
+    **dct** – Dict representation of CNBiasNbSetWeight.
 
 
 
@@ -571,7 +556,7 @@ Get the weight of a given neighbors set.
 
 
 
-### _class_ CSMFloat(myfloat)
+### _class_ CSMFloat(cutoff)
 Bases: `float`, `StrategyOption`
 
 Real number representing a Continuous Symmetry Measure.
@@ -581,7 +566,7 @@ Special float that should be between 0 and 100.
 
 * **Parameters**
 
-    **myfloat** – CSM.
+    **cutoff** – CSM.
 
 
 
@@ -670,13 +655,13 @@ Initializes DeltaCSMNbSetWeight from specific coordination number differences.
 
 
 
-#### _classmethod_ from_dict(dd)
+#### _classmethod_ from_dict(dct)
 Initialize from dict.
 
 
 * **Parameters**
 
-    **dd** – Dict representation of DeltaCSMNbSetWeight.
+    **dct** – Dict representation of DeltaCSMNbSetWeight.
 
 
 
@@ -738,13 +723,13 @@ Initialize DeltaDistanceNbSetWeight.
 MSONable dict.
 
 
-#### _classmethod_ from_dict(dd)
+#### _classmethod_ from_dict(dct)
 Initialize from dict.
 
 
 * **Parameters**
 
-    **dd** – Dict representation of DeltaDistanceNbSetWeight.
+    **dct** – Dict representation of DeltaDistanceNbSetWeight.
 
 
 
@@ -825,13 +810,13 @@ Initialize CNBiasNbSetWeight.
 MSONable dict.
 
 
-#### _classmethod_ from_dict(dd)
+#### _classmethod_ from_dict(dct)
 Initialize from dict.
 
 
 * **Parameters**
 
-    **dd** – Dict representation of DistanceAngleAreaNbSetWeight.
+    **dct** – Dict representation of DistanceAngleAreaNbSetWeight.
 
 
 
@@ -939,7 +924,7 @@ Get the weight of a given neighbors set.
 
 
 
-### _class_ DistanceCutoffFloat(myfloat)
+### _class_ DistanceCutoffFloat(cutoff)
 Bases: `float`, `StrategyOption`
 
 Distance cutoff in a strategy.
@@ -949,7 +934,7 @@ Special float that should be between 1 and infinity.
 
 * **Parameters**
 
-    **myfloat** – Distance cutoff.
+    **cutoff** – Distance cutoff.
 
 
 
@@ -997,13 +982,13 @@ Initialize DistanceNbSetWeight.
 MSOnable dict.
 
 
-#### _classmethod_ from_dict(dd)
+#### _classmethod_ from_dict(dct)
 Initialize from dict.
 
 
 * **Parameters**
 
-    **dd** – Dict representation of DistanceNbSetWeight.
+    **dct** – Dict representation of DistanceNbSetWeight.
 
 
 
@@ -1065,13 +1050,13 @@ Initialize DistancePlateauNbSetWeight.
 MSONable dict.
 
 
-#### _classmethod_ from_dict(dd)
+#### _classmethod_ from_dict(dct)
 Initialize from dict.
 
 
 * **Parameters**
 
-    **dd** – Dict representation of DistancePlateauNbSetWeight.
+    **dct** – Dict representation of DistancePlateauNbSetWeight.
 
 
 
@@ -1331,13 +1316,13 @@ Standard mean of the weights.
 
 
 
-#### _classmethod_ from_dict(dd)
+#### _classmethod_ from_dict(dct)
 Initialize from dict.
 
 
 * **Parameters**
 
-    **dd** – Dict representation of NormalizedAngleDistanceNbSetWeight.
+    **dct** – Dict representation of NormalizedAngleDistanceNbSetWeight.
 
 
 
@@ -1456,13 +1441,13 @@ Initialize SelfCSMNbSetWeight.
 MSONable dict.
 
 
-#### _classmethod_ from_dict(dd)
+#### _classmethod_ from_dict(dct)
 Initialize from dict.
 
 
 * **Parameters**
 
-    **dd** – Dict representation of SelfCSMNbSetWeight.
+    **dct** – Dict representation of SelfCSMNbSetWeight.
 
 
 
@@ -1527,7 +1512,12 @@ Constructor for the SimpleAbundanceChemenvStrategy.
 
 #### as_dict()
 Bson-serializable dict representation of the SimpleAbundanceChemenvStrategy object.
-:returns: Bson-serializable dict representation of the SimpleAbundanceChemenvStrategy object.
+
+
+* **Returns**
+
+    Bson-serializable dict representation of the SimpleAbundanceChemenvStrategy object.
+
 
 
 #### _classmethod_ from_dict(d)
@@ -1668,12 +1658,6 @@ Add a visual of the strategy on a distance-angle plot.
 
 
 
-* **Returns**
-
-    None
-
-
-
 #### _property_ additional_condition()
 Additional condition for this strategy.
 
@@ -1684,7 +1668,12 @@ Angle cutoff used.
 
 #### as_dict()
 Bson-serializable dict representation of the SimplestChemenvStrategy object.
-:returns: Bson-serializable dict representation of the SimplestChemenvStrategy object.
+
+
+* **Returns**
+
+    Bson-serializable dict representation of the SimplestChemenvStrategy object.
+
 
 
 #### _property_ continuous_symmetry_measure_cutoff()
@@ -1888,7 +1877,12 @@ Not yet implemented.
 
 #### as_dict()
 Bson-serializable dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object.
-:returns: Bson-serializable dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object.
+
+
+* **Returns**
+
+    Bson-serializable dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object.
+
 
 
 #### _classmethod_ from_dict(d)
@@ -1958,7 +1952,12 @@ Constructor for the WeightedNbSetChemenvStrategy.
 
 #### as_dict()
 Bson-serializable dict representation of the WeightedNbSetChemenvStrategy object.
-:returns: Bson-serializable dict representation of the WeightedNbSetChemenvStrategy object.
+
+
+* **Returns**
+
+    Bson-serializable dict representation of the WeightedNbSetChemenvStrategy object.
+
 
 
 #### _classmethod_ from_dict(d)
@@ -2160,7 +2159,17 @@ Base constructor for ChemenvAlgorithm.
 #### _property_ algorithm_type()
 Return the type of algorithm.
 
-Returns: Type of the algorithm
+
+* **Returns**
+
+    Type of the algorithm
+
+
+
+* **Return type**
+
+    str
+
 
 
 #### _abstract_ as_dict()
@@ -2282,7 +2291,17 @@ Return a dictionary mapping the symbol of a CoordinationGeometry to its coordina
     **coordination** – Whether to restrict the dictionary to a given coordination.
 
 
-Returns: Dictionary mapping the symbol of a CoordinationGeometry to its coordination.
+
+* **Returns**
+
+    map of symbol of a CoordinationGeometry to its coordination.
+
+
+
+* **Return type**
+
+    dict
+
 
 
 #### get_symbol_name_mapping(coordination=None)
@@ -2294,7 +2313,17 @@ Return a dictionary mapping the symbol of a CoordinationGeometry to its name.
     **coordination** – Whether to restrict the dictionary to a given coordination.
 
 
-Returns: Dictionary mapping the symbol of a CoordinationGeometry to its name.
+
+* **Returns**
+
+    map symbol of a CoordinationGeometry to its name.
+
+
+
+* **Return type**
+
+    dict
+
 
 
 #### is_a_valid_coordination_geometry(mp_symbol=None, IUPAC_symbol=None, IUCr_symbol=None, name=None, cn=None)
@@ -2338,7 +2367,17 @@ Return a string with a list of the Coordination Geometries.
     * **additional_info** – Whether to add some additional info for each coordination geometry.
 
 
-Returns: String describing the list of coordination geometries.
+
+* **Returns**
+
+    description of the list of coordination geometries.
+
+
+
+* **Return type**
+
+    str
+
 
 
 ### _class_ CoordinationGeometry(mp_symbol, name, alternative_names=None, IUPAC_symbol=None, IUCr_symbol=None, coordination=None, central_site=None, points=None, solid_angles=None, permutations_safe_override=False, deactivate=False, faces=None, edges=None, algorithms=None, equivalent_indices=None, neighbors_sets_hints=None)
@@ -2451,8 +2490,8 @@ A JSON-serializable dict representation of this NeighborsSetsHints.
 
 
 #### double_cap_hints(hints_info)
-Return hints for an additional neighbors set, i.e. the voronoi indices that constitute this new
-neighbors set, in case of a “Double cap” hint.
+Return hints for an additional neighbors set, i.e. the voronoi indices that
+constitute this new neighbors set, in case of a “Double cap” hint.
 
 
 * **Parameters**
@@ -2460,24 +2499,26 @@ neighbors set, in case of a “Double cap” hint.
     **hints_info** – Info needed to build new “hinted” neighbors set.
 
 
-Returns: Voronoi indices of the new “hinted” neighbors set.
+
+* **Returns**
+
+    Voronoi indices of the new “hinted” neighbors set.
 
 
-#### _classmethod_ from_dict(dd)
+
+* **Return type**
+
+    list[int]
+
+
+
+#### _classmethod_ from_dict(dct)
 Reconstructs the NeighborsSetsHints from its JSON-serializable dict representation.
 
 
-* **Parameters**
-
-    **dd** – a JSON-serializable dict representation of a NeighborsSetsHints.
-
-
-Returns: a NeighborsSetsHints.
-
-
 #### hints(hints_info)
-Return hints for an additional neighbors set, i.e. the voronoi indices that constitute this new
-neighbors set.
+Return hints for an additional neighbors set, i.e. the voronoi indices that
+constitute this new neighbors set.
 
 
 * **Parameters**
@@ -2485,12 +2526,22 @@ neighbors set.
     **hints_info** – Info needed to build new “hinted” neighbors set.
 
 
-Returns: Voronoi indices of the new “hinted” neighbors set.
+
+* **Returns**
+
+    Voronoi indices of the new “hinted” neighbors set.
+
+
+
+* **Return type**
+
+    list[int]
+
 
 
 #### single_cap_hints(hints_info)
-Return hints for an additional neighbors set, i.e. the voronoi indices that constitute this new
-neighbors set, in case of a “Single cap” hint.
+Return hints for an additional neighbors set, i.e. the voronoi indices that
+constitute this new neighbors set, in case of a “Single cap” hint.
 
 
 * **Parameters**
@@ -2498,12 +2549,22 @@ neighbors set, in case of a “Single cap” hint.
     **hints_info** – Info needed to build new “hinted” neighbors set.
 
 
-Returns: Voronoi indices of the new “hinted” neighbors set.
+
+* **Returns**
+
+    Voronoi indices of the new “hinted” neighbors set.
+
+
+
+* **Return type**
+
+    list[int]
+
 
 
 #### triple_cap_hints(hints_info)
-Return hints for an additional neighbors set, i.e. the voronoi indices that constitute this new
-neighbors set, in case of a “Triple cap” hint.
+Return hints for an additional neighbors set, i.e. the voronoi indices that
+constitute this new neighbors set, in case of a “Triple cap” hint.
 
 
 * **Parameters**
@@ -2511,7 +2572,17 @@ neighbors set, in case of a “Triple cap” hint.
     **hints_info** – Info needed to build new “hinted” neighbors set.
 
 
-Returns: Voronoi indices of the new “hinted” neighbors set.
+
+* **Returns**
+
+    Voronoi indices of the new “hinted” neighbors set.
+
+
+
+* **Return type**
+
+    list[int]
+
 
 
 #### _property_ algorithms()
@@ -2531,9 +2602,7 @@ Returns the coordination number of this coordination geometry.
 
 
 #### _property_ distfactor_max()
-The maximum distfactor for the perfect CoordinationGeometry.
-
-Returns: Maximum distfactor for the perfect CoordinationGeometry (usually 1.0 for symmetric polyhedrons).
+The maximum distfactor for the perfect CoordinationGeometry (usually 1.0 for symmetric polyhedrons).
 
 
 #### edges(sites, permutation=None, input='sites')
@@ -2555,7 +2624,11 @@ Reconstructs the CoordinationGeometry from its JSON-serializable dict representa
     **dct** – a JSON-serializable dict representation of a CoordinationGeometry.
 
 
-Returns: a CoordinationGeometry.
+
+* **Returns**
+
+    CoordinationGeometry
+
 
 
 #### get_central_site()
@@ -2601,16 +2674,16 @@ Can be useful to skip permutations that have already been performed.
     **permutation** – Current permutation
 
 
-Returns: Reference permutation of the perfect CoordinationGeometry.
+
+* **Returns**
+
+    Reference permutation of the perfect CoordinationGeometry.
 
 
-#### set_permutations_safe_override(permutations_safe_override)
-Setup ChemEnv so that a safe set of permutations are used.
 
+* **Return type**
 
-* **Parameters**
-
-    **permutations_safe_override** – Whether to use safe permutations.
+    Permutation
 
 
 
@@ -2625,7 +2698,7 @@ Bases: `AbstractChemenvAlgorithm`
 Class representing the algorithm doing the explicit permutations for the calculation of
 the Continuous Symmetry Measure.
 
-> Initializes a separation plane for a given perfect coordination geometry.
+Initializes a separation plane for a given perfect coordination geometry.
 
 
 * **Parameters**
@@ -2637,27 +2710,28 @@ the Continuous Symmetry Measure.
 #### _abc_impl(_ = <_abc._abc_data object_ )
 
 #### _property_ as_dict()
-Return the JSON-serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
-
-Returns: a JSON-serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
-
-
-#### _classmethod_ from_dict(dd)
-Reconstructs the ExplicitPermutationsAlgorithm algorithm from its JSON-serializable dict representation.
+Returns:
+dict: JSON-serializable representation of this ExplicitPermutationsAlgorithm
 
 
-* **Parameters**
-
-    **dd** – a JSON-serializable dict representation of an ExplicitPermutationsAlgorithm algorithm.
-
-
-Returns: an ExplicitPermutationsAlgorithm algorithm.
+#### _classmethod_ from_dict(dct)
+Reconstruct ExplicitPermutationsAlgorithm from its JSON-serializable dict representation.
 
 
 #### _property_ permutations()
 Return the permutations to be performed for this algorithm.
 
-Returns: Permutations to be performed.
+
+* **Returns**
+
+    Permutations to be performed.
+
+
+
+* **Return type**
+
+    list
+
 
 
 ### _class_ SeparationPlane(plane_points, mirror_plane=False, ordered_plane=False, point_groups=None, ordered_point_groups=None, explicit_permutations=None, minimum_number_of_points=None, explicit_optimized_permutations=None, multiplicity=None, other_plane_points=None)
@@ -2666,7 +2740,7 @@ Bases: `AbstractChemenvAlgorithm`
 Class representing the algorithm using separation planes for the calculation of
 the Continuous Symmetry Measure.
 
-> Initializes a separation plane for a given perfect coordination geometry.
+Initializes a separation plane for a given perfect coordination geometry.
 
 
 * **Parameters**
@@ -2718,13 +2792,33 @@ the Continuous Symmetry Measure.
 
 This is used in the identification of the final permutation to be used.
 
-Returns: list of the “arg sorted” ordered indices of the separation plane.
+
+* **Returns**
+
+    “arg sorted” ordered indices of the separation plane.
+
+
+
+* **Return type**
+
+    list[int]
+
 
 
 #### _property_ as_dict()
 Return the JSON-serializable dict representation of this SeparationPlane algorithm.
 
-Returns: a JSON-serializable dict representation of this SeparationPlane algorithm.
+
+* **Returns**
+
+    JSON-serializable representation of this SeparationPlane algorithm.
+
+
+
+* **Return type**
+
+    dict
+
 
 
 #### _classmethod_ from_dict(dct)
@@ -2733,16 +2827,36 @@ Reconstructs the SeparationPlane algorithm from its JSON-serializable dict repre
 
 * **Parameters**
 
-    **dd** – a JSON-serializable dict representation of an SeparationPlane algorithm.
+    **dct** – a JSON-serializable dict representation of an SeparationPlane algorithm.
 
 
-Returns: a SeparationPlane algorithm.
+
+* **Returns**
+
+    algorithm object
+
+
+
+* **Return type**
+
+    SeparationPlane
+
 
 
 #### _property_ permutations()
 Permutations used for this separation plane algorithm.
 
-Returns: List of permutations to be performed.
+
+* **Returns**
+
+    to be performed.
+
+
+
+* **Return type**
+
+    list[Permutations]
+
 
 
 #### _property_ ref_separation_perm()
@@ -2754,7 +2868,17 @@ For a separation plane of type 2|4|3, with plane_points indices [0, 3, 5, 8] and
 point_groups indices [1, 4] and [2, 7, 6], the list of ordered indices is :
 [0, 3, 5, 8, 1, 4, 2, 7, 6].
 
-Returns: list of ordered indices of this separation plane.
+
+* **Returns**
+
+    of ordered indices of this separation plane.
+
+
+
+* **Return type**
+
+    list[int]
+
 
 
 #### safe_separation_permutations(ordered_plane=False, ordered_point_groups=None, add_opposite=False)
@@ -2777,7 +2901,9 @@ This is not meant to be used in production. Default configuration for ChemEnv do
     * **add_opposite** – Whether to add the permutations from the second group before the first group as well.
 
 
-Returns: List of safe permutations.
+Returns
+
+    list[int]: safe permutations.
 
 ## pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module
 
@@ -3034,10 +3160,9 @@ environments in the structure
 
 
 #### coordination_geometry_symmetry_measures(coordination_geometry, tested_permutations=False, points_perfect=None, optimization=None)
-Returns the symmetry measures of a given coordination_geometry for a set of permutations depending on
-the permutation setup. Depending on the parameters of the LocalGeometryFinder and on the coordination
-
-> geometry, different methods are called.
+Returns the symmetry measures of a given coordination_geometry for a set of
+permutations depending on the permutation setup. Depending on the parameters of
+the LocalGeometryFinder and on the coordination geometry, different methods are called.
 
 
 * **Parameters**
@@ -3046,15 +3171,15 @@ the permutation setup. Depending on the parameters of the LocalGeometryFinder an
 
 
 
+* **Raises**
+
+    **NotImplementedError** – if the permutation_setup does not exist
+
+
+
 * **Returns**
 
     the symmetry measures of a given coordination_geometry for a set of permutations
-
-
-
-* **Raise**
-
-    NotImplementedError if the permutation_setup does not exists.
 
 
 
@@ -3126,10 +3251,9 @@ facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3P
 
 
 #### coordination_geometry_symmetry_measures_sepplane_optim(coordination_geometry, points_perfect=None, nb_set=None, optimization=None)
-Returns the symmetry measures of a given coordination_geometry for a set of permutations depending on
-the permutation setup. Depending on the parameters of the LocalGeometryFinder and on the coordination
-
-> geometry, different methods are called.
+Returns the symmetry measures of a given coordination_geometry for a set of
+permutations depending on the permutation setup. Depending on the parameters of
+the LocalGeometryFinder and on the coordination geometry, different methods are called.
 
 
 * **Parameters**
@@ -3138,15 +3262,15 @@ the permutation setup. Depending on the parameters of the LocalGeometryFinder an
 
 
 
+* **Raises**
+
+    **NotImplementedError** – if the permutation_setup does not exist
+
+
+
 * **Returns**
 
     the symmetry measures of a given coordination_geometry for a set of permutations
-
-
-
-* **Raise**
-
-    NotImplementedError if the permutation_setup does not exists.
 
 
 
@@ -3165,18 +3289,33 @@ measures of each permutation
 
 #### get_coordination_symmetry_measures(only_minimum=True, all_csms=True, optimization=None)
 Returns the continuous symmetry measures of the current local geometry in a dictionary.
-:returns: the continuous symmetry measures of the current local geometry in a dictionary.
+
+
+* **Returns**
+
+    the continuous symmetry measures of the current local geometry in a dictionary.
+
 
 
 #### get_coordination_symmetry_measures_optim(only_minimum=True, all_csms=True, nb_set=None, optimization=None)
 Returns the continuous symmetry measures of the current local geometry in a dictionary.
-:returns: the continuous symmetry measures of the current local geometry in a dictionary.
+
+
+* **Returns**
+
+    the continuous symmetry measures of the current local geometry in a dictionary.
+
 
 
 #### get_structure()
 Returns the pymatgen Structure that has been setup for the identification of geometries (the initial one
 might have been refined/symmetrized using the SpaceGroupAnalyzer).
-:returns: The pymatgen Structure that has been setup for the identification of geometries (the initial one
+
+
+* **Returns**
+
+    The pymatgen Structure that has been setup for the identification of geometries (the initial one
+
 
 might have been refined/symmetrized using the SpaceGroupAnalyzer).
 
@@ -3504,6 +3643,12 @@ Whether this ChemicalEnvironments object is close to another one.
 
 
 
+* **Return type**
+
+    bool
+
+
+
 #### minimum_geometries(n=None, symmetry_measure_type=None, max_csm=None)
 Returns a list of geometries with increasing continuous symmetry measure in this ChemicalEnvironments object.
 
@@ -3613,7 +3758,7 @@ Constructor for NeighborsSet.
 A JSON-serializable dict representation of the NeighborsSet.
 
 
-#### _classmethod_ from_dict(dd, structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), all_nbs_sites)
+#### _classmethod_ from_dict(dct, structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), all_nbs_sites)
 Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
 the structure and all the possible neighbors sites.
 
@@ -3625,7 +3770,7 @@ reconstructing itself. These two are both in the LightStructureEnvironments obje
 * **Parameters**
 
 
-    * **dd** – a JSON-serializable dict representation of a NeighborsSet.
+    * **dct** – a JSON-serializable dict representation of a NeighborsSet.
 
 
     * **structure** – The structure.
@@ -3634,7 +3779,11 @@ reconstructing itself. These two are both in the LightStructureEnvironments obje
     * **all_nbs_sites** – The list of all the possible neighbors for a given site.
 
 
-Returns: a NeighborsSet.
+
+* **Returns**
+
+    NeighborsSet
+
 
 
 #### _property_ neighb_coords()
@@ -3676,7 +3825,17 @@ Get the clear environments in the structure.
     **conditions** – Conditions to be checked for an environment to be “clear”.
 
 
-Returns: Set of clear environments in this structure.
+
+* **Returns**
+
+    Clear environments in this structure.
+
+
+
+* **Return type**
+
+    list
+
 
 
 #### contains_only_one_anion(anion)
@@ -3688,7 +3847,17 @@ Whether this LightStructureEnvironments concerns a structure with only one given
     **anion** – Anion (e.g. O2-, …).
 
 
-Returns: True if this LightStructureEnvironments concerns a structure with only one given anion.
+
+* **Returns**
+
+    True if this LightStructureEnvironments concerns a structure with only one given anion.
+
+
+
+* **Return type**
+
+    bool
+
 
 
 #### contains_only_one_anion_atom(anion_atom)
@@ -3700,13 +3869,33 @@ Whether this LightStructureEnvironments concerns a structure with only one given
     **anion_atom** – Anion (e.g. O, …). The structure could contain O2- and O- though.
 
 
-Returns: True if this LightStructureEnvironments concerns a structure with only one given anion_atom.
+
+* **Returns**
+
+    True if this LightStructureEnvironments concerns a structure with only one given anion_atom.
+
+
+
+* **Return type**
+
+    bool
+
 
 
 #### environments_identified()
 Return the set of environments identified in this structure.
 
-Returns: Set of environments identified in this structure.
+
+* **Returns**
+
+    environments identified in this structure.
+
+
+
+* **Return type**
+
+    set
+
 
 
 #### _classmethod_ from_dict(d)
@@ -3746,7 +3935,11 @@ Construct a LightStructureEnvironments object from a strategy and a StructureEnv
     structure).
 
 
-Returns: a LightStructureEnvironments object.
+
+* **Returns**
+
+    LightStructureEnvironments
+
 
 
 #### get_site_info_for_specie_allces(specie, min_fraction=0)
@@ -3762,9 +3955,20 @@ Get list of indices that have the given specie.
     * **min_fraction** – Minimum fraction of the coordination environment.
 
 
-Returns: Dictionary with the list of coordination environments for the given species, the indices of the sites
 
-    in which they appear, their fractions and continuous symmetry measures.
+* **Returns**
+
+    with the list of coordination environments for the given species, the indices of the sites
+
+        in which they appear, their fractions and continuous symmetry measures.
+
+
+
+
+* **Return type**
+
+    dict
+
 
 
 #### get_site_info_for_specie_ce(specie, ce_symbol)
@@ -3780,9 +3984,21 @@ Get list of indices that have the given specie with a given Coordination environ
     * **ce_symbol** – Symbol of the coordination environment to get.
 
 
-Returns: Dictionary with the list of indices in the structure that have the given specie in the given
 
-    environment, their fraction and continuous symmetry measures.
+* **Returns**
+
+    Keys are ‘isites’, ‘fractions’, ‘csms’ which contain list of indices in the structure
+
+        that have the given specie in the given environment, their fraction and continuous
+        symmetry measures.
+
+
+
+
+* **Return type**
+
+    dict
+
 
 
 #### get_statistics(statistics_fields=('anion_list', 'anion_atom_list', 'cation_list', 'cation_atom_list', 'neutral_list', 'neutral_atom_list', 'atom_coordination_environments_present', 'ion_coordination_environments_present', 'fraction_atom_coordination_environments_present', 'fraction_ion_coordination_environments_present', 'coordination_environments_atom_present', 'coordination_environments_ion_present'), bson_compatible=False)
@@ -3801,7 +4017,13 @@ Get the statistics of environments for this structure.
 
 * **Returns**
 
-    A dictionary with the requested statistics.
+    with the requested statistics.
+
+
+
+* **Return type**
+
+    dict
 
 
 
@@ -3822,7 +4044,17 @@ Whether a given site contains a given coordination environment.
     * **ce_symbol** – Symbol of the coordination environment.
 
 
-Returns: True if the site contains the given coordination environment.
+
+* **Returns**
+
+    True if the site contains the given coordination environment.
+
+
+
+* **Return type**
+
+    bool
+
 
 
 #### site_has_clear_environment(isite, conditions=None)
@@ -3841,7 +4073,17 @@ have a continuous symmetry measure lower than this, a fraction higher than that,
     * **conditions** – Conditions to be checked for an environment to be “clear”.
 
 
-Returns: True if the site has a clear environment.
+
+* **Returns**
+
+    True if the site has a clear environment.
+
+
+
+* **Return type**
+
+    bool
+
 
 
 #### structure_contains_atom_environment(atom_symbol, ce_symbol)
@@ -3860,7 +4102,13 @@ Checks whether the structure contains a given atom in a given environment.
 
 * **Returns**
 
-    True if the coordination environment is found, False otherwise
+    True if the coordination environment is found for the given atom.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -3998,7 +4246,7 @@ Returns the distances plateau’s for this NeighborsSet.
 Distances to each neighbor in this NeighborsSet.
 
 
-#### _classmethod_ from_dict(dd, structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), detailed_voronoi)
+#### _classmethod_ from_dict(dct, structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), detailed_voronoi)
 Reconstructs the NeighborsSet algorithm from its JSON-serializable dict representation, together with
 the structure and the DetailedVoronoiContainer.
 
@@ -4010,7 +4258,7 @@ reconstructing itself. These two are both in the StructureEnvironments object.
 * **Parameters**
 
 
-    * **dd** – a JSON-serializable dict representation of a NeighborsSet.
+    * **dct** – a JSON-serializable dict representation of a NeighborsSet.
 
 
     * **structure** – The structure.
@@ -4020,11 +4268,15 @@ reconstructing itself. These two are both in the StructureEnvironments object.
     neighbors for this NeighborsSet is extracted.
 
 
-Returns: a NeighborsSet.
+
+* **Returns**
+
+    NeighborsSet
+
 
 
 #### get_neighb_voronoi_indices(permutation)
-Return the indices in the detailed_voronoi corresponding to the current permutation.
+Get indices in the detailed_voronoi corresponding to the current permutation.
 
 
 * **Parameters**
@@ -4032,7 +4284,17 @@ Return the indices in the detailed_voronoi corresponding to the current permutat
     **permutation** – Current permutation for which the indices in the detailed_voronoi are needed.
 
 
-Returns: List of indices in the detailed_voronoi.
+
+* **Returns**
+
+    indices in the detailed_voronoi.
+
+
+
+* **Return type**
+
+    list[int]
+
 
 
 #### _property_ info()
@@ -4064,8 +4326,8 @@ Normalized distances to each neighbor in this NeighborsSet.
 
 
 #### _property_ source()
-Returns the source of this NeighborsSet (how it was generated, e.g. from which Voronoi cut-offs, or from
-hints).
+Returns the source of this NeighborsSet (how it was generated, e.g. from which Voronoi
+cutoffs, or from hints).
 
 
 #### voronoi_grid_surface_points(additional_condition=1, other_origins='DO_NOTHING')
@@ -4170,7 +4432,11 @@ Get the ChemicalEnvironments for a given site, coordination and neighbors set.
     * **nb_set** – Neighbors set for which the ChemicalEnvironments is looked for.
 
 
-Returns: a ChemicalEnvironments object.
+
+* **Returns**
+
+    ChemicalEnvironments
+
 
 
 #### get_csm(isite, mp_symbol)
@@ -4186,7 +4452,11 @@ Get the continuous symmetry measure for a given site in the given coordination e
     * **mp_symbol** – Symbol of the coordination environment for which we want the continuous symmetry measure.
 
 
-Returns: Continuous symmetry measure of the given site in the given environment.
+
+* **Returns**
+
+    Continuous symmetry measure of the given site in the given environment.
+
 
 
 #### get_csm_and_maps(isite, max_csm=8.0, figsize=None, symmetry_measure_type=None)
@@ -4219,12 +4489,11 @@ as the value for the color of that distfactor/angfactor set.
 
 #### get_csms(isite, mp_symbol)
 Returns the continuous symmetry measure(s) of site with index isite with respect to the
-
-    perfect coordination environment with mp_symbol. For some environments, a given mp_symbol might not
-    be available (if there is no voronoi parameters leading to a number of neighbors corresponding to
-    the coordination number of environment mp_symbol). For some environments, a given mp_symbol might
-    lead to more than one csm (when two or more different voronoi parameters lead to different neighbors
-    but with same number of neighbors).
+perfect coordination environment with mp_symbol. For some environments, a given mp_symbol might not
+be available (if there is no voronoi parameters leading to a number of neighbors corresponding to
+the coordination number of environment mp_symbol). For some environments, a given mp_symbol might
+lead to more than one csm (when two or more different voronoi parameters lead to different neighbors
+but with same number of neighbors).
 
 
 * **Parameters**
@@ -4239,7 +4508,13 @@ Returns the continuous symmetry measure(s) of site with index isite with respect
 
 * **Returns**
 
-    List of csms for site isite with respect to geometry mp_symbol
+    for site isite with respect to geometry mp_symbol
+
+
+
+* **Return type**
+
+    list[CSM]
 
 
 
@@ -4598,6 +4873,12 @@ Whether two DetailedVoronoiContainer objects are close to each other.
 * **Returns**
 
     True if the two DetailedVoronoiContainer are close to each other.
+
+
+
+* **Return type**
+
+    bool
 
 
 

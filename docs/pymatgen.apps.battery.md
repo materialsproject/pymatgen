@@ -222,7 +222,7 @@ Objects that represent each voltage step
 
 * **Type**
 
-    tuple[pymatgen.apps.battery.battery_abc.AbstractVoltagePair, …]
+    tuple[AbstractVoltagePair, …]
 
 
 
@@ -236,7 +236,7 @@ Representation of the working_ion that contains the energy
 
 * **Type**
 
-    [pymatgen.entries.computed_entries.ComputedEntry](pymatgen.entries.md#pymatgen.entries.computed_entries.ComputedEntry)
+    [ComputedEntry](pymatgen.entries.md#pymatgen.entries.computed_entries.ComputedEntry)
 
 
 
@@ -605,7 +605,7 @@ Working ion as an entry.
 
 * **Type**
 
-    [pymatgen.entries.computed_entries.ComputedEntry](pymatgen.entries.md#pymatgen.entries.computed_entries.ComputedEntry)
+    [ComputedEntry](pymatgen.entries.md#pymatgen.entries.computed_entries.ComputedEntry)
 
 
 

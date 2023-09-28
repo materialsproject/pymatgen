@@ -92,7 +92,7 @@ that Gaussian output files have a “.log” extension.
 
     * **parameters** (*list*) – Input parameters to include. It has to be one of
     the properties supported by the GaussianOutput object. See
-    `pymatgen.io.gaussianio GaussianOutput`. The parameters
+    pymatgen.io.gaussian.GaussianOutput. The parameters
     have to be one of python’s primitive types, i.e., list, dict of
     strings and integers. If parameters is None, a default set of
     parameters will be set.
@@ -244,7 +244,7 @@ of an aflow style run, and only “relax2” is parsed.
 
     * **parameters** (*list*) – Input parameters to include. It has to be one of
     the properties supported by the Vasprun object. See
-    `pymatgen.io.vasp.Vasprun`. If parameters is None,
+    pymatgen.io.vasp.Vasprun. If parameters is None,
     a default set of parameters that are necessary for typical
     post-processing will be set.
 
@@ -328,7 +328,7 @@ also contains convenience methods to save and load data between sessions.
 
 
     * **drone** (*Drone*) – An implementation of
-    `pymatgen.apps.borg.hive.AbstractDrone` to use for
+    pymatgen.apps.borg.hive.AbstractDrone to use for
     assimilation.
 
 

@@ -67,7 +67,17 @@ Method to execute the test.
     **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Input structure to test
 
 
-Returns: True if structure is neutral.
+
+* **Returns**
+
+    True if structure is neutral.
+
+
+
+* **Return type**
+
+    bool
+
 
 
 ### _class_ ContainsSpecieFilter(species, strict_compare=False, AND=True, exclude=False)
@@ -118,7 +128,17 @@ Returns: MSONable dict.
 #### test(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure))
 Method to execute the test.
 
-Returns: True if structure do not contain specified species.
+
+* **Returns**
+
+    True if structure does not contain specified species.
+
+
+
+* **Return type**
+
+    bool
+
 
 
 ### _class_ RemoveDuplicatesFilter(structure_matcher: dict | [StructureMatcher](pymatgen.analysis.md#pymatgen.analysis.structure_matcher.StructureMatcher) | None = None, symprec: float | None = None)
@@ -152,7 +172,17 @@ and symmetry (if symprec is given).
     **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Input structure to test.
 
 
-Returns: True if structure is not in list.
+
+* **Returns**
+
+    True if structure is not in list.
+
+
+
+* **Return type**
+
+    bool
+
 
 
 ### _class_ RemoveExistingFilter(existing_structures, structure_matcher=None, symprec=None)
@@ -195,7 +225,17 @@ Method to execute the test.
     **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Input structure to test
 
 
-Returns: True if structure is not in existing list.
+
+* **Returns**
+
+    True if structure is not in existing list.
+
+
+
+* **Return type**
+
+    bool
+
 
 
 ### _class_ SpecieProximityFilter(specie_and_min_dist_dict)
@@ -245,9 +285,17 @@ Method to execute the test.
     **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Input structure to test
 
 
-Returns: True if structure does not contain species within specified
 
-    distances.
+* **Returns**
+
+    True if structure does not contain species within specified distances.
+
+
+
+* **Return type**
+
+    bool
+
 
 
 ### _class_ SpeciesMaxDistFilter(sp1, sp2, max_dist)
@@ -286,9 +334,20 @@ Method to execute the test.
     **structure** ([*Structure*](pymatgen.core.md#pymatgen.core.structure.Structure)) – Input structure to test
 
 
-Returns: True if structure does not contain the two species are distances
 
-    greater than max_dist.
+* **Returns**
+
+    True if structure does not contain the two species are distances
+
+        greater than max_dist.
+
+
+
+
+* **Return type**
+
+    bool
+
 
 ## pymatgen.alchemy.materials module
 
@@ -589,7 +648,7 @@ containing multiple structures.
 * **Parameters**
 
 
-    * **cif_string** – A string containing a cif or a series of cifs
+    * **cif_string** – A string containing a cif or a series of CIFs
 
 
     * **transformations** – New transformations to be applied to all
@@ -606,7 +665,7 @@ containing multiple structures.
 
 
 
-#### _static_ from_filenames(filenames, transformations=None, primitive=True, extend_collection=False)
+#### _classmethod_ from_filenames(filenames, transformations=None, primitive=True, extend_collection=False)
 Generates a TransformedStructureCollection from a cif, possibly
 containing multiple structures.
 
@@ -668,17 +727,24 @@ POSCAR filenames.
 
 
 
-### _class_ StandardTransmuter(transformed_structures, transformations=None, extend_collection=0, ncores=None)
+### _class_ StandardTransmuter(transformed_structures, transformations=None, extend_collection: int = 0, ncores: int | None = None)
 Bases: `object`
 
 An example of a Transmuter object, which performs a sequence of
 transformations on many structures to generate TransformedStructures.
 
-<!-- attribute: transformed_structures
 
-List of all transformed structures. -->
+#### transformed_structures()
+List of all transformed structures.
+
+
+* **Type**
+
+    list[[Structure](pymatgen.core.md#pymatgen.core.structure.Structure)]
+
+
 Initializes a transmuter from an initial list of
-`pymatgen.alchemy.materials.TransformedStructure`.
+pymatgen.alchemy.materials.TransformedStructure.
 
 
 * **Parameters**
@@ -781,7 +847,7 @@ Extends a sequence of transformations to the TransformedStructure.
 
 
 
-#### _static_ from_structures(structures, transformations=None, extend_collection=0)
+#### _classmethod_ from_structures(structures, transformations=None, extend_collection=0)
 Alternative constructor from structures rather than
 TransformedStructures.
 

@@ -595,7 +595,7 @@ Parameters for davidson diagonalization.
 
         very large systems.
 
-    ”FULL_SINGLE”: Based on H-eS diagonalisation, not as good as FULL_ALL, but
+    ”FULL_SINGLE”: Based on H-eS diagonalization, not as good as FULL_ALL, but
 
         somewhat cheaper to apply.
 
@@ -690,7 +690,7 @@ Bases: `Section`
 
 Controls diagonalization settings (if using traditional diagonalization).
 
-Initialize the diagronalization section.
+Initialize the diagonalization section.
 
 
 ### _class_ E_Density_Cube(keywords: dict | None = None, subsections: dict | None = None, \*\*kwargs)
@@ -1209,7 +1209,7 @@ Initialize a KIND section.
     potential file
 
 
-    * **ghost** – Turn this into ghost atom (disaple the potential)
+    * **ghost** – Turn this into ghost atom (disable the potential)
 
 
     * **aux_basis** – Auxiliary basis to use with ADMM
@@ -1422,7 +1422,7 @@ Initialize the OT section.
 
     * **algorithm** – What algorithm to use for OT. ‘Strict’: Taylor or diagonalization
     based algorithm. IRAC: Orbital Transformation based Iterative Refinement of the
-    Approximative Congruence transformation (OT/IR).
+    Approximate Congruence transformation (OT/IR).
 
 
     * **rotation** – Introduce additional variables to allow subspace rotations (i.e fractional
@@ -1761,8 +1761,7 @@ whether or not required dependencies have been satisfied, which CP2K does not en
 
 #### get(d, default=None)
 Similar to get for dictionaries. This will attempt to retrieve the
-section or keyword matching d. Will not raise an error if d does not
-exist.
+section or keyword matching d. Will not raise an error if d does not exist.
 
 
 * **Parameters**
@@ -1876,7 +1875,7 @@ of new Section child-classes.
 
 
 
-#### verbosity(verbosity)
+#### verbosity(verbosity: bool)
 Change the section verbosity recursively by turning on/off the printing of descriptions.
 Turning off descriptions may reduce the appealing documentation of input files, but also
 helps de-clutter them.
@@ -2200,8 +2199,8 @@ Was a band gap found? i.e. is it a metal.
 
 
 #### _property_ is_molecule(_: boo_ )
-Returns True if the cp2k output was generated for a molecule (i.e.
-no periodicity in the cell). Returns false otherwise.
+True if the cp2k output was generated for a molecule (i.e.
+no periodicity in the cell).
 
 
 #### _property_ multiplicity(_: in_ )

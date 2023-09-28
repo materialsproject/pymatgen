@@ -57,7 +57,7 @@ Calculates the diffraction pattern for a structure.
 
 
 
-#### get_plot(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), two_theta_range: tuple[float, float] = (0, 90), annotate_peaks='compact', ax: Axes | None = None, with_labels=True, fontsize=16)
+#### get_plot(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), two_theta_range: tuple[float, float] = (0, 90), annotate_peaks='compact', ax: plt.Axes = None, with_labels=True, fontsize=16)
 Returns the diffraction plot as a matplotlib Axes.
 
 
@@ -78,7 +78,7 @@ Returns the diffraction plot as a matplotlib Axes.
     long version, e.g. (1, 0, 0). If None, do not show anything.
 
 
-    * **ax** – matplotlib `Axes` or None if a new figure should be
+    * **ax** – matplotlib Axes or None if a new figure should be
     created.
 
 
@@ -353,7 +353,7 @@ Code partially inspired from XRD calculation implementation. X-ray factor to ele
 
 
     * **voltage** (*float*) – The wavelength is a function of the TEM microscope’s
-    voltage. By default, set to 200 kV. Units in kV.
+    voltage (in kV). Defaults to 200.
 
 
     * **beam_direction** (*tuple*) – The direction of the electron beam fired onto the sample.
@@ -370,7 +370,7 @@ Code partially inspired from XRD calculation implementation. X-ray factor to ele
     factors are temperature dependent.
 
 
-    * **cs** (*float*) – the chromatic aberration coefficient. set by default to 1 mm.
+    * **cs** (*float*) – The chromatic aberration coefficient (in mm). Defaults to 1.
 
 
 
@@ -474,7 +474,13 @@ Generates a bunch of 3D points that span a cube.
 
 * **Returns**
 
-    Numpy 2d array
+    2d array
+
+
+
+* **Return type**
+
+    np.array
 
 
 
@@ -553,13 +559,13 @@ Returns all relevant TEM DP info in a pandas dataframe.
     * **scaled** (*bool*) – Required value for inheritance, does nothing in TEM pattern
 
 
-    * **two_theta_range** (*Tuple*) – Required value for inheritance, does nothing in TEM pattern
+    * **two_theta_range** (*tuple**[**float**, **float**]*) – Required value for inheritance, does nothing in TEM pattern
 
 
 
 * **Returns**
 
-    PandasDataFrame
+    pd.DataFrame
 
 
 
@@ -804,33 +810,37 @@ is as follows
 
 
 1. Calculate reciprocal lattice of structure. Find all reciprocal points
-within the limiting sphere given by :math:\` frac{2}{ lambda}\`.
+within the limiting sphere given by frac{2}{lambda}.
 
 
-2. For each reciprocal point :math:\` mathbf{g_{hkl}}\` corresponding to
-lattice plane $(hkl)$, compute the Bragg condition
-:math:\` sin( theta) =  frac{ lambda}{2d_{hkl}}\`
+2. For each reciprocal point mathbf{g_{hkl}} corresponding to
+lattice plane (hkl), compute the Bragg condition
+sin(theta) = frac{ lambda}{2d_{hkl}}
 
 
 3. Compute the structure factor as the sum of the atomic scattering
 factors. The atomic scattering factors are given by
 
-f(s) = Z - 41.78214 \\times s^2 \\times \\sum \\limits_{i=1}^n a_i \\
- \\exp(-b_is^2)where $s = \ frac{\ sin(\ theta)}{\ lambda}$ and $a_i$
-and $b_i$ are the fitted parameters for each element. The
+> f(s) = Z - 41.78214 times s^2 times sum limits_{i=1}^n a_i exp(-b_is^2)
+
+where s = frac{sin(theta)}{lambda} and a_i
+and b_i are the fitted parameters for each element. The
 structure factor is then given by
 
-F_{hkl} =  \\sum \\limits_{j=1}^N f_j  \\exp(2 \\pi i  \\mathbf{g_{hkl}}
- \\cdot  \\mathbf{r})
-4. The intensity is then given by the modulus square of the structure
-factor.
+> F_{hkl} = sum limits_{j=1}^N f_j  exp(2 pi i  mathbf{g_{hkl}} cdot  mathbf{r})
 
-I_{hkl} = F_{hkl}F_{hkl}^\*
+
+4. The intensity is then given by the modulus square of the structure factor.
+
+> I_{hkl} = F_{hkl}F_{hkl}^\*
+
+
 5. Finally, the Lorentz polarization correction factor is applied. This
 factor is given by:
 
-P( \\theta) = \\frac{1 +  \\cos^2(2 \\theta)}
-{ \\sin^2( \\theta) \\cos( \\theta)}Initializes the XRD calculator with a given radiation.
+> P(theta) = frac{1 + cos^2(2 theta)}{sin^2(theta) cos(theta)}
+
+Initializes the XRD calculator with a given radiation.
 
 
 * **Parameters**

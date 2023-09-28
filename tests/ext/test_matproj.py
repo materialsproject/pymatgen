@@ -21,7 +21,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructure, BandStruc
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, TaskType, _MPResterLegacy, _MPResterNewBasic
+from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, TaskType, _MPResterBasic, _MPResterLegacy
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
@@ -527,7 +527,7 @@ class TestMPResterOld(PymatgenTest):
 )
 class TestMPResterNewBasic:
     def setup(self):
-        self.rester = _MPResterNewBasic()
+        self.rester = _MPResterBasic()
 
     def test_attr_error(self):
         with pytest.raises(AttributeError, match="summary is not an attribute"):

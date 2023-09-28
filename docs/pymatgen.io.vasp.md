@@ -742,7 +742,7 @@ i.e. a list of three 1x3 arrays for each site (typically read in from a MD CONTC
 
 #### predictor_corrector_preamble()
 Predictor corrector preamble contains the predictor-corrector key,
-POTIM, and thermostat parameters that precede the site-specic predictor corrector data in MD CONTCAR.
+POTIM, and thermostat parameters that precede the site-specific predictor corrector data in MD CONTCAR.
 
 
 #### temperature()
@@ -1095,10 +1095,21 @@ the complete untouched data in “data” as a string and a dict of keywords.
 POTCAR data as a string.
 
 
+* **Type**
+
+    str
+
+
+
 #### keywords()
 Keywords parsed from the POTCAR as a dict. All keywords are also
-accessible as attributes in themselves. E.g., potcar.enmax,
-potcar.encut, etc.
+accessible as attributes in themselves. E.g., potcar.enmax, potcar.encut, etc.
+
+
+* **Type**
+
+    dict
+
 
 md5 hashes of the entire POTCAR file and the actual data are validated
 against a database of known good hashes. Appropriate warnings or errors
@@ -1809,7 +1820,7 @@ Read a CHGCAR file.
 
 * **Parameters**
 
-    **filename** – Filename
+    **filename** (*str*) – Path to CHGCAR file.
 
 
 
@@ -1830,7 +1841,7 @@ Object for reading a DYNMAT file.
 
 
 #### data()
-A nested dict containing the DYNMAT data of the form::
+A nested dict containing the DYNMAT data of the form:
 [atom <int>][disp <int>][‘dispvec’] =
 
 > displacement vector (part of first line in dynmat block, e.g. “0.01 0 0”)
@@ -1838,6 +1849,12 @@ A nested dict containing the DYNMAT data of the form::
 [atom <int>][disp <int>][‘dynmat’] =
 
     <list> list of dynmat lines for this atom and this displacement
+
+
+* **Type**
+
+    dict
+
 
 Authors: Patrick Huck
 
@@ -1875,42 +1892,95 @@ Object for reading EIGENVAL file.
 
 
 #### filename()
-string containing input filename
+String containing input filename.
+
+
+* **Type**
+
+    str
+
 
 
 #### occu_tol()
-tolerance for determining occupation in band properties
+Tolerance for determining occupation in band properties.
+
+
+* **Type**
+
+    float
+
 
 
 #### ispin()
-spin polarization tag (int)
+Spin polarization tag.
+
+
+* **Type**
+
+    int
+
 
 
 #### nelect()
-number of electrons
+Number of electrons.
+
+
+* **Type**
+
+    int
+
 
 
 #### nkpt()
-number of kpoints
+Number of kpoints.
+
+
+* **Type**
+
+    int
+
 
 
 #### nbands()
-number of bands
+Number of bands.
+
+
+* **Type**
+
+    int
+
 
 
 #### kpoints()
-list of kpoints
+List of kpoints.
+
+
+* **Type**
+
+    list
+
 
 
 #### kpoints_weights()
-weights of each kpoint in the BZ, should sum to 1.
+Weights of each kpoint in the BZ, should sum to 1.
+
+
+* **Type**
+
+    list
+
 
 
 #### eigenvalues()
 Eigenvalues as a dict of {(spin): np.ndarray(shape=(nkpt, nbands, 2))}.
-This representation is based on actual ordering in VASP and is meant as
-an intermediate representation to be converted into proper objects. The
-kpoint index is 0-based (unlike the 1-based indexing in VASP).
+This representation is based on actual ordering in VASP and is meant as an intermediate representation
+to be converted into proper objects. The kpoint index is 0-based (unlike the 1-based indexing in VASP).
+
+
+* **Type**
+
+    dict
+
 
 Reads input from filename to construct Eigenval object.
 
@@ -2003,12 +2073,12 @@ Simple object for reading a LOCPOT file.
 
 
 #### _classmethod_ from_file(filename, \*\*kwargs)
-Reads a LOCPOT file.
+Read a LOCPOT file.
 
 
 * **Parameters**
 
-    **filename** – Filename
+    **filename** (*str*) – Path to LOCPOT file.
 
 
 
@@ -2029,21 +2099,30 @@ information about a run.
 
 #### electronic_steps()
 All electronic steps as a list of list of dict. e.g.,
-[[{“rms”: 160.0, “E”: 4507.24605593, “dE”: 4507.2, “N”: 1,
-“deps”: -17777.0, “ncg”: 16576}, …], [….]
-where electronic_steps[index] refers the list of electronic steps
-in one ionic_step, electronic_steps[index][subindex] refers to a
-particular electronic step at subindex in ionic step at index. The
-dict of properties depends on the type of VASP run, but in general,
-“E”, “dE” and “rms” should be present in almost all runs.
+[[{“rms”: 160.0, “E”: 4507.24605593, “dE”: 4507.2, “N”: 1, “deps”: -17777.0, “ncg”: 16576}, …], [….]
+where electronic_steps[index] refers the list of electronic steps in one ionic_step,
+electronic_steps[index][subindex] refers to a particular electronic step at subindex in ionic step at
+index. The dict of properties depends on the type of VASP run, but in general, “E”, “dE” and “rms” should
+be present in almost all runs.
 
 
-### ionic_steps:()
+* **Type**
+
+    list
+
+
+
+#### ionic_steps()
 All ionic_steps as a list of dict, e.g.,
-[{“dE”: -526.36, “E0”: -526.36024, “mag”: 0.0, “F”: -526.36024},
-…]
-This is the typical output from VASP at the end of each ionic step.
-The stored dict might be different depending on the type of VASP run.
+[{“dE”: -526.36, “E0”: -526.36024, “mag”: 0.0, “F”: -526.36024}, …]
+This is the typical output from VASP at the end of each ionic step. The stored dict might be different
+depending on the type of VASP run.
+
+
+* **Type**
+
+    list
+
 
 
 * **Parameters**
@@ -2080,31 +2159,43 @@ are always present.
 #### magnetization()
 Magnetization on each ion as a tuple of dict, e.g.,
 ({“d”: 0.0, “p”: 0.003, “s”: 0.002, “tot”: 0.005}, … )
-Note that this data is not always present. LORBIT must be set to some
-other value than the default.
+
+
+* **Type**
+
+    tuple
+
 
 
 #### chemical_shielding()
-chemical shielding on each ion as a dictionary with core and valence contributions
+Chemical shielding on each ion as a dictionary with core and valence contributions.
+
+
+* **Type**
+
+    dict
+
 
 
 #### unsym_cs_tensor()
 Unsymmetrized chemical shielding tensor matrixes on each ion as a list.
-e.g.,
-[[[sigma11, sigma12, sigma13],
+e.g., [[[sigma11, sigma12, sigma13], [sigma21, sigma22, sigma23], [sigma31, sigma32, sigma33]], …]
 
-> > [sigma21, sigma22, sigma23],
-> > [sigma31, sigma32, sigma33]],
-> > …
 
-> [[sigma11, sigma12, sigma13],
+* **Type**
 
->     [sigma21, sigma22, sigma23],
->     [sigma31, sigma32, sigma33]]]
+    list
+
 
 
 #### cs_g0_contribution()
-G=0 contribution to chemical shielding. 2D rank 3 matrix
+G=0 contribution to chemical shielding. 2D rank 3 matrix.
+
+
+* **Type**
+
+    numpy.ndarray
+
 
 
 #### cs_core_contribution()
@@ -2112,104 +2203,230 @@ Core contribution to chemical shielding. dict. e.g.,
 {‘Mg’: -412.8, ‘C’: -200.5, ‘O’: -271.1}
 
 
+* **Type**
+
+    dict
+
+
+
 #### efg()
 Electric Field Gradient (EFG) tensor on each ion as a tuple of dict, e.g.,
-({“cq”: 0.1, “eta”, 0.2, “nuclear_quadrupole_moment”: 0.3},
+({“cq”: 0.1, “eta”, 0.2, “nuclear_quadrupole_moment”: 0.3}, {“cq”: 0.7, “eta”, 0.8,
+“nuclear_quadrupole_moment”: 0.9}, …)
 
-> {“cq”: 0.7, “eta”, 0.8, “nuclear_quadrupole_moment”: 0.9},
-> …)
+
+* **Type**
+
+    tuple
+
 
 
 #### charge()
 Charge on each ion as a tuple of dict, e.g.,
 ({“p”: 0.154, “s”: 0.078, “d”: 0.0, “tot”: 0.232}, …)
-Note that this data is not always present. LORBIT must be set to some
-other value than the default.
+
+
+* **Type**
+
+    tuple
+
 
 
 #### is_stopped()
 True if OUTCAR is from a stopped run (using STOPCAR, see VASP Manual).
 
 
+* **Type**
+
+    bool
+
+
+
 #### run_stats()
-Various useful run stats as a dict including “System time (sec)”,
-“Total CPU time used (sec)”, “Elapsed time (sec)”,
-“Maximum memory used (kb)”, “Average memory used (kb)”,
-“User time (sec)”, “cores”
+Various useful run stats as a dict including “System time (sec)”, “Total CPU time used (sec)”,
+“Elapsed time (sec)”, “Maximum memory used (kb)”, “Average memory used (kb)”, “User time (sec)”, “cores”.
+
+
+* **Type**
+
+    dict
+
 
 
 #### elastic_tensor()
 Total elastic moduli (Kbar) is given in a 6x6 array matrix.
 
 
+* **Type**
+
+    numpy.ndarray
+
+
+
 #### drift()
-Total drift for each step in eV/Atom
+Total drift for each step in eV/Atom.
+
+
+* **Type**
+
+    numpy.ndarray
+
 
 
 #### ngf()
-Dimensions for the Augementation grid
+Dimensions for the Augmentation grid.
 
-<!-- attribute: sampling_radii
 
-Size of the sampling radii in VASP for the test charges for
-the electrostatic potential at each atom. Total array size is the number
-of elements present in the calculation -->
-<!-- attribute: electrostatic_potential
+* **Type**
 
-Average electrostatic potential at each atomic position in order
-of the atoms in POSCAR. -->
-..attribute: final_energy_contribs
+    tuple
 
-> Individual contributions to the total final energy as a dictionary.
-> Include contirbutions from keys, e.g.:
-> {‘DENC’: -505778.5184347, ‘EATOM’: 15561.06492564, ‘EBANDS’: -804.53201231,
-> ‘EENTRO’: -0.08932659, ‘EXHF’: 0.0, ‘Ediel_sol’: 0.0,
-> ‘PAW double counting’: 664.6726974100002, ‘PSCENC’: 742.48691646,
-> ‘TEWEN’: 489742.86847338, ‘XCENC’: -169.64189814}
+
+
+#### sampling_radii()
+Size of the sampling radii in VASP for the test charges for the electrostatic
+potential at each atom. Total array size is the number of elements present in the calculation.
+
+
+* **Type**
+
+    numpy.ndarray
+
+
+
+#### electrostatic_potential()
+Average electrostatic potential at each atomic position in order of
+the atoms in POSCAR.
+
+
+* **Type**
+
+    numpy.ndarray
+
+
+
+#### final_energy_contribs()
+Individual contributions to the total final energy as a dictionary.
+Include contributions from keys, e.g.:
+{‘DENC’: -505778.5184347, ‘EATOM’: 15561.06492564, ‘EBANDS’: -804.53201231, ‘EENTRO’: -0.08932659,
+‘EXHF’: 0.0, ‘Ediel_sol’: 0.0, ‘PAW double counting’: 664.6726974100002, ‘PSCENC’: 742.48691646,
+‘TEWEN’: 489742.86847338, ‘XCENC’: -169.64189814}
+
+
+* **Type**
+
+    dict
+
 
 
 #### efermi()
-Fermi energy
+Fermi energy.
+
+
+* **Type**
+
+    float
+
 
 
 #### filename()
-> Filename
+Filename.
+
+
+* **Type**
+
+    str
+
 
 
 #### final_energy()
 Final energy after extrapolation of sigma back to 0, i.e. energy(sigma->0).
 
 
+* **Type**
+
+    float
+
+
+
 #### final_energy_wo_entrp()
 Final energy before extrapolation of sigma, i.e. energy without entropy.
 
 
+* **Type**
+
+    float
+
+
+
 #### final_fr_energy()
-Final “free energy”, i.e. free energy TOTEN
+Final “free energy”, i.e. free energy TOTEN.
+
+
+* **Type**
+
+    float
+
 
 
 #### has_onsite_density_matrices()
-Boolean for if onsite density matrices have been set
+Boolean for if onsite density matrices have been set.
+
+
+* **Type**
+
+    bool
+
 
 
 #### lcalcpol()
-If LCALCPOL has been set
+If LCALCPOL has been set.
+
+
+* **Type**
+
+    bool
+
 
 
 #### lepsilon()
-If LEPSILON has been set
+If LEPSILON has been set.
+
+
+* **Type**
+
+    bool
+
 
 
 #### nelect()
-Returns the number of electrons in the calculation
+Returns the number of electrons in the calculation.
+
+
+* **Type**
+
+    float
+
 
 
 #### spin()
-If spin-polarization was enabled via ISPIN
+If spin-polarization was enabled via ISPIN.
+
+
+* **Type**
+
+    bool
+
 
 
 #### total_mag()
-Total magnetization (in terms of the number of unpaired electrons)
+Total magnetization (in terms of the number of unpaired electrons).
+
+
+* **Type**
+
+    float
+
 
 One can then call a specific reader depending on the type of run being
 performed. These are currently: read_igpar(), read_lepsilon() and
@@ -2312,18 +2529,27 @@ Outcar.data[“dipol_quadrupol_correction”].
 * **Parameters**
 
 
-    * **reverse** – Whether to start from end of OUTCAR.
+    * **reverse** (*bool*) – Whether to start from end of OUTCAR. Defaults to True.
 
 
-    * **terminate_on_match** – Whether to terminate once match is found.
+    * **terminate_on_match** (*bool*) – Whether to terminate once match is found. Defaults to True.
 
 
 
 #### read_cs_core_contribution()
 Parse the core contribution of NMR chemical shielding.
 
-Returns:
-G0 contribution matrix as list of list.
+
+* **Returns**
+
+    G0 contribution matrix.
+
+
+
+* **Return type**
+
+    list[list]
+
 
 
 #### read_cs_g0_contribution()
@@ -2579,40 +2805,65 @@ Object for reading a PROCAR file.
 
 #### data()
 The PROCAR data of the form below. It should VASP uses 1-based indexing,
-but all indices are converted to 0-based here.:
+but all indices are converted to 0-based here.
+{ spin: nd.array accessed with (k-point index, band index, ion index, orbital index) }
 
-```default
-{
-    spin: nd.array accessed with (k-point index, band index,
-                                  ion index, orbital index)
-}
-```
+
+* **Type**
+
+    dict
+
 
 
 #### weights()
-The weights associated with each k-point as an nd.array of length
-nkpoints.
+The weights associated with each k-point as an nd.array of length nkpoints.
 
-..attribute:: phase_factors
 
-> Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
-> {
+* **Type**
 
-> > spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)
+    numpy.ndarray
 
-> }
 
-..attribute:: nbands
 
-> Number of bands
+#### phase_factors()
+Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
+{ spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index) }
 
-..attribute:: nkpoints
 
-> Number of k-points
+* **Type**
 
-..attribute:: nions
+    dict
 
-> Number of ions
+
+
+#### nbands()
+Number of bands.
+
+
+* **Type**
+
+    int
+
+
+
+#### nkpoints()
+Number of k-points.
+
+
+* **Type**
+
+    int
+
+
+
+#### nions()
+Number of ions.
+
+
+* **Type**
+
+    int
+
 
 
 * **Parameters**
@@ -2694,70 +2945,117 @@ magnitude for larger files (~10Mb).
 
 
 #### ionic_steps()
-All ionic steps in the run as a list of
-{“structure”: structure at end of run,
-“electronic_steps”: {All electronic step data in vasprun file},
-“stresses”: stress matrix}
+All ionic steps in the run as a list of {“structure”: structure at end of run,
+“electronic_steps”: {All electronic step data in vasprun file}, “stresses”: stress matrix}.
+
+
+* **Type**
+
+    list
+
 
 
 #### tdos()
 Total dos calculated at the end of run.
 
 
+* **Type**
+
+    [Dos](pymatgen.electronic_structure.md#pymatgen.electronic_structure.dos.Dos)
+
+
+
 #### idos()
 Integrated dos calculated at the end of run.
 
 
+* **Type**
+
+    [Dos](pymatgen.electronic_structure.md#pymatgen.electronic_structure.dos.Dos)
+
+
+
 #### pdos()
-List of list of PDos objects. Access as pdos[atomindex][orbitalindex]
+List of list of PDos objects. Access as pdos[atomindex][orbitalindex].
+
+
+* **Type**
+
+    list
+
 
 
 #### efermi()
-Fermi energy
+Fermi energy.
+
+
+* **Type**
+
+    float
+
 
 
 #### eigenvalues()
-Available only if parse_eigen=True. Final eigenvalues as a dict of
-{(spin, kpoint index):[[eigenvalue, occu]]}.
-This representation is based on actual ordering in VASP and is meant as
-an intermediate representation to be converted into proper objects. The
-kpoint index is 0-based (unlike the 1-based indexing in VASP).
+Final eigenvalues as a dict of {(spin, kpoint index):[[eigenvalue, occu]]}.
+The kpoint index is 0-based (unlike the 1-based indexing in VASP).
+
+
+* **Type**
+
+    dict
+
 
 
 #### projected_eigenvalues()
-Final projected eigenvalues as a dict of {spin: nd-array}. To access
-a particular value, you need to do
-Vasprun.projected_eigenvalues[spin][kpoint index][band index][atom index][orbital_index]
-This representation is based on actual ordering in VASP and is meant as
-an intermediate representation to be converted into proper objects. The
-kpoint, band and atom indices are 0-based (unlike the 1-based indexing
-in VASP).
+Final projected eigenvalues as a dict of {spin: nd-array}.
+To access a particular value, you need to do
+Vasprun.projected_eigenvalues[spin][kpoint index][band index][atom index][orbital_index].
+The kpoint, band and atom indices are 0-based (unlike the 1-based indexing in VASP).
+
+
+* **Type**
+
+    dict
+
 
 
 #### projected_magnetisation()
-Final projected magnetisation as a numpy array with the shape (nkpoints, nbands,
-natoms, norbitals, 3). Where the last axis is the contribution in the 3
-Cartesian directions. This attribute is only set if spin-orbit coupling
-(LSORBIT = True) or non-collinear magnetism (LNONCOLLINEAR = True) is turned
-on in the INCAR.
+Final projected magnetization as a numpy array with the
+shape (nkpoints, nbands, natoms, norbitals, 3). Where the last axis is the contribution in the
+3 Cartesian directions. This attribute is only set if spin-orbit coupling (LSORBIT = True) or
+non-collinear magnetism (LNONCOLLINEAR = True) is turned on in the INCAR.
+
+
+* **Type**
+
+    numpy.ndarray
+
 
 
 #### other_dielectric()
 Dictionary, with the tag comment as key, containing other variants of
-the real and imaginary part of the dielectric constant (e.g., computed
-by RPA) in function of the energy (frequency). Optical properties (e.g.
-absorption coefficient) can be obtained through this.
-The data is given as a tuple of 3 values containing each of them
-the energy, the real part tensor, and the imaginary part tensor
-([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
-real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
-imag_partxy, imag_partyz, imag_partxz]])
+the real and imaginary part of the dielectric constant (e.g., computed by RPA) in function of
+the energy (frequency). Optical properties (e.g. absorption coefficient) can be obtained through this.
+The data is given as a tuple of 3 values containing each of them the energy, the real part tensor,
+and the imaginary part tensor ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
+real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,imag_partxy, imag_partyz, imag_partxz]]).
+
+
+* **Type**
+
+    dict
+
 
 
 #### nionic_steps()
-The total number of ionic steps. This number is always equal
-to the total number of steps in the actual run even if
-ionic_step_skip is used.
+The total number of ionic steps. This number is always equal to the total number
+of steps in the actual run even if ionic_step_skip is used.
+
+
+* **Type**
+
+    int
+
 
 
 #### force_constants()
@@ -2765,77 +3063,116 @@ Force constants computed in phonon DFPT run(IBRION = 8).
 The data is a 4D numpy array of shape (natoms, natoms, 3, 3).
 
 
+* **Type**
+
+    numpy.ndarray
+
+
+
 #### normalmode_eigenvals()
-Normal mode frequencies.
-1D numpy array of size 3\*natoms.
+Normal mode frequencies. 1D numpy array of size 3\*natoms.
+
+
+* **Type**
+
+    numpy.ndarray
+
 
 
 #### normalmode_eigenvecs()
-Normal mode eigen vectors.
-3D numpy array of shape (3\*natoms, natoms, 3).
+Normal mode eigen vectors. 3D numpy array of shape (3\*natoms, natoms, 3).
+
+
+* **Type**
+
+    numpy.ndarray
+
 
 
 #### md_data()
-Available only for ML MD runs, i.e., INCAR with ML_LMLFF = .TRUE.
-md_data is a list of dict with the following format:
+Available only for ML MD runs, i.e., INCAR with ML_LMLFF = .TRUE. md_data is a list of
+dict with the following format: [{‘energy’: {‘e_0_energy’: -525.07195568, ‘e_fr_energy’: -525.07195568,
+‘e_wo_entrp’: -525.07195568, ‘kinetic’: 3.17809233, ‘lattice kinetic’: 0.0, ‘nosekinetic’: 1.323e-5,
+‘nosepot’: 0.0, ‘total’: -521.89385012}, ‘forces’: [[0.17677989, 0.48309874, 1.85806696], …],
+‘structure’: Structure object}].
 
-[
 
-    {
+* **Type**
 
-        ‘energy’: {
+    list
 
-            ‘e_0_energy’: -525.07195568,
-            ‘e_fr_energy’: -525.07195568,
-            ‘e_wo_entrp’: -525.07195568,
-            ‘kinetic’: 3.17809233,
-            ‘lattice kinetic’: 0.0,
-            ‘nosekinetic’: 1.323e-5,
-            ‘nosepot’: 0.0,
-            ‘total’: -521.89385012
-            },
-
-        ‘forces’: [[0.17677989, 0.48309874, 1.85806696], …],
-        ‘structure’: Structure object
-
-    }
-
-]
-
-**VASP inputs**
 
 
 #### incar()
 Incar object for parameters specified in INCAR file.
 
 
+* **Type**
+
+    Incar
+
+
+
 #### parameters()
-Incar object with parameters that vasp actually used, including all
-defaults.
+Incar object with parameters that vasp actually used, including all defaults.
+
+
+* **Type**
+
+    Incar
+
 
 
 #### kpoints()
 Kpoints object for KPOINTS specified in run.
 
 
+* **Type**
+
+    [Kpoints](pymatgen.io.cp2k.md#pymatgen.io.cp2k.inputs.Kpoints)
+
+
+
 #### actual_kpoints()
-List of actual kpoints, e.g.,
-[[0.25, 0.125, 0.08333333], [-0.25, 0.125, 0.08333333],
-[0.25, 0.375, 0.08333333], ….]
+List of actual kpoints, e.g., [[0.25, 0.125, 0.08333333], [-0.25, 0.125, 0.08333333],
+[0.25, 0.375, 0.08333333], ….].
+
+
+* **Type**
+
+    list
+
 
 
 #### actual_kpoints_weights()
-List of kpoint weights, E.g.,
-[0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667, ….]
+List of kpoint weights, E.g., [0.04166667, 0.04166667, 0.04166667, 0.04166667,
+0.04166667, ….].
+
+
+* **Type**
+
+    list
+
 
 
 #### atomic_symbols()
-List of atomic symbols, e.g., [“Li”, “Fe”, “Fe”, “P”, “P”, “P”]
+List of atomic symbols, e.g., [“Li”, “Fe”, “Fe”, “P”, “P”, “P”].
+
+
+* **Type**
+
+    list
+
 
 
 #### potcar_symbols()
-List of POTCAR symbols. e.g.,
-[“PAW_PBE Li 17Jan2003”, “PAW_PBE Fe 06Sep2000”, ..]
+List of POTCAR symbols. e.g., [“PAW_PBE Li 17Jan2003”, “PAW_PBE Fe 06Sep2000”, ..].
+
+
+* **Type**
+
+    list
+
 
 Author: Shyue Ping Ong
 
@@ -2875,8 +3212,8 @@ Author: Shyue Ping Ong
 
 
     * **parse_projected_eigen** (*bool*) – Whether to parse the projected
-    eigenvalues and magnetisation. Defaults to False. Set to True to obtain
-    projected eigenvalues and magnetisation. **Note that this can take an
+    eigenvalues and magnetization. Defaults to False. Set to True to obtain
+    projected eigenvalues and magnetization. **Note that this can take an
     extreme amount of time and memory.** So use this wisely.
 
 
@@ -2962,20 +3299,19 @@ units of states/eV/unit cell volume.
 
 #### _property_ converged()
 Returns:
-True if a relaxation run is converged both ionically and
-electronically.
+bool: True if a relaxation run is both ionically and electronically converged.
 
 
 #### _property_ converged_electronic()
 Returns:
-True if electronic step convergence has been reached in the final
-ionic step.
+bool: True if electronic step convergence has been reached in the final ionic step.
 
 
 #### _property_ converged_ionic()
 Returns:
-True if ionic step convergence has been reached, i.e. that vasp
-exited before reaching the max ionic steps for a relaxation run.
+bool: True if ionic step convergence has been reached, i.e. that vasp
+
+> exited before reaching the max ionic steps for a relaxation run.
 
 
 #### _property_ dielectric()
@@ -3116,17 +3452,25 @@ Returns a ComputedEntry or ComputedStructureEntry from the Vasprun.
 
 
 
-#### get_potcars(path)
+#### get_potcars(path: str | Path)
+Returns the POTCAR from the specified path.
+
 
 * **Parameters**
 
-    **path** – Path to search for POTCARs
+    **path** (*str*) – The path to search for POTCARs.
 
 
 
 * **Returns**
 
-    Potcar from path.
+    The POTCAR from the specified path.
+
+
+
+* **Return type**
+
+    Potcar | None
 
 
 
@@ -3135,7 +3479,17 @@ This method returns a Trajectory object, which is an alternative
 representation of self.structures into a single object. Forces are
 added to the Trajectory as site properties.
 
-Returns: a Trajectory
+
+* **Returns**
+
+    from pymatgen.core.trajectory
+
+
+
+* **Return type**
+
+    [Trajectory](pymatgen.core.md#pymatgen.core.trajectory.Trajectory)
+
 
 
 #### _property_ hubbards()
@@ -3389,50 +3743,115 @@ be seen in the work of Shen et al. 2017
 
 
 #### filename()
-String of the input file (usually WAVECAR)
+String of the input file (usually WAVECAR).
+
+
+* **Type**
+
+    str
+
 
 
 #### vasp_type()
-String that determines VASP type the WAVECAR was generated with (either
-‘std’, ‘gam’, or ‘ncl’)
+String that determines VASP type the WAVECAR was generated with.
+One of ‘std’, ‘gam’, ‘ncl’.
+
+
+* **Type**
+
+    str
+
 
 
 #### nk()
-Number of k-points from the WAVECAR
+Number of k-points from the WAVECAR.
+
+
+* **Type**
+
+    int
+
 
 
 #### nb()
-Number of bands per k-point
+Number of bands per k-point.
+
+
+* **Type**
+
+    int
+
 
 
 #### encut()
-Energy cutoff (used to define G_{cut})
+Energy cutoff (used to define G_{cut}).
+
+
+* **Type**
+
+    float
+
 
 
 #### efermi()
-Fermi energy
+Fermi energy.
+
+
+* **Type**
+
+    float
+
 
 
 #### a()
-Primitive lattice vectors of the cell (e.g. a_1 = self.a[0, :])
+Primitive lattice vectors of the cell (e.g. a_1 = self.a[0, :]).
+
+
+* **Type**
+
+    numpy.ndarray
+
 
 
 #### b()
-Reciprocal lattice vectors of the cell (e.g. b_1 = self.b[0, :])
+Reciprocal lattice vectors of the cell (e.g. b_1 = self.b[0, :]).
+
+
+* **Type**
+
+    numpy.ndarray
+
 
 
 #### vol()
-The volume of the unit cell in real space
+The volume of the unit cell in real space.
+
+
+* **Type**
+
+    float
+
 
 
 #### kpoints()
-The list of k-points read from the WAVECAR file
+The list of k-points read from the WAVECAR file.
+
+
+* **Type**
+
+    numpy.ndarray
+
 
 
 #### band_energy()
-The list of band eigenenergies (and corresponding occupancies) for
-each kpoint, where the first index corresponds to the index of the
-k-point (e.g. self.band_energy[kp])
+The list of band eigenenergies (and corresponding occupancies) for each kpoint,
+where the first index corresponds to the index of the k-point (e.g. self.band_energy[kp]).
+
+
+* **Type**
+
+    list
+
 
 
 #### Gpoints()
@@ -3446,14 +3865,24 @@ Gpoints[kp][n] == [n_1, n_2, n_3], then
 G_n = n_1\*b_1 + n_2\*b_2 + n_3\*b_3)
 
 
+* **Type**
+
+    list
+
+
+
 #### coeffs()
-The list of coefficients for each k-point and band for reconstructing
-the wavefunction. For non-spin-polarized, the first index corresponds
-to the kpoint and the second corresponds to the band (e.g.
-self.coeffs[kp][b] corresponds to k-point kp and band b). For
-spin-polarized calculations, the first index is for the spin.
-If the calculation was non-collinear, then self.coeffs[kp][b] will have
+The list of coefficients for each k-point and band for reconstructing the wavefunction.
+For non-spin-polarized, the first index corresponds to the kpoint and the second corresponds to the band
+(e.g. self.coeffs[kp][b] corresponds to k-point kp and band b). For spin-polarized calculations,
+the first index is for the spin. If the calculation was non-collinear, then self.coeffs[kp][b] will have
 two columns (one for each component of the spinor).
+
+
+* **Type**
+
+    list
+
 
 Acknowledgments:
 
@@ -3481,8 +3910,7 @@ Information is extracted from the given WAVECAR.
 
 
     * **vasp_type** (*str*) – determines the VASP type that is used, allowed
-    values are [‘std’, ‘gam’, ‘ncl’]
-    (only first letter is required)
+    values are [‘std’, ‘gam’, ‘ncl’] (only first letter is required)
 
 
 
@@ -3541,12 +3969,10 @@ preferred method of evaluation (see Wavecar.fft_mesh).
 * **Parameters**
 
 
-    * **kpoint** (*int*) – the index of the kpoint where the wavefunction
-    will be evaluated
+    * **kpoint** (*int*) – the index of the kpoint where the wavefunction will be evaluated
 
 
-    * **band** (*int*) – the index of the band where the wavefunction will be
-    evaluated
+    * **band** (*int*) – the index of the band where the wavefunction will be evaluated
 
 
     * **r** (*np.array*) – the position where the wavefunction will be evaluated
@@ -3582,12 +4008,10 @@ evals = np.fft.ifftn(mesh)
 * **Parameters**
 
 
-    * **kpoint** (*int*) – the index of the kpoint where the wavefunction
-    will be evaluated
+    * **kpoint** (*int*) – the index of the kpoint where the wavefunction will be evaluated
 
 
-    * **band** (*int*) – the index of the band where the wavefunction will be
-    evaluated
+    * **band** (*int*) – the index of the band where the wavefunction will be evaluated
 
 
     * **spin** (*int*) – the spin of the wavefunction for the desired
@@ -3836,8 +4260,20 @@ Class representing an XDATCAR file. Only tested with VASP 5.x files.
 List of structures parsed from XDATCAR.
 
 
+* **Type**
+
+    list
+
+
+
 #### comment()
 Optional comment string.
+
+
+* **Type**
+
+    str
+
 
 Authors: Ram Balachandran
 
@@ -3876,10 +4312,9 @@ Concatenate structures in file to Xdatcar.
     * **ionicstep_end** (*int*) – Ending number of ionic step.
 
 
-TODO(rambalachandran):
+TODO (rambalachandran): Requires a check to ensure if the new concatenating file
 
-    Requires a check to ensure if the new concatenating file has the
-    same lattice structure and atoms as the Xdatcar class.
+    has the same lattice structure and atoms as the Xdatcar class.
 
 
 #### get_str(ionicstep_start: int = 1, ionicstep_end: int | None = None, significant_figures: int = 8)
@@ -4068,20 +4503,21 @@ Read the following carefully before implementing new input sets:
 
 
 1. 99% of what needs to be done can be done by specifying user_incar_settings to override some of the defaults of
-various input sets. Unless there is an extremely good reason to add a new set, DO NOT add one. E.g., if you want
+various input sets. Unless there is an extremely good reason to add a new set, **do not** add one. E.g., if you want
 to turn the Hubbard U off, just set “LDAU”: False as a user_incar_setting.
 
 
-2. All derivative input sets should inherit from one of the usual MPRelaxSet or MITRelaxSet, and proper superclass
-delegation should be used where possible. In particular, you are not supposed to implement your own as_dict or
-from_dict for derivative sets unless you know what you are doing. Improper overriding the as_dict and from_dict
-protocols is the major cause of implementation headaches. If you need an example, look at how the MPStaticSet or
-MPNonSCFSets are constructed.
+2. All derivative input sets should inherit appropriate configurations (e.g., from MPRelaxSet), and more often than
+not, DictSet should be the superclass. Proper superclass delegation should be used where possible. In particular,
+you are not supposed to implement your own as_dict or from_dict for derivative sets unless you know what you are
+doing. Improper overriding the as_dict and from_dict protocols is the major cause of implementation headaches. If
+you need an example, look at how the MPStaticSet is initialized.
 
-The above are recommendations. The following are UNBREAKABLE rules:
+The above are recommendations. The following are **UNBREAKABLE** rules:
 
 
-1. All input sets must take in a structure or list of structures as the first argument.
+1. All input sets must take in a structure, list of structures or None as the first argument. If None, the input set
+should perform a stateless initialization and before any output can be written, a structure must be set.
 
 
 2. user_incar_settings, user_kpoints_settings and user_<whatever>_settings are ABSOLUTE. Any new sets you implement
@@ -4089,17 +4525,17 @@ must obey this. If a user wants to override your settings, you assume he knows w
 magically override user supplied settings. You can issue a warning if you think the user is wrong.
 
 
-3. All input sets must save all supplied args and kwargs as instance variables. E.g., self.my_arg = my_arg and
+3. All input sets must save all supplied args and kwargs as instance variables. E.g., self.arg = arg and
 self.kwargs = kwargs in the __init__. This ensures the as_dict and from_dict work correctly.
 
 
 ### _exception_ BadInputSetWarning()
 Bases: `UserWarning`
 
-Warning class for bad but legal inputs.
+Warning class for bad but legal VASP inputs.
 
 
-### _class_ DictSet(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure) = None, config_dict: dict[str, Any] | None = None, files_to_transfer=None, user_incar_settings=None, user_kpoints_settings=None, user_potcar_settings=None, constrain_total_magmom: bool = False, sort_structure: bool = True, user_potcar_functional: UserPotcarFunctional | None = None, force_gamma: bool = False, reduce_structure=None, vdw=None, use_structure_charge: bool = False, standardize: bool = False, sym_prec=0.1, international_monoclinic: bool = True, validate_magmom: bool = True)
+### _class_ DictSet(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure) | None = None, config_dict: dict[str, Any] | None = None, files_to_transfer=None, user_incar_settings=None, user_kpoints_settings=None, user_potcar_settings=None, constrain_total_magmom: bool = False, sort_structure: bool = True, user_potcar_functional: UserPotcarFunctional | None = None, force_gamma: bool = False, reduce_structure=None, vdw=None, use_structure_charge: bool = False, standardize: bool = False, sym_prec=0.1, international_monoclinic: bool = True, validate_magmom: bool = True)
 Bases: `VaspInputSet`
 
 Concrete implementation of VaspInputSet that is initialized from a dict
@@ -4217,7 +4653,7 @@ there are no settings, a default value of 0.6 is used.
 
 #### _abc_impl(_ = <_abc._abc_data object_ )
 
-#### calculate_ng(max_prime_factor: int = 7, must_inc_2: bool = True)
+#### calculate_ng(max_prime_factor: int = 7, must_inc_2: bool = True, custom_encut: float | None = None, custom_prec: str | None = None)
 Calculates the NGX, NGY, and NGZ values using the information available in the INCAR and POTCAR
 This is meant to help with making initial guess for the FFT grid so we can interact with the Charge density API.
 
@@ -4231,6 +4667,16 @@ This is meant to help with making initial guess for the FFT grid so we can inter
 
 
     * **must_inc_2** (*bool*) – Whether 2 must be a prime factor of the result. Defaults to True.
+
+
+    * **custom_encut** (*float** | **None*) – Calculates the FFT grid parameters using a custom
+    ENCUT that may be different from what is generated by the input set. Defaults to None.
+    Do *not* use this unless you know what you are doing.
+
+
+    * **custom_prec** (*str** | **None*) – Calculates the FFT grid parameters using a custom prec
+    that may be different from what is generated by the input set. Defaults to None.
+    Do *not* use this unless you know what you are doing.
 
 
 
@@ -4307,7 +4753,7 @@ Writes out all input to a directory.
 
 
 ### _class_ LobsterSet(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure) | None = None, isym: int = 0, ismear: int = -5, reciprocal_density: int | None = None, address_basis_file: str | None = None, user_supplied_basis: dict | None = None, \*\*kwargs)
-Bases: `MPRelaxSet`
+Bases: `DictSet`
 
 Input set to prepare VASP runs that can be digested by Lobster (See cohp.de).
 
@@ -4339,11 +4785,9 @@ Input set to prepare VASP runs that can be digested by Lobster (See cohp.de).
     e.g. {“Fe”: “Fe_pv”, “O”: “O”}; if not supplied, a standard basis is used.
 
 
-    * **\*\*kwargs** – Other kwargs supported by `DictSet`.
+    * **\*\*kwargs** – Other kwargs supported by DictSet.
 
 
-
-#### CONFIG(_ = {'INCAR': {'ALGO': 'FAST', 'EDIFF_PER_ATOM': 5e-05, 'ENCUT': 520, 'IBRION': 2, 'ISIF': 3, 'ISMEAR': -5, 'ISPIN': 2, 'LASPH': True, 'LDAU': True, 'LDAUJ': {'F': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}, 'O': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}}, 'LDAUL': {'F': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}, 'O': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}}, 'LDAUPRINT': 1, 'LDAUTYPE': 2, 'LDAUU': {'F': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}, 'O': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}}, 'LORBIT': 11, 'LREAL': 'AUTO', 'LWAVE': False, 'MAGMOM': {'Ce': 5, 'Ce3+': 1, 'Co': 0.6, 'Co3+': 0.6, 'Co4+': 1, 'Cr': 5, 'Dy3+': 5, 'Er3+': 3, 'Eu': 10, 'Eu2+': 7, 'Eu3+': 6, 'Fe': 5, 'Gd3+': 7, 'Ho3+': 4, 'La3+': 0.6, 'Lu3+': 0.6, 'Mn': 5, 'Mn3+': 4, 'Mn4+': 3, 'Mo': 5, 'Nd3+': 3, 'Ni': 5, 'Pm3+': 4, 'Pr3+': 2, 'Sm3+': 5, 'Tb3+': 6, 'Tm3+': 2, 'V': 5, 'W': 5, 'Yb3+': 1}, 'NELM': 100, 'NSW': 99, 'PREC': 'Accurate', 'SIGMA': 0.05}, 'KPOINTS': {'reciprocal_density': 64}, 'PARENT': 'VASPIncarBase', 'POTCAR': {'Ac': 'Ac', 'Ag': 'Ag', 'Al': 'Al', 'Ar': 'Ar', 'As': 'As', 'Au': 'Au', 'B': 'B', 'Ba': 'Ba_sv', 'Be': 'Be_sv', 'Bi': 'Bi', 'Br': 'Br', 'C': 'C', 'Ca': 'Ca_sv', 'Cd': 'Cd', 'Ce': 'Ce', 'Cl': 'Cl', 'Co': 'Co', 'Cr': 'Cr_pv', 'Cs': 'Cs_sv', 'Cu': 'Cu_pv', 'Dy': 'Dy_3', 'Er': 'Er_3', 'Eu': 'Eu', 'F': 'F', 'Fe': 'Fe_pv', 'Ga': 'Ga_d', 'Gd': 'Gd', 'Ge': 'Ge_d', 'H': 'H', 'He': 'He', 'Hf': 'Hf_pv', 'Hg': 'Hg', 'Ho': 'Ho_3', 'I': 'I', 'In': 'In_d', 'Ir': 'Ir', 'K': 'K_sv', 'Kr': 'Kr', 'La': 'La', 'Li': 'Li_sv', 'Lu': 'Lu_3', 'Mg': 'Mg_pv', 'Mn': 'Mn_pv', 'Mo': 'Mo_pv', 'N': 'N', 'Na': 'Na_pv', 'Nb': 'Nb_pv', 'Nd': 'Nd_3', 'Ne': 'Ne', 'Ni': 'Ni_pv', 'Np': 'Np', 'O': 'O', 'Os': 'Os_pv', 'P': 'P', 'Pa': 'Pa', 'Pb': 'Pb_d', 'Pd': 'Pd', 'Pm': 'Pm_3', 'Pr': 'Pr_3', 'Pt': 'Pt', 'Pu': 'Pu', 'Rb': 'Rb_sv', 'Re': 'Re_pv', 'Rh': 'Rh_pv', 'Ru': 'Ru_pv', 'S': 'S', 'Sb': 'Sb', 'Sc': 'Sc_sv', 'Se': 'Se', 'Si': 'Si', 'Sm': 'Sm_3', 'Sn': 'Sn_d', 'Sr': 'Sr_sv', 'Ta': 'Ta_pv', 'Tb': 'Tb_3', 'Tc': 'Tc_pv', 'Te': 'Te', 'Th': 'Th', 'Ti': 'Ti_pv', 'Tl': 'Tl_d', 'Tm': 'Tm_3', 'U': 'U', 'V': 'V_pv', 'W': 'W_pv', 'Xe': 'Xe', 'Y': 'Y_sv', 'Yb': 'Yb_2', 'Zn': 'Zn', 'Zr': 'Zr_sv'}, 'POTCAR_FUNCTIONAL': 'PBE'_ )
 
 #### _abc_impl(_ = <_abc._abc_data object_ )
 
@@ -4356,7 +4800,7 @@ Incar
 #### user_potcar_functional(_: UserPotcarFunctiona_ )
 
 ### _class_ MITMDSet(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure) | None = None, start_temp: float = 0.0, end_temp: float = 300.0, nsteps: int = 1000, time_step: float = 2, spin_polarized=False, \*\*kwargs)
-Bases: `MITRelaxSet`
+Bases: `DictSet`
 
 Class for writing a vasp md run. This DOES NOT do multiple stage
 runs.
@@ -4385,7 +4829,7 @@ runs.
     The ISPIN parameter. Defaults to False.
 
 
-    * **\*\*kwargs** – Other kwargs supported by `DictSet`.
+    * **\*\*kwargs** – Other kwargs supported by DictSet.
 
 
 
@@ -4398,7 +4842,7 @@ Kpoints
 #### user_potcar_functional(_: UserPotcarFunctiona_ )
 
 ### _class_ MITNEBSet(structures, unset_encut=False, \*\*kwargs)
-Bases: `MITRelaxSet`
+Bases: `DictSet`
 
 Class for writing NEB inputs. Note that EDIFF is not on a per atom
 basis for this input set.
@@ -4413,7 +4857,7 @@ basis for this input set.
     * **unset_encut** (*bool*) – Whether to unset ENCUT.
 
 
-    * **\*\*kwargs** – Other kwargs supported by `DictSet`.
+    * **\*\*kwargs** – Other kwargs supported by DictSet.
 
 
 
@@ -4553,12 +4997,13 @@ the series. It is important to ensure Gamma centred kpoints for the RPA step.
 
 #### _classmethod_ from_prev_calc(prev_calc_dir, mode, \*\*kwargs)
 Generate a set of VASP input files for absorption calculation
-:param prev_calc_dir: The directory contains the outputs(
-
-> vasprun.xml of previous vasp run.
 
 
 * **Parameters**
+
+
+    * **prev_calc_dir** (*str*) – The directory contains the outputs(
+    vasprun.xml of previous vasp run.
 
 
     * **mode** (*str*) – Supported modes are “IPA”, “RPA” (default)
@@ -4717,7 +5162,7 @@ Same as the MPRelaxSet, but with HSE parameters.
 #### user_potcar_functional(_: UserPotcarFunctiona_ )
 
 ### _class_ MPMDSet(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure) | None = None, start_temp: float = 0.0, end_temp: float = 300.0, nsteps: int = 1000, time_step: float = 2, spin_polarized=False, \*\*kwargs)
-Bases: `MPRelaxSet`
+Bases: `DictSet`
 
 This a modified version of the old MITMDSet pre 2018/03/12.
 
@@ -4755,7 +5200,7 @@ Precision remains normal, to increase accuracy of stress tensor.
     The ISPIN parameter. Defaults to False.
 
 
-    * **\*\*kwargs** – Other kwargs supported by `DictSet`.
+    * **\*\*kwargs** – Other kwargs supported by DictSet.
 
 
 
@@ -4772,7 +5217,7 @@ Kpoints
 #### user_potcar_functional(_: UserPotcarFunctiona_ )
 
 ### _class_ MPMetalRelaxSet(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure) | None = None, \*\*kwargs)
-Bases: `MPRelaxSet`
+Bases: `DictSet`
 
 Implementation of VaspInputSet utilizing parameters in the public
 Materials Project, but with tuning for metals. Key things are a denser
@@ -4789,8 +5234,6 @@ k point density, and a.
     * **\*\*kwargs** – Same as those supported by DictSet.
 
 
-
-#### CONFIG(_ = {'INCAR': {'ALGO': 'FAST', 'EDIFF_PER_ATOM': 5e-05, 'ENCUT': 520, 'IBRION': 2, 'ISIF': 3, 'ISMEAR': -5, 'ISPIN': 2, 'LASPH': True, 'LDAU': True, 'LDAUJ': {'F': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}, 'O': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}}, 'LDAUL': {'F': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}, 'O': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}}, 'LDAUPRINT': 1, 'LDAUTYPE': 2, 'LDAUU': {'F': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}, 'O': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}}, 'LORBIT': 11, 'LREAL': 'AUTO', 'LWAVE': False, 'MAGMOM': {'Ce': 5, 'Ce3+': 1, 'Co': 0.6, 'Co3+': 0.6, 'Co4+': 1, 'Cr': 5, 'Dy3+': 5, 'Er3+': 3, 'Eu': 10, 'Eu2+': 7, 'Eu3+': 6, 'Fe': 5, 'Gd3+': 7, 'Ho3+': 4, 'La3+': 0.6, 'Lu3+': 0.6, 'Mn': 5, 'Mn3+': 4, 'Mn4+': 3, 'Mo': 5, 'Nd3+': 3, 'Ni': 5, 'Pm3+': 4, 'Pr3+': 2, 'Sm3+': 5, 'Tb3+': 6, 'Tm3+': 2, 'V': 5, 'W': 5, 'Yb3+': 1}, 'NELM': 100, 'NSW': 99, 'PREC': 'Accurate', 'SIGMA': 0.05}, 'KPOINTS': {'reciprocal_density': 64}, 'PARENT': 'VASPIncarBase', 'POTCAR': {'Ac': 'Ac', 'Ag': 'Ag', 'Al': 'Al', 'Ar': 'Ar', 'As': 'As', 'Au': 'Au', 'B': 'B', 'Ba': 'Ba_sv', 'Be': 'Be_sv', 'Bi': 'Bi', 'Br': 'Br', 'C': 'C', 'Ca': 'Ca_sv', 'Cd': 'Cd', 'Ce': 'Ce', 'Cl': 'Cl', 'Co': 'Co', 'Cr': 'Cr_pv', 'Cs': 'Cs_sv', 'Cu': 'Cu_pv', 'Dy': 'Dy_3', 'Er': 'Er_3', 'Eu': 'Eu', 'F': 'F', 'Fe': 'Fe_pv', 'Ga': 'Ga_d', 'Gd': 'Gd', 'Ge': 'Ge_d', 'H': 'H', 'He': 'He', 'Hf': 'Hf_pv', 'Hg': 'Hg', 'Ho': 'Ho_3', 'I': 'I', 'In': 'In_d', 'Ir': 'Ir', 'K': 'K_sv', 'Kr': 'Kr', 'La': 'La', 'Li': 'Li_sv', 'Lu': 'Lu_3', 'Mg': 'Mg_pv', 'Mn': 'Mn_pv', 'Mo': 'Mo_pv', 'N': 'N', 'Na': 'Na_pv', 'Nb': 'Nb_pv', 'Nd': 'Nd_3', 'Ne': 'Ne', 'Ni': 'Ni_pv', 'Np': 'Np', 'O': 'O', 'Os': 'Os_pv', 'P': 'P', 'Pa': 'Pa', 'Pb': 'Pb_d', 'Pd': 'Pd', 'Pm': 'Pm_3', 'Pr': 'Pr_3', 'Pt': 'Pt', 'Pu': 'Pu', 'Rb': 'Rb_sv', 'Re': 'Re_pv', 'Rh': 'Rh_pv', 'Ru': 'Ru_pv', 'S': 'S', 'Sb': 'Sb', 'Sc': 'Sc_sv', 'Se': 'Se', 'Si': 'Si', 'Sm': 'Sm_3', 'Sn': 'Sn_d', 'Sr': 'Sr_sv', 'Ta': 'Ta_pv', 'Tb': 'Tb_3', 'Tc': 'Tc_pv', 'Te': 'Te', 'Th': 'Th', 'Ti': 'Ti_pv', 'Tl': 'Tl_d', 'Tm': 'Tm_3', 'U': 'U', 'V': 'V_pv', 'W': 'W_pv', 'Xe': 'Xe', 'Y': 'Y_sv', 'Yb': 'Yb_2', 'Zn': 'Zn', 'Zr': 'Zr_sv'}, 'POTCAR_FUNCTIONAL': 'PBE'_ )
 
 #### _abc_impl(_ = <_abc._abc_data object_ )
 
@@ -4835,7 +5278,7 @@ Incar
 #### user_potcar_functional(_: UserPotcarFunctiona_ )
 
 ### _class_ MPNonSCFSet(structure, prev_incar=None, mode='line', nedos=2001, dedos=0.005, reciprocal_density=100, sym_prec=0.1, kpoints_line_density=20, optics=False, copy_chgcar=True, nbands_factor=1.2, small_gap_multiply=None, \*\*kwargs)
-Bases: `MPRelaxSet`
+Bases: `DictSet`
 
 Init a MPNonSCFSet. Typically, you would use the classmethod
 from_prev_calc to initialize from a previous SCF run.
@@ -4966,7 +5409,7 @@ which result in different fitted values.
 
 #### user_potcar_functional(_: UserPotcarFunctiona_ )
 
-### _class_ MPSOCSet(structure, saxis=(0, 0, 1), copy_chgcar=True, nbands_factor=1.2, reciprocal_density=100, small_gap_multiply=None, magmom=None, \*\*kwargs)
+### _class_ MPSOCSet(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure) | None = None, saxis: tuple[int, int, int] = (0, 0, 1), copy_chgcar=True, nbands_factor=1.2, reciprocal_density=100, small_gap_multiply=None, magmom=None, \*\*kwargs)
 Bases: `MPStaticSet`
 
 An input set for running spin-orbit coupling (SOC) calculations.
@@ -5207,8 +5650,8 @@ Update the input set to include settings from a previous calculation.
 
 #### user_potcar_functional(_: UserPotcarFunctiona_ )
 
-### _class_ MPStaticSet(structure, prev_incar=None, prev_kpoints=None, lepsilon=False, lcalcpol=False, reciprocal_density=100, small_gap_multiply=None, \*\*kwargs)
-Bases: `MPRelaxSet`
+### _class_ MPStaticSet(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure) | None = None, prev_incar=None, prev_kpoints=None, lepsilon=False, lcalcpol=False, reciprocal_density=100, small_gap_multiply=None, \*\*kwargs)
+Bases: `DictSet`
 
 Creates input files for a static calculation.
 
@@ -5295,7 +5738,7 @@ Update the input set to include settings from a previous calculation.
 #### user_potcar_functional(_: UserPotcarFunctiona_ )
 
 ### _class_ MVLElasticSet(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure) | None = None, potim: float = 0.015, \*\*kwargs)
-Bases: `MPRelaxSet`
+Bases: `DictSet`
 
 MVL denotes VASP input sets that are implemented by the Materials Virtual
 Lab ([http://materialsvirtuallab.org](http://materialsvirtuallab.org)) for various research.
@@ -5333,7 +5776,7 @@ elastic constants.
 #### user_potcar_functional(_: UserPotcarFunctiona_ )
 
 ### _class_ MVLGBSet(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure) | None = None, k_product=40, slab_mode=False, is_metal=True, \*\*kwargs)
-Bases: `MPRelaxSet`
+Bases: `DictSet`
 
 Class for writing a vasp input files for grain boundary calculations, slab
 or bulk.
@@ -5361,7 +5804,7 @@ or bulk.
     which can be set by the user to be anything desired.
 
 
-    * **\*\*kwargs** – Other kwargs supported by `MPRelaxSet`.
+    * **\*\*kwargs** – Other kwargs supported by MPRelaxSet.
 
 
 
@@ -5529,7 +5972,7 @@ value of ENCUT, which is 1.5 \* ENMAX.
     The ISPIN parameter. Defaults to False.
 
 
-    * **\*\*kwargs** – Other kwargs supported by `DictSet`.
+    * **\*\*kwargs** – Other kwargs supported by DictSet.
 
 
 
@@ -5574,7 +6017,7 @@ Keynotes from VASP manual:
     * **user_potcar_functional** (*str*) – choose from “PBE_52” and “PBE_54”.
 
 
-    * **\*\*kwargs** – Other kwargs supported by `DictSet`.
+    * **\*\*kwargs** – Other kwargs supported by DictSet.
 
 
 
@@ -5587,7 +6030,7 @@ Keynotes from VASP manual:
 #### user_potcar_functional(_: UserPotcarFunctiona_ )
 
 ### _class_ MVLScanRelaxSet(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure) | None = None, \*\*kwargs)
-Bases: `MPRelaxSet`
+Bases: `DictSet`
 
 Class for writing a relax input set using Strongly Constrained and
 Appropriately Normed (SCAN) semilocal density functional.
@@ -5619,7 +6062,7 @@ following lines (see VASP wiki for more details):
     with the rVV10 non-local correlation functional.
 
 
-    * **\*\*kwargs** – Other kwargs supported by `DictSet`.
+    * **\*\*kwargs** – Other kwargs supported by DictSet.
 
 
 
@@ -5630,7 +6073,7 @@ following lines (see VASP wiki for more details):
 #### user_potcar_functional(_: UserPotcarFunctiona_ )
 
 ### _class_ MVLSlabSet(structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure) | None = None, k_product=50, bulk=False, auto_dipole=False, set_mix=True, sort_structure=True, \*\*kwargs)
-Bases: `MPRelaxSet`
+Bases: `DictSet`
 
 Class for writing a set of slab vasp runs,
 including both slabs (along the c direction) and orient unit cells (bulk),
@@ -5659,7 +6102,7 @@ to ensure the same KPOINTS, POTCAR and INCAR criterion.
     * **sort_structure** –
 
 
-    * **kwargs** – Other kwargs supported by `DictSet`.
+    * **kwargs** – Other kwargs supported by DictSet.
 
 
 
@@ -5727,7 +6170,7 @@ functional still applies.
 
 
 
-#### CONFIG(_ = {'INCAR': {'ALGO': 'Normal', 'EDIFF': 1e-05, 'ENAUG': 1360, 'ENCUT': 680, 'GGA': 'PE', 'ISMEAR': 0, 'ISPIN': 2, 'KSPACING': 0.22, 'LAECHG': True, 'LASPH': True, 'LCHARG': True, 'LDAU': False, 'LDAUJ': {'F': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}, 'O': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}}, 'LDAUL': {'F': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}, 'O': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}}, 'LDAUTYPE': 2, 'LDAUU': {'F': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}, 'O': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}}, 'LMIXTAU': True, 'LORBIT': 11, 'LREAL': 'Auto', 'LWAVE': False, 'MAGMOM': {'Ce': 5, 'Ce3+': 1, 'Co': 0.6, 'Co3+': 0.6, 'Co4+': 1, 'Cr': 5, 'Dy3+': 5, 'Er3+': 3, 'Eu': 10, 'Eu2+': 7, 'Eu3+': 6, 'Fe': 5, 'Gd3+': 7, 'Ho3+': 4, 'La3+': 0.6, 'Lu3+': 0.6, 'Mn': 5, 'Mn3+': 4, 'Mn4+': 3, 'Mo': 5, 'Nd3+': 3, 'Ni': 5, 'Pm3+': 4, 'Pr3+': 2, 'Sm3+': 5, 'Tb3+': 6, 'Tm3+': 2, 'V': 5, 'W': 5, 'Yb3+': 1}, 'NELM': 200, 'NSW': 0, 'PREC': 'Accurate', 'SIGMA': 0.05}, 'PARENT': 'PBE54Base', 'POTCAR': {'Ac': 'Ac', 'Ag': 'Ag', 'Al': 'Al', 'Am': 'Am', 'Ar': 'Ar', 'As': 'As', 'At': 'At', 'Au': 'Au', 'B': 'B', 'Ba': 'Ba_sv', 'Be': 'Be_sv', 'Bi': 'Bi', 'Br': 'Br', 'C': 'C', 'Ca': 'Ca_sv', 'Cd': 'Cd', 'Ce': 'Ce', 'Cf': 'Cf', 'Cl': 'Cl', 'Cm': 'Cm', 'Co': 'Co', 'Cr': 'Cr_pv', 'Cs': 'Cs_sv', 'Cu': 'Cu_pv', 'Dy': 'Dy_3', 'Er': 'Er_3', 'Eu': 'Eu', 'F': 'F', 'Fe': 'Fe_pv', 'Fr': 'Fr_sv', 'Ga': 'Ga_d', 'Gd': 'Gd', 'Ge': 'Ge_d', 'H': 'H', 'He': 'He', 'Hf': 'Hf_pv', 'Hg': 'Hg', 'Ho': 'Ho_3', 'I': 'I', 'In': 'In_d', 'Ir': 'Ir', 'K': 'K_sv', 'Kr': 'Kr', 'La': 'La', 'Li': 'Li_sv', 'Lu': 'Lu_3', 'Mg': 'Mg_pv', 'Mn': 'Mn_pv', 'Mo': 'Mo_pv', 'N': 'N', 'Na': 'Na_pv', 'Nb': 'Nb_pv', 'Nd': 'Nd_3', 'Ne': 'Ne', 'Ni': 'Ni_pv', 'Np': 'Np', 'O': 'O', 'Os': 'Os_pv', 'P': 'P', 'Pa': 'Pa', 'Pb': 'Pb_d', 'Pd': 'Pd', 'Pm': 'Pm_3', 'Po': 'Po_d', 'Pr': 'Pr_3', 'Pt': 'Pt', 'Pu': 'Pu', 'Ra': 'Ra_sv', 'Rb': 'Rb_sv', 'Re': 'Re_pv', 'Rh': 'Rh_pv', 'Rn': 'Rn', 'Ru': 'Ru_pv', 'S': 'S', 'Sb': 'Sb', 'Sc': 'Sc_sv', 'Se': 'Se', 'Si': 'Si', 'Sm': 'Sm_3', 'Sn': 'Sn_d', 'Sr': 'Sr_sv', 'Ta': 'Ta_pv', 'Tb': 'Tb_3', 'Tc': 'Tc_pv', 'Te': 'Te', 'Th': 'Th', 'Ti': 'Ti_pv', 'Tl': 'Tl_d', 'Tm': 'Tm_3', 'U': 'U', 'V': 'V_pv', 'W': 'W_sv', 'Xe': 'Xe', 'Y': 'Y_sv', 'Yb': 'Yb_3', 'Zn': 'Zn', 'Zr': 'Zr_sv'}, 'POTCAR_FUNCTIONAL': 'PBE_54'_ )
+#### CONFIG(_ = {'INCAR': {'ALGO': 'Normal', 'EDIFF': 1e-05, 'ENAUG': 1360, 'ENCUT': 680, 'GGA': 'PE', 'ISMEAR': 0, 'ISPIN': 2, 'KSPACING': 0.22, 'LAECHG': True, 'LASPH': True, 'LCHARG': True, 'LDAU': False, 'LDAUJ': {'F': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}, 'O': {'Co': 0, 'Cr': 0, 'Fe': 0, 'Mn': 0, 'Mo': 0, 'Ni': 0, 'V': 0, 'W': 0}}, 'LDAUL': {'F': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}, 'O': {'Co': 2, 'Cr': 2, 'Fe': 2, 'Mn': 2, 'Mo': 2, 'Ni': 2, 'V': 2, 'W': 2}}, 'LDAUTYPE': 2, 'LDAUU': {'F': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}, 'O': {'Co': 3.32, 'Cr': 3.7, 'Fe': 5.3, 'Mn': 3.9, 'Mo': 4.38, 'Ni': 6.2, 'V': 3.25, 'W': 6.2}}, 'LMIXTAU': True, 'LORBIT': 11, 'LREAL': False, 'LWAVE': False, 'MAGMOM': {'Ce': 5, 'Ce3+': 1, 'Co': 0.6, 'Co3+': 0.6, 'Co4+': 1, 'Cr': 5, 'Dy3+': 5, 'Er3+': 3, 'Eu': 10, 'Eu2+': 7, 'Eu3+': 6, 'Fe': 5, 'Gd3+': 7, 'Ho3+': 4, 'La3+': 0.6, 'Lu3+': 0.6, 'Mn': 5, 'Mn3+': 4, 'Mn4+': 3, 'Mo': 5, 'Nd3+': 3, 'Ni': 5, 'Pm3+': 4, 'Pr3+': 2, 'Sm3+': 5, 'Tb3+': 6, 'Tm3+': 2, 'V': 5, 'W': 5, 'Yb3+': 1}, 'NELM': 200, 'NSW': 0, 'PREC': 'Accurate', 'SIGMA': 0.05}, 'PARENT': 'PBE54Base', 'POTCAR': {'Ac': 'Ac', 'Ag': 'Ag', 'Al': 'Al', 'Am': 'Am', 'Ar': 'Ar', 'As': 'As', 'At': 'At', 'Au': 'Au', 'B': 'B', 'Ba': 'Ba_sv', 'Be': 'Be_sv', 'Bi': 'Bi', 'Br': 'Br', 'C': 'C', 'Ca': 'Ca_sv', 'Cd': 'Cd', 'Ce': 'Ce', 'Cf': 'Cf', 'Cl': 'Cl', 'Cm': 'Cm', 'Co': 'Co', 'Cr': 'Cr_pv', 'Cs': 'Cs_sv', 'Cu': 'Cu_pv', 'Dy': 'Dy_3', 'Er': 'Er_3', 'Eu': 'Eu', 'F': 'F', 'Fe': 'Fe_pv', 'Fr': 'Fr_sv', 'Ga': 'Ga_d', 'Gd': 'Gd', 'Ge': 'Ge_d', 'H': 'H', 'He': 'He', 'Hf': 'Hf_pv', 'Hg': 'Hg', 'Ho': 'Ho_3', 'I': 'I', 'In': 'In_d', 'Ir': 'Ir', 'K': 'K_sv', 'Kr': 'Kr', 'La': 'La', 'Li': 'Li_sv', 'Lu': 'Lu_3', 'Mg': 'Mg_pv', 'Mn': 'Mn_pv', 'Mo': 'Mo_pv', 'N': 'N', 'Na': 'Na_pv', 'Nb': 'Nb_pv', 'Nd': 'Nd_3', 'Ne': 'Ne', 'Ni': 'Ni_pv', 'Np': 'Np', 'O': 'O', 'Os': 'Os_pv', 'P': 'P', 'Pa': 'Pa', 'Pb': 'Pb_d', 'Pd': 'Pd', 'Pm': 'Pm_3', 'Po': 'Po_d', 'Pr': 'Pr_3', 'Pt': 'Pt', 'Pu': 'Pu', 'Ra': 'Ra_sv', 'Rb': 'Rb_sv', 'Re': 'Re_pv', 'Rh': 'Rh_pv', 'Rn': 'Rn', 'Ru': 'Ru_pv', 'S': 'S', 'Sb': 'Sb', 'Sc': 'Sc_sv', 'Se': 'Se', 'Si': 'Si', 'Sm': 'Sm_3', 'Sn': 'Sn_d', 'Sr': 'Sr_sv', 'Ta': 'Ta_pv', 'Tb': 'Tb_3', 'Tc': 'Tc_pv', 'Te': 'Te', 'Th': 'Th', 'Ti': 'Ti_pv', 'Tl': 'Tl_d', 'Tm': 'Tm_3', 'U': 'U', 'V': 'V_pv', 'W': 'W_sv', 'Xe': 'Xe', 'Y': 'Y_sv', 'Yb': 'Yb_3', 'Zn': 'Zn', 'Zr': 'Zr_sv'}, 'POTCAR_FUNCTIONAL': 'PBE_54'_ )
 
 #### INHERITED_INCAR_PARAMS(_ = ('LPEAD', 'NGX', 'NGY', 'NGZ', 'SYMPREC', 'IMIX', 'LMAXMIX', 'KGAMMA', 'ISYM', 'NCORE', 'NPAR', 'NELMIN', 'IOPT', 'NBANDS', 'KPAR', 'AMIN', 'NELMDL', 'BMIX', 'AMIX_MAG', 'BMIX_MAG'_ )
 

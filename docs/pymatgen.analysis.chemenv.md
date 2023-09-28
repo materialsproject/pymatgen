@@ -999,9 +999,6 @@ Package for analyzing chemical environments.
             * [`CoordinationGeometry.ref_permutation()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ref_permutation)
 
 
-            * [`CoordinationGeometry.set_permutations_safe_override()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.set_permutations_safe_override)
-
-
             * [`CoordinationGeometry.solid_angles()`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.solid_angles)
 
 
