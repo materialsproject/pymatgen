@@ -1762,8 +1762,7 @@ class PotcarSingle:
             if rrkj_array:
                 PSCTR["RRKJ"] = tuple(rrkj_array)
 
-        PSCTR.update(keywords)
-        self.PSCTR = dict(sorted(PSCTR.items()))
+        self.keywords = dict(sorted({**PSCTR, **keywords}.items()))
 
         if symbol:
             self._symbol = symbol
@@ -1887,7 +1886,7 @@ class PotcarSingle:
     @property
     def element(self) -> str:
         """Attempt to return the atomic symbol based on the VRHFIN keyword."""
-        element = self.PSCTR["VRHFIN"].split(":")[0].strip()
+        element = self.keywords["VRHFIN"].split(":")[0].strip()
         try:
             return Element(element).symbol
         except ValueError:
@@ -1964,7 +1963,7 @@ class PotcarSingle:
         of hashes for POTCARs distributed with VASP 5.4.4.
 
         Args:
-            mode ('data' | 'file'): 'data' mode checks the hash of the POTCAR metadata in self.PSCTR,
+            mode ('data' | 'file'): 'data' mode checks the hash of the POTCAR metadata in self.keywords,
                 while 'file' mode checks the hash of the entire POTCAR file.
 
         Returns:
@@ -2101,7 +2100,7 @@ class PotcarSingle:
     def potcar_hash(self) -> str:
         """Computes a md5 hash of the metadata defining the PotcarSingle."""
         hash_str = ""
-        for k, v in self.PSCTR.items():
+        for k, v in self.keywords.items():
             # for newer POTCARS we have to exclude 'SHA256' and 'COPYR lines
             # since they were not used in the initial hashing
             if k in ("nentries", "Orbitals", "SHA256", "COPYR"):
@@ -2184,7 +2183,7 @@ class PotcarSingle:
 
         Rationale:
         Each POTCAR is structured as
-            Header (self.PSCTR)
+            Header (self.keywords)
             Data (actual pseudopotential values in data blocks)
 
         For the Data block of POTCAR, there are unformatted data blocks
@@ -2198,7 +2197,7 @@ class PotcarSingle:
         but this is impossible to process algorithmically without a full POTCAR schema.
         Note also that POTCARs can contain **different** data keywords
 
-        All keywords found in the header, essentially self.PSCTR.keys(), and the data block
+        All keywords found in the header, essentially self.keywords, and the data block
         (<Data Keyword> above) are stored in self._meta["keywords"]
 
         To avoid issues of copyright, statistics (mean, mean of abs vals, variance, max, min)
@@ -2243,16 +2242,16 @@ class PotcarSingle:
                 if len(tmp_str) > 0:
                     psp_keys.append(tmp_str.lower())
 
-        psctr_vals = []
-        for kwd in self.PSCTR:
-            val = self.PSCTR[kwd]
+        keyword_vals = []
+        for kwd in self.keywords:
+            val = self.keywords[kwd]
             if isinstance(val, bool):
                 # has to come first since bools are also ints
-                psctr_vals.append(1.0 if val else 0.0)
+                keyword_vals.append(1.0 if val else 0.0)
             elif isinstance(val, (float, int)):
-                psctr_vals.append(val)
+                keyword_vals.append(val)
             elif hasattr(val, "__len__"):
-                psctr_vals += [num for num in val if (isinstance(num, (float, int)))]
+                keyword_vals += [num for num in val if (isinstance(num, (float, int)))]
 
         def data_stats(data_list: Sequence) -> dict:
             """Used for hash-less and therefore less brittle POTCAR validity checking."""
@@ -2267,11 +2266,11 @@ class PotcarSingle:
 
         self._meta = {
             "keywords": {
-                "header": [kwd.lower() for kwd in self.PSCTR],
+                "header": [kwd.lower() for kwd in self.keywords],
                 "data": psp_keys,
             },
             "stats": {
-                "header": data_stats(psctr_vals),
+                "header": data_stats(keyword_vals),
                 "data": data_stats(psp_vals),
             },
         }
@@ -2304,15 +2303,15 @@ class PotcarSingle:
         default, all energies in eV and all length scales are in Angstroms.
         """
         try:
-            return self.PSCTR[attr.upper()]
+            return self.keywords[attr.upper()]
         except Exception:
             raise AttributeError(attr)
 
     def __repr__(self) -> str:
         cls_name = type(self).__name__
         symbol, functional = self.symbol, self.functional
-        TITEL, VRHFIN = self.PSCTR["TITEL"], self.PSCTR["VRHFIN"]
-        TITEL, VRHFIN, n_valence_elec = (self.PSCTR.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
+        TITEL, VRHFIN = self.keywords["TITEL"], self.keywords["VRHFIN"]
+        TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
 

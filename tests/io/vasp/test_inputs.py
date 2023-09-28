@@ -916,6 +916,8 @@ class TestPotcarSingle(unittest.TestCase):
     def setUp(self):
         self.psingle_Mn_pv = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
         self.psingle_Fe = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe.gz")
+        self.psingle_Fe_54 = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz")
+
         self.Mn_pv_attrs = {
             "VRHFIN": "Mn: 3p4s3d",
             "LPAW": True,
@@ -945,13 +947,9 @@ class TestPotcarSingle(unittest.TestCase):
         }
 
     def test_keywords(self):
-        assert {*self.psingle_Mn_pv.PSCTR} > {*self.Mn_pv_attrs}
+        assert {*self.psingle_Mn_pv.keywords} > {*self.Mn_pv_attrs}
 
-    def test_psctr(self):
-        filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
-
-        psingle = PotcarSingle.from_file(filename)
-
+        psingle = self.psingle_Fe_54
         data = {
             "nentries": 9,
             "Orbitals": (
@@ -974,8 +972,8 @@ class TestPotcarSingle(unittest.TestCase):
                 (1, 18.4316424, 23, 2.300, None, None),
             ),
         }
-        for k, v in data.items():
-            assert psingle.PSCTR[k] == v
+        for key, val in data.items():
+            assert psingle.keywords[key] == val
 
     def test_nelectrons(self):
         assert self.psingle_Mn_pv.nelectrons == 13
@@ -1016,17 +1014,15 @@ class TestPotcarSingle(unittest.TestCase):
         assert self.psingle_Mn_pv.symbol == "Mn_pv"
 
     def test_is_valid(self):
-        Fe_psp_path = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
-
-        psingle = PotcarSingle.from_file(Fe_psp_path)
+        psingle = self.psingle_Fe_54
         assert psingle.is_valid
 
         # corrupt the file
-        assert psingle.PSCTR["RCORE"] == 2.3
-        psingle.PSCTR["RCORE"] = 2.2
+        assert psingle.keywords["RCORE"] == 2.3
+        psingle.keywords["RCORE"] = 2.2
         assert not psingle.is_valid
 
-        psingle.PSCTR.pop("RCORE")
+        psingle.keywords.pop("RCORE")
         assert not psingle.is_valid
 
         psingle.data = psingle.data.replace("RCORE  =    2.300", "RCORE  =    2.200")
