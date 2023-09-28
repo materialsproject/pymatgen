@@ -1779,7 +1779,7 @@ class PotcarSingle:
         sha256_pass = True
         if has_sha256 := hasattr(self, "SHA256"):
             self.hash_sha256_from_file = self.SHA256.split()[0]
-            self.hash_sha256_computed = self.get_sha256_file_hash()
+            self.hash_sha256_computed = self.sha256_file_hash
             sha256_pass = self.hash_sha256_from_file == self.hash_sha256_computed
 
         if not has_sha256 and not self.is_valid:
@@ -2078,15 +2078,9 @@ class PotcarSingle:
             return potcar_functionals, identity["potcar_symbols"]
         return [], []
 
-    def get_sha256_file_hash(self):
-        """
-        Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'CPRY'.
-
-        This hash corresponds to the sha256 hash printed in the header of modern POTCAR files.
-
-        Returns:
-            Hash value.
-        """
+    @property
+    def sha256_file_hash(self) -> str:
+        """Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'CPRY'."""
         # we have to remove lines with the hash itself and the copyright
         # notice to get the correct hash.
         potcar_list = self.data.split("\n")
@@ -2094,28 +2088,18 @@ class PotcarSingle:
         potcar_to_hash_str = "\n".join(potcar_to_hash)
         return sha256(potcar_to_hash_str.encode("utf-8")).hexdigest()
 
-    def get_potcar_file_hash(self):
-        """
-        Computes a md5 hash of the entire PotcarSingle.
-
-        This hash corresponds to the md5 hash of the POTCAR file itself.
-
-        Returns:
-            Hash value.
-        """
+    @property
+    def potcar_file_hash(self) -> str:
+        """md5 hash of the entire PotcarSingle."""
         # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
         # https://github.com/materialsproject/pymatgen/issues/2804
         md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
         md5.update(self.data.encode("utf-8"))
         return md5.hexdigest()
 
-    def get_potcar_hash(self):
-        """
-        Computes a md5 hash of the metadata defining the PotcarSingle.
-
-        Returns:
-            Hash value.
-        """
+    @property
+    def potcar_hash(self) -> str:
+        """Computes a md5 hash of the metadata defining the PotcarSingle."""
         hash_str = ""
         for k, v in self.PSCTR.items():
             # for newer POTCARS we have to exclude 'SHA256' and 'COPYR lines
@@ -2434,7 +2418,7 @@ class Potcar(list, MSONable):
     @property
     def spec(self):
         """Get the atomic symbols and hash of all the atoms in the POTCAR file."""
-        return [{"symbol": p.symbol, "hash": p.get_potcar_hash()} for p in self]
+        return [{"symbol": p.symbol, "hash": p.potcar_hash} for p in self]
 
     def set_symbols(self, symbols, functional=None, sym_potcar_map=None):
         """
