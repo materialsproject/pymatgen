@@ -8,6 +8,7 @@ import re
 import numpy as np
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    AbstractChemenvStrategy,
     SimpleAbundanceChemenvStrategy,
     SimplestChemenvStrategy,
     TargetedPenaltiedAbundanceChemenvStrategy,
@@ -42,10 +43,10 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-strategies_class_lookup = {
-    "SimplestChemenvStrategy": SimplestChemenvStrategy,
-    "SimpleAbundanceChemenvStrategy": SimpleAbundanceChemenvStrategy,
-    "TargetedPenaltiedAbundanceChemenvStrategy": TargetedPenaltiedAbundanceChemenvStrategy,
+strategies_class_lookup: dict[str, AbstractChemenvStrategy] = {
+    "SimplestChemenvStrategy": SimplestChemenvStrategy,  # type: ignore
+    "SimpleAbundanceChemenvStrategy": SimpleAbundanceChemenvStrategy,  # type: ignore
+    "TargetedPenaltiedAbundanceChemenvStrategy": TargetedPenaltiedAbundanceChemenvStrategy,  # type: ignore
 }
 
 
