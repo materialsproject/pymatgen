@@ -43,7 +43,7 @@ strategies_class_lookup["SimplestChemenvStrategy"] = SimplestChemenvStrategy
 
 
 # strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceChemenvStrategy
-# strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
+# strategies_class_lookup['TargetedPenaltiedAbundanceChemenvStrategy'] = TargetedPenaltiedAbundanceChemenvStrategy
 
 
 def draw_cg(

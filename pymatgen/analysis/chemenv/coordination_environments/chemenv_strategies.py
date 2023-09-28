@@ -1029,7 +1029,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         return cls(additional_condition=d["additional_condition"])
 
 
-class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
+class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
     """
     Simple ChemenvStrategy using the neighbors that are the most "abundant" in the grid of angle and distance
     parameters for the definition of neighbors in the Voronoi approach, with a bias for a given list of target
@@ -1072,7 +1072,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
         self.target_environments = target_environments
         self.target_penalty_type = target_penalty_type
         self.max_csm = max_csm
-        raise NotImplementedError("TargettedPenaltiedAbundanceChemenvStrategy not yet implemented")
+        raise NotImplementedError("TargetedPenaltiedAbundanceChemenvStrategy not yet implemented")
 
     def get_site_coordination_environment(
         self,
@@ -1157,10 +1157,10 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
 
     def as_dict(self):
         """
-        Bson-serializable dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object.
+        Bson-serializable dict representation of the TargetedPenaltiedAbundanceChemenvStrategy object.
 
         Returns:
-            Bson-serializable dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object.
+            Bson-serializable dict representation of the TargetedPenaltiedAbundanceChemenvStrategy object.
         """
         return {
             "@module": type(self).__module__,
@@ -1187,12 +1187,12 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
     @classmethod
     def from_dict(cls, d):
         """
-        Reconstructs the TargettedPenaltiedAbundanceChemenvStrategy object from a dict representation of the
-        TargettedPenaltiedAbundanceChemenvStrategy object created using the as_dict method.
-        :param d: dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object
+        Reconstructs the TargetedPenaltiedAbundanceChemenvStrategy object from a dict representation of the
+        TargetedPenaltiedAbundanceChemenvStrategy object created using the as_dict method.
+        :param d: dict representation of the TargetedPenaltiedAbundanceChemenvStrategy object
 
         Returns:
-            TargettedPenaltiedAbundanceChemenvStrategy object.
+            TargetedPenaltiedAbundanceChemenvStrategy object.
         """
         return cls(
             additional_condition=d["additional_condition"],
