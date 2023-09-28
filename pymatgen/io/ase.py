@@ -8,9 +8,8 @@ from __future__ import annotations
 
 import warnings
 from typing import TYPE_CHECKING
-
+from monty.dev import requires
 import numpy as np
-from monty.json import jsanitize
 
 from pymatgen.core.structure import Molecule, Structure
 
@@ -23,6 +22,7 @@ try:
     from ase import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
     from ase.constraints import FixAtoms
+    from ase.spacegroup import Spacegroup
 
     ase_loaded = True
 except ImportError:
@@ -38,6 +38,7 @@ __date__ = "Mar 8, 2012"
 
 # NOTE: If making notable changes to this class, please ping @arosen93 on GitHub.
 # There are some subtleties in here, particularly related to spins/charges.
+@requires(ase_loaded)
 class AseAtomsAdaptor:
     """Adaptor serves as a bridge between ASE Atoms and pymatgen objects."""
 
@@ -161,8 +162,12 @@ class AseAtomsAdaptor:
 
         # Atoms.info <---> Structure.properties
         # Atoms.calc <---> Structure.calc
-        if structure.properties:
-            atoms.info = structure.properties
+        atoms.info = structure.properties
+
+        # Regenerate Spacegroup object
+        if isinstance(atoms.info.get("spacegroup"),dict):
+            atoms.info["spacegroup"] = Spacegroup(atoms.info["spacegroup"]["number"],setting=atoms.info["spacegroup"].get("setting",1))
+
         if calc := getattr(structure, "calc", None):
             atoms.calc = calc
 
@@ -218,7 +223,10 @@ class AseAtomsAdaptor:
             sel_dyn = None
 
         # Atoms.info <---> Structure.properties
-        properties = jsanitize(getattr(atoms, "info", {}))
+        # But first make sure `spacegroup` is JSON serializable
+        if atoms.info.get("spacegroup"):
+            atoms.info["spacegroup"] = atoms.info["spacegroup"].todict()
+        properties = getattr(atoms, "info", {})
 
         # Return a Molecule object if that was specifically requested;
         # otherwise return a Structure object as expected
