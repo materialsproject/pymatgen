@@ -1724,13 +1724,7 @@ class PotcarSingle:
                 orbit = array_search.findall(line)
                 if orbit:
                     orbitals.append(
-                        Orbital(
-                            int(orbit[0]),
-                            int(orbit[1]),
-                            float(orbit[2]),
-                            float(orbit[3]),
-                            float(orbit[4]),
-                        )
+                        Orbital(int(orbit[0]), int(orbit[1]), float(orbit[2]), float(orbit[3]), float(orbit[4]))
                     )
             PSCTR["Orbitals"] = tuple(orbitals)
 
@@ -1803,11 +1797,11 @@ class PotcarSingle:
                 UnknownPotcarWarning,
             )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.data + "\n"
 
     @property
-    def electron_configuration(self):
+    def electron_configuration(self) -> list[tuple[int, str, int]] | None:
         """Electronic configuration of the PotcarSingle."""
         if not self.nelectrons.is_integer():
             warnings.warn("POTCAR has non-integer charge, electron configuration not well-defined.")
@@ -1840,7 +1834,7 @@ class PotcarSingle:
         :param filename: Filename.
 
         Returns:
-            PotcarSingle.
+            PotcarSingle
         """
         match = re.search(r"(?<=POTCAR\.)(.*)(?=.gz)", str(filename))
         symbol = match.group(0) if match else ""
@@ -1860,8 +1854,9 @@ class PotcarSingle:
         """
         Makes a PotcarSingle from a symbol and functional.
 
-        :param symbol: Symbol, e.g., Li_sv
-        :param functional: E.g., PBE
+        Args:
+            symbol (str): Symbol, e.g., Li_sv
+            functional (str): Functional, e.g., PBE
 
         Returns:
             PotcarSingle
@@ -1946,7 +1941,7 @@ class PotcarSingle:
         whole file) is checked against all POTCAR file hashes known to pymatgen.
 
         Returns:
-            tuple[bool, bool]: has_sh256 and passed_hash_check are returned.
+            tuple[bool, bool]: has_sha256 and passed_hash_check are returned.
         """
         if hasattr(self, "SHA256"):
             has_sha256 = True
