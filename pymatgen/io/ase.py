@@ -38,7 +38,7 @@ __date__ = "Mar 8, 2012"
 
 # NOTE: If making notable changes to this class, please ping @Andrew-S-Rosen on GitHub.
 # There are some subtleties in here, particularly related to spins/charges.
-@requires(ase_loaded)
+@requires(ase_loaded, "ASE needs to be installed.")
 class AseAtomsAdaptor:
     """Adaptor serves as a bridge between ASE Atoms and pymatgen objects."""
 
