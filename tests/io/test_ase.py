@@ -248,6 +248,7 @@ def test_back_forth(structure_file):
     for k, v in atoms.todict().items():
         assert str(atoms_back.todict()[k]) == str(v)
 
+def test_back_forth_v2():
     # Structure --> Atoms --> Structure --> Atoms
     structure = Structure.from_file(TEST_FILES_DIR / "POSCAR")
     structure.add_site_property("final_magmom", [1.0] * len(structure))
@@ -267,6 +268,7 @@ def test_back_forth(structure_file):
     d = jsanitize(structure, strict=True, enum_values=True)
     MontyDecoder().process_decoded(d)
 
+def test_back_forth_v3():
     # Atoms --> Molecule --> Atoms --> Molecule
     atoms = read(TEST_FILES_DIR / "acetylene.xyz")
     atoms.info = {"test": "hi"}
@@ -282,6 +284,7 @@ def test_back_forth(structure_file):
         assert str(atoms_back.todict()[k]) == str(v)
     assert molecule_back == molecule
 
+def test_back_forth_v4():
     # Molecule --> Atoms --> Molecule --> Atoms
     molecule = Molecule.from_file(TEST_FILES_DIR / "acetylene.xyz")
     molecule.set_charge_and_spin(-2, spin_multiplicity=3)
