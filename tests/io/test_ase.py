@@ -248,6 +248,7 @@ def test_back_forth(structure_file):
     for k, v in atoms.todict().items():
         assert str(atoms_back.todict()[k]) == str(v)
 
+
 def test_back_forth_v2():
     # Structure --> Atoms --> Structure --> Atoms
     structure = Structure.from_file(TEST_FILES_DIR / "POSCAR")
@@ -268,6 +269,7 @@ def test_back_forth_v2():
     d = jsanitize(structure, strict=True, enum_values=True)
     MontyDecoder().process_decoded(d)
 
+
 def test_back_forth_v3():
     # Atoms --> Molecule --> Atoms --> Molecule
     atoms = read(TEST_FILES_DIR / "acetylene.xyz")
@@ -283,6 +285,7 @@ def test_back_forth_v3():
     for k, v in atoms.todict().items():
         assert str(atoms_back.todict()[k]) == str(v)
     assert molecule_back == molecule
+
 
 def test_back_forth_v4():
     # Molecule --> Atoms --> Molecule --> Atoms
