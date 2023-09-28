@@ -17,6 +17,7 @@ ase = pytest.importorskip("ase")
 from ase.constraints import FixAtoms
 from ase.io import read
 
+
 def test_get_atoms_from_structure():
     structure = poscar.structure
     atoms = aio.AseAtomsAdaptor.get_atoms(structure)
@@ -36,6 +37,7 @@ def test_get_atoms_from_structure():
     structure.add_site_property("prop", prop)
     atoms = aio.AseAtomsAdaptor.get_atoms(structure)
     assert atoms.get_array("prop").tolist() == prop
+
 
 def test_get_atoms_from_structure_mags():
     structure = poscar.structure
@@ -60,6 +62,7 @@ def test_get_atoms_from_structure_mags():
     assert atoms.get_initial_magnetic_moments().tolist(), initial_mags
     assert atoms.get_magnetic_moments().tolist(), mags
 
+
 def test_get_atoms_from_structure_charge():
     structure = poscar.structure
     charges = [1.0] * len(structure)
@@ -83,6 +86,7 @@ def test_get_atoms_from_structure_charge():
     assert atoms.get_initial_charges().tolist(), initial_charges
     assert atoms.get_charges().tolist(), charges
 
+
 def test_get_atoms_from_structure_oxi_states():
     structure = poscar.structure
     oxi_states = [1.0] * len(structure)
@@ -90,11 +94,13 @@ def test_get_atoms_from_structure_oxi_states():
     atoms = aio.AseAtomsAdaptor.get_atoms(structure)
     assert atoms.get_array("oxi_states").tolist() == oxi_states
 
+
 def test_get_atoms_from_structure_dyn():
     structure = poscar.structure
     structure.add_site_property("selective_dynamics", [[False] * 3] * len(structure))
     atoms = aio.AseAtomsAdaptor.get_atoms(structure)
     assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]
+
 
 def test_get_atoms_from_molecule():
     m = Molecule.from_file(TEST_FILES_DIR / "acetylene.xyz")
@@ -105,6 +111,7 @@ def test_get_atoms_from_molecule():
     assert atoms.get_pbc() is None or not atoms.get_pbc().any()
     assert atoms.get_chemical_symbols() == [s.species_string for s in m]
     assert not atoms.has("initial_magmoms")
+
 
 def test_get_atoms_from_molecule_mags():
     molecule = Molecule.from_file(TEST_FILES_DIR / "acetylene.xyz")
@@ -130,14 +137,15 @@ def test_get_atoms_from_molecule_mags():
     assert atoms.charge == -2
     assert atoms.spin_multiplicity == 3
 
+
 def test_get_atoms_from_molecule_dyn():
     molecule = Molecule.from_file(TEST_FILES_DIR / "acetylene.xyz")
     molecule.add_site_property("selective_dynamics", [[False] * 3] * len(molecule))
     atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
     assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]
 
-def test_get_structure():
 
+def test_get_structure():
     atoms = read(TEST_FILES_DIR / "POSCAR")
     struct = aio.AseAtomsAdaptor.get_structure(atoms)
     assert struct.formula == "Fe4 P4 O16"
@@ -155,8 +163,8 @@ def test_get_structure():
     with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
         struct = aio.AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
 
-def test_get_structure_mag():
 
+def test_get_structure_mag():
     atoms = read(TEST_FILES_DIR / "POSCAR")
     mags = [1.0] * len(atoms)
     atoms.set_initial_magnetic_moments(mags)
@@ -171,12 +179,12 @@ def test_get_structure_mag():
     assert "magmom" not in structure.site_properties
     assert "initial_magmoms" not in structure.site_properties
 
+
 @pytest.mark.parametrize(
     "select_dyn",
     [[True, True, True], [False, False, False], np.array([True, True, True]), np.array([False, False, False])],
 )
 def test_get_structure_dyn(select_dyn):
-
     atoms = read(TEST_FILES_DIR / "POSCAR")
     atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
     structure = aio.AseAtomsAdaptor.get_structure(atoms)
@@ -195,8 +203,8 @@ def test_get_structure_dyn(select_dyn):
 
     assert len(ase_atoms) == len(structure)
 
-def test_get_molecule():
 
+def test_get_molecule():
     atoms = read(TEST_FILES_DIR / "acetylene.xyz")
     molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
     assert molecule.formula == "H2 C2"
@@ -222,9 +230,9 @@ def test_get_molecule():
     assert molecule.charge == 2
     assert molecule.spin_multiplicity == 3
 
+
 @pytest.mark.parametrize("structure_file", ["OUTCAR", "V2O3.cif"])
 def test_back_forth(structure_file):
-
     # Atoms --> Structure --> Atoms --> Structure
     atoms = read(TEST_FILES_DIR / structure_file)
     atoms.info = {"test": "hi"}
