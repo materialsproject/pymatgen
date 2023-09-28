@@ -12,6 +12,7 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import TEST_FILES_DIR
 
 poscar = Poscar.from_file(TEST_FILES_DIR / "POSCAR")
+ase = pytest.importorskip("ase")
 
 
 class TestAseAtomsAdaptor:
@@ -171,7 +172,11 @@ class TestAseAtomsAdaptor:
         assert "magmom" not in structure.site_properties
         assert "initial_magmoms" not in structure.site_properties
 
-    def test_get_structure_dyn(self):
+    @pytest.mark.parametrize("select_dyn", [[True, True, True],
+            [False, False, False],
+            np.array([True, True, True]),
+            np.array([False, False, False])])
+    def test_get_structure_dyn(self, select_dyn):
         from ase.constraints import FixAtoms
         from ase.io import read
 
@@ -180,25 +185,18 @@ class TestAseAtomsAdaptor:
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
         assert structure.site_properties["selective_dynamics"][-1][0] is False
 
-        # https://github.com/materialsproject/pymatgen/issues/3011
-        for select_dyn in (
-            [True, True, True],
-            [False, False, False],
-            np.array([True, True, True]),
-            np.array([False, False, False]),
-        ):
-            structure = Structure(
-                lattice=Lattice.cubic(5),
-                species=("Fe", "O"),
-                coords=((0, 0, 0), (0.5, 0.5, 0.5)),
-                site_properties={"selective_dynamics": select_dyn},
-            )
-            structure.sites[0].selective_dynamics = select_dyn
+        structure = Structure(
+            lattice=Lattice.cubic(5),
+            species=("Fe", "O"),
+            coords=((0, 0, 0), (0.5, 0.5, 0.5)),
+            site_properties={"selective_dynamics": select_dyn},
+        )
+        structure.sites[0].selective_dynamics = select_dyn
 
-            # mostly testing that this call doesn't raise
-            ase_atoms = AseAtomsAdaptor.get_atoms(structure)
+        # mostly testing that this call doesn't raise
+        ase_atoms = AseAtomsAdaptor.get_atoms(structure)
 
-            assert len(ase_atoms) == len(structure)
+        assert len(ase_atoms) == len(structure)
 
     def test_get_molecule(self):
         from ase.io import read
