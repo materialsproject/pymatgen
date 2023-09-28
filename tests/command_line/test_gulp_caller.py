@@ -99,8 +99,6 @@ class TestGulpCaller(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class TestGulpIO(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.Al12O18", check_for_POTCAR=False)
         self.structure = p.structure
@@ -311,8 +309,6 @@ class TestGlobalFunctions(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class TestBuckinghamPotentialLewis(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.bpl = BuckinghamPotential("lewis")
 
@@ -341,8 +337,6 @@ class TestBuckinghamPotentialLewis(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class TestBuckinghamPotentialBush(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.bpb = BuckinghamPotential("bush")
 

@@ -7,7 +7,12 @@ import re
 
 import numpy as np
 
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    AbstractChemenvStrategy,
+    SimpleAbundanceChemenvStrategy,
+    SimplestChemenvStrategy,
+    TargetedPenaltiedAbundanceChemenvStrategy,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
     UNCLEAR_ENVIRONMENT_SYMBOL,
     AllCoordinationGeometries,
@@ -38,12 +43,11 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-strategies_class_lookup = {}
-strategies_class_lookup["SimplestChemenvStrategy"] = SimplestChemenvStrategy
-
-
-# strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceChemenvStrategy
-# strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
+strategies_class_lookup: dict[str, AbstractChemenvStrategy] = {
+    "SimplestChemenvStrategy": SimplestChemenvStrategy,  # type: ignore
+    "SimpleAbundanceChemenvStrategy": SimpleAbundanceChemenvStrategy,  # type: ignore
+    "TargetedPenaltiedAbundanceChemenvStrategy": TargetedPenaltiedAbundanceChemenvStrategy,  # type: ignore
+}
 
 
 def draw_cg(

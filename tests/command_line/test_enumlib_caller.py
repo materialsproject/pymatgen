@@ -21,8 +21,6 @@ enumlib_present = enum_cmd and makestr_cmd
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class TestEnumlibAdaptor(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def test_init(self):
         struct = self.get_structure("LiFePO4")
         subtrans = SubstitutionTransformation({"Li": {"Li": 0.5}})

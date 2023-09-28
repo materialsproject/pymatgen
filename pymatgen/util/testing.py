@@ -30,8 +30,6 @@ TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / "..
 class PymatgenTest(unittest.TestCase):
     """Extends unittest.TestCase with several assert methods for array and str comparison."""
 
-    _multiprocess_shared_ = True
-
     # dict of lazily-loaded test structures (initialized to None)
     TEST_STRUCTURES: ClassVar[dict[str | Path, Structure | None]] = {key: None for key in STRUCTURES_DIR.glob("*")}
 
