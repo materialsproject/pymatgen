@@ -606,10 +606,10 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         )
 
         nb_set = self.structure_environments.neighbors_sets[isite][cn_map[0]][cn_map[1]]
-        eqsite_ps = nb_set.neighb_sites
+        eq_site_ps = nb_set.neighb_sites
 
         coordinated_neighbors = []
-        for ps in eqsite_ps:
+        for ps in eq_site_ps:
             coords = mysym.operate(ps.frac_coords + dequivsite) + dthissite
             ps_site = PeriodicSite(ps._species, coords, ps._lattice)
             coordinated_neighbors.append(ps_site)
@@ -1678,7 +1678,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         delta_cn_weight_estimators=None,
         symmetry_measure_type=DEFAULT_SYMMETRY_MEASURE_TYPE,
     ):
-        """Initialize SelfCSMNbSetWeight.
+        """Initialize DeltaCSMNbSetWeight.
 
         :param effective_csm_estimator: Ratio function used for the effective CSM (comparison between neighbors sets).
         :param weight_estimator: Weight estimator within a given neighbors set.
@@ -1815,7 +1815,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         symmetry_measure_type="csm_wcs_ctwcc",
         effective_csm_estimator=DEFAULT_EFFECTIVE_CSM_ESTIMATOR,
     ):
-        """Initializes DeltaCSMNbSetWeight from specific coordination number differences.
+        """Initialize DeltaCSMNbSetWeight from specific coordination number differences.
 
         :param delta_csm_mins: Minimums for each coordination number.
         :param delta_csm_maxs: Maximums for each coordination number.
