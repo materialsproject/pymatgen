@@ -2126,6 +2126,9 @@ class PotcarSingle:
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
 
+    hash = potcar_hash  # alias potcar_hash to hash
+    file_hash = potcar_file_hash  # alias potcar_file_hash to file_hash
+
     def _fortran_style_str_to_py_var(self, input_str: str) -> Any:
         """
         A function that tries to parse any input string to output as either
