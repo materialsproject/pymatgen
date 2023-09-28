@@ -172,10 +172,10 @@ class TestAseAtomsAdaptor:
         assert "magmom" not in structure.site_properties
         assert "initial_magmoms" not in structure.site_properties
 
-    @pytest.mark.parametrize("select_dyn", [[True, True, True],
-            [False, False, False],
-            np.array([True, True, True]),
-            np.array([False, False, False])])
+    @pytest.mark.parametrize(
+        "select_dyn",
+        [[True, True, True], [False, False, False], np.array([True, True, True]), np.array([False, False, False])],
+    )
     def test_get_structure_dyn(self, select_dyn):
         from ase.constraints import FixAtoms
         from ase.io import read
