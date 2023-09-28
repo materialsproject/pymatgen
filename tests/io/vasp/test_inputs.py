@@ -913,8 +913,6 @@ direct
 
 
 class TestPotcarSingle(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.psingle = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
 

@@ -24,8 +24,6 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestStructureMatcher(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as fp:
             entries = json.load(fp, cls=MontyDecoder)

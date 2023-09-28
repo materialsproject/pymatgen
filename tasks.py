@@ -9,12 +9,12 @@ Author: Shyue Ping Ong
 from __future__ import annotations
 
 import datetime
-import glob
 import json
 import os
 import re
 import subprocess
 import webbrowser
+from glob import glob
 
 import requests
 from invoke import task
@@ -41,7 +41,7 @@ def make_doc(ctx):
         ctx.run("rm *.rst", warn=True)
         ctx.run("cp markdown/pymatgen*.md .")
         ctx.run("rm pymatgen*tests*.md", warn=True)
-        for fn in glob.glob("pymatgen*.md"):
+        for fn in glob("pymatgen*.md"):
             with open(fn) as f:
                 lines = [line.rstrip() for line in f if "Submodules" not in line]
             if fn == "pymatgen.md":
@@ -319,7 +319,7 @@ def check_egg_sources_txt_for_completeness():
             raise ValueError(f"{src_file} does not exist!")
 
     for ext in ("py", "json", "json.gz", "yaml", "csv"):
-        for filepath in glob.glob(f"pymatgen/**/*.{ext}", recursive=True):
+        for filepath in glob(f"pymatgen/**/*.{ext}", recursive=True):
             if "/tests/" in filepath or "dao" in filepath:
                 continue
             if filepath not in sources:

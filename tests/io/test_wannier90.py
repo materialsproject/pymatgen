@@ -12,8 +12,6 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestUnk(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.data_std = np.random.rand(10, 5, 5, 5)
         self.unk_std = Unk(1, self.data_std)
