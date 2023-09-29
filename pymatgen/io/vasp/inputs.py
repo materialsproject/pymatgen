@@ -53,6 +53,11 @@ __copyright__ = "Copyright 2011, The Materials Project"
 logger = logging.getLogger(__name__)
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
+# hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
+PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
+# written to some newer POTCARs by VASP
+VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
+
 
 class Poscar(MSONable):
     """
@@ -1913,8 +1918,7 @@ class PotcarSingle:
             # if no sha256 hash is found in the POTCAR file, compare the whole
             # file with known potcar file hashes.
             md5_file_hash = self.md5_computed_file_hash
-            hash_db = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
-            hash_is_valid = md5_file_hash in hash_db
+            hash_is_valid = md5_file_hash in VASP_POTCAR_HASHES
         return has_sha256, hash_is_valid
 
     def identify_potcar(self, mode: Literal["data", "file"] = "data"):
@@ -2022,13 +2026,13 @@ class PotcarSingle:
         }
 
         if mode == "data":
-            hash_db = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
+            hash_db = PYMATGEN_POTCAR_HASHES
             potcar_hash = self.md5_header_hash
         elif mode == "file":
-            hash_db = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
+            hash_db = VASP_POTCAR_HASHES
             potcar_hash = self.md5_computed_file_hash
         else:
-            raise ValueError("Bad 'mode' argument. Specify 'data' or 'file'.")
+            raise ValueError(f"Bad {mode=}. Choose 'data' or 'file'.")
 
         identity = hash_db.get(potcar_hash)
 
