@@ -1614,7 +1614,7 @@ class HamiltonMatrices:
 
         # List to store real matrices (onsite) diagonal elements for each k-point
         self.onsite_energies = []
-        self.real_hamilton_matrices = {}
+        self.real_hamilton_matrices: dict[str, Any] = {}
 
         pattern = r"(\d+)\s+kpoint\s+(\d+)"  # regex pattern to extract spin and k-point number
 
@@ -1625,9 +1625,10 @@ class HamiltonMatrices:
             if "Real parts" in line:
                 start_inxs.append(i + 1)
                 matches = re.search(pattern, data[i - 1])
-                spin = Spin.up if matches.group(1) == "1" else Spin.down
-                k_point = matches.group(2)
-                self.real_hamilton_matrices[k_point] = {spin: []}
+                if matches:
+                    spin = Spin.up if matches.group(1) == "1" else Spin.down
+                    k_point = matches.group(2)
+                    self.real_hamilton_matrices[k_point] = {spin: []}
             if "Imag parts" in line:
                 end_inxs.append(i - 1)
 
@@ -1636,9 +1637,10 @@ class HamiltonMatrices:
             matrix_data = [line.split()[1:] for line in matrix[1:]]
             matrix_array = np.array(matrix_data, dtype=float)
             matches = re.search(pattern, data[start - 2])
-            spin = Spin.up if matches.group(1) == "1" else Spin.down
-            k_point = matches.group(2)
-            self.real_hamilton_matrices[k_point][spin] = matrix_array
+            if matches:
+                spin = Spin.up if matches.group(1) == "1" else Spin.down
+                k_point = matches.group(2)
+                self.real_hamilton_matrices[k_point][spin] = matrix_array
             self.onsite_energies.append(matrix_array.diagonal() - e_fermi)
 
         elements = matrix[0].split()[1:]  # stores elements basis functions as list
