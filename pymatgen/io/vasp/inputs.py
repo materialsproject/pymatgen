@@ -1677,7 +1677,8 @@ class PotcarSingle:
         COPYR=_parse_string,
     )
 
-    meta_db = loadfn(f"{module_dir}/POTCAR_META.json.gz")
+    # used for POTCAR validation
+    potcar_summary_stats = loadfn(f"{module_dir}/potcar_summary_stats.json.gz")
 
     def __init__(self, data: str, symbol: str | None = None) -> None:
         """
@@ -2209,12 +2210,16 @@ class PotcarSingle:
 
         possible_potcar_matches = []
         for func in functional_lexch.get(self.LEXCH, []):
-            for titel_no_spc in self.meta_db[func]:
+            for titel_no_spc in self.potcar_summary_stats[func]:
                 if (self.TITEL.replace(" ", "") == titel_no_spc) and (
-                    self.VRHFIN.replace(" ", "") == self.meta_db[func][titel_no_spc]["VRHFIN"]
+                    self.VRHFIN.replace(" ", "") == self.potcar_summary_stats[func][titel_no_spc]["VRHFIN"]
                 ):
                     possible_potcar_matches.append(
-                        {"POTCAR_FUNCTIONAL": func, "TITEL": titel_no_spc, **self.meta_db[func][titel_no_spc]}
+                        {
+                            "POTCAR_FUNCTIONAL": func,
+                            "TITEL": titel_no_spc,
+                            **self.potcar_summary_stats[func][titel_no_spc],
+                        }
                     )
 
         psp_keys, psp_vals = [], []
@@ -2253,7 +2258,7 @@ class PotcarSingle:
                 "MAX": arr.max(),
             }
 
-        self._meta = {
+        summary_stats = {  # for this PotcarSingle instance
             "keywords": {
                 "header": [kwd.lower() for kwd in self.keywords],
                 "data": psp_keys,
@@ -2267,12 +2272,12 @@ class PotcarSingle:
         data_match_tol = 1e-6
         for ref_psp in possible_potcar_matches:
             key_match = all(
-                set(ref_psp["keywords"][key]) == set(self._meta["keywords"][key])  # type: ignore
+                set(ref_psp["keywords"][key]) == set(summary_stats["keywords"][key])  # type: ignore
                 for key in ["header", "data"]
             )
 
             data_diff = [
-                abs(ref_psp["stats"][key][stat] - self._meta["stats"][key][stat])  # type: ignore
+                abs(ref_psp["stats"][key][stat] - summary_stats["stats"][key][stat])  # type: ignore
                 for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
                 for key in ["header", "data"]
             ]
