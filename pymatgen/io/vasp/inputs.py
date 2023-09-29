@@ -2309,10 +2309,15 @@ class Potcar(list, MSONable):
 
     FUNCTIONAL_CHOICES = tuple(PotcarSingle.functional_dir)
 
-    def __init__(self, symbols=None, functional=None, sym_potcar_map=None):
+    def __init__(
+        self,
+        symbols: Sequence[str] | None = None,
+        functional: str | None = None,
+        sym_potcar_map: dict[str, str] | None = None,
+    ):
         """
         Args:
-            symbols ([str]): Element symbols for POTCAR. This should correspond
+            symbols (list[str]): Element symbols for POTCAR. This should correspond
                 to the symbols used by VASP. E.g., "Mg", "Fe_pv", etc.
             functional (str): Functional used. To know what functional options
                 there are, use Potcar.FUNCTIONAL_CHOICES. Note that VASP has
@@ -2403,14 +2408,16 @@ class Potcar(list, MSONable):
         """Get the atomic symbols and hash of all the atoms in the POTCAR file."""
         return [{"symbol": p.symbol, "hash": p.potcar_hash} for p in self]
 
-    def set_symbols(self, symbols, functional=None, sym_potcar_map=None):
+    def set_symbols(
+        self, symbols: Sequence[str], functional: str | None = None, sym_potcar_map: dict[str, str] | None = None
+    ):
         """
         Initialize the POTCAR from a set of symbols. Currently, the POTCARs can
         be fetched from a location specified in .pmgrc.yaml. Use pmg config
         to add this setting.
 
         Args:
-            symbols ([str]): A list of element symbols
+            symbols (list[str]): A list of element symbols
             functional (str): The functional to use. If None, the setting
                 PMG_DEFAULT_FUNCTIONAL in .pmgrc.yaml is used, or if this is
                 not set, it will default to PBE.
@@ -2420,12 +2427,9 @@ class Potcar(list, MSONable):
         """
         del self[:]
         if sym_potcar_map:
-            for el in symbols:
-                self.append(PotcarSingle(sym_potcar_map[el]))
+            self.extend(PotcarSingle(sym_potcar_map[el]) for el in symbols)
         else:
-            for el in symbols:
-                p = PotcarSingle.from_symbol_and_functional(el, functional)
-                self.append(p)
+            self.extend(PotcarSingle.from_symbol_and_functional(el, functional) for el in symbols)
 
 
 class VaspInput(dict, MSONable):

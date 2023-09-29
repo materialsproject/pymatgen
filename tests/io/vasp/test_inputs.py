@@ -1061,7 +1061,7 @@ class TestPotcarSingle(unittest.TestCase):
     def test_verify_correct_potcar_with_sha256(self):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash.gz"
         psingle = PotcarSingle.from_file(filename)
-        assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
+        assert psingle.sha256_computed_file_hash == psingle.hash_sha256_from_file
 
     def test_multi_potcar_with_and_without_sha256(self):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_O.gz"
@@ -1070,7 +1070,7 @@ class TestPotcarSingle(unittest.TestCase):
         # No longer testing for hashes
         for psingle in potcars:
             if hasattr(psingle, "hash_sha256_from_file"):
-                assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
+                assert psingle.sha256_computed_file_hash == psingle.hash_sha256_from_file
             else:
                 assert psingle.is_valid
 
