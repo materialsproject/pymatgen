@@ -2130,37 +2130,6 @@ class PotcarSingle:
     hash = potcar_hash  # alias potcar_hash to hash
     file_hash = potcar_file_hash  # alias potcar_file_hash to file_hash
 
-    def _fortran_style_str_to_py_var(self, input_str: str) -> Any:
-        """
-        A function that tries to parse any input string to output as either
-        a bool, int, float, or failing that, str
-
-        Used to parse proprietary FORTRAN-generated text files where it's
-        unknown a priori what type of data will be encountered
-        """
-        input_str = input_str.strip()
-
-        if input_str.lower() in ["t", "f"] or input_str.lower() in ["true", "false"]:
-            return input_str[0].lower() == "t"
-
-        if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
-            if "." in input_str:
-                """
-                NB: fortran style floats always include a decimal point.
-                    While you can set, e.g., x = 1E4, you cannot print/write x without
-                    a decimal point:
-                        `write(6,*) x`          -->   `10000.0000` in stdout
-                        `write(6,'(E10.0)') x`  -->   segfault
-                    The (E10.0) means write an exponential-format number with 10
-                        characters before the decimal, and 0 characters after
-                """
-                return float(input_str)
-            return int(input_str)
-        try:
-            return float(input_str)
-        except ValueError:
-            return input_str
-
     @property
     def is_valid(self) -> bool:
         """
@@ -2222,19 +2191,45 @@ class PotcarSingle:
                         }
                     )
 
+        def parse_fortran_style_str(input_str: str) -> Any:
+            """Parse any input string as bool, int, float, or failing that, str. Used to parse FORTRAN-generated
+            POTCAR files where it's unknown a priori what type of data will be encountered.
+            """
+            input_str = input_str.strip()
+
+            if input_str.lower() in ("t", "f", "true", "false"):
+                return input_str[0].lower() == "t"
+
+            if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
+                if "." in input_str:
+                    """
+                    NB: fortran style floats always include a decimal point.
+                        While you can set, e.g., x = 1E4, you cannot print/write x without
+                        a decimal point:
+                            `write(6,*) x`          -->   `10000.0000` in stdout
+                            `write(6,'(E10.0)') x`  -->   segfault
+                        The (E10.0) means write an exponential-format number with 10
+                            characters before the decimal, and 0 characters after
+                    """
+                    return float(input_str)
+                return int(input_str)
+            try:
+                return float(input_str)
+            except ValueError:
+                return input_str
+
         psp_keys, psp_vals = [], []
-        for file_line in self.data.split("END of PSCTR-controll parameters\n")[1].split("\n"):
-            single_line_rows = file_line.split(";")  # FORTRAN multiple lines in one, woot woot
-            for row in single_line_rows:
-                tmp_str = ""
-                for _tmp_ in row.split():
-                    parsed_val = self._fortran_style_str_to_py_var(_tmp_)
-                    if isinstance(parsed_val, str):
-                        tmp_str += parsed_val.strip()
-                    elif isinstance(parsed_val, (float, int)):
-                        psp_vals.append(parsed_val)
-                if len(tmp_str) > 0:
-                    psp_keys.append(tmp_str.lower())
+        potcar_body = self.data.split("END of PSCTR-controll parameters\n")[1]
+        for row in re.split(r"\n+|;", potcar_body):  # FORTRAN allows ; to delimit multiple lines merged into 1 line
+            tmp_str = ""
+            for raw_val in row.split():
+                parsed_val = parse_fortran_style_str(raw_val)
+                if isinstance(parsed_val, str):
+                    tmp_str += parsed_val.strip()
+                elif isinstance(parsed_val, (float, int)):
+                    psp_vals.append(parsed_val)
+            if len(tmp_str) > 0:
+                psp_keys.append(tmp_str.lower())
 
         keyword_vals = []
         for kwd in self.keywords:
