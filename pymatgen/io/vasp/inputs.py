@@ -1912,7 +1912,7 @@ class PotcarSingle:
             has_sha256 = False
             # if no sha256 hash is found in the POTCAR file, compare the whole
             # file with known potcar file hashes.
-            md5_file_hash = self.file_hash
+            md5_file_hash = self.md5_computed_file_hash
             hash_db = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
             hash_is_valid = md5_file_hash in hash_db
         return has_sha256, hash_is_valid
@@ -1922,7 +1922,7 @@ class PotcarSingle:
         Identify the symbol and compatible functionals associated with this PotcarSingle.
 
         This method checks the md5 hash of either the POTCAR metadadata (PotcarSingle.hash)
-        or the entire POTCAR file (PotcarSingle.file_hash) against a database
+        or the entire POTCAR file (PotcarSingle.md5_computed_file_hash) against a database
         of hashes for POTCARs distributed with VASP 5.4.4.
 
         Args:
@@ -2023,10 +2023,10 @@ class PotcarSingle:
 
         if mode == "data":
             hash_db = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
-            potcar_hash = self.hash
+            potcar_hash = self.md5_header_hash
         elif mode == "file":
             hash_db = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
-            potcar_hash = self.file_hash
+            potcar_hash = self.md5_computed_file_hash
         else:
             raise ValueError("Bad 'mode' argument. Specify 'data' or 'file'.")
 
@@ -2103,9 +2103,6 @@ class PotcarSingle:
         md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
-
-    hash = md5_header_hash  # alias md5_header_hash to hash
-    file_hash = md5_computed_file_hash  # alias md5_computed_file_hash to file_hash
 
     @property
     def is_valid(self) -> bool:
