@@ -39,7 +39,7 @@ from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterator, Sequence
 
     from numpy.typing import ArrayLike
 
@@ -931,10 +931,10 @@ class Incar(dict, MSONable):
         Facilitates the use of "standard" INCARs.
         """
         params = dict(self.items())
-        for k, v in other.items():
-            if k in self and v != self[k]:
+        for key, val in other.items():
+            if key in self and val != self[key]:
                 raise ValueError("Incars have conflicting values!")
-            params[k] = v
+            params[key] = val
         return Incar(params)
 
     def check_params(self):
@@ -944,40 +944,24 @@ class Incar(dict, MSONable):
         keyword), your calculation will still run, however VASP will ignore the
         parameter without letting you know, hence why we have this Incar method.
         """
-        for k, v in self.items():
+        for key, val in self.items():
             # First check if this parameter even exists
-            if k not in incar_params:
-                warnings.warn(
-                    f"Cannot find {k} in the list of INCAR flags",
-                    BadIncarWarning,
-                    stacklevel=2,
-                )
+            if key not in incar_params:
+                warnings.warn(f"Cannot find {key} in the list of INCAR flags", BadIncarWarning, stacklevel=2)
 
-            if k in incar_params:
-                if type(incar_params[k]).__name__ == "str":
+            if key in incar_params:
+                if type(incar_params[key]).__name__ == "str":
                     # Now we check if this is an appropriate parameter type
-                    if incar_params[k] == "float":
-                        if not type(v) not in ["float", "int"]:
-                            warnings.warn(
-                                f"{k}: {v} is not real",
-                                BadIncarWarning,
-                                stacklevel=2,
-                            )
-                    elif type(v).__name__ != incar_params[k]:
-                        warnings.warn(
-                            f"{k}: {v} is not a {incar_params[k]}",
-                            BadIncarWarning,
-                            stacklevel=2,
-                        )
+                    if incar_params[key] == "float":
+                        if not type(val) not in ["float", "int"]:
+                            warnings.warn(f"{key}: {val} is not real", BadIncarWarning, stacklevel=2)
+                    elif type(val).__name__ != incar_params[key]:
+                        warnings.warn(f"{key}: {val} is not a {incar_params[key]}", BadIncarWarning, stacklevel=2)
 
                 # if we have a list of possible parameters, check
                 # if the user given parameter is in this list
-                elif type(incar_params[k]).__name__ == "list" and v not in incar_params[k]:
-                    warnings.warn(
-                        f"{k}: Cannot find {v} in the list of parameters",
-                        BadIncarWarning,
-                        stacklevel=2,
-                    )
+                elif type(incar_params[key]).__name__ == "list" and val not in incar_params[key]:
+                    warnings.warn(f"{key}: Cannot find {val} in the list of parameters", BadIncarWarning, stacklevel=2)
 
 
 class KpointsSupportedModes(Enum):
@@ -1934,7 +1918,7 @@ class PotcarSingle:
         Returns:
             tuple[bool, bool]: has_sha256 and passed_hash_check are returned.
         """
-        if hasattr(self, "SHA256"):
+        if self.hash_sha256_from_file:
             has_sha256 = True
             hash_is_valid = self.hash_sha256_from_file == self.sha256_computed_file_hash
         else:
@@ -2070,6 +2054,13 @@ class PotcarSingle:
         return [], []
 
     @property
+    def hash_sha256_from_file(self) -> str | None:
+        """SHA256 hash of the POTCAR file as read from the file. None if no SHA256 hash is found."""
+        if sha256 := getattr(self, "SHA256", None):
+            return sha256.split()[0]
+        return None
+
+    @property
     def sha256_computed_file_hash(self) -> str:
         """Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'CPRY'."""
         # we have to remove lines with the hash itself and the copyright
@@ -2080,7 +2071,7 @@ class PotcarSingle:
         return sha256(potcar_to_hash_str.encode("utf-8")).hexdigest()
 
     @property
-    def potcar_file_hash(self) -> str:
+    def md5_computed_file_hash(self) -> str:
         """md5 hash of the entire PotcarSingle."""
         # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
         # https://github.com/materialsproject/pymatgen/issues/2804
@@ -2089,7 +2080,7 @@ class PotcarSingle:
         return md5.hexdigest()
 
     @property
-    def potcar_hash(self) -> str:
+    def md5_header_hash(self) -> str:
         """Computes a md5 hash of the metadata defining the PotcarSingle."""
         hash_str = ""
         for k, v in self.keywords.items():
@@ -2126,8 +2117,8 @@ class PotcarSingle:
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
 
-    hash = potcar_hash  # alias potcar_hash to hash
-    file_hash = potcar_file_hash  # alias potcar_file_hash to file_hash
+    hash = md5_header_hash  # alias md5_header_hash to hash
+    file_hash = md5_computed_file_hash  # alias md5_computed_file_hash to file_hash
 
     @property
     def is_valid(self) -> bool:
@@ -2337,6 +2328,10 @@ class Potcar(list, MSONable):
         if symbols is not None:
             self.set_symbols(symbols, functional, sym_potcar_map)
 
+    def __iter__(self) -> Iterator[PotcarSingle]:  # __iter__ only needed to supply type hint
+        # so for psingle in Potcar() is correctly inferred as PotcarSingle
+        return super().__iter__()
+
     def as_dict(self):
         """MSONable dict representation"""
         return {
@@ -2371,11 +2366,11 @@ class Potcar(list, MSONable):
         potcar = Potcar()
 
         functionals = []
-        for p in fdata.split("End of Dataset"):
-            if p_strip := p.strip():
-                single = PotcarSingle(p_strip + "\nEnd of Dataset\n")
-                potcar.append(single)
-                functionals.append(single.functional)
+        for psingle_str in fdata.split("End of Dataset"):
+            if p_strip := psingle_str.strip():
+                psingle = PotcarSingle(p_strip + "\nEnd of Dataset\n")
+                potcar.append(psingle)
+                functionals.append(psingle.functional)
         if len(set(functionals)) != 1:
             raise ValueError("File contains incompatible functionals!")
         potcar.functional = functionals[0]
@@ -2397,7 +2392,7 @@ class Potcar(list, MSONable):
     @property
     def symbols(self):
         """Get the atomic symbols of all the atoms in the POTCAR file."""
-        return [p.symbol for p in self]
+        return [psingle.symbol for psingle in self]
 
     @symbols.setter
     def symbols(self, symbols):
@@ -2406,7 +2401,7 @@ class Potcar(list, MSONable):
     @property
     def spec(self):
         """Get the atomic symbols and hash of all the atoms in the POTCAR file."""
-        return [{"symbol": p.symbol, "hash": p.potcar_hash} for p in self]
+        return [{"symbol": psingle.symbol, "hash": psingle.potcar_hash} for psingle in self]
 
     def set_symbols(
         self, symbols: Sequence[str], functional: str | None = None, sym_potcar_map: dict[str, str] | None = None

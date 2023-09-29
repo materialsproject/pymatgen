@@ -1090,12 +1090,12 @@ class TestPotcarSingle(unittest.TestCase):
         )
 
     def test_hash(self):
-        assert self.psingle_Mn_pv.potcar_hash == "fa52f891f234d49bb4cb5ea96aae8f98"
-        assert self.psingle_Fe.potcar_hash == "9530da8244e4dac17580869b4adab115"
+        assert self.psingle_Mn_pv.md5_header_hash == "fa52f891f234d49bb4cb5ea96aae8f98"
+        assert self.psingle_Fe.md5_header_hash == "9530da8244e4dac17580869b4adab115"
 
     def test_potcar_file_hash(self):
-        assert self.psingle_Mn_pv.potcar_file_hash == "f2fb52af9afe1b1c8571f5383d9ee13d"
-        assert self.psingle_Fe.potcar_file_hash == "e22e63251023983eedc527e095050ae0"
+        assert self.psingle_Mn_pv.md5_computed_file_hash == "f2fb52af9afe1b1c8571f5383d9ee13d"
+        assert self.psingle_Fe.md5_computed_file_hash == "e22e63251023983eedc527e095050ae0"
 
     def test_sha256_file_hash(self):
         assert (
