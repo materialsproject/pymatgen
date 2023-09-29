@@ -1753,23 +1753,10 @@ class PotcarSingle:
         # Compute the POTCAR meta to check them against the database of known metadata,
         # and possibly SHA256 hashes contained in the file itself.
 
-        file_and_computed_sha256_match = True
-        if sha256 := getattr(self, "SHA256", None):
-            self.hash_sha256_from_file = sha256.split()[0]
-            file_and_computed_sha256_match = self.hash_sha256_from_file == self.sha256_computed_file_hash
-
-        if not sha256 and not self.is_valid:
+        if not self.is_valid:
             warnings.warn(
                 f"POTCAR data with symbol {self.symbol} is not known to pymatgen. Your "
                 "POTCAR may be corrupted or pymatgen's POTCAR database is incomplete.",
-                UnknownPotcarWarning,
-            )
-        elif sha256 and not file_and_computed_sha256_match:
-            warnings.warn(
-                f"POTCAR with symbol {self.symbol} and functional\n"
-                f"{self.functional} has a SHA256 hash defined,\n"
-                "but the computed hash differs.\n"
-                "YOUR POTCAR FILE HAS BEEN CORRUPTED AND SHOULD NOT BE USED!",
                 UnknownPotcarWarning,
             )
 
