@@ -1038,25 +1038,22 @@ class TestPotcarSingle(unittest.TestCase):
         # in is_valid, changing the data string in the header section does not currently invalidate POTCAR
         assert psingle.is_valid
 
+        # this POTCAR is valid because the header is only modified in a way that is
+        # irrelevant to how FORTRAN reads files, i.e. treated by Fortran as a comment
+        filename = f"{TEST_FILES_DIR}/modified_potcars_header/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
+        psingle = PotcarSingle.from_file(filename)
+        assert psingle.is_valid
+
     def test_unknown_potcar_warning(self):
         filename = f"{TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
         with pytest.warns(UnknownPotcarWarning, match="POTCAR data with symbol Fe_pv is not known to pymatgen. "):
             PotcarSingle.from_file(filename)
 
-    """
-    # This test will no longer work, because the header is modified in a way that is irrelevant
-    # to how FORTRAN reads files - basically the modification to the header is a comment
-    # new validation returns the POTCAR as valid because numeric values match sufficiently
-    def test_potcar_file_hash_warning(self):
-        filename = f"{TEST_FILES_DIR}/modified_potcars_header/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="POTCAR is corrupted"):
-            PotcarSingle.from_file(filename)
-    """
-
-    def test_verify_faulty_potcar_with_hash(self):
+    def test_faulty_potcar_has_wrong_hash(self):
         filename = f"{TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash"
-        with pytest.warns(UnknownPotcarWarning, match="but the computed hash differs"):
-            PotcarSingle.from_file(filename)
+        psingle = PotcarSingle.from_file(filename)
+        assert not psingle.is_valid
+        assert psingle.sha256_computed_file_hash != psingle.hash_sha256_from_file
 
     def test_verify_correct_potcar_with_sha256(self):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash.gz"
@@ -1069,7 +1066,7 @@ class TestPotcarSingle(unittest.TestCase):
         # Still need to test the if POTCAR can be read.
         # No longer testing for hashes
         for psingle in potcars:
-            if hasattr(psingle, "hash_sha256_from_file"):
+            if psingle.hash_sha256_from_file:
                 assert psingle.sha256_computed_file_hash == psingle.hash_sha256_from_file
             else:
                 assert psingle.is_valid
