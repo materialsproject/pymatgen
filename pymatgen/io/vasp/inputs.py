@@ -1769,19 +1769,18 @@ class PotcarSingle:
         # Compute the POTCAR meta to check them against the database of known metadata,
         # and possibly SHA256 hashes contained in the file itself.
 
-        sha256_pass = True
-        if has_sha256 := hasattr(self, "SHA256"):
-            self.hash_sha256_from_file = self.SHA256.split()[0]
-            self.hash_sha256_computed = self.sha256_file_hash
-            sha256_pass = self.hash_sha256_from_file == self.hash_sha256_computed
+        file_and_computed_sha256_match = True
+        if sha256 := getattr(self, "SHA256", None):
+            self.hash_sha256_from_file = sha256.split()[0]
+            file_and_computed_sha256_match = self.hash_sha256_from_file == self.sha256_computed_file_hash
 
-        if not has_sha256 and not self.is_valid:
+        if not sha256 and not self.is_valid:
             warnings.warn(
                 f"POTCAR data with symbol {self.symbol} is not known to pymatgen. Your "
                 "POTCAR may be corrupted or pymatgen's POTCAR database is incomplete.",
                 UnknownPotcarWarning,
             )
-        elif has_sha256 and not sha256_pass:
+        elif sha256 and not file_and_computed_sha256_match:
             warnings.warn(
                 f"POTCAR with symbol {self.symbol} and functional\n"
                 f"{self.functional} has a SHA256 hash defined,\n"
@@ -1937,7 +1936,7 @@ class PotcarSingle:
         """
         if hasattr(self, "SHA256"):
             has_sha256 = True
-            hash_is_valid = self.hash_sha256_from_file == self.hash_sha256_computed
+            hash_is_valid = self.hash_sha256_from_file == self.sha256_computed_file_hash
         else:
             has_sha256 = False
             # if no sha256 hash is found in the POTCAR file, compare the whole
@@ -2071,7 +2070,7 @@ class PotcarSingle:
         return [], []
 
     @property
-    def sha256_file_hash(self) -> str:
+    def sha256_computed_file_hash(self) -> str:
         """Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'CPRY'."""
         # we have to remove lines with the hash itself and the copyright
         # notice to get the correct hash.

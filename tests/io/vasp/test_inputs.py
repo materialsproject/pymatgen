@@ -1098,8 +1098,14 @@ class TestPotcarSingle(unittest.TestCase):
         assert self.psingle_Fe.potcar_file_hash == "e22e63251023983eedc527e095050ae0"
 
     def test_sha256_file_hash(self):
-        assert self.psingle_Mn_pv.sha256_file_hash == "09fb1f012264c0e93524775af8f2b3cf58daa4b01b7c7c9f4324742358553fb0"
-        assert self.psingle_Fe.sha256_file_hash == "ce7d4b7964a67af533b56dc0cea7cb5e527820837eeb5984f3fc3f958acda36c"
+        assert (
+            self.psingle_Mn_pv.sha256_computed_file_hash
+            == "09fb1f012264c0e93524775af8f2b3cf58daa4b01b7c7c9f4324742358553fb0"
+        )
+        assert (
+            self.psingle_Fe.sha256_computed_file_hash
+            == "ce7d4b7964a67af533b56dc0cea7cb5e527820837eeb5984f3fc3f958acda36c"
+        )
 
 
 class TestPotcar(PymatgenTest):
