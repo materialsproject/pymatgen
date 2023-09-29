@@ -1040,7 +1040,7 @@ class Vasprun(MSONable):
         """
         if potcar := self.get_potcars(path):
             self.potcar_spec = [
-                {"titel": sym, "hash": ps.potcar_hash}
+                {"titel": sym, "hash": ps.md5_computed_file_hash}
                 for sym in self.potcar_symbols
                 for ps in potcar
                 if ps.symbol == sym.split()[1]

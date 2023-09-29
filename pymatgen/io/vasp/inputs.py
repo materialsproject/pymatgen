@@ -1925,7 +1925,7 @@ class PotcarSingle:
         """
         Identify the symbol and compatible functionals associated with this PotcarSingle.
 
-        This method checks the md5 hash of either the POTCAR metadadata (PotcarSingle.hash)
+        This method checks the md5 hash of either the POTCAR metadadata (PotcarSingle.md5_header_hash)
         or the entire POTCAR file (PotcarSingle.md5_computed_file_hash) against a database
         of hashes for POTCARs distributed with VASP 5.4.4.
 
@@ -2389,7 +2389,7 @@ class Potcar(list, MSONable):
     @property
     def spec(self):
         """Get the atomic symbols and hash of all the atoms in the POTCAR file."""
-        return [{"symbol": psingle.symbol, "hash": psingle.potcar_hash} for psingle in self]
+        return [{"symbol": psingle.symbol, "hash": psingle.md5_computed_file_hash} for psingle in self]
 
     def set_symbols(
         self, symbols: Sequence[str], functional: str | None = None, sym_potcar_map: dict[str, str] | None = None
