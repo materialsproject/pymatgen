@@ -118,7 +118,7 @@ class _MPResterBasic:
                 raise MPRestError(msg)
         return all_data
 
-    def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
+    def summary_search(self, criteria: dict, fields: list | None = None) -> list[dict]:
         """
         Get a data corresponding to a criteria.
 
@@ -158,7 +158,7 @@ class _MPResterBasic:
         Returns:
             ([str]) List of all materials ids.
         """
-        return [d["material_id"] for d in self.get_summary({"formula": formula}, fields=["material_id"])]
+        return [d["material_id"] for d in self.summary_search({"formula": formula}, fields=["material_id"])]
 
     # For backwards compatibility and poor spelling.
     get_materials_ids = get_material_ids

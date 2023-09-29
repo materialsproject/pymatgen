@@ -9,8 +9,6 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class TestSolar(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def test_slme_from_vasprun(self):
         en, abz, dir_gap, indir_gap = optics(f"{os.path.dirname(__file__)}/vasprun.xml")
         abz = abz * 100.0

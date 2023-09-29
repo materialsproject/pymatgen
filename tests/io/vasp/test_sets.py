@@ -33,6 +33,7 @@ from pymatgen.io.vasp.sets import (
     MPAbsorptionSet,
     MPHSEBSSet,
     MPHSERelaxSet,
+    MPMDSet,
     MPMetalRelaxSet,
     MPNMRSet,
     MPNonSCFSet,
@@ -1128,6 +1129,50 @@ class TestMVLNPTMDSet(PymatgenTest):
         d = self.mvl_npt_set.as_dict()
         v = dec.process_decoded(d)
         assert isinstance(v, MVLNPTMDSet)
+        assert v._config_dict["INCAR"]["NSW"] == 1000
+
+
+class TestMPMDSet(PymatgenTest):
+    def setUp(self):
+        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        poscar = Poscar.from_file(filepath)
+        poscar_with_h = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR_hcp", check_for_POTCAR=False)
+        self.struct = poscar.structure
+        self.struct_with_H = poscar_with_h.structure
+        self.mp_md_set_noTS = MPMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000)
+        self.mp_md_set_noTS_with_H = MPMDSet(self.struct_with_H, start_temp=0, end_temp=300, nsteps=1000)
+        self.mp_md_set_TS1 = MPMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000, time_step=1.0)
+
+    def test_incar_no_ts(self):
+        mpmdset = self.mp_md_set_noTS
+        incar = mpmdset.incar
+
+        assert incar["TEBEG"] == 0
+        assert incar["TEEND"] == 300
+        assert incar["NSW"] == 1000
+        assert incar["IBRION"] == 0
+        assert incar["ISIF"] == 0
+        assert incar["ISYM"] == 0
+        assert incar["POTIM"] == 2.0
+
+    def test_incar_no_ts_with_h(self):
+        mpmdset = self.mp_md_set_noTS_with_H
+        incar = mpmdset.incar
+
+        assert incar["POTIM"] == 0.5
+        assert incar["NSW"] == 4000
+
+    def test_incar_ts1(self):
+        mpmdset = self.mp_md_set_TS1
+        incar = mpmdset.incar
+
+        assert incar["POTIM"] == 1.0
+        assert incar["NSW"] == 1000
+
+    def test_as_from_dict(self):
+        d = self.mp_md_set_noTS.as_dict()
+        v = dec.process_decoded(d)
+        assert isinstance(v, MPMDSet)
         assert v._config_dict["INCAR"]["NSW"] == 1000
 
 
