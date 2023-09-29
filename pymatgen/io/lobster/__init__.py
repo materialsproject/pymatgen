@@ -20,4 +20,5 @@ from .outputs import (
     MadelungEnergies,
     SitePotential,
     Wavefunction,
+    HamiltonMatrices,
 )
