@@ -9,6 +9,7 @@ https://materialsproject.org/dashboard.
 
 from __future__ import annotations
 
+import collections
 import itertools
 import json
 import logging
@@ -74,6 +75,10 @@ class _MPResterBasic:
             platform_info = f"{platform.system()}/{platform.release()}"
             self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
 
+        # This is a hack, but it fakes most of the functionality of mp-api's summary.search.
+        Summary = collections.namedtuple("Summary", "search")
+        self.summary = Summary(self.summary_search)
+
     def __getattr__(self, item):
         if item in ("summary", "materials", "thermo"):
             raise AttributeError(
@@ -118,7 +123,22 @@ class _MPResterBasic:
                 raise MPRestError(msg)
         return all_data
 
-    def summary_search(self, criteria: dict, fields: list | None = None) -> list[dict]:
+    def summary_search(self, **kwargs) -> list[dict]:
+        """This function mirrors the mp-api's summary.search functionality.
+
+        Args:
+            **kwargs: This function only takes kwargs. All kwargs that do not start with an underscore are treated as
+                search criteria and those with underscores are treated as params. Example usage:
+                MPRester().summary.search(material_ids="mp-19770,mp-19017", _fields="formula_pretty,energy_above_hull")
+        """
+        criteria = {k: v for k, v in kwargs.items() if not k.startswith("_")}
+        params = [f"{k}={v}" for k, v in kwargs.items() if k.startswith("_")]
+        if "_fields" not in params:
+            params.append("_all_fields=True")
+        get = "&".join(params)
+        return self.request(f"materials/summary?{get}", payload=criteria)
+
+    def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
         """
         Get a data corresponding to a criteria.
 
@@ -158,7 +178,7 @@ class _MPResterBasic:
         Returns:
             ([str]) List of all materials ids.
         """
-        return [d["material_id"] for d in self.summary_search({"formula": formula}, fields=["material_id"])]
+        return [d["material_id"] for d in self.get_summary({"formula": formula}, fields=["material_id"])]
 
     # For backwards compatibility and poor spelling.
     get_materials_ids = get_material_ids
