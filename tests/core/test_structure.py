@@ -122,7 +122,7 @@ class TestIStructure(PymatgenTest):
         struct_2.apply_strain(0.5)
         assert struct != struct_2
 
-        assert struct.to_file("POSCAR") == struct.to("POSCAR") # test for the alias
+        assert struct.to_file("POSCAR") == struct.to("POSCAR")  # test for the alias
 
     def test_matches(self):
         supercell = self.struct * 2
