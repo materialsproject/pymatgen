@@ -21,7 +21,8 @@ from pymatgen.electronic_structure.bandstructure import BandStructure, BandStruc
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, TaskType, _MPResterBasic, _MPResterLegacy
+from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, _MPResterBasic
+from pymatgen.ext.matproj_legacy import TaskType, _MPResterLegacy
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
@@ -537,8 +538,18 @@ class TestMPResterNewBasic:
         docs = self.rester.get_summary({"formula": "Fe2O3"})
         assert len(docs) > 3
 
-        doc = self.rester.get_summary_by_material_id(docs[0]["material_id"])
+        mid = "mp-19770"
+        doc = self.rester.get_summary_by_material_id(mid)
         assert doc["formula_pretty"] == "Fe2O3"
+
+        doc = self.rester.summary.search(material_ids="mp-19770,mp-19017", _fields="formula_pretty,energy_above_hull")
+        assert len(doc) == 2
+        assert doc[0]["energy_above_hull"] >= 0
+        assert doc[1]["energy_above_hull"] >= 0
+
+        # dos = self.rester.get_dos_by_material_id(mid)
+        #
+        # assert isinstance(dos, CompleteDos)
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_material_ids("Al2O3")

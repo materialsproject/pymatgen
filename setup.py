@@ -88,9 +88,7 @@ setup(
             # "hiphive>=0.6",
             # "openbabel>=3.1.1; platform_system=='Linux'",
         ],
-        "numba": [
-            "numba",
-        ],
+        "numba": ["numba"],
     },
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
     # all sorts of useless files like test files and is prone to path errors.

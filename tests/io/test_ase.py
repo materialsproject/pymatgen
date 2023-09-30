@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from ase.constraints import FixAtoms
+from ase.io import read
 from monty.json import MontyDecoder, jsanitize
 
 import pymatgen.io.ase as aio
@@ -13,9 +15,6 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 poscar = Poscar.from_file(TEST_FILES_DIR / "POSCAR")
 ase = pytest.importorskip("ase")
-
-from ase.constraints import FixAtoms  # noqa: E402
-from ase.io import read  # noqa: E402
 
 
 def test_get_atoms_from_structure():
