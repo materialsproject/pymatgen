@@ -670,7 +670,7 @@ class TestIcohplist(unittest.TestCase):
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["orbitals"]["2s-6s"]["icohp"][Spin.up] == 0.0247
 
 
-class TestNCicobiList(unittest.TestCase):
+class TestNciCobiList(unittest.TestCase):
     def setUp(self):
         self.ncicobi = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster")
         self.ncicobigz = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.gz")
