@@ -122,8 +122,6 @@ class TestIStructure(PymatgenTest):
         struct_2.apply_strain(0.5)
         assert struct != struct_2
 
-        assert struct.to_file("POSCAR") == struct.to("POSCAR")  # test for the alias
-
     def test_matches(self):
         supercell = self.struct * 2
         assert supercell.matches(self.struct)
@@ -805,6 +803,11 @@ Direct
         # https://github.com/materialsproject/pymatgen/issues/2947
         struct = Structure.from_file(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif")
         assert struct.formula == "Ni32 O32"
+
+    def test_to_file_alias(self):
+        out_path = f"{self.tmp_path}/POSCAR"
+        assert self.struct.to(out_path) == self.struct.to_file(out_path)
+        assert os.path.isfile(out_path)
 
     def test_pbc(self):
         assert_array_equal(self.struct.pbc, (True, True, True))
@@ -1865,8 +1868,6 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         mol = IMolecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
         assert mol != self.mol
 
-        assert mol.to_file("mol.gjf") == mol.to("mol.gjf")
-
     def test_get_centered_molecule(self):
         mol = IMolecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]], spin_multiplicity=3)
         centered = mol.get_centered_molecule()
@@ -1924,6 +1925,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         ch4_mol = Molecule.from_file(f"{self.tmp_path}/CH4_testing.yaml")
         ch4_mol.properties = self.mol.properties
         assert self.mol == ch4_mol
+
+    def test_to_file_alias(self):
+        out_path = f"{self.tmp_path}/mol.gjf"
+        assert self.mol.to(out_path) == self.mol.to_file(out_path)
+        assert os.path.isfile(out_path)
 
 
 class TestMolecule(PymatgenTest):
