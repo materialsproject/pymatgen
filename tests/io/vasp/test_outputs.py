@@ -1553,12 +1553,14 @@ class TestChgcar(PymatgenTest):
 
 
 class TestAeccars(PymatgenTest):
-    def test_write_file(self):
+    # https://github.com/materialsproject/pymatgen/pull/3343
+    def test_read_write_file(self):
         aeccar0_test = Chgcar.from_file(f"{TEST_FILES_DIR}/bader/AECCAR0.gz")
         aeccar0_outpath = f"{self.tmp_path}/AECCAR0_test"
         aeccar0_test.write_file(aeccar0_outpath)
         aeccar0_read = Chgcar.from_file(aeccar0_outpath)
         assert_allclose(aeccar0_test.data["total"], aeccar0_read.data["total"])
+
         aeccar2 = Chgcar.from_file(f"{TEST_FILES_DIR}/bader/AECCAR2.gz")
         aeccar2_outpath = f"{self.tmp_path}/AECCAR2_test"
         aeccar2.write_file(aeccar2_outpath)
