@@ -811,21 +811,21 @@ Cartesian
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.from_str(
             """k-point mesh
-0
-G
-10 10 10
-0.5 0.5 0.5
-"""
+            0
+            G
+            10 10 10
+            0.5 0.5 0.5
+            """
         )
         assert_allclose(kpoints.kpts_shift, [0.5, 0.5, 0.5])
 
     def test_as_dict_from_dict(self):
-        k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
-        d = k.as_dict()
-        k2 = Kpoints.from_dict(d)
-        assert k.kpts == k2.kpts
-        assert k.style == k2.style
-        assert k.kpts_shift == k2.kpts_shift
+        kpts = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
+        dct = kpts.as_dict()
+        kpts_from_dict = Kpoints.from_dict(dct)
+        assert kpts.kpts == kpts_from_dict.kpts
+        assert kpts.style == kpts_from_dict.style
+        assert kpts.kpts_shift == kpts_from_dict.kpts_shift
 
     def test_kpt_bands_as_dict_from_dict(self):
         file_name = f"{TEST_FILES_DIR}/KPOINTS.band"
@@ -1208,6 +1208,6 @@ class TestVaspInput(PymatgenTest):
         vi = VaspInput.from_directory(TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar})
         assert vi["INCAR"]["ALGO"] == "Damped"
         assert "CONTCAR.Li2O" in vi
-        d = vi.as_dict()
-        vasp_input = VaspInput.from_dict(d)
+        dct = vi.as_dict()
+        vasp_input = VaspInput.from_dict(dct)
         assert "CONTCAR.Li2O" in vasp_input

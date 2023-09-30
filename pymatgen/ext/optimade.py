@@ -459,7 +459,7 @@ class OptimadeRester:
             _logger.warning(f"Failed to extract required information from {url}: {exc}")
             return None
 
-    def _parse_provider(self, provider, provider_url) -> dict[str, Provider]:
+    def _parse_provider(self, provider: str, provider_url: str) -> dict[str, Provider]:
         """Used internally to update the list of providers or to
         check a given URL is valid.
 

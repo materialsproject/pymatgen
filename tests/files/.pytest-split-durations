@@ -741,7 +741,7 @@
     "tests/command_line/test_gulp_caller.py::TestGulpIO::test_structure_lines_default_options": 0.00011916703078895807,
     "tests/command_line/test_gulp_caller.py::TestGulpIO::test_structure_lines_no_frac_coords": 0.0001177079975605011,
     "tests/command_line/test_gulp_caller.py::TestGulpIO::test_structure_lines_no_unitcell": 0.0003102489863522351,
-    "tests/command_line/test_gulp_caller.py::TestGulpIO::test_tersoff_inpt": 0.00012333301128819585,
+    "tests/command_line/test_gulp_caller.py::TestGulpIO::test_tersoff_input": 0.00012333301128819585,
     "tests/command_line/test_gulp_caller.py::TestGulpIO::test_tersoff_potential": 0.0001610000035725534,
     "tests/command_line/test_mcsqs_caller.py::TestMcsqsCaller::test_mcsqs_caller_parallel": 0.00015433301450684667,
     "tests/command_line/test_mcsqs_caller.py::TestMcsqsCaller::test_mcsqs_caller_runtime_error": 0.00018695800099521875,

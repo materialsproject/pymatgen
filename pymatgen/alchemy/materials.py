@@ -128,10 +128,10 @@ class TransformedStructure(MSONable):
                 h_dict["input_structure"] = input_structure
                 h_dict["output_parameters"] = x
                 self.final_structure = struct
-                d = self.as_dict()
-                d["history"].append(h_dict)
-                d["final_structure"] = struct.as_dict()
-                alts.append(TransformedStructure.from_dict(d))
+                dct = self.as_dict()
+                dct["history"].append(h_dict)
+                dct["final_structure"] = struct.as_dict()
+                alts.append(TransformedStructure.from_dict(dct))
 
             x = ranked_list[0]
             struct = x.pop("structure")
@@ -337,10 +337,10 @@ class TransformedStructure(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d) -> TransformedStructure:
+    def from_dict(cls, dct) -> TransformedStructure:
         """Creates a TransformedStructure from a dict."""
-        struct = Structure.from_dict(d)
-        return cls(struct, history=d["history"], other_parameters=d.get("other_parameters"))
+        struct = Structure.from_dict(dct)
+        return cls(struct, history=dct["history"], other_parameters=dct.get("other_parameters"))
 
     def to_snl(self, authors, **kwargs) -> StructureNL:
         """Generate SNL from TransformedStructure.
@@ -377,8 +377,8 @@ class TransformedStructure(MSONable):
             TransformedStructure
         """
         hist = []
-        for h in snl.history:
-            d = h.description
-            d["_snl"] = {"url": h.url, "name": h.name}
-            hist.append(d)
+        for hist in snl.history:
+            dct = hist.description
+            dct["_snl"] = {"url": hist.url, "name": hist.name}
+            hist.append(dct)
         return cls(snl.structure, history=hist)
