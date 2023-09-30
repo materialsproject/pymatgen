@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import warnings
 from collections.abc import Iterable
+from importlib.metadata import PackageNotFoundError
 from typing import TYPE_CHECKING
 
 import numpy as np
-from monty.dev import requires
 
 from pymatgen.core.structure import Molecule, Structure
 
@@ -40,7 +40,6 @@ __date__ = "Mar 8, 2012"
 
 # NOTE: If making notable changes to this class, please ping @Andrew-S-Rosen on GitHub.
 # There are some subtleties in here, particularly related to spins/charges.
-@requires(ase_loaded, "ASE needs to be installed.")
 class AseAtomsAdaptor:
     """Adaptor serves as a bridge between ASE Atoms and pymatgen objects."""
 
@@ -56,6 +55,8 @@ class AseAtomsAdaptor:
         Returns:
             Atoms: ASE Atoms object
         """
+        if not ase_loaded:
+            raise PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
 

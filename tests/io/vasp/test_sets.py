@@ -1063,10 +1063,10 @@ class TestMITMDSet(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath)
         self.struct = poscar.structure
-        self.mitmdparam = self.set(self.struct, 300, 1200, 10000)
+        self.mit_md_param = self.set(self.struct, 300, 1200, 10000)
 
     def test_params(self):
-        param = self.mitmdparam
+        param = self.mit_md_param
         syms = param.potcar_symbols
         assert syms == ["Fe", "P", "O"]
         incar = param.incar
@@ -1077,11 +1077,11 @@ class TestMITMDSet(PymatgenTest):
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
     def test_as_from_dict(self):
-        d = self.mitmdparam.as_dict()
-        v = dec.process_decoded(d)
-        assert isinstance(v, self.set)
-        assert v._config_dict["INCAR"]["TEBEG"] == 300
-        assert v._config_dict["INCAR"]["PREC"] == "Low"
+        dct = self.mit_md_param.as_dict()
+        input_set = dec.process_decoded(dct)
+        assert isinstance(input_set, self.set)
+        assert input_set._config_dict["INCAR"]["TEBEG"] == 300
+        assert input_set._config_dict["INCAR"]["PREC"] == "Low"
 
 
 @skip_if_no_psp_dir

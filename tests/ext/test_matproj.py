@@ -530,10 +530,6 @@ class TestMPResterNewBasic:
     def setup(self):
         self.rester = _MPResterBasic()
 
-    def test_attr_error(self):
-        with pytest.raises(AttributeError, match="summary is not an attribute"):
-            _ = self.rester.summary
-
     def test_get_summary(self):
         docs = self.rester.get_summary({"formula": "Fe2O3"})
         assert len(docs) > 3

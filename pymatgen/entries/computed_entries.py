@@ -652,9 +652,9 @@ class ComputedStructureEntry(ComputedEntry):
         )
         # TODO: find a better solution for creating copies instead of as/from dict
         factor = self._normalization_factor(mode)
-        d = super().normalize(mode).as_dict()
-        d["structure"] = self.structure.as_dict()
-        entry = self.from_dict(d)
+        dct = super().normalize(mode).as_dict()
+        dct["structure"] = self.structure.as_dict()
+        entry = self.from_dict(dct)
         entry._composition /= factor  # pylint: disable=E1101
         return entry
 
