@@ -804,6 +804,11 @@ Direct
         struct = Structure.from_file(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif")
         assert struct.formula == "Ni32 O32"
 
+    def test_to_file_alias(self):
+        out_path = f"{self.tmp_path}/POSCAR"
+        assert self.struct.to(out_path) == self.struct.to_file(out_path)
+        assert os.path.isfile(out_path)
+
     def test_pbc(self):
         assert_array_equal(self.struct.pbc, (True, True, True))
         assert self.struct.is_3d_periodic
@@ -1920,6 +1925,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         ch4_mol = Molecule.from_file(f"{self.tmp_path}/CH4_testing.yaml")
         ch4_mol.properties = self.mol.properties
         assert self.mol == ch4_mol
+
+    def test_to_file_alias(self):
+        out_path = f"{self.tmp_path}/mol.gjf"
+        assert self.mol.to(out_path) == self.mol.to_file(out_path)
+        assert os.path.isfile(out_path)
 
 
 class TestMolecule(PymatgenTest):
