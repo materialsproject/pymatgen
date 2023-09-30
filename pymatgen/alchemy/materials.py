@@ -353,18 +353,18 @@ class TransformedStructure(MSONable):
         """
         if self.other_parameters:
             warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL")
-        hist = []
-        for h in self.history:
-            snl_metadata = h.pop("_snl", {})
-            hist.append(
+        history = []
+        for hist in self.history:
+            snl_metadata = hist.pop("_snl", {})
+            history.append(
                 {
                     "name": snl_metadata.pop("name", "pymatgen"),
                     "url": snl_metadata.pop("url", "http://pypi.python.org/pypi/pymatgen"),
-                    "description": h,
+                    "description": hist,
                 }
             )
 
-        return StructureNL(self.final_structure, authors, history=hist, **kwargs)
+        return StructureNL(self.final_structure, authors, history=history, **kwargs)
 
     @classmethod
     def from_snl(cls, snl: StructureNL) -> TransformedStructure:
@@ -380,5 +380,5 @@ class TransformedStructure(MSONable):
         for hist in snl.history:
             dct = hist.description
             dct["_snl"] = {"url": hist.url, "name": hist.name}
-            hist.append(dct)
+            history.append(dct)
         return cls(snl.structure, history=history)
