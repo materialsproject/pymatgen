@@ -899,7 +899,7 @@ class BztTransportProperties:
 
     def load(self, fname="bztTranspProps.json.gz"):
         """Load the transport properties from fname file."""
-        d = loadfn(fname)
+        lst = loadfn(fname)
         (
             self.temp_r,
             self.CRTA,
@@ -916,8 +916,8 @@ class BztTransportProperties:
             self.Hall_carrier_conc_trace_mu,
             self.Power_Factor_mu,
             self.Effective_mass_mu,
-        ) = d[:15]
-        if len(d) > 15:
+        ) = lst[:15]
+        if len(lst) > 15:
             (
                 self.Conductivity_doping,
                 self.Seebeck_doping,
@@ -928,7 +928,7 @@ class BztTransportProperties:
                 self.doping,
                 self.mu_doping,
                 self.mu_doping_eV,
-            ) = d[15:]
+            ) = lst[15:]
             self.contains_doping_props = True
 
         return True
