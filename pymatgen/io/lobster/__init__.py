@@ -18,7 +18,7 @@ from .outputs import (
     Icohplist,
     Lobsterout,
     MadelungEnergies,
-    Ncicobilist,
+    NciCobiList,
     SitePotential,
     Wavefunction,
 )

@@ -23,7 +23,7 @@ from pymatgen.io.lobster import (
     Lobsterin,
     Lobsterout,
     MadelungEnergies,
-    Ncicobilist,
+    NciCobiList,
     SitePotential,
     Wavefunction,
 )
@@ -672,11 +672,11 @@ class TestIcohplist(unittest.TestCase):
 
 class TestNcicobilist(unittest.TestCase):
     def setUp(self):
-        self.ncicobi = Ncicobilist(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster")
-        self.ncicobigz = Ncicobilist(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.gz")
-        self.ncicobinospin = Ncicobilist(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.nospin")
-        self.ncicobinospinwo = Ncicobilist(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.nospin.withoutorbitals")
-        self.ncicobiwo = Ncicobilist(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.withoutorbitals")
+        self.ncicobi = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster")
+        self.ncicobigz = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.gz")
+        self.ncicobinospin = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.nospin")
+        self.ncicobinospinwo = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.nospin.withoutorbitals")
+        self.ncicobiwo = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.withoutorbitals")
 
     def test_ncicobilist(self):
         assert self.ncicobi.is_spin_polarized
