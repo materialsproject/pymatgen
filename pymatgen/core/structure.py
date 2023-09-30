@@ -440,6 +440,10 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         raise NotImplementedError
 
+    def to_file(self, filename: str = "", fmt: str = "") -> str | None:
+        """A more intuitive alias for .to()."""
+        return self.to(filename, fmt)
+
     @classmethod
     @abstractmethod
     def from_str(cls, input_string: str, fmt: Any):
