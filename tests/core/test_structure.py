@@ -122,6 +122,8 @@ class TestIStructure(PymatgenTest):
         struct_2.apply_strain(0.5)
         assert struct != struct_2
 
+        assert struct.to_file("POSCAR") == struct.to("POSCAR") # test for the alias
+
     def test_matches(self):
         supercell = self.struct * 2
         assert supercell.matches(self.struct)
@@ -1862,6 +1864,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
     def test_equal(self):
         mol = IMolecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
         assert mol != self.mol
+
+        assert mol.to_file("mol.gjf") == mol.to("mol.gjf")
 
     def test_get_centered_molecule(self):
         mol = IMolecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]], spin_multiplicity=3)
