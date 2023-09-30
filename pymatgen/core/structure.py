@@ -440,6 +440,10 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         raise NotImplementedError
 
+    def to_file(self, filename: str = "", fmt: str = "") -> str | None:
+        """A more intuitive alias for .to()."""
+        return self.to(filename, fmt)
+
     @classmethod
     @abstractmethod
     def from_str(cls, input_string: str, fmt: Any):
@@ -2713,10 +2717,6 @@ class IStructure(SiteCollection, MSONable):
             writer.write_file(filename)
         return str(writer)
 
-    def to_file(self, filename: str = "", fmt: str = "", **kwargs) -> str:
-        """An alias for .to() for more user-friendliness."""
-        return self.to(filename, fmt, **kwargs)
-
     @classmethod
     def from_str(
         cls,
@@ -3459,10 +3459,6 @@ class IMolecule(SiteCollection, MSONable):
         if filename:
             writer.write_file(filename)
         return str(writer)
-
-    def to_file(self, filename: str = "", fmt: str = "") -> str | None:
-        """An alias for .to() for more user-friendliness."""
-        return self.to(filename, fmt)
 
     @classmethod
     def from_str(
