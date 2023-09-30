@@ -47,8 +47,6 @@ except ImportError:
 
 
 class TestVasprun(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def test_vasprun_ml(self):
         vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml.ml_md")
         assert len(vasp_run.md_data) == 100
@@ -707,8 +705,6 @@ class TestVasprun(PymatgenTest):
 
 
 class TestOutcar(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def test_init(self):
         for f in ["OUTCAR", "OUTCAR.gz"]:
             filepath = TEST_FILES_DIR / f
@@ -1393,8 +1389,6 @@ class TestOutcar(PymatgenTest):
 
 
 class TestBSVasprun(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def test_get_band_structure(self):
         filepath = f"{TEST_FILES_DIR}/vasprun_Si_bands.xml"
         vasprun = BSVasprun(filepath, parse_potcar_file=False)
@@ -1593,8 +1587,6 @@ class TestElfcar(PymatgenTest):
 
 
 class TestProcar(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def test_init(self):
         filepath = f"{TEST_FILES_DIR}/PROCAR.simple"
         p = Procar(filepath)
@@ -1686,8 +1678,6 @@ class TestDynmat(PymatgenTest):
 
 
 class TestWavecar(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0], [0.0, 0.0, 10.0]])
         self.vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
@@ -1960,8 +1950,6 @@ class TestWavecar(PymatgenTest):
 
 
 class TestEigenval(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def test_init(self):
         eig = Eigenval(f"{TEST_FILES_DIR}/EIGENVAL.gz")
         assert eig.ispin == 1
@@ -2002,8 +1990,6 @@ class TestEigenval(PymatgenTest):
 
 
 class TestWaveder(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         wder = Waveder.from_binary(f"{TEST_FILES_DIR}/WAVEDER", "float64")
         assert wder.nbands == 36
@@ -2042,8 +2028,6 @@ class TestWaveder(PymatgenTest):
 
 
 class TestWSWQ(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.wswq = WSWQ.from_file(f"{TEST_FILES_DIR}/WSWQ.gz")
 

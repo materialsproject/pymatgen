@@ -74,8 +74,6 @@ class TestCritic2Caller(unittest.TestCase):
 
 
 class TestCritic2Analysis(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         stdout_file = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout.txt"
         stdout_file_new_format = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout_new_format.txt"

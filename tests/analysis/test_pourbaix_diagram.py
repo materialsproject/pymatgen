@@ -19,47 +19,44 @@ logger = logging.getLogger(__name__)
 
 
 class TestPourbaixEntry(PymatgenTest):
-    _multiprocess_shared_ = True
-    """
-    Test all functions using a fictitious entry
-    """
+    """Test all functions using a fictitious entry"""
 
     def setUp(self):
         # comp = Composition("Mn2O3")
         self.sol_entry = ComputedEntry("Mn2O3", 49)
         ion = Ion.from_formula("MnO4-")
         self.ion_entry = IonEntry(ion, 25)
-        self.PxIon = PourbaixEntry(self.ion_entry)
-        self.PxSol = PourbaixEntry(self.sol_entry)
-        self.PxIon.concentration = 1e-4
+        self.px_ion = PourbaixEntry(self.ion_entry)
+        self.px_sol = PourbaixEntry(self.sol_entry)
+        self.px_ion.concentration = 1e-4
 
     def test_pourbaix_entry(self):
-        assert self.PxIon.entry.energy == 25, "Wrong Energy!"
-        assert self.PxIon.entry.name == "MnO4[-1]", "Wrong Entry!"
-        assert self.PxSol.entry.energy == 49, "Wrong Energy!"
-        assert self.PxSol.entry.name == "Mn2O3", "Wrong Entry!"
+        assert self.px_ion.entry.energy == 25, "Wrong Energy!"
+        assert self.px_ion.entry.name == "MnO4[-1]", "Wrong Entry!"
+        assert self.px_sol.entry.energy == 49, "Wrong Energy!"
+        assert self.px_sol.entry.name == "Mn2O3", "Wrong Entry!"
         # assert self.PxIon.energy == 25, "Wrong Energy!"
         # assert self.PxSol.energy == 49, "Wrong Energy!"
-        assert self.PxIon.concentration == 1e-4, "Wrong concentration!"
+        assert self.px_ion.concentration == 1e-4, "Wrong concentration!"
 
     def test_calc_coeff_terms(self):
-        assert self.PxIon.npH == -8, "Wrong npH!"
-        assert self.PxIon.nPhi == -7, "Wrong nPhi!"
-        assert self.PxIon.nH2O == 4, "Wrong nH2O!"
+        assert self.px_ion.npH == -8, "Wrong npH!"
+        assert self.px_ion.nPhi == -7, "Wrong nPhi!"
+        assert self.px_ion.nH2O == 4, "Wrong nH2O!"
 
-        assert self.PxSol.npH == -6, "Wrong npH!"
-        assert self.PxSol.nPhi == -6, "Wrong nPhi!"
-        assert self.PxSol.nH2O == 3, "Wrong nH2O!"
+        assert self.px_sol.npH == -6, "Wrong npH!"
+        assert self.px_sol.nPhi == -6, "Wrong nPhi!"
+        assert self.px_sol.nH2O == 3, "Wrong nH2O!"
 
     def test_as_from_dict(self):
-        d = self.PxIon.as_dict()
-        ion_entry = self.PxIon.from_dict(d)
+        d = self.px_ion.as_dict()
+        ion_entry = self.px_ion.from_dict(d)
         assert ion_entry.entry.name == "MnO4[-1]", "Wrong Entry!"
 
-        d = self.PxSol.as_dict()
-        sol_entry = self.PxSol.from_dict(d)
+        d = self.px_sol.as_dict()
+        sol_entry = self.px_sol.from_dict(d)
         assert sol_entry.name == "Mn2O3(s)", "Wrong Entry!"
-        assert sol_entry.energy == self.PxSol.energy, "as_dict and from_dict energies unequal"
+        assert sol_entry.energy == self.px_sol.energy, "as_dict and from_dict energies unequal"
 
         # Ensure computed entry data persists
         entry = ComputedEntry("TiO2", energy=-20, data={"test": "test"})
@@ -71,16 +68,16 @@ class TestPourbaixEntry(PymatgenTest):
 
     def test_energy_functions(self):
         # TODO: test these for values
-        self.PxSol.energy_at_conditions(10, 0)
-        self.PxSol.energy_at_conditions(np.array([1, 2, 3]), 0)
-        self.PxSol.energy_at_conditions(10, np.array([1, 2, 3]))
-        self.PxSol.energy_at_conditions(np.array([1, 2, 3]), np.array([1, 2, 3]))
+        self.px_sol.energy_at_conditions(10, 0)
+        self.px_sol.energy_at_conditions(np.array([1, 2, 3]), 0)
+        self.px_sol.energy_at_conditions(10, np.array([1, 2, 3]))
+        self.px_sol.energy_at_conditions(np.array([1, 2, 3]), np.array([1, 2, 3]))
 
     def test_multi_entry(self):
         # TODO: More robust multi-entry test
-        m_entry = MultiEntry([self.PxSol, self.PxIon])
+        m_entry = MultiEntry([self.px_sol, self.px_ion])
         for attr in ["energy", "composition", "nPhi"]:
-            assert getattr(m_entry, attr) == getattr(self.PxSol, attr) + getattr(self.PxIon, attr)
+            assert getattr(m_entry, attr) == getattr(self.px_sol, attr) + getattr(self.px_ion, attr)
 
         # As dict, from dict
         m_entry_dict = m_entry.as_dict()
@@ -88,7 +85,7 @@ class TestPourbaixEntry(PymatgenTest):
         assert m_entry_new.energy == m_entry.energy
 
     def test_multi_entry_repr(self):
-        m_entry = MultiEntry([self.PxSol, self.PxIon])
+        m_entry = MultiEntry([self.px_sol, self.px_ion])
         assert (
             repr(m_entry) == "PourbaixMultiEntry(energy=90.9717, npH=-14.0, nPhi=-13.0, nH2O=7.0, "
             "entry_id=[None, None], species='Mn2O3(s) + MnO4[-1]')"
@@ -102,13 +99,11 @@ class TestPourbaixEntry(PymatgenTest):
 
 
 class TestPourbaixDiagram(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     @classmethod
     def setUpClass(cls):
         cls.test_data = loadfn(f"{TEST_FILES_DIR}/pourbaix_test_data.json")
         cls.pbx = PourbaixDiagram(cls.test_data["Zn"], filter_solids=True)
-        cls.pbx_nofilter = PourbaixDiagram(cls.test_data["Zn"], filter_solids=False)
+        cls.pbx_no_filter = PourbaixDiagram(cls.test_data["Zn"], filter_solids=False)
 
     def test_pourbaix_diagram(self):
         assert {e.name for e in self.pbx.stable_entries} == {
@@ -119,7 +114,7 @@ class TestPourbaixDiagram(unittest.TestCase):
             "Zn(s)",
         }, "List of stable entries does not match"
 
-        assert {e.name for e in self.pbx_nofilter.stable_entries} == {
+        assert {e.name for e in self.pbx_no_filter.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",
             "ZnHO2[-]",
@@ -210,7 +205,7 @@ class TestPourbaixDiagram(unittest.TestCase):
         # Test an unstable entry to ensure that it's never zero
         entry = self.test_data["Zn"][11]
         ph, v = np.meshgrid(np.linspace(0, 14), np.linspace(-2, 4))
-        result = self.pbx_nofilter.get_decomposition_energy(entry, ph, v)
+        result = self.pbx_no_filter.get_decomposition_energy(entry, ph, v)
         assert (result >= 0).all(), "Unstable energy has hull energy of 0 or less"
 
         # Test an unstable hydride to ensure HER correction works
@@ -271,7 +266,7 @@ class TestPourbaixDiagram(unittest.TestCase):
 
         # Test with unstable solid entries included (filter_solids=False), this should result in the
         # previously filtered entries being included
-        dct = self.pbx_nofilter.as_dict()
+        dct = self.pbx_no_filter.as_dict()
         new = PourbaixDiagram.from_dict(dct)
         assert {e.name for e in new.stable_entries} == {
             "ZnO(s)",
