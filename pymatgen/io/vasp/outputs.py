@@ -3453,7 +3453,7 @@ class Locpot(VolumetricData):
 class Chgcar(VolumetricData):
     """Simple object for reading a CHGCAR file."""
 
-    def __init__(self, poscar_or_struct, data, data_aug=None):
+    def __init__(self, poscar, data, data_aug=None):
         """
         Args:
             poscar (Poscar | Structure): Object containing structure.
@@ -3461,13 +3461,13 @@ class Chgcar(VolumetricData):
             data_aug: Augmentation charge data.
         """
         # allow for poscar or structure files to be passed
-        if isinstance(poscar_or_struct, Poscar):
-            struct = poscar_or_struct.structure
-            self.poscar = poscar_or_struct
-            self.name = poscar_or_struct.comment
-        elif isinstance(poscar_or_struct, Structure):
-            struct = poscar_or_struct
-            self.poscar = Poscar(poscar_or_struct)
+        if isinstance(poscar, Poscar):
+            struct = poscar.structure
+            self.poscar = poscar
+            self.name = poscar.comment
+        elif isinstance(poscar, Structure):
+            struct = poscar
+            self.poscar = Poscar(poscar)
             self.name = None
 
         super().__init__(struct, data, data_aug=data_aug)
