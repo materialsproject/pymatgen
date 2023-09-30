@@ -376,9 +376,9 @@ class TransformedStructure(MSONable):
         Returns:
             TransformedStructure
         """
-        hist = []
+        history: list[dict] = []
         for hist in snl.history:
             dct = hist.description
             dct["_snl"] = {"url": hist.url, "name": hist.name}
             hist.append(dct)
-        return cls(snl.structure, history=hist)
+        return cls(snl.structure, history=history)
