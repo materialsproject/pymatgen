@@ -415,7 +415,7 @@ class NciCobiList:
 
      Attributes:
          is_spin_polarized (bool): Boolean to indicate if the calculation is spin polarized.
-         Ncicobilist (dict): Dict containing the listfile data of the form:
+         NciCobiList (dict): Dict containing the listfile data of the form:
            {bond: "number_of_atoms": number of atoms involved in the multi-center interaction,
                   "ncicobi": {Spin.up: Nc-ICOBI(Ef) spin up, Spin.down: ...}},
                   "interaction_type": type of the multi-center interaction
@@ -441,7 +441,7 @@ class NciCobiList:
         # If the calculation is spin polarized, the line in the middle
         # of the file will be another header line.
         if "spin" in data[len(data) // 2]:
-            # TODO: adapt this for orbitalwise stuff
+            # TODO: adapt this for orbitalwise case
             self.is_spin_polarized = True
         else:
             self.is_spin_polarized = False
