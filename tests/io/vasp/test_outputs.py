@@ -1558,18 +1558,18 @@ class TestChgcar(PymatgenTest):
         )
 
 
-class TestAECCARS(PymatgenTest):
+class TestAeccars(PymatgenTest):
     def test_write_file(self):
         aeccar0_test = Chgcar.from_file(f"{TEST_FILES_DIR}/bader/AECCAR0.gz")
-        aeccar0_test.write_file("AECCAR0_test")
-        aeccar0_read = Chgcar.from_file("AECCAR0_test")
-        np.allclose(aeccar0_test.data["total"], aeccar0_read.data["total"])
+        aeccar0_outpath = f"{self.tmp_path}/AECCAR0_test"
+        aeccar0_test.write_file(aeccar0_outpath)
+        aeccar0_read = Chgcar.from_file(aeccar0_outpath)
+        assert_allclose(aeccar0_test.data["total"], aeccar0_read.data["total"])
         aeccar2 = Chgcar.from_file(f"{TEST_FILES_DIR}/bader/AECCAR2.gz")
-        aeccar2.write_file("AECCAR2_test")
-        aeccar2_read = Chgcar.from_file("AECCAR2_test")
-        np.allclose(aeccar2.data["total"], aeccar2_read.data["total"])
-        os.remove("AECCAR0_test")
-        os.remove("AECCAR2_test")
+        aeccar2_outpath = f"{self.tmp_path}/AECCAR2_test"
+        aeccar2.write_file(aeccar2_outpath)
+        aeccar2_read = Chgcar.from_file(aeccar2_outpath)
+        assert_allclose(aeccar2.data["total"], aeccar2_read.data["total"])
 
 
 class TestElfcar(PymatgenTest):
