@@ -2053,7 +2053,7 @@ class PotcarSingle:
 
     @property
     def sha256_computed_file_hash(self) -> str:
-        """Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'CPRY'."""
+        """Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'COPYR'."""
         # we have to remove lines with the hash itself and the copyright
         # notice to get the correct hash.
         potcar_list = self.data.split("\n")
