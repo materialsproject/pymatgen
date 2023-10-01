@@ -438,13 +438,9 @@ class NciCobiList:
         if len(data) == 0:
             raise OSError("NcICOBILIST file contains no data.")
 
-        # If the calculation is spin polarized, the line in the middle
+        # If the calculation is spin-polarized, the line in the middle
         # of the file will be another header line.
-        if "spin" in data[len(data) // 2]:
-            # TODO: adapt this for orbitalwise case
-            self.is_spin_polarized = True
-        else:
-            self.is_spin_polarized = False
+        self.is_spin_polarized = "spin" in data[len(data) // 2]  # TODO: adapt this for orbitalwise case
 
         # check if orbitalwise NcICOBILIST
         # include case when there is only one NcICOBI
