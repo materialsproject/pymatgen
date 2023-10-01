@@ -377,8 +377,8 @@ class TestMPResterOld(PymatgenTest):
         assert isinstance(ws, WulffShape)
 
     def test_get_cohesive_energy(self):
-        ecoh = self.rester.get_cohesive_energy("mp-13")
-        assert ecoh, 5.04543279
+        e_coh = self.rester.get_cohesive_energy("mp-13")
+        assert e_coh, 5.04543279
 
     def test_get_gb_data(self):
         mo_gbs = self.rester.get_gb_data(chemsys="Mo")

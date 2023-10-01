@@ -3123,10 +3123,8 @@ class Outcar:
 
         if self.dfpt and self.lepsilon:
             dct.update(
-                {
-                    "piezo_ionic_tensor": self.piezo_ionic_tensor,
-                    "dielectric_ionic_tensor": self.dielectric_ionic_tensor,
-                }
+                piezo_ionic_tensor=self.piezo_ionic_tensor,
+                dielectric_ionic_tensor=self.dielectric_ionic_tensor,
             )
 
         if self.lcalcpol:
@@ -3137,24 +3135,20 @@ class Outcar:
 
         if self.nmr_cs:
             dct.update(
-                {
-                    "nmr_cs": {
-                        "valence and core": self.data["chemical_shielding"]["valence_and_core"],
-                        "valence_only": self.data["chemical_shielding"]["valence_only"],
-                        "g0": self.data["cs_g0_contribution"],
-                        "core": self.data["cs_core_contribution"],
-                        "raw": self.data["unsym_cs_tensor"],
-                    }
+                nmr_cs={
+                    "valence and core": self.data["chemical_shielding"]["valence_and_core"],
+                    "valence_only": self.data["chemical_shielding"]["valence_only"],
+                    "g0": self.data["cs_g0_contribution"],
+                    "core": self.data["cs_core_contribution"],
+                    "raw": self.data["unsym_cs_tensor"],
                 }
             )
 
         if self.nmr_efg:
             dct.update(
-                {
-                    "nmr_efg": {
-                        "raw": self.data["unsym_efg_tensor"],
-                        "parameters": self.data["efg"],
-                    }
+                nmr_efg={
+                    "raw": self.data["unsym_efg_tensor"],
+                    "parameters": self.data["efg"],
                 }
             )
 
