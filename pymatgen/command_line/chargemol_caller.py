@@ -196,7 +196,7 @@ class ChargemolAnalysis:
                 Default: None (current working directory).
         """
         if chargemol_output_path is None:
-            chargemol_output_path = ""
+            chargemol_output_path = "."
 
         charge_path = f"{chargemol_output_path}/DDEC6_even_tempered_net_atomic_charges.xyz"
         self.ddec_charges = self._get_data_from_xyz(charge_path)
