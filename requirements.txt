@@ -8,7 +8,7 @@ tabulate==0.9.0
 matplotlib==3.7.2
 palettable==3.3.0
 spglib==2.0.2
-pandas==2.0.3
+pandas==2.1.1
 networkx==2.8.8
 plotly==5.16.1
 beautifulsoup4==4.12.2
