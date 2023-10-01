@@ -281,10 +281,10 @@ class Icohplist:
 
         # If the calculation is spin polarized, the line in the middle
         # of the file will be another header line.
-        # TODO: adapt this for orbitalwise stuff
+        # TODO: adapt this for orbital-wise stuff
         self.is_spin_polarized = "distance" in data[len(data) // 2]
 
-        # check if orbitalwise ICOHPLIST
+        # check if orbital-wise ICOHPLIST
         # include case when there is only one ICOHP!!!
         self.orbitalwise = len(data) > 2 and "_" in data[1].split()[1]
 
@@ -301,7 +301,7 @@ class Icohplist:
             data_without_orbitals = data
 
         if "distance" in data_without_orbitals[len(data_without_orbitals) // 2]:
-            # TODO: adapt this for orbitalwise stuff
+            # TODO: adapt this for orbital-wise stuff
             num_bonds = len(data_without_orbitals) // 2
             if num_bonds == 0:
                 raise OSError("ICOHPLIST file contains no data.")
@@ -433,8 +433,8 @@ class NciCobiList:
 
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header.
-        with zopen(filename, "rt") as f:
-            data = f.read().split("\n")[1:-1]
+        with zopen(filename, "rt") as file:
+            data = file.read().split("\n")[1:-1]
         if len(data) == 0:
             raise OSError("NcICOBILIST file contains no data.")
 
@@ -466,36 +466,36 @@ class NciCobiList:
             data_without_orbitals = data
 
         if "spin" in data_without_orbitals[len(data_without_orbitals) // 2]:
-            # TODO: adapt this for orbitalwise stuff
-            num_bonds = len(data_without_orbitals) // 2
-            if num_bonds == 0:
+            # TODO: adapt this for orbitalwise case
+            n_bonds = len(data_without_orbitals) // 2
+            if n_bonds == 0:
                 raise OSError("NcICOBILIST file contains no data.")
         else:
-            num_bonds = len(data_without_orbitals)
+            n_bonds = len(data_without_orbitals)
 
         self.list_labels = []
-        self.list_numofatoms = []
+        self.list_n_atoms = []
         self.list_ncicobi = []
-        self.list_interactiontype = []
+        self.list_interaction_type = []
         self.list_num = []
 
-        for bond in range(num_bonds):
+        for bond in range(n_bonds):
             line = data_without_orbitals[bond].split()
             ncicobi = {}
 
             label = f"{line[0]}"
-            numofatoms = str(line[1])
+            n_atoms = str(line[1])
             ncicobi[Spin.up] = float(line[2])
-            interactiontype = str(line[3:]).replace("'", "").replace(" ", "")
+            interaction_type = str(line[3:]).replace("'", "").replace(" ", "")
             num = 1
 
             if self.is_spin_polarized:
-                ncicobi[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[2])
+                ncicobi[Spin.down] = float(data_without_orbitals[bond + n_bonds + 1].split()[2])
 
             self.list_labels.append(label)
-            self.list_numofatoms.append(numofatoms)
+            self.list_n_atoms.append(n_atoms)
             self.list_ncicobi.append(ncicobi)
-            self.list_interactiontype.append(interactiontype)
+            self.list_interaction_type.append(interaction_type)
             self.list_num.append(num)
 
         # TODO: add functions to get orbital resolved NcICOBIs
@@ -505,15 +505,15 @@ class NciCobiList:
         """
         Returns: ncicobilist.
         """
-        ncicobilist = {}
-        for key, _entry in enumerate(self.list_labels):
-            ncicobilist[str(key + 1)] = {
-                "number_of_atoms": int(self.list_numofatoms[key]),
-                "ncicobi": self.list_ncicobi[key],
-                "interaction_type": self.list_interactiontype[key],
+        ncicobi_list = {}
+        for idx in range(len(self.list_labels)):
+            ncicobi_list[str(idx + 1)] = {
+                "number_of_atoms": int(self.list_n_atoms[idx]),
+                "ncicobi": self.list_ncicobi[idx],
+                "interaction_type": self.list_interaction_type[idx],
             }
 
-        return ncicobilist
+        return ncicobi_list
 
 
 class Doscar:

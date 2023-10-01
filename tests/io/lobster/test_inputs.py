@@ -673,30 +673,32 @@ class TestIcohplist(unittest.TestCase):
 class TestNciCobiList(unittest.TestCase):
     def setUp(self):
         self.ncicobi = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster")
-        self.ncicobigz = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.gz")
-        self.ncicobinospin = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.nospin")
-        self.ncicobinospinwo = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.nospin.withoutorbitals")
-        self.ncicobiwo = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.withoutorbitals")
+        self.ncicobi_gz = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.gz")
+        self.ncicobi_no_spin = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.nospin")
+        self.ncicobi_no_spin_wo = NciCobiList(
+            filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.nospin.withoutorbitals"
+        )
+        self.ncicobi_wo = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.withoutorbitals")
 
     def test_ncicobilist(self):
         assert self.ncicobi.is_spin_polarized
-        assert not self.ncicobinospin.is_spin_polarized
-        assert self.ncicobiwo.is_spin_polarized
-        assert not self.ncicobinospinwo.is_spin_polarized
+        assert not self.ncicobi_no_spin.is_spin_polarized
+        assert self.ncicobi_wo.is_spin_polarized
+        assert not self.ncicobi_no_spin_wo.is_spin_polarized
         assert self.ncicobi.orbitalwise
-        assert self.ncicobinospin.orbitalwise
-        assert not self.ncicobiwo.orbitalwise
-        assert not self.ncicobinospinwo.orbitalwise
+        assert self.ncicobi_no_spin.orbitalwise
+        assert not self.ncicobi_wo.orbitalwise
+        assert not self.ncicobi_no_spin_wo.orbitalwise
         assert len(self.ncicobi.ncicobilist) == 2
         assert self.ncicobi.ncicobilist["2"]["number_of_atoms"] == 3
         assert self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up] == approx(0.00009)
         assert self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.down] == approx(0.00009)
         assert self.ncicobi.ncicobilist["2"]["interaction_type"] == "[X22[0,0,0]->Xs42[0,0,0]->X31[0,0,0]]"
-        assert self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up] == self.ncicobiwo.ncicobilist["2"]["ncicobi"][Spin.up]
-        assert self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up] == self.ncicobigz.ncicobilist["2"]["ncicobi"][Spin.up]
-        assert self.ncicobi.ncicobilist["2"]["interaction_type"] == self.ncicobigz.ncicobilist["2"]["interaction_type"]
-        assert sum(list(self.ncicobi.ncicobilist["2"]["ncicobi"].values())) == approx(
-            self.ncicobinospin.ncicobilist["2"]["ncicobi"][Spin.up]
+        assert self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up] == self.ncicobi_wo.ncicobilist["2"]["ncicobi"][Spin.up]
+        assert self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up] == self.ncicobi_gz.ncicobilist["2"]["ncicobi"][Spin.up]
+        assert self.ncicobi.ncicobilist["2"]["interaction_type"] == self.ncicobi_gz.ncicobilist["2"]["interaction_type"]
+        assert sum(self.ncicobi.ncicobilist["2"]["ncicobi"].values()) == approx(
+            self.ncicobi_no_spin.ncicobilist["2"]["ncicobi"][Spin.up]
         )
 
 
