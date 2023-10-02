@@ -182,21 +182,21 @@ class TestInputSet(PymatgenTest):
 
     def test_write_from_str(self):
         inp_set = InputSet(
-            {"cif1": self.sif1, "file_from_str": "hello you", "file_from_strcast": FakeClass(a="Aha", b="Beh")}
+            {"cif1": self.sif1, "file_from_str": "hello you", "file_from_str_cast": FakeClass(a="Aha", b="Beh")}
         )
         inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
         assert os.path.exists(os.path.join("input_dir", "cif1"))
         assert os.path.exists(os.path.join("input_dir", "file_from_str"))
-        assert os.path.exists(os.path.join("input_dir", "file_from_strcast"))
+        assert os.path.exists(os.path.join("input_dir", "file_from_str_cast"))
         assert len(os.listdir("input_dir")) == 3
         parser = CifParser(filename=os.path.join("input_dir", "cif1"))
         assert parser.get_structures()[0] == self.sif1.structure
         with open(os.path.join("input_dir", "file_from_str")) as file:
             file_from_str = file.read()
             assert file_from_str == "hello you"
-        with open(os.path.join("input_dir", "file_from_strcast")) as file:
-            file_from_strcast = file.read()
-            assert file_from_strcast == "Aha\nBeh"
+        with open(os.path.join("input_dir", "file_from_str_cast")) as file:
+            file_from_str_cast = file.read()
+            assert file_from_str_cast == "Aha\nBeh"
 
     def test_copy(self):
         sif1, sif2 = self.sif1, self.sif2
