@@ -1607,6 +1607,7 @@ class PotcarSingle:
         PBE="POT_GGA_PAW_PBE",
         PBE_52="POT_GGA_PAW_PBE_52",
         PBE_54="POT_GGA_PAW_PBE_54",
+        PBE_64="POT_PAW_PBE_64",
         LDA="POT_LDA_PAW",
         LDA_52="POT_LDA_PAW_52",
         LDA_54="POT_LDA_PAW_54",
@@ -1764,7 +1765,7 @@ class PotcarSingle:
                 "POTCAR may be corrupted or pymatgen's POTCAR database is incomplete.",
                 UnknownPotcarWarning,
             )
-
+    
     def __str__(self) -> str:
         return self.data + "\n"
 
@@ -2231,7 +2232,9 @@ class PotcarSingle:
                 "MAX": arr.max(),
             }
 
-        summary_stats = {  # for this PotcarSingle instance
+        # NB: to add future summary stats in a way that's consistent with PMG,
+        # it's easiest to save the summary stats as an attr of PotcarSingle
+        self._summary_stats = {  # for this PotcarSingle instance
             "keywords": {
                 "header": [kwd.lower() for kwd in self.keywords],
                 "data": psp_keys,
@@ -2245,12 +2248,12 @@ class PotcarSingle:
         data_match_tol = 1e-6
         for ref_psp in possible_potcar_matches:
             key_match = all(
-                set(ref_psp["keywords"][key]) == set(summary_stats["keywords"][key])  # type: ignore
+                set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key])  # type: ignore
                 for key in ["header", "data"]
             )
 
             data_diff = [
-                abs(ref_psp["stats"][key][stat] - summary_stats["stats"][key][stat])  # type: ignore
+                abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])  # type: ignore
                 for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
                 for key in ["header", "data"]
             ]
@@ -2278,6 +2281,41 @@ class PotcarSingle:
         TITEL, VRHFIN = self.keywords["TITEL"], self.keywords["VRHFIN"]
         TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
+
+def __gen_potcar_summary_stats():
+    """ 
+    This function solely intended to be used for PMG development to regenerate the 
+    potcar_summary_stats.json.gz file used to validate POTCARs
+    """
+    from monty.shutil import compress_file
+
+    func_dir_exist = {}
+    PMG_VASP_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR")
+    for func in PotcarSingle.functional_dir:
+        cpsp_dir = f"{PMG_VASP_PSP_DIR}/{PotcarSingle.functional_dir[func]}"
+        if os.path.isdir(cpsp_dir):
+            func_dir_exist[func] = PotcarSingle.functional_dir[func]
+        else:
+            print(f"WARNING: missing {PotcarSingle.functional_dir[func]} POTCAR directory")
+
+    new_summary_stats = {func: {} for func in func_dir_exist}
+    for func in func_dir_exist:
+        potcar_list = glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/POTCAR*") \
+            + glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/*/POTCAR")
+        for apotcar in potcar_list:
+            psp = PotcarSingle.from_file(apotcar)
+            new_summary_stats[func][psp.TITEL.replace(" ","")] = {
+                "LEXCH": psp.LEXCH,
+                "VRHFIN": psp.VRHFIN.replace(" ",""),
+                **psp._summary_stats
+            }
+
+    with open(f"{module_dir}/potcar_summary_stats.json","w+") as _fl:
+        json.dump(new_summary_stats,_fl)
+
+    compress_file(f"{module_dir}/potcar_summary_stats.json")
+
+    return
 
 
 class Potcar(list, MSONable):
@@ -2543,3 +2581,4 @@ class VaspInput(dict, MSONable):
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
         with cd(run_dir), open(output_file, "w") as f_std, open(err_file, "w", buffering=1) as f_err:
             subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)
+
