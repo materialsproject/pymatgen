@@ -2151,7 +2151,7 @@ class PotcarSingle:
         tol is then used to match statistical values within a tolerance
         """
         functional_lexch = {
-            "PE": ["PBE", "PBE_52", "PBE_54"],
+            "PE": ["PBE", "PBE_52", "PBE_54", "PBE_64"],
             "CA": ["LDA", "LDA_52", "LDA_54", "LDA_US", "Perdew_Zunger81"],
             "91": ["PW91", "PW91_US"],
         }
@@ -2258,7 +2258,7 @@ class PotcarSingle:
                 for key in ["header", "data"]
             ]
             data_match = all(np.array(data_diff) < data_match_tol)
-
+            
             if key_match and data_match:
                 return True
 
@@ -2302,8 +2302,8 @@ def _gen_potcar_summary_stats():
     for func in func_dir_exist:
         potcar_list = glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/POTCAR*") \
             + glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/*/POTCAR")
-        for apotcar in potcar_list:
-            psp = PotcarSingle.from_file(apotcar)
+        for potcar in potcar_list:
+            psp = PotcarSingle.from_file(potcar)
             new_summary_stats[func][psp.TITEL.replace(" ","")] = {
                 "LEXCH": psp.LEXCH,
                 "VRHFIN": psp.VRHFIN.replace(" ",""),
