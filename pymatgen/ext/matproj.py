@@ -376,19 +376,17 @@ class MPRester:
         if not api_key:
             raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
 
-        try:
-            from mp_api.client import MPRester as _MPResterNew
-        except Exception:
-            _MPResterNew = _MPResterBasic
-
-        if len(api_key) == 32:
-            rester = _MPResterNew
-        else:
+        if len(api_key) != 32:
             from pymatgen.ext.matproj_legacy import _MPResterLegacy
 
-            rester = _MPResterLegacy
+            return _MPResterLegacy.__new__(cls)
 
-        return rester(*args, **kwargs)
+        try:
+            from mp_api.client import MPRester as _MPResterNew
+
+            return _MPResterNew.__new__(cls)
+        except Exception:
+            return _MPResterBasic.__new__(cls)
 
 
 class MPRestError(Exception):
