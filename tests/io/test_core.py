@@ -111,36 +111,15 @@ class TestInputSet(PymatgenTest):
     def test_equality(self):
         sif1, sif2, sif3 = self.sif1, self.sif2, self.sif3
 
-        inp_set = InputSet(
-            {"cif1": sif1, "cif2": sif2},
-            kwarg1=1,
-            kwarg2="hello",
-        )
+        inp_set = InputSet({"cif1": sif1, "cif2": sif2}, kwarg1=1, kwarg2="hello")
 
-        inp_set2 = InputSet(
-            {"cif1": sif1, "cif2": sif2},
-            kwarg1=1,
-            kwarg2="hello",
-        )
+        inp_set2 = InputSet({"cif1": sif1, "cif2": sif2}, kwarg1=1, kwarg2="hello")
 
-        inp_set3 = InputSet(
-            {"cif1": sif1, "cif2": sif2, "cif3": sif3},
-            kwarg1=1,
-            kwarg2="hello",
-        )
+        inp_set3 = InputSet({"cif1": sif1, "cif2": sif2, "cif3": sif3}, kwarg1=1, kwarg2="hello")
 
-        inp_set4 = InputSet(
-            {"cif1": sif1, "cif2": sif2},
-            kwarg1=1,
-            kwarg2="goodbye",
-        )
+        inp_set4 = InputSet({"cif1": sif1, "cif2": sif2}, kwarg1=1, kwarg2="goodbye")
 
-        inp_set5 = InputSet(
-            {"cif1": sif1, "cif2": sif2},
-            kwarg1=1,
-            kwarg2="hello",
-            kwarg3="goodbye",
-        )
+        inp_set5 = InputSet({"cif1": sif1, "cif2": sif2}, kwarg1=1, kwarg2="hello", kwarg3="goodbye")
 
         assert inp_set.as_dict() == inp_set2.as_dict()
         assert inp_set.as_dict() != inp_set3.as_dict()
@@ -149,11 +128,7 @@ class TestInputSet(PymatgenTest):
 
     def test_msonable(self):
         sif1, sif2 = self.sif1, self.sif2
-        inp_set = InputSet(
-            {"cif1": sif1, "cif2": sif2},
-            kwarg1=1,
-            kwarg2="hello",
-        )
+        inp_set = InputSet({"cif1": sif1, "cif2": sif2}, kwarg1=1, kwarg2="hello")
 
         inp_set_dict = inp_set.as_dict()
         decoder = MontyDecoder()
@@ -169,14 +144,14 @@ class TestInputSet(PymatgenTest):
     def test_write(self):
         inp_set = InputSet({"cif1": self.sif1, "cif2": self.sif2}, kwarg1=1, kwarg2="hello")
         inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
-        assert os.path.exists(os.path.join("input_dir", "cif1"))
-        assert os.path.exists(os.path.join("input_dir", "cif2"))
+        assert os.path.exists("input_dir/cif1")
+        assert os.path.exists("input_dir/cif2")
         assert len(os.listdir("input_dir")) == 2
         with pytest.raises(FileExistsError, match="cif1"):
             inp_set.write_input(directory="input_dir", make_dir=True, overwrite=False, zip_inputs=False)
         inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=True)
         assert len(os.listdir("input_dir")) == 1
-        assert os.path.exists(os.path.join("input_dir", f"{type(inp_set).__name__}.zip"))
+        assert os.path.exists(f"input_dir/{type(inp_set).__name__}.zip")
         with pytest.raises(FileNotFoundError, match="input_dir2"):
             inp_set.write_input(directory="input_dir2", make_dir=False, overwrite=True, zip_inputs=False)
 
@@ -185,16 +160,16 @@ class TestInputSet(PymatgenTest):
             {"cif1": self.sif1, "file_from_str": "hello you", "file_from_str_cast": FakeClass(a="Aha", b="Beh")}
         )
         inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
-        assert os.path.exists(os.path.join("input_dir", "cif1"))
-        assert os.path.exists(os.path.join("input_dir", "file_from_str"))
-        assert os.path.exists(os.path.join("input_dir", "file_from_str_cast"))
+        assert os.path.exists("input_dir/cif1")
+        assert os.path.exists("input_dir/file_from_str")
+        assert os.path.exists("input_dir/file_from_str_cast")
         assert len(os.listdir("input_dir")) == 3
-        parser = CifParser(filename=os.path.join("input_dir", "cif1"))
+        parser = CifParser(filename="input_dir/cif1")
         assert parser.get_structures()[0] == self.sif1.structure
-        with open(os.path.join("input_dir", "file_from_str")) as file:
+        with open("input_dir/file_from_str") as file:
             file_from_str = file.read()
             assert file_from_str == "hello you"
-        with open(os.path.join("input_dir", "file_from_str_cast")) as file:
+        with open("input_dir/file_from_str_cast") as file:
             file_from_str_cast = file.read()
             assert file_from_str_cast == "Aha\nBeh"
 
