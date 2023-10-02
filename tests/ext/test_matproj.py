@@ -86,13 +86,7 @@ class TestMPResterOld(PymatgenTest):
         expected_vals = vals.json()
 
         for prop in props:
-            if prop not in [
-                "hubbards",
-                "unit_cell_formula",
-                "elements",
-                "icsd_ids",
-                "task_ids",
-            ]:
+            if prop not in ["hubbards", "unit_cell_formula", "elements", "icsd_ids", "task_ids"]:
                 val = self.rester.get_data(mp_id, prop=prop)[0][prop]
                 if prop in ["energy", "energy_per_atom"]:
                     prop = "final_" + prop
