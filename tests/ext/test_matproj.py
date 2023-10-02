@@ -892,8 +892,8 @@ class TestMPResterNewBasic:
     def test_parity_with_mp_api(self):
         try:
             from mp_api.client import MPRester as MPResterMPAPI
-        except ImportError:
-            pytest.importorskip("mp_api.client.MPRester")
+        except Exception:
+            pytest.skip("mp_api.client.MPRester cannot be imported for this test.")
         mpr_mpapi = MPResterMPAPI(PMG_MAPI_KEY)
         # Test summary
         mp_data = mpr_mpapi.summary.search(formula="Al2O3")

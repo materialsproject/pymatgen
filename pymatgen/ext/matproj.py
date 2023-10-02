@@ -37,12 +37,20 @@ MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
 
 class _MPResterBasic:
     """
-    A new MPRester that supports the new MP API. If you are getting your API key from the new dashboard of MP, you will
-    need to use this instead of the original MPRester because the new API keys do not work with the old MP API (???!).
-    This is a basic implementation for now and features will be added soon. The current implementation is to enable
-    users with simple requirements use the API without having to install additional packages.
+    This is Pymatgen's own implement of a MPRester that supports the new MP API. If you are getting your API key from
+    the new dashboard of MP, you will need to use this instead of the original MPRester because the new API keys do
+    not work with the old MP API (???!).
 
-    If you are a power user who needs the full functionality, please get the mp-api package instead.
+    The reason why this class exists is because it is the belief of the pymatgen maintainers that access to the MP API
+    remains a critical part of pymatgen functionality. However, the new mp-api package is written in a way that
+    prevents us from importing the mp-api package because of cyclic dependencies. It is also the opinion of Pymatgen
+    maintainers that the implementation of mp-api is too heavy duty for most users (few care about document models,
+    etc.). Further, this implementation serves as a simple reference for end developers who want to develop their own
+    interfaces to the MP API via the REST urls.
+
+    If you are a power user, feel free to install the mp-api package. All issues regarding that implementation should
+    be directed to the maintainers of that repository and not pymatgen. We will support only issues with regards to
+    our implementation only.
     """
 
     def __init__(self, api_key: str | None = None, include_user_agent: bool = True) -> None:
@@ -376,19 +384,17 @@ class MPRester:
         if not api_key:
             raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
 
-        try:
-            from mp_api.client import MPRester as _MPResterNew
-        except Exception:
-            _MPResterNew = _MPResterBasic
-
-        if len(api_key) == 32:
-            rester = _MPResterNew
-        else:
+        if len(api_key) != 32:
             from pymatgen.ext.matproj_legacy import _MPResterLegacy
 
-            rester = _MPResterLegacy
+            return _MPResterLegacy.__new__(cls)
 
-        return rester(*args, **kwargs)
+        try:
+            from mp_api.client import MPRester as _MPResterNew
+
+            return _MPResterNew.__new__(cls)
+        except Exception:
+            return _MPResterBasic.__new__(cls)
 
 
 class MPRestError(Exception):
