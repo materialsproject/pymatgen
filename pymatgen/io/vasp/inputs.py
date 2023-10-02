@@ -1765,7 +1765,7 @@ class PotcarSingle:
                 "POTCAR may be corrupted or pymatgen's POTCAR database is incomplete.",
                 UnknownPotcarWarning,
             )
-    
+
     def __str__(self) -> str:
         return self.data + "\n"
 
@@ -2258,7 +2258,7 @@ class PotcarSingle:
                 for key in ["header", "data"]
             ]
             data_match = all(np.array(data_diff) < data_match_tol)
-            
+
             if key_match and data_match:
                 return True
 
@@ -2282,9 +2282,10 @@ class PotcarSingle:
         TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
+
 def _gen_potcar_summary_stats():
-    """ 
-    This function solely intended to be used for PMG development to regenerate the 
+    """
+    This function solely intended to be used for PMG development to regenerate the
     potcar_summary_stats.json.gz file used to validate POTCARs
     """
     from monty.shutil import compress_file
@@ -2300,18 +2301,19 @@ def _gen_potcar_summary_stats():
 
     new_summary_stats = {func: {} for func in func_dir_exist}
     for func in func_dir_exist:
-        potcar_list = glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/POTCAR*") \
-            + glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/*/POTCAR")
+        potcar_list = glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/POTCAR*") + glob(
+            f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/*/POTCAR"
+        )
         for potcar in potcar_list:
             psp = PotcarSingle.from_file(potcar)
-            new_summary_stats[func][psp.TITEL.replace(" ","")] = {
+            new_summary_stats[func][psp.TITEL.replace(" ", "")] = {
                 "LEXCH": psp.LEXCH,
-                "VRHFIN": psp.VRHFIN.replace(" ",""),
-                **psp._summary_stats
+                "VRHFIN": psp.VRHFIN.replace(" ", ""),
+                **psp._summary_stats,
             }
 
-    with open(f"{module_dir}/potcar_summary_stats.json","w+") as _fl:
-        json.dump(new_summary_stats,_fl)
+    with open(f"{module_dir}/potcar_summary_stats.json", "w+") as _fl:
+        json.dump(new_summary_stats, _fl)
 
     compress_file(f"{module_dir}/potcar_summary_stats.json")
 
@@ -2581,4 +2583,3 @@ class VaspInput(dict, MSONable):
             raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
         with cd(run_dir), open(output_file, "w") as f_std, open(err_file, "w", buffering=1) as f_err:
             subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)
-
