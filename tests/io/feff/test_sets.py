@@ -149,7 +149,7 @@ TITLE sites: 4
         os.remove("feff.inp")
         os.remove("Co2O2.cif")
 
-    def test_small_system_EXAFS(self):
+    def test_small_system_exafs(self):
         exafs_settings = MPEXAFSSet(self.absorbing_atom, self.structure)
         assert not exafs_settings.small_system
         assert "RECIPROCAL" not in exafs_settings.tags

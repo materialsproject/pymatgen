@@ -592,14 +592,12 @@ class LocalGeometryFinder:
         if info is None:
             info = {}
         info.update(
-            {
-                "local_geometry_finder": {
-                    "parameters": {
-                        "centering_type": self.centering_type,
-                        "include_central_site_in_centroid": self.include_central_site_in_centroid,
-                        "structure_refinement": self.structure_refinement,
-                        "spg_analyzer_options": self.spg_analyzer_options,
-                    }
+            local_geometry_finder={
+                "parameters": {
+                    "centering_type": self.centering_type,
+                    "include_central_site_in_centroid": self.include_central_site_in_centroid,
+                    "structure_refinement": self.structure_refinement,
+                    "spg_analyzer_options": self.spg_analyzer_options,
                 }
             }
         )
@@ -610,9 +608,9 @@ class LocalGeometryFinder:
             )
 
         if valences == "undefined":
-            firstsite = self.structure[0]
+            first_site = self.structure[0]
             try:
-                sp = firstsite.specie
+                sp = first_site.specie
                 if isinstance(sp, Species):
                     self.valences = [int(site.specie.oxi_state) for site in self.structure]
                 else:

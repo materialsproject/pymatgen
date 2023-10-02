@@ -333,13 +333,11 @@ class InsertionElectrode(AbstractElectrode):
         )
         if all("decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()):
             dct.update(
-                {
-                    "stability_charge": self.fully_charged_entry.data["decomposition_energy"],
-                    "stability_discharge": self.fully_discharged_entry.data["decomposition_energy"],
-                    "stability_data": {
-                        itr_ent.entry_id: itr_ent.data["decomposition_energy"] for itr_ent in self.get_all_entries()
-                    },
-                }
+                stability_charge=self.fully_charged_entry.data["decomposition_energy"],
+                stability_discharge=self.fully_discharged_entry.data["decomposition_energy"],
+                stability_data={
+                    itr_ent.entry_id: itr_ent.data["decomposition_energy"] for itr_ent in self.get_all_entries()
+                },
             )
 
         if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):

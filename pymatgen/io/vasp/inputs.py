@@ -910,11 +910,9 @@ class Incar(dict, MSONable):
             other (Incar): The other Incar object to compare to.
 
         Returns:
-            Dict of the following format:
-            {"Same" : parameters_that_are_the_same,
-            "Different": parameters_that_are_different}
-            Note that the parameters are return as full dictionaries of values.
-            E.g. {"ISIF":3}
+            dict[str, dict]: of the following format:
+                {"Same" : parameters_that_are_the_same, "Different": parameters_that_are_different}
+                Note that the parameters are return as full dictionaries of values. E.g. {"ISIF":3}
         """
         similar_param = {}
         different_param = {}
@@ -1557,10 +1555,6 @@ class Kpoints(MSONable):
         )
 
 
-def _parse_string(s):
-    return f"{s.strip()}"
-
-
 def _parse_bool(s):
     m = re.match(r"^\.?([TFtf])[A-Za-z]*\.?", s)
     if m:
@@ -1656,14 +1650,14 @@ class PotcarSingle:
         IUNSCR=_parse_int,
         ICORE=_parse_int,
         NDATA=_parse_int,
-        VRHFIN=_parse_string,
-        LEXCH=_parse_string,
-        TITEL=_parse_string,
+        VRHFIN=str.strip,
+        LEXCH=str.strip,
+        TITEL=str.strip,
         STEP=_parse_list,
         RRKJ=_parse_list,
         GGA=_parse_list,
-        SHA256=_parse_string,
-        COPYR=_parse_string,
+        SHA256=str.strip,
+        COPYR=str.strip,
     )
 
     # used for POTCAR validation
@@ -1688,7 +1682,7 @@ class PotcarSingle:
         keywords = {}
         for key, val in re.findall(r"(\S+)\s*=\s*(.*?)(?=;|$)", search_lines, flags=re.MULTILINE):
             try:
-                keywords[key] = self.parse_functions[key](val)
+                keywords[key] = self.parse_functions[key](val)  # type: ignore
             except KeyError:
                 warnings.warn(f"Ignoring unknown variable type {key}")
 
