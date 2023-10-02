@@ -2282,7 +2282,7 @@ class PotcarSingle:
         TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
-def __gen_potcar_summary_stats():
+def _gen_potcar_summary_stats():
     """ 
     This function solely intended to be used for PMG development to regenerate the 
     potcar_summary_stats.json.gz file used to validate POTCARs
