@@ -427,7 +427,7 @@ class NciCobiList:
             filename: Name of the NcICOBILIST file.
         """
 
-        if filename is None:
+        if filename is None: # LOBSTER versions < 4.1.0 don't have any COBI/ICOBI/NcICOBI files at all.
             warnings.warn("Please consider using the newest LOBSTER version (4.1.0+). See http://www.cohp.de/.")
             filename = "NcICOBILIST.lobster"
 
