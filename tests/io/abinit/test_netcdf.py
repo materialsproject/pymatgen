@@ -31,7 +31,7 @@ class TestEtsfReader(PymatgenTest):
             dct[formula] = ref_file(formula + "_GSR.nc")
 
     @unittest.skipIf(netCDF4 is None, "Requires Netcdf4")
-    def test_read_Si2(self):
+    def test_read_si2(self):
         path = self.GSR_paths["Si2"]
 
         ref_dims = {"number_of_spins": 1}
