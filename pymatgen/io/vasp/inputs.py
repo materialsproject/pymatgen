@@ -2299,18 +2299,15 @@ def _gen_potcar_summary_stats(
     This function solely intended to be used for PMG development to regenerate the
     potcar_summary_stats.json.gz file used to validate POTCARs
 
-    THIS FUNCTION IS DESTRUCTIVE - IT WILL COMPLETELY OVERWRITE YOUR POTCAR SUMMARY STATS
+    THIS FUNCTION IS DESTRUCTIVE. It will completely overwrite your potcar_summary_stats.json.gz.
 
     Args:
-        - append : bool = False
-            use to change whether data is appended to the existing
-            potcar_summary_stats.json.gz, or if a completely new file is generated
-        - PMG_VASP_PSP_DIR : str or None = None
-            use to change where this function searches for POTCARs
-            defaults to the PMG_VASP_PSP_DIR environment variable if not set
-        - summary_stats_filename : str
-            name of the output summary stats file
-            defaults to <pymatgen_install_dir>/io/vasp/potcar_summary_stats.json.gz
+        append (bool): Change whether data is appended to the existing potcar_summary_stats.json.gz,
+            or if a completely new file is generated. Defaults to False.
+        PMG_VASP_PSP_DIR (str): Change where this function searches for POTCARs
+            defaults to the PMG_VASP_PSP_DIR environment variable if not set. Defaults to None.
+        summary_stats_filename (str): Name of the output summary stats file. Defaults to
+            '<pymatgen_install_dir>/io/vasp/potcar_summary_stats.json.gz'.
     """
     from monty.serialization import dumpfn
 
