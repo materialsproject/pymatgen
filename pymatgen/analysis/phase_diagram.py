@@ -2939,15 +2939,7 @@ class PDPlotter:
                 z += offset
 
             annotation = plotly_layouts["default_annotation_layout"].copy()
-            annotation.update(
-                {
-                    "x": x,
-                    "y": y,
-                    "font": font_dict,
-                    "text": clean_formula,
-                    "opacity": opacity,
-                }
-            )
+            annotation.update(x=x, y=y, font=font_dict, text=clean_formula, opacity=opacity)
 
             if self._dim in (3, 4):
                 for d in ["xref", "yref"]:
@@ -3066,44 +3058,41 @@ class PDPlotter:
             unstable_markers = plotly_layouts["default_unary_marker_settings"].copy()
 
             stable_markers.update(
-                {
-                    "x": [0] * len(stable_props["y"]),
-                    "y": list(stable_props["x"]),
-                    "name": "Stable",
-                    "marker": {
-                        "color": "darkgreen",
-                        "size": 20,
-                        "line": {"color": "black", "width": 2},
-                        "symbol": "star",
-                    },
-                    "opacity": 0.9,
-                    "hovertext": stable_props["texts"],
-                    "error_y": {
-                        "array": list(stable_props["uncertainties"]),
-                        "type": "data",
-                        "color": "gray",
-                        "thickness": 2.5,
-                        "width": 5,
-                    },
-                }
+                x=[0] * len(stable_props["y"]),
+                y=list(stable_props["x"]),
+                name="Stable",
+                marker={
+                    "color": "darkgreen",
+                    "size": 20,
+                    "line": {"color": "black", "width": 2},
+                    "symbol": "star",
+                },
+                opacity=0.9,
+                hovertext=stable_props["texts"],
+                error_y={
+                    "array": list(stable_props["uncertainties"]),
+                    "type": "data",
+                    "color": "gray",
+                    "thickness": 2.5,
+                    "width": 5,
+                },
             )
             plotly_layouts["unstable_colorscale"].copy()
             unstable_markers.update(
-                {
-                    "x": [0] * len(unstable_props["y"]),
-                    "y": list(unstable_props["x"]),
-                    "name": "Above Hull",
-                    "marker": {
-                        "color": unstable_props["energies"],
-                        "colorscale": plotly_layouts["unstable_colorscale"],
-                        "size": 16,
-                        "symbol": "diamond-wide",
-                        "line": {"color": "black", "width": 2},
-                    },
-                    "hovertext": unstable_props["texts"],
-                    "opacity": 0.9,
-                }
+                x=[0] * len(unstable_props["y"]),
+                y=list(unstable_props["x"]),
+                name="Above Hull",
+                marker={
+                    "color": unstable_props["energies"],
+                    "colorscale": plotly_layouts["unstable_colorscale"],
+                    "size": 16,
+                    "symbol": "diamond-wide",
+                    "line": {"color": "black", "width": 2},
+                },
+                hovertext=unstable_props["texts"],
+                opacity=0.9,
             )
+
             if highlight_entries:
                 highlight_markers = plotly_layouts["default_unary_marker_settings"].copy()
                 highlight_markers.update(
@@ -3134,21 +3123,19 @@ class PDPlotter:
             unstable_markers = plotly_layouts["default_binary_marker_settings"].copy()
 
             stable_markers.update(
-                {
-                    "x": list(stable_props["x"]),
-                    "y": list(stable_props["y"]),
-                    "name": "Stable",
-                    "marker": {"color": "darkgreen", "size": 16, "line": {"color": "black", "width": 2}},
-                    "opacity": 0.99,
-                    "hovertext": stable_props["texts"],
-                    "error_y": {
-                        "array": list(stable_props["uncertainties"]),
-                        "type": "data",
-                        "color": "gray",
-                        "thickness": 2.5,
-                        "width": 5,
-                    },
-                }
+                x=list(stable_props["x"]),
+                y=list(stable_props["y"]),
+                name="Stable",
+                marker={"color": "darkgreen", "size": 16, "line": {"color": "black", "width": 2}},
+                opacity=0.99,
+                hovertext=stable_props["texts"],
+                error_y={
+                    "array": list(stable_props["uncertainties"]),
+                    "type": "data",
+                    "color": "gray",
+                    "thickness": 2.5,
+                    "width": 5,
+                },
             )
             unstable_markers.update(
                 {
@@ -3169,26 +3156,24 @@ class PDPlotter:
             if highlight_entries:
                 highlight_markers = plotly_layouts["default_binary_marker_settings"].copy()
                 highlight_markers.update(
-                    {
-                        "x": list(highlight_props["x"]),
-                        "y": list(highlight_props["y"]),
-                        "name": "Highlighted",
-                        "marker": {
-                            "color": "mediumvioletred",
-                            "size": 16,
-                            "line": {"color": "black", "width": 2},
-                            "symbol": "square",
-                        },
-                        "opacity": 0.99,
-                        "hovertext": highlight_props["texts"],
-                        "error_y": {
-                            "array": list(highlight_props["uncertainties"]),
-                            "type": "data",
-                            "color": "gray",
-                            "thickness": 2.5,
-                            "width": 5,
-                        },
-                    }
+                    x=list(highlight_props["x"]),
+                    y=list(highlight_props["y"]),
+                    name="Highlighted",
+                    marker={
+                        "color": "mediumvioletred",
+                        "size": 16,
+                        "line": {"color": "black", "width": 2},
+                        "symbol": "square",
+                    },
+                    opacity=0.99,
+                    hovertext=highlight_props["texts"],
+                    error_y={
+                        "array": list(highlight_props["uncertainties"]),
+                        "type": "data",
+                        "color": "gray",
+                        "thickness": 2.5,
+                        "width": 5,
+                    },
                 )
 
         elif self._dim == 3 and self.ternary_style == "2d":

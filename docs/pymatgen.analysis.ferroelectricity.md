@@ -212,7 +212,7 @@ Create a periodic structure.
 * **Parameters**
 
 
-    * **lattice** – The lattice, either as a pymatgen.core.lattice.Lattice or
+    * **lattice** – The lattice, either as a pymatgen.core.Lattice or
     simply as any 2D array. Each row should correspond to a lattice
     vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
     lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -274,6 +274,8 @@ Create a periodic structure.
 
 #### _abc_impl(_ = <_abc._abc_data object_ )
 
+#### _properties(_: dic_ )
+
 #### get_nearest_site(coords, site, r=None)
 Given coords and a site, find closet site to coords.
 
@@ -296,8 +298,6 @@ Given coords and a site, find closet site to coords.
     Closest site and distance.
 
 
-
-#### properties(_: dic_ )
 
 ### calc_ionic(site, structure: [Structure](pymatgen.core.md#pymatgen.core.structure.Structure), zval)
 Calculate the ionic dipole moment using ZVAL from pseudopotential.

@@ -15,8 +15,6 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestTensor(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.vec = Tensor([1.0, 0.0, 0.0])
         self.rand_rank2 = Tensor(np.random.randn(3, 3))

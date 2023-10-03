@@ -49,18 +49,66 @@ Basic XAS object.
     Otherwise, it indicates that the absorbing_index for a site-wise spectrum.
 
 
-<!-- attribute: x
-The sequence of energies -->
-<!-- attribute: y
-The sequence of mu(E) -->
-<!-- attribute: absorbing_element
-The absorbing_element of the spectrum -->
-<!-- attribute: edge
-The edge of the spectrum -->
-<!-- attribute: spectrum_type
-XANES or EXAFS spectrum -->
-<!-- attribute: absorbing_index
-The absorbing_index of the spectrum -->
+
+#### x()
+The sequence of energies.
+
+
+* **Type**
+
+    Sequence[float]
+
+
+
+#### y()
+The sequence of mu(E).
+
+
+* **Type**
+
+    Sequence[float]
+
+
+
+#### absorbing_element()
+The absorbing element of the spectrum.
+
+
+* **Type**
+
+    str
+
+
+
+#### edge()
+The edge of the spectrum.
+
+
+* **Type**
+
+    str
+
+
+
+#### spectrum_type()
+The type of the spectrum (XANES or EXAFS).
+
+
+* **Type**
+
+    str
+
+
+
+#### absorbing_index()
+The absorbing index of the spectrum.
+
+
+* **Type**
+
+    int
+
+
 Initializes a spectrum object.
 
 

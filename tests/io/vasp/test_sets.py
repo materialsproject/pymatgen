@@ -33,6 +33,7 @@ from pymatgen.io.vasp.sets import (
     MPAbsorptionSet,
     MPHSEBSSet,
     MPHSERelaxSet,
+    MPMDSet,
     MPMetalRelaxSet,
     MPNMRSet,
     MPNonSCFSet,
@@ -762,8 +763,8 @@ class TestMatPESStaticSet(PymatgenTest):
         self.prev_incar = Incar.from_file(f"{TEST_FILES_DIR}/INCAR")
 
     def test_default(self):
-        default = MatPESStaticSet(self.struct)
-        incar = default.incar
+        input_set = MatPESStaticSet(self.struct)
+        incar = input_set.incar
         assert incar["ALGO"] == "Normal"
         assert incar["EDIFF"] == 1.0e-05
         assert incar["ENAUG"] == 1360
@@ -785,11 +786,11 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["PREC"] == "Accurate"
         assert incar["SIGMA"] == 0.05
         # test POTCAR files are default PBE_54 PSPs and functional
-        assert default.potcar_symbols == ["Fe_pv", "P", "O"]
-        assert default.potcar.functional == "PBE_54"
-        assert default.kpoints is None
+        assert input_set.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert input_set.potcar.functional == "PBE_54"
+        assert input_set.kpoints is None
 
-        assert str(default.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_54"))
+        assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_54"))
 
     def test_with_prev_incar(self):
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
@@ -798,17 +799,8 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NPAR"] == 8
         assert incar["LMAXMIX"] == 4
         # test some incar parameters from prev_incar are not inherited
-        assert incar.get("ISPIND") is None
-        assert incar.get("LSCALU") is None
-        assert incar.get("ISIF") is None
-        assert incar.get("SYSTEM") is None
-        assert incar.get("HFSCREEN") is None
-        assert incar.get("NSIM") is None
-        assert incar.get("ENCUTFOCK") is None
-        assert incar.get("NKRED") is None
-        assert incar.get("LPLANE") is None
-        assert incar.get("TIME") is None
-        assert incar.get("LHFCALC") is None
+        for key in "ISPIND LSCALU ISIF SYSTEM HFSCREEN NSIM ENCUTFOCK NKRED LPLANE TIME LHFCALC".split():
+            assert key not in incar, f"{key=} should be absent, got {incar[key]=}"
         # test if default in MatPESStaticSet is prioritized.
         assert incar["ALGO"] == "Normal"
         assert incar["EDIFF"] == 1.0e-05
@@ -824,8 +816,8 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["LMIXTAU"]
         assert incar.get("LDAU") is None
         assert incar["LORBIT"] == 11
-        assert not incar["LREAL"]
-        assert not incar["LWAVE"]
+        assert incar["LREAL"] is False
+        assert incar["LWAVE"] is False
         assert incar["NELM"] == 200
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
@@ -1015,9 +1007,8 @@ class TestMPNonSCFSet(PymatgenTest):
         assert vis.kpoints.style == Kpoints.supported_modes.Gamma
 
     def test_user_kpoint_override(self):
-        user_kpoints_override = Kpoints(
-            style=Kpoints.supported_modes.Gamma, kpts=((1, 1, 1),)
-        )  # the default kpoints style is reciprocal
+        # default kpoints style is reciprocal, try setting to gamma
+        user_kpoints_override = Kpoints(style=Kpoints.supported_modes.Gamma, kpts=((1, 1, 1),))
 
         prev_run = f"{TEST_FILES_DIR}/relaxation"
         vis = self.set.from_prev_calc(
@@ -1072,10 +1063,10 @@ class TestMITMDSet(PymatgenTest):
         filepath = f"{TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath)
         self.struct = poscar.structure
-        self.mitmdparam = self.set(self.struct, 300, 1200, 10000)
+        self.mit_md_param = self.set(self.struct, 300, 1200, 10000)
 
     def test_params(self):
-        param = self.mitmdparam
+        param = self.mit_md_param
         syms = param.potcar_symbols
         assert syms == ["Fe", "P", "O"]
         incar = param.incar
@@ -1086,11 +1077,11 @@ class TestMITMDSet(PymatgenTest):
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
     def test_as_from_dict(self):
-        d = self.mitmdparam.as_dict()
-        v = dec.process_decoded(d)
-        assert isinstance(v, self.set)
-        assert v._config_dict["INCAR"]["TEBEG"] == 300
-        assert v._config_dict["INCAR"]["PREC"] == "Low"
+        dct = self.mit_md_param.as_dict()
+        input_set = dec.process_decoded(dct)
+        assert isinstance(input_set, self.set)
+        assert input_set._config_dict["INCAR"]["TEBEG"] == 300
+        assert input_set._config_dict["INCAR"]["PREC"] == "Low"
 
 
 @skip_if_no_psp_dir
@@ -1128,6 +1119,50 @@ class TestMVLNPTMDSet(PymatgenTest):
         d = self.mvl_npt_set.as_dict()
         v = dec.process_decoded(d)
         assert isinstance(v, MVLNPTMDSet)
+        assert v._config_dict["INCAR"]["NSW"] == 1000
+
+
+class TestMPMDSet(PymatgenTest):
+    def setUp(self):
+        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        poscar = Poscar.from_file(filepath)
+        poscar_with_h = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR_hcp", check_for_POTCAR=False)
+        self.struct = poscar.structure
+        self.struct_with_H = poscar_with_h.structure
+        self.mp_md_set_noTS = MPMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000)
+        self.mp_md_set_noTS_with_H = MPMDSet(self.struct_with_H, start_temp=0, end_temp=300, nsteps=1000)
+        self.mp_md_set_TS1 = MPMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000, time_step=1.0)
+
+    def test_incar_no_ts(self):
+        mpmdset = self.mp_md_set_noTS
+        incar = mpmdset.incar
+
+        assert incar["TEBEG"] == 0
+        assert incar["TEEND"] == 300
+        assert incar["NSW"] == 1000
+        assert incar["IBRION"] == 0
+        assert incar["ISIF"] == 0
+        assert incar["ISYM"] == 0
+        assert incar["POTIM"] == 2.0
+
+    def test_incar_no_ts_with_h(self):
+        mpmdset = self.mp_md_set_noTS_with_H
+        incar = mpmdset.incar
+
+        assert incar["POTIM"] == 0.5
+        assert incar["NSW"] == 4000
+
+    def test_incar_ts1(self):
+        mpmdset = self.mp_md_set_TS1
+        incar = mpmdset.incar
+
+        assert incar["POTIM"] == 1.0
+        assert incar["NSW"] == 1000
+
+    def test_as_from_dict(self):
+        d = self.mp_md_set_noTS.as_dict()
+        v = dec.process_decoded(d)
+        assert isinstance(v, MPMDSet)
         assert v._config_dict["INCAR"]["NSW"] == 1000
 
 
@@ -1567,8 +1602,8 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert self.mp_scan_set.potcar.functional == "PBE_52"
 
         # the default functional should be PBE_54
-        test_potcar_set_1 = MPScanRelaxSet(self.struct)
-        assert test_potcar_set_1.potcar.functional == "PBE_54"
+        input_set = MPScanRelaxSet(self.struct)
+        assert input_set.potcar.functional == "PBE_54"
 
         with pytest.raises(
             ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
@@ -1577,21 +1612,18 @@ class TestMPScanRelaxSet(PymatgenTest):
 
     def test_as_from_dict(self):
         d = self.mp_scan_set.as_dict()
-        v = dec.process_decoded(d)
-        assert isinstance(v, MPScanRelaxSet)
-        assert v._config_dict["INCAR"]["METAGGA"] == "R2SCAN"
-        assert v.user_incar_settings["NSW"] == 500
+        input_set = dec.process_decoded(d)
+        assert isinstance(input_set, MPScanRelaxSet)
+        assert input_set._config_dict["INCAR"]["METAGGA"] == "R2SCAN"
+        assert input_set.user_incar_settings["NSW"] == 500
 
     @skip_if_no_psp_dir
     def test_write_input(self):
-        self.mp_scan_set.write_input(".")
-        assert os.path.isfile("INCAR")
-        assert not os.path.isfile("KPOINTS")
-        assert os.path.isfile("POTCAR")
-        assert os.path.isfile("POSCAR")
-
-        for f in ["INCAR", "POSCAR", "POTCAR"]:
-            os.remove(f)
+        self.mp_scan_set.write_input(self.tmp_path)
+        assert os.path.isfile(f"{self.tmp_path}/INCAR")
+        assert not os.path.isfile(f"{self.tmp_path}/KPOINTS")
+        assert os.path.isfile(f"{self.tmp_path}/POTCAR")
+        assert os.path.isfile(f"{self.tmp_path}/POSCAR")
 
 
 class TestMPScanStaticSet(PymatgenTest):

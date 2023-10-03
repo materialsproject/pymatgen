@@ -477,12 +477,6 @@ Initialize three random points on this plane.
 
 
 
-* **Returns**
-
-    None
-
-
-
 #### is_in_list(plane_list)
 Checks whether the plane is identical to one of the Planes in the plane_list list of Planes
 :param plane_list: List of Planes to be compared to
@@ -490,7 +484,13 @@ Checks whether the plane is identical to one of the Planes in the plane_list lis
 
 * **Returns**
 
-    True if the plane is in the list, False otherwise.
+    True if the plane is in the list.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -502,7 +502,13 @@ Determines if point pp is in the plane within the tolerance dist_tolerance
 
 * **Returns**
 
-    True if pp is in the plane, False otherwise.
+    True if pp is in the plane.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -513,7 +519,13 @@ Checks whether the plane is identical to another Plane “plane”
 
 * **Returns**
 
-    True if the two facets are identical, False otherwise.
+    True if the two facets are identical.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -662,7 +674,13 @@ largest_triangle is defined as the right triangle whose legs are the two smalles
 
 * **Returns**
 
-    True if the three points are considered as collinear within the given tolerance, False otherwise.
+    True if the three points are considered as collinear within the given tolerance.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -752,12 +770,18 @@ Method that compares two functions.
 
 * **Returns**
 
-    Whether the function are equal (“=”), f1 is always lower than f2 (“<”), f1 is always larger than f2 (“>”),
+    ‘=’ if the functions are equal, ‘<’ if f1 is always lower than f2, ‘>’ if f1 is always larger than f2,
 
         f1 is always lower than or equal to f2 (“<”), f1 is always larger than or equal to f2 (“>”) on the
         interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
         functions that do not cross…)
 
+
+
+
+* **Return type**
+
+    str
 
 
 
@@ -786,7 +810,13 @@ Checks if two given sites are an anion and a cation.
 
 * **Returns**
 
-    True if one site is an anion and the other is a cation (from the valences).
+    True if one site is an anion and the other is a cation (based on valences).
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -897,7 +927,13 @@ Checks if the separation indices of a plane are already in the list
 
 * **Returns**
 
-    True if the separation indices are already in the list, False otherwise.
+    True if the separation indices are already in the list.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -982,12 +1018,15 @@ Performs the vector multiplication of the elements of two vectors, constructing 
 :param bb: Another vector of size 3
 
 
-* **Return type**
-
-    A 3x3 matrix M composed of the products of the elements of aa and bb
+* **Returns**
 
     M_ij = aa_i \* bb_j.
 
+
+
+* **Return type**
+
+    A 3x3 matrix M composed of the products of the elements of aa and bb
 
 
 ## pymatgen.analysis.chemenv.utils.defs_utils module
@@ -1082,13 +1121,13 @@ Evaluate the ratio function for the given value.
 
 
 
-#### _classmethod_ from_dict(dd)
+#### _classmethod_ from_dict(dct)
 Construct ratio function from dict.
 
 
 * **Parameters**
 
-    **dd** – Dict representation of the ratio function
+    **dct** – Dict representation of the ratio function
 
 
 
@@ -1105,12 +1144,6 @@ Set up the parameters for this ratio function.
 * **Parameters**
 
     **options_dict** – Dictionary containing the parameters for the ratio function.
-
-
-
-* **Returns**
-
-    None.
 
 
 
@@ -1586,14 +1619,20 @@ Example: A cycle
 #### _is_valid(check_strict_ordering=False)
 Check if a MultiGraphCycle is valid.
 
-This method checks :
-- that there are no duplicate nodes,
-- that there are either 1 or more than 2 nodes
+This method checks that:
+1. there are no duplicate nodes,
+2. there are either 1 or more than 2 nodes
 
 
 * **Returns**
 
-    True if the SimpleGraphCycle is valid, False otherwise.
+    True if the SimpleGraphCycle is valid.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -1608,14 +1647,7 @@ raised if the ordering fails.
 
 * **Parameters**
 
-    **raise_on_fail** – If set to True, will raise a RuntimeError if the
-    ordering fails.
-
-
-
-* **Returns**
-
-    None
+    **raise_on_fail** – If set to True, will raise a RuntimeError if the ordering fails.
 
 
 
@@ -1663,7 +1695,13 @@ This method checks :
 
 * **Returns**
 
-    True if the SimpleGraphCycle is valid, False otherwise.
+    True if the SimpleGraphCycle is valid.
+
+
+
+* **Return type**
+
+    bool
 
 
 
@@ -2064,11 +2102,11 @@ Draw cg.
 
 
 
-### visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_color_override=None)
+### visualize(cg, zoom=None, vis=None, factor=1.0, view_index=True, faces_color_override=None)
 Visualizing a coordination geometry
 :param cg:
 :param zoom:
 :param vis:
-:param myfactor:
+:param factor:
 :param view_index:
 :param faces_color_override:

@@ -642,7 +642,7 @@ class GrainBoundaryGenerator:
         # top grain
         top_grain = fix_pbc(parent_structure * t1)
 
-        # obtain the smallest oriended cell
+        # obtain the smallest oriented cell
         if normal and not quick_gen:
             t_temp = self.get_trans_mat(
                 r_axis=rotation_axis,

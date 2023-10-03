@@ -804,6 +804,11 @@ Direct
         struct = Structure.from_file(f"{TEST_FILES_DIR}/bad-unicode-gh-2947.mcif")
         assert struct.formula == "Ni32 O32"
 
+    def test_to_file_alias(self):
+        out_path = f"{self.tmp_path}/POSCAR"
+        assert self.struct.to(out_path) == self.struct.to_file(out_path)
+        assert os.path.isfile(out_path)
+
     def test_pbc(self):
         assert_array_equal(self.struct.pbc, (True, True, True))
         assert self.struct.is_3d_periodic
@@ -1396,7 +1401,7 @@ class TestStructure(PymatgenTest):
         assert struct.formula == "Si1.25 C0.125"
 
     def test_init_error(self):
-        with pytest.raises(StructureError, match="atomic species and fractional coordinates must have same length"):
+        with pytest.raises(StructureError, match=r"len\(species\)=1 != len\(coords\)=2"):
             Structure(Lattice.cubic(3), ["Si"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
     def test_from_sites(self):
@@ -1520,13 +1525,9 @@ class TestStructure(PymatgenTest):
         assert preds["magmoms"] == approx([0.00262399, 0.00262396], abs=1e-5)
         assert np.linalg.norm(preds["forces"]) == approx(1.998941843e-5, abs=1e-3)
         assert not hasattr(calculator, "dynamics"), "static calculation should not have dynamics"
-        assert "atoms" in calculator.__dict__
-        assert "results" in calculator.__dict__
-        assert "parameters" in calculator.__dict__
-        assert "get_spin_polarized" in calculator.__dict__
-        assert "device" in calculator.__dict__
-        assert "model" in calculator.__dict__
-        assert "stress_weight" in calculator.__dict__
+        assert {*calculator.__dict__} >= {
+            *"atoms results parameters get_spin_polarized device model stress_weight".split()
+        }
         assert len(calculator.parameters) == 0
         assert isinstance(calculator.atoms, Atoms)
         assert len(calculator.atoms) == len(struct)
@@ -1924,6 +1925,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         ch4_mol = Molecule.from_file(f"{self.tmp_path}/CH4_testing.yaml")
         ch4_mol.properties = self.mol.properties
         assert self.mol == ch4_mol
+
+    def test_to_file_alias(self):
+        out_path = f"{self.tmp_path}/mol.gjf"
+        assert self.mol.to(out_path) == self.mol.to_file(out_path)
+        assert os.path.isfile(out_path)
 
 
 class TestMolecule(PymatgenTest):

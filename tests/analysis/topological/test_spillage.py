@@ -9,8 +9,6 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class TestSolar(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def test_spillage_from_vasprun(self):
         wf_noso = os.path.join(os.path.dirname(__file__), "WAVECAR-NonSOC")
         wf_so = os.path.join(os.path.dirname(__file__), "WAVECAR-SOC")

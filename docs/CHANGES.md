@@ -6,6 +6,44 @@ nav_order: 4
 
 # Changelog
 
+## v2023.10.3
+
+### 🐛 Bug Fixes
+
+- Revert `openbabel.OBAlign()` in `molecule_matcher.py` to use positional args for `includeH`, `symmetry` by @janosh in https://github.com/materialsproject/pymatgen/pull/3353
+- Fix MPMD set bug by @MichaelWolloch in https://github.com/materialsproject/pymatgen/pull/3355
+- Fix `TestMPResterNewBasic` + `AseAtomsAdaptor` test errors and `TransformedStructure.from_snl` overwriting `hist` variable by @janosh in https://github.com/materialsproject/pymatgen/pull/3362
+- Fix `TypeError`: can only join an iterable with AECCAR in `VolumetricData.write_file` by @chiang-yuan in https://github.com/materialsproject/pymatgen/pull/3343
+
+### 🛠 Enhancements
+
+- Don't rely on `jsanitize` in `Atoms` <--> `Structure` object interconversion  by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3359
+- Breaking: New method of POTCAR validation by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3351
+- Add alias `.to_file()` for `.to()` method of structures and molecules by @QuantumChemist in https://github.com/materialsproject/pymatgen/pull/3356
+
+### 🧹 House-Keeping
+
+- Chargemol minor refactor by @janosh in https://github.com/materialsproject/pymatgen/pull/3357
+- Breaking typo fix: `Targe(tt->t)edPenaltiedAbundanceChemenvStrategy` by @janosh in https://github.com/materialsproject/pymatgen/pull/3360
+- Fix undiscovered tests by @janosh in https://github.com/materialsproject/pymatgen/pull/3369
+
+### 🏥 Package Health
+
+- Bump min `numpy` to v1.25.0 by @janosh in https://github.com/materialsproject/pymatgen/pull/3352
+
+## New Contributors
+
+- @esoteric-ephemera made their first contribution in https://github.com/materialsproject/pymatgen/pull/3351
+- @QuantumChemist made their first contribution in https://github.com/materialsproject/pymatgen/pull/3356
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2023.9.25...v2023.10.3
+
+## v2023.9.25
+
+- New basic MPRester implemented that supports the most common use cases without having to install mp-api. mp-api is no longer a dependency of pymatgen.
+- Breaking: rename get_ax3d_fig_plt->get_ax3d_fig and get_ax_fig_plt->get_ax_fig plus no longer return plt
+- Misc bug fixes.
+
 ## v2023.9.10
 
 ### 🐛 Bug Fixes
@@ -178,7 +216,7 @@ MagOrderingTransformation` does not implicitly yield spins of 0 on the nonmagnet
 
 This release changes the Ytterbium (Yb) pseudo-potential (PSP) from Yb_2 to Yb_3 for all PBE_54 VASP input sets.
 
-Background: The `A-lab <https://newscenter.lbl.gov/2023/04/17/meet-the-autonomous-lab-of-the-future>`\_ revealed that as a result of using Yb_2 the energy on Yb compounds is off by a lot, resulting in supposedly stable things being unsynthesizable. While an unfortunate mistake, it's also great to see how experiment can help surface simulation errors.
+Background: The `A-lab <https://newscenter.lbl.gov/2023/04/17/meet-the-autonomous-lab-of-the-future>` revealed that as a result of using Yb_2 the energy on Yb compounds is off by a lot, resulting in supposedly stable things being unsynthesizable. While an unfortunate mistake, it's also great to see how experiment can help surface simulation errors.
 
 On pre-PBE_54 input sets, we now issue a warning that Yb_2 will give bad results for most systems since Yb is most often in oxidation state Yb3+.
 

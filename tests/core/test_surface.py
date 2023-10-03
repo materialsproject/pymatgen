@@ -489,9 +489,9 @@ class TestSlabGenerator(PymatgenTest):
         # atoms should be in a surface together. The closeness of the sites
         # in other Miller indices can cause some ambiguity when choosing a
         # higher tolerance.
-        numb_slabs = {(0, 0, 1): 5, (0, 1, 0): 3, (1, 0, 0): 7}
+        n_slabs = {(0, 0, 1): 5, (0, 1, 0): 3, (1, 0, 0): 7}
         TeI = Structure.from_file(f"{TEST_FILES_DIR}/surface_tests/icsd_TeI.cif", primitive=False)
-        for k, v in numb_slabs.items():
+        for k, v in n_slabs.items():
             triclinic_TeI = SlabGenerator(TeI, k, 10, 10)
             TeI_slabs = triclinic_TeI.get_slabs()
             assert v == len(TeI_slabs)

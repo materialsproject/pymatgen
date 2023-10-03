@@ -440,6 +440,10 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         raise NotImplementedError
 
+    def to_file(self, filename: str = "", fmt: str = "") -> str | None:
+        """A more intuitive alias for .to()."""
+        return self.to(filename, fmt)
+
     @classmethod
     @abstractmethod
     def from_str(cls, input_string: str, fmt: Any):
@@ -888,7 +892,7 @@ class IStructure(SiteCollection, MSONable):
                 lost when converting to other formats.
         """
         if len(species) != len(coords):
-            raise StructureError("atomic species and fractional coordinates must have same length")
+            raise StructureError(f"{len(species)=} != {len(coords)=}")
 
         self._lattice = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 

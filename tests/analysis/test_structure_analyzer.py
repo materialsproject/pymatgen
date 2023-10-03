@@ -25,8 +25,6 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestVoronoiAnalyzer(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
         self.ss = Xdatcar(f"{TEST_FILES_DIR}/XDATCAR.MD").structures
         self.s = self.ss[1]

@@ -592,14 +592,12 @@ class LocalGeometryFinder:
         if info is None:
             info = {}
         info.update(
-            {
-                "local_geometry_finder": {
-                    "parameters": {
-                        "centering_type": self.centering_type,
-                        "include_central_site_in_centroid": self.include_central_site_in_centroid,
-                        "structure_refinement": self.structure_refinement,
-                        "spg_analyzer_options": self.spg_analyzer_options,
-                    }
+            local_geometry_finder={
+                "parameters": {
+                    "centering_type": self.centering_type,
+                    "include_central_site_in_centroid": self.include_central_site_in_centroid,
+                    "structure_refinement": self.structure_refinement,
+                    "spg_analyzer_options": self.spg_analyzer_options,
                 }
             }
         )
@@ -610,9 +608,9 @@ class LocalGeometryFinder:
             )
 
         if valences == "undefined":
-            firstsite = self.structure[0]
+            first_site = self.structure[0]
             try:
-                sp = firstsite.specie
+                sp = first_site.specie
                 if isinstance(sp, Species):
                     self.valences = [int(site.specie.oxi_state) for site in self.structure]
                 else:
@@ -622,32 +620,32 @@ class LocalGeometryFinder:
         else:
             self.valences = valences
 
-        # Get a list of indices of unequivalent sites from the initial structure
+        # Get a list of indices of nonequivalent sites from the initial structure
         self.equivalent_sites = [[site] for site in self.structure]
         self.struct_sites_to_irreducible_site_list_map = list(range(len(self.structure)))
         self.sites_map = list(range(len(self.structure)))
         indices = list(range(len(self.structure)))
 
-        # Get list of unequivalent sites with valence >= 0
+        # Get list of nonequivalent sites with valence >= 0
         if only_cations and self.valences != "undefined":
-            sites_indices = [isite for isite in indices if self.valences[isite] >= 0]
+            sites_indices = [idx for idx in indices if self.valences[idx] >= 0]
         else:
             sites_indices = list(indices)
 
         # Include atoms that are in the list of "only_atoms" if it is provided
         if only_atoms is not None:
             sites_indices = [
-                isite
-                for isite in sites_indices
-                if any(at in [sp.symbol for sp in self.structure[isite].species] for at in only_atoms)
+                idx
+                for idx in sites_indices
+                if any(at in [sp.symbol for sp in self.structure[idx].species] for at in only_atoms)
             ]
 
         # Exclude atoms that are in the list of excluded atoms
         if excluded_atoms:
             sites_indices = [
-                isite
-                for isite in sites_indices
-                if not any(at in [sp.symbol for sp in self.structure[isite].species] for at in excluded_atoms)
+                idx
+                for idx in sites_indices
+                if not any(at in [sp.symbol for sp in self.structure[idx].species] for at in excluded_atoms)
             ]
 
         if only_indices is not None:

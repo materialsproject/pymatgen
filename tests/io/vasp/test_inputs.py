@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import os
 import pickle
 import unittest
@@ -11,9 +12,8 @@ import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
-from pytest import approx
+from pytest import MonkeyPatch, approx
 
-import pymatgen
 from pymatgen.core import SETTINGS
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
@@ -27,6 +27,7 @@ from pymatgen.io.vasp.inputs import (
     PotcarSingle,
     UnknownPotcarWarning,
     VaspInput,
+    _gen_potcar_summary_stats,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -755,8 +756,7 @@ class TestKpoints:
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.labels is not None
         assert kpoints.style == Kpoints.supported_modes.Line_mode
-        kpoints_str = str(kpoints)
-        assert kpoints_str.split("\n")[3] == "Reciprocal"
+        assert str(kpoints).split("\n")[3] == "Reciprocal"
 
         filepath = f"{TEST_FILES_DIR}/KPOINTS.explicit"
         kpoints = Kpoints.from_file(filepath)
@@ -812,21 +812,21 @@ Cartesian
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.from_str(
             """k-point mesh
-0
-G
-10 10 10
-0.5 0.5 0.5
-"""
+            0
+            G
+            10 10 10
+            0.5 0.5 0.5
+            """
         )
         assert_allclose(kpoints.kpts_shift, [0.5, 0.5, 0.5])
 
     def test_as_dict_from_dict(self):
-        k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
-        d = k.as_dict()
-        k2 = Kpoints.from_dict(d)
-        assert k.kpts == k2.kpts
-        assert k.style == k2.style
-        assert k.kpts_shift == k2.kpts_shift
+        kpts = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
+        dct = kpts.as_dict()
+        kpts_from_dict = Kpoints.from_dict(dct)
+        assert kpts.kpts == kpts_from_dict.kpts
+        assert kpts.style == kpts_from_dict.style
+        assert kpts.kpts_shift == kpts_from_dict.kpts_shift
 
     def test_kpt_bands_as_dict_from_dict(self):
         file_name = f"{TEST_FILES_DIR}/KPOINTS.band"
@@ -913,13 +913,12 @@ direct
 
 
 class TestPotcarSingle(unittest.TestCase):
-    _multiprocess_shared_ = True
-
     def setUp(self):
-        self.psingle = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
+        self.psingle_Mn_pv = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
+        self.psingle_Fe = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe.gz")
+        self.psingle_Fe_54 = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz")
 
-    def test_keywords(self):
-        data = {
+        self.Mn_pv_attrs = {
             "VRHFIN": "Mn: 3p4s3d",
             "LPAW": True,
             "DEXC": -0.003,
@@ -946,13 +945,12 @@ class TestPotcarSingle(unittest.TestCase):
             "POMASS": 54.938,
             "RWIGS": 1.323,
         }
-        assert self.psingle.keywords == data
 
-    def test_psctr(self):
-        filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
+    def test_keywords(self):
+        for key, val in self.Mn_pv_attrs.items():
+            assert self.psingle_Mn_pv.keywords[key] == val
 
-        psingle = PotcarSingle.from_file(filename)
-
+        psingle = self.psingle_Fe_54
         data = {
             "nentries": 9,
             "Orbitals": (
@@ -975,37 +973,21 @@ class TestPotcarSingle(unittest.TestCase):
                 (1, 18.4316424, 23, 2.300, None, None),
             ),
         }
-        for k, v in data.items():
-            assert psingle.PSCTR[k] == v
+        for key, val in data.items():
+            assert psingle.keywords[key] == val
 
     def test_nelectrons(self):
-        assert self.psingle.nelectrons == 13
+        assert self.psingle_Mn_pv.nelectrons == 13
+        assert self.psingle_Fe.nelectrons == 8
 
     def test_electron_config(self):
-        config = self.psingle.electron_configuration
-        assert config[-1] == (3, "p", 6)
+        assert self.psingle_Mn_pv.electron_configuration == [(4, "s", 2), (3, "d", 5), (3, "p", 6)]
+        assert self.psingle_Fe.electron_configuration == [(4, "s", 2), (3, "d", 6)]
 
     def test_attributes(self):
-        for key in [
-            "DEXC",
-            "RPACOR",
-            "ENMAX",
-            "QCUT",
-            "EAUG",
-            "RMAX",
-            "ZVAL",
-            "EATOM",
-            "NDATA",
-            "QGAM",
-            "ENMIN",
-            "RCLOC",
-            "RCORE",
-            "RDEP",
-            "RAUG",
-            "POMASS",
-            "RWIGS",
-        ]:
-            assert getattr(self.psingle, key) is not None
+        for key, val in self.Mn_pv_attrs.items():
+            assert getattr(self.psingle_Mn_pv, key) == val
+            assert isinstance(getattr(self.psingle_Fe, key), type(val))
 
     def test_found_unknown_key(self):
         with pytest.raises(KeyError, match="BAD_KEY"):
@@ -1013,17 +995,14 @@ class TestPotcarSingle(unittest.TestCase):
 
     def test_bad_value(self):
         with pytest.raises(ValueError, match="could not convert string to float"):
-            PotcarSingle.parse_functions["ENMAX"]("ThisShouldBeAFloat")
-
-    def test_hash(self):
-        assert self.psingle.get_potcar_hash() == "fa52f891f234d49bb4cb5ea96aae8f98"
+            PotcarSingle.parse_functions["ENMAX"]("this should be a float")
 
     def test_functional_types(self):
-        assert self.psingle.functional == "PBE"
+        assert self.psingle_Mn_pv.functional == "PBE"
 
-        assert self.psingle.functional_class == "GGA"
+        assert self.psingle_Mn_pv.functional_class == "GGA"
 
-        assert self.psingle.potential_type == "PAW"
+        assert self.psingle_Mn_pv.potential_type == "PAW"
 
         psingle = PotcarSingle.from_file(f"{TEST_FILES_DIR}/POT_LDA_PAW/POTCAR.Fe.gz")
 
@@ -1033,53 +1012,63 @@ class TestPotcarSingle(unittest.TestCase):
 
         assert psingle.potential_type == "PAW"
 
-        assert self.psingle.symbol == "Mn_pv"
+        assert self.psingle_Mn_pv.symbol == "Mn_pv"
 
-    def test_identify_potcar(self):
-        filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
+    def test_is_valid(self):
+        assert self.psingle_Fe.is_valid
+        assert self.psingle_Fe_54.is_valid
+        assert self.psingle_Mn_pv.is_valid
 
-        psingle = PotcarSingle.from_file(filename)
-        assert "PBE_54" in psingle.identify_potcar()[0]
-        assert "Fe" in psingle.identify_potcar()[1]
+        # corrupt the file
+        psingle = copy.deepcopy(self.psingle_Fe_54)
+        assert psingle.keywords["RCORE"] == 2.3
+        psingle.keywords["RCORE"] = 2.2
+        assert not psingle.is_valid
 
-    def test_potcar_hash_warning(self):
-        filename = f"{TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="POTCAR is known to match the following functionals:"):
-            PotcarSingle.from_file(filename)
+        psingle = copy.deepcopy(self.psingle_Fe_54)
+        psingle.keywords.pop("RCORE")
+        assert not psingle.is_valid
 
-    def test_potcar_file_hash_warning(self):
+        psingle = copy.deepcopy(self.psingle_Fe_54)
+        old_data = psingle.data
+        psingle.data = psingle.data.replace("RCORE  =    2.3", "RCORE  =    2.2")
+        assert old_data != psingle.data
+        # TODO: should arguably be False but since header is parsed at instantiation time and not reparsed
+        # in is_valid, changing the data string in the header section does not currently invalidate POTCAR
+        assert psingle.is_valid
+
+        # this POTCAR is valid because the header is only modified in a way that is
+        # irrelevant to how FORTRAN reads files, i.e. treated by Fortran as a comment
         filename = f"{TEST_FILES_DIR}/modified_potcars_header/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
-        with pytest.warns(UnknownPotcarWarning, match="POTCAR is corrupted"):
-            PotcarSingle.from_file(filename)
-
-    def test_verify_faulty_potcar_with_hash(self):
-        filename = f"{TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash"
-        with pytest.warns(UnknownPotcarWarning, match="POTCAR with symbol Fe_pv has metadata that "):
-            PotcarSingle.from_file(filename)
-
-    def test_verify_correct_potcar_with_hash(self):
-        filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash.gz"
-        vaspdir = os.path.abspath(os.path.dirname(pymatgen.io.vasp.__file__))
-        file_hash_db = loadfn(f"{vaspdir}/vasp_potcar_file_hashes.json")
-        metadata_hash_db = loadfn(f"{vaspdir}/vasp_potcar_pymatgen_hashes.json")
-
         psingle = PotcarSingle.from_file(filename)
-        assert psingle.hash in metadata_hash_db
-        assert psingle.file_hash in file_hash_db
-        assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
+        assert psingle.is_valid
 
-    def test_multi_potcar_with_and_without_hash(self):
+    def test_unknown_potcar_warning(self):
+        filename = f"{TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR data with symbol Fe_pv is not known to pymatgen. "):
+            PotcarSingle.from_file(filename)
+
+    def test_faulty_potcar_has_wrong_hash(self):
+        filename = f"{TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash"
+        psingle = PotcarSingle.from_file(filename)
+        assert not psingle.is_valid
+        assert psingle.sha256_computed_file_hash != psingle.hash_sha256_from_file
+
+    def test_verify_correct_potcar_with_sha256(self):
+        filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash.gz"
+        psingle = PotcarSingle.from_file(filename)
+        assert psingle.sha256_computed_file_hash == psingle.hash_sha256_from_file
+
+    def test_multi_potcar_with_and_without_sha256(self):
         filename = f"{TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_O.gz"
-        vaspdir = os.path.abspath(os.path.dirname(pymatgen.io.vasp.__file__))
-        loadfn(f"{vaspdir}/vasp_potcar_file_hashes.json")
-        Potcar.from_file(filename)
+        potcars = Potcar.from_file(filename)
         # Still need to test the if POTCAR can be read.
         # No longer testing for hashes
-        # for psingle in potcars:
-        #     if hasattr(psingle, "hash_sha256_from_file"):
-        #         assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
-        # else:
-        #     assert psingle.file_hash in file_hash_db
+        for psingle in potcars:
+            if psingle.hash_sha256_from_file:
+                assert psingle.sha256_computed_file_hash == psingle.hash_sha256_from_file
+            else:
+                assert psingle.is_valid
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
@@ -1091,15 +1080,33 @@ class TestPotcarSingle(unittest.TestCase):
 
     def test_repr(self):
         assert (
-            repr(self.psingle) == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000',"
+            repr(self.psingle_Mn_pv)
+            == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000',"
             " VRHFIN='Mn: 3p4s3d', n_valence_elec=13)"
         )
 
+    def test_hash(self):
+        assert self.psingle_Mn_pv.md5_header_hash == "fa52f891f234d49bb4cb5ea96aae8f98"
+        assert self.psingle_Fe.md5_header_hash == "9530da8244e4dac17580869b4adab115"
 
-class TestPotcar(unittest.TestCase):
+    def test_potcar_file_hash(self):
+        assert self.psingle_Mn_pv.md5_computed_file_hash == "f2fb52af9afe1b1c8571f5383d9ee13d"
+        assert self.psingle_Fe.md5_computed_file_hash == "e22e63251023983eedc527e095050ae0"
+
+    def test_sha256_file_hash(self):
+        assert (
+            self.psingle_Mn_pv.sha256_computed_file_hash
+            == "09fb1f012264c0e93524775af8f2b3cf58daa4b01b7c7c9f4324742358553fb0"
+        )
+        assert (
+            self.psingle_Fe.sha256_computed_file_hash
+            == "ce7d4b7964a67af533b56dc0cea7cb5e527820837eeb5984f3fc3f958acda36c"
+        )
+
+
+class TestPotcar(PymatgenTest):
     def setUp(self):
-        if "PMG_VASP_PSP_DIR" not in SETTINGS:
-            SETTINGS["PMG_VASP_PSP_DIR"] = str(TEST_FILES_DIR)
+        SETTINGS.setdefault("PMG_VASP_PSP_DIR", str(TEST_FILES_DIR))
         self.filepath = f"{TEST_FILES_DIR}/POTCAR"
         self.potcar = Potcar.from_file(self.filepath)
 
@@ -1125,24 +1132,20 @@ class TestPotcar(unittest.TestCase):
         assert potcar.symbols == ["Fe", "P", "O"]
 
     def test_write(self):
-        tempfname = Path("POTCAR.testing")
-        self.potcar.write_file(tempfname)
-        p = Potcar.from_file(tempfname)
+        tmp_file = f"{self.tmp_path}/POTCAR.testing"
+        self.potcar.write_file(tmp_file)
+        p = Potcar.from_file(tmp_file)
         assert p.symbols == self.potcar.symbols
 
-        # check line by line
-        with open(self.filepath) as f_ref, open(tempfname) as f_new:
+        with open(self.filepath) as f_ref, open(tmp_file) as f_new:
             ref_potcar = f_ref.readlines()
             new_potcar = f_new.readlines()
 
-        if len(ref_potcar) != len(new_potcar):
-            raise AssertionError("POTCAR file lengths are not equal")
+        assert len(ref_potcar) == len(new_potcar), f"wrong POTCAR line count: {len(ref_potcar)} != {len(new_potcar)}"
 
+        # check line by line
         for line1, line2 in zip(ref_potcar, new_potcar):
-            if line1.strip() != line2.strip():
-                raise AssertionError("POTCAR contents are not")
-
-        tempfname.unlink()
+            assert line1.strip() == line2.strip(), f"wrong POTCAR line: {line1} != {line2}"
 
     def test_set_symbol(self):
         assert self.potcar.symbols == ["Fe", "P", "O"]
@@ -1206,6 +1209,36 @@ class TestVaspInput(PymatgenTest):
         vi = VaspInput.from_directory(TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar})
         assert vi["INCAR"]["ALGO"] == "Damped"
         assert "CONTCAR.Li2O" in vi
-        d = vi.as_dict()
-        vasp_input = VaspInput.from_dict(d)
+        dct = vi.as_dict()
+        vasp_input = VaspInput.from_dict(dct)
         assert "CONTCAR.Li2O" in vasp_input
+
+
+def test_gen_potcar_summary_stats(tmp_path: Path, monkeypatch: MonkeyPatch):
+    """Regenerate the potcar_summary_stats.json.gz file used to validate POTCARs with scrambled POTCARs."""
+    psp_path = f"{TEST_FILES_DIR}/fake_potcar_library/"
+    summ_stats_file = f"{tmp_path}/fake_potcar_summary_stats.json.gz"
+    _gen_potcar_summary_stats(append=False, vasp_psp_dir=psp_path, summary_stats_filename=summ_stats_file)
+
+    # only checking for two directories to save space, fake POTCAR library is big
+    summ_stats = loadfn(summ_stats_file)
+    assert set(summ_stats) == (expected_funcs := {"LDA_64", "PBE_54_W_HASH"})
+
+    # The fake POTCAR library is pretty big even with just two sub-libraries
+    # just copying over entries to work with PotcarSingle.is_valid
+    for func in PotcarSingle.functional_dir:
+        if func in expected_funcs:
+            continue
+        if "pbe" in func.lower() or "pw91" in func.lower():
+            summ_stats[func] = summ_stats["PBE_54_W_HASH"].copy()
+        elif "lda" in func.lower() or "perdew_zunger81" in func.lower():
+            summ_stats[func] = summ_stats["LDA_64"].copy()
+
+    # override reference potcar_summary_stats with fake data
+    monkeypatch.setattr(PotcarSingle, "potcar_summary_stats", summ_stats)
+
+    for func in expected_funcs:
+        bdir = f"{psp_path}/{PotcarSingle.functional_dir[func]}"
+        valid_elements = [x for x in os.listdir(f"{bdir}") if x[0] != "." and os.path.isdir(f"{bdir}/{x}")]
+        for element in valid_elements:
+            assert PotcarSingle.from_file(f"{bdir}/POTCAR.{element}.gz").is_valid
