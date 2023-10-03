@@ -23,7 +23,7 @@ class VoltageProfilePlotter:
         """
         Args:
             xaxis: The quantity to use as the xaxis. Can be either
-            - capacity_grav: the graviometric capcity
+            - capacity_grav: the gravimetric capacity
             - capacity_vol: the volumetric capacity
             - x_form: the number of working ions per formula unit of the host
             - frac_x: the atomic fraction of the working ion
