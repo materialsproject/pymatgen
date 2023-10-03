@@ -11,6 +11,7 @@ import re
 import warnings
 import xml.etree.ElementTree as ET
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass
 from glob import glob
 from io import StringIO
@@ -1040,7 +1041,7 @@ class Vasprun(MSONable):
         """
         if potcar := self.get_potcars(path):
             self.potcar_spec = [
-                {"titel": sym, "hash": ps.get_potcar_hash()}
+                {"titel": sym, "hash": ps.md5_header_hash}
                 for sym in self.potcar_symbols
                 for ps in potcar
                 if ps.symbol == sym.split()[1]
@@ -3122,10 +3123,8 @@ class Outcar:
 
         if self.dfpt and self.lepsilon:
             dct.update(
-                {
-                    "piezo_ionic_tensor": self.piezo_ionic_tensor,
-                    "dielectric_ionic_tensor": self.dielectric_ionic_tensor,
-                }
+                piezo_ionic_tensor=self.piezo_ionic_tensor,
+                dielectric_ionic_tensor=self.dielectric_ionic_tensor,
             )
 
         if self.lcalcpol:
@@ -3136,24 +3135,20 @@ class Outcar:
 
         if self.nmr_cs:
             dct.update(
-                {
-                    "nmr_cs": {
-                        "valence and core": self.data["chemical_shielding"]["valence_and_core"],
-                        "valence_only": self.data["chemical_shielding"]["valence_only"],
-                        "g0": self.data["cs_g0_contribution"],
-                        "core": self.data["cs_core_contribution"],
-                        "raw": self.data["unsym_cs_tensor"],
-                    }
+                nmr_cs={
+                    "valence and core": self.data["chemical_shielding"]["valence_and_core"],
+                    "valence_only": self.data["chemical_shielding"]["valence_only"],
+                    "g0": self.data["cs_g0_contribution"],
+                    "core": self.data["cs_core_contribution"],
+                    "raw": self.data["unsym_cs_tensor"],
                 }
             )
 
         if self.nmr_efg:
             dct.update(
-                {
-                    "nmr_efg": {
-                        "raw": self.data["unsym_efg_tensor"],
-                        "parameters": self.data["efg"],
-                    }
+                nmr_efg={
+                    "raw": self.data["unsym_efg_tensor"],
+                    "parameters": self.data["efg"],
                 }
             )
 
@@ -3348,7 +3343,7 @@ class VolumetricData(BaseVolumetricData):
                 data_aug = {"total": all_dataset_aug.get(0)}
             return poscar, data, data_aug
 
-    def write_file(self, file_name, vasp4_compatible=False):
+    def write_file(self, file_name: str | Path, vasp4_compatible: bool = False) -> None:
         """
         Write the VolumetricData object to a vasp compatible file.
 
@@ -3358,8 +3353,7 @@ class VolumetricData(BaseVolumetricData):
         """
 
         def _print_fortran_float(flt):
-            """
-            Fortran codes print floats with a leading zero in scientific
+            """Fortran codes print floats with a leading zero in scientific
             notation. When writing CHGCAR files, we adopt this convention
             to ensure written CHGCAR files are byte-to-byte identical to
             their input files as far as possible.
@@ -3375,42 +3369,45 @@ class VolumetricData(BaseVolumetricData):
                 return f"0.{s[0]}{s[2:12]}E{int(s[13:]) + 1:+03}"
             return f"-.{s[1]}{s[3:13]}E{int(s[14:]) + 1:+03}"
 
-        with zopen(file_name, "wt") as f:
-            p = Poscar(self.structure)
+        with zopen(file_name, "wt") as file:
+            poscar = Poscar(self.structure)
 
             # use original name if it's been set (e.g. from Chgcar)
-            comment = getattr(self, "name", p.comment)
+            comment = getattr(self, "name", poscar.comment)
 
             lines = comment + "\n"
             lines += "   1.00000000000000\n"
             for vec in self.structure.lattice.matrix:
                 lines += f" {vec[0]:12.6f}{vec[1]:12.6f}{vec[2]:12.6f}\n"
             if not vasp4_compatible:
-                lines += "".join(f"{s:5}" for s in p.site_symbols) + "\n"
-            lines += "".join(f"{x:6}" for x in p.natoms) + "\n"
+                lines += "".join(f"{s:5}" for s in poscar.site_symbols) + "\n"
+            lines += "".join(f"{x:6}" for x in poscar.natoms) + "\n"
             lines += "Direct\n"
             for site in self.structure:
-                a, b, c = site.frac_coords
-                lines += f"{a:10.6f}{b:10.6f}{c:10.6f}\n"
+                dim, b, c = site.frac_coords
+                lines += f"{dim:10.6f}{b:10.6f}{c:10.6f}\n"
             lines += " \n"
-            f.write(lines)
-            a = self.dim
+            file.write(lines)
+            dim = self.dim
 
             def write_spin(data_type):
                 lines = []
                 count = 0
-                f.write(f"   {a[0]}   {a[1]}   {a[2]}\n")
-                for k, j, i in itertools.product(list(range(a[2])), list(range(a[1])), list(range(a[0]))):
+                file.write(f"   {dim[0]}   {dim[1]}   {dim[2]}\n")
+                for k, j, i in itertools.product(list(range(dim[2])), list(range(dim[1])), list(range(dim[0]))):
                     lines.append(_print_fortran_float(self.data[data_type][i, j, k]))
                     count += 1
                     if count % 5 == 0:
-                        f.write(" " + "".join(lines) + "\n")
+                        file.write(" " + "".join(lines) + "\n")
                         lines = []
                     else:
                         lines.append(" ")
                 if count % 5 != 0:
-                    f.write(" " + "".join(lines) + " \n")
-                f.write("".join(self.data_aug.get(data_type, [])))
+                    file.write(" " + "".join(lines) + " \n")
+
+                data = self.data_aug.get(data_type, [])
+                if isinstance(data, Iterable):
+                    file.write("".join(data))
 
             write_spin("total")
             if self.is_spin_polarized and self.is_soc:
@@ -3453,21 +3450,21 @@ class Chgcar(VolumetricData):
     def __init__(self, poscar, data, data_aug=None):
         """
         Args:
-            poscar (Poscar or Structure): Object containing structure.
+            poscar (Poscar | Structure): Object containing structure.
             data: Actual data.
             data_aug: Augmentation charge data.
         """
         # allow for poscar or structure files to be passed
         if isinstance(poscar, Poscar):
-            tmp_struct = poscar.structure
+            struct = poscar.structure
             self.poscar = poscar
             self.name = poscar.comment
         elif isinstance(poscar, Structure):
-            tmp_struct = poscar
+            struct = poscar
             self.poscar = Poscar(poscar)
             self.name = None
 
-        super().__init__(tmp_struct, data, data_aug=data_aug)
+        super().__init__(struct, data, data_aug=data_aug)
         self._distance_matrix = {}
 
     @staticmethod
@@ -4956,7 +4953,7 @@ class WSWQ(MSONable):
     r"""
     Class for reading a WSWQ file.
     The WSWQ file is used to calculation the wave function overlaps between
-        - W: Wavefunctions in the currenct directory's WAVECAR file
+        - W: Wavefunctions in the current directory's WAVECAR file
         - WQ: Wavefunctions stored in a filed named the WAVECAR.qqq.
 
     The overlap is computed using the overlap operator S

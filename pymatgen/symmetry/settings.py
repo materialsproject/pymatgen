@@ -37,7 +37,7 @@ class JonesFaithfulTransformation:
           hexagonal setting)
         * `a,b,c;-1/4,-1/4,-1/4` is Pnnn:1 to Pnnn:2 (change in origin
           choice)
-        * `b,c,a;-1/2,-1/2,-1/2` is Bbab:1 to Ccca:2 (change settin
+        * `b,c,a;-1/2,-1/2,-1/2` is Bbab:1 to Ccca:2 (change setting
           and origin)
 
         Can transform points (coords), lattices and symmetry operations.

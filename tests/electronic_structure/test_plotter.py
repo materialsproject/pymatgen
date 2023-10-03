@@ -432,11 +432,11 @@ class TestBoltztrapPlotter(unittest.TestCase):
 class TestCohpPlotter(PymatgenTest):
     def setUp(self):
         path = f"{TEST_FILES_DIR}/cohp/complete_cohp_lobster.json"
-        with open(os.path.join(path)) as f:
-            self.cohp = CompleteCohp.from_dict(json.load(f))
+        with open(path) as file:
+            self.cohp = CompleteCohp.from_dict(json.load(file))
         path = f"{TEST_FILES_DIR}/cohp/complete_coop_lobster.json"
-        with open(os.path.join(path)) as f:
-            self.coop = CompleteCohp.from_dict(json.load(f))
+        with open(path) as file:
+            self.coop = CompleteCohp.from_dict(json.load(file))
         self.cohp_plot = CohpPlotter(zero_at_efermi=False)
         self.coop_plot = CohpPlotter(are_coops=True)
 

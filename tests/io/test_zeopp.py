@@ -146,8 +146,8 @@ H -0.363000 -0.513360 0.889165 0.200000"""
 
     def test_from_file(self):
         filename = f"{TEST_FILES_DIR}/EDI_voro.xyz"
-        vor = ZeoVoronoiXYZ.from_file(filename)
-        assert isinstance(vor.molecule, Molecule)
+        voronoi = ZeoVoronoiXYZ.from_file(filename)
+        assert isinstance(voronoi.molecule, Molecule)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")

@@ -233,7 +233,7 @@ class TestTEMCalculator(PymatgenTest):
         # see https://www.doitpoms.ac.uk/tlplib/diffraction-patterns/printall.php
         assert_allclose([1, 0], positions[(-1, 0, 0)], atol=1)
 
-    def test_TEM_dots(self):
+    def test_tem_dots(self):
         # All dependencies in TEM_dots method are tested. Only make sure each object created is
         # the class desired.
         tem_calc = TEMCalculator()
