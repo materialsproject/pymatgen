@@ -1216,7 +1216,7 @@ class TestVaspInput(PymatgenTest):
 
 def test_gen_potcar_summary_stats(tmp_path: Path, monkeypatch: MonkeyPatch):
     """Regenerate the potcar_summary_stats.json.gz file used to validate POTCARs with scrambled POTCARs."""
-    psp_path = f"{TEST_FILES_DIR}/fake_POTCAR_library/"
+    psp_path = f"{TEST_FILES_DIR}/fake_potcar_library/"
     summ_stats_file = f"{tmp_path}/fake_potcar_summary_stats.json.gz"
     _gen_potcar_summary_stats(append=False, vasp_psp_dir=psp_path, summary_stats_filename=summ_stats_file)
 
