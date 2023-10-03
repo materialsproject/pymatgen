@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import os
 import shutil
+import warnings
 
 import numpy as np
 from monty.serialization import zopen
 
+from pymatgen.core import SETTINGS
 from pymatgen.io.vasp import Potcar, PotcarSingle
 from pymatgen.io.vasp.sets import _load_yaml_config
 
@@ -113,8 +115,13 @@ def generate_fake_potcar_libraries():
     output_dir = "./fake_potcar_library/"
     shutil.rmtree(output_dir, ignore_errors=True)
 
-    for func in PotcarSingle.functional_dir:
-        func_dir = PotcarSingle.functional_dir[func]
+    vasp_psp_dir = SETTINGS.get("PMG_VASP_PSP_DIR")
+    src_dirs = [f"{vasp_psp_dir}/{func_dir}" for func_dir in PotcarSingle.functional_dir.values()]
+
+    if not any(map(os.path.isdir, src_dirs)):
+        raise RuntimeError(f"No input POTCAR library found, tried {src_dirs}")
+
+    for func_dir in src_dirs:
         if not os.path.isdir(func_dir):
             continue
 
@@ -126,6 +133,8 @@ def generate_fake_potcar_libraries():
                 f"{func_dir}/{psp_name}/POTCAR",
                 f"{func_dir}/{psp_name}/POTCAR.gz",
             ]
+            if not any(map(os.path.isfile, paths_to_try)):
+                warnings.warn(f"Could not find {psp_name} in {paths_to_try}")
             for potcar_path in paths_to_try:
                 if os.path.isfile(potcar_path):
                     os.makedirs(rebase_dir, exist_ok=True)
