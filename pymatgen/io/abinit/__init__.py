@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from .netcdf import (
     NO_DEFAULT,
-    ETSF_Reader,
+    EtsfReader,
     NetcdfReader,
     NetcdfReaderError,
     as_etsfreader,

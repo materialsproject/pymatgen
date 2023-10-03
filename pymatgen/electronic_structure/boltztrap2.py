@@ -775,7 +775,7 @@ class BztTransportProperties:
             cond_Effective_mass_doping are dictionaries with 'n' and 'p' keys and
             arrays of dim (len(temp_r),len(doping),3,3) as values.
             Carriers_conc_doping: carriers concentration for each doping level and T.
-            mu_doping_eV: the chemical potential corrispondent to each doping level.
+            mu_doping_eV: the chemical potential correspondent to each doping level.
         """
         if temp_r is None:
             temp_r = self.temp_r

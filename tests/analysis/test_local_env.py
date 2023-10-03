@@ -198,7 +198,7 @@ class TestVoronoiNN(PymatgenTest):
 
     def test_Cs2O(self):
         """A problematic structure in the Materials Project."""
-        strc = Structure(
+        struct = Structure(
             [
                 [4.358219, 0.192833, 6.406960],
                 [2.114414, 3.815824, 6.406960],
@@ -210,7 +210,7 @@ class TestVoronoiNN(PymatgenTest):
         )
 
         # Compute the voronoi tessellation
-        result = VoronoiNN().get_all_voronoi_polyhedra(strc)
+        result = VoronoiNN().get_all_voronoi_polyhedra(struct)
         assert len(result) == 3
 
     def test_filtered(self):

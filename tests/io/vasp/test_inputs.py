@@ -754,8 +754,7 @@ class TestKpoints:
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.labels is not None
         assert kpoints.style == Kpoints.supported_modes.Line_mode
-        kpoints_str = str(kpoints)
-        assert kpoints_str.split("\n")[3] == "Reciprocal"
+        assert str(kpoints).split("\n")[3] == "Reciprocal"
 
         filepath = f"{TEST_FILES_DIR}/KPOINTS.explicit"
         kpoints = Kpoints.from_file(filepath)

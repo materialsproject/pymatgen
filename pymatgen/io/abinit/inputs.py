@@ -422,7 +422,7 @@ def ion_ioncell_relax_input(
     shift_mode="Monkhorst-pack",
 ):
     """
-    Returns a |BasicMultiDataset| for a structural relaxation. The first dataset optmizes the
+    Returns a |BasicMultiDataset| for a structural relaxation. The first dataset optimizes the
     atomic positions at fixed unit cell. The second datasets optimizes both ions and unit cell parameters.
 
     Args:

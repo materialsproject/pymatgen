@@ -450,7 +450,7 @@ def changebasis(uu, vv, nn, pps):
     expressed in the basis (uu, vv, nn), which is supposed to be orthonormal.
     :param uu: First vector of the basis
     :param vv: Second vector of the basis
-    :param nn: Third vector of the bais
+    :param nn: Third vector of the basis
     :param pps: List of points in basis (e1, e2, e3)
     Returns:
         List of points in basis (uu, vv, nn).
@@ -473,7 +473,7 @@ def collinear(p1, p2, p3=None, tolerance=0.25):
     checked by computing the area of the triangle defined by the three points p1, p2 and p3. If the area of this
     triangle is less than (tolerance x largest_triangle), then the three points are considered collinear. The
     largest_triangle is defined as the right triangle whose legs are the two smallest distances between the three
-     points ie, its area is : 0.5 x (min(|p2-p1|,|p3-p1|,|p3-p2|) x secondmin(|p2-p1|,|p3-p1|,|p3-p2|))
+     points ie, its area is : 0.5 x (min(|p2-p1|,|p3-p1|,|p3-p2|) x second_min(|p2-p1|,|p3-p1|,|p3-p2|))
     :param p1: First point
     :param p2: Second point
     :param p3: Third point (origin [0.0, 0.0, 0.0 if not given])

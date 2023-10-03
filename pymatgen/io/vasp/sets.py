@@ -1084,17 +1084,7 @@ class MPStaticSet(DictSet):
         incar = Incar(self.prev_incar or parent_incar)
 
         incar.update(
-            {
-                "IBRION": -1,
-                "ISMEAR": -5,
-                "LAECHG": True,
-                "LCHARG": True,
-                "LORBIT": 11,
-                "LVHAR": True,
-                "LWAVE": False,
-                "NSW": 0,
-                "ALGO": "Normal",
-            }
+            IBRION=-1, ISMEAR=-5, LAECHG=True, LCHARG=True, LORBIT=11, LVHAR=True, LWAVE=False, NSW=0, ALGO="Normal"
         )
 
         if self.lepsilon:
@@ -1117,13 +1107,13 @@ class MPStaticSet(DictSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in ["MAGMOM", "NUPDOWN", *self.user_incar_settings]:
+        for key in ["MAGMOM", "NUPDOWN", *self.user_incar_settings]:
             # For these parameters as well as user specified settings, override
             # the incar settings.
-            if parent_incar.get(k) is not None:
-                incar[k] = parent_incar[k]
+            if parent_incar.get(key) is not None:
+                incar[key] = parent_incar[key]
             else:
-                incar.pop(k, None)
+                incar.pop(key, None)
 
         # use new LDAUU when possible b/c the Poscar might have changed
         # representation
@@ -1976,17 +1966,15 @@ class MPNMRSet(MPStaticSet):
 
         if self.mode.lower() == "cs":
             incar.update(
-                {
-                    "LCHIMAG": True,
-                    "EDIFF": -1.0e-10,
-                    "ISYM": 0,
-                    "LCHARG": False,
-                    "LNMR_SYM_RED": True,
-                    "NELMIN": 10,
-                    "NLSPLINE": True,
-                    "PREC": "ACCURATE",
-                    "SIGMA": 0.01,
-                }
+                LCHIMAG=True,
+                EDIFF=-1.0e-10,
+                ISYM=0,
+                LCHARG=False,
+                LNMR_SYM_RED=True,
+                NELMIN=10,
+                NLSPLINE=True,
+                PREC="ACCURATE",
+                SIGMA=0.01,
             )
         elif self.mode.lower() == "efg":
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
@@ -1994,17 +1982,15 @@ class MPNMRSet(MPStaticSet):
             quad_efg = [float(Species(p).get_nmr_quadrupole_moment(isotopes.get(p))) for p in self.poscar.site_symbols]
 
             incar.update(
-                {
-                    "ALGO": "FAST",
-                    "EDIFF": -1.0e-10,
-                    "ISYM": 0,
-                    "LCHARG": False,
-                    "LEFG": True,
-                    "QUAD_EFG": quad_efg,
-                    "NELMIN": 10,
-                    "PREC": "ACCURATE",
-                    "SIGMA": 0.01,
-                }
+                ALGO="FAST",
+                EDIFF=-1.0e-10,
+                ISYM=0,
+                LCHARG=False,
+                LEFG=True,
+                QUAD_EFG=quad_efg,
+                NELMIN=10,
+                PREC="ACCURATE",
+                SIGMA=0.01,
             )
         incar.update(self.user_incar_settings)
 
