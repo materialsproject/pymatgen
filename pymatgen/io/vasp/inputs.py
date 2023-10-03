@@ -1599,7 +1599,7 @@ class PotcarSingle:
 
     """
     NB: there are multiple releases of the {LDA,PBE} {52,54} POTCARs
-        the original (univie) releases include no SHA256 hashes nor COPYR fields 
+        the original (univie) releases include no SHA256 hashes nor COPYR fields
         in the PSCTR/header field.
     We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
     The newer release is indicated as PBE_52_W_HASH, etc.
@@ -1609,7 +1609,7 @@ class PotcarSingle:
         PBE_52="POT_GGA_PAW_PBE_52",
         PBE_52_W_HASH="POTPAW_PBE_52",
         PBE_54="POT_GGA_PAW_PBE_54",
-        PBE_54_W_HASH="POTPAW_PBE_54", 
+        PBE_54_W_HASH="POTPAW_PBE_54",
         PBE_64="POT_PAW_PBE_64",
         LDA="POT_LDA_PAW",
         LDA_52="POT_LDA_PAW_52",
@@ -2177,8 +2177,8 @@ class PotcarSingle:
                     )
 
         def parse_fortran_style_str(input_str: str) -> Any:
-            """Parse any input string as bool, int, float, or failing that, str. 
-            Used to parse FORTRAN-generated POTCAR files where it's unknown 
+            """Parse any input string as bool, int, float, or failing that, str.
+            Used to parse FORTRAN-generated POTCAR files where it's unknown
             a priori what type of data will be encountered.
             """
             input_str = input_str.strip()
@@ -2291,19 +2291,19 @@ class PotcarSingle:
 
 
 def _gen_potcar_summary_stats(
-    append : bool = False,
-    PMG_VASP_PSP_DIR : str | None = None,
-    summary_stats_filename : str = f"{module_dir}/potcar_summary_stats.json.gz"
+    append: bool = False,
+    PMG_VASP_PSP_DIR: str | None = None,
+    summary_stats_filename: str = f"{module_dir}/potcar_summary_stats.json.gz",
 ):
-    """ 
-    This function solely intended to be used for PMG development to regenerate the 
+    """
+    This function solely intended to be used for PMG development to regenerate the
     potcar_summary_stats.json.gz file used to validate POTCARs
 
     THIS FUNCTION IS DESTRUCTIVE - IT WILL COMPLETELY OVERWRITE YOUR POTCAR SUMMARY STATS
 
     Args:
-        - append : bool = False 
-            use to change whether data is appended to the existing 
+        - append : bool = False
+            use to change whether data is appended to the existing
             potcar_summary_stats.json.gz, or if a completely new file is generated
         - PMG_VASP_PSP_DIR : str or None = None
             use to change where this function searches for POTCARs
@@ -2332,21 +2332,21 @@ def _gen_potcar_summary_stats(
         new_summary_stats = {}
 
     for func in func_dir_exist:
-
         if func not in new_summary_stats:
             new_summary_stats[func] = {}
-            
-        potcar_list = glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/POTCAR*") \
-            + glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/*/POTCAR*")
+
+        potcar_list = glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/POTCAR*") + glob(
+            f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/*/POTCAR*"
+        )
         for potcar in potcar_list:
             psp = PotcarSingle.from_file(potcar)
-            new_summary_stats[func][psp.TITEL.replace(" ","")] = {
+            new_summary_stats[func][psp.TITEL.replace(" ", "")] = {
                 "LEXCH": psp.LEXCH,
-                "VRHFIN": psp.VRHFIN.replace(" ",""),
-                **psp._summary_stats
+                "VRHFIN": psp.VRHFIN.replace(" ", ""),
+                **psp._summary_stats,
             }
 
-    dumpfn(new_summary_stats,summary_stats_filename)
+    dumpfn(new_summary_stats, summary_stats_filename)
 
 
 class Potcar(list, MSONable):
