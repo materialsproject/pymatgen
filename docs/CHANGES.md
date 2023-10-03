@@ -10,33 +10,33 @@ nav_order: 4
 
 ### 🐛 Bug Fixes
 
-- Revert `openbabel.OBAlign()` in `molecule_matcher.py` to use positional args for `includeH`, `symmetry` by @janosh in https://github.com/materialsproject/pymatgen/pull/3353
-- Fix MPMD set bug by @MichaelWolloch in https://github.com/materialsproject/pymatgen/pull/3355
-- Fix `TestMPResterNewBasic` + `AseAtomsAdaptor` test errors and `TransformedStructure.from_snl` overwriting `hist` variable by @janosh in https://github.com/materialsproject/pymatgen/pull/3362
-- Fix `TypeError`: can only join an iterable with AECCAR in `VolumetricData.write_file` by @chiang-yuan in https://github.com/materialsproject/pymatgen/pull/3343
+- Revert `openbabel.OBAlign()` in `molecule_matcher.py` to use positional args for `includeH`, `symmetry` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3353>
+- Fix MPMD set bug by @MichaelWolloch in <https://github.com/materialsproject/pymatgen/pull/3355>
+- Fix `TestMPResterNewBasic` + `AseAtomsAdaptor` test errors and `TransformedStructure.from_snl` overwriting `hist` variable by @janosh in <https://github.com/materialsproject/pymatgen/pull/3362>
+- Fix `TypeError`: can only join an iterable with AECCAR in `VolumetricData.write_file` by @chiang-yuan in <https://github.com/materialsproject/pymatgen/pull/3343>
 
 ### 🛠 Enhancements
 
-- Don't rely on `jsanitize` in `Atoms` <--> `Structure` object interconversion  by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3359
-- Breaking: New method of POTCAR validation by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3351
-- Add alias `.to_file()` for `.to()` method of structures and molecules by @QuantumChemist in https://github.com/materialsproject/pymatgen/pull/3356
+- Don't rely on `jsanitize` in `Atoms` <--> `Structure` object interconversion  by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/3359>
+- Breaking: New method of POTCAR validation by @esoteric-ephemera in <https://github.com/materialsproject/pymatgen/pull/3351>
+- Add alias `.to_file()` for `.to()` method of structures and molecules by @QuantumChemist in <https://github.com/materialsproject/pymatgen/pull/3356>
 
 ### 🧹 House-Keeping
 
-- Chargemol minor refactor by @janosh in https://github.com/materialsproject/pymatgen/pull/3357
-- Breaking typo fix: `Targe(tt->t)edPenaltiedAbundanceChemenvStrategy` by @janosh in https://github.com/materialsproject/pymatgen/pull/3360
-- Fix undiscovered tests by @janosh in https://github.com/materialsproject/pymatgen/pull/3369
+- Chargemol minor refactor by @janosh in <https://github.com/materialsproject/pymatgen/pull/3357>
+- Breaking typo fix: `Targe(tt->t)edPenaltiedAbundanceChemenvStrategy` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3360>
+- Fix undiscovered tests by @janosh in <https://github.com/materialsproject/pymatgen/pull/3369>
 
 ### 🏥 Package Health
 
-- Bump min `numpy` to v1.25.0 by @janosh in https://github.com/materialsproject/pymatgen/pull/3352
+- Bump min `numpy` to v1.25.0 by @janosh in <https://github.com/materialsproject/pymatgen/pull/3352>
 
 ## New Contributors
 
-- @esoteric-ephemera made their first contribution in https://github.com/materialsproject/pymatgen/pull/3351
-- @QuantumChemist made their first contribution in https://github.com/materialsproject/pymatgen/pull/3356
+- @esoteric-ephemera made their first contribution in <https://github.com/materialsproject/pymatgen/pull/3351>
+- @QuantumChemist made their first contribution in <https://github.com/materialsproject/pymatgen/pull/3356>
 
-**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2023.9.25...v2023.10.3
+**Full Changelog**: <https://github.com/materialsproject/pymatgen/compare/v2023.9.25...v2023.10.3>
 
 ## v2023.9.25
 
