@@ -2653,7 +2653,7 @@ package <https://pypi.python.org/pypi/monty>`\_, which is now a dependency
   Previously, the parsing was done incorrectly because VASP actually provides
   data by running through the x-axis first, followed by y, then z.
 - Bug fix for reverse_readline so that it works for gzipped and bzipped
-  strucutures (courtesy of Anubhav Jain).
+  structures (courtesy of Anubhav Jain).
 - Fix "lossy" composition to_dict method. Now composition.to_dict properly
   returns a correct species string as a key for compositions using species,
   instead of just the element symbols.

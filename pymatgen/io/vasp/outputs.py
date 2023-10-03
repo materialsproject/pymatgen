@@ -4953,7 +4953,7 @@ class WSWQ(MSONable):
     r"""
     Class for reading a WSWQ file.
     The WSWQ file is used to calculation the wave function overlaps between
-        - W: Wavefunctions in the currenct directory's WAVECAR file
+        - W: Wavefunctions in the current directory's WAVECAR file
         - WQ: Wavefunctions stored in a filed named the WAVECAR.qqq.
 
     The overlap is computed using the overlap operator S
