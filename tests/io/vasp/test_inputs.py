@@ -1221,9 +1221,8 @@ def test_gen_potcar_summary_stats(tmp_path: Path, monkeypatch: MonkeyPatch):
     _gen_potcar_summary_stats(append=False, vasp_psp_dir=psp_path, summary_stats_filename=summ_stats_file)
 
     # only checking for two directories to save space, fake POTCAR library is big
-    expected_funcs = {"LDA_64", "PBE_54_W_HASH"}
     summ_stats = loadfn(summ_stats_file)
-    assert set(summ_stats) == expected_funcs
+    assert set(summ_stats) == (expected_funcs := {"LDA_64", "PBE_54_W_HASH"})
 
     # The fake POTCAR library is pretty big even with just two sub-libraries
     # just copying over entries to work with PotcarSingle.is_valid
