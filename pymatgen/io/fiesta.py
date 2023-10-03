@@ -347,7 +347,7 @@ class FiestaInput(MSONable):
                 if file.upper().find(specie.upper() + "2") != -1 and file.lower().find(auxiliary_basis_set_type) != -1:
                     shutil.copyfile(auxiliary_folder + "/" + file, folder + "/" + specie + "2.ion")
 
-    def set_GW_options(self, nv_band=10, nc_band=10, n_iteration=5, n_grid=6, dE_grid=0.5):
+    def set_gw_options(self, nv_band=10, nc_band=10, n_iteration=5, n_grid=6, dE_grid=0.5):
         """
         Set parameters in cell.in for a GW computation
         :param nv__band: number of valence bands to correct with GW
@@ -359,7 +359,7 @@ class FiestaInput(MSONable):
         self.correlation_grid.update(dE_grid=dE_grid, n_grid=n_grid)
 
     @staticmethod
-    def make_FULL_BSE_Densities_folder(folder):
+    def make_full_bse_densities_folder(folder):
         """Mkdir "FULL_BSE_Densities" folder (needed for bse run) in the desired folder."""
         if os.path.exists(folder + "/FULL_BSE_Densities"):
             return "FULL_BSE_Densities folder already exists"
@@ -367,7 +367,7 @@ class FiestaInput(MSONable):
         os.makedirs(folder + "/FULL_BSE_Densities")
         return "makedirs FULL_BSE_Densities folder"
 
-    def set_BSE_options(self, n_excitations=10, nit_bse=200):
+    def set_bse_options(self, n_excitations=10, nit_bse=200):
         """
         Set parameters in cell.in for a BSE computation
         :param nv_bse: number of valence bands
@@ -377,7 +377,7 @@ class FiestaInput(MSONable):
         """
         self.BSE_TDDFT_options.update(npsi_bse=n_excitations, nit_bse=nit_bse)
 
-    def dump_BSE_data_in_GW_run(self, BSE_dump=True):
+    def dump_bse_data_in_gw_run(self, BSE_dump=True):
         """
         :param BSE_dump: boolean
 

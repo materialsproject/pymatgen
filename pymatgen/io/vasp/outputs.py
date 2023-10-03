@@ -4881,7 +4881,7 @@ class Waveder(MSONable):
         """
         with open(filename, "rb") as fp:
 
-            def readData(dtype):
+            def read_data(dtype):
                 """Read records from Fortran binary file and convert to np.array of given dtype."""
                 data = b""
                 while True:
@@ -4896,11 +4896,11 @@ class Waveder(MSONable):
                         break
                 return np.frombuffer(data, dtype=dtype)
 
-            nbands, nelect, nk, ispin = readData(np.int32)
-            _ = readData(np.float_)  # nodes_in_dielectric_function
-            _ = readData(np.float_)  # wplasmon
+            nbands, nelect, nk, ispin = read_data(np.int32)
+            _ = read_data(np.float_)  # nodes_in_dielectric_function
+            _ = read_data(np.float_)  # wplasmon
             me_datatype = np.dtype(data_type)
-            cder = readData(me_datatype)
+            cder = read_data(me_datatype)
 
             cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
             return cls(cder_data.real, cder_data.imag)
