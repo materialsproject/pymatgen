@@ -2323,13 +2323,9 @@ def _gen_potcar_summary_stats(
         else:
             print(f"WARNING: missing {PotcarSingle.functional_dir[func]} POTCAR directory")
 
-    if append:
-        # if a new POTCAR library is released, use append = True to add new summary stats
-        # without completely regenerating the dict of summary stats
-        new_summary_stats = loadfn(summary_stats_filename)
-    else:
-        # append = False completely regenerate the summary stats dict
-        new_summary_stats = {}
+    # if a new POTCAR library is released, use append = True to add new summary stats
+    # without completely regenerating the dict of summary stats
+    new_summary_stats = loadfn(summary_stats_filename) if append else {}
 
     for func in func_dir_exist:
         if func not in new_summary_stats:

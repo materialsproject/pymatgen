@@ -26,14 +26,13 @@ class POTCAR_SCRAMBLER:
 
     def __init__(self, potcars: Potcar | PotcarSingle):
         if isinstance(potcars, PotcarSingle):
-            potcars = [potcars]
-        self.PSP_list = potcars
-        # self.scrambled_potcars = []
+            self.PSP_list = [potcars]
+        else:
+            self.PSP_list = potcars
         self.scrambled_potcars_str = ""
         for psp in self.PSP_list:
             scrambled_potcar_str = self.scramble_single_potcar(psp)
             self.scrambled_potcars_str += scrambled_potcar_str
-        #    self.scrambled_potcars.append(PotcarSingle(scrambled_potcar_str))
         return
 
     def _rand_float_from_str_with_prec(self, istr: str, bloat: float = 1.5):
@@ -50,22 +49,20 @@ class POTCAR_SCRAMBLER:
         if (istr.upper() == istr.lower()) and istr[0].isnumeric():
             if "." in istr:
                 return self._rand_float_from_str_with_prec(istr, bloat=bloat)
-            else:
-                intval = int(istr)
-                fac = int(np.sign(intval))  # return int of same sign
-                return fac * np.random.randint(abs(max(1, int(np.ceil(bloat * intval)))))
-        else:
-            try:
-                float(istr)
-                return self._rand_float_from_str_with_prec(istr, bloat=bloat)
-            except ValueError:
-                return istr
+            intval = int(istr)
+            fac = int(np.sign(intval))  # return int of same sign
+            return fac * np.random.randint(abs(max(1, int(np.ceil(bloat * intval)))))
+        try:
+            float(istr)
+            return self._rand_float_from_str_with_prec(istr, bloat=bloat)
+        except ValueError:
+            return istr
 
     def scramble_single_potcar(self, potcar: PotcarSingle):
         scrambled_potcar_str = ""
-        for aline in potcar.data.split("\n")[:-1]:
-            single_line_rows = aline.split(";")
-            if "SHA256" in aline or "COPYR" in aline:
+        for line in potcar.data.split("\n")[:-1]:
+            single_line_rows = line.split(";")
+            if "SHA256" in line or "COPYR" in line:
                 # files not copyrighted, remove copyright statement
                 # sha256 no longer applicable
                 continue
@@ -81,7 +78,7 @@ class POTCAR_SCRAMBLER:
                     cline += "; "
 
             aux_str = ""
-            if "TITEL" in aline:
+            if "TITEL" in line:
                 aux_str = " FAKE"
             scrambled_potcar_str += f"{cline}{aux_str}\n"
         return scrambled_potcar_str
