@@ -27,7 +27,7 @@ from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
 from monty.os.path import zpath
-from monty.serialization import loadfn
+from monty.serialization import dumpfn, loadfn
 from tabulate import tabulate
 
 from pymatgen.core import SETTINGS
@@ -2309,28 +2309,27 @@ def _gen_potcar_summary_stats(
         summary_stats_filename (str): Name of the output summary stats file. Defaults to
             '<pymatgen_install_dir>/io/vasp/potcar_summary_stats.json.gz'.
     """
-    from monty.serialization import dumpfn
-
-    func_dir_exist = {}
+    func_dir_exist: dict[str, str] = {}
     PMG_VASP_PSP_DIR = PMG_VASP_PSP_DIR or SETTINGS.get("PMG_VASP_PSP_DIR")
     for func in PotcarSingle.functional_dir:
         cpsp_dir = f"{PMG_VASP_PSP_DIR}/{PotcarSingle.functional_dir[func]}"
         if os.path.isdir(cpsp_dir):
             func_dir_exist[func] = PotcarSingle.functional_dir[func]
         else:
-            print(f"WARNING: missing {PotcarSingle.functional_dir[func]} POTCAR directory")
+            warnings.warn(f"missing {PotcarSingle.functional_dir[func]} POTCAR directory")
 
-    # if a new POTCAR library is released, use append = True to add new summary stats
+    # use append = True if a new POTCAR library is released to add new summary stats
     # without completely regenerating the dict of summary stats
+    # use append = False to completely regenerate the summary stats dict
     new_summary_stats = loadfn(summary_stats_filename) if append else {}
 
     for func in func_dir_exist:
-        if func not in new_summary_stats:
-            new_summary_stats[func] = {}
+        new_summary_stats.setdefault(func, {})  # initialize dict if key missing
 
-        potcar_list = glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/POTCAR*") + glob(
-            f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/*/POTCAR*"
-        )
+        potcar_list = [
+            *glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/POTCAR*"),
+            *glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/*/POTCAR*"),
+        ]
         for potcar in potcar_list:
             psp = PotcarSingle.from_file(potcar)
             new_summary_stats[func][psp.TITEL.replace(" ", "")] = {
