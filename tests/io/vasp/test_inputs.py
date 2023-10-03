@@ -1242,4 +1242,4 @@ def test_gen_potcar_summary_stats(tmp_path: Path, monkeypatch: MonkeyPatch):
         bdir = f"{psp_path}/{PotcarSingle.functional_dir[func]}"
         valid_elements = [x for x in os.listdir(f"{bdir}") if x[0] != "." and os.path.isdir(f"{bdir}/{x}")]
         for element in valid_elements:
-            assert PotcarSingle.from_file(f"{bdir}/{element}/POTCAR.gz").is_valid
+            assert PotcarSingle.from_file(f"{bdir}/POTCAR.{element}.gz").is_valid
