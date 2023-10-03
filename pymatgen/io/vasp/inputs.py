@@ -1597,14 +1597,26 @@ class PotcarSingle:
     are raised if a POTCAR hash fails validation.
     """
 
+    """
+    NB: there are multiple releases of the {LDA,PBE} {52,54} POTCARs
+        the original (univie) releases include no SHA256 hashes nor COPYR fields 
+        in the PSCTR/header field.
+    We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
+    The newer release is indicated as PBE_52_W_HASH, etc.
+    """
     functional_dir = dict(
         PBE="POT_GGA_PAW_PBE",
         PBE_52="POT_GGA_PAW_PBE_52",
+        PBE_52_W_HASH="POTPAW_PBE_52",
         PBE_54="POT_GGA_PAW_PBE_54",
+        PBE_54_W_HASH="POTPAW_PBE_54", 
         PBE_64="POT_PAW_PBE_64",
         LDA="POT_LDA_PAW",
         LDA_52="POT_LDA_PAW_52",
+        LDA_52_W_HASH="POTPAW_LDA_52",
         LDA_54="POT_LDA_PAW_54",
+        LDA_54_W_HASH="POTPAW_LDA_54",
+        LDA_64="POT_LDA_PAW_64",
         PW91="POT_GGA_PAW_PW91",
         LDA_US="POT_LDA_US",
         PW91_US="POT_GGA_US_PW91",
@@ -2107,8 +2119,8 @@ class PotcarSingle:
     def is_valid(self) -> bool:
         """
         Check that POTCAR matches reference metadata.
-        Parsed metadata is stored in self._meta as a human-readable dict,
-            self._meta = {
+        Parsed metadata is stored in self._summary_stats as a human-readable dict,
+            self._summary_stats = {
                 "keywords": {
                     "header": list[str],
                     "data": list[str],
@@ -2136,17 +2148,17 @@ class PotcarSingle:
         Note also that POTCARs can contain **different** data keywords
 
         All keywords found in the header, essentially self.keywords, and the data block
-        (<Data Keyword> above) are stored in self._meta["keywords"]
+        (<Data Keyword> above) are stored in self._summary_stats["keywords"]
 
         To avoid issues of copyright, statistics (mean, mean of abs vals, variance, max, min)
         for the numeric values in the header and data sections of POTCAR are stored
-        in self._meta["stats"]
+        in self._summary_stats["stats"]
 
         tol is then used to match statistical values within a tolerance
         """
         functional_lexch = {
-            "PE": ["PBE", "PBE_52", "PBE_54", "PBE_64"],
-            "CA": ["LDA", "LDA_52", "LDA_54", "LDA_US", "Perdew_Zunger81"],
+            "PE": ["PBE", "PBE_52", "PBE_52_W_HASH", "PBE_54", "PBE_54_W_HASH", "PBE_64"],
+            "CA": ["LDA", "LDA_52", "LDA_52_W_HASH", "LDA_54", "LDA_54_W_HASH", "LDA_64", "LDA_US", "Perdew_Zunger81"],
             "91": ["PW91", "PW91_US"],
         }
 
@@ -2165,8 +2177,9 @@ class PotcarSingle:
                     )
 
         def parse_fortran_style_str(input_str: str) -> Any:
-            """Parse any input string as bool, int, float, or failing that, str. Used to parse FORTRAN-generated
-            POTCAR files where it's unknown a priori what type of data will be encountered.
+            """Parse any input string as bool, int, float, or failing that, str. 
+            Used to parse FORTRAN-generated POTCAR files where it's unknown 
+            a priori what type of data will be encountered.
             """
             input_str = input_str.strip()
 
@@ -2277,15 +2290,32 @@ class PotcarSingle:
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
 
-def _gen_potcar_summary_stats():
-    """
-    This function solely intended to be used for PMG development to regenerate the
+def _gen_potcar_summary_stats(
+    append : bool = False,
+    PMG_VASP_PSP_DIR : str | None = None,
+    summary_stats_filename : str = f"{module_dir}/potcar_summary_stats.json.gz"
+):
+    """ 
+    This function solely intended to be used for PMG development to regenerate the 
     potcar_summary_stats.json.gz file used to validate POTCARs
+
+    THIS FUNCTION IS DESTRUCTIVE - IT WILL COMPLETELY OVERWRITE YOUR POTCAR SUMMARY STATS
+
+    Args:
+        - append : bool = False 
+            use to change whether data is appended to the existing 
+            potcar_summary_stats.json.gz, or if a completely new file is generated
+        - PMG_VASP_PSP_DIR : str or None = None
+            use to change where this function searches for POTCARs
+            defaults to the PMG_VASP_PSP_DIR environment variable if not set
+        - summary_stats_filename : str
+            name of the output summary stats file
+            defaults to <pymatgen_install_dir>/io/vasp/potcar_summary_stats.json.gz
     """
-    from monty.shutil import compress_file
+    from monty.serialization import dumpfn
 
     func_dir_exist = {}
-    PMG_VASP_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR")
+    PMG_VASP_PSP_DIR = PMG_VASP_PSP_DIR or SETTINGS.get("PMG_VASP_PSP_DIR")
     for func in PotcarSingle.functional_dir:
         cpsp_dir = f"{PMG_VASP_PSP_DIR}/{PotcarSingle.functional_dir[func]}"
         if os.path.isdir(cpsp_dir):
@@ -2293,25 +2323,30 @@ def _gen_potcar_summary_stats():
         else:
             print(f"WARNING: missing {PotcarSingle.functional_dir[func]} POTCAR directory")
 
-    new_summary_stats = {func: {} for func in func_dir_exist}
+    if append:
+        # if a new POTCAR library is released, use append = True to add new summary stats
+        # without completely regenerating the dict of summary stats
+        new_summary_stats = loadfn(summary_stats_filename)
+    else:
+        # append = False completely regenerate the summary stats dict
+        new_summary_stats = {}
+
     for func in func_dir_exist:
-        potcar_list = glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/POTCAR*") + glob(
-            f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/*/POTCAR"
-        )
+
+        if func not in new_summary_stats:
+            new_summary_stats[func] = {}
+            
+        potcar_list = glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/POTCAR*") \
+            + glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/*/POTCAR*")
         for potcar in potcar_list:
             psp = PotcarSingle.from_file(potcar)
-            new_summary_stats[func][psp.TITEL.replace(" ", "")] = {
+            new_summary_stats[func][psp.TITEL.replace(" ","")] = {
                 "LEXCH": psp.LEXCH,
-                "VRHFIN": psp.VRHFIN.replace(" ", ""),
-                **psp._summary_stats,
+                "VRHFIN": psp.VRHFIN.replace(" ",""),
+                **psp._summary_stats
             }
 
-    with open(f"{module_dir}/potcar_summary_stats.json", "w+") as _fl:
-        json.dump(new_summary_stats, _fl)
-
-    compress_file(f"{module_dir}/potcar_summary_stats.json")
-
-    return
+    dumpfn(new_summary_stats,summary_stats_filename)
 
 
 class Potcar(list, MSONable):

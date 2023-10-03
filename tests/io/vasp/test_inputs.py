@@ -10,6 +10,7 @@ import numpy as np
 import pytest
 import scipy.constants as const
 from monty.io import zopen
+from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -26,6 +27,7 @@ from pymatgen.io.vasp.inputs import (
     PotcarSingle,
     UnknownPotcarWarning,
     VaspInput,
+    _gen_potcar_summary_stats,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -1210,3 +1212,45 @@ class TestVaspInput(PymatgenTest):
         dct = vi.as_dict()
         vasp_input = VaspInput.from_dict(dct)
         assert "CONTCAR.Li2O" in vasp_input
+
+class Test_gen_potcar_summary_stats(PymatgenTest):
+    """
+        Test of POTCAR summary statistics generator code
+    """
+    def setUp(self):
+        self.PSP_path = f"{TEST_FILES_DIR}/fake_POTCAR_library/"
+    
+    def test_summary_stats_generator(self):
+        summ_stats_file = f"{self.tmp_path}/fake_potcar_summary_stats.json.gz"
+        _gen_potcar_summary_stats(
+            append = False,
+            PMG_VASP_PSP_DIR = self.PSP_path,
+            summary_stats_filename = summ_stats_file
+        )
+
+        # only checking for two directories to save space, fake POTCAR library is big
+        expected_funcs = {"LDA_64","PBE_54_W_HASH"}
+        summ_stats = loadfn(summ_stats_file)
+        assert set(list(summ_stats)) == expected_funcs
+
+        # The fake POTCAR library is pretty big even with just two sub-libraries
+        # just copying over entries to work with PotcarSingle.is_valid
+        for func in PotcarSingle.functional_dir:
+            if func in expected_funcs:
+                continue
+            if 'pbe' in func.lower() or 'pw91' in func.lower():
+                summ_stats[func] = summ_stats["PBE_54_W_HASH"].copy()
+            elif 'lda' in func.lower() or "perdew_zunger81" in func.lower():
+                summ_stats[func] = summ_stats["LDA_64"].copy()
+
+        # override reference potcar_summary_stats with fake data
+        PotcarSingle.potcar_summary_stats = summ_stats
+
+        for func in expected_funcs:
+            bdir = f"{self.PSP_path}/{PotcarSingle.functional_dir[func]}"
+            valid_elements = [
+                x for x in os.listdir(f"{bdir}")
+                if x[0] != '.' and os.path.isdir(f"{bdir}/{x}")
+            ]
+            for element in valid_elements:
+                assert PotcarSingle.from_file(f"{bdir}/{element}/POTCAR.gz").is_valid
