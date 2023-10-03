@@ -1216,9 +1216,9 @@ class TestVaspInput(PymatgenTest):
 
 def test_gen_potcar_summary_stats(tmp_path: Path, monkeypatch: MonkeyPatch):
     """Regenerate the potcar_summary_stats.json.gz file used to validate POTCARs with scrambled POTCARs."""
-    PSP_path = f"{TEST_FILES_DIR}/fake_POTCAR_library/"
+    psp_path = f"{TEST_FILES_DIR}/fake_POTCAR_library/"
     summ_stats_file = f"{tmp_path}/fake_potcar_summary_stats.json.gz"
-    _gen_potcar_summary_stats(append=False, PMG_VASP_PSP_DIR=PSP_path, summary_stats_filename=summ_stats_file)
+    _gen_potcar_summary_stats(append=False, vasp_psp_dir=psp_path, summary_stats_filename=summ_stats_file)
 
     # only checking for two directories to save space, fake POTCAR library is big
     expected_funcs = {"LDA_64", "PBE_54_W_HASH"}
@@ -1239,7 +1239,7 @@ def test_gen_potcar_summary_stats(tmp_path: Path, monkeypatch: MonkeyPatch):
     monkeypatch.setattr(PotcarSingle, "potcar_summary_stats", summ_stats)
 
     for func in expected_funcs:
-        bdir = f"{PSP_path}/{PotcarSingle.functional_dir[func]}"
+        bdir = f"{psp_path}/{PotcarSingle.functional_dir[func]}"
         valid_elements = [x for x in os.listdir(f"{bdir}") if x[0] != "." and os.path.isdir(f"{bdir}/{x}")]
         for element in valid_elements:
             assert PotcarSingle.from_file(f"{bdir}/{element}/POTCAR.gz").is_valid

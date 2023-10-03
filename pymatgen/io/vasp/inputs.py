@@ -2292,7 +2292,7 @@ class PotcarSingle:
 
 def _gen_potcar_summary_stats(
     append: bool = False,
-    PMG_VASP_PSP_DIR: str | None = None,
+    vasp_psp_dir: str | None = None,
     summary_stats_filename: str = f"{module_dir}/potcar_summary_stats.json.gz",
 ):
     """
@@ -2310,9 +2310,9 @@ def _gen_potcar_summary_stats(
             '<pymatgen_install_dir>/io/vasp/potcar_summary_stats.json.gz'.
     """
     func_dir_exist: dict[str, str] = {}
-    PMG_VASP_PSP_DIR = PMG_VASP_PSP_DIR or SETTINGS.get("PMG_VASP_PSP_DIR")
+    vasp_psp_dir = vasp_psp_dir or SETTINGS.get("PMG_VASP_PSP_DIR")
     for func in PotcarSingle.functional_dir:
-        cpsp_dir = f"{PMG_VASP_PSP_DIR}/{PotcarSingle.functional_dir[func]}"
+        cpsp_dir = f"{vasp_psp_dir}/{PotcarSingle.functional_dir[func]}"
         if os.path.isdir(cpsp_dir):
             func_dir_exist[func] = PotcarSingle.functional_dir[func]
         else:
@@ -2327,8 +2327,8 @@ def _gen_potcar_summary_stats(
         new_summary_stats.setdefault(func, {})  # initialize dict if key missing
 
         potcar_list = [
-            *glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/POTCAR*"),
-            *glob(f"{PMG_VASP_PSP_DIR}/{func_dir_exist[func]}/*/POTCAR*"),
+            *glob(f"{vasp_psp_dir}/{func_dir_exist[func]}/POTCAR*"),
+            *glob(f"{vasp_psp_dir}/{func_dir_exist[func]}/*/POTCAR*"),
         ]
         for potcar in potcar_list:
             psp = PotcarSingle.from_file(potcar)
