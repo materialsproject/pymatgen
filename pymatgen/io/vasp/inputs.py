@@ -27,7 +27,7 @@ from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
 from monty.os.path import zpath
-from monty.serialization import loadfn
+from monty.serialization import dumpfn, loadfn
 from tabulate import tabulate
 
 from pymatgen.core import SETTINGS
@@ -1597,13 +1597,26 @@ class PotcarSingle:
     are raised if a POTCAR hash fails validation.
     """
 
+    """
+    NB: there are multiple releases of the {LDA,PBE} {52,54} POTCARs
+        the original (univie) releases include no SHA256 hashes nor COPYR fields
+        in the PSCTR/header field.
+    We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
+    The newer release is indicated as PBE_52_W_HASH, etc.
+    """
     functional_dir = dict(
         PBE="POT_GGA_PAW_PBE",
         PBE_52="POT_GGA_PAW_PBE_52",
+        PBE_52_W_HASH="POTPAW_PBE_52",
         PBE_54="POT_GGA_PAW_PBE_54",
+        PBE_54_W_HASH="POTPAW_PBE_54",
+        PBE_64="POT_PAW_PBE_64",
         LDA="POT_LDA_PAW",
         LDA_52="POT_LDA_PAW_52",
+        LDA_52_W_HASH="POTPAW_LDA_52",
         LDA_54="POT_LDA_PAW_54",
+        LDA_54_W_HASH="POTPAW_LDA_54",
+        LDA_64="POT_LDA_PAW_64",
         PW91="POT_GGA_PAW_PW91",
         LDA_US="POT_LDA_US",
         PW91_US="POT_GGA_US_PW91",
@@ -2106,8 +2119,8 @@ class PotcarSingle:
     def is_valid(self) -> bool:
         """
         Check that POTCAR matches reference metadata.
-        Parsed metadata is stored in self._meta as a human-readable dict,
-            self._meta = {
+        Parsed metadata is stored in self._summary_stats as a human-readable dict,
+            self._summary_stats = {
                 "keywords": {
                     "header": list[str],
                     "data": list[str],
@@ -2135,17 +2148,17 @@ class PotcarSingle:
         Note also that POTCARs can contain **different** data keywords
 
         All keywords found in the header, essentially self.keywords, and the data block
-        (<Data Keyword> above) are stored in self._meta["keywords"]
+        (<Data Keyword> above) are stored in self._summary_stats["keywords"]
 
         To avoid issues of copyright, statistics (mean, mean of abs vals, variance, max, min)
         for the numeric values in the header and data sections of POTCAR are stored
-        in self._meta["stats"]
+        in self._summary_stats["stats"]
 
         tol is then used to match statistical values within a tolerance
         """
         functional_lexch = {
-            "PE": ["PBE", "PBE_52", "PBE_54"],
-            "CA": ["LDA", "LDA_52", "LDA_54", "LDA_US", "Perdew_Zunger81"],
+            "PE": ["PBE", "PBE_52", "PBE_52_W_HASH", "PBE_54", "PBE_54_W_HASH", "PBE_64"],
+            "CA": ["LDA", "LDA_52", "LDA_52_W_HASH", "LDA_54", "LDA_54_W_HASH", "LDA_64", "LDA_US", "Perdew_Zunger81"],
             "91": ["PW91", "PW91_US"],
         }
 
@@ -2164,8 +2177,9 @@ class PotcarSingle:
                     )
 
         def parse_fortran_style_str(input_str: str) -> Any:
-            """Parse any input string as bool, int, float, or failing that, str. Used to parse FORTRAN-generated
-            POTCAR files where it's unknown a priori what type of data will be encountered.
+            """Parse any input string as bool, int, float, or failing that, str.
+            Used to parse FORTRAN-generated POTCAR files where it's unknown
+            a priori what type of data will be encountered.
             """
             input_str = input_str.strip()
 
@@ -2225,7 +2239,9 @@ class PotcarSingle:
                 "MAX": arr.max(),
             }
 
-        summary_stats = {  # for this PotcarSingle instance
+        # NB: to add future summary stats in a way that's consistent with PMG,
+        # it's easiest to save the summary stats as an attr of PotcarSingle
+        self._summary_stats = {  # for this PotcarSingle instance
             "keywords": {
                 "header": [kwd.lower() for kwd in self.keywords],
                 "data": psp_keys,
@@ -2239,12 +2255,12 @@ class PotcarSingle:
         data_match_tol = 1e-6
         for ref_psp in possible_potcar_matches:
             key_match = all(
-                set(ref_psp["keywords"][key]) == set(summary_stats["keywords"][key])  # type: ignore
+                set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key])  # type: ignore
                 for key in ["header", "data"]
             )
 
             data_diff = [
-                abs(ref_psp["stats"][key][stat] - summary_stats["stats"][key][stat])  # type: ignore
+                abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])  # type: ignore
                 for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
                 for key in ["header", "data"]
             ]
@@ -2272,6 +2288,57 @@ class PotcarSingle:
         TITEL, VRHFIN = self.keywords["TITEL"], self.keywords["VRHFIN"]
         TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
+
+
+def _gen_potcar_summary_stats(
+    append: bool = False,
+    vasp_psp_dir: str | None = None,
+    summary_stats_filename: str = f"{module_dir}/potcar_summary_stats.json.gz",
+):
+    """
+    This function solely intended to be used for PMG development to regenerate the
+    potcar_summary_stats.json.gz file used to validate POTCARs
+
+    THIS FUNCTION IS DESTRUCTIVE. It will completely overwrite your potcar_summary_stats.json.gz.
+
+    Args:
+        append (bool): Change whether data is appended to the existing potcar_summary_stats.json.gz,
+            or if a completely new file is generated. Defaults to False.
+        PMG_VASP_PSP_DIR (str): Change where this function searches for POTCARs
+            defaults to the PMG_VASP_PSP_DIR environment variable if not set. Defaults to None.
+        summary_stats_filename (str): Name of the output summary stats file. Defaults to
+            '<pymatgen_install_dir>/io/vasp/potcar_summary_stats.json.gz'.
+    """
+    func_dir_exist: dict[str, str] = {}
+    vasp_psp_dir = vasp_psp_dir or SETTINGS.get("PMG_VASP_PSP_DIR")
+    for func in PotcarSingle.functional_dir:
+        cpsp_dir = f"{vasp_psp_dir}/{PotcarSingle.functional_dir[func]}"
+        if os.path.isdir(cpsp_dir):
+            func_dir_exist[func] = PotcarSingle.functional_dir[func]
+        else:
+            warnings.warn(f"missing {PotcarSingle.functional_dir[func]} POTCAR directory")
+
+    # use append = True if a new POTCAR library is released to add new summary stats
+    # without completely regenerating the dict of summary stats
+    # use append = False to completely regenerate the summary stats dict
+    new_summary_stats = loadfn(summary_stats_filename) if append else {}
+
+    for func in func_dir_exist:
+        new_summary_stats.setdefault(func, {})  # initialize dict if key missing
+
+        potcar_list = [
+            *glob(f"{vasp_psp_dir}/{func_dir_exist[func]}/POTCAR*"),
+            *glob(f"{vasp_psp_dir}/{func_dir_exist[func]}/*/POTCAR*"),
+        ]
+        for potcar in potcar_list:
+            psp = PotcarSingle.from_file(potcar)
+            new_summary_stats[func][psp.TITEL.replace(" ", "")] = {
+                "LEXCH": psp.LEXCH,
+                "VRHFIN": psp.VRHFIN.replace(" ", ""),
+                **psp._summary_stats,
+            }
+
+    dumpfn(new_summary_stats, summary_stats_filename)
 
 
 class Potcar(list, MSONable):
