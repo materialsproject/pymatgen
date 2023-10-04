@@ -24,9 +24,7 @@ long_description = (
 
 setup(
     name="pymatgen",
-    packages=find_namespace_packages(
-        include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"]
-    ),
+    packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*", "cmd_line"]),
     version="2023.10.4",
     python_requires=">=3.9",
     install_requires=[
