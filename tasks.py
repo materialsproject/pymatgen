@@ -249,24 +249,3 @@ def open_doc(ctx):
 def lint(ctx):
     for cmd in ["ruff", "mypy", "black", "pylint"]:
         ctx.run(f"{cmd} pymatgen")
-
-
-def check_egg_sources_txt_for_completeness():
-    """Check that all source and data files in pymatgen/ are listed in pymatgen.egg-info/SOURCES.txt."""
-    src_txt = "pymatgen.egg-info/SOURCES.txt"
-    if not os.path.exists(src_txt):
-        raise FileNotFoundError(f"{src_txt} not found. Run `pip install .` to create")
-
-    with open(src_txt) as file:
-        sources = file.read()
-
-    for src_file in sources.splitlines():
-        if not os.path.exists(src_file):
-            raise ValueError(f"{src_file} does not exist!")
-
-    for ext in ("py", "json", "json.gz", "yaml", "csv"):
-        for filepath in glob(f"pymatgen/**/*.{ext}", recursive=True):
-            if "/tests/" in filepath or "dao" in filepath:
-                continue
-            if filepath not in sources:
-                raise ValueError(f"{filepath} not found in {src_txt}")
