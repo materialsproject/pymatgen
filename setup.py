@@ -94,19 +94,13 @@ setup(
     # all sorts of useless files like test files and is prone to path errors.
     package_data={
         # catch-all for .json, .yaml files in all subpackages
-        "pymatgen": ["py.typed", "*.json", "*.yaml", "**/*.json", "**/*.yaml", "**/**/*.json", "**/**/*.yaml"],
-        "pymatgen.analysis.chemenv.coordination_environments": [
-            "coordination_geometries_files/*.txt",
-            "strategy_files/ImprovedConfidenceCutoffDefaultParameters.json",
-        ],
+        "pymatgen": ["py.typed", "*.json*", "*.yaml", "**/*.json*", "**/*.yaml", "**/**/*.json*", "**/**/*.yaml"],
+        "pymatgen.analysis.chemenv.coordination_environments": ["coordination_geometries_files/*.txt"],
         "pymatgen.analysis": ["*.csv"],
         "pymatgen.analysis.magnetism": ["default_magmoms.yaml"],
         "pymatgen.analysis.solar": ["am1.5G.dat"],
-        "pymatgen.entries": ["*.json.gz", "data/*.json"],
-        "pymatgen.io.vasp": ["*.json.gz"],
         "pymatgen.io.lobster": ["lobster_basis/*.yaml"],
         "pymatgen.command_line": ["*"],
-        "pymatgen.util": ["structures/*.json"],
         "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/*.template"],
         "pymatgen.symmetry": ["*.sqlite"],
         "cmd_line": ["**/*"],
