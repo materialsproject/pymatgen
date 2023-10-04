@@ -994,7 +994,7 @@ def write_lammps_inputs(
     output_dir: str,
     script_template: str,
     settings: dict | None = None,
-    data: LammpsData | str = None,
+    data: LammpsData | str | None = None,
     script_filename: str = "in.lammps",
     make_dir_if_not_present: bool = True,
     **kwargs,

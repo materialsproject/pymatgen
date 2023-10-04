@@ -207,7 +207,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2: bool
     return coord_cython.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2)
 
 
-def find_in_coord_list_pbc(fcoord_list, fcoord, atol:float=1e-8, pbc=(True, True, True)) -> list[int]:
+def find_in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc=(True, True, True)) -> list[int]:
     """Get the indices of all points in a fractional coord list that are
     equal to a fractional coord (with a tolerance), taking into account
     periodic boundary conditions.
@@ -230,7 +230,7 @@ def find_in_coord_list_pbc(fcoord_list, fcoord, atol:float=1e-8, pbc=(True, True
     return np.where(np.all(np.abs(fdist) < atol, axis=1))[0]
 
 
-def in_coord_list_pbc(fcoord_list, fcoord, atol:float=1e-8, pbc=(True, True, True)) -> bool:
+def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc=(True, True, True)) -> bool:
     """Tests if a particular fractional coord is within a fractional coord_list.
 
     Args:

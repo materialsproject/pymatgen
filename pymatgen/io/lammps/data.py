@@ -554,7 +554,7 @@ class LammpsData(MSONable):
         assert masses["label"].nunique(dropna=False) == len(masses), "Expecting unique atom label for each type"
         mass_info = [(row.label, row.mass) for row in masses.itertuples()]
 
-        nonbond_coeffs, topo_coeffs = None, None
+        # nonbond_coeffs, topo_coeffs = None, None
         if self.force_field:
             if "PairIJ Coeffs" in self.force_field:
                 nbc = self.force_field["PairIJ Coeffs"]
@@ -564,7 +564,7 @@ class LammpsData(MSONable):
                 nbc = self.force_field["Pair Coeffs"].sort_index()
                 nonbond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
 
-            topo_coeffs = {k: [] for k in SECTION_KEYWORDS["ff"][2:] if k in self.force_field}
+            topo_coeffs: dict = {k: [] for k in SECTION_KEYWORDS["ff"][2:] if k in self.force_field}
             for kw in topo_coeffs:
                 class2_coeffs = {
                     k: list(v.itertuples(index=False, name=None))
@@ -604,7 +604,7 @@ class LammpsData(MSONable):
                 for d in v:
                     d["types"] = list(set(d["types"]))
 
-        ff = ForceField(mass_info=mass_info, nonbond_coeffs=nonbond_coeffs, topo_coeffs=topo_coeffs)
+        ff = ForceField(mass_info=mass_info, nonbond_coeffs=nonbond_coeffs or None, topo_coeffs=topo_coeffs or None)
 
         topo_list = []
         for mid in unique_mids:
@@ -622,14 +622,13 @@ class LammpsData(MSONable):
             for kw in SECTION_KEYWORDS["topology"]:
                 if data.get(kw):
                     topologies[kw] = (np.array(data[kw]) - shift).tolist()
-            topologies = topologies if topologies else None
             topo_list.append(
                 Topology(
                     sites=m,
                     ff_label=ff_label,
                     charges=charges,
                     velocities=velocities,
-                    topologies=topologies,
+                    topologies=topologies or None,
                 )
             )
 
@@ -659,7 +658,7 @@ class LammpsData(MSONable):
         header_pattern["bounds"] = r"^\s*{}$".format(r"\s+".join([float_group] * 2 + [r"([xyz])lo \3hi"]))
         header_pattern["tilt"] = r"^\s*{}$".format(r"\s+".join([float_group] * 3 + ["xy xz yz"]))
 
-        header = {"counts": {}, "types": {}}
+        header: dict[str, dict] = {"counts": {}, "types": {}}
         bounds = {}
         for line in clean_lines(parts[0][1:]):  # skip the 1st line
             match = None
@@ -936,7 +935,9 @@ class Topology(MSONable):
         if not isinstance(sites, (Molecule, Structure)):
             sites = Molecule.from_sites(sites)
 
-        type_by_sites = sites.site_properties.get(ff_label) if ff_label else [site.specie.symbol for site in sites]
+        type_by_sites = (
+            list(*sites.site_properties.get(ff_label)) if ff_label else [site.specie.symbol for site in sites]
+        )
         # search for site property if not override
         if charges is None:
             charges = sites.site_properties.get("charge")
@@ -1149,7 +1150,7 @@ class ForceField(MSONable):
             return [label, label[::-1]]
 
         main_data, distinct_types = [], []
-        class2_data = {k: [] for k in self.topo_coeffs[kw][0] if k in CLASS2_KEYWORDS.get(kw, [])}
+        class2_data: dict = {k: [] for k in self.topo_coeffs[kw][0] if k in CLASS2_KEYWORDS.get(kw, [])}
         for d in self.topo_coeffs[kw]:
             main_data.append(d["coeffs"])
             distinct_types.append(d["types"])
@@ -1376,12 +1377,12 @@ class CombinedData(LammpsData):
         ]
 
     @classmethod
-    def from_ff_and_topologies(cls) -> None:
+    def from_ff_and_topologies(cls):
         """Unsupported constructor for CombinedData objects."""
         raise AttributeError("Unsupported constructor for CombinedData objects")
 
     @classmethod
-    def from_structure(cls) -> None:
+    def from_structure(cls):
         """Unsupported constructor for CombinedData objects."""
         raise AttributeError("Unsupported constructor for CombinedData objects")
 
@@ -1495,7 +1496,7 @@ class CombinedData(LammpsData):
         lines.insert(1, info)
         return "\n".join(lines)
 
-    def as_lammpsdata(self) -> LammpsData:
+    def as_lammpsdata(self):
         """
         Convert a CombinedData object to a LammpsData object. attributes are deep-copied.
 

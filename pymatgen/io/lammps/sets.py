@@ -85,6 +85,8 @@ class LammpsInputSet(InputSet):
         """
         input_file = LammpsInputFile.from_file(f"{directory}/in.lammps", keep_stages=keep_stages)
         atom_style = input_file.get_args("atom_style")
+        if isinstance(atom_style, list):
+            raise ValueError("Variable atom_style is specified multiple times in the input file.")
         data_file = LammpsData.from_file(f"{directory}/system.data", atom_style=atom_style)
         return LammpsInputSet(inputfile=input_file, data=data_file, calc_type="read_from_dir")
 

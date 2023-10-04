@@ -19,7 +19,7 @@ from pymatgen.io.lammps.data import LammpsBox
 
 if TYPE_CHECKING:
     from collections.abc import Generator
-    from typing import Self
+    from typing import Any, Self
 
 __author__ = "Kiran Mathew, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -90,9 +90,9 @@ class LammpsDump(MSONable):
         items["data"] = pd.read_json(d["data"], orient="split")
         return cls(**items)
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """Returns: MSONable dict."""
-        dct = {}
+        dct: dict[str, Any] = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         dct["timestep"] = self.timestep
