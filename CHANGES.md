@@ -6,6 +6,10 @@ nav_order: 4
 
 # Changelog
 
+## v2023.10.4
+
+- Bug fixes for MPRester and packaged data.
+
 ## v2023.10.3
 
 ### 🐛 Bug Fixes
