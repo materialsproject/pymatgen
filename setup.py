@@ -106,7 +106,7 @@ setup(
         "pymatgen.entries": ["*.json.gz", "*.yaml", "data/*.json"],
         "pymatgen.core": ["*.json"],
         "pymatgen": ["py.typed"],
-        "pymatgen.io.vasp": ["*.yaml", "*.json"],
+        "pymatgen.io.vasp": ["*.yaml", "*.json", "*.json.gz"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.io.cp2k": ["*.yaml"],
         "pymatgen.io.lobster": ["lobster_basis/*.yaml"],
