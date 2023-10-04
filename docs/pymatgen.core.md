@@ -1966,7 +1966,7 @@ Algorithm:
 
 
 1. place sphere of radius r in crystal and determine minimum supercell
-(parallelpiped) which would contain a sphere of radius r. for this
+(parallelepiped) which would contain a sphere of radius r. for this
 we need the projection of a_1 on a unit vector perpendicular
 to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
 determine how many a_1”s it will take to contain the sphere.
@@ -3414,7 +3414,7 @@ Returns a string of the form ‘x, y, z, +1’, ‘-x, -y, z, -1’,
 ‘-y+1/2, x+1/2, z+1/2, +1’, etc. Only works for integer rotation matrices.
 
 
-#### as_xyzt_string(\*\*kwds)
+#### as_xyzt_string(\*args, \*\*kwargs)
 as_xyzt_string is deprecated!
 Use as_xyzt_str instead
 
@@ -3495,7 +3495,7 @@ Initialize a MagSymmOp from a SymmOp and time reversal operator.
 
 
 
-#### _classmethod_ from_xyzt_string(\*args, \*\*kwds)
+#### _classmethod_ from_xyzt_string(\*args, \*\*kwargs)
 from_xyzt_string is deprecated!
 Use from_xyzt_str instead
 
@@ -3651,7 +3651,7 @@ Returns a string of the form ‘x, y, z’, ‘-x, -y, z’, ‘-y+1/2, x+1/2, z
 Only works for integer rotation matrices.
 
 
-#### as_xyz_string(\*\*kwds)
+#### as_xyz_string(\*args, \*\*kwargs)
 as_xyz_string is deprecated!
 Use as_xyz_str instead
 
@@ -3765,7 +3765,7 @@ vector.
 
 
 
-#### _classmethod_ from_xyz_string(\*args, \*\*kwds)
+#### _classmethod_ from_xyz_string(\*args, \*\*kwargs)
 from_xyz_string is deprecated!
 Use from_xyz_str instead
 
@@ -5339,7 +5339,7 @@ Returns a Species from a string representation.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -8533,6 +8533,10 @@ Generates string representations (cif, json, poscar, ….) of SiteCollections (e
 molecules / structures). Should return str or None if written to a file.
 
 
+#### to_file(filename: str = '', fmt: str = '')
+A more intuitive alias for .to().
+
+
 #### _property_ types_of_specie(_: tuple[Element | Species | DummySpecies_ )
 Specie->Species rename. Maintained for backwards compatibility.
 
@@ -11708,7 +11712,7 @@ Parse string to FloatWithUnit.
 Example: Memory.from_str(“1. Mb”)
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 

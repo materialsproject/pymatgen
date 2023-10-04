@@ -1562,14 +1562,6 @@ any warning being issued.
 
 
 
-#### _static_ LabelPoints(index)
-Axes used in generating labels for Latimer-Munro convention.
-
-
-#### _static_ LabelSymbol(index)
-Letters used in generating labels for the Latimer-Munro convention.
-
-
 #### _abc_impl(_ = <_abc._abc_data object_ )
 
 #### _static_ _all_ints(arr, atol)
@@ -1615,6 +1607,14 @@ Letters used in generating labels for the Latimer-Munro convention.
 #### _static_ _reduce_IRBZ(IRBZ_points, boundaries, g, atol)
 
 #### _static_ _reduce_cosines_array(orbit_cosines, pop_orbits, pop_labels)
+
+#### _static_ label_points(index)
+Axes used in generating labels for Latimer-Munro convention.
+
+
+#### _static_ label_symbol(index)
+Letters used in generating labels for the Latimer-Munro convention.
+
 
 #### _property_ mag_type()
 Returns:
@@ -1934,7 +1934,7 @@ hexagonal setting)
 choice)
 
 
-* b,c,a;-1/2,-1/2,-1/2 is Bbab:1 to Ccca:2 (change settin
+* b,c,a;-1/2,-1/2,-1/2 is Bbab:1 to Ccca:2 (change setting
 and origin)
 
 Can transform points (coords), lattices and symmetry operations.
@@ -1985,7 +1985,7 @@ Construct SpaceGroupTransformation from its transformation string.
 
 
 
-#### _classmethod_ from_transformation_string(\*args, \*\*kwds)
+#### _classmethod_ from_transformation_string(\*args, \*\*kwargs)
 from_transformation_string is deprecated!
 Use from_transformation_str instead
 
