@@ -1558,7 +1558,7 @@ Store results concerning the parallel efficiency of the job.
 * **Parameters**
 
 
-    * **filennames** – List of filenames
+    * **filenames** – List of filenames
 
 
     * **ref_idx** – Index of the Reference time (calculation done with the smallest number of cpus).
@@ -1902,7 +1902,7 @@ String representation.
 
 
 
-#### to_string(\*\*kwds)
+#### to_string(\*args, \*\*kwargs)
 to_string is deprecated!
 Use to_str instead
 
@@ -2059,7 +2059,7 @@ String representation i.e. the input file read by Abinit.
 
 
 
-#### to_string(\*\*kwds)
+#### to_string(\*args, \*\*kwargs)
 to_string is deprecated!
 Use to_str instead
 
@@ -2354,7 +2354,7 @@ Returns a
 |BasicMultiDataset|
 ```
 
- for a structural relaxation. The first dataset optmizes the
+ for a structural relaxation. The first dataset optimizes the
 atomic positions at fixed unit cell. The second datasets optimizes both ions and unit cell parameters.
 
 
@@ -2457,12 +2457,12 @@ String representation. kwargs are passed to pprint.pformat.
 
 
 
-#### to_string(\*\*kwds)
+#### to_string(\*args, \*\*kwargs)
 to_string is deprecated!
 Use to_str instead
 
 
-### _class_ ETSF_Reader(path)
+### _class_ EtsfReader(path)
 Bases: `NetcdfReader`
 
 This object reads data from a file written according to the ETSF-IO specifications.
@@ -2490,7 +2490,7 @@ Read ixc from an Abinit file. Return XcFunc object.
 Returns the crystalline structure stored in the rootgrp.
 
 
-#### typeidx_from_symbol(symbol)
+#### type_idx_from_symbol(symbol)
 Returns the type index from the chemical symbol. Note python convention.
 
 
@@ -2611,7 +2611,7 @@ Bases: `object`
 ### _asreader(file, cls)
 
 ### as_etsfreader(file)
-Return an ETSF_Reader. Accepts filename or ETSF_Reader.
+Return an EtsfReader. Accepts filename or EtsfReader.
 
 
 ### as_ncreader(file)
@@ -3418,7 +3418,7 @@ Element symbol.
 String representation.
 
 
-#### to_string(\*\*kwds)
+#### to_string(\*args, \*\*kwargs)
 to_string is deprecated!
 Use to_str instead
 

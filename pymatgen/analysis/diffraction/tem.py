@@ -444,7 +444,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Args:
             p1 (3-tuple): The first point. Fixed.
             p2 (3-tuple): The second point. Fixed.
-            p3 (3-tuple): The point whose coefficients are to be calculted.
+            p3 (3-tuple): The point whose coefficients are to be calculated.
 
         Returns:
             Numpy array

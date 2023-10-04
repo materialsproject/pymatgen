@@ -567,7 +567,7 @@ bonding analysis.
     * **filename_blist_sg1** – (str) Path to additional ICOOP, ICOBI data for structure graphs
 
 
-    * **filename_blist_sg2** – (str) Path to dditional ICOOP, ICOBI data for structure graphs
+    * **filename_blist_sg2** – (str) Path to additional ICOOP, ICOBI data for structure graphs
 
 
     * **id_blist_sg1** – (str) Identity of data in filename_blist_sg1,
@@ -637,7 +637,7 @@ Based on the site it will determine the unit cell, in which this site is based.
     * **perc_strength_ICOHP** – will be used to determine how strong the ICOHPs (percentage\*strongest ICOHP) will be
 
 
-    * **evalulation** (*that are still considered for the*) –
+    * **evaluation** (*that are still considered for the*) –
 
 
     * **adapt_extremum_to_add_cond** – will recalculate the limit based on the bonding type and not on the overall

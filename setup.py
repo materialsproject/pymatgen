@@ -28,7 +28,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2023.9.25",
+    version="2023.10.4",
     python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
@@ -106,7 +106,7 @@ setup(
         "pymatgen.entries": ["*.json.gz", "*.yaml", "data/*.json"],
         "pymatgen.core": ["*.json"],
         "pymatgen": ["py.typed"],
-        "pymatgen.io.vasp": ["*.yaml", "*.json"],
+        "pymatgen.io.vasp": ["*.yaml", "*.json", "*.json.gz"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.io.cp2k": ["*.yaml"],
         "pymatgen.io.lobster": ["lobster_basis/*.yaml"],

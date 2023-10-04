@@ -3123,10 +3123,8 @@ class Outcar:
 
         if self.dfpt and self.lepsilon:
             dct.update(
-                {
-                    "piezo_ionic_tensor": self.piezo_ionic_tensor,
-                    "dielectric_ionic_tensor": self.dielectric_ionic_tensor,
-                }
+                piezo_ionic_tensor=self.piezo_ionic_tensor,
+                dielectric_ionic_tensor=self.dielectric_ionic_tensor,
             )
 
         if self.lcalcpol:
@@ -3137,24 +3135,20 @@ class Outcar:
 
         if self.nmr_cs:
             dct.update(
-                {
-                    "nmr_cs": {
-                        "valence and core": self.data["chemical_shielding"]["valence_and_core"],
-                        "valence_only": self.data["chemical_shielding"]["valence_only"],
-                        "g0": self.data["cs_g0_contribution"],
-                        "core": self.data["cs_core_contribution"],
-                        "raw": self.data["unsym_cs_tensor"],
-                    }
+                nmr_cs={
+                    "valence and core": self.data["chemical_shielding"]["valence_and_core"],
+                    "valence_only": self.data["chemical_shielding"]["valence_only"],
+                    "g0": self.data["cs_g0_contribution"],
+                    "core": self.data["cs_core_contribution"],
+                    "raw": self.data["unsym_cs_tensor"],
                 }
             )
 
         if self.nmr_efg:
             dct.update(
-                {
-                    "nmr_efg": {
-                        "raw": self.data["unsym_efg_tensor"],
-                        "parameters": self.data["efg"],
-                    }
+                nmr_efg={
+                    "raw": self.data["unsym_efg_tensor"],
+                    "parameters": self.data["efg"],
                 }
             )
 
@@ -4887,7 +4881,7 @@ class Waveder(MSONable):
         """
         with open(filename, "rb") as fp:
 
-            def readData(dtype):
+            def read_data(dtype):
                 """Read records from Fortran binary file and convert to np.array of given dtype."""
                 data = b""
                 while True:
@@ -4902,11 +4896,11 @@ class Waveder(MSONable):
                         break
                 return np.frombuffer(data, dtype=dtype)
 
-            nbands, nelect, nk, ispin = readData(np.int32)
-            _ = readData(np.float_)  # nodes_in_dielectric_function
-            _ = readData(np.float_)  # wplasmon
+            nbands, nelect, nk, ispin = read_data(np.int32)
+            _ = read_data(np.float_)  # nodes_in_dielectric_function
+            _ = read_data(np.float_)  # wplasmon
             me_datatype = np.dtype(data_type)
-            cder = readData(me_datatype)
+            cder = read_data(me_datatype)
 
             cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
             return cls(cder_data.real, cder_data.imag)
@@ -4959,7 +4953,7 @@ class WSWQ(MSONable):
     r"""
     Class for reading a WSWQ file.
     The WSWQ file is used to calculation the wave function overlaps between
-        - W: Wavefunctions in the currenct directory's WAVECAR file
+        - W: Wavefunctions in the current directory's WAVECAR file
         - WQ: Wavefunctions stored in a filed named the WAVECAR.qqq.
 
     The overlap is computed using the overlap operator S

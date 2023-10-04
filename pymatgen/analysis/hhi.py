@@ -41,20 +41,14 @@ class HHIModel:
             for line in f:
                 if line[0] != "#":
                     symbol, hhi_production, hhi_reserve = line.split(",")
-                    self.symbol_hhip_hhir[symbol] = (
-                        float(hhi_production),
-                        float(hhi_reserve),
-                    )
+                    self.symbol_hhip_hhir[symbol] = float(hhi_production), float(hhi_reserve)
 
     def _get_hhi_el(self, el_or_symbol):
         """Returns the tuple of HHI_production, HHI reserve for a single element only."""
         if isinstance(el_or_symbol, Element):
             el_or_symbol = el_or_symbol.symbol
 
-        return (
-            self.symbol_hhip_hhir[el_or_symbol][0],
-            self.symbol_hhip_hhir[el_or_symbol][1],
-        )
+        return self.symbol_hhip_hhir[el_or_symbol][0], self.symbol_hhip_hhir[el_or_symbol][1]
 
     def get_hhi(self, comp_or_form):
         """

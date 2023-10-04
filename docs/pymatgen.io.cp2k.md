@@ -134,7 +134,7 @@ Get a hash of this object.
 Get string representation.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -356,7 +356,7 @@ Exchange correlation functional used for creating this potential
 Get summary info from a string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -490,7 +490,7 @@ Helper method to read lines of file.
 Initialize from a string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -552,7 +552,7 @@ Load from a file.
 Initialize from a string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -561,7 +561,7 @@ Use from_str instead
 Get string representation.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -860,7 +860,7 @@ Contraction coefficients for each set. Dict[exp->l->shell]
 Read from standard cp2k GTO formatted string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -873,7 +873,7 @@ Convert basis to keyword object.
 Get standard cp2k GTO formatted string.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -1024,7 +1024,7 @@ Extract GTH-formatted string from a section and convert it to model.
 Initialize model from a GTH formatted string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -1041,7 +1041,7 @@ Convert model to a GTH-formatted section object for input files.
 Convert model to a GTH-formatted string.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -1122,7 +1122,7 @@ the file reader).
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -1131,7 +1131,7 @@ Use from_str instead
 String representation of Keyword.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -1168,7 +1168,7 @@ Extend the keyword list.
 String representation of Keyword.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -1564,7 +1564,7 @@ Exchange correlation functional used for creating this potential
 Get a cp2k formatted string representation.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -1806,7 +1806,7 @@ Get function, only for subsections.
 Get string representation of Section.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -1914,7 +1914,7 @@ Otherwise, return a get on the last section.
 Return string representation of section list.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 

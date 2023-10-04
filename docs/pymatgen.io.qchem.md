@@ -278,7 +278,7 @@ Read QcInput from string.
 Return a string representation of an entire input file.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -2645,12 +2645,6 @@ present. If there are multiple equivalent keys, an Exception is raised.
 
 
 
-### process_parsed_HESS(hess_data)
-Takes the information contained in a HESS file and converts it into
-the format of the machine-readable 132.0 file which can be printed
-out to be read into subsequent optimizations.
-
-
 ### process_parsed_coords(coords)
 Takes a set of parsed coordinates, which come as an array of strings,
 and returns a numpy array of floats.
@@ -2660,6 +2654,12 @@ and returns a numpy array of floats.
 The Fock matrix is parsed as a list, while it should actually be
 a square matrix, this function takes the list of finds the right dimensions
 in order to reshape the matrix.
+
+
+### process_parsed_hess(hess_data)
+Takes the information contained in a HESS file and converts it into
+the format of the machine-readable 132.0 file which can be printed
+out to be read into subsequent optimizations.
 
 
 ### read_matrix_pattern(header_pattern, footer_pattern, elements_pattern, text, postprocess=<class 'str'>)

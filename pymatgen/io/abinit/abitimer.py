@@ -495,7 +495,7 @@ class ParallelEfficiency(dict):
     def __init__(self, filenames, ref_idx, *args, **kwargs):
         """
         Args:
-            filennames: List of filenames
+            filenames: List of filenames
             ref_idx: Index of the Reference time (calculation done with the smallest number of cpus).
         """
         self.update(*args, **kwargs)
