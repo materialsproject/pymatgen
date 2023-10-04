@@ -8,7 +8,12 @@ nav_order: 4
 
 ## v2023.10.4
 
-- Bug fixes for MPRester and packaged data.
+### 🐛 Bug Fixes
+
+- Fix missing `potcar_summary_stats.json.gz` in `setup.package_data` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3372>
+- Bug fixes for MPRester and packaged data by @shyuep
+
+**Full Changelog**: <https://github.com/materialsproject/pymatgen/compare/v2023.10.3...v2023.10.4>
 
 ## v2023.10.3
 
