@@ -93,28 +93,22 @@ setup(
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
     # all sorts of useless files like test files and is prone to path errors.
     package_data={
-        "pymatgen.analysis": ["*.yaml", "*.json", "*.csv"],
-        "pymatgen.analysis.chemenv": [
-            "coordination_environments/coordination_geometries_files/*.json",
-            "coordination_environments/coordination_geometries_files/*.txt",
-            "coordination_environments/strategy_files/ImprovedConfidenceCutoffDefaultParameters.json",
+        # catch-all for .json, .yaml files in all subpackages
+        "pymatgen": ["py.typed", "*.json", "*.yaml", "**/*.json", "**/*.yaml", "**/**/*.json", "**/**/*.yaml"],
+        "pymatgen.analysis.chemenv.coordination_environments": [
+            "coordination_geometries_files/*.txt",
+            "strategy_files/ImprovedConfidenceCutoffDefaultParameters.json",
         ],
-        "pymatgen.analysis.structure_prediction": ["*.yaml", "data/*.json"],
-        "pymatgen.analysis.diffraction": ["*.json"],
+        "pymatgen.analysis": ["*.csv"],
         "pymatgen.analysis.magnetism": ["default_magmoms.yaml"],
         "pymatgen.analysis.solar": ["am1.5G.dat"],
-        "pymatgen.entries": ["*.json.gz", "*.yaml", "data/*.json"],
-        "pymatgen.core": ["*.json"],
-        "pymatgen": ["py.typed"],
-        "pymatgen.io.vasp": ["*.yaml", "*.json", "*.json.gz"],
-        "pymatgen.io.feff": ["*.yaml"],
-        "pymatgen.io.cp2k": ["*.yaml"],
+        "pymatgen.entries": ["*.json.gz", "data/*.json"],
+        "pymatgen.io.vasp": ["*.json.gz"],
         "pymatgen.io.lobster": ["lobster_basis/*.yaml"],
         "pymatgen.command_line": ["*"],
-        "pymatgen.util": ["structures/*.json", "*.json"],
-        "pymatgen.vis": ["*.yaml"],
+        "pymatgen.util": ["structures/*.json"],
         "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/*.template"],
-        "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
+        "pymatgen.symmetry": ["*.sqlite"],
         "cmd_line": ["**/*"],
     },
     author="Pymatgen Development Team",
