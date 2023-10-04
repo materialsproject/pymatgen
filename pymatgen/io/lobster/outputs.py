@@ -440,6 +440,7 @@ class NciCobiList:
 
         # check if orbitalwise NcICOBILIST
         # include case when there is only one NcICOBI
+        self.orbital_wise = False # set as default 
         for entry in data:  # NcICOBIs orbitalwise and non-orbitalwise can be mixed
             if len(data) > 2 and "s]" in str(entry.split()[3:]):
                 self.orbital_wise = True
@@ -448,7 +449,6 @@ class NciCobiList:
                     "Currently, the orbitalwise information is not read!"
                 )
                 break  # condition has only to be met once
-            else: self.orbital_wise = False
 
         if self.orbital_wise:
             data_without_orbitals = []

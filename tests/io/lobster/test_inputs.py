@@ -694,9 +694,12 @@ class TestNciCobiList(unittest.TestCase):
         assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == approx(0.00009)
         assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.down] == approx(0.00009)
         assert self.ncicobi.ncicobi_list["2"]["interaction_type"] == "[X22[0,0,0]->Xs42[0,0,0]->X31[0,0,0]]"
-        assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_wo.ncicobi_list["2"]["ncicobi"][Spin.up]
-        assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_gz.ncicobi_list["2"]["ncicobi"][Spin.up]
-        assert self.ncicobi.ncicobi_list["2"]["interaction_type"] == self.ncicobi_gz.ncicobi_list["2"]["interaction_type"]
+        assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == \
+               self.ncicobi_wo.ncicobi_list["2"]["ncicobi"][Spin.up]
+        assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] \
+               == self.ncicobi_gz.ncicobi_list["2"]["ncicobi"][Spin.up]
+        assert self.ncicobi.ncicobi_list["2"]["interaction_type"] \
+               == self.ncicobi_gz.ncicobi_list["2"]["interaction_type"]
         assert sum(self.ncicobi.ncicobi_list["2"]["ncicobi"].values()) == approx(
             self.ncicobi_no_spin.ncicobi_list["2"]["ncicobi"][Spin.up]
         )
