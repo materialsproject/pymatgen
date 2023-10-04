@@ -421,7 +421,7 @@ class NciCobiList:
                 "interaction_type": type of the multi-center interaction
     """
 
-    def __init__(self, filename: str | None = None):
+    def __init__(self, filename: str | None = "NcICOBILIST.lobster"):
         """
         Args:
             filename: Name of the NcICOBILIST file.
