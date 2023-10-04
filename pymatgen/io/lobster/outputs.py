@@ -108,7 +108,7 @@ class Cohpcar:
         spins = [Spin.up, Spin.down] if int(parameters[1]) == 2 else [Spin.up]
 
         # The COHP data start in row num_bonds + 3
-        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
         self.energies = data[0]
         cohp_data: dict[str, dict[str, Any]] = {
             "average": {
@@ -421,15 +421,11 @@ class NciCobiList:
                 "interaction_type": type of the multi-center interaction
     """
 
-    def __init__(self, filename: str | None = "NcICOBILIST.lobster"):
+    def __init__(self, filename: str | None = "NcICOBILIST.lobster"):  # LOBSTER < 4.1.0: no COBI/ICOBI/NcICOBI
         """
         Args:
             filename: Name of the NcICOBILIST file.
         """
-
-        if filename is None:  # LOBSTER versions < 4.1.0 don't have any COBI/ICOBI/NcICOBI files at all.
-            warnings.warn("Please consider using the newest LOBSTER version (4.1.0+). See http://www.cohp.de/.")
-            filename = "NcICOBILIST.lobster"
 
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header.
@@ -446,14 +442,15 @@ class NciCobiList:
         # include case when there is only one NcICOBI
         for entry in data:  # NcICOBIs orbitalwise and non-orbitalwise can be mixed
             if len(data) > 2 and "s]" in str(entry.split()[3:]):
-                self.orbitalwise = True
+                self.orbital_wise = True
                 warnings.warn(
                     "This is an orbitalwise NcICOBILIST.lobster file. "
                     "Currently, the orbitalwise information is not read!"
                 )
                 break  # condition has only to be met once
+            else: self.orbital_wise = False
 
-        if self.orbitalwise:
+        if self.orbital_wise:
             data_without_orbitals = []
             for line in data:
                 if "_" not in str(line.split()[3:]) and "s]" not in str(line.split()[3:]):
@@ -497,7 +494,7 @@ class NciCobiList:
         # TODO: add functions to get orbital resolved NcICOBIs
 
     @property
-    def ncicobilist(self) -> dict[Any, dict[str, Any]]:
+    def ncicobi_list(self) -> dict[Any, dict[str, Any]]:
         """
         Returns: ncicobilist.
         """
@@ -536,10 +533,10 @@ class Doscar:
     """
 
     def __init__(
-        self,
-        doscar: str = "DOSCAR.lobster",
-        structure_file: str | None = "POSCAR",
-        structure: IStructure | Structure | None = None,
+            self,
+            doscar: str = "DOSCAR.lobster",
+            structure_file: str | None = "POSCAR",
+            structure: IStructure | Structure | None = None,
     ):
         """
         Args:
@@ -801,19 +798,19 @@ class Lobsterout:
 
         self.has_doscar = "writing DOSCAR.lobster..." in data and "SKIPPING writing DOSCAR.lobster..." not in data
         self.has_doscar_lso = (
-            "writing DOSCAR.LSO.lobster..." in data and "SKIPPING writing DOSCAR.LSO.lobster..." not in data
+                "writing DOSCAR.LSO.lobster..." in data and "SKIPPING writing DOSCAR.LSO.lobster..." not in data
         )
         self.has_cohpcar = (
-            "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
-            and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
+                "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
+                and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
         )
         self.has_coopcar = (
-            "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
-            and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
+                "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
+                and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
         )
         self.has_cobicar = (
-            "writing COBICAR.lobster and ICOBILIST.lobster..." in data
-            and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in data
+                "writing COBICAR.lobster and ICOBILIST.lobster..." in data
+                and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in data
         )
 
         self.has_charge = "SKIPPING writing CHARGE.lobster..." not in data
@@ -823,8 +820,8 @@ class Lobsterout:
         self.has_grosspopulation = "writing CHARGE.lobster and GROSSPOP.lobster..." in data
         self.has_density_of_energies = "writing DensityOfEnergy.lobster..." in data
         self.has_madelung = (
-            "writing SitePotentials.lobster and MadelungEnergies.lobster..." in data
-            and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in data
+                "writing SitePotentials.lobster and MadelungEnergies.lobster..." in data
+                and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in data
         )
 
     def get_doc(self):
@@ -1114,7 +1111,7 @@ class Fatband:
                 self.is_spinpolarized = True
             else:
                 linenumbers = []
-                for iline, line in enumerate(contents[1 : self.nbands * 2 + 4]):
+                for iline, line in enumerate(contents[1: self.nbands * 2 + 4]):
                     if line.split()[0] == "#":
                         linenumbers.append(iline)
 
@@ -1196,7 +1193,7 @@ class Fatband:
         self.p_eigenvals = p_eigenvals
 
         label_dict = {}
-        for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts :], start=0):
+        for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts:], start=0):
             if label is not None:
                 label_dict[label] = kpoints_array[ilabel]
 
@@ -1291,11 +1288,11 @@ class Bandoverlaps:
         return all(deviation <= limit_maxDeviation for deviation in self.max_deviation)
 
     def has_good_quality_check_occupied_bands(
-        self,
-        number_occ_bands_spin_up: int,
-        number_occ_bands_spin_down: int | None = None,
-        spin_polarized: bool = False,
-        limit_deviation: float = 0.1,
+            self,
+            number_occ_bands_spin_up: int,
+            number_occ_bands_spin_down: int | None = None,
+            spin_polarized: bool = False,
+            limit_deviation: float = 0.1,
     ) -> bool:
         """
         Will check if the deviation from the ideal bandoverlap of all occupied bands
@@ -1479,9 +1476,9 @@ class Wavefunction:
 
                     if x != Nx and y != Ny and z != Nz:
                         if (
-                            not np.isclose(self.points[runner][0], x_here, 1e-3)
-                            and not np.isclose(self.points[runner][1], y_here, 1e-3)
-                            and not np.isclose(self.points[runner][2], z_here, 1e-3)
+                                not np.isclose(self.points[runner][0], x_here, 1e-3)
+                                and not np.isclose(self.points[runner][1], y_here, 1e-3)
+                                and not np.isclose(self.points[runner][2], z_here, 1e-3)
                         ):
                             raise ValueError(
                                 "The provided wavefunction from Lobster does not contain all relevant"
@@ -1554,9 +1551,9 @@ class Wavefunction:
             part: which part of the wavefunction will be saved ("real" or "imaginary")
         """
         if not (
-            hasattr(self, "volumetricdata_real")
-            and hasattr(self, "volumetricdata_imaginary")
-            and hasattr(self, "volumetricdata_density")
+                hasattr(self, "volumetricdata_real")
+                and hasattr(self, "volumetricdata_imaginary")
+                and hasattr(self, "volumetricdata_density")
         ):
             self.set_volumetric_data(self.grid, self.structure)
         if part == "real":
