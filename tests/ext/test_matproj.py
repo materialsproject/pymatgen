@@ -534,6 +534,7 @@ class TestMPResterNewBasic:
 
         doc = self.rester.summary.search(material_ids="mp-19770,mp-19017", _fields="formula_pretty,energy_above_hull")
         assert len(doc) == 2
+        assert len(doc[0]) == 2
         assert doc[0]["energy_above_hull"] >= 0
         assert doc[1]["energy_above_hull"] >= 0
 
