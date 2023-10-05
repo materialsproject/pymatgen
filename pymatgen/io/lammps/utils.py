@@ -321,7 +321,7 @@ class PackmolRunner:
                 if site_property:
                     packed_mol = self.restore_site_properties(site_property=site_property, filename=output_file)
                 return packed_mol
-            raise RuntimeError(f"Packmol execution failed. {stdout}\n{stderr}")
+            raise RuntimeError(f"Packmol execution failed. {stdout.decode}\n{stderr.decode}")
 
     @staticmethod
     def write_pdb(mol: Molecule, filename: str, name: str | None = None, num=None) -> None:
@@ -368,9 +368,8 @@ class PackmolRunner:
         Returns:
             Molecule object
         """
-        restore_site_props = residue_name is not None
 
-        if restore_site_props and not hasattr(self, "map_residue_to_mol"):
+        if residue_name is not None and not hasattr(self, "map_residue_to_mol"):
             self._set_residue_map()
 
         coords = []
@@ -381,7 +380,7 @@ class PackmolRunner:
 
         mol = Molecule(zs, coords)
 
-        if restore_site_props:
+        if residue_name is not None:
             props = []
 
             ref = self.map_residue_to_mol[residue_name].copy()

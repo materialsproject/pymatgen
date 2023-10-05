@@ -38,7 +38,7 @@ from pymatgen.util.io_utils import clean_lines
 if TYPE_CHECKING:
     # your code here
     from collections.abc import Sequence
-    from typing import Self
+    from typing import Any, Self
 
     from pymatgen.core.sites import Site
     from pymatgen.core.structure import SiteCollection
@@ -244,7 +244,7 @@ class LammpsData(MSONable):
         atoms: pd.DataFrame,
         velocities: pd.DataFrame = None,
         force_field: dict | None = None,
-        topology: dict | None = None,
+        topology: dict[str, pd.DataFrame] | None = None,
         atom_style: str = "full",
     ) -> None:
         """
@@ -276,10 +276,10 @@ class LammpsData(MSONable):
 
         if force_field:
             all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
-            force_field = {k: v for k, v in force_field.items() if k in all_ff_kws}
+            force_field = {key: values for key, values in force_field.items() if key in all_ff_kws}
 
         if topology:
-            topology = {k: v for k, v in topology.items() if k in SECTION_KEYWORDS["topology"]}
+            topology = {key: values for key, values in topology.items() if key in SECTION_KEYWORDS["topology"]}
 
         self.box = box
         self.masses = masses
@@ -583,9 +583,9 @@ class LammpsData(MSONable):
             def label_topo(t) -> tuple:
                 return tuple(masses.loc[atoms_df.loc[t, "type"], "label"])
 
-            for k, v in self.topology.items():
-                ff_kw = k[:-1] + " Coeffs"
-                for topo in v.itertuples(index=False, name=None):
+            for key, values in self.topology.items():
+                ff_kw = key[:-1] + " Coeffs"
+                for topo in values.itertuples(index=False, name=None):
                     topo_idx = topo[0] - 1
                     indices = list(topo[1:])
                     mids = atoms_df.loc[indices]["molecule-ID"].unique()
@@ -594,10 +594,10 @@ class LammpsData(MSONable):
                     ), "Do not support intermolecular topology formed by atoms with different molecule-IDs"
                     label = label_topo(indices)
                     topo_coeffs[ff_kw][topo_idx]["types"].append(label)
-                    if data_by_mols[mids[0]].get(k):
-                        data_by_mols[mids[0]][k].append(indices)
+                    if data_by_mols[mids[0]].get(key):
+                        data_by_mols[mids[0]][key].append(indices)
                     else:
-                        data_by_mols[mids[0]][k] = [indices]
+                        data_by_mols[mids[0]][key] = [indices]
 
         if topo_coeffs:
             for v in topo_coeffs.values():
@@ -652,13 +652,13 @@ class LammpsData(MSONable):
         parts = np.split(lines, section_marks)
 
         float_group = r"([0-9eE.+-]+)"
-        header_pattern = {}
+        header_pattern: dict[str, str] = {}
         header_pattern["counts"] = r"^\s*(\d+)\s+([a-zA-Z]+)$"
         header_pattern["types"] = r"^\s*(\d+)\s+([a-zA-Z]+)\s+types$"
         header_pattern["bounds"] = r"^\s*{}$".format(r"\s+".join([float_group] * 2 + [r"([xyz])lo \3hi"]))
         header_pattern["tilt"] = r"^\s*{}$".format(r"\s+".join([float_group] * 3 + ["xy xz yz"]))
 
-        header: dict[str, dict] = {"counts": {}, "types": {}}
+        header: dict[str, Any] = {"counts": {}, "types": {}}
         bounds = {}
         for line in clean_lines(parts[0][1:]):  # skip the 1st line
             match = None
@@ -769,10 +769,13 @@ class LammpsData(MSONable):
 
         items = {"box": box, "atom_style": atom_style, "masses": ff.masses, "force_field": ff.force_field}
 
-        mol_ids, charges, coords, labels = [], [], [], []
-        v_collector = [] if topologies[0].velocities else None
-        topo_collector = {"Bonds": [], "Angles": [], "Dihedrals": [], "Impropers": []}
-        topo_labels = {"Bonds": [], "Angles": [], "Dihedrals": [], "Impropers": []}
+        mol_ids: list[int] = []
+        charges: list[float] = []
+        coords: list[np.ndarray] = []
+        labels: list[str] = []
+        v_collector: list | None = [] if topologies[0].velocities else None
+        topo_collector: dict[str, list] = {"Bonds": [], "Angles": [], "Dihedrals": [], "Impropers": []}
+        topo_labels: dict[str, list] = {"Bonds": [], "Angles": [], "Dihedrals": [], "Impropers": []}
         for i, topo in enumerate(topologies):
             if topo.topologies:
                 shift = len(labels)
@@ -799,17 +802,17 @@ class LammpsData(MSONable):
             velocities = pd.DataFrame(np.concatenate(v_collector), columns=SECTION_HEADERS["Velocities"])
             velocities.index += 1
 
-        topology = {k: None for k, v in topo_labels.items() if len(v) > 0}
-        for k in topology:
-            df = pd.DataFrame(np.concatenate(topo_collector[k]), columns=SECTION_HEADERS[k][1:])
-            df["type"] = list(map(ff.maps[k].get, topo_labels[k]))
+        topology = {key: None for key, values in topo_labels.items() if len(values) > 0}
+        for key in topology:
+            df = pd.DataFrame(np.concatenate(topo_collector[key]), columns=SECTION_HEADERS[k][1:])
+            df["type"] = list(map(ff.maps[key].get, topo_labels[key]))
             if any(pd.isna(df["type"])):  # Throw away undefined topologies
-                warnings.warn(f"Undefined {k.lower()} detected and removed")
+                warnings.warn(f"Undefined {key.lower()} detected and removed")
                 df = df.dropna(subset=["type"])
                 df = df.reset_index(drop=True)
             df.index += 1
-            topology[k] = df[SECTION_HEADERS[k]]
-        topology = {k: v for k, v in topology.items() if not v.empty}
+            topology[key] = df[SECTION_HEADERS[key]]
+        topology = {key: values for key, values in topology.items() if not values.empty}
 
         items.update({"atoms": atoms, "velocities": velocities, "topology": topology})
         return cls(**items)
@@ -1114,7 +1117,9 @@ class ForceField(MSONable):
 
         self.topo_coeffs = topo_coeffs
         if self.topo_coeffs:
-            self.topo_coeffs = {key: v for key, v in self.topo_coeffs.items() if key in SECTION_KEYWORDS["ff"][2:]}
+            self.topo_coeffs = {
+                key: values for key, values in self.topo_coeffs.items() if key in SECTION_KEYWORDS["ff"][2:]
+            }
             for k in self.topo_coeffs:
                 coeffs, mapper = self._process_topo(k)
                 ff_dfs.update(coeffs)
@@ -1150,7 +1155,7 @@ class ForceField(MSONable):
             return [label, label[::-1]]
 
         main_data, distinct_types = [], []
-        class2_data: dict = {k: [] for k in self.topo_coeffs[kw][0] if k in CLASS2_KEYWORDS.get(kw, [])}
+        class2_data: dict = {key: [] for key in self.topo_coeffs[kw][0] if key in CLASS2_KEYWORDS.get(kw, [])}
         for d in self.topo_coeffs[kw]:
             main_data.append(d["coeffs"])
             distinct_types.append(d["types"])
@@ -1340,8 +1345,8 @@ class CombinedData(LammpsData):
         return ld_cp.structure
 
     def disassemble(
-        self, atom_labels: list[str] | None = None, guess_element: bool = True, ff_label: str = "ff_map"
-    ) -> tuple[LammpsBox, ForceField, list[Topology]]:
+        self, atom_labels: Sequence[str] | None = None, guess_element: bool = True, ff_label: str = "ff_map"
+    ) -> list[tuple[LammpsBox, ForceField, list[Topology]]]:
         """
         Breaks down each LammpsData in CombinedData to building blocks
         (LammpsBox, ForceField and a series of Topology).

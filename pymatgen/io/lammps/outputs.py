@@ -121,7 +121,7 @@ def parse_lammps_dumps(file_pattern: str) -> Generator:
 
     for fname in files:
         with zopen(fname, "rt") as f:
-            dump_cache = []
+            dump_cache: list = []
             for line in f:
                 if line.startswith("ITEM: TIMESTEP"):
                     if len(dump_cache) > 0:
