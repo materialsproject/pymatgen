@@ -102,7 +102,7 @@ class LammpsDump(MSONable):
         return dct
 
 
-def parse_lammps_dumps(file_pattern) -> Generator:
+def parse_lammps_dumps(file_pattern: str) -> Generator:
     """
     Generator that parses dump file(s).
 
