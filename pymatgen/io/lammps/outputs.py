@@ -18,7 +18,6 @@ from monty.json import MSONable
 from pymatgen.io.lammps.data import LammpsBox
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
     from typing import Any, Self
 
 __author__ = "Kiran Mathew, Zhi Deng"
@@ -102,7 +101,7 @@ class LammpsDump(MSONable):
         return dct
 
 
-def parse_lammps_dumps(file_pattern: str) -> Generator:
+def parse_lammps_dumps(file_pattern):
     """
     Generator that parses dump file(s).
 
@@ -121,7 +120,7 @@ def parse_lammps_dumps(file_pattern: str) -> Generator:
 
     for fname in files:
         with zopen(fname, "rt") as f:
-            dump_cache: list = []
+            dump_cache = []
             for line in f:
                 if line.startswith("ITEM: TIMESTEP"):
                     if len(dump_cache) > 0:
