@@ -554,7 +554,8 @@ class LammpsData(MSONable):
         assert masses["label"].nunique(dropna=False) == len(masses), "Expecting unique atom label for each type"
         mass_info = [(row.label, row.mass) for row in masses.itertuples()]
 
-        # nonbond_coeffs, topo_coeffs = None, None
+        nonbond_coeffs: list = []
+        topo_coeffs: dict = {}
         if self.force_field:
             if "PairIJ Coeffs" in self.force_field:
                 nbc = self.force_field["PairIJ Coeffs"]
@@ -564,7 +565,7 @@ class LammpsData(MSONable):
                 nbc = self.force_field["Pair Coeffs"].sort_index()
                 nonbond_coeffs = [list(t) for t in nbc.itertuples(index=False, name=None)]
 
-            topo_coeffs: dict = {k: [] for k in SECTION_KEYWORDS["ff"][2:] if k in self.force_field}
+            topo_coeffs = {k: [] for k in SECTION_KEYWORDS["ff"][2:] if k in self.force_field}
             for kw in topo_coeffs:
                 class2_coeffs = {
                     k: list(v.itertuples(index=False, name=None))
@@ -599,12 +600,16 @@ class LammpsData(MSONable):
                     else:
                         data_by_mols[mids[0]][key] = [indices]
 
-        if topo_coeffs:
+        if any(topo_coeffs):
             for v in topo_coeffs.values():
                 for d in v:
                     d["types"] = list(set(d["types"]))
 
-        ff = ForceField(mass_info=mass_info, nonbond_coeffs=nonbond_coeffs or None, topo_coeffs=topo_coeffs or None)
+        ff = ForceField(
+            mass_info=mass_info,
+            nonbond_coeffs=nonbond_coeffs if any(nonbond_coeffs) else None,
+            topo_coeffs=topo_coeffs if any(topo_coeffs) else None,
+        )
 
         topo_list = []
         for mid in unique_mids:
@@ -802,7 +807,7 @@ class LammpsData(MSONable):
             velocities = pd.DataFrame(np.concatenate(v_collector), columns=SECTION_HEADERS["Velocities"])
             velocities.index += 1
 
-        topology = {key: None for key, values in topo_labels.items() if len(values) > 0}
+        topology = {key: pd.DataFrame([]) for key, values in topo_labels.items() if len(values) > 0}
         for key in topology:
             df = pd.DataFrame(np.concatenate(topo_collector[key]), columns=SECTION_HEADERS[key][1:])
             df["type"] = list(map(ff.maps[key].get, topo_labels[key]))
@@ -938,7 +943,7 @@ class Topology(MSONable):
         if not isinstance(sites, (Molecule, Structure)):
             sites = Molecule.from_sites(sites)
 
-        type_by_sites = sites.site_properties.get(ff_label) if ff_label else [site.specie.symbol for site in sites]
+        type_by_sites = sites.site_properties[ff_label] if ff_label else [site.specie.symbol for site in sites]
         # search for site property if not override
         if charges is None:
             charges = sites.site_properties.get("charge")
@@ -1119,7 +1124,7 @@ class ForceField(MSONable):
                 key: values for key, values in self.topo_coeffs.items() if key in SECTION_KEYWORDS["ff"][2:]
             }
             for k in self.topo_coeffs:
-                coeffs, mapper = self._process_topo(k)
+                coeffs, mapper = self._process_topo(k, self.topo_coeffs)
                 ff_dfs.update(coeffs)
                 self.maps.update(mapper)
 
@@ -1144,7 +1149,7 @@ class ForceField(MSONable):
             raise ValueError(f"Expecting {nm} Pair Coeffs or {n_comb} PairIJ Coeffs for {nm} atom types, got {n_pair}")
         return {kw: pair_df}
 
-    def _process_topo(self, kw) -> tuple[dict, dict]:
+    def _process_topo(self, kw: str, topo_coeffs: dict) -> tuple[dict, dict]:
         def find_eq_types(label, section) -> list:
             if section.startswith("Improper"):
                 label_arr = np.array(label)
@@ -1153,8 +1158,8 @@ class ForceField(MSONable):
             return [label, label[::-1]]
 
         main_data, distinct_types = [], []
-        class2_data: dict = {key: [] for key in self.topo_coeffs[kw][0] if key in CLASS2_KEYWORDS.get(kw, [])}
-        for d in self.topo_coeffs[kw]:
+        class2_data: dict = {key: [] for key in topo_coeffs[kw][0] if key in CLASS2_KEYWORDS.get(kw, [])}
+        for d in topo_coeffs[kw]:
             main_data.append(d["coeffs"])
             distinct_types.append(d["types"])
             for k in class2_data:
@@ -1236,7 +1241,7 @@ class CombinedData(LammpsData):
 
     def __init__(
         self,
-        list_of_molecules: list[LammpsData],
+        list_of_molecules: list,
         list_of_names: list[str],
         list_of_numbers: list[int],
         coordinates: pd.DataFrame,
@@ -1344,7 +1349,7 @@ class CombinedData(LammpsData):
 
     def disassemble(
         self, atom_labels: Sequence[str] | None = None, guess_element: bool = True, ff_label: str = "ff_map"
-    ) -> list[tuple[LammpsBox, ForceField, list[Topology]]]:
+    ):
         """
         Breaks down each LammpsData in CombinedData to building blocks
         (LammpsBox, ForceField and a series of Topology).

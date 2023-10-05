@@ -102,7 +102,7 @@ class LammpsDump(MSONable):
         return dct
 
 
-def parse_lammps_dumps(file_pattern: str) -> Generator:
+def parse_lammps_dumps(file_pattern) -> Generator:
     """
     Generator that parses dump file(s).
 
@@ -173,7 +173,9 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
             kv_pattern = r"([0-9A-Za-z_\[\]]+)\s+=\s+([0-9eE\.+-]+)"
             for ts in timesteps:
                 data = {}
-                data["Step"] = int(re.match(multi_pattern, ts[0]).group(1))
+                step = re.match(multi_pattern, ts[0])
+                assert step is not None
+                data["Step"] = int(step.group(1))
                 data.update({k: float(v) for k, v in re.findall(kv_pattern, "".join(ts[1:]))})
                 dicts.append(data)
             df = pd.DataFrame(dicts)
