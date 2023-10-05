@@ -804,7 +804,7 @@ class LammpsData(MSONable):
 
         topology = {key: None for key, values in topo_labels.items() if len(values) > 0}
         for key in topology:
-            df = pd.DataFrame(np.concatenate(topo_collector[key]), columns=SECTION_HEADERS[k][1:])
+            df = pd.DataFrame(np.concatenate(topo_collector[key]), columns=SECTION_HEADERS[key][1:])
             df["type"] = list(map(ff.maps[key].get, topo_labels[key]))
             if any(pd.isna(df["type"])):  # Throw away undefined topologies
                 warnings.warn(f"Undefined {key.lower()} detected and removed")
