@@ -30,8 +30,8 @@ class AbstractStructureFilter(MSONable, metaclass=abc.ABCMeta):
             structure (Structure): Input structure to test
 
         Returns:
-            (bool) Structures that return true are kept in the Transmuter
-            object during filtering.
+            bool: Structures that return true are kept in the Transmuter
+                object during filtering.
         """
         return
 
@@ -75,7 +75,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         if self._AND and filter_set <= structure_set:
             # return true if we aren't excluding since all are in structure
             return not self._exclude
-        if (not self._AND) and filter_set & structure_set:
+        if not self._AND and filter_set & structure_set:
             # return true if we aren't excluding since one is in structure
             return not self._exclude
         # return false if we aren't excluding otherwise

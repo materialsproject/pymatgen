@@ -23,7 +23,8 @@ def test_egg_sources_txt_is_complete():
     # check that all files in pymatgen/ are listed in SOURCES.txt
     for ext in ("py", "json", "json.gz", "yaml", "csv"):
         for filepath in glob(f"pymatgen/**/*.{ext}", recursive=True):
-            if "/tests/" in filepath or filepath.endswith("dao.py"):
+            filepath = filepath.replace("\\", "/")
+            if filepath.endswith("dao.py"):
                 continue
             if filepath not in sources:
                 raise ValueError(

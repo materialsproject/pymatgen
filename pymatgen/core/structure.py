@@ -426,7 +426,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             tol (float): Distance tolerance. Default is 0.5 Angstrom, which is fairly large.
 
         Returns:
-            (bool) True if SiteCollection does not contain atoms that are too close together.
+            bool: True if SiteCollection does not contain atoms that are too close together.
         """
         if len(self) == 1:
             return True
