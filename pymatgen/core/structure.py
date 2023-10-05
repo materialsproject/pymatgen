@@ -3968,7 +3968,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def apply_strain(self, strain: ArrayLike) -> None:
+    def apply_strain(self, strain: ArrayLike, inplace: bool = True) -> Structure:
         """Apply a strain to the lattice.
 
         Args:
@@ -3977,9 +3977,17 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 vectors are increased by 1%. This is equivalent to calling
                 modify_lattice with a lattice with lattice parameters that
                 are 1% larger.
+            inplace (bool): True applies the strain in-place, False returns a
+                Structure copy. Defaults to True.
+
+        Returns:
+            Structure: Structure with strain applied.
         """
         strain_matrix = (1 + np.array(strain)) * np.eye(3)
-        self.lattice = Lattice(np.dot(self._lattice.matrix.T, strain_matrix).T)
+        new_lattice = Lattice(np.dot(self._lattice.matrix.T, strain_matrix).T)
+        struct = self if inplace else self.copy()
+        struct.lattice = new_lattice
+        return struct
 
     def sort(self, key: Callable | None = None, reverse: bool = False) -> None:
         """Sort a structure in place. The parameters have the same meaning as in

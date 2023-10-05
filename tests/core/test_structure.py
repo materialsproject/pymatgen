@@ -1087,6 +1087,15 @@ class TestStructure(PymatgenTest):
         assert b2 / b1 == approx(1.2)
         assert c2 / c1 == approx(1.3)
 
+        # test inplace = False
+        struct_copy = struct.copy()
+
+        # Applying strain inplace=False
+        strained_struct = struct.apply_strain(0.01, inplace=False)
+        assert struct == struct_copy  # Should be equal
+        assert struct is not strained_struct  # Should return a different object
+        assert_allclose(strained_struct[1].coords, [4.407059, -0.169626, 3.118569], atol=1e-5)
+
     def test_scale_lattice(self):
         initial_coord = self.struct[1].coords
         self.struct.scale_lattice(self.struct.volume * 1.01**3)
