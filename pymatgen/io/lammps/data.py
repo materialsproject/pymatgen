@@ -36,7 +36,6 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
-    # your code here
     from collections.abc import Sequence
     from typing import Any, Self
 
