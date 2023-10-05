@@ -938,9 +938,7 @@ class Topology(MSONable):
         if not isinstance(sites, (Molecule, Structure)):
             sites = Molecule.from_sites(sites)
 
-        type_by_sites = (
-            list(*sites.site_properties.get(ff_label)) if ff_label else [site.specie.symbol for site in sites]
-        )
+        type_by_sites = sites.site_properties.get(ff_label) if ff_label else [site.specie.symbol for site in sites]
         # search for site property if not override
         if charges is None:
             charges = sites.site_properties.get("charge")
