@@ -916,7 +916,7 @@ class Incar(dict, MSONable):
         params = dict(self.items())
         for key, val in other.items():
             if key in self and val != self[key]:
-                raise ValueError("Incars have conflicting values!")
+                raise ValueError(f"Incars have conflicting values for {key}: {self[key]} != {val}")
             params[key] = val
         return Incar(params)
 
