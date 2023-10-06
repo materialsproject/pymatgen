@@ -698,7 +698,7 @@ SIGMA = 0.1"""
 
     def test_check_params(self):
         # Triggers warnings when running into nonsensical parameters
-        with pytest.warns(BadIncarWarning):
+        with pytest.warns(BadIncarWarning) as record:
             incar = Incar(
                 {
                     "ADDGRID": True,
@@ -711,7 +711,7 @@ SIGMA = 0.1"""
                     "ENCUT": 520,
                     "IBRION": 2,
                     "ICHARG": 1,
-                    "ISIF": 3,
+                    "ISIF": 9,
                     "ISMEAR": 1,
                     "ISPIN": 2,
                     "LASPH": 5,  # Should be a bool
@@ -736,6 +736,12 @@ SIGMA = 0.1"""
                 }
             )
             incar.check_params()
+
+        assert "ISIF: Cannot find 9 in the list of parameters" in record[0].message.args
+        assert "LASPH: 5 is not a bool" in record[1].message.args
+        assert "METAGGA: Cannot find SCAM in the list of parameters" in record[2].message.args
+        assert "Cannot find NBAND in the list of INCAR flags" in record[3].message.args
+        assert "PHON_TLIST: is_a_str is not a list" in record[4].message.args
 
 
 class TestKpointsSupportedModes:
