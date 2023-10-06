@@ -907,14 +907,14 @@ class Lattice(MSONable):
         beta_b = np.abs(get_angles(c_a, c_c, l_a, l_c) - beta) < atol
         gamma_b = np.abs(get_angles(c_a, c_b, l_a, l_b) - gamma) < atol
 
-        for i, all_j in enumerate(gamma_b):
-            inds = np.logical_and(all_j[:, None], np.logical_and(alpha_b, beta_b[i][None, :]))
+        for idx, all_j in enumerate(gamma_b):
+            inds = np.logical_and(all_j[:, None], np.logical_and(alpha_b, beta_b[idx][None, :]))
             for j, k in np.argwhere(inds):
-                scale_m = np.array((f_a[i], f_b[j], f_c[k]), dtype=int)  # type: ignore
+                scale_m = np.array((f_a[idx], f_b[j], f_c[k]), dtype=int)  # type: ignore
                 if abs(np.linalg.det(scale_m)) < 1e-8:  # type: ignore
                     continue
 
-                aligned_m = np.array((c_a[i], c_b[j], c_c[k]))
+                aligned_m = np.array((c_a[idx], c_b[j], c_c[k]))
 
                 rotation_m = None if skip_rotation_matrix else np.linalg.solve(aligned_m, other_lattice.matrix)
 
@@ -973,7 +973,7 @@ class Lattice(MSONable):
     def _calculate_lll(self, delta: float = 0.75) -> tuple[np.ndarray, np.ndarray]:
         """Performs a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a
         c-reduced basis. This method returns a basis which is as "good" as
-        possible, with "good" defined by orthongonality of the lattice vectors.
+        possible, with "good" defined by orthogonality of the lattice vectors.
 
         This basis is used for all the periodic boundary condition calculations.
 
@@ -1021,8 +1021,7 @@ class Lattice(MSONable):
                 # Increment k if the Lovasz condition holds.
                 k += 1
             else:
-                # If the Lovasz condition fails,
-                # swap the k-th and (k-1)-th basis vector
+                # If the Lovasz condition fails, swap the k-th and (k-1)-th basis vector
                 v = a[:, k - 1].copy()
                 a[:, k - 1] = a[:, k - 2].copy()
                 a[:, k - 2] = v
