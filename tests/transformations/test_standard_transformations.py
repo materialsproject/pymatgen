@@ -359,7 +359,7 @@ class TestOrderDisorderedStructureTransformation(unittest.TestCase):
         test_site = PeriodicSite("Si4+", c[2], latt)
         struct = SymmetrizedStructure(struct, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
         output = trafo.apply_transformation(struct)
-        assert test_site in output.sites
+        assert test_site in output
 
     def test_too_small_cell(self):
         trafo = OrderDisorderedStructureTransformation()

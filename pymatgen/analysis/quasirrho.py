@@ -189,7 +189,7 @@ class QuasiRRHO:
         """
         # Calculate mass in kg
         mass: float = 0
-        for site in mol.sites:
+        for site in mol:
             mass += site.specie.atomic_mass
         mass *= amu_to_kg
 

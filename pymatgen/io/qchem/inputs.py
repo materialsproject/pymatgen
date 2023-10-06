@@ -403,7 +403,7 @@ class QCInput(InputFile):
                 raise ValueError('The only acceptable text value for molecule is "read"')
         elif isinstance(molecule, Molecule):
             mol_list.append(f" {int(molecule.charge)} {molecule.spin_multiplicity}")
-            for site in molecule.sites:
+            for site in molecule:
                 mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
         else:
             overall_charge = sum(x.charge for x in molecule)
@@ -414,7 +414,7 @@ class QCInput(InputFile):
 
             for fragment in molecule:
                 mol_list.extend(("--", f" {int(fragment.charge)} {fragment.spin_multiplicity}"))
-                for site in fragment.sites:
+                for site in fragment:
                     mol_list.append(f" {site.species_string}     {site.x: .10f}     {site.y: .10f}     {site.z: .10f}")
 
         mol_list.append("$end")

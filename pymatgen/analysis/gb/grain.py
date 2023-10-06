@@ -757,7 +757,7 @@ class GrainBoundaryGenerator:
         range_c_len = abs(bond_length / cos_c_norm_plane / whole_lat.c)
         sites_near_gb = []
         sites_away_gb: list[PeriodicSite] = []
-        for site in gb_with_vac.sites:
+        for site in gb_with_vac:
             if (
                 site.frac_coords[2] < range_c_len
                 or site.frac_coords[2] > 1 - range_c_len

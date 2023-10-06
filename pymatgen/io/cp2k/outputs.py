@@ -314,8 +314,8 @@ class Cp2kOutput:
                     self.structures.append(
                         Structure(
                             lattice=latt,
-                            coords=[s.coords for s in mol.sites],
-                            species=[s.specie for s in mol.sites],
+                            coords=[s.coords for s in mol],
+                            species=[s.specie for s in mol],
                             coords_are_cartesian=True,
                             site_properties={"ghost": gs} if gs else {},
                             charge=self.charge,
