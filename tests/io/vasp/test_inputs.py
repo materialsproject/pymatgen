@@ -186,9 +186,7 @@ cart
 
     def test_significant_figures(self):
         si = 14
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
         latt = [
@@ -215,9 +213,7 @@ direct
 
     def test_str(self):
         si = 14
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
         latt = [
@@ -335,9 +331,7 @@ direct
 
     def test_velocities(self):
         si = 14
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
         latt = [

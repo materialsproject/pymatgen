@@ -2610,7 +2610,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
             return None
         cn_maps = []
         for cn, nb_sets in site_nb_sets.items():
-            for inb_set, _ in enumerate(nb_sets):
+            for inb_set in range(len(nb_sets)):
                 # CHECK THE ADDITIONAL CONDITION HERE ?
                 cn_maps.append((cn, inb_set))
         weights_additional_info = {"weights": {isite: {}}}

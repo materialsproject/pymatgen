@@ -2996,8 +2996,7 @@ class Outcar:
                 results.zvals = map(float, re.findall(r"-?\d+\.\d*", zvals))
 
             search = []
-            search.append([r"(?<=VRHFIN =)(.*)(?=:)", None, atom_symbols])
-            search.append([r"^\s+ZVAL.*=(.*)", None, zvals])
+            search.extend((["(?<=VRHFIN =)(.*)(?=:)", None, atom_symbols], ["^\\s+ZVAL.*=(.*)", None, zvals]))
 
             micro_pyawk(self.filename, search, self)
 
@@ -4010,8 +4009,7 @@ class Xdatcar:
         if np.linalg.det(latt.matrix) < 0:
             latt = Lattice(-latt.matrix)
         lines = [self.comment, "1.0", str(latt)]
-        lines.append(" ".join(self.site_symbols))
-        lines.append(" ".join(str(x) for x in self.natoms))
+        lines.extend((" ".join(self.site_symbols), " ".join(str(x) for x in self.natoms)))
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
         output_cnt = 1

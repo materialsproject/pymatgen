@@ -212,12 +212,10 @@ class TransformedStructure(MSONable):
 
     def __str__(self) -> str:
         output = ["Current structure", "------------", str(self.final_structure), "\nHistory", "------------"]
-        for h in self.history:
-            h.pop("input_structure", None)
-            output.append(str(h))
-        output.append("\nOther parameters")
-        output.append("------------")
-        output.append(str(self.other_parameters))
+        for hist in self.history:
+            hist.pop("input_structure", None)
+            output.append(str(hist))
+        output.extend(("\nOther parameters", "------------", str(self.other_parameters)))
         return "\n".join(output)
 
     def set_parameter(self, key: str, value: Any) -> None:

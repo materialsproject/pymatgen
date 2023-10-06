@@ -311,8 +311,7 @@ class SpaceGroup(SymmetryGroup):
 
         for spg in SpaceGroup.SYMM_OPS:
             if int_number == spg["number"]:
-                symbols.append(spg["hermann_mauguin"])
-                symbols.append(spg["universal_h_m"])
+                symbols.extend((spg["hermann_mauguin"], spg["universal_h_m"]))
         return set(symbols)
 
     @property

@@ -571,8 +571,7 @@ loop_
         si = Element("Si")
         n = Element("N")
         coords = []
-        coords.append(np.array([0, 0, 0]))
-        coords.append(np.array([0.75, 0.5, 0.75]))
+        coords.extend((np.array([0, 0, 0]), np.array([0.75, 0.5, 0.75])))
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -629,9 +628,7 @@ loop_
         si3 = Species("Si", 3)
         n = DummySpecies("X", -3)
         coords = []
-        coords.append(np.array([0.5, 0.5, 0.5]))
-        coords.append(np.array([0.75, 0.5, 0.75]))
-        coords.append(np.array([0, 0, 0]))
+        coords.extend((np.array([0.5, 0.5, 0.5]), np.array([0.75, 0.5, 0.75]), np.array([0, 0, 0])))
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -838,12 +835,11 @@ loop_
     def test_replacing_finite_precision_frac_coords(self):
         cif = f"{TEST_FILES_DIR}/cif_finite_precision_frac_coord_error.cif"
         parser = CifParser(cif)
-        struct = parser.get_structures()[0]
+        warn_msg = "4 fractional coordinates rounded to ideal values to avoid issues with finite precision."
+        with pytest.warns(UserWarning, match=warn_msg):
+            struct = parser.get_structures()[0]
         assert str(struct.composition) == "N5+24"
-        assert (
-            "Some fractional coordinates rounded to ideal values to avoid issues with finite precision."
-            in parser.warnings
-        )
+        assert warn_msg in parser.warnings
 
     def test_empty_deque(self):
         cif_str = """data_1526655

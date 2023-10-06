@@ -263,7 +263,7 @@ class BasisSetReader:
 
     def set_n_nlmo(self):
         """the number of nlm orbitals for the basis set"""
-        nnlmo = 0
+        n_nlm_orbs = 0
 
         data_tmp = self.data
         data_tmp.pop("lmax")
@@ -272,23 +272,21 @@ class BasisSetReader:
 
         for l_zeta_ng in data_tmp:
             n_l = l_zeta_ng.split("_")[0]
-            nnlmo = nnlmo + (2 * int(n_l) + 1)
+            n_nlm_orbs = n_nlm_orbs + (2 * int(n_l) + 1)
 
-        return str(nnlmo)
+        return str(n_nlm_orbs)
 
     def infos_on_basis_set(self):
-        """Infos on the basis set as in Fiesta log."""
-        o = []
-        o.append("=========================================")
-        o.append("Reading basis set:")
-        o.append("")
-        o.append(f" Basis set for {self.filename} atom ")
-        o.append(f" Maximum angular momentum = {self.data['lmax']}")
-        o.append(f" Number of atomics orbitals = {self.data['n_nlo']}")
-        o.append(f" Number of nlm orbitals = {self.data['n_nlmo']}")
-        o.append("=========================================")
-
-        return str(0)
+        return (
+            f"=========================================\n"
+            f"Reading basis set:\n"
+            f"\n"
+            f"Basis set for {self.filename} atom \n"
+            f"Maximum angular momentum = {self.data['lmax']}\n"
+            f"Number of atomics orbitals = {self.data['n_nlo']}\n"
+            f"Number of nlm orbitals = {self.data['n_nlmo']}\n"
+            f"========================================="
+        )
 
 
 class FiestaInput(MSONable):

@@ -8,9 +8,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class TestXSF(PymatgenTest):
     def test_xsf(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],

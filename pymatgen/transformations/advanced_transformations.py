@@ -881,7 +881,7 @@ class MagOrderingTransformation(AbstractTransformation):
             alls = self._remove_dummy_species(alls)
             alls = self._add_spin_magnitudes(alls)
         else:
-            for idx, _ in enumerate(alls):
+            for idx in range(len(alls)):
                 alls[idx]["structure"] = self._remove_dummy_species(alls[idx]["structure"])
                 alls[idx]["structure"] = self._add_spin_magnitudes(alls[idx]["structure"])
 

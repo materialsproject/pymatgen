@@ -2525,7 +2525,7 @@ class MITNEBSet(DictSet):
         if write_path_cif:
             sites = set()
             lat = self.structures[0].lattice
-            for site in chain(*(s.sites for s in self.structures)):
+            for site in chain(*(struct for struct in self.structures)):
                 sites.add(PeriodicSite(site.species, site.frac_coords, lat))
             nebpath = Structure.from_sites(sorted(sites))
             nebpath.to(filename=str(output_dir / "path.cif"))

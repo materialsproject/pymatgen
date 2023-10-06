@@ -354,9 +354,9 @@ class CifParser:
 
         self.feature_flags["magcif_incommensurate"] = is_magcif_incommensurate()
 
-        for k in self._cif.data:
+        for key in self._cif.data:
             # pass individual CifBlocks to _sanitize_data
-            self._cif.data[k] = self._sanitize_data(self._cif.data[k])
+            self._cif.data[key] = self._sanitize_data(self._cif.data[key])
 
     @classmethod
     @np.deprecate(message="Use from_str instead")
@@ -487,11 +487,8 @@ class CifParser:
                 data.data["_atom_site_fract_x"] += new_fract_x
                 data.data["_atom_site_fract_y"] += new_fract_y
                 data.data["_atom_site_fract_z"] += new_fract_z
-        """
-        This fixes inconsistencies in naming of several magCIF tags
-        as a result of magCIF being in widespread use prior to
-        specification being finalized (on advice of Branton Campbell).
-        """
+        # This fixes inconsistencies in naming of several magCIF tags as a result of magCIF
+        # being in widespread use prior to specification being finalized (on advice of Branton Campbell).
         if self.feature_flags["magcif"]:
             # CIF-1 style has all underscores, interim standard
             # had period before magn instead of before the final
@@ -557,7 +554,8 @@ class CifParser:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append(
-                "Some fractional coordinates rounded to ideal values to avoid issues with finite precision."
+                f"{len(fracs_to_change)} fractional coordinates rounded to ideal values to avoid issues with "
+                "finite precision."
             )
             for (label, idx), val in fracs_to_change.items():
                 data.data[label][idx] = val
@@ -1080,7 +1078,7 @@ class CifParser:
                 all_labels.extend(new_labels)
 
             # rescale occupancies if necessary
-            all_species_noedit = all_species[:]  # save copy before scaling in case of check_occu=False, used below
+            all_species_noedit = all_species.copy()  # save copy before scaling in case of check_occu=False, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:

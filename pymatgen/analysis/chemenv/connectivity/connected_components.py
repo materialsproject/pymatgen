@@ -234,11 +234,9 @@ class ConnectedComponent(MSONable):
                 env_node1 = edge[0]
                 env_node2 = edge[1]
                 key = None if len(edge) == 2 else edge[2]
-                if (not self._connected_subgraph.has_node(env_node1)) or (
-                    not self._connected_subgraph.has_node(env_node2)
-                ):
+                if not self._connected_subgraph.has_node(env_node1) or not self._connected_subgraph.has_node(env_node2):
                     raise ChemenvError(
-                        self.__class__,
+                        type(self).__name__,
                         "__init__",
                         "Trying to add edge with some unexistent node ...",
                     )

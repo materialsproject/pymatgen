@@ -196,10 +196,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert s_sorted[0].specie.symbol == "Mn"
 
     def test_potcar_symbols(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
-        coords.append([0.75, 0.25, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75], [0.75, 0.25, 0.75]]
         lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
         structure = Structure(lattice, ["P", "Fe", "O"], coords)
         mit_param_set = self.set(structure)
@@ -297,8 +294,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         si = 14
         coords = []
-        coords.append(np.array([0, 0, 0]))
-        coords.append(np.array([0.75, 0.5, 0.75]))
+        coords.extend((np.array([0, 0, 0]), np.array([0.75, 0.5, 0.75])))
 
         # Silicon structure for testing.
         lattice = Lattice(
@@ -308,9 +304,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         incar = MPRelaxSet(struct).incar
         assert "LDAU" not in incar
 
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice(
             [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         )
@@ -363,11 +357,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert "ENCUT" not in no_encut_set.incar
 
         # sulfide vs sulfate test
-
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
-        coords.append([0.25, 0.5, 0])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75], [0.25, 0.5, 0]]
 
         struct = Structure(lattice, ["Fe", "Fe", "S"], coords)
         incar = self.set(struct).incar

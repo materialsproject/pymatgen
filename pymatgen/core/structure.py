@@ -1230,8 +1230,8 @@ class IStructure(SiteCollection, MSONable):
     @property
     def density(self) -> float:
         """Returns the density in units of g/cm^3."""
-        m = Mass(self.composition.weight, "amu")
-        return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
+        mass = Mass(self.composition.weight, "amu")
+        return mass.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     @property
     def pbc(self) -> tuple[bool, bool, bool]:
@@ -1258,8 +1258,8 @@ class IStructure(SiteCollection, MSONable):
         # Import within method needed to avoid cyclic dependency.
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-        spga = SpacegroupAnalyzer(self, symprec=symprec, angle_tolerance=angle_tolerance)
-        return spga.get_space_group_symbol(), spga.get_space_group_number()
+        spg_analyzer = SpacegroupAnalyzer(self, symprec=symprec, angle_tolerance=angle_tolerance)
+        return spg_analyzer.get_space_group_symbol(), spg_analyzer.get_space_group_number()
 
     def matches(self, other: IStructure | Structure, anonymous: bool = False, **kwargs) -> bool:
         """Check whether this structure is similar to another structure.
@@ -1946,7 +1946,7 @@ class IStructure(SiteCollection, MSONable):
         nmin = np.floor(np.min(self.frac_coords, axis=0)) - maxr
         nmax = np.ceil(np.max(self.frac_coords, axis=0)) + maxr
 
-        all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
+        all_ranges = list(itertools.starmap(np.arange, zip(nmin, nmax)))
         latt = self._lattice
         matrix = latt.matrix
         neighbors = [[] for _ in range(len(self))]
@@ -2308,9 +2308,9 @@ class IStructure(SiteCollection, MSONable):
         # reduction.
         # This reduction is O(n^3) so usually is an improvement. Using double
         # the tolerance because both vectors are approximate
-        for g in sorted(grouped_fcoords, key=lambda x: len(x)):
-            for f in g:
-                min_vecs = pbc_coord_intersection(min_vecs, g - f, super_ftol_2)
+        for group in sorted(grouped_fcoords, key=lambda x: len(x)):
+            for frac_coords in group:
+                min_vecs = pbc_coord_intersection(min_vecs, group - frac_coords, super_ftol_2)
 
         def get_hnf(fu):
             """Returns all possible distinct supercell matrices given a
@@ -2321,10 +2321,10 @@ class IStructure(SiteCollection, MSONable):
             and b first, though unlikely to reduce to O(n^2).
             """
 
-            def factors(n):
-                for i in range(1, n + 1):
-                    if n % i == 0:
-                        yield i
+            def factors(n: int):
+                for idx in range(1, n + 1):
+                    if n % idx == 0:
+                        yield idx
 
             for det in factors(fu):
                 if det == 1:
@@ -2387,8 +2387,8 @@ class IStructure(SiteCollection, MSONable):
                         break
 
                     # check that groups are all cliques
-                    for g in groups:
-                        if not np.all(groups[g][:, g]):
+                    for group in groups:
+                        if not np.all(groups[group][:, group]):
                             valid = False
                             break
                     if not valid:
@@ -2452,17 +2452,17 @@ class IStructure(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = [
-            f"Full Formula ({self.composition.formula})",
-            f"Reduced Formula: {self.composition.reduced_formula}",
-        ]
-
         def to_str(x):
             return f"{x:>10.6f}"
 
-        outs.append("abc   : " + " ".join(to_str(i) for i in self.lattice.abc))
-        outs.append("angles: " + " ".join(to_str(i) for i in self.lattice.angles))
-        outs.append("pbc   : " + " ".join(str(p).rjust(10) for p in self.lattice.pbc))
+        outs = [
+            f"Full Formula ({self.composition.formula})",
+            f"Reduced Formula: {self.composition.reduced_formula}",
+            f"abc   : {' '.join(to_str(i) for i in self.lattice.abc)}",
+            f"angles: {' '.join(to_str(i) for i in self.lattice.angles)}",
+            f"pbc   : {' '.join(str(p).rjust(10) for p in self.lattice.pbc)}",
+        ]
+
         if self._charge:
             outs.append(f"Overall Charge: {self._charge:+}")
         outs.append(f"Sites ({len(self)})")
@@ -3141,17 +3141,14 @@ class IMolecule(SiteCollection, MSONable):
                 bond_length = self.get_distance(idx, nn[0])
                 angle = self.get_angle(idx, nn[0], nn[1])
                 output.append(f"{self[idx].specie} {nn[0] + 1} B{idx} {nn[1] + 1} A{idx}")
-                output_var.append(f"B{idx}={bond_length:.6f}")
-                output_var.append(f"A{idx}={angle:.6f}")
+                output_var.extend((f"B{idx}={bond_length:.6f}", f"A{idx}={angle:.6f}"))
             else:
                 nn = self._find_nn_pos_before_site(idx)
                 bond_length = self.get_distance(idx, nn[0])
                 angle = self.get_angle(idx, nn[0], nn[1])
                 dih = self.get_dihedral(idx, nn[0], nn[1], nn[2])
                 output.append(f"{self[idx].specie} {nn[0] + 1} B{idx} {nn[1] + 1} A{idx} {nn[2] + 1} D{idx}")
-                output_var.append(f"B{idx}={bond_length:.6f}")
-                output_var.append(f"A{idx}={angle:.6f}")
-                output_var.append(f"D{idx}={dih:.6f}")
+                output_var.extend((f"B{idx}={bond_length:.6f}", f"A{idx}={angle:.6f}", f"D{idx}={dih:.6f}"))
         return "\n".join(output) + "\n\n" + "\n".join(output_var)
 
     def _find_nn_pos_before_site(self, site_idx):
@@ -3507,7 +3504,7 @@ class IMolecule(SiteCollection, MSONable):
         installed.
 
         Args:
-            filename (str): The filename to read from.
+            filename (str | Path): The filename to read from.
 
         Returns:
             Molecule
@@ -3530,9 +3527,9 @@ class IMolecule(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="yaml")
         from pymatgen.io.babel import BabelMolAdaptor
 
-        m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower())
-        if m:
-            new = BabelMolAdaptor.from_file(filename, m.group(1)).pymatgen_mol
+        match = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower())
+        if match:
+            new = BabelMolAdaptor.from_file(filename, match.group(1)).pymatgen_mol
             new.__class__ = cls
             return new
         raise ValueError("Cannot determine file type.")

@@ -1294,10 +1294,10 @@ class PhaseDiagram(MSONable):
                             min_open = test_open
                             min_mus = v
 
-        elts = [e for e in self.elements if e != open_elt]
+        elems = [e for e in self.elements if e != open_elt]
         res = {}
 
-        for i, el in enumerate(elts):
+        for i, el in enumerate(elems):
             res[el] = (min_mus[i] + muref[i], max_mus[i] + muref[i])
 
         res[open_elt] = (min_open, max_open)

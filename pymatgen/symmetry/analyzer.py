@@ -60,7 +60,7 @@ class SpacegroupAnalyzer:
     Uses spglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure: Structure, symprec: float | None = 0.01, angle_tolerance=5.0):
+    def __init__(self, structure: Structure, symprec: float | None = 0.01, angle_tolerance: float = 5.0) -> None:
         """
         Args:
             structure (Structure/IStructure): Structure to find symmetry
@@ -476,7 +476,7 @@ class SpacegroupAnalyzer:
 
     @cite_conventional_cell_algo
     def get_primitive_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
-        """Gives a structure with a primitive cell according to certain standards the
+        """Gives a structure with a primitive cell according to certain standards. The
         standards are defined in Setyawan, W., & Curtarolo, S. (2010). High-throughput
         electronic band structure calculations: Challenges and tools. Computational
         Materials Science, 49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010.

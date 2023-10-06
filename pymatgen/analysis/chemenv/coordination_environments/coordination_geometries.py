@@ -651,8 +651,7 @@ class CoordinationGeometry:
             outs.append("  - list of points :")
             for pp in self.points:
                 outs.append(f"    - {pp}")
-        outs.append("------------------------------------------------------------")
-        outs.append("")
+        outs.extend(("------------------------------------------------------------", ""))
 
         return "\n".join(outs)
 
@@ -670,8 +669,7 @@ class CoordinationGeometry:
             f"Coordination geometry type : {self.name}{symbol}\n",
             f"  - coordination number : {self.coordination}",
         ]
-        outs.append("------------------------------------------------------------")
-        outs.append("")
+        outs.extend(("------------------------------------------------------------", ""))
         return "\n".join(outs)
 
     def __len__(self):
