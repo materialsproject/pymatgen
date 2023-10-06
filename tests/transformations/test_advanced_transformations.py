@@ -80,15 +80,16 @@ class TestSuperTransformation(unittest.TestCase):
         trafo = SuperTransformation(
             [SubstitutionTransformation({"Li+": "Na+"}), SubstitutionTransformation({"Li+": "K+"})]
         )
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -127,11 +128,7 @@ class TestMultipleSubstitutionTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         sub_dict = {1: ["Na", "K"]}
         trafo = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -146,15 +143,16 @@ class TestMultipleSubstitutionTransformation(unittest.TestCase):
 class TestChargeBalanceTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = ChargeBalanceTransformation("Li+")
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -261,16 +259,13 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
         trans = EnumerateStructureTransformation()
         dct = trans.as_dict()
         trans = EnumerateStructureTransformation.from_dict(dct)
-        assert trans.symm_prec == 0.1
+        assert trans.sym_prec == 0.1
 
 
 class TestSubstitutionPredictorTransformation(unittest.TestCase):
     def test_apply_transformation(self):
         trafo = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5, lambda_table=get_table())
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5]]
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],

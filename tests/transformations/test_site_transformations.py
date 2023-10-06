@@ -27,15 +27,16 @@ enumlib_present = enum_cmd and makestr_cmd
 
 class TestTranslateSitesTransformation(PymatgenTest):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -82,15 +83,16 @@ class TestTranslateSitesTransformation(PymatgenTest):
 
 class TestReplaceSiteSpeciesTransformation(unittest.TestCase):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -115,15 +117,16 @@ class TestReplaceSiteSpeciesTransformation(unittest.TestCase):
 
 class TestRemoveSitesTransformation(unittest.TestCase):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -148,15 +151,16 @@ class TestRemoveSitesTransformation(unittest.TestCase):
 
 class TestInsertSitesTransformation(unittest.TestCase):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [
@@ -186,15 +190,16 @@ class TestInsertSitesTransformation(unittest.TestCase):
 
 class TestPartialRemoveSitesTransformation(unittest.TestCase):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
+        coords = [
+            [0, 0, 0],
+            [0.375, 0.375, 0.375],
+            [0.5, 0.5, 0.5],
+            [0.875, 0.875, 0.875],
+            [0.125, 0.125, 0.125],
+            [0.25, 0.25, 0.25],
+            [0.625, 0.625, 0.625],
+            [0.75, 0.75, 0.75],
+        ]
 
         lattice = Lattice(
             [

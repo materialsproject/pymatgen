@@ -322,7 +322,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             n_jobs (int): Number of parallel jobs used to compute energy criteria. This is used only when the Ewald
                 or m3gnet or callable sort_criteria is used. Default is -1, which uses all available CPUs.
         """
-        self.symm_prec = symm_prec
+        self.sym_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
         self.refine_structure = refine_structure
@@ -362,7 +362,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             num_to_return = 1
 
         if self.refine_structure:
-            finder = SpacegroupAnalyzer(structure, self.symm_prec)
+            finder = SpacegroupAnalyzer(structure, self.sym_prec)
             structure = finder.get_refined_structure()
 
         contains_oxidation_state = all(hasattr(sp, "oxi_state") and sp.oxi_state != 0 for sp in structure.elements)
@@ -391,7 +391,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 structure,
                 min_cell_size=self.min_cell_size,
                 max_cell_size=max_cell_size,
-                symm_prec=self.symm_prec,
+                symm_prec=self.sym_prec,
                 refine_structure=False,
                 enum_precision_parameter=self.enum_precision_parameter,
                 check_ordered_symmetry=self.check_ordered_symmetry,
