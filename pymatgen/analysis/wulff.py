@@ -332,8 +332,7 @@ class WulffShape:
                         break
             # make sure the lines are connected one by one.
             # find the way covering all pts and facets
-            pt.append(self.wulff_pt_list[line[0]].tolist())
-            pt.append(self.wulff_pt_list[line[1]].tolist())
+            pt.extend((self.wulff_pt_list[line[0]].tolist(), self.wulff_pt_list[line[1]].tolist()))
             prev = line[1]
 
         return pt
@@ -732,7 +731,7 @@ class WulffShape:
             pt = self.get_line_in_facet(facet)
 
             lines = []
-            for idx, _ in enumerate(pt):
+            for idx in range(len(pt)):
                 if idx == len(pt) / 2:
                     break
                 lines.append(tuple(sorted((tuple(pt[idx * 2]), tuple(pt[idx * 2 + 1])))))

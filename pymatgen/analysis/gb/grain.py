@@ -254,19 +254,15 @@ class GrainBoundary(Structure):
         def to_s(x, rjust=10):
             return (f"{x:0.6f}").rjust(rjust)
 
-        outs.append("abc   : " + " ".join(to_s(i) for i in self.lattice.abc))
-        outs.append("angles: " + " ".join(to_s(i) for i in self.lattice.angles))
-        outs.append(f"Sites ({len(self)})")
-        for i, site in enumerate(self):
-            outs.append(
-                " ".join(
-                    [
-                        str(i + 1),
-                        site.species_string,
-                        " ".join(to_s(j, 12) for j in site.frac_coords),
-                    ]
-                )
+        outs.extend(
+            (
+                "abc   : " + " ".join(to_s(i) for i in self.lattice.abc),
+                "angles: " + " ".join(to_s(i) for i in self.lattice.angles),
+                f"Sites ({len(self)})",
             )
+        )
+        for idx, site in enumerate(self):
+            outs.append(f"{idx + 1} {site.species_string} {' '.join(to_s(coord, 12) for coord in site.frac_coords)}")
         return "\n".join(outs)
 
     def as_dict(self):

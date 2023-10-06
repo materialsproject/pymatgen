@@ -236,11 +236,10 @@ class ConversionElectrode(AbstractElectrode):
         dct["reactions"] = []
         dct["reactant_compositions"] = []
         comps = []
-        frac = []
+        frac: list[float] = []
         for pair in self.voltage_pairs:
             rxn = pair.rxn
-            frac.append(pair.frac_charge)
-            frac.append(pair.frac_discharge)
+            frac.extend((pair.frac_charge, pair.frac_discharge))
             dct["reactions"].append(str(rxn))
             for i, v in enumerate(rxn.coeffs):
                 if abs(v) > 1e-5 and rxn.all_comp[i] not in comps:

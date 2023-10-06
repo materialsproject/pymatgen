@@ -450,20 +450,20 @@ class Slab(Structure):
         self.append(specie, coords, coords_are_cartesian=True)
 
     def __str__(self):
+        def to_s(x):
+            return f"{x:0.6f}"
+
         comp = self.composition
         outs = [
             f"Slab Summary ({comp.formula})",
             f"Reduced Formula: {comp.reduced_formula}",
             f"Miller index: {self.miller_index}",
             f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor}",
+            "abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc),
+            "angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles),
+            f"Sites ({len(self)})",
         ]
 
-        def to_s(x):
-            return f"{x:0.6f}"
-
-        outs.append("abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc))
-        outs.append("angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles))
-        outs.append(f"Sites ({len(self)})")
         for i, site in enumerate(self):
             outs.append(
                 " ".join(
@@ -1031,13 +1031,11 @@ class SlabGenerator:
                             if c_range[1] > 1:
                                 # Takes care of PBC when c coordinate of site
                                 # goes beyond the upper boundary of the cell
-                                c_ranges.append((c_range[0], 1))
-                                c_ranges.append((0, c_range[1] - 1))
+                                c_ranges.extend(((c_range[0], 1), (0, c_range[1] - 1)))
                             elif c_range[0] < 0:
                                 # Takes care of PBC when c coordinate of site
                                 # is below the lower boundary of the unit cell
-                                c_ranges.append((0, c_range[1]))
-                                c_ranges.append((c_range[0] + 1, 1))
+                                c_ranges.extend(((0, c_range[1]), (c_range[0] + 1, 1)))
                             elif c_range[0] != c_range[1]:
                                 c_ranges.append((c_range[0], c_range[1]))
         return c_ranges

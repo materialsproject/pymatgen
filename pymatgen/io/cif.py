@@ -1078,7 +1078,7 @@ class CifParser:
                 all_labels.extend(new_labels)
 
             # rescale occupancies if necessary
-            all_species_noedit = all_species[:]  # save copy before scaling in case of check_occu=False, used below
+            all_species_noedit = all_species.copy()  # save copy before scaling in case of check_occu=False, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:

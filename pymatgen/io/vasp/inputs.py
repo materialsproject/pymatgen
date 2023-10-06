@@ -1472,8 +1472,7 @@ class Kpoints(MSONable):
 
         # Print tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
-            lines.append("Tetrahedron")
-            lines.append(f"{self.tet_number} {self.tet_weight:f}")
+            lines.extend(("Tetrahedron", f"{self.tet_number} {self.tet_weight:f}"))
             for sym_weight, vertices in self.tet_connections:
                 a, b, c, d = vertices
                 lines.append(f"{sym_weight} {a} {b} {c} {d}")
@@ -2481,9 +2480,7 @@ class VaspInput(dict, MSONable):
     def __str__(self):
         output = []
         for k, v in self.items():
-            output.append(k)
-            output.append(str(v))
-            output.append("")
+            output.extend((k, str(v), ""))
         return "\n".join(output)
 
     def as_dict(self):

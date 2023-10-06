@@ -2111,22 +2111,17 @@ class BSPlotterProjected(BSPlotter):
             else:
                 n_label.append([label[branch].split("$")[-1], label[branch + 1].split("$")[0]])
 
-        f_distance = []
-        rf_distance = []
-        f_label = []
-        f_label.append(n_label[0][0])
-        f_label.append(n_label[0][1])
-        f_distance.append(0.0)
-        f_distance.append(n_distance[0])
-        rf_distance.append(0.0)
-        rf_distance.append(n_distance[0])
+        f_distance: list[float] = []
+        rf_distance: list[float] = []
+        f_label: list[str] = []
+        f_label.extend((n_label[0][0], n_label[0][1]))
+        f_distance.extend((0.0, n_distance[0]))
+        rf_distance.extend((0.0, n_distance[0]))
         length = n_distance[0]
         for i in range(1, len(n_distance)):
             if n_label[i][0] == n_label[i - 1][1]:
-                f_distance.append(length)
-                f_distance.append(length + n_distance[i])
-                f_label.append(n_label[i][0])
-                f_label.append(n_label[i][1])
+                f_distance.extend((length, length + n_distance[i]))
+                f_label.extend((n_label[i][0], n_label[i][1]))
             else:
                 f_distance.append(length + n_distance[i])
                 f_label[-1] = n_label[i - 1][1] + "$\\mid$" + n_label[i][0]
@@ -2134,10 +2129,9 @@ class BSPlotterProjected(BSPlotter):
             rf_distance.append(length + n_distance[i])
             length += n_distance[i]
 
-        n_ticks = {"distance": f_distance, "label": f_label}
         uniq_d = []
         uniq_l = []
-        temp_ticks = list(zip(n_ticks["distance"], n_ticks["label"]))
+        temp_ticks = list(zip(f_distance, f_label))
         for i, t in enumerate(temp_ticks):
             if i == 0:
                 uniq_d.append(t[0])
@@ -2154,18 +2148,18 @@ class BSPlotterProjected(BSPlotter):
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
-        for i in range(len(n_ticks["label"])):
-            if n_ticks["label"][i] is not None:
+        for i in range(len(f_label)):
+            if f_label[i] is not None:
                 # don't print the same label twice
                 if i != 0:
-                    if n_ticks["label"][i] == n_ticks["label"][i - 1]:
-                        logger.debug(f"already print label... skipping label {n_ticks['label'][i]}")
+                    if f_label[i] == f_label[i - 1]:
+                        logger.debug(f"already print label... skipping label {f_label[i]}")
                     else:
-                        logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
-                        ax.axvline(n_ticks["distance"][i], color="k")
+                        logger.debug(f"Adding a line at {f_distance[i]} for label {f_label[i]}")
+                        ax.axvline(f_distance[i], color="k")
                 else:
-                    logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
-                    ax.axvline(n_ticks["distance"][i], color="k")
+                    logger.debug(f"Adding a line at {f_distance[i]} for label {f_label[i]}")
+                    ax.axvline(f_distance[i], color="k")
 
         shift = []
         br = -1

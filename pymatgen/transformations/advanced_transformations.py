@@ -322,7 +322,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             n_jobs (int): Number of parallel jobs used to compute energy criteria. This is used only when the Ewald
                 or m3gnet or callable sort_criteria is used. Default is -1, which uses all available CPUs.
         """
-        self.sym_prec = symm_prec
+        self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
         self.refine_structure = refine_structure
@@ -362,7 +362,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             num_to_return = 1
 
         if self.refine_structure:
-            finder = SpacegroupAnalyzer(structure, self.sym_prec)
+            finder = SpacegroupAnalyzer(structure, self.symm_prec)
             structure = finder.get_refined_structure()
 
         contains_oxidation_state = all(hasattr(sp, "oxi_state") and sp.oxi_state != 0 for sp in structure.elements)
@@ -391,7 +391,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 structure,
                 min_cell_size=self.min_cell_size,
                 max_cell_size=max_cell_size,
-                symm_prec=self.sym_prec,
+                symm_prec=self.symm_prec,
                 refine_structure=False,
                 enum_precision_parameter=self.enum_precision_parameter,
                 check_ordered_symmetry=self.check_ordered_symmetry,
@@ -881,7 +881,7 @@ class MagOrderingTransformation(AbstractTransformation):
             alls = self._remove_dummy_species(alls)
             alls = self._add_spin_magnitudes(alls)
         else:
-            for idx, _ in enumerate(alls):
+            for idx in range(len(alls)):
                 alls[idx]["structure"] = self._remove_dummy_species(alls[idx]["structure"])
                 alls[idx]["structure"] = self._add_spin_magnitudes(alls[idx]["structure"])
 

@@ -346,14 +346,14 @@ class InsertionElectrode(AbstractElectrode):
         return dct
 
     def __repr__(self):
-        output = []
         chg_form = self.fully_charged_entry.composition.reduced_formula
         dischg_form = self.fully_discharged_entry.composition.reduced_formula
-        output.append(f"InsertionElectrode with endpoints at {chg_form} and {dischg_form}")
-        output.append(f"Avg. volt. = {self.get_average_voltage()} V")
-        output.append(f"Grav. cap. = {self.get_capacity_grav()} mAh/g")
-        output.append(f"Vol. cap. = {self.get_capacity_vol()}")
-        return "\n".join(output)
+        return (
+            f"InsertionElectrode with endpoints at {chg_form} and {dischg_form}\n"
+            f"Avg. volt. = {self.get_average_voltage()} V\n"
+            f"Grav. cap. = {self.get_capacity_grav()} mAh/g\n"
+            f"Vol. cap. = {self.get_capacity_vol()}"
+        )
 
     @classmethod
     def from_dict_legacy(cls, d):

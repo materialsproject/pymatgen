@@ -681,14 +681,11 @@ class Plane:
         Returns:
             String representation of the Plane object.
         """
-        outs = ["Plane object"]
-        outs.append(f"  => Normal vector : {self.normal_vector}")
-        outs.append("  => Equation of the plane ax + by + cz + d = 0")
-        outs.append(f"     with a = {self._coefficients[0]}")
-        outs.append(f"          b = {self._coefficients[1]}")
-        outs.append(f"          c = {self._coefficients[2]}")
-        outs.append(f"          d = {self._coefficients[3]}")
-        return "\n".join(outs)
+        return (
+            f"Plane object\n  => Normal vector : {self.normal_vector}\n  => Equation of the plane"
+            f" ax + by + cz + d = 0\n     with a = {self._coefficients[0]}\n          "
+            f"b = {self._coefficients[1]}\n          c = {self._coefficients[2]}\n          d = {self._coefficients[3]}"
+        )
 
     def is_in_plane(self, pp, dist_tolerance) -> bool:
         """

@@ -259,7 +259,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
         trans = EnumerateStructureTransformation()
         dct = trans.as_dict()
         trans = EnumerateStructureTransformation.from_dict(dct)
-        assert trans.sym_prec == 0.1
+        assert trans.symm_prec == 0.1
 
 
 class TestSubstitutionPredictorTransformation(unittest.TestCase):

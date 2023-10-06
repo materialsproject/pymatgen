@@ -422,10 +422,9 @@ class GaussianInput:
             # don't use the slash if either or both are set as empty
             func_bset_str = f" {func_str}{bset_str}".rstrip()
 
-        output.append(f"{self.dieze_tag}{func_bset_str} {para_dict_to_string(self.route_parameters)}")
-        output.append("")
-        output.append(self.title)
-        output.append("")
+        output.extend(
+            (f"{self.dieze_tag}{func_bset_str} {para_dict_to_string(self.route_parameters)}", "", self.title, "")
+        )
 
         charge_str = "" if self.charge is None else f"{self.charge:.0f}"
         multip_str = "" if self.spin_multiplicity is None else f" {self.spin_multiplicity:.0f}"
@@ -441,8 +440,7 @@ class GaussianInput:
         output.append("")
         if self.gen_basis is not None:
             output.append(f"{self.gen_basis}\n")
-        output.append(para_dict_to_string(self.input_parameters, "\n"))
-        output.append("\n")
+        output.extend((para_dict_to_string(self.input_parameters, "\n"), "\n"))
         return "\n".join(output)
 
     def write_file(self, filename, cart_coords=False):

@@ -127,10 +127,7 @@ class TestIStructure(PymatgenTest):
         assert supercell.matches(self.struct)
 
     def test_bad_structure(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75], [0.75, 0.5, 0.75]]
         with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
             IStructure(self.lattice, ["Si"] * 3, coords, validate_proximity=True)
         # these shouldn't raise an error
@@ -153,16 +150,12 @@ class TestIStructure(PymatgenTest):
         assert self.propertied_structure.elements == [Element("Si")]
 
     def test_specie_init(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{Species("O", -2): 1.0}, {Species("Mg", 2): 0.8}], coords)
         assert struct.composition.formula == "Mg0.8 O1"
 
     def test_get_sorted_structure(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, ["O", "Li"], coords, site_properties={"charge": [-2, 1]})
         sorted_s = struct.get_sorted_structure()
         assert sorted_s[0].species == Composition("Li")
@@ -180,9 +173,7 @@ class TestIStructure(PymatgenTest):
         assert self.struct.get_space_group_info() == ("Fd-3m", 227)
 
     def test_fractional_occupations(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{"O": 1.0}, {"Mg": 0.8}], coords)
         assert struct.composition.formula == "Mg0.8 O1"
         assert not struct.is_ordered
@@ -199,9 +190,7 @@ class TestIStructure(PymatgenTest):
     def test_as_dict(self):
         si = Species("Si", 4)
         mn = Element("Mn")
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{si: 0.5, mn: 0.5}, {si: 0.5}], coords)
         assert "lattice" in struct.as_dict()
         assert "sites" in struct.as_dict()
@@ -312,9 +301,7 @@ class TestIStructure(PymatgenTest):
         assert new_struct.properties["another_prop"] == "test"
         assert new_struct.properties["test_property"] == "test"
 
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.0, 0, 0.0000001])
+        coords = [[0, 0, 0], [0.0, 0, 1e-07]]
 
         struct = IStructure(
             self.lattice, ["O", "Si"], coords, site_properties={"magmom": [5, -5]}, properties={"test_property": "test"}
@@ -330,13 +317,10 @@ class TestIStructure(PymatgenTest):
         assert new_struct.properties["test_property"] == "test"
 
     def test_interpolate(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, ["Si"] * 2, coords)
         coords2 = []
-        coords2.append([0, 0, 0])
-        coords2.append([0.5, 0.5, 0.5])
+        coords2.extend(([0, 0, 0], [0.5, 0.5, 0.5]))
         struct2 = IStructure(self.struct.lattice, ["Si"] * 2, coords2)
         interpolated_structs = struct.interpolate(struct2, 10)
         for inter_struct in interpolated_structs:
@@ -402,13 +386,9 @@ class TestIStructure(PymatgenTest):
         assert_allclose(int_s_pbc[1][0].frac_coords, [1.05, 1.05, 0.55])
 
     def test_interpolate_lattice(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, ["Si"] * 2, coords)
-        coords2 = []
-        coords2.append([0, 0, 0])
-        coords2.append([0.5, 0.5, 0.5])
+        coords2 = [[0, 0, 0], [0.5, 0.5, 0.5]]
         l2 = Lattice.from_parameters(3, 4, 4, 100, 100, 70)
         struct2 = IStructure(l2, ["Si"] * 2, coords2)
         int_s = struct.interpolate(struct2, 2, interpolate_lattices=True)
@@ -825,9 +805,7 @@ Direct
 
 class TestStructure(PymatgenTest):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
         self.struct = Structure(lattice, ["Si", "Si"], coords)
         self.cu_structure = Structure(lattice, ["Cu", "Cu"], coords)
@@ -1023,9 +1001,7 @@ class TestStructure(PymatgenTest):
         o_elem = Element("O")
         co_specie = Species("Co", 2)
         o_specie = Species("O", -2)
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice.cubic(10)
         s_elem = Structure(lattice, [co_elem, o_elem], coords)
         s_specie = Structure(lattice, [co_specie, o_specie], coords)
@@ -1706,11 +1682,7 @@ class TestIMolecule(PymatgenTest):
         assert self.mol.get_angle(3, 1, 2) == approx(60.00001388659683)
         assert self.mol.get_dihedral(0, 1, 2, 3) == approx(-35.26438851071765)
 
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0, 0, 1])
-        coords.append([0, 1, 1])
-        coords.append([1, 1, 1])
+        coords = [[0, 0, 0], [0, 0, 1], [0, 1, 1], [1, 1, 1]]
         self.mol2 = Molecule(["C", "O", "N", "S"], coords)
         assert self.mol2.get_dihedral(0, 1, 2, 3) == approx(-90)
 

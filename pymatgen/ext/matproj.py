@@ -144,8 +144,7 @@ class _MPResterBasic:
             params.append("_all_fields=True")
         else:
             fields = ",".join(kwargs["_fields"]) if isinstance(kwargs["_fields"], list) else kwargs["_fields"]
-            params.append(f"_fields={fields}")
-            params.append("_all_fields=False")
+            params.extend((f"_fields={fields}", "_all_fields=False"))
         get = "&".join(params)
         logger.info(f"query={get}")
         return self.request(f"materials/summary?{get}", payload=criteria)

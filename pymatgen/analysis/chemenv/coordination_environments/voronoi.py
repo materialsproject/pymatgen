@@ -810,10 +810,8 @@ class DetailedVoronoiContainer(MSONable):
             xx = [0.0]
             yy = [0.0]
             for idist, dist in enumerate(sorted_dists):
-                xx.append(dist)
-                xx.append(dist)
-                yy.append(yy[-1])
-                yy.append(yy[-1] + dnb_dists[idist])
+                xx.extend((dist, dist))
+                yy.extend((yy[-1], yy[-1] + dnb_dists[idist]))
             xx.append(1.1 * xx[-1])
             yy.append(yy[-1])
         elif step_function["type"] == "normal_cdf":
@@ -864,10 +862,8 @@ class DetailedVoronoiContainer(MSONable):
             xx = [0.0]
             yy = [0.0]
             for iang, ang in enumerate(sorted_angs):
-                xx.append(ang)
-                xx.append(ang)
-                yy.append(yy[-1])
-                yy.append(yy[-1] + dnb_angs[iang])
+                xx.extend((ang, ang))
+                yy.extend((yy[-1], yy[-1] + dnb_angs[iang]))
             xx.append(1.1 * xx[-1])
             yy.append(yy[-1])
         elif step_function["type"] == "normal_cdf":

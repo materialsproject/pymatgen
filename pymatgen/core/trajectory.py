@@ -431,8 +431,7 @@ class Trajectory(MSONable):
                 for latt_vec in _lattice:
                     lines.append(f'{" ".join(map(str, latt_vec))}')
 
-                lines.append(" ".join(site_symbols))
-                lines.append(" ".join(map(str, n_atoms)))
+                lines.extend((" ".join(site_symbols), " ".join(map(str, n_atoms))))
 
             lines.append(f"Direct configuration=     {si + 1}")
 

@@ -64,7 +64,7 @@ class SolidAngleError(AbstractChemenvError):
 class ChemenvError(Exception):
     """Chemenv error."""
 
-    def __init__(self, cls, method, msg):
+    def __init__(self, cls: str, method: str, msg: str):
         """
         :param cls:
         :param method:

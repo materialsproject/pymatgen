@@ -1322,13 +1322,14 @@ class TestOxideTypeCorrection(unittest.TestCase):
         el_o = Element("O")
         latt = Lattice([[3.985034, 0.0, 0.0], [0.0, 4.881506, 0.0], [0.0, 0.0, 2.959824]])
         elems = [el_li, el_li, el_o, el_o, el_o, el_o]
-        coords = []
-        coords.append([0.500000, 0.500000, 0.500000])
-        coords.append([0.0, 0.0, 0.0])
-        coords.append([0.632568, 0.085090, 0.500000])
-        coords.append([0.367432, 0.914910, 0.500000])
-        coords.append([0.132568, 0.414910, 0.000000])
-        coords.append([0.867432, 0.585090, 0.000000])
+        coords = [
+            [0.5, 0.5, 0.5],
+            [0.0, 0.0, 0.0],
+            [0.632568, 0.08509, 0.5],
+            [0.367432, 0.91491, 0.5],
+            [0.132568, 0.41491, 0.0],
+            [0.867432, 0.58509, 0.0],
+        ]
         struct = Structure(latt, elems, coords)
         lio2_entry = ComputedStructureEntry(
             struct,

@@ -44,9 +44,7 @@ class Mcsqs:
         output = [f"{vec[0]:6f} {vec[1]:6f} {vec[2]:6f}" for vec in mat]
 
         # define coord system, use Cartesian
-        output.append("1.0 0.0 0.0")
-        output.append("0.0 1.0 0.0")
-        output.append("0.0 0.0 1.0")
+        output.extend(("1.0 0.0 0.0", "0.0 1.0 0.0", "0.0 0.0 1.0"))
 
         # add species
         for site in self.structure:
