@@ -22,6 +22,7 @@ from pymatgen.io.vasp.inputs import (
     BadIncarWarning,
     Incar,
     Kpoints,
+    KpointsSupportedModes,
     Poscar,
     Potcar,
     PotcarSingle,
@@ -735,6 +736,20 @@ SIGMA = 0.1"""
                 }
             )
             incar.check_params()
+
+
+class TestKpointsSupportedModes:
+    def test_from_str(self):
+        test_cases = "Automatic Gamma Monkhorst Line_mode Cartesian Reciprocal".split()
+        for input_str in test_cases:
+            expected = getattr(KpointsSupportedModes, input_str)
+            assert KpointsSupportedModes.from_str(input_str) == expected
+            assert KpointsSupportedModes.from_str(input_str.lower()) == expected  # case insensitive
+            assert KpointsSupportedModes.from_str(input_str[0]) == expected  # only first letter matters
+
+        mode = "InvalidMode"
+        with pytest.raises(ValueError, match=f"Invalid Kpoint {mode=}"):
+            KpointsSupportedModes.from_str(mode)
 
 
 class TestKpoints:

@@ -986,18 +986,18 @@ class KpointsSupportedModes(Enum):
         return cls.from_str(*args, **kwargs)
 
     @staticmethod
-    def from_str(s: str) -> KpointsSupportedModes:
+    def from_str(mode: str) -> KpointsSupportedModes:
         """
         :param s: String
 
         Returns:
             Kpoints_supported_modes
         """
-        c = s.lower()[0]
-        for m in KpointsSupportedModes:
-            if m.name.lower()[0] == c:
-                return m
-        raise ValueError(f"Can't interpret Kpoint mode {s}")
+        initial = mode.lower()[0]
+        for key in KpointsSupportedModes:
+            if key.name.lower()[0] == initial:
+                return key
+        raise ValueError(f"Invalid Kpoint {mode=}")
 
 
 class Kpoints(MSONable):
