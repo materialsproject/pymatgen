@@ -354,9 +354,9 @@ class CifParser:
 
         self.feature_flags["magcif_incommensurate"] = is_magcif_incommensurate()
 
-        for k in self._cif.data:
+        for key in self._cif.data:
             # pass individual CifBlocks to _sanitize_data
-            self._cif.data[k] = self._sanitize_data(self._cif.data[k])
+            self._cif.data[key] = self._sanitize_data(self._cif.data[key])
 
     @classmethod
     @np.deprecate(message="Use from_str instead")
@@ -557,7 +557,8 @@ class CifParser:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append(
-                "Some fractional coordinates rounded to ideal values to avoid issues with finite precision."
+                f"{len(fracs_to_change)} fractional coordinates rounded to ideal values to avoid issues with "
+                "finite precision."
             )
             for (label, idx), val in fracs_to_change.items():
                 data.data[label][idx] = val

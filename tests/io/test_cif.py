@@ -838,12 +838,11 @@ loop_
     def test_replacing_finite_precision_frac_coords(self):
         cif = f"{TEST_FILES_DIR}/cif_finite_precision_frac_coord_error.cif"
         parser = CifParser(cif)
-        struct = parser.get_structures()[0]
+        warn_msg = "4 fractional coordinates rounded to ideal values to avoid issues with finite precision."
+        with pytest.warns(UserWarning, match=warn_msg):
+            struct = parser.get_structures()[0]
         assert str(struct.composition) == "N5+24"
-        assert (
-            "Some fractional coordinates rounded to ideal values to avoid issues with finite precision."
-            in parser.warnings
-        )
+        assert warn_msg in parser.warnings
 
     def test_empty_deque(self):
         cif_str = """data_1526655
