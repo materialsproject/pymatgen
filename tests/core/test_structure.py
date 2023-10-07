@@ -28,6 +28,7 @@ from pymatgen.core.structure import (
 )
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
@@ -196,9 +197,7 @@ class TestIStructure(PymatgenTest):
         assert "sites" in struct.as_dict()
         d = self.propertied_structure.as_dict()
         assert d["sites"][0]["properties"]["magmom"] == 5
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(
             self.lattice,
             [
@@ -1349,7 +1348,7 @@ class TestStructure(PymatgenTest):
         navs2.insert(0, "Na", coords[0], properties={"prop1": 100.0})
         navs2.merge_sites(mode="a")
         assert len(navs2) == 12
-        assert 51.5 in [itr.properties["prop1"] for itr in navs2.sites]
+        assert 51.5 in [itr.properties["prop1"] for itr in navs2]
 
     def test_properties(self):
         assert self.struct.num_sites == len(self.struct)
@@ -1633,15 +1632,35 @@ Sites (8)
             struct = Structure.from_prototype(prototype, ["Cs", "Cl"], a=5)
             assert struct.lattice.is_orthogonal
 
+    def test_to_primitive(self):
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/orci_1010.cif")
+        primitive = struct.to_primitive()
+
+        assert struct != primitive
+        sga = SpacegroupAnalyzer(struct)
+        assert primitive == sga.get_primitive_standard_structure()
+        assert struct.formula == "Mn1 B4"
+        assert primitive.formula == "Mn1 B4"
+
+    def test_to_conventional(self):
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/bcc_1927.cif")
+        conventional = struct.to_conventional()
+
+        assert struct != conventional
+        sga = SpacegroupAnalyzer(struct)
+        assert conventional == sga.get_conventional_standard_structure()
+        assert struct.formula == "Dy8 Sb6"
+        assert conventional.formula == "Dy16 Sb12"
+
 
 class TestIMolecule(PymatgenTest):
     def setUp(self):
         coords = [
             [0, 0, 0],
-            [0, 0, 1.089000],
-            [1.026719, 0, -0.363000],
-            [-0.513360, -0.889165, -0.363000],
-            [-0.513360, 0.889165, -0.363000],
+            [0, 0, 1.089],
+            [1.026719, 0, -0.363],
+            [-0.513360, -0.889165, -0.363],
+            [-0.513360, 0.889165, -0.363],
         ]
         self.coords = coords
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)

@@ -60,8 +60,8 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
             np.array([0, 0, 1], float),
         )
         vv /= np.linalg.norm(vv)
-        midarc = midpoint + rad * dist * np.array([vv[0], vv[1]], float)
-        xytext_offset = 0.1 * dist * np.array([vv[0], vv[1]], float)
+        mid_arc = midpoint + rad * dist * np.array([vv[0], vv[1]], float)
+        xy_text_offset = 0.1 * dist * np.array([vv[0], vv[1]], float)
 
         if periodicity_vectors is not None and len(periodicity_vectors) == 1:
             if np.all(np.array(delta) == np.array(periodicity_vectors[0])) or np.all(
@@ -109,11 +109,11 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
             )
         ax.annotate(
             delta,
-            midarc,
+            mid_arc,
             ha="center",
             va="center",
             xycoords="data",
-            xytext=xytext_offset,
+            xytext=xy_text_offset,
             textcoords="offset points",
         )
         seen[(u, v)] = rad
