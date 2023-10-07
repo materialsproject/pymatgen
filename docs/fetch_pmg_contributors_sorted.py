@@ -1,11 +1,16 @@
 # %%
 from __future__ import annotations
 
+from datetime import datetime
+
 import pandas as pd
 import requests
 from tqdm import tqdm
-from pymatgen.env import GH_TOKEN
+from docs.secrets import GH_TOKEN
 from datetime import datetime
+
+__author__ = "Janosh Riebesell"
+__date__ = "2023-08-11"
 
 
 # %%
@@ -40,6 +45,9 @@ for login in tqdm(gh_user_data):
 # %%
 # Process contributor data and PRs
 contributor_dict = {}
+weeks_with_prs_col = "Weeks with merged PR"
+n_contribs_col = "Total contributions"
+
 for contributor in tqdm(contributors_response):
     login = contributor["author"]["login"]
     if login not in merged_prs_per_contributor:
@@ -54,17 +62,17 @@ for contributor in tqdm(contributors_response):
     name = gh_user_data[login]["name"]
     contributor_dict[name] = {
         "GitHub username": login,
-        "Weeks with merged PR": weeks_with_merged_pr,
+        weeks_with_prs_col: weeks_with_merged_pr,
         "Years with merged PR": ", ".join(map(str,years_with_merged_pr)),
         "Number years active": len(years_with_merged_pr),
         "Oldest PR": pr_list[0]["html_url"] if pr_list else None,
-        "Total contributions": contributor["total"],
+        n_contribs_col: contributor["total"],
     }
 
-contrib_col = "Weeks with merged PR"
-df_contributors = pd.DataFrame(contributor_dict.values()).sort_values(contrib_col, ascending=False)
+df_contributors = pd.DataFrame(contributor_dict.values()).sort_values(n_contribs_col, ascending=False)
 
-df_contributors.to_csv("top_contributors.csv", index=False)
+today = f"{datetime.now():%Y-%m-%d}"
+df_contributors.to_csv(f"{today}-top-contributors.csv", index=False)
 
 
 

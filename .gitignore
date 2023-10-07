@@ -33,7 +33,6 @@ gulptmp_4_1
 .vscode/*
 
 # Environments
-env.py
 .env
 .venv
 env/
@@ -41,3 +40,4 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+**/secrets*
