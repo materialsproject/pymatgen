@@ -1,3 +1,8 @@
+"""
+Use the GitHub API to fetch the contributors of the pymatgen repository
+into a pandas DataFrame, sort it and save it as a CSV file.
+"""
+
 # %%
 from __future__ import annotations
 
@@ -6,8 +11,8 @@ from datetime import datetime
 import pandas as pd
 import requests
 from tqdm import tqdm
+
 from docs.secrets import GH_TOKEN
-from datetime import datetime
 
 __author__ = "Janosh Riebesell"
 __date__ = "2023-08-11"
@@ -58,12 +63,11 @@ for contributor in tqdm(contributors_response):
 
     years_with_merged_pr = {datetime.fromtimestamp(week["w"]).year for week in contributor["weeks"] if week["c"] > 0}
 
-
     name = gh_user_data[login]["name"]
     contributor_dict[name] = {
         "GitHub username": login,
         weeks_with_prs_col: weeks_with_merged_pr,
-        "Years with merged PR": ", ".join(map(str,years_with_merged_pr)),
+        "Years with merged PR": ", ".join(map(str, years_with_merged_pr)),
         "Number years active": len(years_with_merged_pr),
         "Oldest PR": pr_list[0]["html_url"] if pr_list else None,
         n_contribs_col: contributor["total"],
@@ -75,10 +79,9 @@ today = f"{datetime.now():%Y-%m-%d}"
 df_contributors.to_csv(f"{today}-top-contributors.csv", index=False)
 
 
-
 # %%
-%store df_contributors # cache the data
+# %store df_contributors # cache the data
 
 
 # restore the data
-%store -r df_contributors
+# %store -r df_contributors
