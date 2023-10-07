@@ -1550,7 +1550,7 @@ class CubicSupercellTransformation(AbstractTransformation):
 
         if self.force_diagonal:
             scale = self.min_length / np.array(structure.lattice.abc)
-            self.transformation_matrix = np.diag(np.ceil(scale).astype(int))  # type: ignore
+            self.transformation_matrix = np.diag(np.ceil(scale).astype(int))  # type: ignore[assignment]
             st = SupercellTransformation(self.transformation_matrix)
             return st.apply_transformation(structure)
 
@@ -1626,7 +1626,7 @@ class CubicSupercellTransformation(AbstractTransformation):
 
 
 class AddAdsorbateTransformation(AbstractTransformation):
-    """Create absorbate structures."""
+    """Create adsorbate structures."""
 
     def __init__(
         self,
@@ -1640,7 +1640,7 @@ class AddAdsorbateTransformation(AbstractTransformation):
         reorient=True,
         find_args=None,
     ):
-        """Use AdsorbateSiteFinder to add an absorbate to a slab.
+        """Use AdsorbateSiteFinder to add an adsorbate to a slab.
 
         Args:
             adsorbate (Molecule): molecule to add as adsorbate

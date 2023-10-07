@@ -2082,7 +2082,7 @@ def _get_slsqp_decomp(
     for j, comp_entry in enumerate(competing_entries):
         amts = comp_entry.composition.get_el_amt_dict()
         for i, el in enumerate(chemical_space):
-            A_transpose[i, j] = amts[el]
+            A_transpose[i, j] = amts.get(el, 0)
 
     # NOTE normalize arrays to avoid calls to fractional_composition
     b = b / np.sum(b)
