@@ -236,12 +236,12 @@ class TestCompleteDos(unittest.TestCase):
         width = dos.get_band_width()
         assert width == approx(1.7831724662185575)
 
-    def test_skewness(self):
+    def test_get_band_skewness(self):
         dos = self.dos_pdag3
         skewness = dos.get_band_skewness()
         assert skewness == approx(1.7422716340493507)
 
-    def test_kurtosis(self):
+    def test_get_band_kurtosis(self):
         dos = self.dos_pdag3
         kurtosis = dos.get_band_kurtosis()
         assert kurtosis == approx(7.764506941340621)
