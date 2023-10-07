@@ -600,7 +600,7 @@ class StructureVis:
                 ac.GetProperty().SetColor(color)
                 self.ren.AddActor(ac)
             elif len(face) > 3:
-                center = np.zeros(3, np.float_)
+                center = np.zeros(3, float)
                 for site in face:
                     center += site
                 center /= np.float_(len(face))

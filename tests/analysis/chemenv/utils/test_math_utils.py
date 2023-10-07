@@ -43,36 +43,13 @@ class TestMathUtils(PymatgenTest):
         ff = prime_factors(250)
         assert ff == [5, 5, 5, 2]
         div = divisors(560)
-        assert div == [
-            1,
-            2,
-            4,
-            5,
-            7,
-            8,
-            10,
-            14,
-            16,
-            20,
-            28,
-            35,
-            40,
-            56,
-            70,
-            80,
-            112,
-            140,
-            280,
-            560,
-        ]
+        assert div == [1, 2, 4, 5, 7, 8, 10, 14, 16, 20, 28, 35, 40, 56, 70, 80, 112, 140, 280, 560]
         center = get_center_of_arc([0.0, 0.0], [1.0, 0.0], 0.5)
         assert center == (0.5, 0.0)
 
     def test_linearly_independent_vectors(self):
-        v1 = np.array([1, 0, 0])
-        v2 = np.array([0, 1, 0])
-        v3 = np.array([0, 0, 1])
-        v4 = np.array([-1, 0, 0])
+        v1, v2, v3 = np.eye(3)
+        v4 = -v1
         v5 = np.array([1, 1, 0])
         independent_vectors = get_linearly_independent_vectors([v1, v2, v3])
         assert len(independent_vectors) == 3

@@ -12,9 +12,7 @@ from monty.json import MSONable
 
 @unique
 class Spin(Enum):
-    """Enum type for Spin. Only up and down.
-    Usage: Spin.up, Spin.down.
-    """
+    """Enum type for Spin. Only up and down. Usage: Spin.up, Spin.down."""
 
     up, down = 1, -1
 

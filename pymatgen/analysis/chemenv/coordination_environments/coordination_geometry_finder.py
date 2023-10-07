@@ -194,7 +194,7 @@ class AbstractGeometry:
         :param include_central_site_in_centroid:
         """
         central_site = cg.get_central_site()
-        bare_coords = [np.array(pt, np.float_) for pt in cg.points]
+        bare_coords = [np.array(pt, float) for pt in cg.points]
         return cls(
             central_site=central_site,
             bare_coords=bare_coords,
@@ -965,14 +965,14 @@ class LocalGeometryFinder:
             rv = np.random.random_sample(3)
             while norm(rv) > 1.0:
                 rv = np.random.random_sample(3)
-            coords = [np.zeros(3, np.float_) + max_random_dist * rv]
+            coords = [np.zeros(3, float) + max_random_dist * rv]
             for pp in _points:
                 rv = np.random.random_sample(3)
                 while norm(rv) > 1.0:
                     rv = np.random.random_sample(3)
                 neighb_coords.append(np.array(pp) + max_random_dist * rv)
         else:
-            coords = [np.zeros(3, np.float_)]
+            coords = [np.zeros(3, float)]
             for pp in _points:
                 neighb_coords.append(np.array(pp))
         if indices == "RANDOM":
@@ -1038,7 +1038,7 @@ class LocalGeometryFinder:
         if random_translation == "RANDOM":
             translation = 10.0 * (2.0 * np.random.random_sample(3) - 1.0)
         elif random_translation == "NONE":
-            translation = np.zeros(3, np.float_)
+            translation = np.zeros(3, float)
         else:
             translation = random_translation
         coords = [cc + translation for cc in coords]
@@ -1082,7 +1082,7 @@ class LocalGeometryFinder:
         for _ in range(coordination + 1):
             coords.append(aa * np.random.random_sample(3) + bb)
         self.set_structure(
-            lattice=np.array([[10, 0, 0], [0, 10, 0], [0, 0, 10]], np.float_),
+            lattice=np.array([[10, 0, 0], [0, 10, 0], [0, 0, 10]], float),
             species=["Si"] * (coordination + 1),
             coords=coords,
             coords_are_cartesian=False,

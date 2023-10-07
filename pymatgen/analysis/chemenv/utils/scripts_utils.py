@@ -168,7 +168,7 @@ def visualize(cg, zoom=None, vis=None, factor=1.0, view_index=True, faces_color_
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
     species = ["O"] * (cg.coordination_number + 1)
     species[0] = "Cu"
-    coords = [np.zeros(3, np.float_) + cg.central_site]
+    coords = [np.zeros(3, float) + cg.central_site]
 
     for pp in cg.points:
         coords.append(np.array(pp) + cg.central_site)
@@ -338,13 +338,13 @@ def compute_environments(chemenv_configuration):
                             for i0 in range(int(nns[0])):
                                 for i1 in range(int(nns[1])):
                                     for i2 in range(int(nns[2])):
-                                        deltas.append(np.array([1.0 * i0, 1.0 * i1, 1.0 * i2], np.float_))
+                                        deltas.append(np.array([1.0 * i0, 1.0 * i1, 1.0 * i2], float))
                             break
 
                         except (ValueError, IndexError):
                             print("Not a valid multiplicity")
                 else:
-                    deltas = [np.zeros(3, np.float_)]
+                    deltas = [np.zeros(3, float)]
                 if first_time:
                     vis = StructureVis(show_polyhedron=False, show_unit_cell=True)
                     vis.show_help = False

@@ -2525,7 +2525,7 @@ class BSDOSPlotter:
         r = [0.5 * (red[i] + red[i + 1]) for i in range(nseg)]
         g = [0.5 * (green[i] + green[i + 1]) for i in range(nseg)]
         b = [0.5 * (blue[i] + blue[i + 1]) for i in range(nseg)]
-        a = np.ones(nseg, np.float_) * alpha
+        a = np.ones(nseg, float) * alpha
         lc = LineCollection(seg, colors=list(zip(r, g, b, a)), linewidth=2, linestyles=linestyles)
         ax.add_collection(lc)
 
