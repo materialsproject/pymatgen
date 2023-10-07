@@ -9,10 +9,10 @@ class TestFunc(PymatgenTest):
         filename = f"{TEST_FILES_DIR}/OUTCAR"
         data = []
 
-        def f(x, y):
+        def f(_x, y):
             data.append(y.group(1).strip())
 
-        def f2(x, y):
+        def f2(_x, y):
             return y
 
         micro_pyawk(filename, [["POTCAR:(.*)", f2, f]])

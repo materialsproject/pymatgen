@@ -798,7 +798,7 @@ class StructureInteractorStyle(TrackballCamera):
             iren.GetPicker().Pick(pos[0], pos[1], 0, ren)
         self.OnLeftButtonUp()
 
-    def keyPressEvent(self, obj, event):
+    def keyPressEvent(self, obj, _event):
         parent = obj.GetCurrentRenderer().parent
         sym = parent.iren.GetKeySym()
 
