@@ -634,10 +634,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             dict[str, float]: element symbol and (unreduced) amount. E.g.
             {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}.
         """
-        dic: dict[str, float] = collections.defaultdict(float)
+        dct: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
-            dic[el.symbol] += amt
-        return dic
+            dct[el.symbol] += amt
+        return dict(dct)
 
     def as_dict(self) -> dict[str, float]:
         """Subtly different from get_el_amt_dict in that they keys here are str(Element)
@@ -647,10 +647,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             dict[str, float]: element symbol and (unreduced) amount. E.g.
                 {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
-        dic: dict[str, float] = collections.defaultdict(float)
+        dct: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
-            dic[str(el)] += amt
-        return dic
+            dct[str(el)] += amt
+        return dict(dct)
 
     @property
     def to_reduced_dict(self) -> dict[str, float]:
