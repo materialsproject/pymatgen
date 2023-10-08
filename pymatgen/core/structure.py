@@ -44,6 +44,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
 
+    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
     from ase.optimize.optimize import Optimizer
@@ -825,6 +826,19 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             return TBLite(method="GFN2-xTB", **params)
 
         raise ValueError(f"Unknown {calculator=}.")
+
+    def to_ase_atoms(self, **kwargs) -> Atoms:
+        """Converts the structure/molecule to an ase.Atoms object.
+
+        Args:
+            kwargs: Passed to ase.Atoms init.
+
+        Returns:
+            ase.Atoms
+        """
+        from pymatgen.io.ase import AseAtomsAdaptor
+
+        return AseAtomsAdaptor.get_atoms(self, **kwargs)
 
 
 class IStructure(SiteCollection, MSONable):
