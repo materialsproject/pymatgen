@@ -291,14 +291,15 @@ class Lobsterin(dict, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
-        :param d: Dict representation
+        Args:
+            dct (dict): Dict representation.
 
         Returns:
             Lobsterin
         """
-        return Lobsterin({k: v for k, v in d.items() if k not in ["@module", "@class"]})
+        return Lobsterin({k: v for k, v in dct.items() if k not in ["@module", "@class"]})
 
     def write_INCAR(
         self,

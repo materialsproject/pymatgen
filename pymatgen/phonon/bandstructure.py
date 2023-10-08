@@ -255,7 +255,9 @@ class PhononBandStructure(MSONable):
 
     @classmethod
     def from_dict(cls, dct):
-        """:param dct: Dict representation
+        """
+        Args:
+            dct (dict): Dict representation.
 
         Returns:
             PhononBandStructure

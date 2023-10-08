@@ -219,10 +219,11 @@ class TransformedStructure(MSONable):
         return "\n".join(output)
 
     def set_parameter(self, key: str, value: Any) -> None:
-        """Set a parameter.
+        """Sets a parameter.
 
-        :param key: The string key
-        :param value: The value.
+        Args:
+            key (str): The string key.
+            value (Any): The value.
         """
         self.other_parameters[key] = value
 

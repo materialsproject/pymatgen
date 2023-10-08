@@ -136,7 +136,9 @@ class SymmetrizedStructure(Structure):
 
     @classmethod
     def from_dict(cls, dct):
-        """:param d: Dict representation
+        """
+        Args:
+            dct (dict): Dict representation.
 
         Returns:
             SymmetrizedStructure

@@ -111,10 +111,10 @@ class BondDissociationEnergies(MSONable):
                 self.fragment_and_process(bond_pair)
 
     def fragment_and_process(self, bonds):
-        """
-        Fragment and process bonds.
+        """Fragment and process bonds.
 
-        :param bonds: Bonds to process.
+        Args:
+            bonds (list): bonds to process.
         """
         # Try to split the principle:
         try:
