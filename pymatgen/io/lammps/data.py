@@ -696,14 +696,14 @@ class LammpsData(MSONable):
                 df = pd.read_csv(sio, header=None, comment="#", delim_whitespace=True)
                 if kw == "PairIJ Coeffs":
                     names = ["id1", "id2"] + [f"coeff{i}" for i in range(1, df.shape[1] - 1)]
-                    df.index.name = None  # pylint: disable=E1101
+                    df.index.name = None
                 elif kw in SECTION_HEADERS:
                     names = ["id"] + SECTION_HEADERS[kw]
                 elif kw == "Atoms":
                     names = ["id"] + ATOMS_HEADERS[atom_style]
-                    if df.shape[1] == len(names):  # pylint: disable=E1101
+                    if df.shape[1] == len(names):
                         pass
-                    elif df.shape[1] == len(names) + 3:  # pylint: disable=E1101
+                    elif df.shape[1] == len(names) + 3:
                         names += ["nx", "ny", "nz"]
                     else:
                         raise ValueError(f"Format in Atoms section inconsistent with {atom_style=}")

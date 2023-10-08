@@ -559,7 +559,7 @@ class DetailedVoronoiContainer(MSONable):
             max_dist=max_dist,
         )
         maps_and_surfaces = []
-        for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():  # pylint: disable=E1101
+        for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():
             for imap, list_parameters_indices in enumerate(value):
                 thissurf = 0.0
                 for idp, iap, iacb in list_parameters_indices:
@@ -593,7 +593,7 @@ class DetailedVoronoiContainer(MSONable):
             additional_conditions = [self.AC.ONLY_ACB]
         surfaces = self.neighbors_surfaces_bounded(isite=isite, surface_calculation_options=surface_calculation_options)
         maps_and_surfaces = []
-        for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():  # pylint: disable=E1101
+        for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():
             for imap, list_parameters_indices in enumerate(value):
                 thissurf = 0.0
                 for idp, iap, iacb in list_parameters_indices:

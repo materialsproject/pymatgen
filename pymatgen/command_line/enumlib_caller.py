@@ -351,7 +351,7 @@ class EnumlibAdaptor:
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
         else:
-            ordered_structure = None  # to fix pylint E0601
+            ordered_structure = None
             inv_org_latt = None
 
         for file in glob("vasp.*"):

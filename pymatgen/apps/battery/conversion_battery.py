@@ -92,7 +92,7 @@ class ConversionElectrode(AbstractElectrode):
             for i in range(len(profile) - 1)
         ]
 
-        return ConversionElectrode(  # pylint: disable=E1123
+        return ConversionElectrode(
             voltage_pairs=v_pairs,
             working_ion_entry=working_ion_entry,
             initial_comp_formula=comp.reduced_formula,
@@ -137,7 +137,7 @@ class ConversionElectrode(AbstractElectrode):
         # _initial_comp_formula = comp.reduced_formula, framework_formula = framework.reduced_formula
         if adjacent_only:
             return [
-                ConversionElectrode(  # pylint: disable=E1123
+                ConversionElectrode(
                     voltage_pairs=self.voltage_pairs[i : i + 1],
                     working_ion_entry=self.working_ion_entry,
                     initial_comp_formula=self.initial_comp_formula,
@@ -149,7 +149,7 @@ class ConversionElectrode(AbstractElectrode):
         for i in range(len(self.voltage_pairs)):
             for j in range(i, len(self.voltage_pairs)):
                 sub_electrodes.append(
-                    ConversionElectrode(  # pylint: disable=E1123
+                    ConversionElectrode(
                         voltage_pairs=self.voltage_pairs[i : j + 1],
                         working_ion_entry=self.working_ion_entry,
                         initial_comp_formula=self.initial_comp_formula,
@@ -354,7 +354,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
         entries_charge = step1["entries"]
         entries_discharge = step2["entries"]
 
-        return ConversionVoltagePair(  # pylint: disable=E1123
+        return ConversionVoltagePair(
             rxn=rxn,
             voltage=voltage,
             mAh=mAh,

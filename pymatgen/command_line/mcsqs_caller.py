@@ -123,12 +123,12 @@ def run_mcsqs(
         for i in range(instances):
             instance_cmd = [f"-ip {i + 1}"]
             cmd = mcsqs_find_sqs_cmd + add_ons + instance_cmd
-            process = Popen(cmd)  # pylint: disable=R1732
+            process = Popen(cmd)
             mcsqs_find_sqs_processes.append(process)
     else:
         # run normal mcsqs command
         cmd = mcsqs_find_sqs_cmd + add_ons
-        process = Popen(cmd)  # pylint: disable=R1732
+        process = Popen(cmd)
         mcsqs_find_sqs_processes.append(process)
 
     try:
@@ -136,7 +136,7 @@ def run_mcsqs(
             process.communicate(timeout=search_time * 60)
 
         if instances and instances > 1:
-            process = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
+            process = Popen(["mcsqs", "-best"])
             process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
@@ -157,7 +157,7 @@ def run_mcsqs(
                     "is search_time sufficient or are number of instances too high?"
                 )
 
-            process = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
+            process = Popen(["mcsqs", "-best"])
             process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):

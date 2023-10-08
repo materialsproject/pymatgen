@@ -1016,7 +1016,6 @@ class _MPResterLegacy:
                     )
                     break
                 except MPRestError as e:
-                    # pylint: disable=E1101
                     match = re.search(r"error status code (\d+)", str(e))
                     if match:
                         if not match.group(1).startswith("5"):

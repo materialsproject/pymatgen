@@ -1176,7 +1176,7 @@ class QCOutput(MSONable):
             )
             table_pattern = r"\s*\d+\s+[a-zA-Z]+\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
             footer_pattern = r"\s*-+"
-        else:  # pylint: disable=line-too-long
+        else:
             header_pattern = (
                 r"Finished Iterative Coordinate Back-Transformation\s+-+\s+Standard Nuclear Orientation "
                 r"\(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"

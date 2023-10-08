@@ -374,7 +374,6 @@ class Lattice(MSONable):
             Lattice.from_dict(fmt="abivars", acell=3*[10], rprim=np.eye(3))
         """
         if fmt == "abivars":
-            # pylint: disable=C0415
             from pymatgen.io.abinit.abiobjects import lattice_from_abivars
 
             kwargs.update(d)
@@ -986,7 +985,7 @@ class Lattice(MSONable):
         """
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
-        # pylint: disable=E1136,E1137,E1126
+
         a = self._matrix.copy().T
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
@@ -1042,7 +1041,7 @@ class Lattice(MSONable):
                     # We have to do p/q, so do lstsq(q.T, p.T).T instead.
                     p = dot(a[:, k:3].T, b[:, (k - 2) : k])
                     q = np.diag(m[(k - 2) : k])  # type: ignore
-                    # pylint: disable=E1101
+
                     result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].T  # type: ignore
                     u[k:3, (k - 2) : k] = result
 
@@ -1229,7 +1228,7 @@ class Lattice(MSONable):
         list_k_points = []
         for ii, jj, kk in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
             list_k_points.append(ii * vec1 + jj * vec2 + kk * vec3)
-        # pylint: disable=C0415
+
         from scipy.spatial import Voronoi
 
         tess = Voronoi(list_k_points)
@@ -1334,7 +1333,6 @@ class Lattice(MSONable):
                 fcoords, dists, inds, image
         """
         try:
-            # pylint: disable=C0415
             from pymatgen.optimization.neighbors import find_points_in_spheres
         except ImportError:
             return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
@@ -1499,7 +1497,7 @@ class Lattice(MSONable):
         # Determine distance from `center`
         cart_coords = self.get_cartesian_coords(fcoords)
         cart_images = self.get_cartesian_coords(images)
-        coords = cart_coords[:, None, None, None, :] + cart_images[None, :, :, :, :]  # pylint: disable=E1126
+        coords = cart_coords[:, None, None, None, :] + cart_images[None, :, :, :, :]
         coords -= center[None, None, None, None, :]
         coords **= 2
         d_2 = np.sum(coords, axis=4)
@@ -1664,7 +1662,7 @@ class Lattice(MSONable):
         recp_lattice = recp_lattice.scale(1)
         # need a localized import of structure to build a
         # pseudo empty lattice for SpacegroupAnalyzer
-        # pylint: disable=C0415
+
         from pymatgen.core.structure import Structure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 

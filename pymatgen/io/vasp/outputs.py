@@ -2982,7 +2982,7 @@ class Outcar:
 
     def read_pseudo_zval(self):
         """Create pseudopotential ZVAL dictionary."""
-        # pylint: disable=E1101
+
         try:
 
             def atom_symbols(results, match):
@@ -3248,7 +3248,7 @@ class VolumetricData(BaseVolumetricData):
         Returns:
             (poscar, data)
         """
-        # pylint: disable=E1136,E1126
+
         poscar_read = False
         poscar_string = []
         dataset = []
@@ -3576,7 +3576,7 @@ class Procar:
             done = False
             spin = Spin.down
             weights = None
-            # pylint: disable=E1137
+
             for line in file_handle:
                 line = line.strip()
                 if bandexpr.match(line):
@@ -3855,7 +3855,6 @@ class Xdatcar:
         if ionicstep_end is not None and ionicstep_start < 1:
             raise Exception("End ionic step cannot be less than 1")
 
-        # pylint: disable=E1136
         ionicstep_cnt = 1
         with zopen(filename, "rt") as file:
             for line in file:
@@ -3950,7 +3949,6 @@ class Xdatcar:
         if ionicstep_end is not None and ionicstep_start < 1:
             raise Exception("End ionic step cannot be less than 1")
 
-        # pylint: disable=E1136
         ionicstep_cnt = 1
         with zopen(filename, "rt") as f:
             for line in f:

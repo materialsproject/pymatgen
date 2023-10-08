@@ -64,9 +64,7 @@ class BaseLammpsGenerator(InputGenerator):
     def __post_init__(self):
         self.settings = self.settings or {}
 
-    def get_input_set(  # type: ignore
-        self, structure: Structure | LammpsData | CombinedData | None  # pylint: disable=E1131
-    ) -> LammpsInputSet:
+    def get_input_set(self, structure: Structure | LammpsData | CombinedData | None) -> LammpsInputSet:  # type: ignore
         """Generate a LammpsInputSet from the structure/data, tailored to the template file."""
         data = LammpsData.from_structure(structure) if isinstance(structure, Structure) else structure
 

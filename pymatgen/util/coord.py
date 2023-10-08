@@ -113,7 +113,6 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
     Returns:
         list of indices such that superset[indices] = subset
     """
-    # pylint: disable=I1101
     atol = np.ones(3) * atol
     return coord_cython.coord_list_mapping_pbc(subset, superset, atol, pbc)
 
@@ -203,7 +202,6 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2: bool
         array of displacement vectors from fcoords1 to fcoords2
         first index is fcoords1 index, second is fcoords2 index
     """
-    # pylint: disable=I1101
     return coord_cython.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2)
 
 
@@ -262,7 +260,6 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc: tuple = (Tr
     Returns:
         bool: True if all of subset is in superset.
     """
-    # pylint: disable=I1101
     c1 = np.array(subset, dtype=np.float64)
     c2 = np.array(superset, dtype=np.float64)
     m = np.array(mask, dtype=int) if mask is not None else np.zeros((len(subset), len(superset)), dtype=int)

@@ -1988,7 +1988,7 @@ class MoleculeGraph(MSONable):
             # in order to be used for Molecule instantiation
             for k, v in properties.items():
                 if len(v) != len(species):
-                    del properties[k]  # pylint: disable=R1733
+                    del properties[k]
 
             new_mol = Molecule(species, coords, charge=charge, site_properties=properties)
             graph_data = json_graph.adjacency_data(new_graph)

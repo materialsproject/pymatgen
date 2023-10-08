@@ -420,7 +420,7 @@ class WulffShape:
         r_range = max(np.linalg.norm(x) for x in wulff_pt_list)
         ax_3d.set_xlim([-r_range * 1.1, r_range * 1.1])
         ax_3d.set_ylim([-r_range * 1.1, r_range * 1.1])
-        ax_3d.set_zlim([-r_range * 1.1, r_range * 1.1])  # pylint: disable=E1101
+        ax_3d.set_zlim([-r_range * 1.1, r_range * 1.1])
         # add legend
         if legend_on:
             if show_area:
@@ -522,7 +522,7 @@ class WulffShape:
 
             # remove duplicate x y z pts to save time
             all_xyz = []
-            # pylint: disable=E1133,E1136
+
             [all_xyz.append(list(coord)) for coord in np.array([x_pts, y_pts, z_pts]).T if list(coord) not in all_xyz]
             all_xyz = np.array(all_xyz).T
             x_pts, y_pts, z_pts = all_xyz[0], all_xyz[1], all_xyz[2]

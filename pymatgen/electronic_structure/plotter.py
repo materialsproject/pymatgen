@@ -147,7 +147,6 @@ class DosPlotter:
 
         import palettable
 
-        # pylint: disable=E1101
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
         ys = None
@@ -1841,7 +1840,7 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError(f"The dictpa[{elt}] is empty. We cannot do anything")
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     for number in dictpa[elt]:
@@ -1888,7 +1887,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(f"The sum_atoms[{elt}] is empty. We cannot do anything")
                         _sites = self._bs.structure.sites
                         indices = []
-                        for i in range(len(_sites)):  # pylint: disable=C0200
+                        for i in range(len(_sites)):
                             if next(iter(_sites[i]._species)) == Element(elt):
                                 indices.append(i + 1)
                         for number in sum_atoms[elt]:
@@ -2012,7 +2011,7 @@ class BSPlotterProjected(BSPlotter):
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
@@ -2061,7 +2060,7 @@ class BSPlotterProjected(BSPlotter):
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
@@ -2518,7 +2517,7 @@ class BSDOSPlotter:
         """
         from matplotlib.collections import LineCollection
 
-        pts = np.array([k, e]).T.reshape(-1, 1, 2)  # pylint: disable=E1121
+        pts = np.array([k, e]).T.reshape(-1, 1, 2)
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
         nseg = len(k) - 1
@@ -2664,12 +2663,12 @@ class BSDOSPlotter:
         # x = [n + 0.25 for n in x]  # nudge x coordinates
         # y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
         # plot the triangle
-        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)  # pylint: disable=E1101
-        inset_ax.set_xlim([-0.35, 1.00])  # pylint: disable=E1101
-        inset_ax.set_ylim([-0.35, 1.00])  # pylint: disable=E1101
+        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)
+        inset_ax.set_xlim([-0.35, 1.00])
+        inset_ax.set_ylim([-0.35, 1.00])
 
         # add the labels
-        inset_ax.text(  # pylint: disable=E1101
+        inset_ax.text(
             0.70,
             -0.2,
             g_label,
@@ -2678,7 +2677,7 @@ class BSDOSPlotter:
             color=(0, 0, 0),
             horizontalalignment="left",
         )
-        inset_ax.text(  # pylint: disable=E1101
+        inset_ax.text(
             0.325,
             0.70,
             r_label,
@@ -2687,7 +2686,7 @@ class BSDOSPlotter:
             color=(0, 0, 0),
             horizontalalignment="center",
         )
-        inset_ax.text(  # pylint: disable=E1101
+        inset_ax.text(
             -0.05,
             -0.2,
             b_label,
@@ -2718,7 +2717,7 @@ class BSDOSPlotter:
             color.append([math.sqrt(c) for c in [1 - (i / 1000) ** 2, 0, (i / 1000) ** 2]])
 
         # plot the bar
-        # pylint: disable=E1101
+
         inset_ax.scatter(x, y, s=250.0, marker="s", c=color)
         inset_ax.set_xlim([-0.1, 1.7])
         inset_ax.text(
@@ -3935,9 +3934,9 @@ def plot_fermi_surface(
 
     if mlab_figure is None and not multiple_figure:
         fig = mlab.figure(size=(1024, 768), bgcolor=(1, 1, 1))
-        for iface in range(len(bz)):  # pylint: disable=C0200
+        for iface in range(len(bz)):
             for line in itertools.combinations(bz[iface], 2):
-                for jface in range(len(bz)):  # pylint: disable=C0200
+                for jface in range(len(bz)):
                     if (
                         iface < jface
                         and any(np.all(line[0] == x) for x in bz[jface])
@@ -3971,7 +3970,7 @@ def plot_fermi_surface(
         if multiple_figure:
             fig = mlab.figure(size=(1024, 768), bgcolor=(1, 1, 1))
 
-            for iface in range(len(bz)):  # pylint: disable=C0200
+            for iface in range(len(bz)):
                 for line in itertools.combinations(bz[iface], 2):
                     for jface in range(len(bz)):
                         if (
@@ -4047,7 +4046,7 @@ def plot_wigner_seitz(lattice, ax: plt.Axes = None, **kwargs):
     kwargs.setdefault("linewidth", 1)
 
     bz = lattice.get_wigner_seitz_cell()
-    for iface in range(len(bz)):  # pylint: disable=C0200
+    for iface in range(len(bz)):
         for line in itertools.combinations(bz[iface], 2):
             for jface in range(len(bz)):
                 if (

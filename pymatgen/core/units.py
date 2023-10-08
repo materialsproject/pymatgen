@@ -512,7 +512,6 @@ class ArrayWithUnit(np.ndarray):
         return tuple(reduce)
 
     def __setstate__(self, state):
-        # pylint: disable=E1101
         super().__setstate__(state["np_state"])
         self._unit = state["_unit"]
 
@@ -564,7 +563,6 @@ class ArrayWithUnit(np.ndarray):
         return self.__class__(np.array(self).__mul__(np.array(other)), unit=self.unit * other.unit)
 
     def __rmul__(self, other):
-        # pylint: disable=E1101
         if not hasattr(other, "unit_type"):
             return self.__class__(
                 np.array(self) * np.array(other),
@@ -574,7 +572,6 @@ class ArrayWithUnit(np.ndarray):
         return self.__class__(np.array(self) * np.array(other), unit=self.unit * other.unit)
 
     def __div__(self, other):
-        # pylint: disable=E1101
         if not hasattr(other, "unit_type"):
             return self.__class__(
                 np.array(self) / np.array(other),
@@ -584,7 +581,6 @@ class ArrayWithUnit(np.ndarray):
         return self.__class__(np.array(self) / np.array(other), unit=self.unit / other.unit)
 
     def __truediv__(self, other):
-        # pylint: disable=E1101
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self) / np.array(other), unit_type=self._unit_type, unit=self._unit)
         return self.__class__(np.array(self) / np.array(other), unit=self.unit / other.unit)

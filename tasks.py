@@ -246,5 +246,5 @@ def open_doc(ctx):
 
 @task
 def lint(ctx):
-    for cmd in ["ruff", "mypy", "black", "pylint"]:
+    for cmd in ["ruff", "mypy", "black"]:
         ctx.run(f"{cmd} pymatgen")
