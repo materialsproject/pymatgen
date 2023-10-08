@@ -828,7 +828,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         raise ValueError(f"Unknown {calculator=}.")
 
     def to_ase_atoms(self, **kwargs) -> Atoms:
-        """Converts the structure to an ase.Atoms object.
+        """Converts the structure/molecule to an ase.Atoms object.
 
         Args:
             kwargs: Passed to ase.Atoms init.
