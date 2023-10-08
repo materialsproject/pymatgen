@@ -492,8 +492,8 @@ class TestIStructure(PymatgenTest):
             [0.5, 0.2, 0.666],
         ]
         struct = IStructure(latt, ["Ag"] * 6, coords)
-        sprim = struct.get_primitive_structure(tolerance=0.1)
-        assert len(sprim) == 6
+        primitive = struct.get_primitive_structure(tolerance=0.1)
+        assert len(primitive) == 6
 
     def test_get_miller_index(self):
         """Test for get miller index convenience method."""
@@ -648,8 +648,8 @@ Direct
         c_indices, p_indices, offsets, distances, s_indices, symops = struct.get_symmetric_neighbor_list(0.8, sg=100)
         assert len(np.unique(s_indices)) == 1
         assert s_indices[0] == 0
-        assert (~np.isnan(s_indices)).all()
-        assert (symops[0].affine_matrix == np.eye(4)).all()
+        assert all(~np.isnan(s_indices))
+        assert all(symops[0].affine_matrix == np.eye(4))
         # now more complicated example with bonds of same length but with different symmetry
         s2 = Structure.from_spacegroup(198, [[8.908, 0, 0], [0, 8.908, 0], [0, 0, 8.908]], ["Cu"], [[0.0, 0.0, 0.0]])
         c_indices2, p_indices2, offsets2, distances2, s_indices2, symops2 = s2.get_symmetric_neighbor_list(7, sg=198)
@@ -659,8 +659,8 @@ Direct
         assert s_indices2[0] == 0
         assert s_indices2[24] == 1
         assert np.isclose(distances2[0], distances2[24])
-        assert (symops2[0].affine_matrix == np.eye(4)).all()
-        assert (symops2[24].affine_matrix == np.eye(4)).all()
+        assert all(symops2[0].affine_matrix == np.eye(4))
+        assert all(symops2[24].affine_matrix == np.eye(4))
         from_a2 = s2[c_indices2[0]].frac_coords
         to_a2 = s2[p_indices2[0]].frac_coords
         r_a2 = offsets2[0]
@@ -672,8 +672,8 @@ Direct
         c_indices3, p_indices3, offsets3, distances3, s_indices3, symops3 = s2.get_symmetric_neighbor_list(
             7, sg=198, unique=True
         )
-        assert (np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(c_indices2)).all()
-        assert (np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(p_indices2)).all()
+        assert all(np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(c_indices2))
+        assert all(np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(p_indices2))
 
     def test_get_all_neighbors_outside_cell(self):
         struct = Structure(
@@ -1652,6 +1652,13 @@ Sites (8)
         assert struct.formula == "Dy8 Sb6"
         assert conventional.formula == "Dy16 Sb12"
 
+    def test_to_ase_atoms(self):
+        pytest.importorskip("ase")
+        atoms = self.struct.to_ase_atoms()
+        assert isinstance(atoms, Atoms)
+        assert len(atoms) == len(self.struct)
+        assert AseAtomsAdaptor.get_structure(atoms) == self.struct
+
 
 class TestIMolecule(PymatgenTest):
     def setUp(self):
@@ -2165,3 +2172,10 @@ class TestMolecule(PymatgenTest):
         assert relaxed.calc.results.get("energy")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
         assert relaxed.calc.results["energy"] == approx(-113.61346199239306)
+
+    def test_to_ase_atoms(self):
+        pytest.importorskip("ase")
+        atoms = self.mol.to_ase_atoms()
+        assert isinstance(atoms, Atoms)
+        assert len(atoms) == len(self.mol)
+        assert AseAtomsAdaptor.get_molecule(atoms) == self.mol
