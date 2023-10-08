@@ -645,31 +645,31 @@ Direct
     def test_get_symmetric_neighbor_list(self):
         # tetragonal group with all bonds related by symmetry
         struct = Structure.from_spacegroup(100, [[1, 0, 0], [0, 1, 0], [0, 0, 2]], ["Fe"], [[0.0, 0.0, 0.0]])
-        c_indices, p_indices, offsets, distances, s_indices, symops = struct.get_symmetric_neighbor_list(0.8, sg=100)
+        c_indices, p_indices, offsets, distances, s_indices, sym_ops = struct.get_symmetric_neighbor_list(0.8, sg=100)
         assert len(np.unique(s_indices)) == 1
         assert s_indices[0] == 0
         assert all(~np.isnan(s_indices))
-        assert all(symops[0].affine_matrix == np.eye(4))
+        assert (sym_ops[0].affine_matrix == np.eye(4)).all()
         # now more complicated example with bonds of same length but with different symmetry
         s2 = Structure.from_spacegroup(198, [[8.908, 0, 0], [0, 8.908, 0], [0, 0, 8.908]], ["Cu"], [[0.0, 0.0, 0.0]])
-        c_indices2, p_indices2, offsets2, distances2, s_indices2, symops2 = s2.get_symmetric_neighbor_list(7, sg=198)
+        c_indices2, p_indices2, offsets2, distances2, s_indices2, sym_ops2 = s2.get_symmetric_neighbor_list(7, sg=198)
         assert len(np.unique(s_indices2)) == 2
         assert len(s_indices2) == 48
         assert len(s_indices2[s_indices2 == 0]) == len(s_indices2[s_indices2 == 1])
         assert s_indices2[0] == 0
         assert s_indices2[24] == 1
         assert np.isclose(distances2[0], distances2[24])
-        assert all(symops2[0].affine_matrix == np.eye(4))
-        assert all(symops2[24].affine_matrix == np.eye(4))
+        assert (sym_ops2[0].affine_matrix == np.eye(4)).all()
+        assert (sym_ops2[24].affine_matrix == np.eye(4)).all()
         from_a2 = s2[c_indices2[0]].frac_coords
         to_a2 = s2[p_indices2[0]].frac_coords
         r_a2 = offsets2[0]
         from_b2 = s2[c_indices2[1]].frac_coords
         to_b2 = s2[p_indices2[1]].frac_coords
         r_b2 = offsets2[1]
-        assert symops2[1].are_symmetrically_related_vectors(from_a2, to_a2, r_a2, from_b2, to_b2, r_b2)
-        assert symops2[1].are_symmetrically_related_vectors(from_b2, to_b2, r_b2, from_a2, to_a2, r_a2)
-        c_indices3, p_indices3, offsets3, distances3, s_indices3, symops3 = s2.get_symmetric_neighbor_list(
+        assert sym_ops2[1].are_symmetrically_related_vectors(from_a2, to_a2, r_a2, from_b2, to_b2, r_b2)
+        assert sym_ops2[1].are_symmetrically_related_vectors(from_b2, to_b2, r_b2, from_a2, to_a2, r_a2)
+        c_indices3, p_indices3, offsets3, distances3, s_indices3, sym_ops3 = s2.get_symmetric_neighbor_list(
             7, sg=198, unique=True
         )
         assert all(np.sort(np.array([c_indices3, p_indices3]).flatten()) == np.sort(c_indices2))
@@ -725,13 +725,10 @@ Direct
 
             for i in range(4):
                 assert len(nn_traditional[i]) == len(nn_cell_lists[i])
-                assert (
-                    np.linalg.norm(
-                        np.array(sorted(j[1] for j in nn_traditional[i]))
-                        - np.array(sorted(j[1] for j in nn_cell_lists[i]))
-                    )
-                    < 1e-3
+                norm = np.linalg.norm(
+                    np.array(sorted(j[1] for j in nn_traditional[i])) - np.array(sorted(j[1] for j in nn_cell_lists[i]))
                 )
+                assert norm < 1e-3
 
     def test_get_dist_matrix(self):
         ans = [[0.0, 2.3516318], [2.3516318, 0.0]]
