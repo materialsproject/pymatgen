@@ -2163,7 +2163,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
             # we store that the original seed was None
             seed = np.random.randint(1, 1000000000)
 
-        self.random_state = np.random.RandomState(seed)  # pylint: disable=E1101
+        self.random_state = np.random.RandomState(seed)
         self.kwargs = kwargs
 
     def apply_transformation(self, structure: Structure) -> Structure:

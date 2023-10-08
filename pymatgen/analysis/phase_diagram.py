@@ -1943,7 +1943,7 @@ class ReactionDiagram:
                     coeffs = np.linalg.solve(matrix, comp_vec2)
 
                     x = coeffs[-1]
-                    # pylint: disable=R1716
+
                     if all(c >= -tol for c in coeffs) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
                         c1 = x / r1.num_atoms
                         c2 = (1 - x) / r2.num_atoms
@@ -3433,7 +3433,7 @@ class PDPlotter:
             error = stable_marker_plot.error_y["array"]
 
             points = np.append(x, [y, error]).reshape(3, -1).T
-            points = points[points[:, 0].argsort()]  # sort by composition  # pylint: disable=E1136
+            points = points[points[:, 0].argsort()]  # sort by composition
 
             # these steps trace out the boundary pts of the uncertainty window
             outline = points[:, :2].copy()

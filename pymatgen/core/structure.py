@@ -96,7 +96,7 @@ class Neighbor(Site):
 
     def as_dict(self) -> dict:  # type: ignore
         """Note that method calls the super of Site, which is MSONable itself."""
-        return super(Site, self).as_dict()  # pylint: disable=E1003
+        return super(Site, self).as_dict()
 
     @classmethod
     def from_dict(cls, dct: dict) -> Neighbor:  # type: ignore
@@ -108,7 +108,7 @@ class Neighbor(Site):
         Returns:
             Neighbor
         """
-        return super(Site, cls).from_dict(dct)  # pylint: disable=E1003
+        return super(Site, cls).from_dict(dct)
 
 
 class PeriodicNeighbor(PeriodicSite):
@@ -168,7 +168,7 @@ class PeriodicNeighbor(PeriodicSite):
 
     def as_dict(self) -> dict:  # type: ignore
         """Note that method calls the super of Site, which is MSONable itself."""
-        return super(Site, self).as_dict()  # pylint: disable=E1003
+        return super(Site, self).as_dict()
 
     @classmethod
     def from_dict(cls, d: dict) -> PeriodicNeighbor:  # type: ignore
@@ -180,7 +180,7 @@ class PeriodicNeighbor(PeriodicSite):
         Returns:
             PeriodicNeighbor
         """
-        return super(Site, cls).from_dict(d)  # pylint: disable=E1003
+        return super(Site, cls).from_dict(d)
 
 
 class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):

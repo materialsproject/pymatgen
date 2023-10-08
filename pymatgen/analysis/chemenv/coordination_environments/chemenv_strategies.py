@@ -2774,7 +2774,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         if isite is None or dequivsite is None or dthissite is None or mysym is None:
             isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
         return [
-            self.get_site_coordination_environment(  # pylint: disable=E1123
+            self.get_site_coordination_environment(
                 site=site,
                 isite=isite,
                 dequivsite=dequivsite,

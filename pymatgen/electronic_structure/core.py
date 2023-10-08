@@ -71,7 +71,6 @@ class Orbital(Enum):
     @property
     def orbital_type(self):
         """Returns OrbitalType of an orbital."""
-        # pylint: disable=E1136
         return OrbitalType[self.name[0]]
 
 

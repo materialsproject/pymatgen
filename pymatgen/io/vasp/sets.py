@@ -93,7 +93,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     @property
     def potcar_symbols(self):
         """List of POTCAR symbols."""
-        # pylint: disable=E1101
+
         elements = self.poscar.site_symbols
         potcar_symbols = []
         settings = self._config_dict["POTCAR"]

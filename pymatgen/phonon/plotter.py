@@ -128,7 +128,7 @@ class PhononDosPlotter:
 
         import palettable
 
-        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors  # pylint: disable=E1101
+        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
         y = None
         all_densities = []

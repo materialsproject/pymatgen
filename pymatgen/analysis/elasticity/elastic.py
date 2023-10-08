@@ -722,7 +722,7 @@ class ElasticTensorExpansion(TensorCollection):
         ce_exp.append(np.einsum(ein_string, -ce_exp[-1], self[1], ce_exp[-1], ce_exp[-1]))
         if self.order == 4:
             # Four terms in the Fourth-Order compliance tensor
-            # pylint: disable=E1130
+
             einstring_1 = "pqab,cdij,efkl,ghmn,abcdefgh"
             tensors_1 = [ce_exp[0]] * 4 + [self[-1]]
             temp = -np.einsum(einstring_1, *tensors_1)
@@ -935,8 +935,8 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10,
         dict: strain state keys and dictionaries with stress-strain data corresponding to strain state
     """
     # Recast stress/strains
-    vstrains = np.array([Strain(s).zeroed(tol).voigt for s in strains])  # pylint: disable=E1101
-    vstresses = np.array([Stress(s).zeroed(tol).voigt for s in stresses])  # pylint: disable=E1101
+    vstrains = np.array([Strain(s).zeroed(tol).voigt for s in strains])
+    vstresses = np.array([Stress(s).zeroed(tol).voigt for s in stresses])
     # Collect independent strain states:
     independent = {tuple(np.nonzero(vstrain)[0].tolist()) for vstrain in vstrains}
     strain_state_dict = {}

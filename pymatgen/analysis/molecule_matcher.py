@@ -21,6 +21,10 @@ import re
 import numpy as np
 from monty.dev import requires
 from monty.json import MSONable
+from scipy.optimize import linear_sum_assignment
+from scipy.spatial.distance import cdist
+
+from pymatgen.core.structure import Molecule
 
 try:
     from openbabel import openbabel
@@ -29,10 +33,6 @@ try:
 except ImportError:
     openbabel = None
 
-from scipy.optimize import linear_sum_assignment
-from scipy.spatial.distance import cdist
-
-from pymatgen.core.structure import Molecule  # pylint: disable=ungrouped-imports
 
 __author__ = "Xiaohui Qu, Adam Fekete"
 __version__ = "1.0"
@@ -84,7 +84,7 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
     def from_dict(cls, d):
         """
         Args:
-            d (): Dict.
+            d (dict): Dict representation.
 
         Returns:
             AbstractMolAtomMapper

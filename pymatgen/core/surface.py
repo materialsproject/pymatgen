@@ -775,7 +775,6 @@ class SlabGenerator:
             reorient_lattice (bool): reorients the lattice parameters such that
                 the c direction is the third vector of the lattice matrix
         """
-        # pylint: disable=E1130
         # Add Wyckoff symbols of the bulk, will help with
         # identifying types of sites in the slab system
         if (

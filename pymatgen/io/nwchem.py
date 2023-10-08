@@ -265,7 +265,7 @@ $theory_spec
         title = title if title is not None else f"{formula} {theory} {operation}"
 
         charge = charge if charge is not None else mol.charge
-        n_electrons = -charge + mol.charge + mol.nelectrons  # pylint: disable=E1130
+        n_electrons = -charge + mol.charge + mol.nelectrons
         if spin_multiplicity is not None:
             if (n_electrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(f"{charge=} and {spin_multiplicity=} is not possible for this molecule")
@@ -738,7 +738,6 @@ class NwOutput:
         time = 0
 
         for line in output.split("\n"):
-            # pylint: disable=E1136
             for e, v in error_defs.items():
                 if line.find(e) != -1:
                     errors.append(v)

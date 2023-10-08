@@ -94,7 +94,6 @@ def pretty_plot_two_axis(
     Returns:
         matplotlib.pyplot
     """
-    # pylint: disable=E1101
     import palettable.colorbrewer.diverging
 
     colors = palettable.colorbrewer.diverging.RdYlBu_4.mpl_colors
