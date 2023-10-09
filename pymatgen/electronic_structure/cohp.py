@@ -707,7 +707,7 @@ class CompleteCohp(Cohp):
             # may not be present when the cohpgenerator keyword is used
             # in LOBSTER versions 2.2.0 and earlier.
             # TODO: Test this more extensively
-            # pylint: disable=E1133,E1136
+
             for label in orb_res_cohp:
                 if cohp_file.cohp_data[label]["COHP"] is None:
                     cohp_data[label]["COHP"] = {
@@ -730,7 +730,7 @@ class CompleteCohp(Cohp):
             # Calculate the average COHP for the LMTO file to be
             # consistent with LOBSTER output.
             avg_data = {"COHP": {}, "ICOHP": {}}
-            for i in avg_data:  # pylint: disable=C0206
+            for i in avg_data:
                 for spin in spins:
                     rows = np.array([v[i][spin] for v in cohp_data.values()])
                     avg = np.average(rows, axis=0)

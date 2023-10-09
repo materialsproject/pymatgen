@@ -82,26 +82,19 @@ class ChargemolAnalysis:
 
         Args:
             path (str): Path to the CHGCAR, POTCAR, AECCAR0, and AECCAR files.
-            Note that it doesn't matter if the files gzip'd or not.
-                Default: None (current working directory).
+                The files can be gzipped or not. Default: None (current working directory).
             atomic_densities_path (str|None): Path to the atomic densities directory
-            required by Chargemol. If None, Pymatgen assumes that this is
-            defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment variable.
-            Only used if run_chargemol is True.
-                Default: None.
+                required by Chargemol. If None, Pymatgen assumes that this is
+                defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment variable.
+                Only used if run_chargemol is True. Default: None.
             run_chargemol (bool): Whether to run the Chargemol analysis. If False,
-            the existing Chargemol output files will be read from path.
-                Default: True.
+                the existing Chargemol output files will be read from path. Default: True.
         """
         if not path:
             path = os.getcwd()
-        if run_chargemol and not (
-            which("Chargemol_09_26_2017_linux_parallel")
-            or which("Chargemol_09_26_2017_linux_serial")
-            or which("chargemol"),
-        ):
+        if run_chargemol and not CHARGEMOL_EXE:
             raise OSError(
-                "ChargemolAnalysis requires the Chargemol executable to be in the path."
+                "ChargemolAnalysis requires the Chargemol executable to be in PATH."
                 " Please download the library at https://sourceforge.net/projects/ddec/files"
                 "and follow the instructions."
             )
@@ -156,9 +149,8 @@ class ChargemolAnalysis:
             # and this would give 'static' over 'relax2' over 'relax'
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
-            warning_msg = f"Multiple files detected, using {os.path.basename(paths[0])}" if len(paths) > 1 else None
-            if warning_msg:
-                warnings.warn(warning_msg)
+            if len(paths) > 1:
+                warnings.warn(f"Multiple files detected, using {os.path.basename(paths[0])}")
             fpath = paths[0]
         return fpath
 
@@ -204,7 +196,7 @@ class ChargemolAnalysis:
                 Default: None (current working directory).
         """
         if chargemol_output_path is None:
-            chargemol_output_path = ""
+            chargemol_output_path = "."
 
         charge_path = f"{chargemol_output_path}/DDEC6_even_tempered_net_atomic_charges.xyz"
         self.ddec_charges = self._get_data_from_xyz(charge_path)

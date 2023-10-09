@@ -7,14 +7,16 @@ from __future__ import annotations
 
 import itertools
 import math
-import typing
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.util import coord_cython
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
+    from typing import Literal
+
     from numpy.typing import ArrayLike
 
 
@@ -40,7 +42,7 @@ def find_in_coord_list(coord_list, coord, atol=1e-8):
     return np.where(np.all(np.abs(diff) < atol, axis=1))[0]
 
 
-def in_coord_list(coord_list, coord, atol=1e-8):
+def in_coord_list(coord_list, coord, atol=1e-8) -> bool:
     """Tests if a particular coord is within a coord_list.
 
     Args:
@@ -111,12 +113,11 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
     Returns:
         list of indices such that superset[indices] = subset
     """
-    # pylint: disable=I1101
     atol = np.ones(3) * atol
     return coord_cython.coord_list_mapping_pbc(subset, superset, atol, pbc)
 
 
-def get_linear_interpolated_value(x_values, y_values, x):
+def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: float) -> float:
     """Returns an interpolated value by linear interpolation between two values.
     This method is written to avoid dependency on scipy, which causes issues on
     threading servers.
@@ -143,7 +144,7 @@ def get_linear_interpolated_value(x_values, y_values, x):
     return y1 + (y2 - y1) / (x2 - x1) * (x - x1)
 
 
-def all_distances(coords1, coords2):
+def all_distances(coords1: ArrayLike, coords2: ArrayLike):
     """Returns the distances between two lists of coordinates.
 
     Args:
@@ -182,7 +183,7 @@ def pbc_diff(fcoords1: ArrayLike, fcoords2: ArrayLike, pbc: tuple[bool, bool, bo
     return fdist - np.round(fdist) * pbc
 
 
-def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False):
+def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2: bool = False):
     """Returns the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
 
@@ -201,11 +202,10 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
         array of displacement vectors from fcoords1 to fcoords2
         first index is fcoords1 index, second is fcoords2 index
     """
-    # pylint: disable=I1101
     return coord_cython.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2)
 
 
-def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True)):
+def find_in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc=(True, True, True)) -> list[int]:
     """Get the indices of all points in a fractional coord list that are
     equal to a fractional coord (with a tolerance), taking into account
     periodic boundary conditions.
@@ -228,7 +228,7 @@ def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True
     return np.where(np.all(np.abs(fdist) < atol, axis=1))[0]
 
 
-def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True)):
+def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc=(True, True, True)) -> bool:
     """Tests if a particular fractional coord is within a fractional coord_list.
 
     Args:
@@ -244,7 +244,7 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True)):
     return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol, pbc=pbc)) > 0
 
 
-def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc=(True, True, True)):
+def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc: tuple = (True, True, True)) -> bool:
     """Tests if all fractional coords in subset are contained in superset.
 
     Args:
@@ -260,7 +260,6 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc=(True, True,
     Returns:
         bool: True if all of subset is in superset.
     """
-    # pylint: disable=I1101
     c1 = np.array(subset, dtype=np.float64)
     c2 = np.array(superset, dtype=np.float64)
     m = np.array(mask, dtype=int) if mask is not None else np.zeros((len(subset), len(superset)), dtype=int)
@@ -309,7 +308,7 @@ def barycentric_coords(coords, simplex):
             (d+1, d)
 
     Returns:
-        a LIST of barycentric coordinates (even if the original input was 1d)
+        a list of barycentric coordinates (even if the original input was 1d)
     """
     coords = np.atleast_2d(coords)
 
@@ -319,7 +318,7 @@ def barycentric_coords(coords, simplex):
     return np.append(all_but_one, last_coord, axis=-1)
 
 
-def get_angle(v1, v2, units="degrees"):
+def get_angle(v1: ArrayLike, v2: ArrayLike, units: Literal["degrees", "radians"] = "degrees") -> float:
     """Calculates the angle between two vectors.
 
     Args:
@@ -349,7 +348,7 @@ class Simplex(MSONable):
         simplex_dim (int): Dimension of the simplex coordinate space.
     """
 
-    def __init__(self, coords):
+    def __init__(self, coords) -> None:
         """Initializes a Simplex from vertex coordinates.
 
         Args:
@@ -365,7 +364,7 @@ class Simplex(MSONable):
             self._aug_inv = np.linalg.inv(self._aug)
 
     @property
-    def volume(self):
+    def volume(self) -> float:
         """Volume of the simplex."""
         return abs(np.linalg.det(self._aug)) / math.factorial(self.simplex_dim)
 
@@ -382,7 +381,7 @@ class Simplex(MSONable):
         except AttributeError as exc:
             raise ValueError("Simplex is not full-dimensional") from exc
 
-    def point_from_bary_coords(self, bary_coords):
+    def point_from_bary_coords(self, bary_coords: ArrayLike):
         """
         Args:
             bary_coords (): Barycentric coordinates.
@@ -454,7 +453,7 @@ class Simplex(MSONable):
     def __hash__(self) -> int:
         return len(self._coords)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         output = [f"{self.simplex_dim}-simplex in {self.space_dim}D space\nVertices:"]
         output += [f"\t({', '.join(map(str, coord))})" for coord in self._coords]
         return "\n".join(output)

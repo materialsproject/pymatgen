@@ -198,7 +198,7 @@ class TestVoronoiNN(PymatgenTest):
 
     def test_Cs2O(self):
         """A problematic structure in the Materials Project."""
-        strc = Structure(
+        struct = Structure(
             [
                 [4.358219, 0.192833, 6.406960],
                 [2.114414, 3.815824, 6.406960],
@@ -210,7 +210,7 @@ class TestVoronoiNN(PymatgenTest):
         )
 
         # Compute the voronoi tessellation
-        result = VoronoiNN().get_all_voronoi_polyhedra(strc)
+        result = VoronoiNN().get_all_voronoi_polyhedra(struct)
         assert len(result) == 3
 
     def test_filtered(self):
@@ -1231,7 +1231,7 @@ class TestCrystalNN(PymatgenTest):
         # fmt: on
         s = self.lifepo4.copy()
         s.remove_oxidation_states()
-        for idx, _ in enumerate(s):
+        for idx in range(len(s)):
             cn_array.append(cnn.get_cn(s, idx, use_weights=True))
 
         assert_allclose(expected_array, cn_array, 2)
@@ -1408,16 +1408,16 @@ class TestMetalEdgeExtender(PymatgenTest):
 
         # potassium + 7 H2O. 4 at ~2.5 Ang and 3 more within 4.25 Ang
         uncharged_K_cluster = Molecule.from_file(f"{test_dir}/water_cluster_K.xyz")
-        K_sites = [s.coords for s in uncharged_K_cluster.sites]
-        K_species = [s.species for s in uncharged_K_cluster.sites]
+        K_sites = [s.coords for s in uncharged_K_cluster]
+        K_species = [s.species for s in uncharged_K_cluster]
         charged_K_cluster = Molecule(K_species, K_sites, charge=1)
         self.water_cluster_K = MoleculeGraph.with_empty_graph(charged_K_cluster)
         assert len(self.water_cluster_K.graph.edges) == 0
 
         # Mg + 6 H2O at 1.94 Ang from Mg
         uncharged_Mg_cluster = Molecule.from_file(f"{test_dir}/water_cluster_Mg.xyz")
-        Mg_sites = [s.coords for s in uncharged_Mg_cluster.sites]
-        Mg_species = [s.species for s in uncharged_Mg_cluster.sites]
+        Mg_sites = [s.coords for s in uncharged_Mg_cluster]
+        Mg_species = [s.species for s in uncharged_Mg_cluster]
         charged_Mg_cluster = Molecule(Mg_species, Mg_sites, charge=2)
         self.water_cluster_Mg = MoleculeGraph.with_empty_graph(charged_Mg_cluster)
 

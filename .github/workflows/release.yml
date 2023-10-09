@@ -9,9 +9,9 @@ on:
     inputs:
       task:
         type: choice
-        options: [release, release_only]
+        options: [release, test-release]
         default: release
-        description: Only run tests or release a new version of pymatgen to PyPI after tests pass.
+        description: Release to PyPI or TestPyPI.
 
 permissions:
   contents: read
@@ -117,7 +117,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.15.0
+        uses: pypa/cibuildwheel@v2.16.2
         env:
           CIBW_BUILD: cp${{ matrix.python-version }}-*
 
@@ -144,8 +144,9 @@ jobs:
           name: artifact
           path: dist
 
-      - name: Publish to PyPi
+      - name: Publish to PyPi or TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           skip-existing: true
           verbose: true
+          repository-url: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.task == 'test-release' && 'https://test.pypi.org/legacy/' || '' }}

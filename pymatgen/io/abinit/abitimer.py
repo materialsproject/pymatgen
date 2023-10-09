@@ -168,7 +168,7 @@ class AbinitTimerParser(collections.abc.Iterable):
             elif line.startswith(self.END_TAG):
                 inside = 0
                 timer = AbinitTimer(sections, info, cpu_time, wall_time)
-                mpi_rank = info["mpi_rank"]  # pylint: disable=E1136
+                mpi_rank = info["mpi_rank"]
                 data[mpi_rank] = timer
 
             elif inside:
@@ -495,7 +495,7 @@ class ParallelEfficiency(dict):
     def __init__(self, filenames, ref_idx, *args, **kwargs):
         """
         Args:
-            filennames: List of filenames
+            filenames: List of filenames
             ref_idx: Index of the Reference time (calculation done with the smallest number of cpus).
         """
         self.update(*args, **kwargs)

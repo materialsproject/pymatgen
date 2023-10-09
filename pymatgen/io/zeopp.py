@@ -253,16 +253,16 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
                 for el in rad_dict:
                     fp.write(f"{el} {rad_dict[el].real}\n")
 
-        atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
-        vornet, vor_edge_centers, vor_face_centers = atmnet.perform_voronoi_decomposition()
-        vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
+        atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+        vor_net, vor_edge_centers, vor_face_centers = atom_net.perform_voronoi_decomposition()
+        vor_net.analyze_writeto_XYZ(name, probe_rad, atom_net)
         voro_out_filename = name + "_voro.xyz"
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
     species = ["X"] * len(voro_node_mol)
     coords = []
     prop = []
-    for site in voro_node_mol.sites:
+    for site in voro_node_mol:
         coords.append(list(site.coords))
         prop.append(site.properties["voronoi_radius"])
 
@@ -276,12 +276,12 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         site_properties={"voronoi_radius": prop},
     )
 
-    # PMG-Zeo c<->a transformation for voronoi face centers
+    # PMG-Zeo c<->a transformation for Voronoi face centers
     rot_face_centers = [(center[1], center[2], center[0]) for center in vor_face_centers]
     rot_edge_centers = [(center[1], center[2], center[0]) for center in vor_edge_centers]
 
     species = ["X"] * len(rot_face_centers)
-    prop = [0.0] * len(rot_face_centers)  # Vor radius not evaluated for fc
+    prop = [0.0] * len(rot_face_centers)  # Voronoi radius not evaluated for fc
     vor_facecenter_struct = Structure(
         lattice,
         species,
@@ -292,7 +292,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     )
 
     species = ["X"] * len(rot_edge_centers)
-    prop = [0.0] * len(rot_edge_centers)  # Vor radius not evaluated for fc
+    prop = [0.0] * len(rot_edge_centers)  # Voronoi radius not evaluated for fc
     vor_edgecenter_struct = Structure(
         lattice,
         species,
@@ -349,7 +349,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
     species = ["X"] * len(voro_node_mol)
     coords = []
     prop = []
-    for site in voro_node_mol.sites:
+    for site in voro_node_mol:
         coords.append(list(site.coords))
         prop.append(site.properties["voronoi_radius"])
 

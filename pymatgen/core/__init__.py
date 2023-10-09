@@ -1,4 +1,3 @@
-# pylint: disable=C0414,W0718,C0301
 # ruff: noqa: PLC0414
 """This package contains core modules and classes for representing structures and operations on them."""
 
@@ -32,7 +31,7 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong, Matthew Horton, Janosh Riebesell"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2023.9.25"
+__version__ = "2023.10.4"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".config", ".pmgrc.yaml")

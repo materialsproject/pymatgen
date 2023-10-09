@@ -21,6 +21,10 @@ import re
 import numpy as np
 from monty.dev import requires
 from monty.json import MSONable
+from scipy.optimize import linear_sum_assignment
+from scipy.spatial.distance import cdist
+
+from pymatgen.core.structure import Molecule
 
 try:
     from openbabel import openbabel
@@ -29,10 +33,6 @@ try:
 except ImportError:
     openbabel = None
 
-from scipy.optimize import linear_sum_assignment
-from scipy.spatial.distance import cdist
-
-from pymatgen.core.structure import Molecule  # pylint: disable=ungrouped-imports
 
 __author__ = "Xiaohui Qu, Adam Fekete"
 __version__ = "1.0"
@@ -84,7 +84,7 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
     def from_dict(cls, d):
         """
         Args:
-            d (): Dict.
+            d (dict): Dict representation.
 
         Returns:
             AbstractMolAtomMapper
@@ -143,7 +143,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         label2_list = tuple(tuple(p[1] + 1 for p in x) for x in sorted_isomorph)
 
         vmol1 = ob_mol1
-        aligner = openbabel.OBAlign(includeH=True, symmetry=False)
+        aligner = openbabel.OBAlign(True, False)  # meaning includeH=True, symmetry=False  # noqa: FBT003
         aligner.SetRefMol(vmol1)
         least_rmsd = float("Inf")
         best_label2 = None
@@ -647,7 +647,7 @@ class MoleculeMatcher(MSONable):
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(includeH=True, symmetry=False)
+        aligner = openbabel.OBAlign(True, False)  # meaning includeH=True, symmetry=False  # noqa: FBT003
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()

@@ -471,7 +471,6 @@ class Tensor(np.ndarray, MSONable):
         rotation = self.get_ieee_rotation(structure, refine_rotation)
         result = self.copy()
         if initial_fit:
-            # pylint: disable=E1101
             result = result.fit_to_structure(structure)
         return result.rotate(rotation, tol=1e-2)
 
@@ -615,7 +614,7 @@ class Tensor(np.ndarray, MSONable):
         converged = False
         test_new, test_old = [guess.copy()] * 2
         for idx in range(maxiter):
-            test_new = test_old.fit_to_structure(structure)  # pylint: disable=no-member
+            test_new = test_old.fit_to_structure(structure)
             if vsym:
                 test_new = test_new.voigt_symmetrized
             diff = np.abs(test_old - test_new)

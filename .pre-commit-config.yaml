@@ -8,7 +8,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.290
+    rev: v0.0.292
     hooks:
       - id: ruff
         args: [--fix]
@@ -31,7 +31,7 @@ repos:
       - id: mypy
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.5
+    rev: v2.2.6
     hooks:
       - id: codespell
         stages: [commit, commit-msg]
@@ -51,11 +51,12 @@ repos:
       - id: blacken-docs
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.36.0
+    rev: v0.37.0
     hooks:
       - id: markdownlint
         # MD013: line too long
+        # MD024: Multiple headings with the same content
         # MD033: no inline HTML
         # MD041: first line in a file should be a top-level heading
         # MD025: single title
-        args: [--disable, MD013, MD025, MD033, MD041, "--"]
+        args: [--disable, MD013, MD024, MD025, MD033, MD041, "--"]

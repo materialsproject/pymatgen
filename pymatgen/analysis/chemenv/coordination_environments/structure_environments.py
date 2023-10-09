@@ -411,7 +411,7 @@ class StructureEnvironments(MSONable):
         Args:
             voronoi: VoronoiContainer object for the structure.
             valences: Valences provided.
-            sites_map: Mapping of equivalent sites to the unequivalent sites that have been computed.
+            sites_map: Mapping of equivalent sites to the nonequivalent sites that have been computed.
             equivalent_sites: List of list of equivalent sites of the structure.
             ce_list: List of chemical environments.
             structure: Structure object.
@@ -459,14 +459,14 @@ class StructureEnvironments(MSONable):
         distance_conditions = []
         for idp, dp_dict in enumerate(site_distance_parameters):
             distance_conditions.append([])
-            for inb, _ in enumerate(site_voronoi):
+            for inb in range(len(site_voronoi)):
                 cond = inb in dp_dict["nb_indices"]
                 distance_conditions[idp].append(cond)
         # Precompute angle conditions
         angle_conditions = []
         for iap, ap_dict in enumerate(site_angle_parameters):
             angle_conditions.append([])
-            for inb, _ in enumerate(site_voronoi):
+            for inb in range(len(site_voronoi)):
                 cond = inb in ap_dict["nb_indices"]
                 angle_conditions[iap].append(cond)
         # Precompute additional conditions
@@ -1073,19 +1073,16 @@ class StructureEnvironments(MSONable):
         """
         differences = []
         if self.structure != other.structure:
-            differences.append(
-                {
-                    "difference": "structure",
-                    "comparison": "__eq__",
-                    "self": self.structure,
-                    "other": other.structure,
-                }
-            )
-            differences.append(
-                {
-                    "difference": "PREVIOUS DIFFERENCE IS DISMISSIVE",
-                    "comparison": "differences_wrt",
-                }
+            differences.extend(
+                (
+                    {
+                        "difference": "structure",
+                        "comparison": "__eq__",
+                        "self": self.structure,
+                        "other": other.structure,
+                    },
+                    {"difference": "PREVIOUS DIFFERENCE IS DISMISSIVE", "comparison": "differences_wrt"},
+                )
             )
             return differences
         if self.valences != other.valences:
@@ -1108,36 +1105,24 @@ class StructureEnvironments(MSONable):
             )
         if self.voronoi != other.voronoi:
             if self.voronoi.is_close_to(other.voronoi):
-                differences.append(
-                    {
-                        "difference": "voronoi",
-                        "comparison": "__eq__",
-                        "self": self.voronoi,
-                        "other": other.voronoi,
-                    }
-                )
-                differences.append(
-                    {
-                        "difference": "PREVIOUS DIFFERENCE IS DISMISSIVE",
-                        "comparison": "differences_wrt",
-                    }
+                differences.extend(
+                    (
+                        {"difference": "voronoi", "comparison": "__eq__", "self": self.voronoi, "other": other.voronoi},
+                        {"difference": "PREVIOUS DIFFERENCE IS DISMISSIVE", "comparison": "differences_wrt"},
+                    )
                 )
                 return differences
 
-            differences.append(
-                {
-                    "difference": "voronoi",
-                    "comparison": "is_close_to",
-                    "self": self.voronoi,
-                    "other": other.voronoi,
-                }
-            )
-            # TODO: make it possible to have "close" voronoi's
-            differences.append(
-                {
-                    "difference": "PREVIOUS DIFFERENCE IS DISMISSIVE",
-                    "comparison": "differences_wrt",
-                }
+            differences.extend(
+                (
+                    {
+                        "difference": "voronoi",
+                        "comparison": "is_close_to",
+                        "self": self.voronoi,
+                        "other": other.voronoi,
+                    },
+                    {"difference": "PREVIOUS DIFFERENCE IS DISMISSIVE", "comparison": "differences_wrt"},
+                )
             )
             return differences
         for isite, self_site_nb_sets in enumerate(self.neighbors_sets):

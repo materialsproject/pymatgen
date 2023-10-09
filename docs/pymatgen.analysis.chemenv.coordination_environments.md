@@ -443,7 +443,7 @@ MSONable dict.
 
 
 #### _classmethod_ explicit(cn_weights)
-Initializes weights explicitly for each coordination.
+Initialize weights explicitly for each coordination.
 
 
 * **Parameters**
@@ -459,7 +459,7 @@ Initializes weights explicitly for each coordination.
 
 
 #### _classmethod_ from_description(dct)
-Initializes weights from description.
+Initialize weights from description.
 
 
 * **Parameters**
@@ -491,7 +491,7 @@ Initialize from dict.
 
 
 #### _classmethod_ geometrically_equidistant(weight_cn1, weight_cn13)
-Initializes geometrically equidistant weights for each coordination.
+Initialize geometrically equidistant weights for each coordination.
 
 
 * **Parameters**
@@ -511,7 +511,7 @@ Initializes geometrically equidistant weights for each coordination.
 
 
 #### _classmethod_ linearly_equidistant(weight_cn1, weight_cn13)
-Initializes linearly equidistant weights for each coordination.
+Initialize linearly equidistant weights for each coordination.
 
 
 * **Parameters**
@@ -593,7 +593,7 @@ Bases: `NbSetWeight`
 
 Weight of neighbors set based on the differences of CSM.
 
-Initialize SelfCSMNbSetWeight.
+Initialize DeltaCSMNbSetWeight.
 
 
 * **Parameters**
@@ -627,7 +627,7 @@ MSONable dict.
 
 
 #### _classmethod_ delta_cn_specifics(delta_csm_mins=None, delta_csm_maxs=None, function='smootherstep', symmetry_measure_type='csm_wcs_ctwcc', effective_csm_estimator={'function': 'power2_inverse_decreasing', 'options': {'max_csm': 8.0}})
-Initializes DeltaCSMNbSetWeight from specific coordination number differences.
+Initialize DeltaCSMNbSetWeight from specific coordination number differences.
 
 
 * **Parameters**
@@ -1848,7 +1848,7 @@ Abstract class for the options of the chemenv strategies.
 A JSON-serializable dict representation of this strategy option.
 
 
-### _class_ TargettedPenaltiedAbundanceChemenvStrategy(structure_environments=None, truncate_dist_ang=True, additional_condition=1, max_nabundant=5, target_environments=('O:6',), target_penalty_type='max_csm', max_csm=5.0, symmetry_measure_type='csm_wcs_ctwcc')
+### _class_ TargetedPenaltiedAbundanceChemenvStrategy(structure_environments=None, truncate_dist_ang=True, additional_condition=1, max_nabundant=5, target_environments=('O:6',), target_penalty_type='max_csm', max_csm=5.0, symmetry_measure_type='csm_wcs_ctwcc')
 Bases: `SimpleAbundanceChemenvStrategy`
 
 Simple ChemenvStrategy using the neighbors that are the most “abundant” in the grid of angle and distance
@@ -1856,7 +1856,7 @@ parameters for the definition of neighbors in the Voronoi approach, with a bias 
 environments. This can be useful in the case of, e.g. connectivity search of some given environment.
 The coordination environment is then given as the one with the lowest continuous symmetry measure.
 
-Initializes strategy.
+Initialize strategy.
 
 Not yet implemented.
 :param structure_environments:
@@ -1876,24 +1876,24 @@ Not yet implemented.
 #### _get_map(isite)
 
 #### as_dict()
-Bson-serializable dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object.
+Bson-serializable dict representation of the TargetedPenaltiedAbundanceChemenvStrategy object.
 
 
 * **Returns**
 
-    Bson-serializable dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object.
+    Bson-serializable dict representation of the TargetedPenaltiedAbundanceChemenvStrategy object.
 
 
 
 #### _classmethod_ from_dict(d)
-Reconstructs the TargettedPenaltiedAbundanceChemenvStrategy object from a dict representation of the
-TargettedPenaltiedAbundanceChemenvStrategy object created using the as_dict method.
-:param d: dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object
+Reconstructs the TargetedPenaltiedAbundanceChemenvStrategy object from a dict representation of the
+TargetedPenaltiedAbundanceChemenvStrategy object created using the as_dict method.
+:param d: dict representation of the TargetedPenaltiedAbundanceChemenvStrategy object
 
 
 * **Returns**
 
-    TargettedPenaltiedAbundanceChemenvStrategy object.
+    TargetedPenaltiedAbundanceChemenvStrategy object.
 
 
 
@@ -4162,7 +4162,7 @@ Constructor for the StructureEnvironments object.
     * **valences** – Valences provided.
 
 
-    * **sites_map** – Mapping of equivalent sites to the unequivalent sites that have been computed.
+    * **sites_map** – Mapping of equivalent sites to the nonequivalent sites that have been computed.
 
 
     * **equivalent_sites** – List of list of equivalent sites of the structure.

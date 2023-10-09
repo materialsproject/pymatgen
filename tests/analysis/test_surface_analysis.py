@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -19,13 +18,12 @@ __email__ = "rit001@eng.ucsd.edu"
 __date__ = "Aug 24, 2017"
 
 
-def get_path(path_str):
-    return os.path.join(TEST_FILES_DIR, "surface_tests", path_str)
+TEST_DIR = f"{TEST_FILES_DIR}/surface_tests"
 
 
 class TestSlabEntry(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
+        with open(f"{TEST_DIR}/ucell_entries.txt") as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
         self.ucell_entries = ucell_entries
 
@@ -33,14 +31,14 @@ class TestSlabEntry(PymatgenTest):
         self.metals_O_entry_dict = load_O_adsorption()
 
         # Load objects for Cu test
-        self.Cu_entry_dict = get_entry_dict(os.path.join(get_path(""), "Cu_entries.txt"))
+        self.Cu_entry_dict = get_entry_dict(f"{TEST_DIR}/Cu_entries.txt")
         assert len(self.Cu_entry_dict) == 13
         self.Cu_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Cu"])
 
         # Load dummy MgO slab entries
         self.MgO_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["MgO"])
         self.Mg_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Mg"])
-        self.MgO_slab_entry_dict = get_entry_dict(os.path.join(get_path(""), "MgO_slab_entries.txt"))
+        self.MgO_slab_entry_dict = get_entry_dict(f"{TEST_DIR}/MgO_slab_entries.txt")
 
     def test_properties(self):
         # Test cases for getting adsorption related quantities for a 1/4
@@ -59,7 +57,7 @@ class TestSlabEntry(PymatgenTest):
                         assert ads.Nsurfs_ads_in_slab == 1
 
                         # Determine the correct binding energy
-                        with open(os.path.join(get_path(""), "isolated_O_entry.txt")) as isolated_O_entry:
+                        with open(f"{TEST_DIR}/isolated_O_entry.txt") as isolated_O_entry:
                             isolated_O_entry = json.loads(isolated_O_entry.read())
                         O_cse = ComputedStructureEntry.from_dict(isolated_O_entry)
                         g_bind = (ads.energy - ml * clean.energy) / Nads - O_cse.energy_per_atom
@@ -121,9 +119,9 @@ class TestSlabEntry(PymatgenTest):
 
 class TestSurfaceEnergyPlotter(PymatgenTest):
     def setUp(self):
-        entry_dict = get_entry_dict(os.path.join(get_path(""), "Cu_entries.txt"))
+        entry_dict = get_entry_dict(f"{TEST_DIR}/Cu_entries.txt")
         self.Cu_entry_dict = entry_dict
-        with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
+        with open(f"{TEST_DIR}/ucell_entries.txt") as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
 
         self.Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
@@ -294,9 +292,9 @@ class TestSurfaceEnergyPlotter(PymatgenTest):
 class TestWorkfunctionAnalyzer(PymatgenTest):
     def setUp(self):
         self.kwargs = {
-            "poscar_filename": get_path("CONTCAR.relax1.gz"),
-            "locpot_filename": get_path("LOCPOT.gz"),
-            "outcar_filename": get_path("OUTCAR.relax1.gz"),
+            "poscar_filename": f"{TEST_DIR}/CONTCAR.relax1.gz",
+            "locpot_filename": f"{TEST_DIR}/LOCPOT.gz",
+            "outcar_filename": f"{TEST_DIR}/OUTCAR.relax1.gz",
         }
         self.wf_analyzer = WorkFunctionAnalyzer.from_files(**self.kwargs)
 
@@ -311,9 +309,9 @@ class TestWorkfunctionAnalyzer(PymatgenTest):
 class TestNanoscaleStability(PymatgenTest):
     def setUp(self):
         # Load all entries
-        La_hcp_entry_dict = get_entry_dict(os.path.join(get_path(""), "La_hcp_entries.txt"))
-        La_fcc_entry_dict = get_entry_dict(os.path.join(get_path(""), "La_fcc_entries.txt"))
-        with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
+        La_hcp_entry_dict = get_entry_dict(f"{TEST_DIR}/La_hcp_entries.txt")
+        La_fcc_entry_dict = get_entry_dict(f"{TEST_DIR}/La_fcc_entries.txt")
+        with open(f"{TEST_DIR}/ucell_entries.txt") as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
         La_hcp_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_hcp"])
         La_fcc_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_fcc"])
@@ -391,7 +389,7 @@ def load_O_adsorption():
     # Loads the dictionary for clean and O adsorbed Rh, Pt, and Ni entries
 
     # Load the adsorbate as an entry
-    with open(os.path.join(get_path(""), "isolated_O_entry.txt")) as isolated_O_entry:
+    with open(f"{TEST_DIR}/isolated_O_entry.txt") as isolated_O_entry:
         isolated_O_entry = json.loads(isolated_O_entry.read())
     O_entry = ComputedStructureEntry.from_dict(isolated_O_entry)
 
@@ -402,57 +400,57 @@ def load_O_adsorption():
         "Rh": {(1, 0, 0): {}},
     }
 
-    with open(os.path.join(get_path(""), "csentries_slabs.json")) as entries:
+    with open(f"{TEST_DIR}/cs_entries_slabs.json") as entries:
         entries = json.loads(entries.read())
-    for k in entries:
-        entry = ComputedStructureEntry.from_dict(entries[k])
-        for el in metals_O_entry_dict:  # pylint: disable=C0206
-            if el in k:
-                if "111" in k:
-                    clean = SlabEntry(entry.structure, entry.energy, (1, 1, 1), label=k + "_clean")
+    for key in entries:
+        entry = ComputedStructureEntry.from_dict(entries[key])
+        for el in metals_O_entry_dict:
+            if el in key:
+                if "111" in key:
+                    clean = SlabEntry(entry.structure, entry.energy, (1, 1, 1), label=key + "_clean")
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = []
-                if "110" in k:
-                    clean = SlabEntry(entry.structure, entry.energy, (1, 1, 0), label=k + "_clean")
+                if "110" in key:
+                    clean = SlabEntry(entry.structure, entry.energy, (1, 1, 0), label=key + "_clean")
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = []
-                if "100" in k:
-                    clean = SlabEntry(entry.structure, entry.energy, (1, 0, 0), label=k + "_clean")
+                if "100" in key:
+                    clean = SlabEntry(entry.structure, entry.energy, (1, 0, 0), label=key + "_clean")
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = []
 
-    with open(os.path.join(get_path(""), "csentries_o_ads.json")) as entries:
+    with open(f"{TEST_DIR}/cs_entries_o_ads.json") as entries:
         entries = json.loads(entries.read())
-    for k in entries:
-        entry = ComputedStructureEntry.from_dict(entries[k])
+    for key in entries:
+        entry = ComputedStructureEntry.from_dict(entries[key])
         for el, val in metals_O_entry_dict.items():
-            if el in k:
-                if "111" in k:
+            if el in key:
+                if "111" in key:
                     clean = next(iter(val[(1, 1, 1)]))
                     ads = SlabEntry(
                         entry.structure,
                         entry.energy,
                         (1, 1, 1),
-                        label=k + "_O",
+                        label=key + "_O",
                         adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = [ads]
-                if "110" in k:
+                if "110" in key:
                     clean = next(iter(val[(1, 1, 0)]))
                     ads = SlabEntry(
                         entry.structure,
                         entry.energy,
                         (1, 1, 0),
-                        label=k + "_O",
+                        label=key + "_O",
                         adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = [ads]
-                if "100" in k:
+                if "100" in key:
                     clean = next(iter(val[(1, 0, 0)]))
                     ads = SlabEntry(
                         entry.structure,
                         entry.energy,
                         (1, 0, 0),
-                        label=k + "_O",
+                        label=key + "_O",
                         adsorbates=[O_entry],
                         clean_entry=clean,
                     )

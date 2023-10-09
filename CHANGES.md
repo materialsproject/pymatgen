@@ -6,6 +6,47 @@ nav_order: 4
 
 # Changelog
 
+## v2023.10.4
+
+### 🐛 Bug Fixes
+
+- Fix missing `potcar_summary_stats.json.gz` in `setup.package_data` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3372>
+- Bug fixes for MPRester and packaged data by @shyuep
+
+**Full Changelog**: <https://github.com/materialsproject/pymatgen/compare/v2023.10.3...v2023.10.4>
+
+## v2023.10.3
+
+### 🐛 Bug Fixes
+
+- Revert `openbabel.OBAlign()` in `molecule_matcher.py` to use positional args for `includeH`, `symmetry` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3353>
+- Fix MPMD set bug by @MichaelWolloch in <https://github.com/materialsproject/pymatgen/pull/3355>
+- Fix `TestMPResterNewBasic` + `AseAtomsAdaptor` test errors and `TransformedStructure.from_snl` overwriting `hist` variable by @janosh in <https://github.com/materialsproject/pymatgen/pull/3362>
+- Fix `TypeError`: can only join an iterable with AECCAR in `VolumetricData.write_file` by @chiang-yuan in <https://github.com/materialsproject/pymatgen/pull/3343>
+
+### 🛠 Enhancements
+
+- Don't rely on `jsanitize` in `Atoms` <--> `Structure` object interconversion  by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/3359>
+- Breaking: New method of POTCAR validation by @esoteric-ephemera in <https://github.com/materialsproject/pymatgen/pull/3351>
+- Add alias `.to_file()` for `.to()` method of structures and molecules by @QuantumChemist in <https://github.com/materialsproject/pymatgen/pull/3356>
+
+### 🧹 House-Keeping
+
+- Chargemol minor refactor by @janosh in <https://github.com/materialsproject/pymatgen/pull/3357>
+- Breaking typo fix: `Targe(tt->t)edPenaltiedAbundanceChemenvStrategy` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3360>
+- Fix undiscovered tests by @janosh in <https://github.com/materialsproject/pymatgen/pull/3369>
+
+### 🏥 Package Health
+
+- Bump min `numpy` to v1.25.0 by @janosh in <https://github.com/materialsproject/pymatgen/pull/3352>
+
+## New Contributors
+
+- @esoteric-ephemera made their first contribution in <https://github.com/materialsproject/pymatgen/pull/3351>
+- @QuantumChemist made their first contribution in <https://github.com/materialsproject/pymatgen/pull/3356>
+
+**Full Changelog**: <https://github.com/materialsproject/pymatgen/compare/v2023.9.25...v2023.10.3>
+
 ## v2023.9.25
 
 - New basic MPRester implemented that supports the most common use cases without having to install mp-api. mp-api is no longer a dependency of pymatgen.
@@ -31,12 +72,66 @@ nav_order: 4
 
 **Full Changelog**: <https://github.com/materialsproject/pymatgen/compare/v2023.9.2...v2023.9.10>
 
+### 🛠 Enhancements
+
+- Add an input arg check for `Kpoints.automatic_density_by_lengths` by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/3299>
+
+### 🏥 Package Health
+
+- Remove pydantic < 2 from `setup.py` and bump monty in `requirements.txt` by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/3303>
+- Move `py.typed` to package root by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/3307>
+- Consistent casing `setup->setUp` across test classes by @janosh in <https://github.com/materialsproject/pymatgen/pull/3305>
+
+**Full Changelog**: <https://github.com/materialsproject/pymatgen/compare/v2023.9.2...v2023.9.10>
+
 ## v2023.9.2
 
-- VaspInputSets now allow structure to be None for stateless initialization.
-- MatPESStaticSet designed for generating PES data. (@SophiaRuan, @JiQi535)
-- Breaking: Bump minimum Python version to 3.9, in line with numpy.
-- Add `properties` to Structure and Molecule, with ASE adaptor support (@gpetretto, @Andrew-S-Rosen)
+- Add `Lattice` property `params_dict` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3239>
+- Generate SupercellTransformation from minimum boundary distance by @JiQi535 in <https://github.com/materialsproject/pymatgen/pull/3238>
+- More concise `test_from_boundary_distance`  by @janosh in <https://github.com/materialsproject/pymatgen/pull/3242>
+- Breaking: remove deprecated keyword `properties` from `Species`  by @janosh in <https://github.com/materialsproject/pymatgen/pull/3243>
+- Typo in Docs for PeriodicsSite by @jmmshn in <https://github.com/materialsproject/pymatgen/pull/3249>
+- Fix `Vasprun.converged_electronic` check if `ALGO=CHI` in `INCAR` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3250>
+- Breaking: Have plot methods return `plt.Axes` object, not `matplotlib` module by @janosh in <https://github.com/materialsproject/pymatgen/pull/3237>
+- Fix `ruff` D212 by @janosh in <https://github.com/materialsproject/pymatgen/pull/3251>
+- Fix some Kpoints generated using wrong mesh types by @matthewkuner in <https://github.com/materialsproject/pymatgen/pull/3245>
+- read `mag` from OSZICAR by @chiang-yuan in <https://github.com/materialsproject/pymatgen/pull/3146>
+- Use `numpy.testing.assert_allclose` over `assert np.allclose` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3253>
+- Don't let tests pollute the `pymatgen` repo by @janosh in <https://github.com/materialsproject/pymatgen/pull/3255>
+- Update `compatibility.md` by @mbercx in <https://github.com/materialsproject/pymatgen/pull/3260>
+- Google-style doc string return types by @janosh in <https://github.com/materialsproject/pymatgen/pull/3258>
+- Quasi-RRHO Thermochemistry Analysis Module by @arepstein in <https://github.com/materialsproject/pymatgen/pull/2028>
+- Add keyword `check_occu: bool = True` to `CifParser.get_structures()` by @jonathanjdenney in <https://github.com/materialsproject/pymatgen/pull/2836>
+- Fix bug in feff inputs.py by @kaifengZheng in <https://github.com/materialsproject/pymatgen/pull/3256>
+- Cancel concurrent CI runs to save budget by @janosh in <https://github.com/materialsproject/pymatgen/pull/3263>
+- Fix `Procar.get_projection_on_elements` for structures with multiple same-element ionic sites by @Na-Kawa in <https://github.com/materialsproject/pymatgen/pull/3261>
+- Fix `TestMPScanStaticSet.test_as_from_dict()` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3266>
+- Bump activesupport from 7.0.6 to 7.0.7.2 in /docs by @dependabot in <https://github.com/materialsproject/pymatgen/pull/3267>
+- Fix `TestMPStaticSet` using `MPRelaxSet` in `test_user_incar_kspacing` and `test_kspacing_override`  by @janosh in <https://github.com/materialsproject/pymatgen/pull/3268>
+- Fix `nelectrons` not updating when replacing species in `Molecule` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3269>
+- Add `properties` to Structure and Molecule by @gpetretto in <https://github.com/materialsproject/pymatgen/pull/3264>
+- Fix `CifParser.get_structures(check_occu=False)` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3272>
+- Add `PotcarSingle.__repr__` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3273>
+- `__str__` to `__repr__` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3274>
+- Ion: handle dissolved gas formulas by @rkingsbury in <https://github.com/materialsproject/pymatgen/pull/3275>
+- Add VASP input set `MatPESStaticSet` by @SophiaRuan in <https://github.com/materialsproject/pymatgen/pull/3254>
+- Fix `test_valid_magmom_struct()` error message regex by @janosh in <https://github.com/materialsproject/pymatgen/pull/3276>
+- fix tests of MatPESStaticSet  by @SophiaRuan in <https://github.com/materialsproject/pymatgen/pull/3281>
+- Breaking: bump minimum Python version to 3.9 by @janosh in <https://github.com/materialsproject/pymatgen/pull/3283>
+- Breaking: Update `AseAtomsAdaptor` to handle `Structure.properties`/`Molecule.properties` by @Andrew-S-Rosen in <https://github.com/materialsproject/pymatgen/pull/3270>
+- Slightly relax the constraint satisfy condition of get_primitive_structure() by @fyalcin in <https://github.com/materialsproject/pymatgen/pull/3285>
+- [WIP] add custodian modified incar settings to incar and modify tests by @SophiaRuan in <https://github.com/materialsproject/pymatgen/pull/3284>
+- Add keyword `bandgap_tol: float = 1e-4` to `MPScanRelaxSet` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3287>
+- `np.(arange->linspace)` in `io/vasp/optics.py` `get_delta`, `get_setp` and `epsilon_imag` by @LucasGVerga in <https://github.com/materialsproject/pymatgen/pull/3286>
+- MatPESStaticSet restore GGA tag removal if xc_functional.upper() == "R2SCAN" by @janosh in <https://github.com/materialsproject/pymatgen/pull/3288>
+- Bump pypa/cibuildwheel from 2.14.1 to 2.15.0 by @dependabot in <https://github.com/materialsproject/pymatgen/pull/3294>
+- Bump cython from 3.0.0 to 3.0.2 by @dependabot in <https://github.com/materialsproject/pymatgen/pull/3292>
+- Bump scipy from 1.11.1 to 1.11.2 by @dependabot in <https://github.com/materialsproject/pymatgen/pull/3291>
+- Bump plotly from 5.11.0 to 5.16.1 by @dependabot in <https://github.com/materialsproject/pymatgen/pull/3289>
+- Bump joblib from 1.3.1 to 1.3.2 by @dependabot in <https://github.com/materialsproject/pymatgen/pull/3290>
+- Bump mp-api from 0.33.3 to 0.35.1 by @dependabot in <https://github.com/materialsproject/pymatgen/pull/3293>
+- xyz.**iter**() -> iter(xyz) by @janosh in <https://github.com/materialsproject/pymatgen/pull/3228>
+- Deprecate overlooked `from/as_..._string` methods by @janosh in <https://github.com/materialsproject/pymatgen/pull/3295>
 
 ## v2023.8.10
 
@@ -2653,7 +2748,7 @@ package <https://pypi.python.org/pypi/monty>`\_, which is now a dependency
   Previously, the parsing was done incorrectly because VASP actually provides
   data by running through the x-axis first, followed by y, then z.
 - Bug fix for reverse_readline so that it works for gzipped and bzipped
-  strucutures (courtesy of Anubhav Jain).
+  structures (courtesy of Anubhav Jain).
 - Fix "lossy" composition to_dict method. Now composition.to_dict properly
   returns a correct species string as a key for compositions using species,
   instead of just the element symbols.

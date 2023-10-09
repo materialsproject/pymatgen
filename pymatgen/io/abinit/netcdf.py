@@ -1,5 +1,5 @@
 #
-# pylint: disable=no-member
+
 """Wrapper for netCDF readers."""
 
 from __future__ import annotations
@@ -53,8 +53,8 @@ def as_ncreader(file):
 
 
 def as_etsfreader(file):
-    """Return an ETSF_Reader. Accepts filename or ETSF_Reader."""
-    return _asreader(file, ETSF_Reader)
+    """Return an EtsfReader. Accepts filename or EtsfReader."""
+    return _asreader(file, EtsfReader)
 
 
 class NetcdfReaderError(Exception):
@@ -233,7 +233,7 @@ class NetcdfReader:
         return od
 
 
-class ETSF_Reader(NetcdfReader):
+class EtsfReader(NetcdfReader):
     """
     This object reads data from a file written according to the ETSF-IO specifications.
 
@@ -251,7 +251,7 @@ class ETSF_Reader(NetcdfReader):
 
         return symbols
 
-    def typeidx_from_symbol(self, symbol):
+    def type_idx_from_symbol(self, symbol):
         """Returns the type index from the chemical symbol. Note python convention."""
         return self.chemical_symbols.index(symbol)
 

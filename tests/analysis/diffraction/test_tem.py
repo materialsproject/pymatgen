@@ -144,12 +144,12 @@ class TestTEMCalculator(PymatgenTest):
         spacings_nacl = tem_calc.get_interplanar_spacings(nacl, point_nacl)
         angles = tem_calc.bragg_angles(spacings)
         angles_nacl = tem_calc.bragg_angles(spacings_nacl)
-        elscatt = tem_calc.electron_scattering_factors(cubic, angles)
-        elscatt_nacl = tem_calc.electron_scattering_factors(nacl, angles_nacl)
-        assert elscatt["Cs"][(2, 1, 3)] == approx(2.848, rel=1e-3)
-        assert elscatt["Cl"][(2, 1, 3)] == approx(1.1305, rel=1e-3)
-        assert elscatt_nacl["Na"][(4, 2, 0)] == approx(0.8352, rel=1e-3)
-        assert elscatt_nacl["Cl"][(4, 2, 0)] == approx(1.3673, rel=1e-3)
+        el_scatt = tem_calc.electron_scattering_factors(cubic, angles)
+        el_scatt_nacl = tem_calc.electron_scattering_factors(nacl, angles_nacl)
+        assert el_scatt["Cs"][(2, 1, 3)] == approx(2.848, rel=1e-3)
+        assert el_scatt["Cl"][(2, 1, 3)] == approx(1.1305, rel=1e-3)
+        assert el_scatt_nacl["Na"][(4, 2, 0)] == approx(0.8352, rel=1e-3)
+        assert el_scatt_nacl["Cl"][(4, 2, 0)] == approx(1.3673, rel=1e-3)
 
     def test_cell_scattering_factors(self):
         # Test that fcc structure gives 0 intensity for mixed even, odd hkl.
@@ -158,8 +158,8 @@ class TestTEMCalculator(PymatgenTest):
         point = [(2, 1, 0)]
         spacings = tem_calc.get_interplanar_spacings(nacl, point)
         angles = tem_calc.bragg_angles(spacings)
-        cellscatt = tem_calc.cell_scattering_factors(nacl, angles)
-        assert cellscatt[(2, 1, 0)] == approx(0)
+        cell_scatt = tem_calc.cell_scattering_factors(nacl, angles)
+        assert cell_scatt[(2, 1, 0)] == approx(0)
 
     def test_cell_intensity(self):
         # Test that bcc structure gives lower intensity for h + k + l != even.
@@ -172,9 +172,9 @@ class TestTEMCalculator(PymatgenTest):
         spacings2 = tem_calc.get_interplanar_spacings(cubic, point2)
         angles = tem_calc.bragg_angles(spacings)
         angles2 = tem_calc.bragg_angles(spacings2)
-        cellint = tem_calc.cell_intensity(cubic, angles)
-        cellint2 = tem_calc.cell_intensity(cubic, angles2)
-        assert cellint2[(2, 2, 0)] > cellint[(2, 1, 0)]
+        cell_int = tem_calc.cell_intensity(cubic, angles)
+        cell_int2 = tem_calc.cell_intensity(cubic, angles2)
+        assert cell_int2[(2, 2, 0)] > cell_int[(2, 1, 0)]
 
     def test_normalized_cell_intensity(self):
         # Test that the method correctly normalizes a value.
@@ -184,8 +184,8 @@ class TestTEMCalculator(PymatgenTest):
         point = [(2, 0, 0)]
         spacings = tem_calc.get_interplanar_spacings(cubic, point)
         angles = tem_calc.bragg_angles(spacings)
-        cellint = tem_calc.normalized_cell_intensity(cubic, angles)
-        assert cellint[(2, 0, 0)] == approx(1)
+        cell_int = tem_calc.normalized_cell_intensity(cubic, angles)
+        assert cell_int[(2, 0, 0)] == approx(1)
 
     def test_is_parallel(self):
         tem_calc = TEMCalculator()
@@ -233,7 +233,7 @@ class TestTEMCalculator(PymatgenTest):
         # see https://www.doitpoms.ac.uk/tlplib/diffraction-patterns/printall.php
         assert_allclose([1, 0], positions[(-1, 0, 0)], atol=1)
 
-    def test_TEM_dots(self):
+    def test_tem_dots(self):
         # All dependencies in TEM_dots method are tested. Only make sure each object created is
         # the class desired.
         tem_calc = TEMCalculator()

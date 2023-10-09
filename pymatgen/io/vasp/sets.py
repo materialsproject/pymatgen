@@ -93,7 +93,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     @property
     def potcar_symbols(self):
         """List of POTCAR symbols."""
-        # pylint: disable=E1101
+
         elements = self.poscar.site_symbols
         potcar_symbols = []
         settings = self._config_dict["POTCAR"]
@@ -1084,17 +1084,7 @@ class MPStaticSet(DictSet):
         incar = Incar(self.prev_incar or parent_incar)
 
         incar.update(
-            {
-                "IBRION": -1,
-                "ISMEAR": -5,
-                "LAECHG": True,
-                "LCHARG": True,
-                "LORBIT": 11,
-                "LVHAR": True,
-                "LWAVE": False,
-                "NSW": 0,
-                "ALGO": "Normal",
-            }
+            IBRION=-1, ISMEAR=-5, LAECHG=True, LCHARG=True, LORBIT=11, LVHAR=True, LWAVE=False, NSW=0, ALGO="Normal"
         )
 
         if self.lepsilon:
@@ -1117,13 +1107,13 @@ class MPStaticSet(DictSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in ["MAGMOM", "NUPDOWN", *self.user_incar_settings]:
+        for key in ["MAGMOM", "NUPDOWN", *self.user_incar_settings]:
             # For these parameters as well as user specified settings, override
             # the incar settings.
-            if parent_incar.get(k) is not None:
-                incar[k] = parent_incar[k]
+            if parent_incar.get(key) is not None:
+                incar[key] = parent_incar[key]
             else:
-                incar.pop(k, None)
+                incar.pop(key, None)
 
         # use new LDAUU when possible b/c the Poscar might have changed
         # representation
@@ -1976,17 +1966,15 @@ class MPNMRSet(MPStaticSet):
 
         if self.mode.lower() == "cs":
             incar.update(
-                {
-                    "LCHIMAG": True,
-                    "EDIFF": -1.0e-10,
-                    "ISYM": 0,
-                    "LCHARG": False,
-                    "LNMR_SYM_RED": True,
-                    "NELMIN": 10,
-                    "NLSPLINE": True,
-                    "PREC": "ACCURATE",
-                    "SIGMA": 0.01,
-                }
+                LCHIMAG=True,
+                EDIFF=-1.0e-10,
+                ISYM=0,
+                LCHARG=False,
+                LNMR_SYM_RED=True,
+                NELMIN=10,
+                NLSPLINE=True,
+                PREC="ACCURATE",
+                SIGMA=0.01,
             )
         elif self.mode.lower() == "efg":
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
@@ -1994,17 +1982,15 @@ class MPNMRSet(MPStaticSet):
             quad_efg = [float(Species(p).get_nmr_quadrupole_moment(isotopes.get(p))) for p in self.poscar.site_symbols]
 
             incar.update(
-                {
-                    "ALGO": "FAST",
-                    "EDIFF": -1.0e-10,
-                    "ISYM": 0,
-                    "LCHARG": False,
-                    "LEFG": True,
-                    "QUAD_EFG": quad_efg,
-                    "NELMIN": 10,
-                    "PREC": "ACCURATE",
-                    "SIGMA": 0.01,
-                }
+                ALGO="FAST",
+                EDIFF=-1.0e-10,
+                ISYM=0,
+                LCHARG=False,
+                LEFG=True,
+                QUAD_EFG=quad_efg,
+                NELMIN=10,
+                PREC="ACCURATE",
+                SIGMA=0.01,
             )
         incar.update(self.user_incar_settings)
 
@@ -2539,7 +2525,7 @@ class MITNEBSet(DictSet):
         if write_path_cif:
             sites = set()
             lat = self.structures[0].lattice
-            for site in chain(*(s.sites for s in self.structures)):
+            for site in chain(*(struct for struct in self.structures)):
                 sites.add(PeriodicSite(site.species, site.frac_coords, lat))
             nebpath = Structure.from_sites(sorted(sites))
             nebpath.to(filename=str(output_dir / "path.cif"))
@@ -2644,7 +2630,7 @@ class MPMDSet(DictSet):
         start_temp: float = 0.0,
         end_temp: float = 300.0,
         nsteps: int = 1000,
-        time_step: float = 2,
+        time_step: float | None = None,
         spin_polarized=False,
         **kwargs,
     ):
@@ -2654,8 +2640,10 @@ class MPMDSet(DictSet):
             start_temp (int): Starting temperature.
             end_temp (int): Final temperature.
             nsteps (int): Number of time steps for simulations. NSW parameter.
-            time_step (int): The time step for the simulation. The POTIM
-                parameter. Defaults to 2fs.
+            time_step (float): The time step for the simulation. The POTIM
+                parameter. Defaults to None, which will set it automatically
+                to 2.0 fs for non-hydrogen containing structures and 0.5 fs
+                for hydrogen containing structures.
             spin_polarized (bool): Whether to do spin polarized calculations.
                 The ISPIN parameter. Defaults to False.
             **kwargs: Other kwargs supported by DictSet.
@@ -2683,7 +2671,6 @@ class MPMDSet(DictSet):
             "NBLOCK": 1,
             "KBLOCK": 100,
             "SMASS": 0,
-            "POTIM": time_step,
             "PREC": "Normal",
             "ISPIN": 2 if spin_polarized else 1,
             "LDAU": False,
@@ -2695,6 +2682,7 @@ class MPMDSet(DictSet):
         self.start_temp = start_temp
         self.end_temp = end_temp
         self.nsteps = nsteps
+        self.time_step = time_step
         self.spin_polarized = spin_polarized
         self.kwargs = kwargs
 
@@ -2708,9 +2696,15 @@ class MPMDSet(DictSet):
     @property
     def incar(self) -> Incar:
         incar = super().incar
-        if Element("H") in self.structure.species:
-            incar["POTIM"] = 0.5
-            incar["NSW"] = incar["NSW"] * 4
+        if self.time_step is None:
+            if Element("H") in self.structure.species:
+                incar["POTIM"] = 0.5
+                incar["NSW"] = incar["NSW"] * 4
+            else:
+                incar["POTIM"] = 2.0
+        else:
+            incar["POTIM"] = self.time_step
+
         return incar
 
     @property

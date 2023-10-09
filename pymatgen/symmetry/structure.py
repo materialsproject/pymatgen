@@ -95,18 +95,18 @@ class SymmetrizedStructure(Structure):
         return str(self)
 
     def __str__(self) -> str:
+        def to_str(x):
+            return f"{x:>10.6f}"
+
         outs = [
             "SymmetrizedStructure",
             f"Full Formula ({self.composition.formula})",
             f"Reduced Formula: {self.composition.reduced_formula}",
             f"Spacegroup: {self.spacegroup.int_symbol} ({self.spacegroup.int_number})",
+            f"abc   : {' '.join(to_str(val) for val in self.lattice.abc)}",
+            f"angles: {' '.join(to_str(val) for val in self.lattice.angles)}",
         ]
 
-        def to_str(x):
-            return f"{x:>10.6f}"
-
-        outs.append(f"abc   : {' '.join(to_str(val) for val in self.lattice.abc)}")
-        outs.append(f"angles: {' '.join(to_str(val) for val in self.lattice.angles)}")
         if self._charge:
             outs.append(f"Overall Charge: {self._charge:+}")
         outs.append(f"Sites ({len(self)})")
@@ -136,7 +136,9 @@ class SymmetrizedStructure(Structure):
 
     @classmethod
     def from_dict(cls, dct):
-        """:param d: Dict representation
+        """
+        Args:
+            dct (dict): Dict representation.
 
         Returns:
             SymmetrizedStructure

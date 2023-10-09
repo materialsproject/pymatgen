@@ -37,7 +37,7 @@ class JonesFaithfulTransformation:
           hexagonal setting)
         * `a,b,c;-1/4,-1/4,-1/4` is Pnnn:1 to Pnnn:2 (change in origin
           choice)
-        * `b,c,a;-1/2,-1/2,-1/2` is Bbab:1 to Ccca:2 (change settin
+        * `b,c,a;-1/2,-1/2,-1/2` is Bbab:1 to Ccca:2 (change setting
           and origin)
 
         Can transform points (coords), lattices and symmetry operations.
@@ -101,21 +101,14 @@ class JonesFaithfulTransformation:
             tuple[list[list[float]] | np.ndarray, list[float]]: transformation matrix & vector
         """
         try:
-            a = np.array([1, 0, 0])
-            b = np.array([0, 1, 0])
-            c = np.array([0, 0, 1])
+            a, b, c = np.eye(3)
             b_change, o_shift = transformation_string.split(";")
             basis_change = b_change.split(",")
             origin_shift = o_shift.split(",")
             # add implicit multiplication symbols
             basis_change = [
-                re.sub(
-                    r"(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))",
-                    r"*",
-                    x,
-                    flags=re.X,
-                )
-                for x in basis_change
+                re.sub(r"(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))", r"*", string, flags=re.X)
+                for string in basis_change
             ]
             # should be fine to use eval here but be mindful for security
             # reasons

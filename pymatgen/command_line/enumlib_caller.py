@@ -235,13 +235,10 @@ class EnumlibAdaptor:
         output = [self.structure.formula, "bulk"]
         for vec in lattice.matrix:
             output.append(coord_format.format(*vec))
-        output.append(f"{len(index_species)}")
-        output.append(f"{len(coord_str)}")
+        output.extend((f"{len(index_species)}", f"{len(coord_str)}"))
         output.extend(coord_str)
 
-        output.append(f"{self.min_cell_size} {self.max_cell_size}")
-        output.append(str(self.enum_precision_parameter))
-        output.append("full")
+        output.extend((f"{self.min_cell_size} {self.max_cell_size}", str(self.enum_precision_parameter), "full"))
 
         n_disordered = sum(len(s) for s in disordered_sites)
         base = int(
@@ -354,7 +351,7 @@ class EnumlibAdaptor:
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
         else:
-            ordered_structure = None  # to fix pylint E0601
+            ordered_structure = None
             inv_org_latt = None
 
         for file in glob("vasp.*"):

@@ -23,7 +23,7 @@ class VoltageProfilePlotter:
         """
         Args:
             xaxis: The quantity to use as the xaxis. Can be either
-            - capacity_grav: the graviometric capcity
+            - capacity_grav: the gravimetric capacity
             - capacity_vol: the volumetric capacity
             - x_form: the number of working ions per formula unit of the host
             - frac_x: the atomic fraction of the working ion
@@ -71,11 +71,9 @@ class VoltageProfilePlotter:
                 cap += sub_electrode.get_capacity_vol()
                 x.append(cap)
             elif self.xaxis == "x_form":
-                x.append(sub_electrode.x_charge)
-                x.append(sub_electrode.x_discharge)
+                x.extend((sub_electrode.x_charge, sub_electrode.x_discharge))
             elif self.xaxis == "frac_x":
-                x.append(sub_electrode.voltage_pairs[0].frac_charge)
-                x.append(sub_electrode.voltage_pairs[0].frac_discharge)
+                x.extend((sub_electrode.voltage_pairs[0].frac_charge, sub_electrode.voltage_pairs[0].frac_discharge))
             else:
                 raise NotImplementedError("x_axis must be capacity_grav/capacity_vol/x_form/frac_x")
             y.extend([sub_electrode.get_average_voltage()] * 2)

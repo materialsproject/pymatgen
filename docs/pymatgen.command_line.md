@@ -417,30 +417,17 @@ Initializes the Chargemol Analysis.
 
 
     * **path** (*str*) – Path to the CHGCAR, POTCAR, AECCAR0, and AECCAR files.
-
-
-    * **not.** (*Note that it doesn't matter if the files gzip'd or*) – Default: None (current working directory).
+    The files can be gzipped or not. Default: None (current working directory).
 
 
     * **atomic_densities_path** (*str**|**None*) – Path to the atomic densities directory
-
-
-    * **None** (*required by Chargemol. If*) –
-
-
-    * **is** (*Pymatgen assumes that this*) –
-
-
-    * **variable.** (*defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment*) –
-
-
-    * **True.** (*Only used if run_chargemol is*) – Default: None.
+    required by Chargemol. If None, Pymatgen assumes that this is
+    defined in a “DDEC6_ATOMIC_DENSITIES_DIR” environment variable.
+    Only used if run_chargemol is True. Default: None.
 
 
     * **run_chargemol** (*bool*) – Whether to run the Chargemol analysis. If False,
-
-
-    * **path.** (*the existing Chargemol output files will be read from*) – Default: True.
+    the existing Chargemol output files will be read from path. Default: True.
 
 
 

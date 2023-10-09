@@ -707,7 +707,7 @@ class CompleteDos(Dos):
         """Get orbital projected Dos.
 
         Returns:
-            dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
+            dict[OrbitalType, Dos]: e.g. {OrbitalType.s: Dos object, ...}
         """
         spd_dos = {}
         for atom_dos in self.pdos.values():
@@ -723,7 +723,7 @@ class CompleteDos(Dos):
         """Get element projected Dos.
 
         Returns:
-            dict of {Element: Dos}
+            dict[Element, Dos]
         """
         el_dos = {}
         for site, atom_dos in self.pdos.items():
@@ -742,7 +742,7 @@ class CompleteDos(Dos):
             el: Element in Structure.composition associated with CompleteDos
 
         Returns:
-            dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
+            dict[OrbitalType, Dos]: e.g. {OrbitalType.s: Dos object, ...}
         """
         el = get_el_sp(el)
         el_dos = {}
@@ -760,15 +760,13 @@ class CompleteDos(Dos):
     @property
     def spin_polarization(self) -> float | None:
         """Calculates spin polarization at Fermi level. If the
-        calculation is not spin-polarized, None will be
-        returned.
+        calculation is not spin-polarized, None will be returned.
 
-        See Sanvito et al., doi: 10.1126/sciadv.1602241 for
-        an example usage.
+        See Sanvito et al., doi: 10.1126/sciadv.1602241 for an example usage.
 
-        :return (float): spin polarization in range [0, 1],
-        will also return NaN if spin polarization ill-defined
-        (e.g. for insulator)
+        Returns:
+            float: spin polarization in range [0, 1], will also return NaN if spin
+                polarization ill-defined (e.g. for insulator).
         """
         n_F = self.get_interpolated_value(self.efermi)
 
@@ -802,7 +800,7 @@ class CompleteDos(Dos):
             spin: Spin channel to use. By default, the spin channels will be combined.
 
         Returns:
-            band filling in eV, often denoted f_d for the d-band
+            float: band filling in eV, often denoted f_d for the d-band
         """
         # Get the projected DOS
         if elements and sites:
@@ -858,7 +856,7 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            band center in eV, often denoted epsilon_d for the d-band center
+            float: band center in eV, often denoted epsilon_d for the d-band center
         """
         return self.get_n_moment(1, elements=elements, sites=sites, band=band, spin=spin, erange=erange, center=False)
 
@@ -885,7 +883,7 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected band width in eV
+            float: Orbital-projected band width in eV
         """
         return np.sqrt(self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange))
 
@@ -914,11 +912,10 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected skewness in eV
+            float: orbital-projected skewness (dimensionless)
         """
-        return self.get_n_moment(
-            3, elements=elements, sites=sites, band=band, spin=spin, erange=erange
-        ) / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** (3 / 2)
+        kwds: dict = dict(elements=elements, sites=sites, band=band, spin=spin, erange=erange)
+        return self.get_n_moment(3, **kwds) / self.get_n_moment(2, **kwds) ** (3 / 2)
 
     def get_band_kurtosis(
         self,
@@ -945,12 +942,10 @@ class CompleteDos(Dos):
                 Default is None, which means all energies are considered.
 
         Returns:
-            Orbital-projected kurtosis in eV
+            float: orbital-projected kurtosis (dimensionless)
         """
-        return (
-            self.get_n_moment(4, elements=elements, sites=sites, band=band, spin=spin, erange=erange)
-            / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** 2
-        )
+        kwds: dict = dict(elements=elements, sites=sites, band=band, spin=spin, erange=erange)
+        return self.get_n_moment(4, **kwds) / self.get_n_moment(2, **kwds) ** 2
 
     def get_n_moment(
         self,
@@ -987,14 +982,14 @@ class CompleteDos(Dos):
 
         densities: Mapping[Spin, ArrayLike] = {}
         if elements:
-            for i, el in enumerate(elements):
+            for idx, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
-                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
-            for i, site in enumerate(sites):
+            for idx, site in enumerate(sites):
                 spd_dos = self.get_site_spd_dos(site)[band]
-                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]

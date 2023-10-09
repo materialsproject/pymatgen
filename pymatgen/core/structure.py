@@ -21,7 +21,7 @@ from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from inspect import isclass
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable, Literal, SupportsIndex, cast
+from typing import TYPE_CHECKING, Any, Callable, Literal, SupportsIndex, cast, get_args
 
 import numpy as np
 from monty.dev import deprecated
@@ -44,6 +44,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
 
+    from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
     from ase.optimize.optimize import Optimizer
@@ -95,7 +96,7 @@ class Neighbor(Site):
 
     def as_dict(self) -> dict:  # type: ignore
         """Note that method calls the super of Site, which is MSONable itself."""
-        return super(Site, self).as_dict()  # pylint: disable=E1003
+        return super(Site, self).as_dict()
 
     @classmethod
     def from_dict(cls, dct: dict) -> Neighbor:  # type: ignore
@@ -107,7 +108,7 @@ class Neighbor(Site):
         Returns:
             Neighbor
         """
-        return super(Site, cls).from_dict(dct)  # pylint: disable=E1003
+        return super(Site, cls).from_dict(dct)
 
 
 class PeriodicNeighbor(PeriodicSite):
@@ -167,7 +168,7 @@ class PeriodicNeighbor(PeriodicSite):
 
     def as_dict(self) -> dict:  # type: ignore
         """Note that method calls the super of Site, which is MSONable itself."""
-        return super(Site, self).as_dict()  # pylint: disable=E1003
+        return super(Site, self).as_dict()
 
     @classmethod
     def from_dict(cls, d: dict) -> PeriodicNeighbor:  # type: ignore
@@ -179,7 +180,7 @@ class PeriodicNeighbor(PeriodicSite):
         Returns:
             PeriodicNeighbor
         """
-        return super(Site, cls).from_dict(d)  # pylint: disable=E1003
+        return super(Site, cls).from_dict(d)
 
 
 class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
@@ -426,7 +427,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             tol (float): Distance tolerance. Default is 0.5 Angstrom, which is fairly large.
 
         Returns:
-            (bool) True if SiteCollection does not contain atoms that are too close together.
+            bool: True if SiteCollection does not contain atoms that are too close together.
         """
         if len(self) == 1:
             return True
@@ -439,6 +440,10 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         molecules / structures). Should return str or None if written to a file.
         """
         raise NotImplementedError
+
+    def to_file(self, filename: str = "", fmt: str = "") -> str | None:
+        """A more intuitive alias for .to()."""
+        return self.to(filename, fmt)
 
     @classmethod
     @abstractmethod
@@ -468,7 +473,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         if len(values) != len(self):
             raise ValueError(f"Values has length {len(values)} but there are {len(self)} sites! Must be same length.")
-        for site, val in zip(self.sites, values):
+        for site, val in zip(self, values):
             site.properties[property_name] = val
 
     def remove_site_property(self, property_name: str):
@@ -547,7 +552,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 f"Oxidation states of all sites must be specified, expected {len(self)} values, "
                 f"got {len(oxidation_states)}"
             )
-        for site, ox in zip(self.sites, oxidation_states):
+        for site, ox in zip(self, oxidation_states):
             new_sp = {}
             for el, occu in site.species.items():
                 sym = el.symbol
@@ -821,6 +826,19 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             return TBLite(method="GFN2-xTB", **params)
 
         raise ValueError(f"Unknown {calculator=}.")
+
+    def to_ase_atoms(self, **kwargs) -> Atoms:
+        """Converts the structure/molecule to an ase.Atoms object.
+
+        Args:
+            kwargs: Passed to ase.Atoms init.
+
+        Returns:
+            ase.Atoms
+        """
+        from pymatgen.io.ase import AseAtomsAdaptor
+
+        return AseAtomsAdaptor.get_atoms(self, **kwargs)
 
 
 class IStructure(SiteCollection, MSONable):
@@ -1226,8 +1244,8 @@ class IStructure(SiteCollection, MSONable):
     @property
     def density(self) -> float:
         """Returns the density in units of g/cm^3."""
-        m = Mass(self.composition.weight, "amu")
-        return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
+        mass = Mass(self.composition.weight, "amu")
+        return mass.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     @property
     def pbc(self) -> tuple[bool, bool, bool]:
@@ -1239,7 +1257,7 @@ class IStructure(SiteCollection, MSONable):
         """True if the Lattice is periodic in all directions."""
         return self._lattice.is_3d_periodic
 
-    def get_space_group_info(self, symprec=1e-2, angle_tolerance=5.0) -> tuple[str, int]:
+    def get_space_group_info(self, symprec: float = 1e-2, angle_tolerance: float = 5.0) -> tuple[str, int]:
         """Convenience method to quickly get the spacegroup of a structure.
 
         Args:
@@ -1254,8 +1272,8 @@ class IStructure(SiteCollection, MSONable):
         # Import within method needed to avoid cyclic dependency.
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-        spga = SpacegroupAnalyzer(self, symprec=symprec, angle_tolerance=angle_tolerance)
-        return spga.get_space_group_symbol(), spga.get_space_group_number()
+        spg_analyzer = SpacegroupAnalyzer(self, symprec=symprec, angle_tolerance=angle_tolerance)
+        return spg_analyzer.get_space_group_symbol(), spg_analyzer.get_space_group_number()
 
     def matches(self, other: IStructure | Structure, anonymous: bool = False, **kwargs) -> bool:
         """Check whether this structure is similar to another structure.
@@ -1942,7 +1960,7 @@ class IStructure(SiteCollection, MSONable):
         nmin = np.floor(np.min(self.frac_coords, axis=0)) - maxr
         nmax = np.ceil(np.max(self.frac_coords, axis=0)) + maxr
 
-        all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
+        all_ranges = list(itertools.starmap(np.arange, zip(nmin, nmax)))
         latt = self._lattice
         matrix = latt.matrix
         neighbors = [[] for _ in range(len(self))]
@@ -2031,7 +2049,7 @@ class IStructure(SiteCollection, MSONable):
         elif reduction_algo == "LLL":
             reduced_latt = self._lattice.get_lll_reduced_lattice()
         else:
-            raise ValueError(f"Invalid reduction algo : {reduction_algo}")
+            raise ValueError(f"Invalid {reduction_algo=}")
 
         if reduced_latt != self.lattice:
             return self.__class__(
@@ -2304,9 +2322,9 @@ class IStructure(SiteCollection, MSONable):
         # reduction.
         # This reduction is O(n^3) so usually is an improvement. Using double
         # the tolerance because both vectors are approximate
-        for g in sorted(grouped_fcoords, key=lambda x: len(x)):
-            for f in g:
-                min_vecs = pbc_coord_intersection(min_vecs, g - f, super_ftol_2)
+        for group in sorted(grouped_fcoords, key=lambda x: len(x)):
+            for frac_coords in group:
+                min_vecs = pbc_coord_intersection(min_vecs, group - frac_coords, super_ftol_2)
 
         def get_hnf(fu):
             """Returns all possible distinct supercell matrices given a
@@ -2317,10 +2335,10 @@ class IStructure(SiteCollection, MSONable):
             and b first, though unlikely to reduce to O(n^2).
             """
 
-            def factors(n):
-                for i in range(1, n + 1):
-                    if n % i == 0:
-                        yield i
+            def factors(n: int):
+                for idx in range(1, n + 1):
+                    if n % idx == 0:
+                        yield idx
 
             for det in factors(fu):
                 if det == 1:
@@ -2383,8 +2401,8 @@ class IStructure(SiteCollection, MSONable):
                         break
 
                     # check that groups are all cliques
-                    for g in groups:
-                        if not np.all(groups[g][:, g]):
+                    for group in groups:
+                        if not np.all(groups[group][:, group]):
                             valid = False
                             break
                     if not valid:
@@ -2448,17 +2466,17 @@ class IStructure(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = [
-            f"Full Formula ({self.composition.formula})",
-            f"Reduced Formula: {self.composition.reduced_formula}",
-        ]
-
         def to_str(x):
             return f"{x:>10.6f}"
 
-        outs.append("abc   : " + " ".join(to_str(i) for i in self.lattice.abc))
-        outs.append("angles: " + " ".join(to_str(i) for i in self.lattice.angles))
-        outs.append("pbc   : " + " ".join(str(p).rjust(10) for p in self.lattice.pbc))
+        outs = [
+            f"Full Formula ({self.composition.formula})",
+            f"Reduced Formula: {self.composition.reduced_formula}",
+            f"abc   : {' '.join(to_str(i) for i in self.lattice.abc)}",
+            f"angles: {' '.join(to_str(i) for i in self.lattice.angles)}",
+            f"pbc   : {' '.join(str(p).rjust(10) for p in self.lattice.pbc)}",
+        ]
+
         if self._charge:
             outs.append(f"Overall Charge: {self._charge:+}")
         outs.append(f"Sites ({len(self)})")
@@ -2870,6 +2888,55 @@ class IStructure(SiteCollection, MSONable):
         struct.__class__ = cls
         return struct
 
+    CellType = Literal["primitive", "conventional"]
+
+    def to_cell(self, cell_type: IStructure.CellType, **kwargs) -> Structure:
+        """Returns a cell based on the current structure.
+
+        Args:
+            cell_type ("primitive" | "conventional"): Whether to return a primitive or conventional cell.
+            kwargs: Any keyword supported by pymatgen.symmetry.analyzer.SpacegroupAnalyzer such as
+                symprec=0.01, angle_tolerance=5, international_monoclinic=True and keep_site_properties=False.
+
+        Returns:
+            Structure: with the requested cell type.
+        """
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+        valid_cell_types = get_args(IStructure.CellType)
+        if cell_type not in valid_cell_types:
+            raise ValueError(f"Invalid {cell_type=}, valid values are {valid_cell_types}")
+
+        method_keys = ["international_monoclinic", "keep_site_properties"]
+        method_kwargs = {key: kwargs.pop(key) for key in method_keys if key in kwargs}
+
+        sga = SpacegroupAnalyzer(self, **kwargs)
+        return getattr(sga, f"get_{cell_type}_standard_structure")(**method_kwargs)
+
+    def to_primitive(self, **kwargs) -> Structure:
+        """Returns a primitive cell based on the current structure.
+
+        Args:
+            kwargs: Any keyword supported by pymatgen.symmetry.analyzer.SpacegroupAnalyzer such as
+                symprec=0.01, angle_tolerance=5, international_monoclinic=True and keep_site_properties=False.
+
+        Returns:
+            Structure: with the requested cell type.
+        """
+        return self.to_cell("primitive", **kwargs)
+
+    def to_conventional(self, **kwargs) -> Structure:
+        """Returns a conventional cell based on the current structure.
+
+        Args:
+            kwargs: Any keyword supported by pymatgen.symmetry.analyzer.SpacegroupAnalyzer such as
+                symprec=0.01, angle_tolerance=5, international_monoclinic=True and keep_site_properties=False.
+
+        Returns:
+            Structure: with the requested cell type.
+        """
+        return self.to_cell("conventional", **kwargs)
+
 
 class IMolecule(SiteCollection, MSONable):
     """Basic immutable Molecule object without periodicity. Essentially a
@@ -3137,17 +3204,14 @@ class IMolecule(SiteCollection, MSONable):
                 bond_length = self.get_distance(idx, nn[0])
                 angle = self.get_angle(idx, nn[0], nn[1])
                 output.append(f"{self[idx].specie} {nn[0] + 1} B{idx} {nn[1] + 1} A{idx}")
-                output_var.append(f"B{idx}={bond_length:.6f}")
-                output_var.append(f"A{idx}={angle:.6f}")
+                output_var.extend((f"B{idx}={bond_length:.6f}", f"A{idx}={angle:.6f}"))
             else:
                 nn = self._find_nn_pos_before_site(idx)
                 bond_length = self.get_distance(idx, nn[0])
                 angle = self.get_angle(idx, nn[0], nn[1])
                 dih = self.get_dihedral(idx, nn[0], nn[1], nn[2])
                 output.append(f"{self[idx].specie} {nn[0] + 1} B{idx} {nn[1] + 1} A{idx} {nn[2] + 1} D{idx}")
-                output_var.append(f"B{idx}={bond_length:.6f}")
-                output_var.append(f"A{idx}={angle:.6f}")
-                output_var.append(f"D{idx}={dih:.6f}")
+                output_var.extend((f"B{idx}={bond_length:.6f}", f"A{idx}={angle:.6f}", f"D{idx}={dih:.6f}"))
         return "\n".join(output) + "\n\n" + "\n".join(output_var)
 
     def _find_nn_pos_before_site(self, site_idx):
@@ -3503,7 +3567,7 @@ class IMolecule(SiteCollection, MSONable):
         installed.
 
         Args:
-            filename (str): The filename to read from.
+            filename (str | Path): The filename to read from.
 
         Returns:
             Molecule
@@ -3526,9 +3590,9 @@ class IMolecule(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="yaml")
         from pymatgen.io.babel import BabelMolAdaptor
 
-        m = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower())
-        if m:
-            new = BabelMolAdaptor.from_file(filename, m.group(1)).pymatgen_mol
+        match = re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower())
+        if match:
+            new = BabelMolAdaptor.from_file(filename, match.group(1)).pymatgen_mol
             new.__class__ = cls
             return new
         raise ValueError("Cannot determine file type.")
@@ -3964,7 +4028,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def apply_strain(self, strain: ArrayLike) -> None:
+    def apply_strain(self, strain: ArrayLike, inplace: bool = True) -> Structure:
         """Apply a strain to the lattice.
 
         Args:
@@ -3973,9 +4037,17 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 vectors are increased by 1%. This is equivalent to calling
                 modify_lattice with a lattice with lattice parameters that
                 are 1% larger.
+            inplace (bool): True applies the strain in-place, False returns a
+                Structure copy. Defaults to True.
+
+        Returns:
+            Structure: Structure with strain applied.
         """
         strain_matrix = (1 + np.array(strain)) * np.eye(3)
-        self.lattice = Lattice(np.dot(self._lattice.matrix.T, strain_matrix).T)
+        new_lattice = Lattice(np.dot(self._lattice.matrix.T, strain_matrix).T)
+        struct = self if inplace else self.copy()
+        struct.lattice = new_lattice
+        return struct
 
     def sort(self, key: Callable | None = None, reverse: bool = False) -> None:
         """Sort a structure in place. The parameters have the same meaning as in

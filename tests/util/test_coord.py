@@ -238,11 +238,7 @@ class TestCoordUtils:
 
 class TestSimplex(unittest.TestCase):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0, 1, 0])
-        coords.append([0, 0, 1])
-        coords.append([1, 0, 0])
+        coords = [[0, 0, 0], [0, 1, 0], [0, 0, 1], [1, 0, 0]]
         self.simplex = coord.Simplex(coords)
 
     def test_equal(self):

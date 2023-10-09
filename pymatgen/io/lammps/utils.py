@@ -6,6 +6,7 @@ import os
 import tempfile
 from shutil import which
 from subprocess import PIPE, Popen
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import deprecated
@@ -16,6 +17,11 @@ from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.coord import get_angle
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from numpy.typing import ArrayLike
 
 try:
     from openbabel import pybel
@@ -34,19 +40,19 @@ class Polymer:
 
     def __init__(
         self,
-        start_monomer,
-        s_head,
-        s_tail,
-        monomer,
-        head,
-        tail,
-        end_monomer,
-        e_head,
-        e_tail,
-        n_units,
-        link_distance=1.0,
-        linear_chain=False,
-    ):
+        start_monomer: Molecule,
+        s_head: int,
+        s_tail: int,
+        monomer: Molecule,
+        head: int,
+        tail: int,
+        end_monomer: Molecule,
+        e_head: int,
+        e_tail: int,
+        n_units: int,
+        link_distance: float = 1.0,
+        linear_chain: bool = False,
+    ) -> None:
         """
         Args:
             start_monomer (Molecule): Starting molecule
@@ -95,7 +101,7 @@ class Polymer:
         self._create(end_monomer, end_mon_vector)
         self.molecule = Molecule.from_sites(self.molecule.sites)
 
-    def _create(self, monomer, mon_vector):
+    def _create(self, monomer: Molecule, mon_vector: ArrayLike) -> None:
         """
         create the polymer from the monomer.
 
@@ -111,7 +117,7 @@ class Polymer:
                 move_direction = self._next_move_direction()
             self._add_monomer(monomer.copy(), mon_vector, move_direction)
 
-    def _next_move_direction(self):
+    def _next_move_direction(self) -> np.ndarray:
         """Pick a move at random from the list of moves."""
         nmoves = len(self.moves)
         move = np.random.randint(1, nmoves + 1)
@@ -120,7 +126,7 @@ class Polymer:
         self.prev_move = move
         return np.array(self.moves[move])
 
-    def _align_monomer(self, monomer, mon_vector, move_direction):
+    def _align_monomer(self, monomer: Molecule, mon_vector: ArrayLike, move_direction: ArrayLike) -> None:
         """
         rotate the monomer so that it is aligned along the move direction.
 
@@ -137,7 +143,7 @@ class Polymer:
         op = SymmOp.from_origin_axis_angle(origin, axis, angle)
         monomer.apply_operation(op)
 
-    def _add_monomer(self, monomer, mon_vector, move_direction):
+    def _add_monomer(self, monomer: Molecule, mon_vector: ArrayLike, move_direction: ArrayLike) -> None:
         """
         extend the polymer molecule by adding a monomer along mon_vector direction.
 
@@ -175,16 +181,16 @@ class PackmolRunner:
 
     def __init__(
         self,
-        mols,
-        param_list,
-        input_file="pack.inp",
-        tolerance=2.0,
-        filetype="xyz",
-        control_params=None,
-        auto_box=True,
-        output_file="packed.xyz",
-        bin="packmol",
-    ):
+        mols: list,
+        param_list: list,
+        input_file: str = "pack.inp",
+        tolerance: float = 2.0,
+        filetype: str = "xyz",
+        control_params: dict | None = None,
+        auto_box: bool = True,
+        output_file: str = "packed.xyz",
+        bin: str = "packmol",
+    ) -> None:
         """
         Args:
             mols:
@@ -230,7 +236,7 @@ class PackmolRunner:
             self._set_box()
 
     @staticmethod
-    def _format_param_val(param_val):
+    def _format_param_val(param_val) -> str:
         """
         Internal method to format values in the packmol parameter dictionaries.
 
@@ -245,7 +251,7 @@ class PackmolRunner:
             return " ".join(str(x) for x in param_val)
         return str(param_val)
 
-    def _set_box(self):
+    def _set_box(self) -> None:
         """Set the box size for the molecular assembly."""
         net_volume = 0.0
         for idx, mol in enumerate(self.mols):
@@ -255,7 +261,7 @@ class PackmolRunner:
         for idx, _mol in enumerate(self.mols):
             self.param_list[idx]["inside box"] = f"0.0 0.0 0.0 {length} {length} {length}"
 
-    def _write_input(self, input_dir="."):
+    def _write_input(self, input_dir: str = ".") -> None:
         """
         Write the packmol input file to the input directory.
 
@@ -289,7 +295,7 @@ class PackmolRunner:
                     inp.write(f"  {k} {self._format_param_val(v)}\n")
                 inp.write("end structure\n")
 
-    def run(self, site_property=None):
+    def run(self, site_property: str | None = None) -> Molecule:
         """
         Write the input file to the scratch directory, run packmol and return
         the packed molecule to the current working directory.
@@ -305,9 +311,9 @@ class PackmolRunner:
             self._write_input(input_dir=scratch_dir)
             with open(os.path.join(scratch_dir, self.input_file)) as packmol_input, Popen(
                 self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE
-            ) as p:
-                (stdout, stderr) = p.communicate()
-            output_file = os.path.join(self.control_params["output"])
+            ) as proc:
+                stdout, stderr = proc.communicate()
+            output_file = self.control_params["output"]
             if os.path.isfile(output_file):
                 packed_mol = BabelMolAdaptor.from_file(output_file, self.control_params["filetype"])
                 packed_mol = packed_mol.pymatgen_mol
@@ -315,10 +321,10 @@ class PackmolRunner:
                 if site_property:
                     packed_mol = self.restore_site_properties(site_property=site_property, filename=output_file)
                 return packed_mol
-            raise RuntimeError(f"Packmol execution failed. {stdout}\n{stderr}")
+            raise RuntimeError(f"Packmol execution failed. {stdout.decode}\n{stderr.decode}")
 
     @staticmethod
-    def write_pdb(mol, filename, name=None, num=None):
+    def write_pdb(mol: Molecule, filename: str, name: str | None = None, num=None) -> None:
         """Dump the molecule into pdb file with custom residue name and number."""
         # ugly hack to get around the openbabel issues with inconsistent
         # residue labelling.
@@ -337,7 +343,7 @@ class PackmolRunner:
 
         pbm.write(format="pdb", filename=filename, overwrite=True)
 
-    def _set_residue_map(self):
+    def _set_residue_map(self) -> None:
         """Map each residue to the corresponding molecule."""
         self.map_residue_to_mol = {}
         lookup = {}
@@ -347,9 +353,11 @@ class PackmolRunner:
                 lookup[mol.formula] = mol.copy()
             self.map_residue_to_mol[f"ml{idx + 1}"] = lookup[mol.formula]
 
-    def convert_obatoms_to_molecule(self, atoms, residue_name=None, site_property="ff_map"):
+    def convert_obatoms_to_molecule(
+        self, atoms: Sequence, residue_name: str | None = None, site_property: str = "ff_map"
+    ) -> Molecule:
         """
-        Convert list of openbabel atoms to MOlecule.
+        Convert list of openbabel atoms to Molecule.
 
         Args:
             atoms ([OBAtom]): list of OBAtom objects
@@ -360,9 +368,8 @@ class PackmolRunner:
         Returns:
             Molecule object
         """
-        restore_site_props = residue_name is not None
 
-        if restore_site_props and not hasattr(self, "map_residue_to_mol"):
+        if residue_name is not None and not hasattr(self, "map_residue_to_mol"):
             self._set_residue_map()
 
         coords = []
@@ -373,7 +380,7 @@ class PackmolRunner:
 
         mol = Molecule(zs, coords)
 
-        if restore_site_props:
+        if residue_name is not None:
             props = []
 
             ref = self.map_residue_to_mol[residue_name].copy()
@@ -391,7 +398,7 @@ class PackmolRunner:
 
         return mol
 
-    def restore_site_properties(self, site_property="ff_map", filename=None):
+    def restore_site_properties(self, site_property: str = "ff_map", filename: str | None = None) -> Molecule:
         """
         Restore the site properties for the final packed molecule.
 
@@ -428,7 +435,7 @@ class PackmolRunner:
 class LammpsRunner:
     """LAMMPS wrapper."""
 
-    def __init__(self, input_filename="lammps.in", bin="lammps"):
+    def __init__(self, input_filename: str = "lammps.in", bin: str = "lammps") -> None:
         """
         Args:
             input_filename (str): input file name
@@ -444,7 +451,7 @@ class LammpsRunner:
             )
         self.input_filename = input_filename
 
-    def run(self):
+    def run(self) -> tuple[bytes, bytes]:
         """Write the input/data files and run LAMMPS."""
         lammps_cmd = [*self.lammps_bin, "-in", self.input_filename]
         print(f"Running: {' '.join(lammps_cmd)}")

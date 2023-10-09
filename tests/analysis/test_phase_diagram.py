@@ -365,12 +365,7 @@ class TestPhaseDiagram(PymatgenTest):
                 ), "Using `stable_only=True` should give decomposition energy equal to equilibrium reaction energy!"
 
         # Test that we get correct behavior with a polymorph
-        toy_entries = {
-            "Li": 0.0,
-            "Li2O": -5,
-            "LiO2": -4,
-            "O2": 0.0,
-        }
+        toy_entries = {"Li": 0.0, "Li2O": -5, "LiO2": -4, "O2": 0.0}
 
         toy_pd = PhaseDiagram([PDEntry(c, e) for c, e in toy_entries.items()])
 

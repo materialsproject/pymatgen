@@ -106,7 +106,7 @@ class LobsterNeighbors(NearNeighbors):
             additional condition
             add_additional_data_sg: (bool) will add the information from filename_add_bondinglist_sg1,
             filename_blist_sg1: (str) Path to additional ICOOP, ICOBI data for structure graphs
-            filename_blist_sg2: (str) Path to dditional ICOOP, ICOBI data for structure graphs
+            filename_blist_sg2: (str) Path to additional ICOOP, ICOBI data for structure graphs
             id_blist_sg1: (str) Identity of data in filename_blist_sg1,
                 e.g., "icoop" or "icobi"
             id_blist_sg2: (str) Identity of data in filename_blist_sg2,
@@ -695,7 +695,7 @@ class LobsterNeighbors(NearNeighbors):
             only_bonds_to: restricts the types of bonds that will be considered
             additional_condition: Additional condition for the evaluation
             perc_strength_ICOHP: will be used to determine how strong the ICOHPs (percentage*strongest ICOHP) will be
-            that are still considered for the evalulation
+            that are still considered for the evaluation
             adapt_extremum_to_add_cond: will recalculate the limit based on the bonding type and not on the overall
             extremum.
 
@@ -1281,7 +1281,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         all_nbs_sites_indices = []
         neighbors_sets = []
         counter = 0
-        for isite, _site in enumerate(structure):
+        for isite in range(len(structure)):
             # all_nbs_sites_here=[]
             all_nbs_sites_indices_here = []
             # Coordination environment

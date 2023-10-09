@@ -374,7 +374,6 @@ class Lattice(MSONable):
             Lattice.from_dict(fmt="abivars", acell=3*[10], rprim=np.eye(3))
         """
         if fmt == "abivars":
-            # pylint: disable=C0415
             from pymatgen.io.abinit.abiobjects import lattice_from_abivars
 
             kwargs.update(d)
@@ -907,14 +906,14 @@ class Lattice(MSONable):
         beta_b = np.abs(get_angles(c_a, c_c, l_a, l_c) - beta) < atol
         gamma_b = np.abs(get_angles(c_a, c_b, l_a, l_b) - gamma) < atol
 
-        for i, all_j in enumerate(gamma_b):
-            inds = np.logical_and(all_j[:, None], np.logical_and(alpha_b, beta_b[i][None, :]))
+        for idx, all_j in enumerate(gamma_b):
+            inds = np.logical_and(all_j[:, None], np.logical_and(alpha_b, beta_b[idx][None, :]))
             for j, k in np.argwhere(inds):
-                scale_m = np.array((f_a[i], f_b[j], f_c[k]), dtype=int)  # type: ignore
+                scale_m = np.array((f_a[idx], f_b[j], f_c[k]), dtype=int)  # type: ignore
                 if abs(np.linalg.det(scale_m)) < 1e-8:  # type: ignore
                     continue
 
-                aligned_m = np.array((c_a[i], c_b[j], c_c[k]))
+                aligned_m = np.array((c_a[idx], c_b[j], c_c[k]))
 
                 rotation_m = None if skip_rotation_matrix else np.linalg.solve(aligned_m, other_lattice.matrix)
 
@@ -973,7 +972,7 @@ class Lattice(MSONable):
     def _calculate_lll(self, delta: float = 0.75) -> tuple[np.ndarray, np.ndarray]:
         """Performs a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a
         c-reduced basis. This method returns a basis which is as "good" as
-        possible, with "good" defined by orthongonality of the lattice vectors.
+        possible, with "good" defined by orthogonality of the lattice vectors.
 
         This basis is used for all the periodic boundary condition calculations.
 
@@ -986,7 +985,7 @@ class Lattice(MSONable):
         """
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
-        # pylint: disable=E1136,E1137,E1126
+
         a = self._matrix.copy().T
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
@@ -1021,8 +1020,7 @@ class Lattice(MSONable):
                 # Increment k if the Lovasz condition holds.
                 k += 1
             else:
-                # If the Lovasz condition fails,
-                # swap the k-th and (k-1)-th basis vector
+                # If the Lovasz condition fails, swap the k-th and (k-1)-th basis vector
                 v = a[:, k - 1].copy()
                 a[:, k - 1] = a[:, k - 2].copy()
                 a[:, k - 2] = v
@@ -1043,7 +1041,7 @@ class Lattice(MSONable):
                     # We have to do p/q, so do lstsq(q.T, p.T).T instead.
                     p = dot(a[:, k:3].T, b[:, (k - 2) : k])
                     q = np.diag(m[(k - 2) : k])  # type: ignore
-                    # pylint: disable=E1101
+
                     result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].T  # type: ignore
                     u[k:3, (k - 2) : k] = result
 
@@ -1230,7 +1228,7 @@ class Lattice(MSONable):
         list_k_points = []
         for ii, jj, kk in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
             list_k_points.append(ii * vec1 + jj * vec2 + kk * vec3)
-        # pylint: disable=C0415
+
         from scipy.spatial import Voronoi
 
         tess = Voronoi(list_k_points)
@@ -1280,7 +1278,7 @@ class Lattice(MSONable):
             cart_a = np.reshape([self.get_cartesian_coords(vec) for vec in coords_a], (-1, 3))
             cart_b = np.reshape([self.get_cartesian_coords(vec) for vec in coords_b], (-1, 3))
 
-        return np.array([dot(a, b) for a, b in zip(cart_a, cart_b)])
+        return np.array(list(itertools.starmap(dot, zip(cart_a, cart_b))))
 
     def norm(self, coords: ArrayLike, frac_coords: bool = True) -> np.ndarray:
         """Compute the norm of vector(s).
@@ -1335,7 +1333,6 @@ class Lattice(MSONable):
                 fcoords, dists, inds, image
         """
         try:
-            # pylint: disable=C0415
             from pymatgen.optimization.neighbors import find_points_in_spheres
         except ImportError:
             return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
@@ -1386,7 +1383,7 @@ class Lattice(MSONable):
         Algorithm:
 
         1. place sphere of radius r in crystal and determine minimum supercell
-           (parallelpiped) which would contain a sphere of radius r. for this
+           (parallelepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
            determine how many a_1"s it will take to contain the sphere.
@@ -1443,7 +1440,7 @@ class Lattice(MSONable):
         Algorithm:
 
         1. place sphere of radius r in crystal and determine minimum supercell
-           (parallelpiped) which would contain a sphere of radius r. for this
+           (parallelepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
            determine how many a_1"s it will take to contain the sphere.
@@ -1500,7 +1497,7 @@ class Lattice(MSONable):
         # Determine distance from `center`
         cart_coords = self.get_cartesian_coords(fcoords)
         cart_images = self.get_cartesian_coords(images)
-        coords = cart_coords[:, None, None, None, :] + cart_images[None, :, :, :, :]  # pylint: disable=E1126
+        coords = cart_coords[:, None, None, None, :] + cart_images[None, :, :, :, :]
         coords -= center[None, None, None, None, :]
         coords **= 2
         d_2 = np.sum(coords, axis=4)
@@ -1665,7 +1662,7 @@ class Lattice(MSONable):
         recp_lattice = recp_lattice.scale(1)
         # need a localized import of structure to build a
         # pseudo empty lattice for SpacegroupAnalyzer
-        # pylint: disable=C0415
+
         from pymatgen.core.structure import Structure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 

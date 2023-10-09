@@ -1250,7 +1250,7 @@ A plotter to make voltage profile plots for batteries.
     * **xaxis** – The quantity to use as the xaxis. Can be either
 
 
-    * **capacity_grav** (*-*) – the graviometric capcity
+    * **capacity_grav** (*-*) – the gravimetric capacity
 
 
     * **capacity_vol** (*-*) – the volumetric capacity

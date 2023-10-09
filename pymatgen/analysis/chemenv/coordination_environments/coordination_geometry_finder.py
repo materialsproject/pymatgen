@@ -194,7 +194,7 @@ class AbstractGeometry:
         :param include_central_site_in_centroid:
         """
         central_site = cg.get_central_site()
-        bare_coords = [np.array(pt, np.float_) for pt in cg.points]
+        bare_coords = [np.array(pt, float) for pt in cg.points]
         return cls(
             central_site=central_site,
             bare_coords=bare_coords,
@@ -592,14 +592,12 @@ class LocalGeometryFinder:
         if info is None:
             info = {}
         info.update(
-            {
-                "local_geometry_finder": {
-                    "parameters": {
-                        "centering_type": self.centering_type,
-                        "include_central_site_in_centroid": self.include_central_site_in_centroid,
-                        "structure_refinement": self.structure_refinement,
-                        "spg_analyzer_options": self.spg_analyzer_options,
-                    }
+            local_geometry_finder={
+                "parameters": {
+                    "centering_type": self.centering_type,
+                    "include_central_site_in_centroid": self.include_central_site_in_centroid,
+                    "structure_refinement": self.structure_refinement,
+                    "spg_analyzer_options": self.spg_analyzer_options,
                 }
             }
         )
@@ -610,9 +608,9 @@ class LocalGeometryFinder:
             )
 
         if valences == "undefined":
-            firstsite = self.structure[0]
+            first_site = self.structure[0]
             try:
-                sp = firstsite.specie
+                sp = first_site.specie
                 if isinstance(sp, Species):
                     self.valences = [int(site.specie.oxi_state) for site in self.structure]
                 else:
@@ -622,32 +620,32 @@ class LocalGeometryFinder:
         else:
             self.valences = valences
 
-        # Get a list of indices of unequivalent sites from the initial structure
+        # Get a list of indices of nonequivalent sites from the initial structure
         self.equivalent_sites = [[site] for site in self.structure]
         self.struct_sites_to_irreducible_site_list_map = list(range(len(self.structure)))
         self.sites_map = list(range(len(self.structure)))
         indices = list(range(len(self.structure)))
 
-        # Get list of unequivalent sites with valence >= 0
+        # Get list of nonequivalent sites with valence >= 0
         if only_cations and self.valences != "undefined":
-            sites_indices = [isite for isite in indices if self.valences[isite] >= 0]
+            sites_indices = [idx for idx in indices if self.valences[idx] >= 0]
         else:
             sites_indices = list(indices)
 
         # Include atoms that are in the list of "only_atoms" if it is provided
         if only_atoms is not None:
             sites_indices = [
-                isite
-                for isite in sites_indices
-                if any(at in [sp.symbol for sp in self.structure[isite].species] for at in only_atoms)
+                idx
+                for idx in sites_indices
+                if any(at in [sp.symbol for sp in self.structure[idx].species] for at in only_atoms)
             ]
 
         # Exclude atoms that are in the list of excluded atoms
         if excluded_atoms:
             sites_indices = [
-                isite
-                for isite in sites_indices
-                if not any(at in [sp.symbol for sp in self.structure[isite].species] for at in excluded_atoms)
+                idx
+                for idx in sites_indices
+                if not any(at in [sp.symbol for sp in self.structure[idx].species] for at in excluded_atoms)
             ]
 
         if only_indices is not None:
@@ -967,14 +965,14 @@ class LocalGeometryFinder:
             rv = np.random.random_sample(3)
             while norm(rv) > 1.0:
                 rv = np.random.random_sample(3)
-            coords = [np.zeros(3, np.float_) + max_random_dist * rv]
+            coords = [np.zeros(3, float) + max_random_dist * rv]
             for pp in _points:
                 rv = np.random.random_sample(3)
                 while norm(rv) > 1.0:
                     rv = np.random.random_sample(3)
                 neighb_coords.append(np.array(pp) + max_random_dist * rv)
         else:
-            coords = [np.zeros(3, np.float_)]
+            coords = [np.zeros(3, float)]
             for pp in _points:
                 neighb_coords.append(np.array(pp))
         if indices == "RANDOM":
@@ -999,48 +997,48 @@ class LocalGeometryFinder:
             uu = np.random.random_sample(3) + 0.1
             uu = uu / norm(uu)
             theta = np.pi * np.random.random_sample()
-            cc = np.cos(theta)
-            ss = np.sin(theta)
+            cos_theta = np.cos(theta)
+            sin_theta = np.sin(theta)
             ux = uu[0]
             uy = uu[1]
             uz = uu[2]
-            RR = [
+            rand_rot = [
                 [
-                    ux * ux + (1.0 - ux * ux) * cc,
-                    ux * uy * (1.0 - cc) - uz * ss,
-                    ux * uz * (1.0 - cc) + uy * ss,
+                    ux * ux + (1.0 - ux * ux) * cos_theta,
+                    ux * uy * (1.0 - cos_theta) - uz * sin_theta,
+                    ux * uz * (1.0 - cos_theta) + uy * sin_theta,
                 ],
                 [
-                    ux * uy * (1.0 - cc) + uz * ss,
-                    uy * uy + (1.0 - uy * uy) * cc,
-                    uy * uz * (1.0 - cc) - ux * ss,
+                    ux * uy * (1.0 - cos_theta) + uz * sin_theta,
+                    uy * uy + (1.0 - uy * uy) * cos_theta,
+                    uy * uz * (1.0 - cos_theta) - ux * sin_theta,
                 ],
                 [
-                    ux * uz * (1.0 - cc) - uy * ss,
-                    uy * uz * (1.0 - cc) + ux * ss,
-                    uz * uz + (1.0 - uz * uz) * cc,
+                    ux * uz * (1.0 - cos_theta) - uy * sin_theta,
+                    uy * uz * (1.0 - cos_theta) + ux * sin_theta,
+                    uz * uz + (1.0 - uz * uz) * cos_theta,
                 ],
             ]
         elif random_rotation == "NONE":
-            RR = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+            rand_rot = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
         else:
-            RR = random_rotation
+            rand_rot = random_rotation
         new_coords = []
-        for cc in coords:
-            newcc = np.dot(RR, cc).T
-            new_coords.append(newcc.ravel())
+        for coord in coords:
+            new_cc = np.dot(rand_rot, coord).T
+            new_coords.append(new_cc.ravel())
         coords = new_coords
         new_coords = []
-        for cc in neighb_coords:
-            newcc = np.dot(RR, cc.T)
-            new_coords.append(newcc.ravel())
+        for coord in neighb_coords:
+            new_cc = np.dot(rand_rot, coord.T)
+            new_coords.append(new_cc.ravel())
         neighb_coords = new_coords
 
         # Translating the test environment
         if random_translation == "RANDOM":
             translation = 10.0 * (2.0 * np.random.random_sample(3) - 1.0)
         elif random_translation == "NONE":
-            translation = np.zeros(3, np.float_)
+            translation = np.zeros(3, float)
         else:
             translation = random_translation
         coords = [cc + translation for cc in coords]
@@ -1084,7 +1082,7 @@ class LocalGeometryFinder:
         for _ in range(coordination + 1):
             coords.append(aa * np.random.random_sample(3) + bb)
         self.set_structure(
-            lattice=np.array([[10, 0, 0], [0, 10, 0], [0, 0, 10]], np.float_),
+            lattice=np.array([[10, 0, 0], [0, 10, 0], [0, 0, 10]], float),
             species=["Si"] * (coordination + 1),
             coords=coords,
             coords_are_cartesian=False,

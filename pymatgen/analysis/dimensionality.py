@@ -407,7 +407,6 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
     if ldict is None:
         ldict = JmolNN().el_radius
 
-    # pylint: disable=E1136
     n_atoms = len(struct.species)
     fc = np.array(struct.frac_coords)
     fc_copy = np.repeat(fc[:, :, np.newaxis], 27, axis=2)

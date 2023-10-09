@@ -106,7 +106,7 @@ Helper method to indent elements.
 Reads the exciting input from a string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -123,30 +123,17 @@ Writes the exciting input parameters to an xml object.
 
 
     * **celltype** (*str*) – Choice of unit cell. Can be either the unit cell
-
-
-    * **self.structure** (*from*) –
-
-
-    * **(****"conventional"****)** (*"primitive"*) –
-
-
-    * **cell** (*or the primitive unit*) –
+    from self.structure (“unchanged”), the conventional cell
+    (“conventional”), or the primitive unit cell (“primitive”).
 
 
     * **cartesian** (*bool*) – Whether the atomic positions are provided in
-
-
-    * **False.** (*celltype is set to "primitive". Default is*) –
+    Cartesian or unit-cell coordinates. Default is False.
 
 
     * **bandstr** (*bool*) – Whether the bandstructure path along the
-
-
-    * **the** (*HighSymmKpath is included in the input file. Only supported if*) –
-
-
-    * **False.** –
+    HighSymmKpath is included in the input file. Only supported if the
+    celltype is set to “primitive”. Default is False.
 
 
     * **symprec** (*float*) – Tolerance for the symmetry finding. Default is 0.4.

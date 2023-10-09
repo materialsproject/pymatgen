@@ -728,22 +728,22 @@ nav_exclude: true
             * [`AbinitHeader.to_string()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.AbinitHeader.to_string)
 
 
-        * [`ETSF_Reader`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader)
+        * [`EtsfReader`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader)
 
 
-            * [`ETSF_Reader.chemical_symbols()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.chemical_symbols)
+            * [`EtsfReader.chemical_symbols()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.chemical_symbols)
 
 
-            * [`ETSF_Reader.read_abinit_hdr()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr)
+            * [`EtsfReader.read_abinit_hdr()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.read_abinit_hdr)
 
 
-            * [`ETSF_Reader.read_abinit_xcfunc()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc)
+            * [`EtsfReader.read_abinit_xcfunc()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.read_abinit_xcfunc)
 
 
-            * [`ETSF_Reader.read_structure()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure)
+            * [`EtsfReader.read_structure()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.read_structure)
 
 
-            * [`ETSF_Reader.typeidx_from_symbol()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.typeidx_from_symbol)
+            * [`EtsfReader.type_idx_from_symbol()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.type_idx_from_symbol)
 
 
         * [`NO_DEFAULT`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.NO_DEFAULT)
@@ -3671,13 +3671,13 @@ nav_exclude: true
         * [`lower_and_check_unique()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.lower_and_check_unique)
 
 
-        * [`process_parsed_HESS()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.process_parsed_HESS)
-
-
         * [`process_parsed_coords()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.process_parsed_coords)
 
 
         * [`process_parsed_fock_matrix()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.process_parsed_fock_matrix)
+
+
+        * [`process_parsed_hess()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.process_parsed_hess)
 
 
         * [`read_matrix_pattern()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.read_matrix_pattern)
@@ -4036,16 +4036,19 @@ nav_exclude: true
             * [`PotcarSingle.functional_tags`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.functional_tags)
 
 
-            * [`PotcarSingle.get_potcar_file_hash()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.get_potcar_file_hash)
-
-
-            * [`PotcarSingle.get_potcar_hash()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.get_potcar_hash)
-
-
-            * [`PotcarSingle.get_sha256_file_hash()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.get_sha256_file_hash)
+            * [`PotcarSingle.hash_sha256_from_file`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.hash_sha256_from_file)
 
 
             * [`PotcarSingle.identify_potcar()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.identify_potcar)
+
+
+            * [`PotcarSingle.is_valid`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.is_valid)
+
+
+            * [`PotcarSingle.md5_computed_file_hash`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.md5_computed_file_hash)
+
+
+            * [`PotcarSingle.md5_header_hash`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.md5_header_hash)
 
 
             * [`PotcarSingle.nelectrons`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.nelectrons)
@@ -4054,7 +4057,13 @@ nav_exclude: true
             * [`PotcarSingle.parse_functions`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.parse_functions)
 
 
+            * [`PotcarSingle.potcar_summary_stats`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.potcar_summary_stats)
+
+
             * [`PotcarSingle.potential_type`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.potential_type)
+
+
+            * [`PotcarSingle.sha256_computed_file_hash`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.sha256_computed_file_hash)
 
 
             * [`PotcarSingle.symbol`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.symbol)
@@ -4087,6 +4096,9 @@ nav_exclude: true
             * [`VaspInput.write_input()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.VaspInput.write_input)
 
 
+        * [`_gen_potcar_summary_stats()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs._gen_potcar_summary_stats)
+
+
         * [`_parse_bool()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs._parse_bool)
 
 
@@ -4097,9 +4109,6 @@ nav_exclude: true
 
 
         * [`_parse_list()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs._parse_list)
-
-
-        * [`_parse_string()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs._parse_string)
 
 
     * [pymatgen.io.vasp.optics module](pymatgen.io.vasp.md#module-pymatgen.io.vasp.optics)
@@ -5544,7 +5553,7 @@ Construct an AdfKey object from the string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -6229,7 +6238,7 @@ Static methods in Python are similar to those found in Java or C++.
 For a more advanced concept, see the classmethod builtin.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -6425,7 +6434,7 @@ Reads CifBlock from string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -6483,7 +6492,7 @@ Reads CifFile from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -6581,7 +6590,7 @@ Creates a CifParser from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -7137,7 +7146,7 @@ Create an InputFile object from a string.
 
 
 
-#### _abstract classmethod_ from_string(\*args, \*\*kwds)
+#### _abstract classmethod_ from_string(contents: str)
 from_string is deprecated!
 Use from_str instead
 
@@ -7160,7 +7169,7 @@ Create an InputFile object from a string.
 Return a string representation of an entire input file.
 
 
-#### _abstract_ get_string(\*\*kwds)
+#### _abstract_ get_string()
 get_string is deprecated!
 Use get_str instead
 
@@ -7414,20 +7423,6 @@ Input File for Fiesta called “cell.in” by default (mandatory in Fiesta for n
 MSONable dict
 
 
-#### dump_BSE_data_in_GW_run(BSE_dump=True)
-
-* **Parameters**
-
-    **BSE_dump** – boolean
-
-
-
-* **Returns**
-
-    set the “do_bse” variable to one in cell.in
-
-
-
 #### dump_TDDFT_data_in_GW_run(TDDFT_dump=True)
 
 * **Parameters**
@@ -7439,6 +7434,20 @@ MSONable dict
 * **Returns**
 
     set the do_tddft variable to one in cell.in
+
+
+
+#### dump_bse_data_in_gw_run(BSE_dump=True)
+
+* **Parameters**
+
+    **BSE_dump** – boolean
+
+
+
+* **Returns**
+
+    set the “do_bse” variable to one in cell.in
 
 
 
@@ -7490,7 +7499,7 @@ files generated from this class itself.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -7499,28 +7508,12 @@ Use from_str instead
 Returns infos on initial parameters as in the log file of Fiesta.
 
 
-#### _static_ make_FULL_BSE_Densities_folder(folder)
+#### _static_ make_full_bse_densities_folder(folder)
 Mkdir “FULL_BSE_Densities” folder (needed for bse run) in the desired folder.
 
 
 #### _property_ molecule()
 Returns molecule associated with this FiestaInput.
-
-
-#### set_BSE_options(n_excitations=10, nit_bse=200)
-Set parameters in cell.in for a BSE computation
-:param nv_bse: number of valence bands
-:param nc_bse: number of conduction bands
-:param n_excitations: number of excitations
-:param nit_bse: number of iterations.
-
-
-#### set_GW_options(nv_band=10, nc_band=10, n_iteration=5, n_grid=6, dE_grid=0.5)
-Set parameters in cell.in for a GW computation
-:param nv__band: number of valence bands to correct with GW
-:param nc_band: number of conduction bands to correct with GW
-:param n_iteration: number of iteration
-:param n_grid and dE_grid:: number of points and spacing in eV for correlation grid.
 
 
 #### set_auxiliary_basis_set(folder, auxiliary_folder, auxiliary_basis_set_type='aug_cc_pvtz')
@@ -7529,6 +7522,22 @@ copy in the desired folder the needed auxiliary basis set “X2.ion” where X i
 :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must
 
 > be in lower case). ex: C2.ion_aug_cc_pvtz_RI_Weigend find “aug_cc_pvtz”.
+
+
+#### set_bse_options(n_excitations=10, nit_bse=200)
+Set parameters in cell.in for a BSE computation
+:param nv_bse: number of valence bands
+:param nc_bse: number of conduction bands
+:param n_excitations: number of excitations
+:param nit_bse: number of iterations.
+
+
+#### set_gw_options(nv_band=10, nc_band=10, n_iteration=5, n_grid=6, dE_grid=0.5)
+Set parameters in cell.in for a GW computation
+:param nv__band: number of valence bands to correct with GW
+:param nc_band: number of conduction bands to correct with GW
+:param n_iteration: number of iteration
+:param n_grid and dE_grid:: number of points and spacing in eV for correlation grid.
 
 
 #### write_file(filename)
@@ -7765,7 +7774,7 @@ Creates GaussianInput from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -7793,7 +7802,7 @@ Return GaussianInput string.
 
 
 
-#### to_string(\*\*kwds)
+#### to_string(\*args, \*\*kwargs)
 to_string is deprecated!
 Use to_str instead
 
@@ -8619,7 +8628,7 @@ are ignored.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -8629,7 +8638,7 @@ Generates the string representation of the CTRL file. This is
 the minimal CTRL file necessary to execute lmhart.run.
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -8754,7 +8763,7 @@ files generated from this class itself.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -9581,7 +9590,7 @@ This is designed for STEM image simulation.
 
 
 
-#### to_string(\*\*kwds)
+#### to_string(\*args, \*\*kwargs)
 to_string is deprecated!
 Use to_str instead
 
@@ -9700,7 +9709,7 @@ Reads an PWInput object from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -10574,7 +10583,7 @@ Initialize a Structure object from a string with data in XSF format.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -10590,7 +10599,7 @@ See [http://www.xcrysden.org/doc/XSF.html](http://www.xcrysden.org/doc/XSF.html)
 
 
 
-#### to_string(\*\*kwds)
+#### to_string(\*args, \*\*kwargs)
 to_string is deprecated!
 Use to_str instead
 
@@ -10689,7 +10698,7 @@ Creates an Xr object from a string representation.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -10783,7 +10792,7 @@ Creates XYZ object from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -10877,7 +10886,7 @@ Reads a string representation to a ZeoCssr object.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 

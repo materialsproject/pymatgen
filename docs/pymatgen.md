@@ -342,7 +342,7 @@ nav_order: 6
                         * [`StrategyOption`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption)
 
 
-                        * [`TargettedPenaltiedAbundanceChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy)
+                        * [`TargetedPenaltiedAbundanceChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargetedPenaltiedAbundanceChemenvStrategy)
 
 
                         * [`WeightedNbSetChemenvStrategy`](pymatgen.analysis.chemenv.coordination_environments.md#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy)
@@ -8890,6 +8890,9 @@ nav_order: 6
             * [`SiteCollection.to()`](pymatgen.core.md#pymatgen.core.structure.SiteCollection.to)
 
 
+            * [`SiteCollection.to_file()`](pymatgen.core.md#pymatgen.core.structure.SiteCollection.to_file)
+
+
             * [`SiteCollection.types_of_specie`](pymatgen.core.md#pymatgen.core.structure.SiteCollection.types_of_specie)
 
 
@@ -11098,232 +11101,241 @@ nav_order: 6
         * [`MPRester`](pymatgen.ext.md#pymatgen.ext.matproj.MPRester)
 
 
-        * [`TaskType`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType)
+        * [`_MPResterBasic`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic)
 
 
-            * [`TaskType.GGAU_DEF`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.GGAU_DEF)
+            * [`_MPResterBasic.get_doc()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.get_doc)
 
 
-            * [`TaskType.GGAU_LINE`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.GGAU_LINE)
+            * [`_MPResterBasic.get_entries()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.get_entries)
 
 
-            * [`TaskType.GGAU_OPT`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.GGAU_OPT)
+            * [`_MPResterBasic.get_entries_in_chemsys()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.get_entries_in_chemsys)
 
 
-            * [`TaskType.GGAU_STATIC`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.GGAU_STATIC)
+            * [`_MPResterBasic.get_entry_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.get_entry_by_material_id)
 
 
-            * [`TaskType.GGAU_STATIC_DIEL`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.GGAU_STATIC_DIEL)
+            * [`_MPResterBasic.get_initial_structures_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.get_initial_structures_by_material_id)
 
 
-            * [`TaskType.GGAU_UNIFORM`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.GGAU_UNIFORM)
+            * [`_MPResterBasic.get_material_ids()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.get_material_ids)
 
 
-            * [`TaskType.GGA_DEF`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.GGA_DEF)
+            * [`_MPResterBasic.get_materials_ids()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.get_materials_ids)
 
 
-            * [`TaskType.GGA_LINE`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.GGA_LINE)
+            * [`_MPResterBasic.get_structure_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.get_structure_by_material_id)
 
 
-            * [`TaskType.GGA_OPT`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.GGA_OPT)
+            * [`_MPResterBasic.get_structures()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.get_structures)
 
 
-            * [`TaskType.GGA_STATIC`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.GGA_STATIC)
+            * [`_MPResterBasic.get_summary()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.get_summary)
 
 
-            * [`TaskType.GGA_STATIC_DIEL`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.GGA_STATIC_DIEL)
+            * [`_MPResterBasic.get_summary_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.get_summary_by_material_id)
 
 
-            * [`TaskType.GGA_UNIFORM`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.GGA_UNIFORM)
+            * [`_MPResterBasic.request()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.request)
 
 
-            * [`TaskType.LDA_STATIC_DIEL`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.LDA_STATIC_DIEL)
+            * [`_MPResterBasic.summary_search()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterBasic.summary_search)
 
 
-            * [`TaskType.SCAN_OPT`](pymatgen.ext.md#pymatgen.ext.matproj.TaskType.SCAN_OPT)
+    * [pymatgen.ext.matproj_legacy module](pymatgen.ext.md#module-pymatgen.ext.matproj_legacy)
 
 
-        * [`_MPResterLegacy`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy)
+        * [`MPRestError`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.MPRestError)
 
 
-            * [`_MPResterLegacy._check_get_download_info_url_by_task_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy._check_get_download_info_url_by_task_id)
+        * [`TaskType`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType)
 
 
-            * [`_MPResterLegacy._check_nomad_exist()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy._check_nomad_exist)
+            * [`TaskType.GGAU_DEF`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.GGAU_DEF)
 
 
-            * [`_MPResterLegacy._make_request()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy._make_request)
+            * [`TaskType.GGAU_LINE`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.GGAU_LINE)
 
 
-            * [`_MPResterLegacy._print_help_message()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy._print_help_message)
+            * [`TaskType.GGAU_OPT`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.GGAU_OPT)
 
 
-            * [`_MPResterLegacy.delete_snl()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.delete_snl)
+            * [`TaskType.GGAU_STATIC`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.GGAU_STATIC)
 
 
-            * [`_MPResterLegacy.find_structure()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.find_structure)
+            * [`TaskType.GGAU_STATIC_DIEL`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.GGAU_STATIC_DIEL)
 
 
-            * [`_MPResterLegacy.get_all_substrates()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_all_substrates)
+            * [`TaskType.GGAU_UNIFORM`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.GGAU_UNIFORM)
 
 
-            * [`_MPResterLegacy.get_bandstructure_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_bandstructure_by_material_id)
+            * [`TaskType.GGA_DEF`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.GGA_DEF)
 
 
-            * [`_MPResterLegacy.get_cohesive_energy()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_cohesive_energy)
+            * [`TaskType.GGA_LINE`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.GGA_LINE)
 
 
-            * [`_MPResterLegacy.get_data()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_data)
+            * [`TaskType.GGA_OPT`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.GGA_OPT)
 
 
-            * [`_MPResterLegacy.get_database_version()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_database_version)
+            * [`TaskType.GGA_STATIC`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.GGA_STATIC)
 
 
-            * [`_MPResterLegacy.get_doc()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_doc)
+            * [`TaskType.GGA_STATIC_DIEL`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.GGA_STATIC_DIEL)
 
 
-            * [`_MPResterLegacy.get_dos_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_dos_by_material_id)
+            * [`TaskType.GGA_UNIFORM`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.GGA_UNIFORM)
 
 
-            * [`_MPResterLegacy.get_download_info()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_download_info)
+            * [`TaskType.LDA_STATIC_DIEL`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.LDA_STATIC_DIEL)
 
 
-            * [`_MPResterLegacy.get_entries()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_entries)
+            * [`TaskType.SCAN_OPT`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.TaskType.SCAN_OPT)
 
 
-            * [`_MPResterLegacy.get_entries_in_chemsys()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_entries_in_chemsys)
+        * [`_MPResterLegacy`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy)
 
 
-            * [`_MPResterLegacy.get_entry_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_entry_by_material_id)
+            * [`_MPResterLegacy._check_get_download_info_url_by_task_id()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy._check_get_download_info_url_by_task_id)
 
 
-            * [`_MPResterLegacy.get_exp_entry()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_exp_entry)
+            * [`_MPResterLegacy._check_nomad_exist()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy._check_nomad_exist)
 
 
-            * [`_MPResterLegacy.get_exp_thermo_data()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_exp_thermo_data)
+            * [`_MPResterLegacy._make_request()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy._make_request)
 
 
-            * [`_MPResterLegacy.get_gb_data()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_gb_data)
+            * [`_MPResterLegacy._print_help_message()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy._print_help_message)
 
 
-            * [`_MPResterLegacy.get_interface_reactions()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_interface_reactions)
+            * [`_MPResterLegacy.delete_snl()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.delete_snl)
 
 
-            * [`_MPResterLegacy.get_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_material_id)
+            * [`_MPResterLegacy.find_structure()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.find_structure)
 
 
-            * [`_MPResterLegacy.get_materials_id_from_task_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_materials_id_from_task_id)
+            * [`_MPResterLegacy.get_all_substrates()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_all_substrates)
 
 
-            * [`_MPResterLegacy.get_materials_id_references()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_materials_id_references)
+            * [`_MPResterLegacy.get_bandstructure_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_bandstructure_by_material_id)
 
 
-            * [`_MPResterLegacy.get_materials_ids()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_materials_ids)
+            * [`_MPResterLegacy.get_cohesive_energy()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_cohesive_energy)
 
 
-            * [`_MPResterLegacy.get_phonon_bandstructure_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_phonon_bandstructure_by_material_id)
+            * [`_MPResterLegacy.get_data()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_data)
 
 
-            * [`_MPResterLegacy.get_phonon_ddb_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_phonon_ddb_by_material_id)
+            * [`_MPResterLegacy.get_database_version()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_database_version)
 
 
-            * [`_MPResterLegacy.get_phonon_dos_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_phonon_dos_by_material_id)
+            * [`_MPResterLegacy.get_doc()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_doc)
 
 
-            * [`_MPResterLegacy.get_pourbaix_entries()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_pourbaix_entries)
+            * [`_MPResterLegacy.get_dos_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_dos_by_material_id)
 
 
-            * [`_MPResterLegacy.get_reaction()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_reaction)
+            * [`_MPResterLegacy.get_download_info()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_download_info)
 
 
-            * [`_MPResterLegacy.get_stability()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_stability)
+            * [`_MPResterLegacy.get_entries()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_entries)
 
 
-            * [`_MPResterLegacy.get_structure_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_structure_by_material_id)
+            * [`_MPResterLegacy.get_entries_in_chemsys()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_entries_in_chemsys)
 
 
-            * [`_MPResterLegacy.get_structures()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_structures)
+            * [`_MPResterLegacy.get_entry_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_entry_by_material_id)
 
 
-            * [`_MPResterLegacy.get_substrates()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_substrates)
+            * [`_MPResterLegacy.get_exp_entry()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_exp_entry)
 
 
-            * [`_MPResterLegacy.get_surface_data()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_surface_data)
+            * [`_MPResterLegacy.get_exp_thermo_data()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_exp_thermo_data)
 
 
-            * [`_MPResterLegacy.get_task_data()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_task_data)
+            * [`_MPResterLegacy.get_gb_data()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_gb_data)
 
 
-            * [`_MPResterLegacy.get_wulff_shape()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_wulff_shape)
+            * [`_MPResterLegacy.get_interface_reactions()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_interface_reactions)
 
 
-            * [`_MPResterLegacy.get_xas_data()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.get_xas_data)
+            * [`_MPResterLegacy.get_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_material_id)
 
 
-            * [`_MPResterLegacy.parse_criteria()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.parse_criteria)
+            * [`_MPResterLegacy.get_materials_id_from_task_id()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_materials_id_from_task_id)
 
 
-            * [`_MPResterLegacy.query()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.query)
+            * [`_MPResterLegacy.get_materials_id_references()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_materials_id_references)
 
 
-            * [`_MPResterLegacy.query_snl()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.query_snl)
+            * [`_MPResterLegacy.get_materials_ids()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_materials_ids)
 
 
-            * [`_MPResterLegacy.submit_snl()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.submit_snl)
+            * [`_MPResterLegacy.get_phonon_bandstructure_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_phonon_bandstructure_by_material_id)
 
 
-            * [`_MPResterLegacy.submit_structures()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.submit_structures)
+            * [`_MPResterLegacy.get_phonon_ddb_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_phonon_ddb_by_material_id)
 
 
-            * [`_MPResterLegacy.submit_vasp_directory()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.submit_vasp_directory)
+            * [`_MPResterLegacy.get_phonon_dos_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_phonon_dos_by_material_id)
 
 
-            * [`_MPResterLegacy.supported_properties`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.supported_properties)
+            * [`_MPResterLegacy.get_pourbaix_entries()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_pourbaix_entries)
 
 
-            * [`_MPResterLegacy.supported_task_properties`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterLegacy.supported_task_properties)
+            * [`_MPResterLegacy.get_reaction()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_reaction)
 
 
-        * [`_MPResterNewBasic`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic)
+            * [`_MPResterLegacy.get_stability()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_stability)
 
 
-            * [`_MPResterNewBasic.get_doc()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic.get_doc)
+            * [`_MPResterLegacy.get_structure_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_structure_by_material_id)
 
 
-            * [`_MPResterNewBasic.get_entries()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic.get_entries)
+            * [`_MPResterLegacy.get_structures()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_structures)
 
 
-            * [`_MPResterNewBasic.get_entries_in_chemsys()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic.get_entries_in_chemsys)
+            * [`_MPResterLegacy.get_substrates()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_substrates)
 
 
-            * [`_MPResterNewBasic.get_entry_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic.get_entry_by_material_id)
+            * [`_MPResterLegacy.get_surface_data()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_surface_data)
 
 
-            * [`_MPResterNewBasic.get_initial_structures_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic.get_initial_structures_by_material_id)
+            * [`_MPResterLegacy.get_task_data()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_task_data)
 
 
-            * [`_MPResterNewBasic.get_material_ids()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic.get_material_ids)
+            * [`_MPResterLegacy.get_wulff_shape()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_wulff_shape)
 
 
-            * [`_MPResterNewBasic.get_materials_ids()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic.get_materials_ids)
+            * [`_MPResterLegacy.get_xas_data()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.get_xas_data)
 
 
-            * [`_MPResterNewBasic.get_structure_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic.get_structure_by_material_id)
+            * [`_MPResterLegacy.parse_criteria()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.parse_criteria)
 
 
-            * [`_MPResterNewBasic.get_structures()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic.get_structures)
+            * [`_MPResterLegacy.query()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.query)
 
 
-            * [`_MPResterNewBasic.get_summary()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic.get_summary)
+            * [`_MPResterLegacy.query_snl()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.query_snl)
 
 
-            * [`_MPResterNewBasic.get_summary_by_material_id()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic.get_summary_by_material_id)
+            * [`_MPResterLegacy.submit_snl()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.submit_snl)
 
 
-            * [`_MPResterNewBasic.request()`](pymatgen.ext.md#pymatgen.ext.matproj._MPResterNewBasic.request)
+            * [`_MPResterLegacy.submit_structures()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.submit_structures)
 
 
-        * [`get_chunks()`](pymatgen.ext.md#pymatgen.ext.matproj.get_chunks)
+            * [`_MPResterLegacy.submit_vasp_directory()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.submit_vasp_directory)
+
+
+            * [`_MPResterLegacy.supported_properties`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.supported_properties)
+
+
+            * [`_MPResterLegacy.supported_task_properties`](pymatgen.ext.md#pymatgen.ext.matproj_legacy._MPResterLegacy.supported_task_properties)
+
+
+        * [`get_chunks()`](pymatgen.ext.md#pymatgen.ext.matproj_legacy.get_chunks)
 
 
     * [pymatgen.ext.optimade module](pymatgen.ext.md#module-pymatgen.ext.optimade)
@@ -12129,22 +12141,22 @@ nav_order: 6
                     * [`AbinitHeader.to_string()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.AbinitHeader.to_string)
 
 
-                * [`ETSF_Reader`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader)
+                * [`EtsfReader`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader)
 
 
-                    * [`ETSF_Reader.chemical_symbols()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.chemical_symbols)
+                    * [`EtsfReader.chemical_symbols()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.chemical_symbols)
 
 
-                    * [`ETSF_Reader.read_abinit_hdr()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr)
+                    * [`EtsfReader.read_abinit_hdr()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.read_abinit_hdr)
 
 
-                    * [`ETSF_Reader.read_abinit_xcfunc()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc)
+                    * [`EtsfReader.read_abinit_xcfunc()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.read_abinit_xcfunc)
 
 
-                    * [`ETSF_Reader.read_structure()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure)
+                    * [`EtsfReader.read_structure()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.read_structure)
 
 
-                    * [`ETSF_Reader.typeidx_from_symbol()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.ETSF_Reader.typeidx_from_symbol)
+                    * [`EtsfReader.type_idx_from_symbol()`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.EtsfReader.type_idx_from_symbol)
 
 
                 * [`NO_DEFAULT`](pymatgen.io.abinit.md#pymatgen.io.abinit.netcdf.NO_DEFAULT)
@@ -15072,13 +15084,13 @@ nav_order: 6
                 * [`lower_and_check_unique()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.lower_and_check_unique)
 
 
-                * [`process_parsed_HESS()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.process_parsed_HESS)
-
-
                 * [`process_parsed_coords()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.process_parsed_coords)
 
 
                 * [`process_parsed_fock_matrix()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.process_parsed_fock_matrix)
+
+
+                * [`process_parsed_hess()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.process_parsed_hess)
 
 
                 * [`read_matrix_pattern()`](pymatgen.io.qchem.md#pymatgen.io.qchem.utils.read_matrix_pattern)
@@ -15437,16 +15449,19 @@ nav_order: 6
                     * [`PotcarSingle.functional_tags`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.functional_tags)
 
 
-                    * [`PotcarSingle.get_potcar_file_hash()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.get_potcar_file_hash)
-
-
-                    * [`PotcarSingle.get_potcar_hash()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.get_potcar_hash)
-
-
-                    * [`PotcarSingle.get_sha256_file_hash()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.get_sha256_file_hash)
+                    * [`PotcarSingle.hash_sha256_from_file`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.hash_sha256_from_file)
 
 
                     * [`PotcarSingle.identify_potcar()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.identify_potcar)
+
+
+                    * [`PotcarSingle.is_valid`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.is_valid)
+
+
+                    * [`PotcarSingle.md5_computed_file_hash`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.md5_computed_file_hash)
+
+
+                    * [`PotcarSingle.md5_header_hash`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.md5_header_hash)
 
 
                     * [`PotcarSingle.nelectrons`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.nelectrons)
@@ -15455,7 +15470,13 @@ nav_order: 6
                     * [`PotcarSingle.parse_functions`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.parse_functions)
 
 
+                    * [`PotcarSingle.potcar_summary_stats`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.potcar_summary_stats)
+
+
                     * [`PotcarSingle.potential_type`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.potential_type)
+
+
+                    * [`PotcarSingle.sha256_computed_file_hash`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.sha256_computed_file_hash)
 
 
                     * [`PotcarSingle.symbol`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.PotcarSingle.symbol)
@@ -15488,6 +15509,9 @@ nav_order: 6
                     * [`VaspInput.write_input()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs.VaspInput.write_input)
 
 
+                * [`_gen_potcar_summary_stats()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs._gen_potcar_summary_stats)
+
+
                 * [`_parse_bool()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs._parse_bool)
 
 
@@ -15498,9 +15522,6 @@ nav_order: 6
 
 
                 * [`_parse_list()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs._parse_list)
-
-
-                * [`_parse_string()`](pymatgen.io.vasp.md#pymatgen.io.vasp.inputs._parse_string)
 
 
             * [pymatgen.io.vasp.optics module](pymatgen.io.vasp.md#module-pymatgen.io.vasp.optics)
@@ -17211,10 +17232,10 @@ nav_order: 6
             * [`FiestaInput.as_dict()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.as_dict)
 
 
-            * [`FiestaInput.dump_BSE_data_in_GW_run()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.dump_BSE_data_in_GW_run)
-
-
             * [`FiestaInput.dump_TDDFT_data_in_GW_run()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.dump_TDDFT_data_in_GW_run)
+
+
+            * [`FiestaInput.dump_bse_data_in_gw_run()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.dump_bse_data_in_gw_run)
 
 
             * [`FiestaInput.from_dict()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.from_dict)
@@ -17232,19 +17253,19 @@ nav_order: 6
             * [`FiestaInput.infos_on_system`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.infos_on_system)
 
 
-            * [`FiestaInput.make_FULL_BSE_Densities_folder()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.make_FULL_BSE_Densities_folder)
+            * [`FiestaInput.make_full_bse_densities_folder()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.make_full_bse_densities_folder)
 
 
             * [`FiestaInput.molecule`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.molecule)
 
 
-            * [`FiestaInput.set_BSE_options()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.set_BSE_options)
-
-
-            * [`FiestaInput.set_GW_options()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.set_GW_options)
-
-
             * [`FiestaInput.set_auxiliary_basis_set()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.set_auxiliary_basis_set)
+
+
+            * [`FiestaInput.set_bse_options()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.set_bse_options)
+
+
+            * [`FiestaInput.set_gw_options()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.set_gw_options)
 
 
             * [`FiestaInput.write_file()`](pymatgen.io.md#pymatgen.io.fiesta.FiestaInput.write_file)
@@ -18951,12 +18972,6 @@ nav_order: 6
         * [`KPathLatimerMunro`](pymatgen.symmetry.md#pymatgen.symmetry.kpath.KPathLatimerMunro)
 
 
-            * [`KPathLatimerMunro.LabelPoints()`](pymatgen.symmetry.md#pymatgen.symmetry.kpath.KPathLatimerMunro.LabelPoints)
-
-
-            * [`KPathLatimerMunro.LabelSymbol()`](pymatgen.symmetry.md#pymatgen.symmetry.kpath.KPathLatimerMunro.LabelSymbol)
-
-
             * [`KPathLatimerMunro._abc_impl`](pymatgen.symmetry.md#pymatgen.symmetry.kpath.KPathLatimerMunro._abc_impl)
 
 
@@ -19024,6 +19039,12 @@ nav_order: 6
 
 
             * [`KPathLatimerMunro._reduce_cosines_array()`](pymatgen.symmetry.md#pymatgen.symmetry.kpath.KPathLatimerMunro._reduce_cosines_array)
+
+
+            * [`KPathLatimerMunro.label_points()`](pymatgen.symmetry.md#pymatgen.symmetry.kpath.KPathLatimerMunro.label_points)
+
+
+            * [`KPathLatimerMunro.label_symbol()`](pymatgen.symmetry.md#pymatgen.symmetry.kpath.KPathLatimerMunro.label_symbol)
 
 
             * [`KPathLatimerMunro.mag_type`](pymatgen.symmetry.md#pymatgen.symmetry.kpath.KPathLatimerMunro.mag_type)
@@ -20342,9 +20363,6 @@ nav_order: 6
 
 
             * [`PymatgenTest.TEST_STRUCTURES`](pymatgen.util.md#pymatgen.util.testing.PymatgenTest.TEST_STRUCTURES)
-
-
-            * [`PymatgenTest._multiprocess_shared_`](pymatgen.util.md#pymatgen.util.testing.PymatgenTest._multiprocess_shared_)
 
 
             * [`PymatgenTest._tmp_dir()`](pymatgen.util.md#pymatgen.util.testing.PymatgenTest._tmp_dir)
