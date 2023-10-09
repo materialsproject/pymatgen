@@ -6,6 +6,8 @@ where it was originally done by Guido Petretto and Matteo Giantomassi.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from monty.json import MSONable
 
@@ -13,6 +15,14 @@ from pymatgen.core.spectrum import Spectrum
 from pymatgen.core.structure import Structure
 from pymatgen.util.plotting import add_fig_kwargs
 from pymatgen.vis.plotters import SpectrumPlotter
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from os import PathLike
+    from typing import Self
+
+    from matplotlib.axes import Axes
+    from numpy.typing import ArrayLike
 
 __author__ = "Henrique Miranda, Guido Petretto, Matteo Giantomassi"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -28,7 +38,13 @@ class IRDielectricTensor(MSONable):
     See the definitions Eq.(53-54) in :cite:`Gonze1997` PRB55, 10355 (1997).
     """
 
-    def __init__(self, oscillator_strength, ph_freqs_gamma, epsilon_infinity, structure):
+    def __init__(
+        self,
+        oscillator_strength: ArrayLike,
+        ph_freqs_gamma: ArrayLike,
+        epsilon_infinity: ArrayLike,
+        structure: Structure,
+    ) -> None:
         """
         Args:
             oscillator_strength: IR oscillator strengths as defined in Eq. 54 in
@@ -43,25 +59,25 @@ class IRDielectricTensor(MSONable):
         self.epsilon_infinity = np.array(epsilon_infinity)
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Returns IRDielectricTensor from dict representation."""
-        structure = Structure.from_dict(d["structure"])
-        oscillator_strength = d["oscillator_strength"]
-        ph_freqs_gamma = d["ph_freqs_gamma"]
-        epsilon_infinity = d["epsilon_infinity"]
+        structure = Structure.from_dict(dct["structure"])
+        oscillator_strength = dct["oscillator_strength"]
+        ph_freqs_gamma = dct["ph_freqs_gamma"]
+        epsilon_infinity = dct["epsilon_infinity"]
         return cls(oscillator_strength, ph_freqs_gamma, epsilon_infinity, structure)
 
     @property
-    def max_phfreq(self):
+    def max_phfreq(self) -> float:
         """Maximum phonon frequency."""
         return max(self.ph_freqs_gamma)
 
     @property
-    def nph_freqs(self):
+    def nph_freqs(self) -> int:
         """Number of phonon frequencies."""
         return len(self.ph_freqs_gamma)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """JSON-serializable dict representation of IRDielectricTensor."""
         return {
             "@module": type(self).__module__,
@@ -72,14 +88,16 @@ class IRDielectricTensor(MSONable):
             "epsilon_infinity": self.epsilon_infinity.tolist(),
         }
 
-    def write_json(self, filename):
+    def write_json(self, filename: str | PathLike) -> None:
         """Save a json file with this data."""
         import json
 
         with open(filename, "w") as f:
             json.dump(self.as_dict(), f)
 
-    def get_ir_spectra(self, broad=0.00005, emin=0, emax=None, divs=500):
+    def get_ir_spectra(
+        self, broad: list | float = 0.00005, emin: float = 0, emax: float | None = None, divs: int = 500
+    ) -> tuple:
         """The IR spectra is obtained for the different directions.
 
         Args:
@@ -115,7 +133,15 @@ class IRDielectricTensor(MSONable):
         return frequencies, dielectric_tensor
 
     @add_fig_kwargs
-    def plot(self, components=("xx",), reim="reim", show_phonon_frequencies=True, xlim=None, ylim=None, **kwargs):
+    def plot(
+        self,
+        components: Sequence = ("xx",),
+        reim: str = "reim",
+        show_phonon_frequencies: bool = True,
+        xlim: float | None = None,
+        ylim: float | None = None,
+        **kwargs,
+    ) -> Axes:
         """Helper function to generate the Spectrum plotter and directly plot the results.
 
         Arguments:
@@ -137,7 +163,16 @@ class IRDielectricTensor(MSONable):
         ax.set_xlabel(r"Frequency (meV)")
         return ax
 
-    def get_spectrum(self, component, reim, broad=0.00005, emin=0, emax=None, divs=500, label=None):
+    def get_spectrum(
+        self,
+        component: Sequence | str,
+        reim: str,
+        broad: list | float = 0.00005,
+        emin: float = 0,
+        emax: float | None = None,
+        divs: int = 500,
+        label=None,
+    ) -> Spectrum:
         """component: either two indexes or a string like 'xx' to plot the (0,0) component
         reim: only "re" or "im"
         broad: a list of broadenings or a single broadening for the phonon peaks.
@@ -155,7 +190,16 @@ class IRDielectricTensor(MSONable):
 
         return Spectrum(frequencies * 1000, y, label=label)
 
-    def get_plotter(self, components=("xx",), reim="reim", broad=0.00005, emin=0, emax=None, divs=500, **kwargs):
+    def get_plotter(
+        self,
+        components: Sequence = ("xx",),
+        reim: str = "reim",
+        broad: list | float = 0.00005,
+        emin: float = 0,
+        emax: float | None = None,
+        divs: int = 500,
+        **kwargs,
+    ) -> SpectrumPlotter:
         """Return an instance of the Spectrum plotter containing the different requested components.
 
         Arguments:
