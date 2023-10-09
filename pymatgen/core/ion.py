@@ -183,10 +183,10 @@ class Ion(Composition, MSONable, Stringify):
         charge is placed in brackets with the sign preceding the magnitude, e.g.,
         'Ca[+2]'. Uncharged species have "(aq)" appended, e.g. "O2(aq)".
         """
-        rform, factor = self.get_reduced_formula_and_factor()
+        formula, factor = self.get_reduced_formula_and_factor()
         charge = self._charge / factor
         chg_str = charge_string(charge)
-        return rform + chg_str
+        return formula + chg_str
 
     @property
     def alphabetical_formula(self) -> str:
