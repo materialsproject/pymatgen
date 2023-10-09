@@ -414,7 +414,7 @@ class ThermalDisplacementMatrices(MSONable):
     @staticmethod
     def from_Ucif(
         thermal_displacement_matrix_cif: ArrayLike[ArrayLike], structure: Structure, temperature: float | None = None
-    ) -> Self:
+    ) -> ThermalDisplacementMatrices:
         """Starting from a numpy array, it will convert Ucif values into Ucart values and initialize the class.
 
         Args:
@@ -489,7 +489,9 @@ class ThermalDisplacementMatrices(MSONable):
         return self.structure.copy(site_properties=site_properties)
 
     @staticmethod
-    def from_structure_with_site_properties_Ucif(structure: Structure, temperature: float | None = None) -> Self:
+    def from_structure_with_site_properties_Ucif(
+        structure: Structure, temperature: float | None = None
+    ) -> ThermalDisplacementMatrices:
         """Will create this object with the help of a structure with site properties.
 
         Args:
