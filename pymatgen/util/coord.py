@@ -15,6 +15,9 @@ from monty.json import MSONable
 from pymatgen.util import coord_cython
 
 if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Literal
+
     from numpy.typing import ArrayLike
 
 
@@ -22,7 +25,7 @@ if typing.TYPE_CHECKING:
 LOOP_THRESHOLD = 1e6
 
 
-def find_in_coord_list(coord_list, coord, atol=1e-8):
+def find_in_coord_list(coord_list, coord, atol: float = 1e-8):
     """Find the indices of matches of a particular coord in a coord_list.
 
     Args:
@@ -40,7 +43,7 @@ def find_in_coord_list(coord_list, coord, atol=1e-8):
     return np.where(np.all(np.abs(diff) < atol, axis=1))[0]
 
 
-def in_coord_list(coord_list, coord, atol=1e-8):
+def in_coord_list(coord_list, coord, atol: float = 1e-8):
     """Tests if a particular coord is within a coord_list.
 
     Args:
@@ -97,7 +100,7 @@ def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-
     return inds
 
 
-def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
+def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)):
     """Gives the index mapping from a subset to a superset.
     Superset cannot contain duplicate matching rows.
 
@@ -116,7 +119,7 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
     return coord_cython.coord_list_mapping_pbc(subset, superset, atol, pbc)
 
 
-def get_linear_interpolated_value(x_values, y_values, x):
+def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x):
     """Returns an interpolated value by linear interpolation between two values.
     This method is written to avoid dependency on scipy, which causes issues on
     threading servers.
@@ -143,7 +146,7 @@ def get_linear_interpolated_value(x_values, y_values, x):
     return y1 + (y2 - y1) / (x2 - x1) * (x - x1)
 
 
-def all_distances(coords1, coords2):
+def all_distances(coords1: ArrayLike, coords2: ArrayLike) -> np.ndarray:
     """Returns the distances between two lists of coordinates.
 
     Args:
@@ -205,7 +208,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     return coord_cython.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2)
 
 
-def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True)):
+def find_in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)):
     """Get the indices of all points in a fractional coord list that are
     equal to a fractional coord (with a tolerance), taking into account
     periodic boundary conditions.
@@ -228,7 +231,7 @@ def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True
     return np.where(np.all(np.abs(fdist) < atol, axis=1))[0]
 
 
-def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True)):
+def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)):
     """Tests if a particular fractional coord is within a fractional coord_list.
 
     Args:
@@ -244,7 +247,9 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8, pbc=(True, True, True)):
     return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol, pbc=pbc)) > 0
 
 
-def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc=(True, True, True)):
+def is_coord_subset_pbc(
+    subset, superset, atol: float = 1e-8, mask=None, pbc: tuple[bool, bool, bool] = (True, True, True)
+):
     """Tests if all fractional coords in subset are contained in superset.
 
     Args:
@@ -319,7 +324,7 @@ def barycentric_coords(coords, simplex):
     return np.append(all_but_one, last_coord, axis=-1)
 
 
-def get_angle(v1, v2, units="degrees"):
+def get_angle(v1, v2, units: Literal["degrees", "radians"] = "degrees"):
     """Calculates the angle between two vectors.
 
     Args:
@@ -412,7 +417,7 @@ class Simplex(MSONable):
         """
         return (self.bary_coords(point) >= -tolerance).all()
 
-    def line_intersection(self, point1, point2, tolerance=1e-8):
+    def line_intersection(self, point1: Sequence[float], point2: Sequence[float], tolerance: float = 1e-8):
         """Computes the intersection points of a line with a simplex.
 
         Args:
@@ -431,7 +436,7 @@ class Simplex(MSONable):
         # array of all the barycentric coordinates on the line where
         # one of the values is 0
         possible = b1 - (b1[valid] / line[valid])[:, None] * line
-        barys = []
+        barys: list = []
         for p in possible:
             # it's only an intersection if its in the simplex
             if (p >= -tolerance).all():
@@ -454,12 +459,12 @@ class Simplex(MSONable):
     def __hash__(self) -> int:
         return len(self._coords)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         output = [f"{self.simplex_dim}-simplex in {self.space_dim}D space\nVertices:"]
         output += [f"\t({', '.join(map(str, coord))})" for coord in self._coords]
         return "\n".join(output)
 
     @property
-    def coords(self):
+    def coords(self) -> np.ndarray:
         """Returns a copy of the vertex coordinates in the simplex."""
         return self._coords.copy()

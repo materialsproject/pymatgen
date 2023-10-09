@@ -13,6 +13,7 @@ import shutil
 import warnings
 from pathlib import Path
 from string import Template
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import deprecated
@@ -23,6 +24,9 @@ from pymatgen.core import __version__ as CURRENT_VER
 from pymatgen.io.core import InputFile
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.template import TemplateInputGen
+
+if TYPE_CHECKING:
+    from os import PathLike
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -512,7 +516,7 @@ class LammpsInputFile(InputFile):
 
         return lammps_input
 
-    def write_file(self, filename: str | Path, ignore_comments: bool = False, keep_stages: bool = True) -> None:
+    def write_file(self, filename: str | PathLike, ignore_comments: bool = False, keep_stages: bool = True) -> None:
         """
         Writes the input file.
 
