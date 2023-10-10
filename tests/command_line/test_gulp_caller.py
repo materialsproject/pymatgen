@@ -278,7 +278,7 @@ class TestGlobalFunctions(unittest.TestCase):
         self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
         bv = BVAnalyzer()
         val = bv.get_valences(self.mgo_uc)
-        el = [site.species_string for site in self.mgo_uc.sites]
+        el = [site.species_string for site in self.mgo_uc]
         self.val_dict = dict(zip(el, val))
 
     def test_get_energy_tersoff(self):

@@ -92,7 +92,7 @@ class Ion(Composition, MSONable, Stringify):
         chg_str = charge_string(self._charge, brackets=False)
         return anon_formula + chg_str
 
-    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False, hydrates: bool = True) -> tuple[str, float]:
+    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False, hydrates: bool = False) -> tuple[str, float]:
         """Calculates a reduced formula and factor.
 
         Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
@@ -183,10 +183,10 @@ class Ion(Composition, MSONable, Stringify):
         charge is placed in brackets with the sign preceding the magnitude, e.g.,
         'Ca[+2]'. Uncharged species have "(aq)" appended, e.g. "O2(aq)".
         """
-        reduced_formula = super().reduced_formula
-        charge = self._charge / self.get_reduced_composition_and_factor()[1]
+        formula, factor = self.get_reduced_formula_and_factor()
+        charge = self._charge / factor
         chg_str = charge_string(charge)
-        return reduced_formula + chg_str
+        return formula + chg_str
 
     @property
     def alphabetical_formula(self) -> str:

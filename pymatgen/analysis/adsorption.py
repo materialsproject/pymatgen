@@ -159,7 +159,7 @@ class AdsorbateSiteFinder:
         sites.
 
         Args:
-            site_list (list): list of sites from which to select surface sites
+            slab (Slab): slab for which to find surface sites
             height (float): threshold in angstroms of distance from topmost
                 site in slab along the slab c-vector to include in surface
                 site determination
@@ -170,7 +170,7 @@ class AdsorbateSiteFinder:
             list of sites selected to be within a threshold of the highest
         """
         # Get projection of coordinates along the miller index
-        m_projs = np.array([np.dot(site.coords, self.mvec) for site in slab.sites])
+        m_projs = np.array([np.dot(site.coords, self.mvec) for site in slab])
 
         # Mask based on window threshold along the miller index.
         mask = (m_projs - np.amax(m_projs)) >= -height
@@ -196,7 +196,7 @@ class AdsorbateSiteFinder:
             return slab
 
         surf_sites = self.find_surface_sites_by_height(slab, height)
-        surf_props = ["surface" if site in surf_sites else "subsurface" for site in slab.sites]
+        surf_props = ["surface" if site in surf_sites else "subsurface" for site in slab]
         return slab.copy(site_properties={"surface_properties": surf_props})
 
     def get_extended_surface_mesh(self, repeat=(5, 5, 1)):
@@ -213,11 +213,11 @@ class AdsorbateSiteFinder:
     @property
     def surface_sites(self):
         """Convenience method to return a list of surface sites."""
-        return [site for site in self.slab.sites if site.properties["surface_properties"] == "surface"]
+        return [site for site in self.slab if site.properties["surface_properties"] == "surface"]
 
     def subsurface_sites(self):
         """Convenience method to return list of subsurface sites."""
-        return [site for site in self.slab.sites if site.properties["surface_properties"] == "subsurface"]
+        return [site for site in self.slab if site.properties["surface_properties"] == "subsurface"]
 
     def find_adsorption_sites(
         self,
@@ -378,7 +378,7 @@ class AdsorbateSiteFinder:
             # Translate the molecule so that the center of mass of the atoms
             # that have the most negative z coordinate is at (0, 0, 0)
             front_atoms = molecule.copy()
-            front_atoms._sites = [s for s in molecule.sites if s.coords[2] == min(s.coords[2] for s in molecule.sites)]
+            front_atoms._sites = [s1 for s1 in molecule if s1.coords[2] == min(s2.coords[2] for s2 in molecule)]
             x, y, z = front_atoms.center_of_mass
             molecule.translate_sites(vector=[-x, -y, -z])
         if reorient:
@@ -412,7 +412,7 @@ class AdsorbateSiteFinder:
         sd_list = []
         sd_list = [
             [False, False, False] if site.properties["surface_properties"] == "subsurface" else [True, True, True]
-            for site in slab.sites
+            for site in slab
         ]
         new_sp = slab.site_properties
         new_sp["selective_dynamics"] = sd_list
@@ -501,7 +501,7 @@ class AdsorbateSiteFinder:
         for ad_slab in ad_slabs:
             # Find the adsorbate sites and indices in each slab
             _, adsorbates, indices = False, [], []
-            for idx, site in enumerate(ad_slab.sites):
+            for idx, site in enumerate(ad_slab):
                 if site.surface_properties == "adsorbate":
                     adsorbates.append(site)
                     indices.append(idx)

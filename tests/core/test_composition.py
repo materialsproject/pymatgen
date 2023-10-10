@@ -361,21 +361,21 @@ class TestComposition(PymatgenTest):
                 assert c1[el] == approx(c2[el], abs=1e-3)
 
     def test_tofrom_weight_dict(self):
-        for c in self.comps:
-            c2 = Composition().from_weight_dict(c.to_weight_dict)
-            c.almost_equals(c2)
+        for comp in self.comps:
+            c2 = Composition().from_weight_dict(comp.to_weight_dict)
+            comp.almost_equals(c2)
 
     def test_as_dict(self):
-        c = Composition.from_dict({"Fe": 4, "O": 6})
-        d = c.as_dict()
+        comp = Composition.from_dict({"Fe": 4, "O": 6})
+        dct = comp.as_dict()
         correct_dict = {"Fe": 4.0, "O": 6.0}
-        assert d["Fe"] == correct_dict["Fe"]
-        assert d["O"] == correct_dict["O"]
+        assert dct["Fe"] == correct_dict["Fe"]
+        assert dct["O"] == correct_dict["O"]
         correct_dict = {"Fe": 2.0, "O": 3.0}
-        d = c.to_reduced_dict
-        assert isinstance(d, dict)
-        assert d["Fe"] == correct_dict["Fe"]
-        assert d["O"] == correct_dict["O"]
+        dct = comp.to_reduced_dict
+        assert isinstance(dct, dict)
+        assert dct["Fe"] == correct_dict["Fe"]
+        assert dct["O"] == correct_dict["O"]
 
     def test_pickle(self):
         for comp in self.comps:
@@ -392,7 +392,7 @@ class TestComposition(PymatgenTest):
         assert (self.comps[3] + {"Fe": 4, "O": 4}).formula == "Li4 Fe4 O8", "Incorrect composition after addition!"
 
         Fe = Element("Fe")
-        assert self.comps[0].__add__(Fe) == NotImplemented  # pylint: disable=C2801
+        assert self.comps[0].__add__(Fe) == NotImplemented
 
     def test_sub(self):
         assert (
@@ -409,7 +409,7 @@ class TestComposition(PymatgenTest):
         assert len((c1 - c2).elements) == 1
 
         Fe = Element("Fe")
-        assert self.comps[0].__add__(Fe) == NotImplemented  # pylint: disable=C2801
+        assert self.comps[0].__add__(Fe) == NotImplemented
 
     def test_mul(self):
         assert (self.comps[0] * 4).formula == "Li12 Fe8 P12 O48"

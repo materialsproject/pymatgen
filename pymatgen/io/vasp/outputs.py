@@ -2982,7 +2982,7 @@ class Outcar:
 
     def read_pseudo_zval(self):
         """Create pseudopotential ZVAL dictionary."""
-        # pylint: disable=E1101
+
         try:
 
             def atom_symbols(results, match):
@@ -2996,8 +2996,7 @@ class Outcar:
                 results.zvals = map(float, re.findall(r"-?\d+\.\d*", zvals))
 
             search = []
-            search.append([r"(?<=VRHFIN =)(.*)(?=:)", None, atom_symbols])
-            search.append([r"^\s+ZVAL.*=(.*)", None, zvals])
+            search.extend((["(?<=VRHFIN =)(.*)(?=:)", None, atom_symbols], ["^\\s+ZVAL.*=(.*)", None, zvals]))
 
             micro_pyawk(self.filename, search, self)
 
@@ -3249,7 +3248,7 @@ class VolumetricData(BaseVolumetricData):
         Returns:
             (poscar, data)
         """
-        # pylint: disable=E1136,E1126
+
         poscar_read = False
         poscar_string = []
         dataset = []
@@ -3577,7 +3576,7 @@ class Procar:
             done = False
             spin = Spin.down
             weights = None
-            # pylint: disable=E1137
+
             for line in file_handle:
                 line = line.strip()
                 if bandexpr.match(line):
@@ -3856,7 +3855,6 @@ class Xdatcar:
         if ionicstep_end is not None and ionicstep_start < 1:
             raise Exception("End ionic step cannot be less than 1")
 
-        # pylint: disable=E1136
         ionicstep_cnt = 1
         with zopen(filename, "rt") as file:
             for line in file:
@@ -3951,7 +3949,6 @@ class Xdatcar:
         if ionicstep_end is not None and ionicstep_start < 1:
             raise Exception("End ionic step cannot be less than 1")
 
-        # pylint: disable=E1136
         ionicstep_cnt = 1
         with zopen(filename, "rt") as f:
             for line in f:
@@ -4010,8 +4007,7 @@ class Xdatcar:
         if np.linalg.det(latt.matrix) < 0:
             latt = Lattice(-latt.matrix)
         lines = [self.comment, "1.0", str(latt)]
-        lines.append(" ".join(self.site_symbols))
-        lines.append(" ".join(str(x) for x in self.natoms))
+        lines.extend((" ".join(self.site_symbols), " ".join(str(x) for x in self.natoms)))
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
         output_cnt = 1

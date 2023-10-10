@@ -118,7 +118,7 @@ class Spectrum(MSONable):
             self.y = np.array([convolve1d(self.y[:, k], weights) for k in range(self.ydim[1])]).T
             self.y *= total / np.sum(self.y, axis=0)  # renormalize to maintain the same integrated sum as before.
 
-    def get_interpolated_value(self, x: float) -> list[float]:
+    def get_interpolated_value(self, x: float) -> float | list[float]:
         """Returns an interpolated y value for a particular x value.
 
         Args:

@@ -35,7 +35,7 @@ test_dir = f"{TEST_FILES_DIR}/piezo_sensitivity"
 
 class TestPiezoSensitivity(PymatgenTest):
     def setUp(self):
-        self.piezo_struc = self.get_structure("Pb2TiZrO6")
+        self.piezo_struct = self.get_structure("Pb2TiZrO6")
         self.IST = np.load(f"{test_dir}/pztist.npy", allow_pickle=True)
         self.BEC = np.load(f"{test_dir}/pztborn.npy", allow_pickle=True)
         self.FCM = np.load(f"{test_dir}/pztfcm.npy", allow_pickle=True)
@@ -67,19 +67,19 @@ class TestPiezoSensitivity(PymatgenTest):
         )
 
     def test_born_effective_charge_tensor(self):
-        bec = BornEffectiveCharge(self.piezo_struc, self.BEC, self.pointops)
+        bec = BornEffectiveCharge(self.piezo_struct, self.BEC, self.pointops)
         assert_allclose(self.BEC, bec.bec)
 
     def test_internal_strain_tensor(self):
-        ist = InternalStrainTensor(self.piezo_struc, self.IST, self.pointops)
+        ist = InternalStrainTensor(self.piezo_struct, self.IST, self.pointops)
         assert_allclose(ist.ist, self.IST)
 
     def test_force_constant_matrix(self):
-        fcmt = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
+        fcmt = ForceConstantMatrix(self.piezo_struct, self.FCM, self.pointops, self.sharedops)
         assert_allclose(fcmt.fcm, self.FCM)
 
     def test_get_bec_operations(self):
-        bec = BornEffectiveCharge(self.piezo_struc, self.BEC, self.pointops)
+        bec = BornEffectiveCharge(self.piezo_struct, self.BEC, self.pointops)
         # update test file
         # with open(f"{test_dir}/becops.pkl", "wb") as file:
         #     pickle.dump(bec.get_BEC_operations(), file)
@@ -87,7 +87,7 @@ class TestPiezoSensitivity(PymatgenTest):
         assert np.all(self.BEC_operations == bec.BEC_operations)
 
     def test_get_rand_bec(self):
-        bec = BornEffectiveCharge(self.piezo_struc, self.BEC, self.pointops)
+        bec = BornEffectiveCharge(self.piezo_struct, self.BEC, self.pointops)
         bec.get_BEC_operations()
         rand_BEC = bec.get_rand_BEC()
         for i in range(len(self.BEC_operations)):
@@ -99,7 +99,7 @@ class TestPiezoSensitivity(PymatgenTest):
                 )
 
     def test_get_rand_ist(self):
-        ist = InternalStrainTensor(self.piezo_struc, self.IST, self.pointops)
+        ist = InternalStrainTensor(self.piezo_struct, self.IST, self.pointops)
         ist.get_IST_operations()
         rand_IST = ist.get_rand_IST()
         for i in range(len(self.IST_operations)):
@@ -111,7 +111,7 @@ class TestPiezoSensitivity(PymatgenTest):
                 )
 
     def test_get_fcm_operations(self):
-        fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
+        fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.pointops, self.sharedops)
         # update test file
         # with open(f"{test_dir}/fcmops.pkl", "wb") as file:
         #     pickle.dump(fcm.get_FCM_operations(), file)
@@ -119,7 +119,7 @@ class TestPiezoSensitivity(PymatgenTest):
         assert np.all(fcm.FCM_operations == self.FCM_operations)
 
     def test_get_unstable_fcm(self):
-        fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
+        fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_unstable_FCM()
         rand_FCM = np.reshape(rand_FCM, (10, 3, 10, 3)).swapaxes(1, 2)
@@ -134,7 +134,7 @@ class TestPiezoSensitivity(PymatgenTest):
                 )
 
     def test_get_fcm_symmetry(self):
-        fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
+        fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
 
         fcm = fcm.get_symmetrized_FCM(np.random.rand(30, 30))
@@ -150,7 +150,7 @@ class TestPiezoSensitivity(PymatgenTest):
                 )
 
     def test_get_asum_fcm(self):
-        fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
+        fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_unstable_FCM()
         rand_FCM = fcm.get_asum_FCM(rand_FCM)
@@ -176,7 +176,7 @@ class TestPiezoSensitivity(PymatgenTest):
             assert_allclose(asum2, np.zeros([3, 3]), atol=1e-5)
 
     def test_get_stable_fcm(self):
-        fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
+        fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_unstable_FCM()
         rand_FCM1 = fcm.get_stable_FCM(rand_FCM)
@@ -209,18 +209,18 @@ class TestPiezoSensitivity(PymatgenTest):
 
     def test_rand_fcm(self):
         pytest.importorskip("phonopy")
-        fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
+        fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_rand_FCM()
-        structure = pymatgen.io.phonopy.get_phonopy_structure(self.piezo_struc)
+        structure = pymatgen.io.phonopy.get_phonopy_structure(self.piezo_struct)
         pn_struct = Phonopy(structure, np.eye(3), np.eye(3))
 
         pn_struct.set_force_constants(rand_FCM)
         dyn = pn_struct.get_dynamical_matrix_at_q([0, 0, 0])
         dyn = np.reshape(dyn, (10, 3, 10, 3)).swapaxes(1, 2)
         dyn = np.real(dyn)
-        n_sites = len(self.piezo_struc)
-        masses = [site.specie.atomic_mass for site in self.piezo_struc.sites]
+        n_sites = len(self.piezo_struct)
+        masses = [site.specie.atomic_mass for site in self.piezo_struct]
         dyn_mass = np.zeros([n_sites, n_sites, 3, 3])
         for m in range(n_sites):
             for n in range(n_sites):
@@ -260,7 +260,7 @@ class TestPiezoSensitivity(PymatgenTest):
     def test_rand_piezo(self):
         pytest.importorskip("phonopy")
         rand_BEC, rand_IST, rand_FCM, piezo = rand_piezo(
-            self.piezo_struc, self.pointops, self.sharedops, self.BEC, self.IST, self.FCM
+            self.piezo_struct, self.pointops, self.sharedops, self.BEC, self.IST, self.FCM
         )
 
         for i in range(len(self.BEC_operations)):
@@ -279,25 +279,25 @@ class TestPiezoSensitivity(PymatgenTest):
                     atol=1e-3,
                 )
 
-        structure = pymatgen.io.phonopy.get_phonopy_structure(self.piezo_struc)
+        structure = pymatgen.io.phonopy.get_phonopy_structure(self.piezo_struct)
         pn_struct = Phonopy(structure, np.eye(3), np.eye(3))
 
         pn_struct.set_force_constants(rand_FCM)
         dyn = pn_struct.get_dynamical_matrix_at_q([0, 0, 0])
         dyn = np.reshape(dyn, (10, 3, 10, 3)).swapaxes(1, 2)
         dyn = np.real(dyn)
-        n_sites = len(self.piezo_struc)
-        masses = [site.specie.atomic_mass for site in self.piezo_struc.sites]
+        n_sites = len(self.piezo_struct)
+        masses = [site.specie.atomic_mass for site in self.piezo_struct]
         dyn_mass = np.zeros([n_sites, n_sites, 3, 3])
         for m in range(n_sites):
             for n in range(n_sites):
                 dyn_mass[m][n] = dyn[m][n] / np.sqrt(masses[m]) / np.sqrt(masses[n])
 
         dyn_mass = np.reshape(np.swapaxes(dyn_mass, 1, 2), (10 * 3, 10 * 3))
-        eigs, vecs = np.linalg.eig(dyn_mass)
-        eigsort = np.argsort(np.abs(eigs))
+        eigs, _eig_vecs = np.linalg.eig(dyn_mass)
+        eig_sorted = np.argsort(np.abs(eigs))
         for i in range(3, len(eigs)):
-            assert eigs[eigsort[i]] < 1e-6
+            assert eigs[eig_sorted[i]] < 1e-6
         # rand_FCM1 = np.reshape(rand_FCM1, (10,3,10,3)).swapaxes(1,2)
 
         dyn_mass = np.reshape(dyn_mass, (10, 3, 10, 3)).swapaxes(1, 2)

@@ -70,15 +70,14 @@ class TestIon(unittest.TestCase):
             ("C2H6O", "C2H5OH(aq)"),
             ("C3H8O", "C3H7OH(aq)"),
             ("C4H10O", "C4H9OH(aq)"),
-            ("Fe(OH)4+", "FeO2.2H2O[+1]"),
-            ("Zr(OH)4", "ZrO2.2H2O(aq)"),
+            ("Fe(OH)4+", "Fe(OH)4[+1]"),
+            ("Zr(OH)4", "Zr(OH)4(aq)"),
         ]
 
         for tup in special_formulas:
             assert Ion.from_formula(tup[0]).reduced_formula == tup[1]
 
-        assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=False) == ("Fe(OH)4", 1)
-        assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=False) == ("Zr(OH)4", 1)
+        assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=True) == ("FeO2.2H2O", 1)
         assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=True) == ("ZrO2.2H2O", 1)
         assert Ion.from_formula("O").get_reduced_formula_and_factor(hydrates=False) == ("O", 1)
         assert Ion.from_formula("O2").get_reduced_formula_and_factor(hydrates=False) == ("O2", 1)

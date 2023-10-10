@@ -792,16 +792,7 @@ class Incar(dict, MSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = (
-            "LDAUU",
-            "LDAUL",
-            "LDAUJ",
-            "MAGMOM",
-            "DIPOL",
-            "LANGEVIN_GAMMA",
-            "QUAD_EFG",
-            "EINT",
-        )
+        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL", "LANGEVIN_GAMMA", "QUAD_EFG", "EINT")
         bool_keys = (
             "LDAU",
             "LWAVE",
@@ -814,18 +805,7 @@ class Incar(dict, MSONable):
             "LSORBIT",
             "LNONCOLLINEAR",
         )
-        float_keys = (
-            "EDIFF",
-            "SIGMA",
-            "TIME",
-            "ENCUTFOCK",
-            "HFSCREEN",
-            "POTIM",
-            "EDIFFG",
-            "AGGAC",
-            "PARAM1",
-            "PARAM2",
-        )
+        float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN", "POTIM", "EDIFFG", "AGGAC", "PARAM1", "PARAM2")
         int_keys = (
             "NSW",
             "NBANDS",
@@ -848,10 +828,10 @@ class Incar(dict, MSONable):
             "IVDW",
         )
 
-        def smart_int_or_float(numstr):
-            if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
-                return float(numstr)
-            return int(numstr)
+        def smart_int_or_float(num_str):
+            if num_str.find(".") != -1 or num_str.lower().find("e") != -1:
+                return float(num_str)
+            return int(num_str)
 
         try:
             if key in list_keys:
@@ -936,7 +916,7 @@ class Incar(dict, MSONable):
         params = dict(self.items())
         for key, val in other.items():
             if key in self and val != self[key]:
-                raise ValueError("Incars have conflicting values!")
+                raise ValueError(f"Incars have conflicting values for {key}: {self[key]} != {val}")
             params[key] = val
         return Incar(params)
 
@@ -986,18 +966,18 @@ class KpointsSupportedModes(Enum):
         return cls.from_str(*args, **kwargs)
 
     @staticmethod
-    def from_str(s: str) -> KpointsSupportedModes:
+    def from_str(mode: str) -> KpointsSupportedModes:
         """
         :param s: String
 
         Returns:
             Kpoints_supported_modes
         """
-        c = s.lower()[0]
-        for m in KpointsSupportedModes:
-            if m.name.lower()[0] == c:
-                return m
-        raise ValueError(f"Can't interpret Kpoint mode {s}")
+        initial = mode.lower()[0]
+        for key in KpointsSupportedModes:
+            if key.name.lower()[0] == initial:
+                return key
+        raise ValueError(f"Invalid Kpoint {mode=}")
 
 
 class Kpoints(MSONable):
@@ -1492,8 +1472,7 @@ class Kpoints(MSONable):
 
         # Print tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
-            lines.append("Tetrahedron")
-            lines.append(f"{self.tet_number} {self.tet_weight:f}")
+            lines.extend(("Tetrahedron", f"{self.tet_number} {self.tet_weight:f}"))
             for sym_weight, vertices in self.tet_connections:
                 a, b, c, d = vertices
                 lines.append(f"{sym_weight} {a} {b} {c} {d}")
@@ -2501,9 +2480,7 @@ class VaspInput(dict, MSONable):
     def __str__(self):
         output = []
         for k, v in self.items():
-            output.append(k)
-            output.append(str(v))
-            output.append("")
+            output.extend((k, str(v), ""))
         return "\n".join(output)
 
     def as_dict(self):

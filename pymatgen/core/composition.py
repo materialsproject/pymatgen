@@ -634,10 +634,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             dict[str, float]: element symbol and (unreduced) amount. E.g.
             {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}.
         """
-        dic: dict[str, float] = collections.defaultdict(float)
+        dct: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
-            dic[el.symbol] += amt
-        return dic
+            dct[el.symbol] += amt
+        return dict(dct)
 
     def as_dict(self) -> dict[str, float]:
         """Subtly different from get_el_amt_dict in that they keys here are str(Element)
@@ -647,10 +647,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             dict[str, float]: element symbol and (unreduced) amount. E.g.
                 {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
-        dic: dict[str, float] = collections.defaultdict(float)
+        dct: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
-            dic[str(el)] += amt
-        return dic
+            dct[str(el)] += amt
+        return dict(dct)
 
     @property
     def to_reduced_dict(self) -> dict[str, float]:
@@ -1171,27 +1171,26 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
     if all(int(i) == i for i in sym_amt.values()):
         factor = abs(gcd(*(int(i) for i in sym_amt.values())))
 
-    polyanion = []
+    poly_anions = []
     # if the composition contains a poly anion
     if len(syms) >= 3 and get_el_sp(syms[-1]).X - get_el_sp(syms[-2]).X < 1.65:
         poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor for i in [-2, -1]}
         (poly_form, poly_factor) = reduce_formula(poly_sym_amt, iupac_ordering=iupac_ordering)
 
         if poly_factor != 1:
-            polyanion.append(f"({poly_form}){poly_factor}")
+            poly_anions.append(f"({poly_form}){poly_factor}")
 
-    syms = syms[: len(syms) - 2 if polyanion else len(syms)]
+    syms = syms[: len(syms) - 2 if poly_anions else len(syms)]
 
     if iupac_ordering:
         syms = sorted(syms, key=lambda x: [get_el_sp(x).iupac_ordering, x])
 
-    reduced_form = []
+    reduced_form: list[str] = []
     for sym in syms:
         norm_amt = sym_amt[sym] * 1.0 / factor
-        reduced_form.append(sym)
-        reduced_form.append(str(formula_double_format(norm_amt)))
+        reduced_form.extend((sym, str(formula_double_format(norm_amt))))
 
-    return "".join([*reduced_form, *polyanion]), factor
+    return "".join([*reduced_form, *poly_anions]), factor
 
 
 class ChemicalPotential(dict, MSONable):

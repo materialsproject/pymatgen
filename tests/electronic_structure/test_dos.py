@@ -61,14 +61,14 @@ class TestFermiDos(unittest.TestCase):
     def test_doping_fermi(self):
         T = 300
         fermi0 = self.dos.efermi
-        frange = [fermi0 - 0.5, fermi0, fermi0 + 2.0, fermi0 + 2.2]
-        dopings = [self.dos.get_doping(fermi_level=f, temperature=T) for f in frange]
+        fermi_range = [fermi0 - 0.5, fermi0, fermi0 + 2.0, fermi0 + 2.2]
+        dopings = [self.dos.get_doping(fermi_level=f, temperature=T) for f in fermi_range]
         ref_dopings = [3.48077e21, 1.9235e18, -2.6909e16, -4.8723e19]
         for i, c_ref in enumerate(ref_dopings):
             assert abs(dopings[i] / c_ref - 1.0) <= 0.01
 
         calc_fermis = [self.dos.get_fermi(concentration=c, temperature=T) for c in ref_dopings]
-        for j, f_ref in enumerate(frange):
+        for j, f_ref in enumerate(fermi_range):
             assert calc_fermis[j] == approx(f_ref, abs=1e-4)
 
         sci_dos = FermiDos(self.dos, bandgap=3.0)
@@ -80,9 +80,9 @@ class TestFermiDos(unittest.TestCase):
         assert old_vbm - new_vbm == approx((3.0 - old_gap) / 2.0)
         for i, c_ref in enumerate(ref_dopings):
             if c_ref < 0:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - frange[i] == approx(0.47, abs=1e-2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[i] == approx(0.47, abs=1e-2)
             else:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - frange[i] == approx(-0.47, abs=1e-2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[i] == approx(-0.47, abs=1e-2)
 
         assert sci_dos.get_fermi_interextrapolated(-1e26, 300) == approx(7.5108, abs=1e-4)
         assert sci_dos.get_fermi_interextrapolated(1e26, 300) == approx(-1.4182, abs=1e-4)
@@ -236,12 +236,12 @@ class TestCompleteDos(unittest.TestCase):
         width = dos.get_band_width()
         assert width == approx(1.7831724662185575)
 
-    def test_skewness(self):
+    def test_get_band_skewness(self):
         dos = self.dos_pdag3
         skewness = dos.get_band_skewness()
         assert skewness == approx(1.7422716340493507)
 
-    def test_kurtosis(self):
+    def test_get_band_kurtosis(self):
         dos = self.dos_pdag3
         kurtosis = dos.get_band_kurtosis()
         assert kurtosis == approx(7.764506941340621)

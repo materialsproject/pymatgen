@@ -22,6 +22,7 @@ from pymatgen.io.vasp.inputs import (
     BadIncarWarning,
     Incar,
     Kpoints,
+    KpointsSupportedModes,
     Poscar,
     Potcar,
     PotcarSingle,
@@ -185,9 +186,7 @@ cart
 
     def test_significant_figures(self):
         si = 14
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
         latt = [
@@ -214,9 +213,7 @@ direct
 
     def test_str(self):
         si = 14
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
         latt = [
@@ -334,9 +331,7 @@ direct
 
     def test_velocities(self):
         si = 14
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
         latt = [
@@ -697,7 +692,7 @@ SIGMA = 0.1"""
 
     def test_check_params(self):
         # Triggers warnings when running into nonsensical parameters
-        with pytest.warns(BadIncarWarning):
+        with pytest.warns(BadIncarWarning) as record:
             incar = Incar(
                 {
                     "ADDGRID": True,
@@ -710,7 +705,7 @@ SIGMA = 0.1"""
                     "ENCUT": 520,
                     "IBRION": 2,
                     "ICHARG": 1,
-                    "ISIF": 3,
+                    "ISIF": 9,
                     "ISMEAR": 1,
                     "ISPIN": 2,
                     "LASPH": 5,  # Should be a bool
@@ -735,6 +730,26 @@ SIGMA = 0.1"""
                 }
             )
             incar.check_params()
+
+        assert "ISIF: Cannot find 9 in the list of parameters" in record[0].message.args
+        assert "LASPH: 5 is not a bool" in record[1].message.args
+        assert "METAGGA: Cannot find SCAM in the list of parameters" in record[2].message.args
+        assert "Cannot find NBAND in the list of INCAR flags" in record[3].message.args
+        assert "PHON_TLIST: is_a_str is not a list" in record[4].message.args
+
+
+class TestKpointsSupportedModes:
+    def test_from_str(self):
+        test_cases = "Automatic Gamma Monkhorst Line_mode Cartesian Reciprocal".split()
+        for input_str in test_cases:
+            expected = getattr(KpointsSupportedModes, input_str)
+            assert KpointsSupportedModes.from_str(input_str) == expected
+            assert KpointsSupportedModes.from_str(input_str.lower()) == expected  # case insensitive
+            assert KpointsSupportedModes.from_str(input_str[0]) == expected  # only first letter matters
+
+        mode = "InvalidMode"
+        with pytest.raises(ValueError, match=f"Invalid Kpoint {mode=}"):
+            KpointsSupportedModes.from_str(mode)
 
 
 class TestKpoints:

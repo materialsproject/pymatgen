@@ -147,7 +147,6 @@ class DosPlotter:
 
         import palettable
 
-        # pylint: disable=E1101
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
         ys = None
@@ -1841,7 +1840,7 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError(f"The dictpa[{elt}] is empty. We cannot do anything")
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     for number in dictpa[elt]:
@@ -1888,7 +1887,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(f"The sum_atoms[{elt}] is empty. We cannot do anything")
                         _sites = self._bs.structure.sites
                         indices = []
-                        for i in range(len(_sites)):  # pylint: disable=C0200
+                        for i in range(len(_sites)):
                             if next(iter(_sites[i]._species)) == Element(elt):
                                 indices.append(i + 1)
                         for number in sum_atoms[elt]:
@@ -2012,7 +2011,7 @@ class BSPlotterProjected(BSPlotter):
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
@@ -2061,7 +2060,7 @@ class BSPlotterProjected(BSPlotter):
                 if elt in sum_atoms:
                     _sites = self._bs.structure.sites
                     indices = []
-                    for i in range(len(_sites)):  # pylint: disable=C0200
+                    for i in range(len(_sites)):
                         if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
@@ -2111,22 +2110,17 @@ class BSPlotterProjected(BSPlotter):
             else:
                 n_label.append([label[branch].split("$")[-1], label[branch + 1].split("$")[0]])
 
-        f_distance = []
-        rf_distance = []
-        f_label = []
-        f_label.append(n_label[0][0])
-        f_label.append(n_label[0][1])
-        f_distance.append(0.0)
-        f_distance.append(n_distance[0])
-        rf_distance.append(0.0)
-        rf_distance.append(n_distance[0])
+        f_distance: list[float] = []
+        rf_distance: list[float] = []
+        f_label: list[str] = []
+        f_label.extend((n_label[0][0], n_label[0][1]))
+        f_distance.extend((0.0, n_distance[0]))
+        rf_distance.extend((0.0, n_distance[0]))
         length = n_distance[0]
         for i in range(1, len(n_distance)):
             if n_label[i][0] == n_label[i - 1][1]:
-                f_distance.append(length)
-                f_distance.append(length + n_distance[i])
-                f_label.append(n_label[i][0])
-                f_label.append(n_label[i][1])
+                f_distance.extend((length, length + n_distance[i]))
+                f_label.extend((n_label[i][0], n_label[i][1]))
             else:
                 f_distance.append(length + n_distance[i])
                 f_label[-1] = n_label[i - 1][1] + "$\\mid$" + n_label[i][0]
@@ -2134,10 +2128,9 @@ class BSPlotterProjected(BSPlotter):
             rf_distance.append(length + n_distance[i])
             length += n_distance[i]
 
-        n_ticks = {"distance": f_distance, "label": f_label}
         uniq_d = []
         uniq_l = []
-        temp_ticks = list(zip(n_ticks["distance"], n_ticks["label"]))
+        temp_ticks = list(zip(f_distance, f_label))
         for i, t in enumerate(temp_ticks):
             if i == 0:
                 uniq_d.append(t[0])
@@ -2154,18 +2147,18 @@ class BSPlotterProjected(BSPlotter):
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
-        for i in range(len(n_ticks["label"])):
-            if n_ticks["label"][i] is not None:
+        for i in range(len(f_label)):
+            if f_label[i] is not None:
                 # don't print the same label twice
                 if i != 0:
-                    if n_ticks["label"][i] == n_ticks["label"][i - 1]:
-                        logger.debug(f"already print label... skipping label {n_ticks['label'][i]}")
+                    if f_label[i] == f_label[i - 1]:
+                        logger.debug(f"already print label... skipping label {f_label[i]}")
                     else:
-                        logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
-                        ax.axvline(n_ticks["distance"][i], color="k")
+                        logger.debug(f"Adding a line at {f_distance[i]} for label {f_label[i]}")
+                        ax.axvline(f_distance[i], color="k")
                 else:
-                    logger.debug(f"Adding a line at {n_ticks['distance'][i]} for label {n_ticks['label'][i]}")
-                    ax.axvline(n_ticks["distance"][i], color="k")
+                    logger.debug(f"Adding a line at {f_distance[i]} for label {f_label[i]}")
+                    ax.axvline(f_distance[i], color="k")
 
         shift = []
         br = -1
@@ -2524,14 +2517,14 @@ class BSDOSPlotter:
         """
         from matplotlib.collections import LineCollection
 
-        pts = np.array([k, e]).T.reshape(-1, 1, 2)  # pylint: disable=E1121
+        pts = np.array([k, e]).T.reshape(-1, 1, 2)
         seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
 
         nseg = len(k) - 1
         r = [0.5 * (red[i] + red[i + 1]) for i in range(nseg)]
         g = [0.5 * (green[i] + green[i + 1]) for i in range(nseg)]
         b = [0.5 * (blue[i] + blue[i + 1]) for i in range(nseg)]
-        a = np.ones(nseg, np.float_) * alpha
+        a = np.ones(nseg, float) * alpha
         lc = LineCollection(seg, colors=list(zip(r, g, b, a)), linewidth=2, linestyles=linestyles)
         ax.add_collection(lc)
 
@@ -2670,12 +2663,12 @@ class BSDOSPlotter:
         # x = [n + 0.25 for n in x]  # nudge x coordinates
         # y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
         # plot the triangle
-        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)  # pylint: disable=E1101
-        inset_ax.set_xlim([-0.35, 1.00])  # pylint: disable=E1101
-        inset_ax.set_ylim([-0.35, 1.00])  # pylint: disable=E1101
+        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)
+        inset_ax.set_xlim([-0.35, 1.00])
+        inset_ax.set_ylim([-0.35, 1.00])
 
         # add the labels
-        inset_ax.text(  # pylint: disable=E1101
+        inset_ax.text(
             0.70,
             -0.2,
             g_label,
@@ -2684,7 +2677,7 @@ class BSDOSPlotter:
             color=(0, 0, 0),
             horizontalalignment="left",
         )
-        inset_ax.text(  # pylint: disable=E1101
+        inset_ax.text(
             0.325,
             0.70,
             r_label,
@@ -2693,7 +2686,7 @@ class BSDOSPlotter:
             color=(0, 0, 0),
             horizontalalignment="center",
         )
-        inset_ax.text(  # pylint: disable=E1101
+        inset_ax.text(
             -0.05,
             -0.2,
             b_label,
@@ -2724,7 +2717,7 @@ class BSDOSPlotter:
             color.append([math.sqrt(c) for c in [1 - (i / 1000) ** 2, 0, (i / 1000) ** 2]])
 
         # plot the bar
-        # pylint: disable=E1101
+
         inset_ax.scatter(x, y, s=250.0, marker="s", c=color)
         inset_ax.set_xlim([-0.1, 1.7])
         inset_ax.text(
@@ -3941,9 +3934,9 @@ def plot_fermi_surface(
 
     if mlab_figure is None and not multiple_figure:
         fig = mlab.figure(size=(1024, 768), bgcolor=(1, 1, 1))
-        for iface in range(len(bz)):  # pylint: disable=C0200
+        for iface in range(len(bz)):
             for line in itertools.combinations(bz[iface], 2):
-                for jface in range(len(bz)):  # pylint: disable=C0200
+                for jface in range(len(bz)):
                     if (
                         iface < jface
                         and any(np.all(line[0] == x) for x in bz[jface])
@@ -3977,7 +3970,7 @@ def plot_fermi_surface(
         if multiple_figure:
             fig = mlab.figure(size=(1024, 768), bgcolor=(1, 1, 1))
 
-            for iface in range(len(bz)):  # pylint: disable=C0200
+            for iface in range(len(bz)):
                 for line in itertools.combinations(bz[iface], 2):
                     for jface in range(len(bz)):
                         if (
@@ -4053,7 +4046,7 @@ def plot_wigner_seitz(lattice, ax: plt.Axes = None, **kwargs):
     kwargs.setdefault("linewidth", 1)
 
     bz = lattice.get_wigner_seitz_cell()
-    for iface in range(len(bz)):  # pylint: disable=C0200
+    for iface in range(len(bz)):
         for line in itertools.combinations(bz[iface], 2):
             for jface in range(len(bz)):
                 if (

@@ -404,7 +404,7 @@ def load_O_adsorption():
         entries = json.loads(entries.read())
     for key in entries:
         entry = ComputedStructureEntry.from_dict(entries[key])
-        for el in metals_O_entry_dict:  # pylint: disable=C0206
+        for el in metals_O_entry_dict:
             if el in key:
                 if "111" in key:
                     clean = SlabEntry(entry.structure, entry.energy, (1, 1, 1), label=key + "_clean")

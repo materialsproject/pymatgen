@@ -655,7 +655,7 @@ class ComputedStructureEntry(ComputedEntry):
         dct = super().normalize(mode).as_dict()
         dct["structure"] = self.structure.as_dict()
         entry = self.from_dict(dct)
-        entry._composition /= factor  # pylint: disable=E1101
+        entry._composition /= factor
         return entry
 
     def copy(self) -> ComputedStructureEntry:

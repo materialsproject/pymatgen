@@ -37,16 +37,13 @@ class CRESTInput(MSONable):
         constraints: dict[str, list[int] | float] | None = None,
     ):
         """
-        :param molecule (pymatgen Molecule object):
-            Input molecule, the only required CREST input.
-        :param working_dir (str):
-            Location to write input files, defaults to current directory
-        :param coords_filename (str):
-            Name of input coordinates file
-        :param constraints (dict):
-            Dictionary of common editable parameters for .constrains file.
-            {"atoms": [List of 1-indexed atoms to fix], "force_constant":
-            float]
+        Args:
+            molecule (Molecule): Molecule object
+            working_dir (str): Directory to write input files to
+            coords_filename (str): Name of input coordinates file
+            constraints (dict): Dictionary of common editable parameters for
+                .constrains file. {"atoms": [List of 1-indexed atoms to fix],
+                "force_constant": float]
         """
         self.molecule = molecule
         self.coords_filename = coords_filename
@@ -68,13 +65,11 @@ class CRESTInput(MSONable):
     @staticmethod
     def constrains_template(molecule, reference_fnm, constraints) -> str:
         """
-        :param molecule (pymatgen Molecule):
-            Molecule the constraints will be performed on
-        :param reference_fnm:
-            Name of file containing reference structure in same directory
-        :param constraints:
-            Dictionary of common editable parameters for .constrains file.
-            {"atoms": [List of 1-indexed atoms to fix], "force_constant": float]
+        Args:
+            molecule (Molecule): Molecule the constraints will be performed on
+            reference_fnm (str): Name of file containing reference structure in same directory
+            constraints (dict): Dictionary of common editable parameters for .constrains file.
+                {"atoms": [List of 1-indexed atoms to fix], "force_constant": float]
 
         Returns:
             str: for .constrains file

@@ -10,7 +10,6 @@ from pytest import approx
 from pymatgen.core.periodic_table import Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer, cluster_sites, iterative_symmetrize
@@ -230,8 +229,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_find_primitive(self):
         """F m -3 m Li2O testing of converting to primitive cell."""
-        parser = CifParser(f"{TEST_FILES_DIR}/Li2O.cif")
-        structure = parser.get_structures(primitive=False)[0]
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
         spga = SpacegroupAnalyzer(structure)
         primitive_structure = spga.find_primitive()
         assert primitive_structure.formula == "Li2 O1"
@@ -242,13 +240,11 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert primitive_structure.lattice.gamma == approx(60)
         assert primitive_structure.volume == approx(structure.volume / 4.0)
 
-        structure = parser.get_structures(primitive=False)[0]
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure)
         primitive_structure = spga.find_primitive(keep_site_properties=True)
         assert primitive_structure.site_properties["magmom"] == [1.0] * len(primitive_structure)
 
-        structure = parser.get_structures(primitive=False)[0]
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure)
         primitive_structure = spga.find_primitive(keep_site_properties=False)
@@ -267,21 +263,20 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         grid = self.sg.get_ir_reciprocal_mesh(mesh=mesh)
         full_grid, mapping = self.sg.get_ir_reciprocal_mesh_map(mesh=mesh)
         assert len(np.unique(mapping)) == len(grid)
-        for _, i in enumerate(np.unique(mapping)):
-            assert full_grid[i][0] == approx(grid[_][0][0])
-            assert full_grid[i][1] == approx(grid[_][0][1])
-            assert full_grid[i][2] == approx(grid[_][0][2])
+        for _, idx in enumerate(np.unique(mapping)):
+            assert full_grid[idx][0] == approx(grid[_][0][0])
+            assert full_grid[idx][1] == approx(grid[_][0][1])
+            assert full_grid[idx][2] == approx(grid[_][0][2])
 
     def test_get_conventional_standard_structure(self):
-        parser = CifParser(f"{TEST_FILES_DIR}/bcc_1927.cif")
-        structure = parser.get_structures(primitive=False)[0]
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/bcc_1927.cif")
+        assert structure == structure
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
         assert conv.lattice.lengths == approx([9.1980270633769461] * 3)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/btet_1915.cif")
-        structure = parser.get_structures(primitive=False)[0]
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/btet_1915.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
@@ -289,8 +284,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.b == approx(5.0615106678044235)
         assert conv.lattice.c == approx(4.2327080177761687)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/orci_1010.cif")
-        structure = parser.get_structures(primitive=False)[0]
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/orci_1010.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
@@ -298,8 +292,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.b == approx(4.6330325651443296)
         assert conv.lattice.c == approx(5.373703587040775)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/orcc_1003.cif")
-        structure = parser.get_structures(primitive=False)[0]
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/orcc_1003.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
@@ -307,21 +300,18 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.b == approx(31.437979757624728)
         assert conv.lattice.c == approx(3.99648651)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/orac_632475.cif")
-        structure = parser.get_structures(primitive=False)[0]
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/orac_632475.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
         assert conv.lattice.lengths == approx([3.1790663399999999, 9.9032878699999998, 3.5372412099999999])
 
-        parser = CifParser(f"{TEST_FILES_DIR}/monoc_1028.cif")
-        structure = parser.get_structures(primitive=False)[0]
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/monoc_1028.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == approx([90, 117.53832420192903, 90])
         assert conv.lattice.lengths == approx([14.033435583000625, 3.96052850731, 6.8743926325200002])
-        parser = CifParser(f"{TEST_FILES_DIR}/hex_1170.cif")
-        structure = parser.get_structures(primitive=False)[0]
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/hex_1170.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == approx([90, 90, 120])
@@ -350,103 +340,29 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.site_properties.get("magmom") is None
 
     def test_get_primitive_standard_structure(self):
-        parser = CifParser(f"{TEST_FILES_DIR}/bcc_1927.cif")
-        structure = parser.get_structures(primitive=False)[0]
-        spga = SpacegroupAnalyzer(structure, symprec=1e-2)
-        prim = spga.get_primitive_standard_structure()
-        assert prim.lattice.alpha == approx(109.47122063400001)
-        assert prim.lattice.beta == approx(109.47122063400001)
-        assert prim.lattice.gamma == approx(109.47122063400001)
-        assert prim.lattice.a == approx(7.9657251015812145)
-        assert prim.lattice.b == approx(7.9657251015812145)
-        assert prim.lattice.c == approx(7.9657251015812145)
+        for file_name, expected_angles, expected_abc in [
+            ("bcc_1927.cif", [109.47122063400001] * 3, [7.9657251015812145] * 3),
+            ("btet_1915.cif", [105.015053349, 105.015053349, 118.80658411899999], [4.1579321075608791] * 3),
+            ("orci_1010.cif", [134.78923546600001, 105.856239333, 91.276341676000001], [3.8428217771014852] * 3),
+            ("orcc_1003.cif", [90, 90, 164.985257335], [15.854897098324196, 15.854897098324196, 3.99648651]),
+            ("orac_632475.cif", [90, 90, 144.40557588533386], [5.2005185662, 5.20051856621, 3.53724120999]),
+            ("monoc_1028.cif", [63.579155761, 116.420844, 148.479651], [7.2908007159, 7.29080071, 6.87439263]),
+            ("hex_1170.cif", [90, 90, 120], [3.699919902005897, 3.699919902005897, 6.9779585500000003]),
+            ("rhomb_3478_conv.cif", [28.0491861, 28.049186140, 28.049186140], [5.93526274, 5.9352627428, 5.9352627428]),
+        ]:
+            structure = Structure.from_file(f"{TEST_FILES_DIR}/{file_name}")
+            spga = SpacegroupAnalyzer(structure, symprec=1e-2)
+            prim = spga.get_primitive_standard_structure()
+            assert prim.lattice.angles == approx(expected_angles)
+            assert prim.lattice.abc == approx(expected_abc)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/btet_1915.cif")
-        structure = parser.get_structures(primitive=False)[0]
-        spga = SpacegroupAnalyzer(structure, symprec=1e-2)
-        prim = spga.get_primitive_standard_structure()
-        assert prim.lattice.alpha == approx(105.015053349)
-        assert prim.lattice.beta == approx(105.015053349)
-        assert prim.lattice.gamma == approx(118.80658411899999)
-        assert prim.lattice.a == approx(4.1579321075608791)
-        assert prim.lattice.b == approx(4.1579321075608791)
-        assert prim.lattice.c == approx(4.1579321075608791)
-
-        parser = CifParser(f"{TEST_FILES_DIR}/orci_1010.cif")
-        structure = parser.get_structures(primitive=False)[0]
-        spga = SpacegroupAnalyzer(structure, symprec=1e-2)
-        prim = spga.get_primitive_standard_structure()
-        assert prim.lattice.alpha == approx(134.78923546600001)
-        assert prim.lattice.beta == approx(105.856239333)
-        assert prim.lattice.gamma == approx(91.276341676000001)
-        assert prim.lattice.a == approx(3.8428217771014852)
-        assert prim.lattice.b == approx(3.8428217771014852)
-        assert prim.lattice.c == approx(3.8428217771014852)
-
-        parser = CifParser(f"{TEST_FILES_DIR}/orcc_1003.cif")
-        structure = parser.get_structures(primitive=False)[0]
-        spga = SpacegroupAnalyzer(structure, symprec=1e-2)
-        prim = spga.get_primitive_standard_structure()
-        assert prim.lattice.alpha == approx(90)
-        assert prim.lattice.beta == approx(90)
-        assert prim.lattice.gamma == approx(164.985257335)
-        assert prim.lattice.a == approx(15.854897098324196)
-        assert prim.lattice.b == approx(15.854897098324196)
-        assert prim.lattice.c == approx(3.99648651)
-
-        parser = CifParser(f"{TEST_FILES_DIR}/orac_632475.cif")
-        structure = parser.get_structures(primitive=False)[0]
-        spga = SpacegroupAnalyzer(structure, symprec=1e-2)
-        prim = spga.get_primitive_standard_structure()
-        assert prim.lattice.alpha == approx(90)
-        assert prim.lattice.beta == approx(90)
-        assert prim.lattice.gamma == approx(144.40557588533386)
-        assert prim.lattice.a == approx(5.2005185662155391)
-        assert prim.lattice.b == approx(5.2005185662155391)
-        assert prim.lattice.c == approx(3.5372412099999999)
-
-        parser = CifParser(f"{TEST_FILES_DIR}/monoc_1028.cif")
-        structure = parser.get_structures(primitive=False)[0]
-        spga = SpacegroupAnalyzer(structure, symprec=1e-2)
-        prim = spga.get_primitive_standard_structure()
-        assert prim.lattice.alpha == approx(63.579155761999999)
-        assert prim.lattice.beta == approx(116.42084423747779)
-        assert prim.lattice.gamma == approx(148.47965136208569)
-        assert prim.lattice.a == approx(7.2908007159612325)
-        assert prim.lattice.b == approx(7.2908007159612325)
-        assert prim.lattice.c == approx(6.8743926325200002)
-
-        parser = CifParser(f"{TEST_FILES_DIR}/hex_1170.cif")
-        structure = parser.get_structures(primitive=False)[0]
-        spga = SpacegroupAnalyzer(structure, symprec=1e-2)
-        prim = spga.get_primitive_standard_structure()
-        assert prim.lattice.alpha == approx(90)
-        assert prim.lattice.beta == approx(90)
-        assert prim.lattice.gamma == approx(120)
-        assert prim.lattice.a == approx(3.699919902005897)
-        assert prim.lattice.b == approx(3.699919902005897)
-        assert prim.lattice.c == approx(6.9779585500000003)
-
-        parser = CifParser(f"{TEST_FILES_DIR}/rhomb_3478_conv.cif")
-        structure = parser.get_structures(primitive=False)[0]
-        spga = SpacegroupAnalyzer(structure, symprec=1e-2)
-        prim = spga.get_primitive_standard_structure()
-        assert prim.lattice.alpha == approx(28.049186140546812)
-        assert prim.lattice.beta == approx(28.049186140546812)
-        assert prim.lattice.gamma == approx(28.049186140546812)
-        assert prim.lattice.a == approx(5.9352627428399982)
-        assert prim.lattice.b == approx(5.9352627428399982)
-        assert prim.lattice.c == approx(5.9352627428399982)
-
-        parser = CifParser(f"{TEST_FILES_DIR}/rhomb_3478_conv.cif")
-        structure = parser.get_structures(primitive=False)[0]
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/rhomb_3478_conv.cif")
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure(keep_site_properties=True)
         assert prim.site_properties["magmom"] == [1.0] * len(prim)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/rhomb_3478_conv.cif")
-        structure = parser.get_structures(primitive=False)[0]
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/rhomb_3478_conv.cif")
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure(keep_site_properties=False)

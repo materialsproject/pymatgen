@@ -421,7 +421,7 @@ class DetailedVoronoiContainer(MSONable):
         bounds_and_limits = self.voronoi_parameters_bounds_and_limits(isite, surface_calculation_type, max_dist)
         distance_bounds = bounds_and_limits["distance_bounds"]
         angle_bounds = bounds_and_limits["angle_bounds"]
-        surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), np.float_)
+        surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), float)
         for idp in range(len(distance_bounds) - 1):
             this_dist_plateau = distance_bounds[idp + 1] - distance_bounds[idp]
             for iap in range(len(angle_bounds) - 1):
@@ -478,7 +478,7 @@ class DetailedVoronoiContainer(MSONable):
 
         f_lower = lower_and_upper_functions["lower"]
         f_upper = lower_and_upper_functions["upper"]
-        surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), np.float_)
+        surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), float)
         for idp in range(len(distance_bounds) - 1):
             dp1 = distance_bounds[idp]
             dp2 = distance_bounds[idp + 1]
@@ -559,7 +559,7 @@ class DetailedVoronoiContainer(MSONable):
             max_dist=max_dist,
         )
         maps_and_surfaces = []
-        for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():  # pylint: disable=E1101
+        for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():
             for imap, list_parameters_indices in enumerate(value):
                 thissurf = 0.0
                 for idp, iap, iacb in list_parameters_indices:
@@ -593,7 +593,7 @@ class DetailedVoronoiContainer(MSONable):
             additional_conditions = [self.AC.ONLY_ACB]
         surfaces = self.neighbors_surfaces_bounded(isite=isite, surface_calculation_options=surface_calculation_options)
         maps_and_surfaces = []
-        for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():  # pylint: disable=E1101
+        for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():
             for imap, list_parameters_indices in enumerate(value):
                 thissurf = 0.0
                 for idp, iap, iacb in list_parameters_indices:
@@ -810,10 +810,8 @@ class DetailedVoronoiContainer(MSONable):
             xx = [0.0]
             yy = [0.0]
             for idist, dist in enumerate(sorted_dists):
-                xx.append(dist)
-                xx.append(dist)
-                yy.append(yy[-1])
-                yy.append(yy[-1] + dnb_dists[idist])
+                xx.extend((dist, dist))
+                yy.extend((yy[-1], yy[-1] + dnb_dists[idist]))
             xx.append(1.1 * xx[-1])
             yy.append(yy[-1])
         elif step_function["type"] == "normal_cdf":
@@ -864,10 +862,8 @@ class DetailedVoronoiContainer(MSONable):
             xx = [0.0]
             yy = [0.0]
             for iang, ang in enumerate(sorted_angs):
-                xx.append(ang)
-                xx.append(ang)
-                yy.append(yy[-1])
-                yy.append(yy[-1] + dnb_angs[iang])
+                xx.extend((ang, ang))
+                yy.extend((yy[-1], yy[-1] + dnb_angs[iang]))
             xx.append(1.1 * xx[-1])
             yy.append(yy[-1])
         elif step_function["type"] == "normal_cdf":
