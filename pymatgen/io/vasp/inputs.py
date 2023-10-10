@@ -2144,16 +2144,16 @@ class PotcarSingle:
         possible_potcar_matches = []
         for func in functional_lexch.get(self.LEXCH, []):
             for titel_no_spc in self.potcar_summary_stats[func]:
-                if (self.TITEL.replace(" ", "") == titel_no_spc) and (
-                    self.VRHFIN.replace(" ", "") == self.potcar_summary_stats[func][titel_no_spc]["VRHFIN"]
-                ):
-                    possible_potcar_matches.append(
-                        {
-                            "POTCAR_FUNCTIONAL": func,
-                            "TITEL": titel_no_spc,
-                            **self.potcar_summary_stats[func][titel_no_spc],
-                        }
-                    )
+                if self.TITEL.replace(" ", "") == titel_no_spc:
+                    for potcar_subvariant in self.potcar_summary_stats[func][titel_no_spc]:
+                        if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
+                            possible_potcar_matches.append(
+                                {
+                                    "POTCAR_FUNCTIONAL": func,
+                                    "TITEL": titel_no_spc,
+                                    **potcar_subvariant,
+                                }
+                            )
 
         def parse_fortran_style_str(input_str: str) -> Any:
             """Parse any input string as bool, int, float, or failing that, str.
@@ -2311,11 +2311,20 @@ def _gen_potcar_summary_stats(
         ]
         for potcar in potcar_list:
             psp = PotcarSingle.from_file(potcar)
-            new_summary_stats[func][psp.TITEL.replace(" ", "")] = {
-                "LEXCH": psp.LEXCH,
-                "VRHFIN": psp.VRHFIN.replace(" ", ""),
-                **psp._summary_stats,
-            }
+            titel_key = psp.TITEL.replace(" ", "")
+
+            # some POTCARs have the same TITEL, but are named differently
+            # e.g., there is an "original" PBE POTCAR.Fe_pv and a POTCAR.Fe_pv_new
+            # which share a TITEL but differ in their contents
+            if titel_key not in new_summary_stats[func]:
+                new_summary_stats[func][titel_key] = []
+            new_summary_stats[func][titel_key].append(
+                {
+                    "LEXCH": psp.LEXCH,
+                    "VRHFIN": psp.VRHFIN.replace(" ", ""),
+                    **psp._summary_stats,
+                }
+            )
 
     dumpfn(new_summary_stats, summary_stats_filename)
 
