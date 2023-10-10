@@ -2135,25 +2135,28 @@ class PotcarSingle:
 
         tol is then used to match statistical values within a tolerance
         """
-        functional_lexch = {
-            "PE": ["PBE", "PBE_52", "PBE_52_W_HASH", "PBE_54", "PBE_54_W_HASH", "PBE_64"],
-            "CA": ["LDA", "LDA_52", "LDA_52_W_HASH", "LDA_54", "LDA_54_W_HASH", "LDA_64", "LDA_US", "Perdew_Zunger81"],
-            "91": ["PW91", "PW91_US"],
-        }
 
         possible_potcar_matches = []
-        for func in functional_lexch.get(self.LEXCH, []):
+        """
+        Some POTCARs have an LEXCH (functional used to generate the POTCAR)
+        with the expected functional, e.g., the C_d POTCAR for PBE is actually an
+        LDA pseudopotential.
+
+        Thus we have to look for matches in all POTCAR dirs, not just the ones with
+        consistent values of LEXCH
+        """
+        for func in self.functional_dir:
             for titel_no_spc in self.potcar_summary_stats[func]:
-                if (self.TITEL.replace(" ", "") == titel_no_spc) and (
-                    self.VRHFIN.replace(" ", "") == self.potcar_summary_stats[func][titel_no_spc]["VRHFIN"]
-                ):
-                    possible_potcar_matches.append(
-                        {
-                            "POTCAR_FUNCTIONAL": func,
-                            "TITEL": titel_no_spc,
-                            **self.potcar_summary_stats[func][titel_no_spc],
-                        }
-                    )
+                if self.TITEL.replace(" ", "") == titel_no_spc:
+                    for potcar_subvariant in self.potcar_summary_stats[func][titel_no_spc]:
+                        if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
+                            possible_potcar_matches.append(
+                                {
+                                    "POTCAR_FUNCTIONAL": func,
+                                    "TITEL": titel_no_spc,
+                                    **potcar_subvariant,
+                                }
+                            )
 
         def parse_fortran_style_str(input_str: str) -> Any:
             """Parse any input string as bool, int, float, or failing that, str.
@@ -2311,11 +2314,20 @@ def _gen_potcar_summary_stats(
         ]
         for potcar in potcar_list:
             psp = PotcarSingle.from_file(potcar)
-            new_summary_stats[func][psp.TITEL.replace(" ", "")] = {
-                "LEXCH": psp.LEXCH,
-                "VRHFIN": psp.VRHFIN.replace(" ", ""),
-                **psp._summary_stats,
-            }
+            titel_key = psp.TITEL.replace(" ", "")
+
+            # some POTCARs have the same TITEL, but are named differently
+            # e.g., there is an "original" PBE POTCAR.Fe_pv and a POTCAR.Fe_pv_new
+            # which share a TITEL but differ in their contents
+            if titel_key not in new_summary_stats[func]:
+                new_summary_stats[func][titel_key] = []
+            new_summary_stats[func][titel_key].append(
+                {
+                    "LEXCH": psp.LEXCH,
+                    "VRHFIN": psp.VRHFIN.replace(" ", ""),
+                    **psp._summary_stats,
+                }
+            )
 
     dumpfn(new_summary_stats, summary_stats_filename)
 
