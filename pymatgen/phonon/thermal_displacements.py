@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from functools import partial
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -13,6 +14,12 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifFile, CifParser, CifWriter, str2float
 from pymatgen.symmetry.groups import SYMM_DATA
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from os import PathLike
+    from typing import Self
+
+    from numpy.typing import ArrayLike
 
 try:
     import phonopy
@@ -42,7 +49,13 @@ class ThermalDisplacementMatrices(MSONable):
     ( J. George, A. Wang, V. L. Deringer, R. Wang, R. Dronskowski, U. Englert, CrystEngComm, 2015, 17, 7414-7422.)
     """
 
-    def __init__(self, thermal_displacement_matrix_cart, structure, temperature, thermal_displacement_matrix_cif=None):
+    def __init__(
+        self,
+        thermal_displacement_matrix_cart: ArrayLike[ArrayLike],
+        structure: Structure,
+        temperature: float | None,
+        thermal_displacement_matrix_cif: ArrayLike[ArrayLike] = None,
+    ) -> None:
         """
         Args:
             thermal_displacement_matrix_cart: 2D numpy array including the thermal_displacement matrix Ucart
@@ -75,7 +88,7 @@ class ThermalDisplacementMatrices(MSONable):
             )
 
     @staticmethod
-    def get_full_matrix(thermal_displacement):
+    def get_full_matrix(thermal_displacement: ArrayLike[ArrayLike]) -> np.ndarray[np.ndarray]:
         """Transfers the reduced matrix to the full matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).
 
         Args:
@@ -99,7 +112,7 @@ class ThermalDisplacementMatrices(MSONable):
         return matrixform
 
     @staticmethod
-    def get_reduced_matrix(thermal_displacement):
+    def get_reduced_matrix(thermal_displacement: ArrayLike[ArrayLike]) -> np.ndarray[np.ndarray]:
         """Transfers the full matrix to reduced matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).
 
         Args:
@@ -120,7 +133,7 @@ class ThermalDisplacementMatrices(MSONable):
         return reduced_matrix
 
     @property
-    def Ustar(self):
+    def Ustar(self) -> np.ndarray:
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
 
         Returns:
@@ -135,7 +148,7 @@ class ThermalDisplacementMatrices(MSONable):
         return np.array(Ustar)
 
     @property
-    def Ucif(self):
+    def Ucif(self) -> np.ndarray:
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
 
         Returns:
@@ -157,7 +170,7 @@ class ThermalDisplacementMatrices(MSONable):
         return self.thermal_displacement_matrix_cif_matrixform
 
     @property
-    def B(self):
+    def B(self) -> np.ndarray:
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
 
         Returns:
@@ -170,7 +183,7 @@ class ThermalDisplacementMatrices(MSONable):
         return np.array(B)
 
     @property
-    def beta(self):
+    def beta(self) -> list:
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
 
         Returns:
@@ -184,7 +197,7 @@ class ThermalDisplacementMatrices(MSONable):
         return beta
 
     @property
-    def U1U2U3(self):
+    def U1U2U3(self) -> list:
         """Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
 
         Returns:
@@ -195,7 +208,7 @@ class ThermalDisplacementMatrices(MSONable):
             U1U2U3.append(np.linalg.eig(mat)[0])
         return U1U2U3
 
-    def write_cif(self, filename):
+    def write_cif(self, filename: str) -> None:
         """Writes a cif including thermal displacements.
 
         Args:
@@ -225,7 +238,7 @@ class ThermalDisplacementMatrices(MSONable):
                 count += 1
 
     @staticmethod
-    def _angle_dot(a, b):
+    def _angle_dot(a: ArrayLike, b: ArrayLike) -> float:
         dot_product = np.dot(a, b)
         prod_of_norms = np.linalg.norm(a) * np.linalg.norm(b)
         divided = dot_product / prod_of_norms
@@ -237,7 +250,7 @@ class ThermalDisplacementMatrices(MSONable):
         description="Angle: A new tool for validating theoretically derived anisotropic displacement "
         "parameters with experiment.",
     )
-    def compute_directionality_quality_criterion(self, other):
+    def compute_directionality_quality_criterion(self, other: Self) -> list:
         """Will compute directionality of prolate displacement ellipsoids as described in
         https://doi.org/10.1039/C9CE00794F with the earlier implementation: https://github.com/damMroz/Angle/.
 
@@ -291,8 +304,11 @@ class ThermalDisplacementMatrices(MSONable):
         return results
 
     def visualize_directionality_quality_criterion(
-        self, other, filename: str = "visualization.vesta", which_structure: int = 0
-    ):
+        self,
+        other: ThermalDisplacementMatrices,
+        filename: str | PathLike = "visualization.vesta",
+        which_structure: int = 0,
+    ) -> None:
         """Will create a VESTA file for visualization of the directionality criterion.
 
         Args:
@@ -387,7 +403,7 @@ class ThermalDisplacementMatrices(MSONable):
             f.write(" 0 0 0 0 0\n")
 
     @property
-    def ratio_prolate(self):
+    def ratio_prolate(self) -> np.ndarray:
         """This will compute ratio between largest and smallest eigenvalue of Ucart."""
         ratios = []
         for us in self.U1U2U3:
@@ -396,7 +412,9 @@ class ThermalDisplacementMatrices(MSONable):
         return np.array(ratios)
 
     @staticmethod
-    def from_Ucif(thermal_displacement_matrix_cif, structure, temperature):
+    def from_Ucif(
+        thermal_displacement_matrix_cif: ArrayLike[ArrayLike], structure: Structure, temperature: float | None = None
+    ) -> ThermalDisplacementMatrices:
         """Starting from a numpy array, it will convert Ucif values into Ucart values and initialize the class.
 
         Args:
@@ -436,7 +454,7 @@ class ThermalDisplacementMatrices(MSONable):
             temperature=temperature,
         )
 
-    def to_structure_with_site_properties_Ucif(self):
+    def to_structure_with_site_properties_Ucif(self) -> Structure:
         """Transfers this object into a structure with site properties (Ucif).
         This is useful for sorting the atoms in the structure including site properties.
         E.g., with code like this:
@@ -447,7 +465,14 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             Structure
         """
-        site_properties = {"U11_cif": [], "U22_cif": [], "U33_cif": [], "U23_cif": [], "U13_cif": [], "U12_cif": []}
+        site_properties: dict = {
+            "U11_cif": [],
+            "U22_cif": [],
+            "U33_cif": [],
+            "U23_cif": [],
+            "U13_cif": [],
+            "U12_cif": [],
+        }
         if self.thermal_displacement_matrix_cif is None:
             cif_matrix = self.get_reduced_matrix(self.Ucif)
         else:
@@ -464,7 +489,9 @@ class ThermalDisplacementMatrices(MSONable):
         return self.structure.copy(site_properties=site_properties)
 
     @staticmethod
-    def from_structure_with_site_properties_Ucif(structure: Structure, temperature: float | None = None):
+    def from_structure_with_site_properties_Ucif(
+        structure: Structure, temperature: float | None = None
+    ) -> ThermalDisplacementMatrices:
         """Will create this object with the help of a structure with site properties.
 
         Args:
@@ -492,7 +519,7 @@ class ThermalDisplacementMatrices(MSONable):
         return ThermalDisplacementMatrices.from_Ucif(Ucif_matrix, structure, temperature=temperature)
 
     @staticmethod
-    def from_cif_P1(filename: str):
+    def from_cif_P1(filename: str) -> list[ThermalDisplacementMatrices]:
         """Reads a cif with P1 symmetry including positions and ADPs.
         Currently, no check of symmetry is performed as CifParser methods cannot be easily reused.
 

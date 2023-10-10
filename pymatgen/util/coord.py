@@ -15,6 +15,7 @@ from monty.json import MSONable
 from pymatgen.util import coord_cython
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import Literal
 
     from numpy.typing import ArrayLike
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
 LOOP_THRESHOLD = 1e6
 
 
-def find_in_coord_list(coord_list, coord, atol=1e-8):
+def find_in_coord_list(coord_list, coord, atol: float = 1e-8):
     """Find the indices of matches of a particular coord in a coord_list.
 
     Args:
@@ -42,7 +43,7 @@ def find_in_coord_list(coord_list, coord, atol=1e-8):
     return np.where(np.all(np.abs(diff) < atol, axis=1))[0]
 
 
-def in_coord_list(coord_list, coord, atol=1e-8) -> bool:
+def in_coord_list(coord_list, coord, atol: float = 1e-8) -> bool:
     """Tests if a particular coord is within a coord_list.
 
     Args:
@@ -99,7 +100,7 @@ def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-
     return inds
 
 
-def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
+def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)):
     """Gives the index mapping from a subset to a superset.
     Superset cannot contain duplicate matching rows.
 
@@ -144,7 +145,7 @@ def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: f
     return y1 + (y2 - y1) / (x2 - x1) * (x - x1)
 
 
-def all_distances(coords1: ArrayLike, coords2: ArrayLike):
+def all_distances(coords1: ArrayLike, coords2: ArrayLike) -> np.ndarray:
     """Returns the distances between two lists of coordinates.
 
     Args:
@@ -205,7 +206,9 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2: bool
     return coord_cython.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2)
 
 
-def find_in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc=(True, True, True)) -> list[int]:
+def find_in_coord_list_pbc(
+    fcoord_list, fcoord, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)
+) -> np.ndarray:
     """Get the indices of all points in a fractional coord list that are
     equal to a fractional coord (with a tolerance), taking into account
     periodic boundary conditions.
@@ -228,7 +231,9 @@ def find_in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc=(True, T
     return np.where(np.all(np.abs(fdist) < atol, axis=1))[0]
 
 
-def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc=(True, True, True)) -> bool:
+def in_coord_list_pbc(
+    fcoord_list, fcoord, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)
+) -> bool:
     """Tests if a particular fractional coord is within a fractional coord_list.
 
     Args:
@@ -244,7 +249,9 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc=(True, True, 
     return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol, pbc=pbc)) > 0
 
 
-def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc: tuple = (True, True, True)) -> bool:
+def is_coord_subset_pbc(
+    subset, superset, atol: float = 1e-8, mask=None, pbc: tuple[bool, bool, bool] = (True, True, True)
+) -> bool:
     """Tests if all fractional coords in subset are contained in superset.
 
     Args:
@@ -411,7 +418,7 @@ class Simplex(MSONable):
         """
         return (self.bary_coords(point) >= -tolerance).all()
 
-    def line_intersection(self, point1, point2, tolerance=1e-8):
+    def line_intersection(self, point1: Sequence[float], point2: Sequence[float], tolerance: float = 1e-8):
         """Computes the intersection points of a line with a simplex.
 
         Args:
@@ -430,7 +437,7 @@ class Simplex(MSONable):
         # array of all the barycentric coordinates on the line where
         # one of the values is 0
         possible = b1 - (b1[valid] / line[valid])[:, None] * line
-        barys = []
+        barys: list = []
         for p in possible:
             # it's only an intersection if its in the simplex
             if (p >= -tolerance).all():
@@ -459,6 +466,6 @@ class Simplex(MSONable):
         return "\n".join(output)
 
     @property
-    def coords(self):
+    def coords(self) -> np.ndarray:
         """Returns a copy of the vertex coordinates in the simplex."""
         return self._coords.copy()

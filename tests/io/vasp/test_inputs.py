@@ -1229,7 +1229,38 @@ class TestVaspInput(PymatgenTest):
         assert "CONTCAR.Li2O" in vasp_input
 
 
-def test_gen_potcar_summary_stats(tmp_path: Path, monkeypatch: MonkeyPatch):
+def test_potcar_summary_stats() -> None:
+    from pymatgen.io.vasp.inputs import module_dir
+
+    potcar_summary_stats = loadfn(f"{module_dir}/potcar_summary_stats.json.gz")
+
+    assert len(potcar_summary_stats) == 16
+    n_potcars_per_functional = {
+        "PBE": 251,
+        "PBE_52": 303,
+        "PBE_54": 326,
+        "PBE_64": 343,
+        "LDA": 292,
+        "LDA_52": 274,
+        "LDA_54": 295,
+        "PW91": 169,
+        "LDA_US": 74,
+        "PW91_US": 75,
+        "Perdew_Zunger81": 292,
+        "PBE_52_W_HASH": 304,
+        "PBE_54_W_HASH": 327,
+        "LDA_52_W_HASH": 275,
+        "LDA_54_W_HASH": 295,
+        "LDA_64": 297,
+    }
+    assert {*potcar_summary_stats} == {*n_potcars_per_functional}
+
+    for key, expected in n_potcars_per_functional.items():
+        actual = len(potcar_summary_stats[key])
+        assert actual == expected, f"{key=}, {expected=}, {actual=}"
+
+
+def test_gen_potcar_summary_stats(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
     """Regenerate the potcar_summary_stats.json.gz file used to validate POTCARs with scrambled POTCARs."""
     psp_path = f"{TEST_FILES_DIR}/fake_potcar_library/"
     summ_stats_file = f"{tmp_path}/fake_potcar_summary_stats.json.gz"

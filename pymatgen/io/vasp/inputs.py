@@ -1,6 +1,6 @@
 """
-Classes for reading/manipulating/writing VASP input files. All major VASP input
-files.
+Classes for reading/manipulating/writing VASP input files.
+All major VASP input files.
 """
 
 from __future__ import annotations

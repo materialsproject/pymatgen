@@ -7,7 +7,7 @@ import string
 import typing
 import warnings
 from math import cos, pi, sin, sqrt
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -17,6 +17,8 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from numpy.typing import ArrayLike
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"

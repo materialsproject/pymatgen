@@ -631,12 +631,7 @@ class ElementBase(Enum):
     @property
     def is_transition_metal(self) -> bool:
         """True if element is a transition metal."""
-        ns = list(range(21, 31))
-        ns.extend(list(range(39, 49)))
-        ns.append(57)
-        ns.extend(list(range(72, 81)))
-        ns.append(89)
-        ns.extend(list(range(104, 113)))
+        ns = (*range(21, 31), *range(39, 49), 57, *range(72, 81), 89, *range(104, 113))
         return self.Z in ns
 
     @property

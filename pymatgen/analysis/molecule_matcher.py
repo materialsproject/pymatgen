@@ -64,7 +64,7 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
             of the two molecules. The value of each element is the original
             atom index in mol1 or mol2 of the current atom in uniform atom
             order.
-            (None, None) if unform atom is not available.
+            (None, None) if uniform atom is not available.
         """
 
     @abc.abstractmethod
@@ -81,10 +81,10 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
         """
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             AbstractMolAtomMapper
@@ -95,12 +95,12 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
                 f"pymatgen.analysis.{trans_modules}",
                 globals(),
                 locals(),
-                [d["@class"]],
+                [dct["@class"]],
                 level,
             )
-            if hasattr(mod, d["@class"]):
-                class_proxy = getattr(mod, d["@class"])
-                return class_proxy.from_dict(d)
+            if hasattr(mod, dct["@class"]):
+                class_proxy = getattr(mod, dct["@class"])
+                return class_proxy.from_dict(dct)
         raise ValueError("Invalid Comparator dict")
 
 
@@ -124,7 +124,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
             of the two molecules. The value of each element is the original
             atom index in mol1 or mol2 of the current atom in uniform atom
             order.
-            (None, None) if unform atom is not available.
+            (None, None) if uniform atom is not available.
         """
         ob_mol1 = BabelMolAdaptor(mol1).openbabel_mol
         ob_mol2 = BabelMolAdaptor(mol2).openbabel_mol

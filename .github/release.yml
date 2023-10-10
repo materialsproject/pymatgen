@@ -24,5 +24,9 @@ changelog:
       labels: [security]
     - title: 🏥 Package Health
       labels: [pkg]
+    - title: 📦 Dependencies
+      labels: [dependencies, outdated]
+    - title: 🏷️ Type Hints
+      labels: [types]
     - title: 🤷‍♂️ Other Changes
       labels: ["*"]

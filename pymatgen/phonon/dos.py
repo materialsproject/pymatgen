@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 import scipy.constants as const
 from monty.functools import lazy_property
@@ -9,6 +11,10 @@ from monty.json import MSONable
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Self
 
 BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
 THZ_TO_J = const.value("hertz-joule relationship") * const.tera
@@ -31,16 +37,16 @@ class PhononDos(MSONable):
     object.
     """
 
-    def __init__(self, frequencies, densities):
+    def __init__(self, frequencies: Sequence, densities: Sequence) -> None:
         """
         Args:
-            frequencies: A sequences of frequencies in THz
-            densities: A list representing the density of states.
+            frequencies: A sequence of frequencies in THz
+            densities: A sequence representing the density of states.
         """
         self.frequencies = np.array(frequencies)
         self.densities = np.array(densities)
 
-    def get_smeared_densities(self, sigma):
+    def get_smeared_densities(self, sigma: float) -> np.ndarray:
         """Returns the densities, but with a Gaussian smearing of
         std dev sigma applied.
 
@@ -57,7 +63,7 @@ class PhononDos(MSONable):
 
         return gaussian_filter1d(self.densities, sigma / avgdiff)
 
-    def __add__(self, other):
+    def __add__(self, other: Self) -> Self:
         """Adds two DOS together. Checks that frequency scales are the same.
         Otherwise, a ValueError is thrown.
 
@@ -72,7 +78,7 @@ class PhononDos(MSONable):
         densities = self.densities + other.densities
         return PhononDos(self.frequencies, densities)
 
-    def __radd__(self, other):
+    def __radd__(self, other: Self) -> Self:
         """Reflected addition of two DOS objects.
 
         Args:
@@ -83,7 +89,7 @@ class PhononDos(MSONable):
         """
         return self.__add__(other)
 
-    def get_interpolated_value(self, frequency):
+    def get_interpolated_value(self, frequency) -> float:
         """Returns interpolated density for a particular frequency.
 
         Args:
@@ -91,7 +97,7 @@ class PhononDos(MSONable):
         """
         return get_linear_interpolated_value(self.frequencies, self.densities, frequency)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns a string which can be easily plotted (using gnuplot)."""
         stringarray = [f"#{'Frequency':30s} {'Density':30s}"]
         for i, frequency in enumerate(self.frequencies):
@@ -99,11 +105,11 @@ class PhononDos(MSONable):
         return "\n".join(stringarray)
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict[str, Sequence]) -> Self:
         """Returns PhononDos object from dict representation of PhononDos."""
         return cls(d["frequencies"], d["densities"])
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """JSON-serializable dict representation of PhononDos."""
         return {
             "@module": type(self).__module__,
@@ -113,7 +119,7 @@ class PhononDos(MSONable):
         }
 
     @lazy_property
-    def ind_zero_freq(self):
+    def ind_zero_freq(self) -> int:
         """Index of the first point for which the frequencies are equal or greater than zero."""
         ind = np.searchsorted(self.frequencies, 0)
         if ind >= len(self.frequencies):
@@ -121,16 +127,16 @@ class PhononDos(MSONable):
         return ind
 
     @lazy_property
-    def _positive_frequencies(self):
+    def _positive_frequencies(self) -> np.ndarray:
         """Numpy array containing the list of positive frequencies."""
         return self.frequencies[self.ind_zero_freq :]
 
     @lazy_property
-    def _positive_densities(self):
+    def _positive_densities(self) -> np.ndarray:
         """Numpy array containing the list of densities corresponding to positive frequencies."""
         return self.densities[self.ind_zero_freq :]
 
-    def cv(self, t, structure=None):
+    def cv(self, t: float, structure: Structure | None = None) -> float:
         """Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -165,7 +171,7 @@ class PhononDos(MSONable):
 
         return cv
 
-    def entropy(self, t, structure=None):
+    def entropy(self, t: float, structure: Structure | None = None) -> float:
         """Vibrational entropy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -198,7 +204,7 @@ class PhononDos(MSONable):
 
         return s
 
-    def internal_energy(self, t, structure=None):
+    def internal_energy(self, t: float, structure: Structure | None = None) -> float:
         """Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -231,7 +237,7 @@ class PhononDos(MSONable):
 
         return e
 
-    def helmholtz_free_energy(self, t, structure=None):
+    def helmholtz_free_energy(self, t: float, structure: Structure | None = None) -> float:
         """Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.
         Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
@@ -264,7 +270,7 @@ class PhononDos(MSONable):
 
         return f
 
-    def zero_point_energy(self, structure=None):
+    def zero_point_energy(self, structure: Structure | None = None) -> float:
         """Zero point energy of the system. Only positive frequencies will be used.
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
@@ -300,7 +306,7 @@ class CompletePhononDos(PhononDos):
             Site is a pymatgen.core.sites.Site object.
     """
 
-    def __init__(self, structure: Structure, total_dos, pdoses):
+    def __init__(self, structure: Structure, total_dos, pdoses: dict) -> None:
         """
         Args:
             structure: Structure associated with this particular DOS.
@@ -311,7 +317,7 @@ class CompletePhononDos(PhononDos):
         self.pdos = {site: np.array(dens) for site, dens in pdoses.items()}
         self.structure = structure
 
-    def get_site_dos(self, site):
+    def get_site_dos(self, site) -> PhononDos:
         """Get the Dos for a site.
 
         Args:
@@ -322,7 +328,7 @@ class CompletePhononDos(PhononDos):
         """
         return PhononDos(self.frequencies, self.pdos[site])
 
-    def get_element_dos(self):
+    def get_element_dos(self) -> dict:
         """Get element projected Dos.
 
         Returns:
@@ -338,12 +344,12 @@ class CompletePhononDos(PhononDos):
         return {el: PhononDos(self.frequencies, densities) for el, densities in el_dos.items()}
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Returns CompleteDos object from dict representation."""
-        tdos = PhononDos.from_dict(d)
-        struct = Structure.from_dict(d["structure"])
+        tdos = PhononDos.from_dict(dct)
+        struct = Structure.from_dict(dct["structure"])
         pdoss = {}
-        for at, pdos in zip(struct, d["pdos"]):
+        for at, pdos in zip(struct, dct["pdos"]):
             pdoss[at] = pdos
 
         return cls(struct, tdos, pdoss)
@@ -363,5 +369,5 @@ class CompletePhononDos(PhononDos):
                 dct["pdos"].append(list(self.pdos[at]))
         return dct
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Complete phonon DOS for {self.structure}"
