@@ -118,7 +118,6 @@ def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: tuple[bool
     return coord_cython.coord_list_mapping_pbc(subset, superset, atol, pbc)
 
 
-
 def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: float) -> float:
     """Returns an interpolated value by linear interpolation between two values.
     This method is written to avoid dependency on scipy, which causes issues on
@@ -144,7 +143,6 @@ def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: f
     y1, y2 = a[i - 1][1], a[i][1]
 
     return y1 + (y2 - y1) / (x2 - x1) * (x - x1)
-
 
 
 def all_distances(coords1: ArrayLike, coords2: ArrayLike) -> np.ndarray:
@@ -208,7 +206,9 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2: bool
     return coord_cython.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2)
 
 
-def find_in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)) np.ndarray:
+def find_in_coord_list_pbc(
+    fcoord_list, fcoord, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)
+) -> np.ndarray:
     """Get the indices of all points in a fractional coord list that are
     equal to a fractional coord (with a tolerance), taking into account
     periodic boundary conditions.
@@ -231,7 +231,9 @@ def find_in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: tuple[b
     return np.where(np.all(np.abs(fdist) < atol, axis=1))[0]
 
 
-def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)) -> bool:
+def in_coord_list_pbc(
+    fcoord_list, fcoord, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)
+) -> bool:
     """Tests if a particular fractional coord is within a fractional coord_list.
 
     Args:
