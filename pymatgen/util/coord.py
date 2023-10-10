@@ -7,14 +7,14 @@ from __future__ import annotations
 
 import itertools
 import math
-import typing
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.util import coord_cython
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Literal
 
