@@ -2135,11 +2135,6 @@ class PotcarSingle:
 
         tol is then used to match statistical values within a tolerance
         """
-        functional_lexch = {
-            "PE": ["PBE", "PBE_52", "PBE_52_W_HASH", "PBE_54", "PBE_54_W_HASH", "PBE_64"],
-            "CA": ["LDA", "LDA_52", "LDA_52_W_HASH", "LDA_54", "LDA_54_W_HASH", "LDA_64", "LDA_US", "Perdew_Zunger81"],
-            "91": ["PW91", "PW91_US"],
-        }
 
         possible_potcar_matches = []
         """
@@ -2150,7 +2145,7 @@ class PotcarSingle:
         Thus we have to look for matches in all POTCAR dirs, not just the ones with
         consistent values of LEXCH
         """
-        for func in self.functional_dir.keys():
+        for func in self.functional_dir:
             for titel_no_spc in self.potcar_summary_stats[func]:
                 if self.TITEL.replace(" ", "") == titel_no_spc:
                     for potcar_subvariant in self.potcar_summary_stats[func][titel_no_spc]:
