@@ -2142,7 +2142,15 @@ class PotcarSingle:
         }
 
         possible_potcar_matches = []
-        for func in functional_lexch.get(self.LEXCH, []):
+        """
+        Some POTCARs have an LEXCH (functional used to generate the POTCAR)
+        with the expected functional, e.g., the C_d POTCAR for PBE is actually an
+        LDA pseudopotential.
+
+        Thus we have to look for matches in all POTCAR dirs, not just the ones with
+        consistent values of LEXCH
+        """
+        for func in self.functional_dir.keys():
             for titel_no_spc in self.potcar_summary_stats[func]:
                 if self.TITEL.replace(" ", "") == titel_no_spc:
                     for potcar_subvariant in self.potcar_summary_stats[func][titel_no_spc]:
