@@ -63,28 +63,28 @@ class Cohp(MSONable):
     def __repr__(self):
         """Returns a string that can be easily plotted (e.g. using gnuplot)."""
         if self.are_coops:
-            cohpstring = "COOP"
+            cohp_str = "COOP"
         elif self.are_cobis:
-            cohpstring = "COBI"
+            cohp_str = "COBI"
         else:
-            cohpstring = "COHP"
-        header = ["Energy", cohpstring + "Up"]
+            cohp_str = "COHP"
+        header = ["Energy", cohp_str + "Up"]
         data = [self.energies, self.cohp[Spin.up]]
         if Spin.down in self.cohp:
-            header.append(cohpstring + "Down")
+            header.append(cohp_str + "Down")
             data.append(self.cohp[Spin.down])
         if self.icohp:
-            header.append("I" + cohpstring + "Up")
+            header.append("I" + cohp_str + "Up")
             data.append(self.icohp[Spin.up])
             if Spin.down in self.cohp:
-                header.append("I" + cohpstring + "Down")
+                header.append("I" + cohp_str + "Down")
                 data.append(self.icohp[Spin.down])
-        formatheader = "#" + " ".join("{:15s}" for __ in header)
-        formatdata = " ".join("{:.5f}" for __ in header)
-        stringarray = [formatheader.format(*header)]
-        for i, __ in enumerate(self.energies):
-            stringarray.append(formatdata.format(*(d[i] for d in data)))
-        return "\n".join(stringarray)
+        format_header = "#" + " ".join("{:15s}" for __ in header)
+        format_data = " ".join("{:.5f}" for __ in header)
+        str_arr = [format_header.format(*header)]
+        for idx in range(len(self.energies)):
+            str_arr.append(format_data.format(*(d[idx] for d in data)))
+        return "\n".join(str_arr)
 
     def as_dict(self):
         """JSON-serializable dict representation of COHP."""
