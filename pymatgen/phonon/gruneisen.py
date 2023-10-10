@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 import scipy.constants as const
 from monty.dev import requires
@@ -20,6 +22,12 @@ except ImportError as exc:
     print(exc)
     phonopy = None
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Literal
+
+    from numpy.typing import ArrayLike
+
 __author__ = "A. Bonkowski, J. George, G. Petretto"
 __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.1"
@@ -34,13 +42,13 @@ class GruneisenParameter(MSONable):
 
     def __init__(
         self,
-        qpoints,
-        gruneisen,
-        frequencies,
-        multiplicities=None,
-        structure=None,
-        lattice=None,
-    ):
+        qpoints: ArrayLike,
+        gruneisen: ArrayLike[ArrayLike],
+        frequencies: ArrayLike[ArrayLike],
+        multiplicities: Sequence | None = None,
+        structure: Structure = None,
+        lattice: Lattice = None,
+    ) -> None:
         """
         Args:
             qpoints: list of qpoints as numpy arrays, in frac_coords of the given lattice by default
@@ -58,7 +66,12 @@ class GruneisenParameter(MSONable):
         self.lattice = lattice
         self.structure = structure
 
-    def average_gruneisen(self, t=None, squared=True, limit_frequencies=None):
+    def average_gruneisen(
+        self,
+        t: float | None = None,
+        squared: bool = True,
+        limit_frequencies: Literal["debye", "acoustic"] | None = None,
+    ) -> float:
         """Calculates the average of the Gruneisen based on the values on the regular grid.
         If squared is True the average will use the squared value of the Gruneisen and a squared root
         is performed on the final result.
@@ -104,6 +117,7 @@ class GruneisenParameter(MSONable):
             raise ValueError(f"{limit_frequencies} is not an accepted value for limit_frequencies.")
 
         weights = self.multiplicities
+        assert weights is not None, "Multiplicities are not defined."
         g = np.dot(weights[ind[0]], np.multiply(cv, gamma)[ind]).sum() / np.dot(weights[ind[0]], cv[ind]).sum()
 
         if squared:
@@ -111,7 +125,13 @@ class GruneisenParameter(MSONable):
 
         return g
 
-    def thermal_conductivity_slack(self, squared=True, limit_frequencies=None, theta_d=None, t=None):
+    def thermal_conductivity_slack(
+        self,
+        squared: bool = True,
+        limit_frequencies: Literal["debye", "acoustic"] | None = None,
+        theta_d: float | None = None,
+        t: float | None = None,
+    ) -> float:
         """Calculates the thermal conductivity at the acoustic Debye temperature with the Slack formula,
         using the average Gruneisen.
         Adapted from abipy.
@@ -132,6 +152,7 @@ class GruneisenParameter(MSONable):
         Returns:
             The value of the thermal conductivity in W/(m*K)
         """
+        assert self.structure is not None, "Structure is not defined."
         average_mass = np.mean([s.specie.atomic_mass for s in self.structure]) * amu_to_kg
         if theta_d is None:
             theta_d = self.acoustic_debye_temp
@@ -166,12 +187,12 @@ class GruneisenParameter(MSONable):
         return b
 
     @property
-    def phdos(self):
+    def phdos(self) -> PhononDos:
         """Returns: PhononDos object."""
         return PhononDos(self.tdos.frequency_points, self.tdos.dos)
 
     @property
-    def debye_temp_limit(self):
+    def debye_temp_limit(self) -> float:
         """Debye temperature in K. Adapted from apipy."""
         from scipy.interpolate import UnivariateSpline
 
@@ -184,7 +205,7 @@ class GruneisenParameter(MSONable):
         integrals = i_a / i_b
         return np.sqrt(5 / 3 * integrals) / const.value("Boltzmann constant in Hz/K")
 
-    def debye_temp_phonopy(self, freq_max_fit=None):
+    def debye_temp_phonopy(self, freq_max_fit=None) -> float:
         """Get Debye temperature in K as implemented in phonopy.
 
         Args:
@@ -194,6 +215,7 @@ class GruneisenParameter(MSONable):
         Returns:
             Debye temperature in K.
         """
+        assert self.structure is not None, "Structure is not defined."
         # Use of phonopy classes to compute Debye frequency
         t = self.tdos
         t.set_Debye_frequency(num_atoms=len(self.structure), freq_max_fit=freq_max_fit)
@@ -202,10 +224,11 @@ class GruneisenParameter(MSONable):
         return const.value("Planck constant") * f_d * const.tera / const.value("Boltzmann constant")
 
     @property
-    def acoustic_debye_temp(self):
+    def acoustic_debye_temp(self) -> float:
         """Acoustic Debye temperature in K, i.e. the Debye temperature divided by n_sites**(1/3).
         Adapted from abipy.
         """
+        assert self.structure is not None, "Structure is not defined."
         return self.debye_temp_limit / len(self.structure) ** (1 / 3)
 
 
@@ -218,15 +241,15 @@ class GruneisenPhononBandStructure(PhononBandStructure):
 
     def __init__(
         self,
-        qpoints,
-        frequencies,
-        gruneisenparameters,
-        lattice,
-        eigendisplacements=None,
-        labels_dict=None,
-        coords_are_cartesian=False,
-        structure=None,
-    ):
+        qpoints: ArrayLike,
+        frequencies: ArrayLike[ArrayLike],
+        gruneisenparameters: ArrayLike,
+        lattice: Lattice,
+        eigendisplacements: ArrayLike[ArrayLike] = None,
+        labels_dict: dict | None = None,
+        coords_are_cartesian: bool = False,
+        structure: Structure | None = None,
+    ) -> None:
         """
         Args:
             qpoints: list of qpoint as numpy arrays, in frac_coords of the
@@ -266,7 +289,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         )
         self.gruneisen = gruneisenparameters
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """
         Returns:
             MSONable (dict).
@@ -290,7 +313,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         return dct
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> GruneisenPhononBandStructure:
         """
         Args:
             dct (dict): Dict representation.
@@ -321,15 +344,15 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
 
     def __init__(
         self,
-        qpoints,
-        frequencies,
-        gruneisenparameters,
-        lattice,
-        eigendisplacements=None,
-        labels_dict=None,
-        coords_are_cartesian=False,
-        structure=None,
-    ):
+        qpoints: ArrayLike,
+        frequencies: ArrayLike[ArrayLike],
+        gruneisenparameters: ArrayLike,
+        lattice: Lattice,
+        eigendisplacements: ArrayLike[ArrayLike] = None,
+        labels_dict: dict | None = None,
+        coords_are_cartesian: bool = False,
+        structure: Structure | None = None,
+    ) -> None:
         """
         Args:
             qpoints: list of qpoints as numpy arrays, in frac_coords of the
@@ -371,7 +394,7 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         )
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> GruneisenPhononBandStructureSymmLine:
         """
         Args:
             dct: Dict representation.
