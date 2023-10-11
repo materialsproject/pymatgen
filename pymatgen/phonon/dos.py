@@ -14,7 +14,6 @@ from pymatgen.util.coord import get_linear_interpolated_value
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Self
 
 BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
 THZ_TO_J = const.value("hertz-joule relationship") * const.tera
@@ -63,7 +62,7 @@ class PhononDos(MSONable):
 
         return gaussian_filter1d(self.densities, sigma / avgdiff)
 
-    def __add__(self, other: Self) -> Self:
+    def __add__(self, other: PhononDos) -> PhononDos:
         """Adds two DOS together. Checks that frequency scales are the same.
         Otherwise, a ValueError is thrown.
 
@@ -78,7 +77,7 @@ class PhononDos(MSONable):
         densities = self.densities + other.densities
         return PhononDos(self.frequencies, densities)
 
-    def __radd__(self, other: Self) -> Self:
+    def __radd__(self, other: PhononDos) -> PhononDos:
         """Reflected addition of two DOS objects.
 
         Args:
@@ -105,7 +104,7 @@ class PhononDos(MSONable):
         return "\n".join(stringarray)
 
     @classmethod
-    def from_dict(cls, d: dict[str, Sequence]) -> Self:
+    def from_dict(cls, d: dict[str, Sequence]) -> PhononDos:
         """Returns PhononDos object from dict representation of PhononDos."""
         return cls(d["frequencies"], d["densities"])
 
@@ -344,7 +343,7 @@ class CompletePhononDos(PhononDos):
         return {el: PhononDos(self.frequencies, densities) for el, densities in el_dos.items()}
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict) -> CompletePhononDos:
         """Returns CompleteDos object from dict representation."""
         tdos = PhononDos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])

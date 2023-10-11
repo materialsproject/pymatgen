@@ -18,7 +18,7 @@ from monty.json import MSONable
 from pymatgen.io.lammps.data import LammpsBox
 
 if TYPE_CHECKING:
-    from typing import Any, Self
+    from typing import Any
 
 __author__ = "Kiran Mathew, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -48,11 +48,11 @@ class LammpsDump(MSONable):
 
     @classmethod
     @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs) -> Self:
+    def from_string(cls, *args, **kwargs) -> LammpsDump:
         return cls.from_str(*args, **kwargs)
 
     @classmethod
-    def from_str(cls, string: str) -> Self:
+    def from_str(cls, string: str) -> LammpsDump:
         """
         Constructor from string parsing.
 
@@ -76,7 +76,7 @@ class LammpsDump(MSONable):
         return cls(timestep, n_atoms, box, data)
 
     @classmethod
-    def from_dict(cls, d: dict) -> Self:
+    def from_dict(cls, d: dict) -> LammpsDump:
         """
         Args:
             d (dict): Dict representation.

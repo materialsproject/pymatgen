@@ -37,7 +37,7 @@ from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any, Self
+    from typing import Any
 
     from pymatgen.core.sites import Site
     from pymatgen.core.structure import SiteCollection
@@ -639,7 +639,7 @@ class LammpsData(MSONable):
         return self.box, ff, topo_list
 
     @classmethod
-    def from_file(cls, filename: str, atom_style: str = "full", sort_id: bool = False) -> Self:
+    def from_file(cls, filename: str, atom_style: str = "full", sort_id: bool = False) -> LammpsData:
         """
         Constructor that parses a file.
 
@@ -1204,7 +1204,7 @@ class ForceField(MSONable):
             yaml.dump(d, f)
 
     @classmethod
-    def from_file(cls, filename: str) -> Self:
+    def from_file(cls, filename: str) -> ForceField:
         """
         Constructor that reads in a file in YAML format.
 
@@ -1217,7 +1217,7 @@ class ForceField(MSONable):
         return cls.from_dict(d)
 
     @classmethod
-    def from_dict(cls, d: dict) -> Self:
+    def from_dict(cls, d: dict) -> ForceField:
         """
         Constructor that reads in a dictionary.
 
@@ -1416,7 +1416,7 @@ class CombinedData(LammpsData):
         return df
 
     @classmethod
-    def from_files(cls, coordinate_file: str, list_of_numbers: list, *filenames) -> Self:
+    def from_files(cls, coordinate_file: str, list_of_numbers: list, *filenames) -> CombinedData:
         """
         Constructor that parse a series of data file.
 
@@ -1442,7 +1442,7 @@ class CombinedData(LammpsData):
     @classmethod
     def from_lammpsdata(
         cls, mols: list, names: list, list_of_numbers: list, coordinates: pd.DataFrame, atom_style: str | None = None
-    ) -> Self:
+    ) -> CombinedData:
         """
         Constructor that can infer atom_style.
         The input LammpsData objects are used non-destructively.

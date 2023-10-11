@@ -17,7 +17,6 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from os import PathLike
-    from typing import Self
 
     from numpy.typing import ArrayLike
 
@@ -250,7 +249,9 @@ class ThermalDisplacementMatrices(MSONable):
         description="Angle: A new tool for validating theoretically derived anisotropic displacement "
         "parameters with experiment.",
     )
-    def compute_directionality_quality_criterion(self, other: Self) -> list:
+    def compute_directionality_quality_criterion(
+        self, other: ThermalDisplacementMatrices
+    ) -> list[dict[str, ArrayLike]]:
         """Will compute directionality of prolate displacement ellipsoids as described in
         https://doi.org/10.1039/C9CE00794F with the earlier implementation: https://github.com/damMroz/Angle/.
 
