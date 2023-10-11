@@ -238,7 +238,7 @@ def compute_environments(chemenv_configuration):
             input_source = test
         if source_type == "cif":
             if not found:
-                input_source = input("Enter path to cif file : ")
+                input_source = input("Enter path to CIF file : ")
             parser = CifParser(input_source)
             structure = parser.get_structures()[0]
         elif source_type == "mp":
