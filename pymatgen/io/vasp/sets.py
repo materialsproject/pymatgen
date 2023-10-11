@@ -977,10 +977,10 @@ class MPScanRelaxSet(DictSet):
         if self.bandgap < 1e-4:
             updates.update(KSPACING=0.22, SIGMA=0.2, ISMEAR=2)
         else:
-            rmin = 25.22 - 2.87 * bandgap  # Eq. 25
+            rmin = max(1.5, 25.22 - 2.87 * bandgap)  # Eq. 25
             kspacing = 2 * np.pi * 1.0265 / (rmin - 1.0183)  # Eq. 29
             # cap the KSPACING at a max of 0.44, per internal benchmarking
-            updates.update(KSPACING=kspacing if 0.22 < kspacing < 0.44 else 0.44, SIGMA=0.05, ISMEAR=-5)
+            updates.update(KSPACING=np.clip(kspacing, 0.22, 0.44), SIGMA=0.05, ISMEAR=-5)
 
         # Don't overwrite things the user has supplied
         for key in self.user_incar_settings:
