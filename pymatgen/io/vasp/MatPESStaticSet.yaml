@@ -23,6 +23,7 @@ INCAR:
   PREC: Accurate
   SIGMA: 0.05 # change from 0.02 to 0.05, included to have some reasonable default
   LDAU: false
+  LMAXMIX: 6
   LDAUJ:
     F:
       Co: 0
