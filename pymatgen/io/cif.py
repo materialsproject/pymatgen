@@ -265,6 +265,8 @@ class CifFile:
             if "powder_pattern" in re.split(r"\n", block_str, maxsplit=1)[0]:
                 continue
             block = CifBlock.from_str("data_" + block_str)
+            # TODO (@janosh, 2023-10-11) multiple CIF blocks with equal header will overwrite each other,
+            # latest taking precedence. maybe something to fix and test e.g. in test_cif_writer_write_file
             dct[block.header] = block
 
         return cls(dct, string)
@@ -1493,8 +1495,6 @@ class CifWriter:
         """Write the CIF file."""
         with zopen(filename, mode=mode) as file:
             file.write(str(self))
-            if mode in ["a", "at"]:
-                file.write("\n\n")
 
 
 def str2float(text):

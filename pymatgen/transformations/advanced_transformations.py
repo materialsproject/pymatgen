@@ -1962,16 +1962,16 @@ class SQSTransformation(AbstractTransformation):
         return max(distances)
 
     @staticmethod
-    def _get_disordered_substructure(struc_disordered):
+    def _get_disordered_substructure(struct_disordered):
         """Converts disordered structure into a substructure consisting of only disordered sites.
 
         Args:
-            struc_disordered: pymatgen disordered Structure object.
+            struct_disordered: pymatgen disordered Structure object.
 
         Returns:
             pymatgen Structure object representing a substructure of disordered sites.
         """
-        disordered_substructure = struc_disordered.copy()
+        disordered_substructure = struct_disordered.copy()
 
         idx_to_remove = [idx for idx, site in enumerate(disordered_substructure) if site.is_ordered]
         disordered_substructure.remove_sites(idx_to_remove)
@@ -1979,11 +1979,11 @@ class SQSTransformation(AbstractTransformation):
         return disordered_substructure
 
     @staticmethod
-    def _sqs_cluster_estimate(struc_disordered, cluster_size_and_shell: dict[int, int] | None = None):
+    def _sqs_cluster_estimate(struct_disordered, cluster_size_and_shell: dict[int, int] | None = None):
         """Set up an ATAT cluster.out file for a given structure and set of constraints.
 
         Args:
-            struc_disordered: disordered pymatgen Structure object
+            struct_disordered: disordered pymatgen Structure object
             cluster_size_and_shell: dict of integers {cluster: shell}.
 
         Returns:
@@ -1991,7 +1991,7 @@ class SQSTransformation(AbstractTransformation):
         """
         cluster_size_and_shell = cluster_size_and_shell or {2: 3, 3: 2, 4: 1}
 
-        disordered_substructure = SQSTransformation._get_disordered_substructure(struc_disordered)
+        disordered_substructure = SQSTransformation._get_disordered_substructure(struct_disordered)
 
         clusters = {}
         for cluster_size, shell in cluster_size_and_shell.items():
