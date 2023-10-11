@@ -1555,11 +1555,11 @@ class TestMPScanRelaxSet(PymatgenTest):
         # Test that KSPACING is capped at 0.44 for insulators
         file_path = f"{TEST_FILES_DIR}/POSCAR.O2"
         struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
-        for bandgap, expected in ((10, 0.44), (3, 0.4136617), (1.1, 0.3064757)):
+        for bandgap, expected in ((10, 0.44), (3, 0.4136617), (1.1, 0.3064757), (0.5, 0.2832948), (0, 0.22)):
             incar = MPScanRelaxSet(struct, bandgap=bandgap).incar
             assert incar["KSPACING"] == approx(expected, abs=1e-5)
-            assert incar["ISMEAR"] == -5
-            assert incar["SIGMA"] == 0.05
+            assert incar["ISMEAR"] == -5 if bandgap > 1e-4 else 2
+            assert incar["SIGMA"] == 0.05 if bandgap > 1e-4 else 0.2
 
     def test_incar_overrides(self):
         # use 'user_incar_settings' to override the KSPACING, ISMEAR, and SIGMA
