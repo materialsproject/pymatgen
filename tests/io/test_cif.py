@@ -350,7 +350,7 @@ class TestCifIO(PymatgenTest):
             assert struct.formula == "Zn1.29 Fe0.69 As2 Pb1.02 O8"
 
     def test_cif_parser_cod(self):
-        """Parsing problematic cif files from the COD database."""
+        """Parsing problematic CIF files from the COD database."""
         # Symbol in capital letters
         parser = CifParser(f"{TEST_FILES_DIR}/Cod_2100513.cif")
         for struct in parser.get_structures():
@@ -491,11 +491,11 @@ loop_
         # test angle tolerance.
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
         writer = CifWriter(struct, symprec=0.1, angle_tolerance=0)
-        d = next(iter(writer.ciffile.data.values()))
+        d = next(iter(writer.cif_file.data.values()))
         assert d["_symmetry_Int_Tables_number"] == 14
         struct = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif")
         writer = CifWriter(struct, symprec=0.1, angle_tolerance=2)
-        d = next(iter(writer.ciffile.data.values()))
+        d = next(iter(writer.cif_file.data.values()))
         assert d["_symmetry_Int_Tables_number"] == 62
 
     def test_disordered(self):
@@ -554,7 +554,7 @@ loop_
         same_si2 = CifParser.from_str(cif_str).get_structures()[0]
         assert len(si2) == len(same_si2)
 
-    def test_specie_cifwriter(self):
+    def test_specie_cif_writer(self):
         si4 = Species("Si", 4)
         si3 = Species("Si", 3)
         n = DummySpecies("X", -3)
@@ -620,9 +620,9 @@ loop_
 
     def test_missing_atom_site_type_with_oxi_states(self):
         parser = CifParser(f"{TEST_FILES_DIR}/P24Ru4H252C296S24N16.cif")
-        c = Composition({"S0+": 24, "Ru0+": 4, "H0+": 252, "C0+": 296, "N0+": 16, "P0+": 24})
+        comp = Composition({"S0+": 24, "Ru0+": 4, "H0+": 252, "C0+": 296, "N0+": 16, "P0+": 24})
         for struct in parser.get_structures(primitive=False):
-            assert struct.composition == c
+            assert struct.composition == comp
 
     def test_no_coords_or_species(self):
         string = """#generated using pymatgen
@@ -854,6 +854,22 @@ Si1 Si 0 0 0 1 0.0
             parser = CifParser.from_str(cif_str, occupancy_tolerance=tol)
             structs = parser.get_structures(primitive=False, check_occu=False)[0]
             assert structs[0].species.as_dict()["Te"] == 1.5
+
+    def test_cif_writer_write_file(self):
+        struct1 = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        out_path = f"{self.tmp_path}/test.cif"
+        CifWriter(struct1).write_file(out_path)
+        read_structs = CifParser(out_path).get_structures()
+        assert len(read_structs) == 1
+        assert struct1.matches(read_structs[0])
+
+        # test write_file append mode='a'
+        struct2 = Structure.from_file(f"{TEST_FILES_DIR}/Graphite.cif")
+        CifWriter(struct2).write_file(out_path, mode="a")
+
+        read_structs = CifParser(out_path).get_structures()
+        assert len(read_structs) == 2
+        assert [x.formula for x in read_structs] == ["Fe4 P4 O16", "C4"]
 
 
 class TestMagCif(PymatgenTest):

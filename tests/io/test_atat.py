@@ -86,7 +86,7 @@ class TestAtat(PymatgenTest):
         assert Mcsqs(struct).to_str() == ref_string
 
     def test_mcsqs_cif_nacl(self):
-        # cif file from str2cif (utility distributed with atat)
+        # CIF file from str2cif (utility distributed with atat)
         struc_from_cif = Structure.from_file(f"{test_dir}/bestsqs_nacl.cif")
 
         # output file directly from mcsqs
@@ -100,7 +100,7 @@ class TestAtat(PymatgenTest):
         )
 
     def test_mcsqs_cif_pzt(self):
-        # cif file from str2cif (utility distributed with atat)
+        # CIF file from str2cif (utility distributed with atat)
         struc_from_cif = Structure.from_file(f"{test_dir}/bestsqs_pzt.cif")
 
         # output file directly from mcsqs
