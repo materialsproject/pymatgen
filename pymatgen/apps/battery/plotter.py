@@ -96,17 +96,17 @@ class VoltageProfilePlotter:
             plt.Axes: matplotlib axes object.
         """
         ax = ax or pretty_plot(width, height)
-        wion_symbol = set()
+        working_ion_symbols = set()
         formula = set()
 
         for label, electrode in self._electrodes.items():
-            (x, y) = self.get_plot_data(electrode, term_zero=term_zero)
-            wion_symbol.add(electrode.working_ion.symbol)
+            x, y = self.get_plot_data(electrode, term_zero=term_zero)
+            working_ion_symbols.add(electrode.working_ion.symbol)
             formula.add(electrode.framework_formula)
             ax.plot(x, y, "-", linewidth=2, label=label)
 
         ax.legend()
-        ax.set_xlabel(self._choose_best_x_label(formula=formula, wion_symbol=wion_symbol))
+        ax.set_xlabel(self._choose_best_x_label(formula=formula, wion_symbol=working_ion_symbols))
         ax.set_ylabel("Voltage (V)")
         plt.tight_layout()
         return ax
@@ -132,11 +132,11 @@ class VoltageProfilePlotter:
         hover_temp = "Voltage : %{y:.2f} V"
 
         data = []
-        wion_symbol = set()
+        working_ion_symbols = set()
         formula = set()
         for label, electrode in self._electrodes.items():
-            (x, y) = self.get_plot_data(electrode, term_zero=term_zero)
-            wion_symbol.add(electrode.working_ion.symbol)
+            x, y = self.get_plot_data(electrode, term_zero=term_zero)
+            working_ion_symbols.add(electrode.working_ion.symbol)
             formula.add(electrode.framework_formula)
             # add Nones to x and y so vertical connecting lines are not plotted
             plot_x, plot_y = [x[0]], [y[0]]
@@ -150,12 +150,12 @@ class VoltageProfilePlotter:
 
         fig = go.Figure(
             data=data,
-            layout=go.Layout(
+            layout=dict(
                 title="Voltage vs. Capacity",
                 width=width,
                 height=height,
                 font=font_dict,
-                xaxis={"title": self._choose_best_x_label(formula=formula, wion_symbol=wion_symbol)},
+                xaxis={"title": self._choose_best_x_label(formula=formula, wion_symbol=working_ion_symbols)},
                 yaxis={"title": "Voltage (V)"},
                 **kwargs,
             ),

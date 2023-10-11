@@ -1074,7 +1074,7 @@ class Lattice(MSONable):
                 result in stable behavior for most cases.
 
         Returns:
-            Niggli-reduced lattice.
+            Lattice: Niggli-reduced lattice.
         """
         # lll reduction is more stable for skewed cells
         matrix = self.lll_matrix
@@ -1087,14 +1087,7 @@ class Lattice(MSONable):
         for _ in range(100):
             # The steps are labelled as Ax as per the labelling scheme in the
             # paper.
-            (A, B, C, E, N, Y) = (
-                G[0, 0],
-                G[1, 1],
-                G[2, 2],
-                2 * G[1, 2],
-                2 * G[0, 2],
-                2 * G[0, 1],
-            )
+            A, B, C, E, N, Y = G[0, 0], G[1, 1], G[2, 2], 2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1]
 
             if B + e < A or (abs(A - B) < e and abs(E) > abs(N) + e):
                 # A1

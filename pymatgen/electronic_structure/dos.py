@@ -146,20 +146,20 @@ class DOS(Spectrum):
         Returns:
             gap in eV
         """
-        (cbm, vbm) = self.get_cbm_vbm(tol, abs_tol, spin)
+        cbm, vbm = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
 
     def __str__(self):
         """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
-            stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
         else:
-            stringarray = [f"#{'Energy':30s} {'DensityUp':30s}"]
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s}"]
             for i, energy in enumerate(self.energies):
-                stringarray.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
-        return "\n".join(stringarray)
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
+        return "\n".join(str_arr)
 
 
 class Dos(MSONable):

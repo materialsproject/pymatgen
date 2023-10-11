@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, Literal, no_type_check
 
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from matplotlib import cm
 from monty.json import MontyDecoder, MSONable
 from scipy import interpolate

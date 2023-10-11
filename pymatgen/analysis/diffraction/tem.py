@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import pandas as pd
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 import scipy.constants as sc
 
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
@@ -584,7 +584,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 showlegend=False,
             ),
         ]
-        layout = go.Layout(
+        layout = dict(
             title="2D Diffraction Pattern<br>Beam Direction: " + "".join(str(e) for e in self.beam_direction),
             font={"size": 14, "color": "#7f7f7f"},
             hovermode="closest",
@@ -654,7 +654,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 showlegend=False,
             )
         ]
-        layout = go.Layout(
+        layout = dict(
             xaxis={
                 "range": [-4, 4],
                 "showgrid": False,

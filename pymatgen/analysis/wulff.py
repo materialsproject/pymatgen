@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from scipy.spatial import ConvexHull
 
 from pymatgen.core.structure import Structure
@@ -497,7 +497,7 @@ class WulffShape:
                 Joules per square meter (True)
 
         Return:
-            (plotly.graph_objs.Figure)
+            (plotly.graph_objects.Figure)
         """
         units = "Jm⁻²" if units_in_JPERM2 else "eVÅ⁻²"
         color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = self._get_colors(
