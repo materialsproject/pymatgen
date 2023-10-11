@@ -65,7 +65,7 @@ class CifBlock:
         """
         self.loops = loops
         self.data = data
-        # AJ says: CIF Block names cannot be more than 75 characters or you
+        # AJ (@computron) says: CIF Block names cannot be more than 75 characters or you
         # get an Exception
         self.header = header[:74]
 
@@ -246,9 +246,8 @@ class CifFile:
         return cls.from_str(*args, **kwargs)
 
     @classmethod
-    def from_str(cls, string):
-        """
-        Reads CifFile from a string.
+    def from_str(cls, string) -> CifFile:
+        """Reads CifFile from a string.
 
         :param string: String representation.
 
@@ -256,16 +255,18 @@ class CifFile:
             CifFile
         """
         dct = {}
-        for x in re.split(r"^\s*data_", f"x\n{string}", flags=re.MULTILINE | re.DOTALL)[1:]:
+
+        for block_str in re.split(r"^\s*data_", f"x\n{string}", flags=re.MULTILINE | re.DOTALL)[1:]:
             # Skip over Cif block that contains powder diffraction data.
             # Some elements in this block were missing from CIF files in
             # Springer materials/Pauling file DBs.
-            # This block anyway does not contain any structure information, and
+            # This block does not contain any structure information anyway, and
             # CifParser was also not parsing it.
-            if "powder_pattern" in re.split(r"\n", x, maxsplit=1)[0]:
+            if "powder_pattern" in re.split(r"\n", block_str, maxsplit=1)[0]:
                 continue
-            c = CifBlock.from_str("data_" + x)
-            dct[c.header] = c
+            block = CifBlock.from_str("data_" + block_str)
+            dct[block.header] = block
+
         return cls(dct, string)
 
     @classmethod
@@ -675,7 +676,7 @@ class CifParser:
         operations are parsed. If the symops are not present, the space
         group symbol is parsed, and symops are generated.
         """
-        symops = []
+        sym_ops = []
         for symmetry_label in [
             "_symmetry_equiv_pos_as_xyz",
             "_symmetry_equiv_pos_as_xyz_",
@@ -690,11 +691,11 @@ class CifParser:
                     self.warnings.append(msg)
                     xyz = [xyz]
                 try:
-                    symops = [SymmOp.from_xyz_str(s) for s in xyz]
+                    sym_ops = [SymmOp.from_xyz_str(s) for s in xyz]
                     break
                 except ValueError:
                     continue
-        if not symops:
+        if not sym_ops:
             # Try to parse symbol
             for symmetry_label in [
                 "_symmetry_space_group_name_H-M",
@@ -718,7 +719,7 @@ class CifParser:
                     try:
                         spg = space_groups.get(sg)
                         if spg:
-                            symops = SpaceGroup(spg).symmetry_ops
+                            sym_ops = SpaceGroup(spg).symmetry_ops
                             msg = msg_template.format(symmetry_label)
                             warnings.warn(msg)
                             self.warnings.append(msg)
@@ -734,7 +735,7 @@ class CifParser:
                         for d in cod_data:
                             if sg == re.sub(r"\s+", "", d["hermann_mauguin"]):
                                 xyz = d["symops"]
-                                symops = [SymmOp.from_xyz_str(s) for s in xyz]
+                                sym_ops = [SymmOp.from_xyz_str(s) for s in xyz]
                                 msg = msg_template.format(symmetry_label)
                                 warnings.warn(msg)
                                 self.warnings.append(msg)
@@ -742,9 +743,9 @@ class CifParser:
                     except Exception:
                         continue
 
-                    if symops:
+                    if sym_ops:
                         break
-        if not symops:
+        if not sym_ops:
             # Try to parse International number
             for symmetry_label in [
                 "_space_group_IT_number",
@@ -755,18 +756,18 @@ class CifParser:
                 if data.data.get(symmetry_label):
                     try:
                         i = int(str2float(data.data.get(symmetry_label)))
-                        symops = SpaceGroup.from_int_number(i).symmetry_ops
+                        sym_ops = SpaceGroup.from_int_number(i).symmetry_ops
                         break
                     except ValueError:
                         continue
 
-        if not symops:
+        if not sym_ops:
             msg = "No _symmetry_equiv_pos_as_xyz type key found. Defaulting to P1."
             warnings.warn(msg)
             self.warnings.append(msg)
-            symops = [SymmOp.from_xyz_str(s) for s in ["x", "y", "z"]]
+            sym_ops = [SymmOp.from_xyz_str(s) for s in ["x", "y", "z"]]
 
-        return symops
+        return sym_ops
 
     def get_magsymops(self, data):
         """
@@ -1165,6 +1166,8 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
+        print(len(self._cif.data))
+
         if not check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
             warnings.warn("Structures with unphysical site occupancies are not compatible with many pymatgen features.")
         if primitive and symmetrized:
@@ -1478,18 +1481,20 @@ class CifWriter:
         self._cf = CifFile(dct)
 
     @property
-    def ciffile(self):
+    def cif_file(self):
         """Returns: CifFile associated with the CifWriter."""
         return self._cf
 
     def __str__(self):
-        """Returns the cif as a string."""
+        """Returns the CIF as a string."""
         return str(self._cf)
 
-    def write_file(self, filename):
-        """Write the cif file."""
-        with zopen(filename, "wt") as f:
-            f.write(str(self))
+    def write_file(self, filename: str | Path, mode: Literal["w", "a", "wt", "at"] = "w") -> None:
+        """Write the CIF file."""
+        with zopen(filename, mode=mode) as file:
+            file.write(str(self))
+            if mode in ["a", "at"]:
+                file.write("\n\n")
 
 
 def str2float(text):
