@@ -27,7 +27,6 @@ from pymatgen.io.template import TemplateInputGen
 
 if TYPE_CHECKING:
     from os import PathLike
-    from typing import Self
 
     from pymatgen.io.core import InputSet
 
@@ -539,7 +538,7 @@ class LammpsInputFile(InputFile):
 
     @classmethod
     @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs) -> Self:
+    def from_string(cls, *args, **kwargs) -> LammpsInputFile:
         return cls.from_str(*args, **kwargs)
 
     @classmethod
@@ -918,7 +917,7 @@ class LammpsRun(MSONable):
         temperature: float,
         nsteps: int,
         other_settings: dict | None = None,
-    ) -> Self:
+    ) -> LammpsRun:
         r"""
         Example for a simple MD run based on template md.template.
 

@@ -19,7 +19,6 @@ from pymatgen.io.lammps.inputs import LammpsInputFile
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import Self
 
 __author__ = "Ryan Kingsbury, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -73,7 +72,7 @@ class LammpsInputSet(InputSet):
         super().__init__(inputs={"in.lammps": self.inputfile, "system.data": self.data})
 
     @classmethod
-    def from_directory(cls, directory: str | Path, keep_stages: bool = False) -> Self:
+    def from_directory(cls, directory: str | Path, keep_stages: bool = False) -> LammpsInputSet:
         """
         Construct a LammpsInputSet from a directory of two or more files.
         TODO: accept directories with only the input file, that should include the structure as well.

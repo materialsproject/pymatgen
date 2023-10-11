@@ -19,7 +19,6 @@ from pymatgen.vis.plotters import SpectrumPlotter
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from os import PathLike
-    from typing import Self
 
     from matplotlib.axes import Axes
     from numpy.typing import ArrayLike
@@ -59,7 +58,7 @@ class IRDielectricTensor(MSONable):
         self.epsilon_infinity = np.array(epsilon_infinity)
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict) -> IRDielectricTensor:
         """Returns IRDielectricTensor from dict representation."""
         structure = Structure.from_dict(dct["structure"])
         oscillator_strength = dct["oscillator_strength"]

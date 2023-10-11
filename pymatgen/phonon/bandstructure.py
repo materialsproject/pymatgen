@@ -14,7 +14,6 @@ from pymatgen.electronic_structure.bandstructure import Kpoint
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from os import PathLike
-    from typing import Self
 
     from numpy.typing import ArrayLike
 
@@ -263,7 +262,7 @@ class PhononBandStructure(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct) -> PhononBandStructure:
         """
         Args:
             dct (dict): Dict representation.
@@ -592,7 +591,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict) -> PhononBandStructureSymmLine:
         """
         Args:
             dct: Dict representation.
