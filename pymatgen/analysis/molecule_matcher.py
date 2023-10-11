@@ -143,7 +143,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         label2_list = tuple(tuple(p[1] + 1 for p in x) for x in sorted_isomorph)
 
         vmol1 = ob_mol1
-        aligner = openbabel.OBAlign(True, False)  # meaning includeH=True, symmetry=False  # noqa: FBT003
+        aligner = openbabel.OBAlign(True, False)  # includeH=True, symmetry=False  # noqa: FBT003
         aligner.SetRefMol(vmol1)
         least_rmsd = float("Inf")
         best_label2 = None
@@ -355,44 +355,44 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Return:
             corrected inchi labels of heavy atoms of the second molecule
         """
-        nvirtual = vmol1.NumAtoms()
-        nheavy = len(ilabel1)
+        n_virtual = vmol1.NumAtoms()
+        n_heavy = len(ilabel1)
 
-        for i in ilabel2:  # add all heavy atoms
+        for idx in ilabel2:  # add all heavy atoms
             a1 = vmol1.NewAtom()
             a1.SetAtomicNum(1)
             a1.SetVector(0.0, 0.0, 0.0)  # useless, just to pair with vmol2
-            oa2 = mol2.GetAtom(i)
+            oa2 = mol2.GetAtom(idx)
             a2 = vmol2.NewAtom()
             a2.SetAtomicNum(1)
             # align using the virtual atoms, these atoms are not
             # used to align, but match by positions
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(includeH=False, symmetry=False)
+        aligner = openbabel.OBAlign(False, False)  # includeH=False, symmetry=False  # noqa: FBT003
         aligner.SetRefMol(vmol1)
         aligner.SetTargetMol(vmol2)
         aligner.Align()
         aligner.UpdateCoords(vmol2)
 
         canon_mol1 = openbabel.OBMol()
-        for i in ilabel1:
-            oa1 = mol1.GetAtom(i)
+        for idx in ilabel1:
+            oa1 = mol1.GetAtom(idx)
             a1 = canon_mol1.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
 
         aligned_mol2 = openbabel.OBMol()
-        for i in range(nvirtual + 1, nvirtual + nheavy + 1):
-            oa2 = vmol2.GetAtom(i)
+        for idx in range(n_virtual + 1, n_virtual + n_heavy + 1):
+            oa2 = vmol2.GetAtom(idx)
             a2 = aligned_mol2.NewAtom()
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        canon_label2 = list(range(1, nheavy + 1))
+        canon_label2 = list(range(1, n_heavy + 1))
         for symm in eq_atoms:
-            for i in symm:
-                canon_label2[i - 1] = -1
+            for idx in symm:
+                canon_label2[idx - 1] = -1
         for symm in eq_atoms:
             candidates1 = list(symm)
             candidates2 = list(symm)
@@ -409,7 +409,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                 canon_label2[c2 - 1] = canon_idx
                 candidates1.remove(canon_idx)
 
-        canon_inchi_orig_map2 = list(zip(canon_label2, list(range(1, nheavy + 1)), ilabel2))
+        canon_inchi_orig_map2 = list(zip(canon_label2, list(range(1, n_heavy + 1)), ilabel2))
         canon_inchi_orig_map2.sort(key=lambda m: m[0])
         return tuple(x[2] for x in canon_inchi_orig_map2)
 
@@ -448,7 +448,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(includeH=False, symmetry=False)
+        aligner = openbabel.OBAlign(False, False)  # includeH=False, symmetry=False  # noqa: FBT003
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()
@@ -631,23 +631,23 @@ class MoleculeMatcher(MSONable):
         Returns:
             The RMSD.
         """
-        obmol1 = BabelMolAdaptor(mol1).openbabel_mol
-        obmol2 = BabelMolAdaptor(mol2).openbabel_mol
+        ob_mol1 = BabelMolAdaptor(mol1).openbabel_mol
+        ob_mol2 = BabelMolAdaptor(mol2).openbabel_mol
 
         cmol1 = openbabel.OBMol()
         for i in clabel1:
-            oa1 = obmol1.GetAtom(i)
+            oa1 = ob_mol1.GetAtom(i)
             a1 = cmol1.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
         cmol2 = openbabel.OBMol()
         for i in clabel2:
-            oa2 = obmol2.GetAtom(i)
+            oa2 = ob_mol2.GetAtom(i)
             a2 = cmol2.NewAtom()
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        aligner = openbabel.OBAlign(True, False)  # meaning includeH=True, symmetry=False  # noqa: FBT003
+        aligner = openbabel.OBAlign(True, False)  # includeH=True, symmetry=False  # noqa: FBT003
         aligner.SetRefMol(cmol1)
         aligner.SetTargetMol(cmol2)
         aligner.Align()
