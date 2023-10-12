@@ -501,8 +501,8 @@ class DictSet(VaspInputSet):
                     del incar[key]
 
         # LMAXMIX is always set to 6 by default. This is due to a long line of
-        # investigation, originally by Andrew Rosen and then more recently followed-up 
-        # by Aaron Kaplan. Note that if the user explicitly sets LMAXMIX in settings it 
+        # investigation, originally by Andrew Rosen and then more recently followed-up
+        # by Aaron Kaplan. Note that if the user explicitly sets LMAXMIX in settings it
         # will override this logic.
         # Previously, this was only set if Hubbard U was enabled as per the VASP manual
         # but following an investigation it was determined that this would lead to a
