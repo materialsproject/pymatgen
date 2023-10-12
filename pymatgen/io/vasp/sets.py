@@ -489,7 +489,7 @@ class DictSet(VaspInputSet):
                         ]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
-                    incar["EDIFF"] = float(v) * len(structure)
+                    incar["EDIFF"] = float(min(1e-4, float(v) * len(structure)))
                 else:
                     incar["EDIFF"] = float(settings["EDIFF"])
             else:

@@ -433,6 +433,12 @@ class TestMITMPRelaxSet(PymatgenTest):
             assert mp_set.kpoints is not None
             assert mp_set.incar is not None
 
+        # ensure EDIFF never goes about 1e-4 when an input set uses EDIFF_PER_ATOM
+        struct = Structure(lattice, ["Co4+", "O"], coords)
+        struct.make_supercell([10, 10, 10])
+        mpr = MPRelaxSet(struct)
+        assert mpr.incar["EDIFF"] == 1e-4
+
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
         assert kpoints.kpts == [[2, 4, 5]]
