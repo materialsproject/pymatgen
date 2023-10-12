@@ -2300,7 +2300,7 @@ class IStructure(SiteCollection, MSONable):
         # min_vecs are approximate periodicities of the cell. The exact
         # periodicities from the supercell matrices are checked against these
         # first
-        min_fcoords = min(grouped_fcoords, key=lambda x: len(x))
+        min_fcoords = min(grouped_fcoords, key=len)
         min_vecs = min_fcoords - min_fcoords[0]
 
         # fractional tolerance in the supercell
@@ -2311,10 +2311,9 @@ class IStructure(SiteCollection, MSONable):
             """Returns the fractional coords in fc1 that have coordinates
             within tolerance to some coordinate in fc2.
             """
-            d = fc1[:, None, :] - fc2[None, :, :]
-            d -= np.round(d)
-            np.abs(d, d)
-            return fc1[np.any(np.all(d < tol, axis=-1), axis=-1)]
+            dist = fc1[:, None, :] - fc2[None, :, :]
+            dist -= np.round(dist)
+            return fc1[np.any(np.all(dist < tol, axis=-1), axis=-1)]
 
         # here we reduce the number of min_vecs by enforcing that every
         # vector in min_vecs approximately maps each site onto a similar site.
@@ -2322,7 +2321,7 @@ class IStructure(SiteCollection, MSONable):
         # reduction.
         # This reduction is O(n^3) so usually is an improvement. Using double
         # the tolerance because both vectors are approximate
-        for group in sorted(grouped_fcoords, key=lambda x: len(x)):
+        for group in sorted(grouped_fcoords, key=len):
             for frac_coords in group:
                 min_vecs = pbc_coord_intersection(min_vecs, group - frac_coords, super_ftol_2)
 
