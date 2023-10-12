@@ -6,6 +6,55 @@ nav_order: 4
 
 # Changelog
 
+## v2023.10.11
+
+### 🐛 Bug Fixes
+
+- Fix outdated `setup.py` `find_namespace_packages` and add `test_egg_sources_txt_is_complete` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3374>
+- `release.yml` add option to publish to TestPyPI by @janosh in <https://github.com/materialsproject/pymatgen/pull/3375>
+- Fix wrong unit=eV in `get_band_(skewness|kurtosis)` doc string by @janosh in <https://github.com/materialsproject/pymatgen/pull/3383>
+- Further updating POTCAR validation / identification by @esoteric-ephemera in <https://github.com/materialsproject/pymatgen/pull/3392>
+- `MatPESStaticSet.yaml` set `LMAXMIX: 6` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3400>
+- Fix type annotations in phonon/ and lammps/ by @ab5424 in <https://github.com/materialsproject/pymatgen/pull/3401>
+- Fix `OBAlign(includeH=False, symmetry=False)` can't take keywords by @janosh in <https://github.com/materialsproject/pymatgen/pull/3403>
+
+### 🛠 Enhancements
+
+- New class to handle `NcICOBILIST.lobster` files by @QuantumChemist in <https://github.com/materialsproject/pymatgen/pull/2878>
+- Add `inplace: bool=True` arg to `Structure.apply_strain()` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3376>
+- Add `Structure.to_(conventional|primitive|cell)` methods by @janosh in <https://github.com/materialsproject/pymatgen/pull/3384>
+- Add `SiteCollection.to_ase_atoms()` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3389>
+- Add `mode: Literal["w", "a", "wt", "at"] = "w"` keyword to `CifWriter.write_file()` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3399>
+
+### 📖 Documentation
+
+- Add `docs/fetch_pmg_contributors.py` script by @janosh in <https://github.com/materialsproject/pymatgen/pull/3387>
+
+### 🧹 House-Keeping
+
+- Fix ruff `FURB` violations by @janosh in <https://github.com/materialsproject/pymatgen/pull/3382>
+- Remove deprecated module `pymatgen/util/convergence.py` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3388>
+- Remove `pylint: disable` comments by @janosh in <https://github.com/materialsproject/pymatgen/pull/3390>
+- Fix `ruff` `N806` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3394>
+
+### 🧪 Tests
+
+- Update `incar_parameters.json` to allow `ISIF=8` by @matthewkuner in <https://github.com/materialsproject/pymatgen/pull/3381>
+- Add `test_potcar_summary_stats()` by @janosh in <https://github.com/materialsproject/pymatgen/pull/3395>
+- Mirror atomate2 fix and improve `MPScanRelaxSet.test_kspacing` edge case coverage by @janosh in <https://github.com/materialsproject/pymatgen/pull/3396>
+
+### 💥 Breaking Changes
+
+- Breaking: snake_case `FiestaInput` keywords and class attributes by @janosh in <https://github.com/materialsproject/pymatgen/pull/3386>
+- Ion: default hydrates=False in reduced_formula by @rkingsbury in <https://github.com/materialsproject/pymatgen/pull/3350>
+
+### 🏷️ Type Hints
+
+- Add type annotations to io/lammps by @ab5424 in <https://github.com/materialsproject/pymatgen/pull/3379>
+- Add type annotations to phonon by @ab5424 in <https://github.com/materialsproject/pymatgen/pull/3393>
+
+**Full Changelog**: <https://github.com/materialsproject/pymatgen/compare/v2023.10.4...v2023.10.11>
+
 ## v2023.10.4
 
 ### 🐛 Bug Fixes
