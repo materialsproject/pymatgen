@@ -499,9 +499,9 @@ class TestMITMPRelaxSet(PymatgenTest):
         input_set = MPRelaxSet(self.structure, user_incar_settings={"LDAU": False, "EDIFF": 1e-10})
         assert "LDAUU" not in input_set.incar
         assert input_set.incar["EDIFF"] == 1e-10
-        # after testing, we have determined LMAXMIX should still be 4 for d-block
-        # even if U is turned off (thanks Andrew Rosen for reporting)
-        assert input_set.incar["LMAXMIX"] == 4
+        # LMAXMIX should be 6 for all elements. Thanks to Andrew Rosen and Aaron Kaplan
+        # for investigating this.
+        assert input_set.incar["LMAXMIX"] == 6
 
     def test_incar_lmaxmix(self):
         # https://github.com/materialsproject/pymatgen/issues/3040
@@ -512,7 +512,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         # structure containing d-electrons but no f-electrons
         structure_d = self.get_structure("LiFePO4")
-        assert MPRelaxSet(structure_d).incar["LMAXMIX"] == 4
+        assert MPRelaxSet(structure_d).incar["LMAXMIX"] == 6
 
         # structure containing f-electrons but no d-electrons
         structure_f = structure_d.copy()

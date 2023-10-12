@@ -71,6 +71,7 @@ INCAR:
       V: 3.25
       W: 6.2
   LDAUPRINT: 1
+  LMAXMIX: 6
   LORBIT: 11
   LREAL: AUTO
   LWAVE: false

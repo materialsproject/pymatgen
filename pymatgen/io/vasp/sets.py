@@ -500,19 +500,15 @@ class DictSet(VaspInputSet):
                 if key.startswith("LDAU"):
                     del incar[key]
 
-        # Modify LMAXMIX if you have d or f electrons present. Note that if the user
-        # explicitly sets LMAXMIX in settings it will override this logic.
+        # LMAXMIX is always set to 6 by default. This is due to a long line of
+        # investigation, originally by Andrew Rosen and then more recently followed-up 
+        # by Aaron Kaplan. Note that if the user explicitly sets LMAXMIX in settings it 
+        # will override this logic.
         # Previously, this was only set if Hubbard U was enabled as per the VASP manual
         # but following an investigation it was determined that this would lead to a
         # significant difference between SCF -> NonSCF even without Hubbard U enabled.
-        # Thanks to Andrew Rosen for investigating and reporting.
         if "LMAXMIX" not in settings:
-            # contains f-electrons
-            if any(el.Z > 56 for el in structure.composition):
-                incar["LMAXMIX"] = 6
-            # contains d-electrons
-            elif any(el.Z > 20 for el in structure.composition):
-                incar["LMAXMIX"] = 4
+            incar["LMAXMIX"] = 6
 
         # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
         if not incar.get("LASPH", False) and (
