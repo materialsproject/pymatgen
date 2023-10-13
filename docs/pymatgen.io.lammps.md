@@ -218,7 +218,7 @@ For data with multiple molecule ID, the format is:
 
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -435,7 +435,7 @@ data file format.
 
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -651,7 +651,7 @@ coeffs read and write.
 
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -958,7 +958,7 @@ Return the argument of the command ‘units’ passed to the generator.
 
 ## pymatgen.io.lammps.inputs module
 
-This module implements methods for reading/manupilating/writing LAMMPS input files.
+This module implements methods for reading/manipulating/writing LAMMPS input files.
 It does not implement methods for automatically creating inputs based on a structure
 and computation type. For this, see the InputSet and InputGenerator in sets.py, or
 [https://github.com/Matgenix/atomate2-lammps](https://github.com/Matgenix/atomate2-lammps).
@@ -1443,7 +1443,7 @@ different stages, set keep_stages to True.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 
@@ -1503,7 +1503,7 @@ Other comments will be put inline within stages, where they have been added.
 
 
 
-#### get_string(\*\*kwds)
+#### get_string(\*args, \*\*kwargs)
 get_string is deprecated!
 Use get_str instead
 
@@ -1798,7 +1798,7 @@ Constructor from string parsing.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwds)
+#### _classmethod_ from_string(\*args, \*\*kwargs)
 from_string is deprecated!
 Use from_str instead
 

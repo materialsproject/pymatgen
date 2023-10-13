@@ -1016,7 +1016,6 @@ class _MPResterLegacy:
                     )
                     break
                 except MPRestError as e:
-                    # pylint: disable=E1101
                     match = re.search(r"error status code (\d+)", str(e))
                     if match:
                         if not match.group(1).startswith("5"):
@@ -1447,7 +1446,7 @@ class _MPResterLegacy:
 
         if include_work_of_separation and material_id:
             list_of_gbs = self._make_request("/grain_boundaries", payload=payload)
-            for _, gb_dict in enumerate(list_of_gbs):
+            for gb_dict in list_of_gbs:
                 gb_energy = gb_dict["gb_energy"]
                 gb_plane_int = gb_dict["gb_plane"]
                 surface_energy = self.get_surface_data(material_id=material_id, miller_index=gb_plane_int)[

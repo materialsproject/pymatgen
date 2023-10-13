@@ -638,7 +638,7 @@ class EwaldMinimizer:
         Returns an index that should have the most negative effect on the
         matrix sum.
         """
-        # pylint: disable=E1126
+
         f = manipulation[0]
         indices = list(indices_left.intersection(manipulation[2]))
         sums = np.sum(matrix[indices], axis=1)

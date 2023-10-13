@@ -602,7 +602,6 @@ class Critic2Analysis(MSONable):
         Returns:
             dict: with "volume" and "charge" keys, or None if YT integration not performed
         """
-        # pylint: disable=E1101
         if not self._node_values:
             return None
         return self._node_values[idx]

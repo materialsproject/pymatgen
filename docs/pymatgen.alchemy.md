@@ -476,12 +476,12 @@ Generates TransformedStructure from a cif string.
 
 
 
-#### _classmethod_ from_cif_string(\*args, \*\*kwds)
+#### _classmethod_ from_cif_string(\*args, \*\*kwargs)
 from_cif_string is deprecated!
 Use from_cif_str instead
 
 
-#### _classmethod_ from_dict(d)
+#### _classmethod_ from_dict(dct)
 Creates a TransformedStructure from a dict.
 
 
@@ -500,7 +500,7 @@ Generates TransformedStructure from a poscar string.
 
 
 
-#### _classmethod_ from_poscar_string(\*args, \*\*kwds)
+#### _classmethod_ from_poscar_string(\*args, \*\*kwargs)
 from_poscar_string is deprecated!
 Use from_poscar_str instead
 

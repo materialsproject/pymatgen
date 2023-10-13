@@ -18,11 +18,11 @@ class TestFiestaInput(unittest.TestCase):
         ]
         self.coords = coords
         mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        self.cellin = FiestaInput(
+        self.cell_in = FiestaInput(
             mol,
             correlation_grid={"dE_grid": "0.500", "n_grid": "14"},
-            Exc_DFT_option={"rdVxcpsi": "1"},
-            COHSEX_options={
+            exc_dft_option={"rdVxcpsi": "1"},
+            cohsex_options={
                 "eigMethod": "C",
                 "mix_cohsex": "0.500",
                 "nc_cohsex": "0",
@@ -31,8 +31,8 @@ class TestFiestaInput(unittest.TestCase):
                 "resMethod": "V",
                 "scf_cohsex_wf": "0",
             },
-            GW_options={"nc_corr": "10", "nit_gw": "3", "nv_corr": "10"},
-            BSE_TDDFT_options={
+            gw_options={"nc_corr": "10", "nit_gw": "3", "nv_corr": "10"},
+            bse_tddft_options={
                 "do_bse": "1",
                 "do_tddft": "0",
                 "nc_bse": "382",
@@ -44,8 +44,8 @@ class TestFiestaInput(unittest.TestCase):
 
     def test_init(self):
         mol = Molecule(["C", "H", "H", "H", "H"], self.coords)
-        cellin = FiestaInput(mol)
-        assert cellin.molecule.spin_multiplicity == 1
+        cell_in = FiestaInput(mol)
+        assert cell_in.molecule.spin_multiplicity == 1
 
     def test_str_and_from_string(self):
         ans = (
@@ -63,18 +63,18 @@ class TestFiestaInput(unittest.TestCase):
             " 0.0 0.0 1.089 2\n 1.026719 0.0 -0.363 2\n -0.51336 -0.889165 -0.363 2\n -0.51336 0.889165 -0.363 2"
             "\n            "
         )
-        assert str(self.cellin) == ans
-        cellin = FiestaInput.from_str(ans)
-        assert cellin.GW_options["nc_corr"] == "10"
-        assert cellin.COHSEX_options["eigMethod"] == "C"
+        assert str(self.cell_in) == ans
+        cell_in = FiestaInput.from_str(ans)
+        assert cell_in.GW_options["nc_corr"] == "10"
+        assert cell_in.cohsex_options["eigMethod"] == "C"
 
 
 class TestFiestaOutput(unittest.TestCase):
     def setUp(self):
-        self.logfiesta = FiestaOutput(f"{TEST_FILES_DIR}/log_fiesta")
+        self.log_fiesta = FiestaOutput(f"{TEST_FILES_DIR}/log_fiesta")
 
     def test_props(self):
-        out = self.logfiesta
+        out = self.log_fiesta
         assert out.data[0]["Gaps"]["Egap_QP_Linear"] == "10.4135"
         assert out.data[0]["HOMO"] == {
             "band": "HOMO",

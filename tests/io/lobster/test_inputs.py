@@ -23,6 +23,7 @@ from pymatgen.io.lobster import (
     Lobsterin,
     Lobsterout,
     MadelungEnergies,
+    NciCobiList,
     SitePotential,
     Wavefunction,
 )
@@ -669,6 +670,44 @@ class TestIcohplist(unittest.TestCase):
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["orbitals"]["2s-6s"]["icohp"][Spin.up] == 0.0247
 
 
+class TestNciCobiList(unittest.TestCase):
+    def setUp(self):
+        self.ncicobi = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster")
+        self.ncicobi_gz = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.gz")
+        self.ncicobi_no_spin = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.nospin")
+        self.ncicobi_no_spin_wo = NciCobiList(
+            filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.nospin.withoutorbitals"
+        )
+        self.ncicobi_wo = NciCobiList(filename=f"{TEST_FILES_DIR}/cohp/NcICOBILIST.lobster.withoutorbitals")
+
+    def test_ncicobilist(self):
+        assert self.ncicobi.is_spin_polarized
+        assert not self.ncicobi_no_spin.is_spin_polarized
+        assert self.ncicobi_wo.is_spin_polarized
+        assert not self.ncicobi_no_spin_wo.is_spin_polarized
+        assert self.ncicobi.orbital_wise
+        assert self.ncicobi_no_spin.orbital_wise
+        assert not self.ncicobi_wo.orbital_wise
+        assert not self.ncicobi_no_spin_wo.orbital_wise
+        assert len(self.ncicobi.ncicobi_list) == 2
+        assert self.ncicobi.ncicobi_list["2"]["number_of_atoms"] == 3
+        assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == approx(0.00009)
+        assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.down] == approx(0.00009)
+        assert self.ncicobi.ncicobi_list["2"]["interaction_type"] == "[X22[0,0,0]->Xs42[0,0,0]->X31[0,0,0]]"
+        assert (
+            self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_wo.ncicobi_list["2"]["ncicobi"][Spin.up]
+        )
+        assert (
+            self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_gz.ncicobi_list["2"]["ncicobi"][Spin.up]
+        )
+        assert (
+            self.ncicobi.ncicobi_list["2"]["interaction_type"] == self.ncicobi_gz.ncicobi_list["2"]["interaction_type"]
+        )
+        assert sum(self.ncicobi.ncicobi_list["2"]["ncicobi"].values()) == approx(
+            self.ncicobi_no_spin.ncicobi_list["2"]["ncicobi"][Spin.up]
+        )
+
+
 class TestDoscar(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
@@ -700,14 +739,14 @@ class TestDoscar(unittest.TestCase):
         tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
         fermi = 0.0
 
-        PDOS_F_2s_up = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
-        PDOS_F_2s_down = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
-        PDOS_F_2py_up = [0.00000, 0.00160, 0.00000, 0.25801, 0.00000, 0.00029]
-        PDOS_F_2py_down = [0.00000, 0.00161, 0.00000, 0.25819, 0.00000, 0.00029]
-        PDOS_F_2pz_up = [0.00000, 0.00161, 0.00000, 0.25823, 0.00000, 0.00029]
-        PDOS_F_2pz_down = [0.00000, 0.00160, 0.00000, 0.25795, 0.00000, 0.00029]
-        PDOS_F_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
-        PDOS_F_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
+        pdos_f_2s_up = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
+        pdos_f_2s_down = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
+        pdos_f_2py_up = [0.00000, 0.00160, 0.00000, 0.25801, 0.00000, 0.00029]
+        pdos_f_2py_down = [0.00000, 0.00161, 0.00000, 0.25819, 0.00000, 0.00029]
+        pdos_f_2pz_up = [0.00000, 0.00161, 0.00000, 0.25823, 0.00000, 0.00029]
+        pdos_f_2pz_down = [0.00000, 0.00160, 0.00000, 0.25795, 0.00000, 0.00029]
+        pdos_f_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
+        pdos_f_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
 
         assert energies_spin == self.DOSCAR_spin_pol.completedos.energies.tolist()
         assert tdos_up == self.DOSCAR_spin_pol.completedos.densities[Spin.up].tolist()
@@ -722,21 +761,21 @@ class TestDoscar(unittest.TestCase):
             self.DOSCAR_spin_pol2.completedos.structure.frac_coords,
             self.structure.frac_coords,
         )
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == PDOS_F_2s_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.down].tolist() == PDOS_F_2s_down
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == PDOS_F_2py_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.down].tolist() == PDOS_F_2py_down
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == PDOS_F_2pz_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.down].tolist() == PDOS_F_2pz_down
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == PDOS_F_2px_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.down].tolist() == PDOS_F_2px_down
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == pdos_f_2s_up
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.down].tolist() == pdos_f_2s_down
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == pdos_f_2py_up
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.down].tolist() == pdos_f_2py_down
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == pdos_f_2pz_up
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.down].tolist() == pdos_f_2pz_down
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == pdos_f_2px_up
+        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.down].tolist() == pdos_f_2px_down
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
-        PDOS_F_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
-        PDOS_F_2py = [0.00000, 0.00322, 0.00000, 0.51635, 0.00000, 0.00037]
-        PDOS_F_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
-        PDOS_F_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
+        pdos_f_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
+        pdos_f_2py = [0.00000, 0.00322, 0.00000, 0.51635, 0.00000, 0.00037]
+        pdos_f_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
+        pdos_f_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
 
         assert energies_nonspin == self.DOSCAR_nonspin_pol.completedos.energies.tolist()
 
@@ -746,42 +785,42 @@ class TestDoscar(unittest.TestCase):
 
         assert self.DOSCAR_nonspin_pol.completedos.structure == self.structure
 
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == PDOS_F_2s
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == PDOS_F_2py
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == PDOS_F_2pz
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == PDOS_F_2px
+        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == pdos_f_2s
+        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == pdos_f_2py
+        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == pdos_f_2pz
+        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == pdos_f_2px
 
     def test_pdos(self):
         # first for spin polarized version
 
-        PDOS_F_2s_up = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
-        PDOS_F_2s_down = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
-        PDOS_F_2py_up = [0.00000, 0.00160, 0.00000, 0.25801, 0.00000, 0.00029]
-        PDOS_F_2py_down = [0.00000, 0.00161, 0.00000, 0.25819, 0.00000, 0.00029]
-        PDOS_F_2pz_up = [0.00000, 0.00161, 0.00000, 0.25823, 0.00000, 0.00029]
-        PDOS_F_2pz_down = [0.00000, 0.00160, 0.00000, 0.25795, 0.00000, 0.00029]
-        PDOS_F_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
-        PDOS_F_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
+        pdos_f_2s_up = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
+        pdos_f_2s_down = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
+        pdos_f_2py_up = [0.00000, 0.00160, 0.00000, 0.25801, 0.00000, 0.00029]
+        pdos_f_2py_down = [0.00000, 0.00161, 0.00000, 0.25819, 0.00000, 0.00029]
+        pdos_f_2pz_up = [0.00000, 0.00161, 0.00000, 0.25823, 0.00000, 0.00029]
+        pdos_f_2pz_down = [0.00000, 0.00160, 0.00000, 0.25795, 0.00000, 0.00029]
+        pdos_f_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
+        pdos_f_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
 
-        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.up].tolist() == PDOS_F_2s_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.down].tolist() == PDOS_F_2s_down
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.up].tolist() == PDOS_F_2py_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.down].tolist() == PDOS_F_2py_down
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.up].tolist() == PDOS_F_2pz_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.down].tolist() == PDOS_F_2pz_down
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.up].tolist() == PDOS_F_2px_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.down].tolist() == PDOS_F_2px_down
+        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.up].tolist() == pdos_f_2s_up
+        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.down].tolist() == pdos_f_2s_down
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.up].tolist() == pdos_f_2py_up
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.down].tolist() == pdos_f_2py_down
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.up].tolist() == pdos_f_2pz_up
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.down].tolist() == pdos_f_2pz_down
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.up].tolist() == pdos_f_2px_up
+        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.down].tolist() == pdos_f_2px_down
 
         # non spin
-        PDOS_F_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
-        PDOS_F_2py = [0.00000, 0.00322, 0.00000, 0.51635, 0.00000, 0.00037]
-        PDOS_F_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
-        PDOS_F_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
+        pdos_f_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
+        pdos_f_2py = [0.00000, 0.00322, 0.00000, 0.51635, 0.00000, 0.00037]
+        pdos_f_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
+        pdos_f_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
 
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2s"][Spin.up].tolist() == PDOS_F_2s
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_y"][Spin.up].tolist() == PDOS_F_2py
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_z"][Spin.up].tolist() == PDOS_F_2pz
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_x"][Spin.up].tolist() == PDOS_F_2px
+        assert self.DOSCAR_nonspin_pol.pdos[0]["2s"][Spin.up].tolist() == pdos_f_2s
+        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_y"][Spin.up].tolist() == pdos_f_2py
+        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_z"][Spin.up].tolist() == pdos_f_2pz
+        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_x"][Spin.up].tolist() == pdos_f_2px
 
     def test_tdos(self):
         # first for spin polarized version
@@ -1758,25 +1797,25 @@ class TestLobsterin(unittest.TestCase):
         # get basis functions
         lobsterin1 = Lobsterin({})
         potcar = Potcar.from_file(f"{TEST_FILES_DIR}/POTCAR.Fe3O4")
-        Potcar_names = [name["symbol"] for name in potcar.spec]
+        potcar_names = [name["symbol"] for name in potcar.spec]
 
         assert lobsterin1.get_basis(
             Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif"),
-            potcar_symbols=Potcar_names,
+            potcar_symbols=potcar_names,
         ) == ["Fe 3d 4p 4s ", "O 2p 2s "]
         potcar = Potcar.from_file(f"{TEST_FILES_DIR}/cohp/POTCAR.GaAs")
-        Potcar_names = [name["symbol"] for name in potcar.spec]
+        potcar_names = [name["symbol"] for name in potcar.spec]
         assert lobsterin1.get_basis(
             Structure.from_file(f"{TEST_FILES_DIR}/cohp/POSCAR.GaAs"),
-            potcar_symbols=Potcar_names,
+            potcar_symbols=potcar_names,
         ) == ["Ga 3d 4p 4s ", "As 4p 4s "]
 
     def test_get_all_possible_basis_functions(self):
         potcar = Potcar.from_file(f"{TEST_FILES_DIR}/POTCAR.Fe3O4")
-        Potcar_names = [name["symbol"] for name in potcar.spec]
+        potcar_names = [name["symbol"] for name in potcar.spec]
         result = Lobsterin.get_all_possible_basis_functions(
             Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif"),
-            potcar_symbols=Potcar_names,
+            potcar_symbols=potcar_names,
         )
         assert result[0] == {"Fe": "3d 4s", "O": "2p 2s"}
         assert result[1] == {"Fe": "3d 4s 4p", "O": "2p 2s"}
@@ -1984,9 +2023,9 @@ class TestLobsterin(unittest.TestCase):
 
     def test_msonable_implementation(self):
         # tests as dict and from dict methods
-        newLobsterin = Lobsterin.from_dict(self.Lobsterinfromfile.as_dict())
-        assert newLobsterin == self.Lobsterinfromfile
-        newLobsterin.to_json()
+        new_lobsterin = Lobsterin.from_dict(self.Lobsterinfromfile.as_dict())
+        assert new_lobsterin == self.Lobsterinfromfile
+        new_lobsterin.to_json()
 
 
 class TestBandoverlaps(unittest.TestCase):

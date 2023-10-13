@@ -630,7 +630,7 @@ For a list of points given in standard coordinates (in terms of e1, e2 and e3), 
 expressed in the basis (uu, vv, nn), which is supposed to be orthonormal.
 :param uu: First vector of the basis
 :param vv: Second vector of the basis
-:param nn: Third vector of the bais
+:param nn: Third vector of the basis
 :param pps: List of points in basis (e1, e2, e3)
 :returns: List of points in basis (uu, vv, nn).
 
@@ -647,7 +647,7 @@ largest_triangle is defined as the right triangle whose legs are the two smalles
 > |p2-p1|
 > ```
 
-> ,|p3-p1|,|p3-p2|) x secondmin(
+> ,|p3-p1|,|p3-p2|) x second_min(
 
 > ```
 > |p2-p1|

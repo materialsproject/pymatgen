@@ -225,32 +225,29 @@ class Slab(Structure):
         spga = SpacegroupAnalyzer(self)
         symm_structure = spga.get_symmetrized_structure()
 
-        def equi_index(site):
-            for i, equi_sites in enumerate(symm_structure.equivalent_sites):
+        def equi_index(site) -> int:
+            for idx, equi_sites in enumerate(symm_structure.equivalent_sites):
                 if site in equi_sites:
-                    return i
+                    return idx
             raise ValueError("Cannot determine equi index!")
 
-        for surface_site, shift in [
-            (sorted_csites[0], slab_ratio),
-            (sorted_csites[-1], -slab_ratio),
-        ]:
-            tomove = []
+        for surface_site, shift in [(sorted_csites[0], slab_ratio), (sorted_csites[-1], -slab_ratio)]:
+            to_move = []
             fixed = []
             for site in sites:
                 if abs(site.c - surface_site.c) < tol and (
                     (not same_species_only) or site.species == surface_site.species
                 ):
-                    tomove.append(site)
+                    to_move.append(site)
                 else:
                     fixed.append(site)
 
             # Sort and group the sites by the species and symmetry equivalence
-            tomove = sorted(tomove, key=lambda s: equi_index(s))
+            to_move = sorted(to_move, key=equi_index)
 
-            grouped = [list(sites) for k, sites in itertools.groupby(tomove, key=lambda s: equi_index(s))]
+            grouped = [list(sites) for k, sites in itertools.groupby(to_move, key=equi_index)]
 
-            if len(tomove) == 0 or any(len(g) % 2 != 0 for g in grouped):
+            if len(to_move) == 0 or any(len(g) % 2 != 0 for g in grouped):
                 warnings.warn(
                     "Odd number of sites to divide! Try changing "
                     "the tolerance to ensure even division of "
@@ -266,7 +263,7 @@ class Slab(Structure):
                 species = [site.species for site in fixed]
                 fcoords = [site.frac_coords for site in fixed]
 
-                for s in tomove:
+                for s in to_move:
                     species.append(s.species)
                     for group in selection:
                         if s in group:
@@ -435,7 +432,7 @@ class Slab(Structure):
         slab structure from the Slab class(in [0, 0, 1]).
 
         Args:
-            indices ([int]): Indices of sites on which to put the absorbate.
+            indices ([int]): Indices of sites on which to put the adsorbate.
                 Absorbed atom will be displaced relative to the center of
                 these sites.
             specie (Species/Element/str): adsorbed atom species
@@ -450,20 +447,20 @@ class Slab(Structure):
         self.append(specie, coords, coords_are_cartesian=True)
 
     def __str__(self):
+        def to_s(x):
+            return f"{x:0.6f}"
+
         comp = self.composition
         outs = [
             f"Slab Summary ({comp.formula})",
             f"Reduced Formula: {comp.reduced_formula}",
             f"Miller index: {self.miller_index}",
             f"Shift: {self.shift:.4f}, Scale Factor: {self.scale_factor}",
+            "abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc),
+            "angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles),
+            f"Sites ({len(self)})",
         ]
 
-        def to_s(x):
-            return f"{x:0.6f}"
-
-        outs.append("abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc))
-        outs.append("angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles))
-        outs.append(f"Sites ({len(self)})")
         for i, site in enumerate(self):
             outs.append(
                 " ".join(
@@ -775,7 +772,6 @@ class SlabGenerator:
             reorient_lattice (bool): reorients the lattice parameters such that
                 the c direction is the third vector of the lattice matrix
         """
-        # pylint: disable=E1130
         # Add Wyckoff symbols of the bulk, will help with
         # identifying types of sites in the slab system
         if (
@@ -1031,13 +1027,11 @@ class SlabGenerator:
                             if c_range[1] > 1:
                                 # Takes care of PBC when c coordinate of site
                                 # goes beyond the upper boundary of the cell
-                                c_ranges.append((c_range[0], 1))
-                                c_ranges.append((0, c_range[1] - 1))
+                                c_ranges.extend(((c_range[0], 1), (0, c_range[1] - 1)))
                             elif c_range[0] < 0:
                                 # Takes care of PBC when c coordinate of site
                                 # is below the lower boundary of the unit cell
-                                c_ranges.append((0, c_range[1]))
-                                c_ranges.append((c_range[0] + 1, 1))
+                                c_ranges.extend(((0, c_range[1]), (c_range[0] + 1, 1)))
                             elif c_range[0] != c_range[1]:
                                 c_ranges.append((c_range[0], c_range[1]))
         return c_ranges
@@ -1174,11 +1168,11 @@ class SlabGenerator:
                         # find its NNs with the corresponding
                         # species it should be coordinated with
                         neighbors = slab.get_neighbors(slab[i], blength, include_index=True)
-                        tomove = [nn[2] for nn in neighbors if nn[0].species_string == element2]
-                        tomove.append(i)
+                        to_move = [nn[2] for nn in neighbors if nn[0].species_string == element2]
+                        to_move.append(i)
                         # and then move those NNs along with the central
                         # atom back to the other side of the slab again
-                        slab = self.move_to_other_side(slab, tomove)
+                        slab = self.move_to_other_side(slab, to_move)
 
         return slab
 

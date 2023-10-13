@@ -232,7 +232,6 @@ class EOSBase(metaclass=ABCMeta):
         Returns:
             plt.Figure: matplotlib figure.
         """
-        # pylint: disable=E1307
         ax, fig = get_ax_fig(ax=ax)
 
         color = kwargs.get("color", "r")

@@ -2610,7 +2610,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
             return None
         cn_maps = []
         for cn, nb_sets in site_nb_sets.items():
-            for inb_set, _ in enumerate(nb_sets):
+            for inb_set in range(len(nb_sets)):
                 # CHECK THE ADDITIONAL CONDITION HERE ?
                 cn_maps.append((cn, inb_set))
         weights_additional_info = {"weights": {isite: {}}}
@@ -2774,7 +2774,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         if isite is None or dequivsite is None or dthissite is None or mysym is None:
             isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
         return [
-            self.get_site_coordination_environment(  # pylint: disable=E1123
+            self.get_site_coordination_environment(
                 site=site,
                 isite=isite,
                 dequivsite=dequivsite,

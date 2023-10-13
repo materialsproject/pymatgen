@@ -265,7 +265,7 @@ $theory_spec
         title = title if title is not None else f"{formula} {theory} {operation}"
 
         charge = charge if charge is not None else mol.charge
-        n_electrons = -charge + mol.charge + mol.nelectrons  # pylint: disable=E1130
+        n_electrons = -charge + mol.charge + mol.nelectrons
         if spin_multiplicity is not None:
             if (n_electrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(f"{charge=} and {spin_multiplicity=} is not possible for this molecule")
@@ -364,21 +364,20 @@ class NwInput(MSONable):
         return self._mol
 
     def __str__(self):
-        o = []
+        out = []
         if self.memory_options:
-            o.append("memory " + self.memory_options)
+            out.append("memory " + self.memory_options)
         for d in self.directives:
-            o.append(f"{d[0]} {d[1]}")
-        o.append("geometry " + " ".join(self.geometry_options))
+            out.append(f"{d[0]} {d[1]}")
+        out.append("geometry " + " ".join(self.geometry_options))
         if self.symmetry_options:
-            o.append(" symmetry " + " ".join(self.symmetry_options))
+            out.append(" symmetry " + " ".join(self.symmetry_options))
         for site in self._mol:
-            o.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}")
-        o.append("end\n")
+            out.append(f" {site.specie.symbol} {site.x} {site.y} {site.z}")
+        out.append("end\n")
         for t in self.tasks:
-            o.append(str(t))
-            o.append("")
-        return "\n".join(o)
+            out.extend((str(t), ""))
+        return "\n".join(out)
 
     def write_file(self, filename):
         """
@@ -739,7 +738,6 @@ class NwOutput:
         time = 0
 
         for line in output.split("\n"):
-            # pylint: disable=E1136
             for e, v in error_defs.items():
                 if line.find(e) != -1:
                     errors.append(v)

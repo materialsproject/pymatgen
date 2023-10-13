@@ -93,7 +93,6 @@ class _MPResterBasic:
                 f"{item} is not an attribute of this implementation of MPRester, which only supports functionality"
                 "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
             )
-        raise AttributeError
 
     def __enter__(self):
         """Support for "with" context."""
@@ -140,10 +139,14 @@ class _MPResterBasic:
                 MPRester().summary.search(material_ids="mp-19770,mp-19017", _fields="formula_pretty,energy_above_hull")
         """
         criteria = {k: v for k, v in kwargs.items() if not k.startswith("_")}
-        params = [f"{k}={v}" for k, v in kwargs.items() if k.startswith("_")]
-        if "_fields" not in params:
+        params = [f"{k}={v}" for k, v in kwargs.items() if k.startswith("_") and k != "_fields"]
+        if "_fields" not in kwargs:
             params.append("_all_fields=True")
+        else:
+            fields = ",".join(kwargs["_fields"]) if isinstance(kwargs["_fields"], list) else kwargs["_fields"]
+            params.extend((f"_fields={fields}", "_all_fields=False"))
         get = "&".join(params)
+        logger.info(f"query={get}")
         return self.request(f"materials/summary?{get}", payload=criteria)
 
     def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
@@ -387,14 +390,14 @@ class MPRester:
         if len(api_key) != 32:
             from pymatgen.ext.matproj_legacy import _MPResterLegacy
 
-            return _MPResterLegacy.__new__(cls)
+            return _MPResterLegacy(*args, **kwargs)
 
         try:
             from mp_api.client import MPRester as _MPResterNew
 
-            return _MPResterNew.__new__(cls)
+            return _MPResterNew(*args, **kwargs)
         except Exception:
-            return _MPResterBasic.__new__(cls)
+            return _MPResterBasic(*args, **kwargs)
 
 
 class MPRestError(Exception):

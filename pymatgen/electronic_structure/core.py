@@ -12,9 +12,7 @@ from monty.json import MSONable
 
 @unique
 class Spin(Enum):
-    """Enum type for Spin. Only up and down.
-    Usage: Spin.up, Spin.down.
-    """
+    """Enum type for Spin. Only up and down. Usage: Spin.up, Spin.down."""
 
     up, down = 1, -1
 
@@ -73,7 +71,6 @@ class Orbital(Enum):
     @property
     def orbital_type(self):
         """Returns OrbitalType of an orbital."""
-        # pylint: disable=E1136
         return OrbitalType[self.name[0]]
 
 

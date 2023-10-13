@@ -226,11 +226,11 @@ class CorrectionCalculator:
         with warnings.catch_warnings():
             # numpy raises warning if the entire array is nan values
             warnings.simplefilter("ignore", category=RuntimeWarning)
-            mean_uncer = np.nanmean(sigma)
+            mean_uncert = np.nanmean(sigma)
 
-        sigma = np.where(np.isnan(sigma), mean_uncer, sigma)
+        sigma = np.where(np.isnan(sigma), mean_uncert, sigma)
 
-        if np.isnan(mean_uncer):
+        if np.isnan(mean_uncert):
             # no uncertainty values for any compounds, don't try to weight
             popt, self.pcov = curve_fit(
                 lambda x, *m: np.dot(x, m), self.coeff_mat, self.diffs, p0=np.ones(len(self.species))
@@ -275,20 +275,17 @@ class CorrectionCalculator:
                 mode="markers",
                 text=labels_graph,
             ),
-            layout=go.Layout(
-                title=go.layout.Title(text="Residual Errors"),
-                yaxis=go.layout.YAxis(title=go.layout.yaxis.Title(text="Residual Error (eV/atom)")),
-            ),
+            layout=dict(title="Residual Errors", yaxis=dict(title="Residual Error (eV/atom)")),
         )
 
         print("Residual Error:")
-        print(f"Median = {np.median(np.array(abs_errors))}")
-        print(f"Mean = {np.mean(np.array(abs_errors))}")
-        print(f"Std Dev = {np.std(np.array(abs_errors))}")
+        print(f"Median = {np.median(abs_errors)}")
+        print(f"Mean = {np.mean(abs_errors)}")
+        print(f"Std Dev = {np.std(abs_errors)}")
         print("Original Error:")
-        print(f"Median = {abs(np.median(np.array(self.diffs)))}")
-        print(f"Mean = {abs(np.mean(np.array(self.diffs)))}")
-        print(f"Std Dev = {np.std(np.array(self.diffs))}")
+        print(f"Median = {abs(np.median(self.diffs))}")
+        print(f"Mean = {abs(np.mean(self.diffs))}")
+        print(f"Std Dev = {np.std(self.diffs)}")
 
         return fig
 
@@ -342,9 +339,9 @@ class CorrectionCalculator:
                 mode="markers",
                 text=labels_species,
             ),
-            layout=go.Layout(
-                title=go.layout.Title(text="Residual Errors for " + specie),
-                yaxis=go.layout.YAxis(title=go.layout.yaxis.Title(text="Residual Error (eV/atom)")),
+            layout=dict(
+                title=dict(text=f"Residual Errors for {specie}"),
+                yaxis=dict(title="Residual Error (eV/atom)"),
             ),
         )
 

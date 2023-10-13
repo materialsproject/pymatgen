@@ -93,7 +93,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     @property
     def potcar_symbols(self):
         """List of POTCAR symbols."""
-        # pylint: disable=E1101
+
         elements = self.poscar.site_symbols
         potcar_symbols = []
         settings = self._config_dict["POTCAR"]
@@ -977,10 +977,10 @@ class MPScanRelaxSet(DictSet):
         if self.bandgap < 1e-4:
             updates.update(KSPACING=0.22, SIGMA=0.2, ISMEAR=2)
         else:
-            rmin = 25.22 - 2.87 * bandgap  # Eq. 25
+            rmin = max(1.5, 25.22 - 2.87 * bandgap)  # Eq. 25
             kspacing = 2 * np.pi * 1.0265 / (rmin - 1.0183)  # Eq. 29
             # cap the KSPACING at a max of 0.44, per internal benchmarking
-            updates.update(KSPACING=kspacing if 0.22 < kspacing < 0.44 else 0.44, SIGMA=0.05, ISMEAR=-5)
+            updates.update(KSPACING=np.clip(kspacing, 0.22, 0.44), SIGMA=0.05, ISMEAR=-5)
 
         # Don't overwrite things the user has supplied
         for key in self.user_incar_settings:
@@ -2525,7 +2525,7 @@ class MITNEBSet(DictSet):
         if write_path_cif:
             sites = set()
             lat = self.structures[0].lattice
-            for site in chain(*(s.sites for s in self.structures)):
+            for site in chain(*(struct for struct in self.structures)):
                 sites.add(PeriodicSite(site.species, site.frac_coords, lat))
             nebpath = Structure.from_sites(sorted(sites))
             nebpath.to(filename=str(output_dir / "path.cif"))

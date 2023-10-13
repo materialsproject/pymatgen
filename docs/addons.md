@@ -27,7 +27,7 @@ Please submit a pull request to update this page when if release a new add-on pa
 * [pymatgen-io-fleur](http://pypi.org/project/pymatgen-io-fleur): Provides modules for reading and writing files used by the [`fleur`](https://www.flapw.de/rel) DFT code. This package is maintained by the juDFT team.
 * [pymatgen-io-openmm](https://github.com/orionarcher/pymatgen-io-openmm): Provides easy IO for performing molecular dynamics on solutions with OpenMM. This package is maintained by Orion Archer Cohen.
 
-# External Tools
+## External Tools
 
 If you would like your own tool to be listed here, please submit a PR. For a more complete but less curated list, have a
 look at [pymatgen dependents](https://github.com/materialsproject/pymatgen/network/dependents).

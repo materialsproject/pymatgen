@@ -171,7 +171,7 @@ class HeisenbergMapper:
         all_dists = []
 
         # Loop over unique sites and get neighbor distances up to NNNN
-        for k in unique_site_ids:  # pylint: disable=C0206
+        for k in unique_site_ids:
             i = k[0]
             i_key = unique_site_ids[k]
             connected_sites = sgraph.get_connected_sites(i)
@@ -198,7 +198,7 @@ class HeisenbergMapper:
         dists = dict(zip(labels, all_dists))
 
         # Get dictionary keys for interactions
-        for k in unique_site_ids:  # pylint: disable=C0206
+        for k in unique_site_ids:
             i = k[0]
             i_key = unique_site_ids[k]
             connected_sites = sgraph.get_connected_sites(i)

@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, Literal, no_type_check
 
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from matplotlib import cm
 from monty.json import MontyDecoder, MSONable
 from scipy import interpolate
@@ -1294,10 +1294,10 @@ class PhaseDiagram(MSONable):
                             min_open = test_open
                             min_mus = v
 
-        elts = [e for e in self.elements if e != open_elt]
+        elems = [e for e in self.elements if e != open_elt]
         res = {}
 
-        for i, el in enumerate(elts):
+        for i, el in enumerate(elems):
             res[el] = (min_mus[i] + muref[i], max_mus[i] + muref[i])
 
         res[open_elt] = (min_open, max_open)
@@ -1943,7 +1943,7 @@ class ReactionDiagram:
                     coeffs = np.linalg.solve(matrix, comp_vec2)
 
                     x = coeffs[-1]
-                    # pylint: disable=R1716
+
                     if all(c >= -tol for c in coeffs) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
                         c1 = x / r1.num_atoms
                         c2 = (1 - x) / r2.num_atoms
@@ -2082,7 +2082,7 @@ def _get_slsqp_decomp(
     for j, comp_entry in enumerate(competing_entries):
         amts = comp_entry.composition.get_el_amt_dict()
         for i, el in enumerate(chemical_space):
-            A_transpose[i, j] = amts[el]
+            A_transpose[i, j] = amts.get(el, 0)
 
     # NOTE normalize arrays to avoid calls to fractional_composition
     b = b / np.sum(b)
@@ -3433,7 +3433,7 @@ class PDPlotter:
             error = stable_marker_plot.error_y["array"]
 
             points = np.append(x, [y, error]).reshape(3, -1).T
-            points = points[points[:, 0].argsort()]  # sort by composition  # pylint: disable=E1136
+            points = points[points[:, 0].argsort()]  # sort by composition
 
             # these steps trace out the boundary pts of the uncertainty window
             outline = points[:, :2].copy()
@@ -3847,7 +3847,7 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
             f"{nameup!r}, {nameleft!r} and {nameright!r} should be in ordering : {ordering}"
         )
 
-    cc = np.array([0.5, np.sqrt(3.0) / 6.0], np.float_)
+    cc = np.array([0.5, np.sqrt(3.0) / 6.0], float)
 
     if nameup == ordering[0]:
         if nameleft == ordering[1]:

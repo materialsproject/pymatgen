@@ -55,7 +55,8 @@ repos:
     hooks:
       - id: markdownlint
         # MD013: line too long
+        # MD024: Multiple headings with the same content
         # MD033: no inline HTML
         # MD041: first line in a file should be a top-level heading
         # MD025: single title
-        args: [--disable, MD013, MD025, MD033, MD041, "--"]
+        args: [--disable, MD013, MD024, MD025, MD033, MD041, "--"]

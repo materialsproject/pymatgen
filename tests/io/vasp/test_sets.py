@@ -96,9 +96,10 @@ class TestSetChangeCheck(PymatgenTest):
     def test_sets_changed(self):
         msg = (
             "WARNING! These tests will fail when you change an input set. They are included "
-            "as a sanity check: if you want to change an input set, please make sure to "
+            "as a sanity check. When changing an input set, please make sure to "
             "notify the users for that set. For sets starting with 'MVL' this is @shyuep, for "
-            "sets starting with 'MP' this is @shyuep and @mkhorton. "
+            "sets starting with 'MP' this is @shyuep and @mkhorton. For sets starting with 'MatPES' "
+            "this is @shyuep and @janosh."
         )
 
         input_sets = glob(f"{MODULE_DIR}/*.yaml")
@@ -110,22 +111,21 @@ class TestSetChangeCheck(PymatgenTest):
                 hashes[name] = hashlib.sha1(text).hexdigest()
 
         known_hashes = {
+            "MatPESStaticSet.yaml": "8789f974913c935f21ff2fbffc0502714ca39470",
+            "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
+            "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
+            "MPHSERelaxSet.yaml": "0d0d96a620461071cfd416ec9d5d6a8d2dfd0855",
+            "MPRelaxSet.yaml": "f2949cdc5dc8cd0bee6d39a5df0d6a6b7c144821",
+            "MPSCANRelaxSet.yaml": "2d31ee637cb5d4d96f2e0aba3772a52cbcceb348",
             "MVLGWSet.yaml": "104ae93c3b3be19a13b0ee46ebdd0f40ceb96597",
             "MVLRelax52Set.yaml": "4cfc6b1bd0548e45da3bde4a9c65b3249da13ecd",
-            "MPHSERelaxSet.yaml": "0d0d96a620461071cfd416ec9d5d6a8d2dfd0855",
-            "VASPIncarBase.yaml": "19762515f8deefb970f2968fca48a0d67f7964d4",
-            "MPSCANRelaxSet.yaml": "2d31ee637cb5d4d96f2e0aba3772a52cbcceb348",
-            "MPRelaxSet.yaml": "f2949cdc5dc8cd0bee6d39a5df0d6a6b7c144821",
-            "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
-            "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
-            "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
-            "MatPESStaticSet.yaml": "3a7cfef8143dbe32d3856c6945eb9ac9bd8b85c6",
             "PBE54Base.yaml": "ec317781a7f344beb54c17a228db790c0eb49282",
+            "VASPIncarBase.yaml": "19762515f8deefb970f2968fca48a0d67f7964d4",
+            "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
         }
 
-        assert hashes == known_hashes, msg
         for input_set in hashes:
-            assert hashes[input_set] == known_hashes[input_set], msg
+            assert hashes[input_set] == known_hashes[input_set], f"{input_set} got {hashes[input_set]}\n\n{msg}"
 
 
 class TestDictSet(PymatgenTest):
@@ -196,10 +196,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert s_sorted[0].specie.symbol == "Mn"
 
     def test_potcar_symbols(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
-        coords.append([0.75, 0.25, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75], [0.75, 0.25, 0.75]]
         lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
         structure = Structure(lattice, ["P", "Fe", "O"], coords)
         mit_param_set = self.set(structure)
@@ -297,8 +294,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         si = 14
         coords = []
-        coords.append(np.array([0, 0, 0]))
-        coords.append(np.array([0.75, 0.5, 0.75]))
+        coords.extend((np.array([0, 0, 0]), np.array([0.75, 0.5, 0.75])))
 
         # Silicon structure for testing.
         lattice = Lattice(
@@ -308,9 +304,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         incar = MPRelaxSet(struct).incar
         assert "LDAU" not in incar
 
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice(
             [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         )
@@ -363,11 +357,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert "ENCUT" not in no_encut_set.incar
 
         # sulfide vs sulfate test
-
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
-        coords.append([0.25, 0.5, 0])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75], [0.25, 0.5, 0]]
 
         struct = Structure(lattice, ["Fe", "Fe", "S"], coords)
         incar = self.set(struct).incar
@@ -785,6 +775,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
         assert incar["SIGMA"] == 0.05
+        assert incar["LMAXMIX"] == 6
         # test POTCAR files are default PBE_54 PSPs and functional
         assert input_set.potcar_symbols == ["Fe_pv", "P", "O"]
         assert input_set.potcar.functional == "PBE_54"
@@ -795,7 +786,7 @@ class TestMatPESStaticSet(PymatgenTest):
     def test_with_prev_incar(self):
         default_prev = MatPESStaticSet(structure=self.struct, prev_incar=self.prev_incar)
         incar = default_prev.incar
-        # test if prev_incar is used.
+        # check that prev_incar is used.
         assert incar["NPAR"] == 8
         assert incar["LMAXMIX"] == 4
         # test some incar parameters from prev_incar are not inherited
@@ -1565,11 +1556,11 @@ class TestMPScanRelaxSet(PymatgenTest):
         # Test that KSPACING is capped at 0.44 for insulators
         file_path = f"{TEST_FILES_DIR}/POSCAR.O2"
         struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
-        for bandgap, expected in ((10, 0.44), (3, 0.4136617), (1.1, 0.3064757)):
+        for bandgap, expected in ((10, 0.44), (3, 0.4136617), (1.1, 0.3064757), (0.5, 0.2832948), (0, 0.22)):
             incar = MPScanRelaxSet(struct, bandgap=bandgap).incar
             assert incar["KSPACING"] == approx(expected, abs=1e-5)
-            assert incar["ISMEAR"] == -5
-            assert incar["SIGMA"] == 0.05
+            assert incar["ISMEAR"] == -5 if bandgap > 1e-4 else 2
+            assert incar["SIGMA"] == 0.05 if bandgap > 1e-4 else 0.2
 
     def test_incar_overrides(self):
         # use 'user_incar_settings' to override the KSPACING, ISMEAR, and SIGMA

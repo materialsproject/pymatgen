@@ -1281,7 +1281,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         all_nbs_sites_indices = []
         neighbors_sets = []
         counter = 0
-        for isite, _site in enumerate(structure):
+        for isite in range(len(structure)):
             # all_nbs_sites_here=[]
             all_nbs_sites_indices_here = []
             # Coordination environment

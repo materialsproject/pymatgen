@@ -262,7 +262,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     species = ["X"] * len(voro_node_mol)
     coords = []
     prop = []
-    for site in voro_node_mol.sites:
+    for site in voro_node_mol:
         coords.append(list(site.coords))
         prop.append(site.properties["voronoi_radius"])
 
@@ -349,7 +349,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
     species = ["X"] * len(voro_node_mol)
     coords = []
     prop = []
-    for site in voro_node_mol.sites:
+    for site in voro_node_mol:
         coords.append(list(site.coords))
         prop.append(site.properties["voronoi_radius"])
 

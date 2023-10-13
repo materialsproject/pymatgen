@@ -651,8 +651,7 @@ class CoordinationGeometry:
             outs.append("  - list of points :")
             for pp in self.points:
                 outs.append(f"    - {pp}")
-        outs.append("------------------------------------------------------------")
-        outs.append("")
+        outs.extend(("------------------------------------------------------------", ""))
 
         return "\n".join(outs)
 
@@ -670,8 +669,7 @@ class CoordinationGeometry:
             f"Coordination geometry type : {self.name}{symbol}\n",
             f"  - coordination number : {self.coordination}",
         ]
-        outs.append("------------------------------------------------------------")
-        outs.append("")
+        outs.extend(("------------------------------------------------------------", ""))
         return "\n".join(outs)
 
     def __len__(self):
@@ -701,7 +699,7 @@ class CoordinationGeometry:
             else:
                 min_dist_anions = 1000000.0
                 min_dist_cation_anion = 1000000.0
-                for ipt1 in range(len(self.points)):  # pylint: disable=C0200
+                for ipt1 in range(len(self.points)):
                     pt1 = np.array(self.points[ipt1])
                     min_dist_cation_anion = min(min_dist_cation_anion, np.linalg.norm(pt1 - self.central_site))
                     for ipt2 in range(ipt1 + 1, len(self.points)):
@@ -759,9 +757,9 @@ class CoordinationGeometry:
         """Returns the number of permutations of this coordination geometry."""
         if self.permutations_safe_override:
             return factorial(self.coordination)
-        if self.permutations is None:  # pylint: disable=E1101
+        if self.permutations is None:
             return factorial(self.coordination)
-        return len(self.permutations)  # pylint: disable=E1101
+        return len(self.permutations)
 
     def ref_permutation(self, permutation):
         """

@@ -10,8 +10,9 @@ import numpy as np
 import pytest
 import scipy.constants as const
 from monty.io import zopen
+from monty.serialization import loadfn
 from numpy.testing import assert_allclose
-from pytest import approx
+from pytest import MonkeyPatch, approx
 
 from pymatgen.core import SETTINGS
 from pymatgen.core.composition import Composition
@@ -21,11 +22,13 @@ from pymatgen.io.vasp.inputs import (
     BadIncarWarning,
     Incar,
     Kpoints,
+    KpointsSupportedModes,
     Poscar,
     Potcar,
     PotcarSingle,
     UnknownPotcarWarning,
     VaspInput,
+    _gen_potcar_summary_stats,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -183,9 +186,7 @@ cart
 
     def test_significant_figures(self):
         si = 14
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
         latt = [
@@ -212,9 +213,7 @@ direct
 
     def test_str(self):
         si = 14
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
         latt = [
@@ -332,9 +331,7 @@ direct
 
     def test_velocities(self):
         si = 14
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
 
         # Silicon structure for testing.
         latt = [
@@ -695,7 +692,7 @@ SIGMA = 0.1"""
 
     def test_check_params(self):
         # Triggers warnings when running into nonsensical parameters
-        with pytest.warns(BadIncarWarning):
+        with pytest.warns(BadIncarWarning) as record:
             incar = Incar(
                 {
                     "ADDGRID": True,
@@ -708,7 +705,7 @@ SIGMA = 0.1"""
                     "ENCUT": 520,
                     "IBRION": 2,
                     "ICHARG": 1,
-                    "ISIF": 3,
+                    "ISIF": 9,
                     "ISMEAR": 1,
                     "ISPIN": 2,
                     "LASPH": 5,  # Should be a bool
@@ -733,6 +730,26 @@ SIGMA = 0.1"""
                 }
             )
             incar.check_params()
+
+        assert "ISIF: Cannot find 9 in the list of parameters" in record[0].message.args
+        assert "LASPH: 5 is not a bool" in record[1].message.args
+        assert "METAGGA: Cannot find SCAM in the list of parameters" in record[2].message.args
+        assert "Cannot find NBAND in the list of INCAR flags" in record[3].message.args
+        assert "PHON_TLIST: is_a_str is not a list" in record[4].message.args
+
+
+class TestKpointsSupportedModes:
+    def test_from_str(self):
+        test_cases = "Automatic Gamma Monkhorst Line_mode Cartesian Reciprocal".split()
+        for input_str in test_cases:
+            expected = getattr(KpointsSupportedModes, input_str)
+            assert KpointsSupportedModes.from_str(input_str) == expected
+            assert KpointsSupportedModes.from_str(input_str.lower()) == expected  # case insensitive
+            assert KpointsSupportedModes.from_str(input_str[0]) == expected  # only first letter matters
+
+        mode = "InvalidMode"
+        with pytest.raises(ValueError, match=f"Invalid Kpoint {mode=}"):
+            KpointsSupportedModes.from_str(mode)
 
 
 class TestKpoints:
@@ -1210,3 +1227,64 @@ class TestVaspInput(PymatgenTest):
         dct = vi.as_dict()
         vasp_input = VaspInput.from_dict(dct)
         assert "CONTCAR.Li2O" in vasp_input
+
+
+def test_potcar_summary_stats() -> None:
+    from pymatgen.io.vasp.inputs import module_dir
+
+    potcar_summary_stats = loadfn(f"{module_dir}/potcar_summary_stats.json.gz")
+
+    assert len(potcar_summary_stats) == 16
+    n_potcars_per_functional = {
+        "PBE": 271,
+        "PBE_52": 303,
+        "PBE_54": 326,
+        "PBE_64": 343,
+        "LDA": 292,
+        "LDA_52": 274,
+        "LDA_54": 295,
+        "PW91": 169,
+        "LDA_US": 74,
+        "PW91_US": 75,
+        "Perdew_Zunger81": 292,
+        "PBE_52_W_HASH": 304,
+        "PBE_54_W_HASH": 327,
+        "LDA_52_W_HASH": 275,
+        "LDA_54_W_HASH": 295,
+        "LDA_64": 297,
+    }
+    assert {*potcar_summary_stats} == {*n_potcars_per_functional}
+
+    for key, expected in n_potcars_per_functional.items():
+        actual = len(potcar_summary_stats[key])
+        assert actual == expected, f"{key=}, {expected=}, {actual=}"
+
+
+def test_gen_potcar_summary_stats(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
+    """Regenerate the potcar_summary_stats.json.gz file used to validate POTCARs with scrambled POTCARs."""
+    psp_path = f"{TEST_FILES_DIR}/fake_potcar_library/"
+    summ_stats_file = f"{tmp_path}/fake_potcar_summary_stats.json.gz"
+    _gen_potcar_summary_stats(append=False, vasp_psp_dir=psp_path, summary_stats_filename=summ_stats_file)
+
+    # only checking for two directories to save space, fake POTCAR library is big
+    summ_stats = loadfn(summ_stats_file)
+    assert set(summ_stats) == (expected_funcs := {"LDA_64", "PBE_54_W_HASH"})
+
+    # The fake POTCAR library is pretty big even with just two sub-libraries
+    # just copying over entries to work with PotcarSingle.is_valid
+    for func in PotcarSingle.functional_dir:
+        if func in expected_funcs:
+            continue
+        if "pbe" in func.lower() or "pw91" in func.lower():
+            summ_stats[func] = summ_stats["PBE_54_W_HASH"].copy()
+        elif "lda" in func.lower() or "perdew_zunger81" in func.lower():
+            summ_stats[func] = summ_stats["LDA_64"].copy()
+
+    # override reference potcar_summary_stats with fake data
+    monkeypatch.setattr(PotcarSingle, "potcar_summary_stats", summ_stats)
+
+    for func in expected_funcs:
+        bdir = f"{psp_path}/{PotcarSingle.functional_dir[func]}"
+        valid_elements = [x for x in os.listdir(f"{bdir}") if x[0] != "." and os.path.isdir(f"{bdir}/{x}")]
+        for element in valid_elements:
+            assert PotcarSingle.from_file(f"{bdir}/POTCAR.{element}.gz").is_valid
